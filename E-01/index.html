@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>E-01 – Mục tiêu và Đánh giá cá nhân | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════
+   TOKENS — shadcn / zinc system
+═══════════════════════════════ */
+:root{
+  /* Zinc scale */
+  --z0:#ffffff;
+  --z50:#fafafa;
+  --z100:#f4f4f5;
+  --z200:#e4e4e7;
+  --z300:#d4d4d8;
+  --z400:#a1a1aa;
+  --z500:#71717a;
+  --z600:#52525b;
+  --z700:#3f3f46;
+  --z800:#27272a;
+  --z900:#18181b;
+  --z950:#09090b;
+
+  /* MoMo pink — accent only */
+  --brand:#A50064;
+  --brand-h:#8B0055;
+  --brand-fg:#ffffff;
+  --brand-muted:rgba(165,0,100,.07);
+  --brand-ring:rgba(165,0,100,.2);
+
+  /* Goal type */
+  --what:#2563eb;--what-bg:#eff6ff;--what-bd:#bfdbfe;
+  --dev:#7c3aed; --dev-bg:#f5f3ff; --dev-bd:#ddd6fe;
+  --how:#0f766e; --how-bg:#f0fdfa; --how-bd:#99f6e4;
+
+  /* Semantic */
+  --ok:#16a34a;   --ok-bg:#f0fdf4;   --ok-bd:#bbf7d0;
+  --warn:#d97706; --warn-bg:#fffbeb; --warn-bd:#fde68a;
+  --err:#dc2626;  --err-bg:#fef2f2;  --err-bd:#fecaca;
+  --info:#2563eb; --info-bg:#eff6ff; --info-bd:#bfdbfe;
+  --upd:#7c3aed;  --upd-bg:#f5f3ff;  --upd-bd:#ddd6fe;
+
+  /* Spacing/shape */
+  --sw:232px;--nh:52px;
+  --r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--brand);text-decoration:none}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+
+/* ── SHELL ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ── SIDEBAR ── */
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t);letter-spacing:.1px}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.role-btn:hover:not(.on){background:var(--z100);border-color:var(--z400);color:var(--z700)}
+
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500);transition:var(--t)}
+.sb-item:hover i{color:var(--z600)}.sb-item.on i{color:var(--brand)}
+
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0;background:var(--z0);position:sticky;bottom:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.sb-user:hover{background:var(--z100)}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:-.3px}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-what{background:var(--what-bg);color:var(--what)}
+.av-sm{width:24px;height:24px;font-size:10px}
+.av-xs{width:20px;height:20px;font-size:9px}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);border:none;background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative;cursor:pointer}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.notif-dot{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--err);border:1.5px solid var(--z0)}
+
+/* ── PAGE ── */
+.page{padding:20px 24px;flex:1}
+
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
+.breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800)}.bc-sep{color:var(--z400)}
+
+.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+
+.emp-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);flex-shrink:0}
+.ec-info{display:flex;flex-direction:column;gap:2px}
+.ec-line{font-size:12px;color:var(--z800);line-height:1.35}
+.ec-lbl{color:var(--z500);font-weight:500}
+.ec-dom{color:var(--z500);font-weight:400}
+
+/* ── CYCLE / TABS / TOOLBAR ── */
+.cycle-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.cycle-row i{font-size:14px;color:var(--z500)}
+.cycle-lbl{font-size:13px;color:var(--z500)}
+.cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);font-weight:500;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+.cycle-sel:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.cycle-period{font-size:12px;color:var(--z500)}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--z200);margin-bottom:16px}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:var(--z500);border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:5px;border-radius:var(--rsm) var(--rsm) 0 0}
+.tab-btn:not(.disabled):not(.on):hover{color:var(--z900);background:var(--z100)}
+.tab-btn.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:700}
+.tab-btn.disabled{color:var(--z400);cursor:not-allowed}
+.tab-cnt{padding:0 5px;height:16px;line-height:16px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--z100);color:var(--z500)}
+.tab-btn.on .tab-cnt{background:var(--brand-muted);color:var(--brand)}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.summary-text{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--z600);flex-wrap:wrap}
+.s-sep{color:var(--z400);padding:0 1px}
+.s-link{color:var(--z600);cursor:pointer;transition:var(--t);border-bottom:1px dashed transparent}
+.s-link b{color:var(--z900);font-weight:700}
+.s-link:hover{color:var(--brand);border-bottom-color:var(--brand)}
+.s-link:hover b{color:var(--brand)}
+.s-link.active{color:var(--brand)}
+.s-link.active b{color:var(--brand)}
+.s-all{display:none;align-items:center;gap:3px;margin-left:6px;padding:1px 9px;border-radius:50px;border:1px solid var(--z200);background:var(--z0);color:var(--z500);font-size:12px;font-weight:500;cursor:pointer;transition:var(--t)}
+.s-all.show{display:inline-flex}
+.s-all:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.s-all i{font-size:13px}
+.spacer{flex:1}
+.filter-box{position:relative;display:inline-flex;align-items:center}
+.filter-box>i{position:absolute;left:9px;font-size:15px;color:var(--z500);pointer-events:none}
+.filter-box select.fc{width:auto;padding:5px 26px 5px 30px;font-size:12.5px;font-weight:500;color:var(--z700);background-color:var(--z50)}
+.filter-box select.fc:hover{border-color:var(--z400)}
+
+/* Guidance card (info + process, unified) */
+.guide-box{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.guide-info{display:flex;gap:9px;align-items:flex-start;padding:11px 14px}
+.guide-info>i{color:var(--brand);font-size:18px;flex-shrink:0;margin-top:1px}
+.guide-info p{font-size:13px;color:var(--z700);line-height:1.55}
+.guide-info .proc-lbl{margin-top:2px;flex-shrink:0}
+.guide-info strong{color:var(--brand);font-weight:600}
+.guide-divider{height:1px;background:var(--z200)}
+.guide-process{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px}
+.proc-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-right:2px;white-space:nowrap;flex-shrink:0}
+.proc-step{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;background:var(--z0);border:1px solid var(--z200);border-radius:50px}
+.proc-num{width:20px;height:20px;border-radius:50%;background:var(--z400);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.proc-txt{font-size:12.5px;font-weight:500;color:var(--z800)}
+.proc-arrow{font-size:18px;color:var(--z500);flex-shrink:0}
+.edit-banner{display:flex;gap:9px;align-items:flex-start;padding:10px 13px;background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rsm);margin-bottom:14px}
+.edit-banner>i{color:var(--brand);font-size:17px;flex-shrink:0;margin-top:1px}
+.eb-lbl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);margin-bottom:2px}
+.eb-text{font-size:13px;color:var(--z700);line-height:1.5}
+.info-note{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--z500);line-height:1.5}
+.info-note>i{color:var(--brand);font-size:15px;flex-shrink:0;margin-top:1px}
+.cmt-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:28px 16px;color:var(--z500);font-size:13px;line-height:1.5}
+.cmt-empty>i{font-size:30px;color:var(--z400)}
+.imp-steps{list-style:none;display:flex;flex-direction:column;gap:14px;margin:0 0 14px;padding:0}
+.imp-step{display:flex;gap:10px;align-items:flex-start}
+.imp-step .proc-num{margin-top:1px}
+.imp-txt{flex:1;font-size:13px;color:var(--z700);line-height:1.55}
+.imp-txt strong{color:var(--z900);font-weight:600}
+.imp-drop{margin-top:8px;border:1px dashed var(--z300);border-radius:var(--rsm);padding:16px;text-align:center;color:var(--z500);font-size:12.5px;cursor:pointer;transition:var(--t)}
+.imp-drop:hover{border-color:var(--brand);background:var(--brand-muted);color:var(--brand)}
+.imp-drop i{font-size:22px;display:block;margin-bottom:4px}
+
+/* ── BUTTONS (shadcn variants) ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
+/* default */
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default:hover{background:var(--brand-h)}
+.btn-default:disabled{opacity:.45;cursor:not-allowed}
+/* secondary */
+.btn-secondary{background:var(--z100);border-color:var(--z200);color:var(--z700)}
+.btn-secondary:hover{background:var(--z200);border-color:var(--z400)}
+/* outline */
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
+/* CTA outline — viền hồng, dùng cho action chính cần nhấn (vd: Thu hồi ở footer modal) */
+.btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600}
+.btn-cta-outline:hover{background:var(--brand-muted);border-color:var(--brand-h);color:var(--brand-h)}
+/* ghost */
+.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}
+.btn-ghost:hover{background:var(--z100);color:var(--z900)}
+/* destructive */
+.btn-destructive{background:transparent;border-color:var(--err-bd);color:var(--err)}
+.btn-destructive:hover{background:var(--err-bg)}
+.btn-sm{padding:4px 10px;font-size:12.5px}
+.btn-xs{padding:2px 8px;font-size:11.5px}
+
+/* ── BADGES (shadcn bordered style) ── */
+.badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
+.b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}
+.b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok);display:inline-flex;align-items:center;gap:3px}
+.b-done i{font-size:13px;line-height:1}
+.b-action{color:var(--brand);background:transparent;border-color:var(--brand)}
+.b-warn{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
+.b-err{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
+.b-info{color:var(--info);background:var(--info-bg);border-color:var(--info-bd)}
+.b-upd{color:var(--upd);background:var(--upd-bg);border-color:var(--upd-bd)}
+.b-muted{color:var(--z500);background:var(--z100);border-color:var(--z200)}
+.b-what{color:var(--what);background:var(--what-bg);border-color:var(--what-bd)}
+.b-dev{color:var(--dev);background:var(--dev-bg);border-color:var(--dev-bd)}
+.b-how{color:var(--how);background:var(--how-bg);border-color:var(--how-bd)}
+
+/* Prio pill */
+.prio{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;white-space:nowrap}
+.prio i{font-size:13px;line-height:1}
+.prio-h{background:var(--z200);color:var(--z900);font-weight:600}
+.prio-m{background:var(--z100);color:var(--z600)}
+.prio-l{background:transparent;color:var(--z400)}
+
+/* ── BULK BAR ── */
+.bulk-bar{display:none;align-items:center;gap:7px;padding:7px 12px;background:var(--z0);border:1px solid var(--brand);border-radius:var(--rsm);margin-bottom:10px;position:sticky;top:calc(var(--nh) + 8px);z-index:50;box-shadow:var(--sh-md)}
+.bulk-bar.on{display:flex}
+.bulk-sep{width:1px;height:16px;background:var(--z200);margin:0 2px}
+.bulk-cnt{font-size:13px;font-weight:600;color:var(--brand)}
+
+/* ── VIEW SWITCHER ── */
+.view-sw{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px;gap:2px}
+.view-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border:none;background:transparent;border-radius:var(--rxs);font-size:12.5px;font-weight:500;color:var(--z500);cursor:pointer;font-family:inherit;transition:var(--t)}
+.view-btn:hover:not(.on){color:var(--z800)}
+.view-btn.on{background:var(--z0);color:var(--brand);box-shadow:var(--sh-sm)}
+.view-btn i{font-size:15px}
+
+/* ── TABLE VIEW ── */
+.gtable-wrap{border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);overflow:visible}
+.gtable{width:100%;border-collapse:collapse;background:var(--z0);font-size:13px}
+.gtable th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);background:var(--brand-muted);padding:10px 12px;border-bottom:1px solid var(--brand-ring);white-space:nowrap}
+.gtable td{padding:11px 12px;border-bottom:1px solid var(--z200);vertical-align:top;color:var(--z900);font-size:13px;font-weight:500;line-height:1.45}
+.gtable tbody tr:last-child td{border-bottom:none}
+.gtable tbody tr{transition:background .08s;cursor:default}
+.gtable tbody tr:hover{background:var(--z50)}
+.gt-name{font-weight:500;color:var(--z900)}
+.gt-result{color:var(--z900);font-weight:500;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gt-type{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:13px;color:var(--z900);font-weight:500}
+.gt-type i{font-size:15px;color:var(--brand)}
+.gt-date{white-space:nowrap;color:var(--z900);font-weight:500;font-size:13px}
+.gtable td .prio{font-size:12px}
+.gt-act{display:flex;gap:1px}
+.gt-act-cell{display:flex;align-items:center;gap:4px}
+.gt-pri{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid var(--z200);background:var(--z0);border-radius:var(--rxs);font-size:12px;font-weight:500;color:var(--z700);cursor:pointer;font-family:inherit;transition:var(--t);white-space:nowrap}
+.gt-pri:hover{border-color:var(--z400);background:var(--z50)}
+.gt-pri i{font-size:14px}
+.gt-pri.accent{border-color:var(--brand-ring);color:var(--brand)}
+.gt-pri.accent:hover{background:var(--brand-muted);border-color:var(--brand)}
+.gt-actbtn{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:15px}
+.gt-actbtn:hover{background:var(--z100);color:var(--z900)}
+.gt-actbtn.danger:hover{background:var(--err-bg);color:var(--err)}
+.gt-row.filtered-out{display:none}
+.gt-grouprow td{background:var(--z100);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);padding:7px 12px}
+.gt-grouprow td i{color:var(--brand);margin-right:5px}
+.gt-grouprow.filtered-out{display:none}
+.gt-na{color:var(--z400)}
+.gt-eval{display:inline-flex;align-items:center;font-size:11px;color:var(--z500);background:var(--z100);border:1px solid var(--z200);border-radius:var(--rxs);padding:1px 7px;height:20px;white-space:nowrap}
+.gt-menu{position:relative;display:inline-block}
+.gt-menu-list{position:absolute;right:0;top:calc(100% + 4px);background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);box-shadow:var(--sh-md);padding:4px;min-width:172px;z-index:30;display:none;flex-direction:column;gap:1px}
+.gt-menu.open .gt-menu-list{display:flex}
+.gt-menu-list button{display:flex;align-items:center;gap:8px;padding:7px 9px;border:none;background:transparent;font-size:12.5px;color:var(--z700);font-family:inherit;cursor:pointer;border-radius:var(--rxs);text-align:left;white-space:nowrap}
+.gt-menu-list button:hover{background:var(--z100);color:var(--z900)}
+.gt-menu-list button i{font-size:15px;color:var(--z500)}
+.gt-menu-list button.danger{color:var(--err)}
+.gt-menu-list button.danger:hover{background:var(--err-bg)}
+.gt-menu-list button.danger i{color:var(--err)}
+.gt-menu-sep{height:1px;background:var(--z200);margin:3px 0}
+.gt-how{margin-top:16px;background:var(--z0);border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);padding:14px}
+.gt-how-hd{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--z900);margin-bottom:11px}
+.gt-how-hd>i{color:var(--brand);font-size:16px}
+.gt-how-chips{display:flex;flex-wrap:wrap;gap:8px}
+.gt-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 5px;background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:50px;font-size:12.5px;color:var(--z800);font-weight:500}
+.gt-chip img{width:22px;height:22px;border-radius:5px;object-fit:contain}
+
+/* ── 3-COLUMN GRID ── */
+.goal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start}
+
+/* ── GOAL COLUMN ── */
+.goal-col{background:var(--z0);border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+
+/* Column header */
+.col-hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #f3cfe1;background:#fbe4f0}
+.col-type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--brand)}
+.col-type-ico{font-size:16px;color:var(--brand);flex-shrink:0;line-height:1}
+.col-type-lbl{font-size:13px;font-weight:700;letter-spacing:-.1px;color:var(--z900)}
+.col-name{font-size:12px;color:var(--z500);font-weight:400}
+.col-cnt-badge{margin-left:auto;font-size:11px;font-weight:600;color:var(--z500);background:var(--z100);padding:1px 7px;border-radius:50px;border:1px solid var(--z200)}
+.col-plus{width:22px;height:22px;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z400);display:flex;align-items:center;justify-content:center;transition:var(--t);cursor:pointer;flex-shrink:0}
+.col-plus:hover{border-color:var(--brand);background:var(--brand-muted);color:var(--brand)}
+.col-plus i{font-size:13px}
+
+/* Goal items list */
+.col-list{padding:0}
+
+/* ── GOAL ITEM ── */
+.goal-item{padding:10px 14px;border-bottom:1px solid var(--z200);cursor:pointer;transition:background .08s;position:relative}
+.goal-item:last-child{border-bottom:none}
+.goal-item:hover{background:var(--z50)}
+.goal-item.filtered-out{display:none}
+
+/* Checkbox (hidden, shows on hover / bulk mode) */
+.gi-cb-wrap{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .1s}
+.goal-item:hover .gi-cb-wrap,.bulk-mode .gi-cb-wrap{opacity:1}
+.gi-cb{width:13px;height:13px;cursor:pointer;accent-color:var(--brand)}
+
+/* Item content */
+.gi-body{padding-left:0;transition:padding .1s}
+.goal-item:hover .gi-body,.bulk-mode .gi-body{padding-left:20px}
+.gi-title{font-size:13.5px;font-weight:500;color:var(--z900);line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gi-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.gi-date{font-size:11.5px;color:var(--z500)}
+
+/* Hover action row */
+.gi-actions{display:none;align-items:center;gap:4px;margin-top:7px;padding-top:7px;border-top:1px solid var(--z100)}
+.goal-item:hover .gi-actions{display:flex}
+/* Thẻ "Cần cập nhật": CTA chính hiện luôn, không cần hover */
+.goal-item[data-status="update"] .gi-actions{display:flex}
+.gi-act{padding:2px 8px;border-radius:var(--rxs);border:none;background:transparent;font-size:12px;font-weight:500;color:var(--z600);cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap}
+.gi-act:hover{background:var(--z100);color:var(--z900)}
+.gi-act.accent{color:var(--brand)}.gi-act.accent:hover{background:var(--brand-muted)}
+.gi-act.danger{color:var(--err)}.gi-act.danger:hover{background:var(--err-bg)}
+.gi-act-div{width:1px;height:12px;background:var(--z200)}
+
+/* ── HOW ITEMS ── */
+.how-item{padding:10px 14px;border-bottom:1px solid var(--z200);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .08s}
+.how-item:last-child{border-bottom:none}
+.how-item:hover{background:var(--z50)}
+.how-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);flex-shrink:0}
+.how-ico{width:24px;height:24px;object-fit:contain;border-radius:5px;flex-shrink:0;display:block;filter:grayscale(1) brightness(.85) opacity(.7)}
+.how-item:hover .how-ico{filter:grayscale(1) brightness(.65) opacity(.9)}
+#dh-ico{filter:none}
+.how-name{font-size:13.5px;font-weight:500;color:var(--z900);flex:1;line-height:1.4}
+.how-arrow{font-size:13px;color:var(--z400);transition:var(--t);flex-shrink:0}
+.how-item:hover .how-arrow{color:var(--brand)}
+
+/* Column footer */
+.col-foot{padding:6px 8px;border-top:1px solid var(--z200)}
+.col-add-btn{display:flex;align-items:center;gap:5px;width:100%;padding:5px 8px;border:none;background:transparent;color:var(--z500);font-size:12.5px;font-family:inherit;cursor:pointer;border-radius:var(--rsm);transition:var(--t)}
+.col-add-btn:hover{background:var(--z100);color:var(--z700)}
+.col-add-btn i{font-size:14px}
+.how-col-note,.col-note{padding:6px 14px 8px;font-size:11px;color:var(--z500);text-align:center;border-top:1px solid var(--z200);line-height:1.5}
+
+/* ── MODAL / DIALOG ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.overlay.open{display:flex;animation:ov-in .15s ease}
+@keyframes ov-in{from{opacity:0}to{opacity:1}}
+.dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
+.dialog.md{max-width:640px}
+.dialog.sm{max-width:400px}
+@keyframes dlg-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* Dialog header */
+.dlg-hd{padding:16px 20px 0;flex-shrink:0}
+.dlg-hd-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px}
+.dlg-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.dlg-title{font-size:15px;font-weight:600;color:var(--z900);flex:1;line-height:1.4;word-break:break-word}
+.dlg-close{width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--t);flex-shrink:0;cursor:pointer}
+.dlg-close:hover{background:var(--z100);color:var(--z700)}
+
+/* Dialog tabs */
+.dlg-tabs{display:flex;border-bottom:1px solid var(--z200);padding:0 20px;margin-top:8px}
+.dlg-tab{padding:7px 12px;font-size:13px;font-weight:400;color:var(--z500);border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--t);cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.dlg-tab:hover{color:var(--z700)}
+.dlg-tab.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.dlg-tab-n{padding:0 5px;height:15px;line-height:15px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--brand-muted);color:var(--brand)}
+
+/* Dialog body/footer */
+.dlg-body{padding:16px 20px;overflow-y:auto;flex:1}
+.dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:flex-end;flex-shrink:0;align-items:center}
+
+/* Tab panels */
+.tpanel{display:none}.tpanel.on{display:block}
+
+/* Detail fields */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.df label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:3px}
+.df .dv{font-size:13.5px;color:var(--z700);font-weight:400;line-height:1.65}
+.divider{height:1px;background:var(--z100);margin:12px 0}
+.sec-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:6px}
+.result-blk{background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);padding:11px 13px;font-size:13.5px;color:var(--z700);line-height:1.65;word-break:break-word}
+.result-blk p{margin:0}
+.result-blk p:not(:first-child){margin-top:10px}
+.result-blk strong{color:var(--z900);font-weight:600}
+.result-blk ul{margin:4px 0 0;padding-left:20px}
+.result-blk li{margin-bottom:3px}
+.result-blk li:last-child{margin-bottom:0}
+
+/* ── CHI TIẾT MỤC TIÊU: hàng ngăn bằng line xám, ô text không viền ── */
+.detail-row{padding:13px 0;border-bottom:1px solid var(--z200)}
+.detail-row:first-child{padding-top:2px}
+.detail-row:last-child{border-bottom:none;padding-bottom:2px}
+.detail-val{font-size:13.5px;color:var(--z700);line-height:1.65;background:var(--z50);border-radius:var(--rsm);padding:9px 12px;margin-top:6px;word-break:break-word}
+.detail-val p{margin:0}
+.detail-val p:not(:first-child){margin-top:10px}
+.detail-val strong{color:var(--z900);font-weight:600}
+.detail-val ul{margin:4px 0 0;padding-left:20px}
+.detail-val li{margin-bottom:3px}
+.detail-val li:last-child{margin-bottom:0}
+
+/* Tóm tắt điểm đánh giá ngay trong tab Thông tin — đồng nhất với .dv */
+.detail-eval{font-size:13.5px;color:var(--z700);font-weight:400;line-height:1.65;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.detail-eval .ev-who{font-size:11px;font-weight:600;color:var(--z400);letter-spacing:.3px;margin-right:3px}
+.detail-eval .ev-num{font-weight:600;color:var(--z900)}
+.detail-eval .ev-sep{color:var(--z300)}
+.detail-eval a.ev-link{font-size:13.5px;color:var(--brand);cursor:pointer}
+.detail-eval a.ev-link:hover{text-decoration:underline}
+.detail-eval .ev-wait-txt{font-size:13.5px;color:var(--z500)}
+.detail-eval .ev-note{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--z600);line-height:1.55;width:100%}
+.detail-eval .ev-note .proc-lbl{margin-top:1px;flex-shrink:0}
+.detail-eval .ev-note strong{color:var(--z900);font-weight:600}
+
+/* Empty state cho cột mục tiêu (chưa có mục tiêu / lọc rỗng) */
+.col-empty{display:none;flex-direction:column;align-items:center;text-align:center;gap:7px;padding:30px 18px}
+.col-empty>i{font-size:32px;color:var(--z400)}
+.col-empty-title{font-size:13.5px;font-weight:600;color:var(--z700)}
+.col-empty-sub{font-size:12.5px;color:var(--z500);line-height:1.5;margin-top:-2px}
+.col-empty .btn{margin-top:5px}
+
+/* ── COMPLETION EVALUATION ── */
+.demo-toggle{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--z500);cursor:pointer;user-select:none;padding:0 6px}
+.demo-toggle input{appearance:none;-webkit-appearance:none;width:30px;height:17px;background:var(--z300);border-radius:50px;position:relative;cursor:pointer;transition:var(--t);flex-shrink:0;margin:0}
+.demo-toggle input:checked{background:var(--brand)}
+.demo-toggle input::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;background:#fff;border-radius:50%;transition:var(--t)}
+.demo-toggle input:checked::after{left:15px}
+.eval-chip{display:inline-flex;align-items:center;gap:3px;height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.eval-chip i{font-size:12px}
+.eval-done{color:var(--ok);background:transparent;border-color:var(--ok)}
+.eval-wait{color:var(--z500);background:var(--z100);border-color:var(--z200);font-weight:500}
+.eval-revise{color:var(--brand);background:transparent;border-color:var(--brand)}
+.ev-steps{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.ev-step{padding:4px 11px;border:1px solid var(--z200);border-radius:50px;background:var(--z0);font-size:12px;font-weight:500;color:var(--z500)}
+.ev-step.active{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.ev-step.done{border-color:var(--ok-bd);color:var(--ok)}
+.ev-steps>i{color:var(--z400);font-size:16px}
+.ev-card{border:1px solid var(--z200);border-radius:var(--rsm);padding:12px 13px;margin-bottom:12px}
+.ev-card.locked{background:var(--z50)}
+.ev-card-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:9px}
+.ev-score{margin-bottom:8px}
+.ev-score>span{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}
+.ev-score-num{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
+.ev-score-max{font-size:12px;font-weight:500;color:var(--z500)}
+.ev-score-lbl{font-size:11px;font-weight:600;color:var(--z600);background:var(--z100);border:1px solid var(--z200);border-radius:var(--rxs);padding:1px 6px;margin-left:2px}
+.ev-cmt{font-size:13px;color:var(--z700);line-height:1.55;background:var(--z50);border-radius:var(--rxs);padding:8px 10px}
+.ev-cmt-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);display:block;margin-bottom:4px}
+.ev-meta{font-size:11.5px;color:var(--z500);margin-top:6px}
+.ev-locked-msg{font-size:12.5px;color:var(--z500);font-style:italic}
+.ev-revise-box{font-size:12.5px;color:var(--z700);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rxs);padding:8px 10px;line-height:1.5;margin-bottom:10px}
+.ev-revise-box strong{color:var(--brand)}
+
+/* Bố cục so sánh NV / Quản lý song song */
+.ev-cards.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+.ev-cards.compare .ev-card{margin-bottom:0}
+.ev-card-hd-row{display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.ev-card-hd-row .ev-card-hd{margin-bottom:0}
+.ev-who-ico{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--z200);color:var(--z600)}
+.ev-who-ico.self,.ev-who-ico.mgr{background:var(--z200);color:var(--z600)}
+
+/* Cặp điểm NV · Quản lý (thẻ & bảng) — không dùng sao */
+.eval-pair{display:inline-flex;align-items:center;gap:5px;height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid var(--z200);background:var(--z100);white-space:nowrap}
+.eval-pair .ep-seg{display:inline-flex;align-items:center;gap:3px;color:var(--z600)}
+.eval-pair .ep-seg.ep-mgr{color:var(--z600);font-weight:600}
+.eval-pair .ep-who{font-size:9px;font-weight:700;letter-spacing:.3px;color:var(--z500)}
+.eval-pair .ep-div{width:1px;height:11px;background:var(--z200)}
+
+/* ── COMMENTS ── */
+.comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.ci{display:flex;gap:8px;align-items:flex-start}.ci.self{flex-direction:row-reverse}
+.ci-name{font-size:12px;font-weight:600;color:var(--z700);margin-bottom:2px}.ci.self .ci-name{text-align:right}
+.ci-bubble{max-width:76%;padding:8px 11px;font-size:13px;color:var(--z700);line-height:1.5}
+.ci:not(.self) .ci-bubble{background:var(--z50);border:1px solid var(--z200);border-radius:0 8px 8px 8px}
+.ci.self .ci-bubble{background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:8px 0 8px 8px}
+.ci-time{font-size:11px;color:var(--z500);margin-top:3px}.ci.self .ci-time{text-align:right}
+.cin-row{display:flex;gap:7px;align-items:flex-end;padding-top:12px;border-top:1px solid var(--z100)}
+.cin{flex:1;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);resize:none;min-height:50px;outline:none;transition:var(--t);line-height:1.5}
+.cin:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:4px;top:8px;bottom:6px;width:1px;background:var(--z200)}
+.tl-item{position:relative;padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-18px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--z300);border:1.5px solid var(--z0);outline:1.5px solid var(--z300)}
+.tl-dot.ok{background:var(--ok);outline-color:var(--ok-bd)}.tl-dot.warn{background:var(--warn);outline-color:var(--warn-bd)}.tl-dot.info{background:var(--info);outline-color:var(--info-bd)}
+.tl-ev{font-size:13.5px;font-weight:500;color:var(--z800)}
+.tl-who{font-size:12px;color:var(--z500);margin-top:1px}
+.tl-note{margin-top:5px;padding:5px 9px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--rxs);font-size:12px;color:var(--z600);font-style:italic}
+
+/* ── FORM ── */
+.fg{margin-bottom:13px}
+.flbl{display:block;font-size:12.5px;font-weight:500;color:var(--z700);margin-bottom:4px}
+.flbl .req{color:var(--err);margin-left:2px}
+.fc{width:100%;padding:6px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13.5px;font-family:inherit;color:var(--z900);background:var(--z0);transition:var(--t);outline:none;line-height:1.5}
+.fc:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.fc::placeholder{color:var(--z400)}
+select.fc{appearance:none;-webkit-appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;cursor:pointer}
+textarea.fc{resize:vertical}
+.fc.err{border-color:var(--err)}
+.fc.err:focus{outline-color:rgba(220,38,38,.2)}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ferr{font-size:11.5px;color:var(--err);margin-top:3px;display:none}
+.ferr.on{display:block}
+.fhint{font-size:11.5px;color:var(--z500);margin-top:3px}
+.fcnt{font-size:11px;color:var(--z400);text-align:right;margin-top:2px}
+
+/* Type seg control */
+.type-seg{display:flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px;gap:2px}
+.ts-btn{flex:1;padding:5px 10px;border:1px solid transparent;border-radius:var(--rxs);background:transparent;font-size:13px;font-weight:500;color:var(--z500);cursor:pointer;transition:var(--t);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.ts-btn:hover{background:rgba(255,255,255,.6);color:var(--z700)}
+.ts-btn.on{background:var(--z0);border-color:var(--z200);color:var(--z900);box-shadow:var(--sh-sm)}
+.ts-btn.on.what{color:var(--what)}.ts-btn.on.dev{color:var(--dev)}
+.ts-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ts-dot.what{background:var(--what)}.ts-dot.dev{background:var(--dev)}
+
+/* Confirm dialog */
+.conf-dlg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center;padding:16px}
+.conf-dlg.open{display:flex}
+.conf-box{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);max-width:380px;width:100%;padding:20px;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
+.conf-title{font-size:14.5px;font-weight:600;color:var(--z900);margin-bottom:6px}
+.conf-body{font-size:13px;color:var(--z500);margin-bottom:16px;line-height:1.55}
+.conf-actions{display:flex;gap:7px;justify-content:flex-end}
+
+/* Separator */
+.sep{width:1px;height:14px;background:var(--z200);display:inline-block}
+
+/* Rich Text Editor */
+.rte-wrap{border:1px solid var(--z200);border-radius:var(--rsm);overflow:hidden;transition:border-color .12s;background:var(--z0)}
+.rte-wrap:focus-within{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.rte-wrap.err{border-color:var(--err)}
+.rte-wrap.err:focus-within{outline-color:rgba(220,38,38,.2)}
+.rte-toolbar{display:flex;align-items:center;gap:1px;padding:4px 7px;border-bottom:1px solid var(--z100);background:var(--z50);flex-wrap:nowrap;user-select:none}
+.rte-btn{width:26px;height:26px;border:none;background:transparent;border-radius:var(--rxs);color:var(--z500);font-size:13px;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);flex-shrink:0}
+.rte-btn:hover{background:var(--z200);color:var(--z900)}
+.rte-btn.active{background:var(--z200);color:var(--z900)}
+.rte-sep{width:1px;height:16px;background:var(--z200);margin:0 3px;flex-shrink:0}
+.rte-fmt{padding:3px 20px 3px 7px;border:1px solid var(--z200);border-radius:var(--rxs);font-size:12px;font-family:inherit;color:var(--z700);background:var(--z0);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;min-width:82px}
+.rte-fmt:hover{border-color:var(--z400)}
+.rte-color-wrap{position:relative;display:inline-flex;align-items:center}
+.rte-color-trigger{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 5px;border:none;background:transparent;border-radius:var(--rxs);cursor:pointer;font-weight:700;font-size:13px;font-family:inherit;transition:var(--t);color:var(--z700)}
+.rte-color-trigger:hover{background:var(--z200)}
+.rte-color-indicator{display:inline-block;border-bottom:3px solid var(--z800);line-height:1.1}
+.rte-color-panel{position:absolute;top:calc(100% + 4px);left:0;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:6px 8px;display:none;gap:4px;box-shadow:var(--sh-md);z-index:300;flex-direction:row;align-items:center}
+.rte-color-wrap.open .rte-color-panel{display:flex}
+.rte-swatch{width:18px;height:18px;border-radius:3px;border:1.5px solid rgba(0,0,0,.12);cursor:pointer;transition:transform .1s;flex-shrink:0}
+.rte-swatch:hover{transform:scale(1.25)}
+.rte-body{padding:8px 10px;min-height:58px;font-size:13.5px;color:var(--z900);line-height:1.6;outline:none;word-break:break-word;background:var(--z0)}
+.rte-body.rte-lg{min-height:100px}
+.rte-body:empty::before{content:attr(data-placeholder);color:var(--z400);pointer-events:none}
+.rte-body strong,.rte-body b{font-weight:700}
+.rte-body em{font-style:italic}
+.rte-body u{text-decoration:underline}
+.rte-body ul{padding-left:20px;margin:3px 0}
+.rte-body li{margin-bottom:2px}
+.rte-body a{color:var(--brand);text-decoration:underline}
+.rte-body h3{font-size:14px;font-weight:700;color:var(--z900);line-height:1.4;margin:2px 0}
+
+/* Tooltip (floating, fixed-position để thoát overflow clip của dialog) */
+.tip-ico{font-size:13px;color:var(--z400);cursor:default;line-height:1;transition:color .12s;display:none}
+.tip-ico.visible{display:inline-flex}
+.tip-ico:hover{color:var(--z600)}
+.floating-tip{position:fixed;background:var(--z700);color:#fff;font-size:12px;font-weight:400;line-height:1.6;padding:9px 12px;border-radius:var(--rsm);max-width:260px;width:max-content;z-index:9999;display:none;box-shadow:var(--sh-lg);pointer-events:none}
+.floating-tip::before{content:'';position:absolute;right:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--z700)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><span>M</span></div>
+    <div>
+      <div class="sb-name">MoMo <em>HRM</em></div>
+      <div class="sb-sub">Performance Management</div>
+    </div>
+  </div>
+
+  <div class="role-sw">
+    <button class="role-btn on">Nhân viên</button>
+    <button class="role-btn">Quản lý</button>
+  </div>
+
+  <nav class="sb-nav">
+    <span class="sb-grp">Tổng quan</span>
+    <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
+    <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+    <div class="sb-item on"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</div>
+    <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av av-brand">NT</div>
+      <div>
+        <div class="sb-uname">Nguyễn Văn Tú</div>
+        <div class="sb-urole">Nhân viên, Backend Team</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════ WORKSPACE ═══════ -->
+<div class="workspace">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <a href="/" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Home</a>
+    <span class="topbar-title">Mục tiêu và Đánh giá cá nhân</span>
+    <div class="topbar-right">
+      <label class="demo-toggle" title="Demo: bật/tắt tính năng Đánh giá hoàn thành (cấu hình theo tổ chức)">
+        <input type="checkbox" id="eval-toggle" checked onchange="applyEvalFeature()">
+        <span>Đánh giá hoàn thành</span>
+      </label>
+      <span class="sep" style="margin:0 4px"></span>
+      <button class="ico-btn" aria-label="Thông báo" title="Thông báo"><i class="bx bx-bell"></i><span class="notif-dot"></span></button>
+      <button class="ico-btn" aria-label="Trợ giúp" title="Trợ giúp"><i class="bx bx-help-circle"></i></button>
+      <div class="av av-brand av-sm" style="cursor:pointer;margin-left:3px">NT</div>
+    </div>
+  </header>
+
+  <!-- Page -->
+  <main class="page">
+
+    <!-- Header -->
+    <div class="breadcrumb">
+      <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Mục tiêu và Đánh giá cá nhân</span>
+    </div>
+    <div class="page-hd">
+      <h1 class="page-title">Mục tiêu và Đánh giá cá nhân</h1>
+      <div class="emp-chip">
+        <div class="av av-brand av-xs">NT</div>
+        <div class="ec-info">
+          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
+          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
+          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cycle picker -->
+    <div class="cycle-row">
+      <i class="bx bx-calendar"></i>
+      <span class="cycle-lbl">Chu kỳ</span>
+      <select class="cycle-sel">
+        <option>2026</option>
+        <option>2025</option>
+      </select>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn on">Mục tiêu<span class="tab-cnt">6</span></button>
+      <button class="tab-btn disabled" title="Chưa mở">Mid-Year Review</button>
+      <button class="tab-btn disabled" title="Chưa mở">End-Year Review</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="summary-text">
+        <span class="s-link" data-f="pending" onclick="applyFilter('pending');return false;"><b>2</b> chờ duyệt</span>
+        <span class="s-sep">|</span>
+        <span class="s-link" data-f="update" onclick="applyFilter('update');return false;"><b>1</b> cần cập nhật</span>
+        <span class="s-sep">|</span>
+        <span class="s-link" data-f="rejected" onclick="applyFilter('rejected');return false;"><b>0</b> từ chối</span>
+        <span class="s-sep">|</span>
+        <span class="s-link" data-f="approved" onclick="applyFilter('approved');return false;"><b>2</b> đã duyệt</span>
+        <span class="s-all" id="s-all" onclick="applyFilter('all');return false;"><i class="bx bx-x"></i> Bỏ lọc</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="view-sw">
+        <button class="view-btn on" id="vb-board" onclick="setView('board')"><i class="bx bx-columns"></i> Cột</button>
+        <button class="view-btn" id="vb-table" onclick="setView('table')"><i class="bx bx-table"></i> Bảng</button>
+      </div>
+      <div class="filter-box">
+        <i class="bx bx-filter-alt"></i>
+        <select class="fc" id="sf" onchange="applyFilter(this.value)">
+          <option value="all">Tất cả trạng thái</option>
+          <option value="draft">Nháp</option>
+          <option value="pending">Chờ duyệt</option>
+          <option value="approved">Đã duyệt</option>
+          <option value="rejected">Từ chối</option>
+          <option value="update">Cần cập nhật</option>
+        </select>
+      </div>
+      <button class="btn btn-default btn-sm" onclick="openCreate()"><i class="bx bx-plus"></i> Tạo mục tiêu</button>
+      <button class="btn btn-outline btn-sm" onclick="openOverlay('dlg-import')"><i class="bx bx-upload"></i> Import CSV</button>
+    </div>
+
+    <!-- Guidance card: hướng dẫn + quy trình -->
+    <div class="guide-box">
+      <div class="guide-info">
+        <span class="proc-lbl">Lưu ý</span>
+        <p>Để giúp bạn quản lý mục tiêu cá nhân một cách linh hoạt, hệ thống mở xuyên suốt cả năm để bạn chủ động <strong>Thêm mới</strong> hoặc <strong>Điều chỉnh</strong> mục tiêu khi cần.</p>
+      </div>
+      <div class="guide-divider"></div>
+      <div class="guide-process">
+        <span class="proc-lbl">Quy trình</span>
+        <div class="proc-step">
+          <span class="proc-num">1</span>
+          <span class="proc-txt">Nhân viên thiết lập Mục tiêu</span>
+        </div>
+        <i class="bx bx-right-arrow-alt proc-arrow"></i>
+        <div class="proc-step">
+          <span class="proc-num">2</span>
+          <span class="proc-txt">Quản lý trực tiếp phê duyệt</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk bar -->
+    <div class="bulk-bar" id="bulk-bar">
+      <span class="bulk-cnt" id="bulk-cnt">0 đã chọn</span>
+      <button class="btn btn-ghost btn-xs" onclick="clearBulk()">Bỏ chọn</button>
+      <button class="btn btn-ghost btn-xs" onclick="selAllDraft()">Chọn tất cả Nháp</button>
+      <div class="bulk-sep"></div>
+      <button class="btn btn-destructive btn-xs"><i class="bx bx-trash"></i> Xoá</button>
+      <button class="btn btn-default btn-xs" id="bulk-send" disabled><i class="bx bx-send"></i> Gửi quản lý</button>
+    </div>
+
+    <!-- ═══ 3-COLUMN GOAL GRID ═══ -->
+    <div class="goal-grid" id="goal-grid">
+
+      <!-- ── WHAT ── -->
+      <div class="goal-col">
+        <div class="col-hd">
+          <i class="bx bx-target-lock col-type-ico"></i>
+          <span class="col-type-lbl">Mục tiêu công việc</span>
+          <span class="col-cnt-badge" id="cnt-what">4</span>
+        </div>
+        <div class="col-list" id="list-what">
+
+          <div class="goal-item" id="g1" data-status="pending" data-result="95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026." onclick="openDetail(this)">
+            <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
+            <div class="gi-body">
+              <div class="gi-title">Tối ưu API response time xuống dưới 200ms với 95th percentile</div>
+              <div class="gi-meta">
+                <span class="badge b-action">Chờ duyệt</span>
+                <span class="prio prio-m">Trung bình</span>
+                <span class="gi-date">01/01 – 31/12</span>
+              </div>
+              <div class="gi-actions">
+                <button class="gi-act" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))">Xem</button>
+                <div class="gi-act-div"></div>
+                <button class="gi-act" onclick="event.stopPropagation()">Thu hồi</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="goal-item" id="g2" data-status="update" data-updatenote="Bổ sung tiêu chí đo lường định lượng và mốc thời gian cụ thể cho từng giai đoạn triển khai." data-result="Toàn bộ luồng xác thực chuyển sang JWT stateless, loại bỏ session store, deploy không downtime, hoàn thành trước 30/09/2026." onclick="openDetail(this)">
+            <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
+            <div class="gi-body">
+              <div class="gi-title">Refactor authentication module sang stateless JWT</div>
+              <div class="gi-meta">
+                <span class="badge b-action">Cần cập nhật</span>
+                <span class="prio prio-l">Thấp</span>
+                <span class="gi-date">01/03 – 31/12</span>
+              </div>
+              <div class="gi-actions">
+                <button class="gi-act accent" onclick="event.stopPropagation();openEdit(this.closest('.goal-item'))">Sửa &amp; Gửi</button>
+                <div class="gi-act-div"></div>
+                <button class="gi-act" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))">Xem yêu cầu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="goal-item" id="g3" data-status="approved" data-eval="done" data-ev-self="4.0" data-ev-self-cmt="Hoàn thành sớm 2 tháng so với kế hoạch, P99 ổn định ở mức 85ms, không phát sinh sự cố trong suốt quá trình theo dõi." data-ev-self-time="10/03/2026" data-ev-mgr="4.5" data-ev-mgr-cmt="Kết quả vượt mong đợi, ghi nhận nỗ lực tối ưu hệ thống. Tiếp tục duy trì chất lượng này." data-ev-mgr-time="12/03/2026" data-result="Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026. Tiêu chí pass: không có payment latency incident trong suốt 90 ngày đo lường." onclick="openDetail(this)">
+            <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
+            <div class="gi-body">
+              <div class="gi-title">Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms</div>
+              <div class="gi-meta">
+                <span class="badge b-done">Hoàn thành</span>
+                <span class="prio prio-h">Cao</span>
+                <span class="gi-date">01/01 – 31/12</span>
+                <span class="eval-pair eval-only" title="Điểm tự đánh giá của nhân viên (NV) và điểm của quản lý (QL)">
+                  <span class="ep-seg"><span class="ep-who">NV</span>4.0</span>
+                  <span class="ep-div"></span>
+                  <span class="ep-seg ep-mgr"><span class="ep-who">QL</span>4.5</span>
+                </span>
+              </div>
+              <div class="gi-actions">
+                <button class="gi-act" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))">Xem chi tiết</button>
+              </div>
+            </div>
+            <div class="gi-result-rich" hidden>
+              <p><strong>Mục tiêu hiệu năng:</strong></p>
+              <ul>
+                <li>Hệ thống xử lý ổn định 10,000 giao dịch mỗi giây ở giờ cao điểm, độ trễ P99 luôn dưới 100ms.</li>
+                <li>Tỷ lệ giao dịch thành công đạt tối thiểu 99,95%, không phát sinh sự cố mất tiền hay trùng giao dịch.</li>
+                <li>Thời gian phục hồi sau sự cố (MTTR) dưới 5 phút nhờ cơ chế failover tự động.</li>
+              </ul>
+              <p><strong>Cách đo lường:</strong></p>
+              <ul>
+                <li>Theo dõi liên tục qua Grafana dashboard và cảnh báo real-time trên kênh Slack vận hành.</li>
+                <li>Báo cáo hiệu năng hằng tuần gửi cho quản lý trực tiếp và team Platform.</li>
+              </ul>
+              <p><strong>Tiêu chí pass:</strong></p>
+              <ul>
+                <li>Không có payment latency incident nghiêm trọng trong suốt 90 ngày đo lường liên tục từ Q2/2026.</li>
+                <li>Vượt qua đợt kiểm thử tải mô phỏng gấp đôi lưu lượng đỉnh mà không suy giảm hiệu năng.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="goal-item" id="g4" data-status="approved" data-eval="none" data-result="100% microservices có dashboard Grafana và alert rule đầy đủ, giảm MTTR 30% so với năm 2025." onclick="openDetail(this)">
+            <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
+            <div class="gi-body">
+              <div class="gi-title">Triển khai monitoring và alerting cho toàn bộ microservices</div>
+              <div class="gi-meta">
+                <span class="badge b-ok">Đã duyệt</span>
+                <span class="prio prio-m">Trung bình</span>
+                <span class="gi-date">01/01 – 30/06</span>
+              </div>
+              <div class="gi-actions">
+                <button class="gi-act accent eval-only" onclick="event.stopPropagation();openEvalTab(this.closest('.goal-item'))">Đánh giá hoàn thành</button>
+                <div class="gi-act-div eval-only"></div>
+                <button class="gi-act" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))">Xem chi tiết</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-foot">
+          <button class="col-add-btn" onclick="openCreate('what')">
+            <i class="bx bx-plus"></i> Thêm mục tiêu công việc
+          </button>
+        </div>
+        <div class="col-note">Bạn cần có ít nhất 1 Mục tiêu công việc được duyệt để tham gia kỳ đánh giá MYR và YER</div>
+      </div>
+
+      <!-- ── DEVELOP ── -->
+      <div class="goal-col">
+        <div class="col-hd">
+          <i class="bx bx-trending-up col-type-ico"></i>
+          <span class="col-type-lbl">Mục tiêu phát triển</span>
+          <span class="col-cnt-badge" id="cnt-dev">2</span>
+        </div>
+        <div class="col-list" id="list-dev">
+
+          <div class="goal-item" id="g5" data-status="pending" data-result="Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor." onclick="openDetail(this)">
+            <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
+            <div class="gi-body">
+              <div class="gi-title">Cải thiện kỹ năng system design qua self-study và practice</div>
+              <div class="gi-meta">
+                <span class="badge b-action">Chờ duyệt</span>
+                <span class="gi-date">01/01 – 31/12</span>
+              </div>
+              <div class="gi-actions">
+                <button class="gi-act" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))">Xem</button>
+                <div class="gi-act-div"></div>
+                <button class="gi-act" onclick="event.stopPropagation()">Thu hồi</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="goal-item" id="g6" data-status="draft" data-result="Đạt chứng chỉ AWS Solutions Architect Associate trước 31/12/2026 và áp dụng vào tối thiểu 1 dự án thực tế." onclick="openDetail(this)">
+            <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
+            <div class="gi-body">
+              <div class="gi-title">Hoàn thành khoá AWS Solutions Architect và đạt chứng chỉ</div>
+              <div class="gi-meta">
+                <span class="badge b-action">Nháp</span>
+                <span class="gi-date">01/01 – 31/12</span>
+              </div>
+              <div class="gi-actions">
+                <button class="gi-act accent" onclick="event.stopPropagation()">Gửi quản lý</button>
+                <div class="gi-act-div"></div>
+                <button class="gi-act" onclick="event.stopPropagation();openEdit(this.closest('.goal-item'))">Sửa &amp; Gửi</button>
+                <div class="gi-act-div"></div>
+                <button class="gi-act danger" onclick="event.stopPropagation()">Xoá</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-foot">
+          <button class="col-add-btn" onclick="openCreate('develop')">
+            <i class="bx bx-plus"></i> Thêm mục tiêu phát triển
+          </button>
+        </div>
+        <div class="col-note">Bạn cần có ít nhất 1 Mục tiêu phát triển được duyệt để tham gia kỳ đánh giá MYR và YER</div>
+      </div>
+
+      <!-- ── HOW ── -->
+      <div class="goal-col">
+        <div class="col-hd">
+          <i class="bx bx-heart col-type-ico"></i>
+          <span class="col-type-lbl">Mục tiêu hành vi</span>
+          <span class="col-cnt-badge">5</span>
+        </div>
+        <div class="col-list">
+          <div class="how-item" id="h1" data-desc="Luôn đặt khách hàng làm trung tâm trong mọi quyết định, chủ động lắng nghe và thấu hiểu nhu cầu để mang lại trải nghiệm vượt mong đợi cho người dùng MoMo." onclick="openHow(this)">
+            <span class="how-name">Thấu hiểu khách hàng</span>
+            <i class="bx bx-chevron-right how-arrow"></i>
+          </div>
+          <div class="how-item" id="h2" data-desc="Không ngừng tìm tòi giải pháp mới, dám thử nghiệm và chấp nhận rủi ro có tính toán để tạo ra giá trị khác biệt cho tổ chức và khách hàng." onclick="openHow(this)">
+            <span class="how-name">Đổi mới sáng tạo</span>
+            <i class="bx bx-chevron-right how-arrow"></i>
+          </div>
+          <div class="how-item" id="h3" data-desc="Hợp tác cởi mở, chủ động chia sẻ thông tin và hỗ trợ đồng nghiệp vì mục tiêu chung, đặt lợi ích tập thể lên trên lợi ích cá nhân." onclick="openHow(this)">
+            <span class="how-name">Tinh thần đồng đội</span>
+            <i class="bx bx-chevron-right how-arrow"></i>
+          </div>
+          <div class="how-item" id="h4" data-desc="Cam kết với chất lượng cao nhất, hoàn thành công việc đúng hạn và luôn chịu trách nhiệm với kết quả mình tạo ra." onclick="openHow(this)">
+            <span class="how-name">Thực thi xuất sắc</span>
+            <i class="bx bx-chevron-right how-arrow"></i>
+          </div>
+          <div class="how-item" id="h5" data-desc="Chủ động cập nhật kiến thức và kỹ năng mới, học hỏi từ cả thành công lẫn thất bại để liên tục phát triển bản thân." onclick="openHow(this)">
+            <span class="how-name">Tinh thần học hỏi không ngừng</span>
+            <i class="bx bx-chevron-right how-arrow"></i>
+          </div>
+        </div>
+        <div class="how-col-note">Mục tiêu hành vi là 5 Giá trị cốt lõi áp dụng cho tất cả MoMoers, và được đánh giá trong Kỳ giữa năm (MYR) và cuối năm (YER)</div>
+      </div>
+
+    </div><!-- /goal-grid -->
+
+    <!-- ═══ TABLE / GRID VIEW ═══ -->
+    <div id="view-table" style="display:none">
+      <div class="gtable-wrap">
+        <table class="gtable">
+          <thead>
+            <tr>
+              <th style="width:140px">Loại mục tiêu</th>
+              <th style="min-width:200px">Tên mục tiêu</th>
+              <th style="min-width:240px">Kết quả cần đạt</th>
+              <th style="width:110px">Mức độ ưu tiên</th>
+              <th style="width:150px">Thời gian</th>
+              <th style="width:120px">Trạng thái</th>
+              <th style="width:134px">Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- A: WHAT, Chờ duyệt -->
+            <tr class="gt-row" data-status="pending">
+              <td><span class="gt-type"><i class="bx bx-target-lock"></i> Công việc</span></td>
+              <td class="gt-name">Tối ưu API response time xuống dưới 200ms với 95th percentile</td>
+              <td><div class="gt-result">95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026.</div></td>
+              <td><span class="prio prio-m">Trung bình</span></td>
+              <td class="gt-date">01/01 – 31/12</td>
+              <td><span class="badge b-action">Chờ duyệt</span></td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openDetail(document.getElementById('g1'))"><i class="bx bx-show"></i> Xem</button>
+                  <div class="gt-menu">
+                    <button class="gt-actbtn" title="Thao tác khác" onclick="toggleRowMenu(this)"><i class="bx bx-dots-vertical-rounded"></i></button>
+                    <div class="gt-menu-list">
+                      <button><i class="bx bx-undo"></i> Thu hồi</button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- B: WHAT, Cần cập nhật -->
+            <tr class="gt-row" data-status="update">
+              <td><span class="gt-type"><i class="bx bx-target-lock"></i> Công việc</span></td>
+              <td class="gt-name">Refactor authentication module sang stateless JWT</td>
+              <td><div class="gt-result">Toàn bộ luồng xác thực chuyển sang JWT stateless, loại bỏ session store, deploy không downtime, hoàn thành trước 30/09/2026.</div></td>
+              <td><span class="prio prio-l">Thấp</span></td>
+              <td class="gt-date">01/03 – 31/12</td>
+              <td><span class="badge b-action">Cần cập nhật</span></td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri accent" onclick="openEdit(document.getElementById('g2'))"><i class="bx bx-edit"></i> Sửa &amp; Gửi</button>
+                  <div class="gt-menu">
+                    <button class="gt-actbtn" title="Thao tác khác" onclick="toggleRowMenu(this)"><i class="bx bx-dots-vertical-rounded"></i></button>
+                    <div class="gt-menu-list">
+                      <button onclick="openDetail(document.getElementById('g2'))"><i class="bx bx-show"></i> Xem yêu cầu</button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- C: WHAT, Đã duyệt, Cao -->
+            <tr class="gt-row" data-status="approved">
+              <td><span class="gt-type"><i class="bx bx-target-lock"></i> Công việc</span></td>
+              <td class="gt-name">Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms</td>
+              <td><div class="gt-result">Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.</div></td>
+              <td><span class="prio prio-h">Cao</span></td>
+              <td class="gt-date">01/01 – 31/12</td>
+              <td><span class="badge b-done">Hoàn thành</span><div class="eval-only" style="margin-top:5px"><span class="eval-pair" title="Điểm tự đánh giá của nhân viên (NV) và điểm của quản lý (QL)"><span class="ep-seg"><span class="ep-who">NV</span>4.0</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span>4.5</span></span></div></td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openDetail(document.getElementById('g3'))"><i class="bx bx-show"></i> Xem</button>
+                </div>
+              </td>
+            </tr>
+            <!-- D: WHAT, Đã duyệt, TB -->
+            <tr class="gt-row" data-status="approved">
+              <td><span class="gt-type"><i class="bx bx-target-lock"></i> Công việc</span></td>
+              <td class="gt-name">Triển khai monitoring và alerting cho toàn bộ microservices</td>
+              <td><div class="gt-result">100% microservices có dashboard Grafana và alert rule đầy đủ, giảm MTTR 30% so với năm 2025.</div></td>
+              <td><span class="prio prio-m">Trung bình</span></td>
+              <td class="gt-date">01/01 – 30/06</td>
+              <td><span class="badge b-ok">Đã duyệt</span></td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openDetail(document.getElementById('g4'))"><i class="bx bx-show"></i> Xem</button>
+                  <div class="gt-menu eval-only">
+                    <button class="gt-actbtn" title="Thao tác khác" onclick="toggleRowMenu(this)"><i class="bx bx-dots-vertical-rounded"></i></button>
+                    <div class="gt-menu-list">
+                      <button onclick="openEvalTab(document.getElementById('g4'))"><i class="bx bx-star"></i> Đánh giá hoàn thành</button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- E: DEVELOP, Chờ duyệt -->
+            <tr class="gt-row" data-status="pending">
+              <td><span class="gt-type"><i class="bx bx-trending-up"></i> Phát triển</span></td>
+              <td class="gt-name">Cải thiện kỹ năng system design qua self-study và practice</td>
+              <td><div class="gt-result">Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-date">01/01 – 31/12</td>
+              <td><span class="badge b-action">Chờ duyệt</span></td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openDetail(document.getElementById('g5'))"><i class="bx bx-show"></i> Xem</button>
+                  <div class="gt-menu">
+                    <button class="gt-actbtn" title="Thao tác khác" onclick="toggleRowMenu(this)"><i class="bx bx-dots-vertical-rounded"></i></button>
+                    <div class="gt-menu-list">
+                      <button><i class="bx bx-undo"></i> Thu hồi</button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- F: DEVELOP, Nháp -->
+            <tr class="gt-row" data-status="draft">
+              <td><span class="gt-type"><i class="bx bx-trending-up"></i> Phát triển</span></td>
+              <td class="gt-name">Hoàn thành khoá AWS Solutions Architect và đạt chứng chỉ</td>
+              <td><div class="gt-result">Đạt chứng chỉ AWS Solutions Architect Associate trước 31/12/2026 và áp dụng vào tối thiểu 1 dự án thực tế.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-date">01/01 – 31/12</td>
+              <td><span class="badge b-action">Nháp</span></td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri accent" onclick="openEdit(document.getElementById('g6'))"><i class="bx bx-edit"></i> Sửa &amp; Gửi</button>
+                  <div class="gt-menu">
+                    <button class="gt-actbtn" title="Thao tác khác" onclick="toggleRowMenu(this)"><i class="bx bx-dots-vertical-rounded"></i></button>
+                    <div class="gt-menu-list">
+                      <button onclick="openDetail(document.getElementById('g6'))"><i class="bx bx-show"></i> Xem chi tiết</button>
+                      <button><i class="bx bx-send"></i> Gửi quản lý</button>
+                      <div class="gt-menu-sep"></div>
+                      <button class="danger"><i class="bx bx-trash"></i> Xoá</button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- ── Nhóm Mục tiêu hành vi ── -->
+            <tr class="gt-grouprow gt-extra"><td colspan="7"><i class="bx bx-heart"></i> Mục tiêu hành vi — 5 giá trị cốt lõi, cố định cho toàn bộ MoMoers, đánh giá tại MYR &amp; YER</td></tr>
+            <tr class="gt-row gt-extra">
+              <td><span class="gt-type"><i class="bx bx-heart"></i> Hành vi</span></td>
+              <td class="gt-name">Thấu hiểu khách hàng</td>
+              <td><div class="gt-result">Luôn đặt khách hàng làm trung tâm trong mọi quyết định, chủ động lắng nghe và thấu hiểu nhu cầu để mang lại trải nghiệm vượt mong đợi cho người dùng MoMo.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openHow(document.getElementById('h1'))"><i class="bx bx-show"></i> Xem</button>
+                </div>
+              </td>
+            </tr>
+            <tr class="gt-row gt-extra">
+              <td><span class="gt-type"><i class="bx bx-heart"></i> Hành vi</span></td>
+              <td class="gt-name">Đổi mới sáng tạo</td>
+              <td><div class="gt-result">Không ngừng tìm tòi giải pháp mới, dám thử nghiệm và chấp nhận rủi ro có tính toán để tạo ra giá trị khác biệt cho tổ chức và khách hàng.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openHow(document.getElementById('h2'))"><i class="bx bx-show"></i> Xem</button>
+                </div>
+              </td>
+            </tr>
+            <tr class="gt-row gt-extra">
+              <td><span class="gt-type"><i class="bx bx-heart"></i> Hành vi</span></td>
+              <td class="gt-name">Tinh thần đồng đội</td>
+              <td><div class="gt-result">Hợp tác cởi mở, chủ động chia sẻ thông tin và hỗ trợ đồng nghiệp vì mục tiêu chung, đặt lợi ích tập thể lên trên lợi ích cá nhân.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openHow(document.getElementById('h3'))"><i class="bx bx-show"></i> Xem</button>
+                </div>
+              </td>
+            </tr>
+            <tr class="gt-row gt-extra">
+              <td><span class="gt-type"><i class="bx bx-heart"></i> Hành vi</span></td>
+              <td class="gt-name">Thực thi xuất sắc</td>
+              <td><div class="gt-result">Cam kết với chất lượng cao nhất, hoàn thành công việc đúng hạn và luôn chịu trách nhiệm với kết quả mình tạo ra.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openHow(document.getElementById('h4'))"><i class="bx bx-show"></i> Xem</button>
+                </div>
+              </td>
+            </tr>
+            <tr class="gt-row gt-extra">
+              <td><span class="gt-type"><i class="bx bx-heart"></i> Hành vi</span></td>
+              <td class="gt-name">Tinh thần học hỏi không ngừng</td>
+              <td><div class="gt-result">Chủ động cập nhật kiến thức và kỹ năng mới, học hỏi từ cả thành công lẫn thất bại để liên tục phát triển bản thân.</div></td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td class="gt-na">—</td>
+              <td>
+                <div class="gt-act-cell">
+                  <button class="gt-pri" onclick="openHow(document.getElementById('h5'))"><i class="bx bx-show"></i> Xem</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /view-table -->
+  </main>
+</div><!-- /workspace -->
+</div><!-- /app -->
+
+
+<!-- ══════════════════════════════
+     DIALOG: TẠO MỤC TIÊU
+══════════════════════════════ -->
+<div class="overlay" id="dlg-create">
+  <div class="dialog">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <span class="dlg-title" id="create-title">Tạo mục tiêu mới</span>
+        <button class="dlg-close" onclick="closeCreate()"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <!-- Banner yêu cầu cập nhật (chỉ hiện ở chế độ sửa) -->
+      <div class="edit-banner" id="edit-banner" style="display:none">
+        <i class="bx bx-message-square-edit"></i>
+        <div><span class="eb-lbl">Quản lý yêu cầu cập nhật</span><span class="eb-text" id="edit-banner-text"></span></div>
+      </div>
+      <!-- Type -->
+      <div class="fg">
+        <label class="flbl" for="c-type">Loại mục tiêu <span class="req">*</span></label>
+        <select class="fc" id="c-type" onchange="pickType(this.value)">
+          <option value="">Chọn loại mục tiêu...</option>
+          <option value="what">Mục tiêu công việc</option>
+          <option value="develop">Mục tiêu phát triển</option>
+        </select>
+        <div class="ferr" id="e-type">Vui lòng chọn loại mục tiêu</div>
+      </div>
+      <!-- Row: Priority + dates -->
+      <div class="fg">
+        <div class="frow3">
+          <div id="c-pri-wrap">
+            <label class="flbl" for="c-pri">Mức độ ưu tiên <span class="req">*</span></label>
+            <select class="fc" id="c-pri" oninput="markDirty()">
+              <option value="">Chọn...</option>
+              <option>Cao</option><option>Trung bình</option><option>Thấp</option>
+            </select>
+          </div>
+          <div>
+            <label class="flbl" for="c-from">Từ ngày <span class="req">*</span></label>
+            <input type="date" class="fc" id="c-from" oninput="markDirty()">
+          </div>
+          <div>
+            <label class="flbl" for="c-to">Đến ngày <span class="req">*</span></label>
+            <input type="date" class="fc" id="c-to" oninput="markDirty()">
+          </div>
+        </div>
+        <div class="ferr" id="e-dates">Vui lòng điền đủ ưu tiên và thời gian</div>
+      </div>
+      <!-- Title -->
+      <div class="fg">
+        <label class="flbl" for="c-ttl" style="display:flex;align-items:center;gap:5px">Tên Mục tiêu <span class="req">*</span><i class="bx bx-info-circle tip-ico" id="c-ttl-tip-ico" onmouseenter="showTip(this)" onmouseleave="hideTip()"></i></label>
+      <div class="rte-wrap" id="rte-ttl">
+        <div class="rte-toolbar" onmousedown="if(event.target.tagName!=='SELECT')event.preventDefault()">
+          <select class="rte-fmt" title="Định dạng" onchange="rteFmt(this)"><option value="p">Normal</option><option value="h3">Heading</option></select>
+          <div class="rte-sep"></div>
+          <button type="button" class="rte-btn" data-cmd="bold" title="In đậm (Ctrl+B)" onclick="rteCmd('bold',this)"><b>B</b></button>
+          <button type="button" class="rte-btn" data-cmd="italic" title="In nghiêng (Ctrl+I)" onclick="rteCmd('italic',this)"><span style="font-style:italic">I</span></button>
+          <button type="button" class="rte-btn" data-cmd="underline" title="Gạch chân (Ctrl+U)" onclick="rteCmd('underline',this)"><u>U</u></button>
+          <div class="rte-sep"></div>
+          <div class="rte-color-wrap">
+            <button type="button" class="rte-color-trigger" title="Màu chữ" onclick="toggleColorPanel(this.closest('.rte-color-wrap'))"><span class="rte-color-indicator">A</span><i class="bx bx-chevron-down" style="font-size:10px;color:var(--z400)"></i></button>
+            <div class="rte-color-panel">
+              <button class="rte-swatch" style="background:#18181b" title="Đen" onclick="rteColor('#18181b',this)"></button>
+              <button class="rte-swatch" style="background:#dc2626" title="Đỏ" onclick="rteColor('#dc2626',this)"></button>
+              <button class="rte-swatch" style="background:#d97706" title="Cam" onclick="rteColor('#d97706',this)"></button>
+              <button class="rte-swatch" style="background:#16a34a" title="Xanh lá" onclick="rteColor('#16a34a',this)"></button>
+              <button class="rte-swatch" style="background:#2563eb" title="Xanh dương" onclick="rteColor('#2563eb',this)"></button>
+              <button class="rte-swatch" style="background:#7c3aed" title="Tím" onclick="rteColor('#7c3aed',this)"></button>
+              <button class="rte-swatch" style="background:#A50064" title="MoMo" onclick="rteColor('#A50064',this)"></button>
+            </div>
+          </div>
+          <div class="rte-sep"></div>
+          <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Danh sách" onclick="rteCmd('insertUnorderedList',this)"><i class="bx bx-list-ul" style="font-size:16px"></i></button>
+          <button type="button" class="rte-btn" title="Thêm liên kết" onclick="rteLink()"><i class="bx bx-link" style="font-size:15px"></i></button>
+        </div>
+        <div class="rte-body" contenteditable="true" id="c-ttl" data-placeholder="Mô tả ngắn gọn mục tiêu cần đạt..." oninput="updateCnt('c-ttl','cnt-ttl',1000);markDirty()" onkeyup="updateRteState()" onmouseup="updateRteState()"></div>
+      </div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px">
+          <div class="ferr on" id="e-ttl" style="display:none">Vui lòng nhập tiêu đề</div>
+          <span class="fcnt" id="cnt-ttl">0 / 1000</span>
+        </div>
+      </div>
+      <!-- Result -->
+      <div class="fg" style="margin-bottom:0">
+        <label class="flbl" for="c-res">Kết quả cần đạt <span class="req">*</span></label>
+      <div class="rte-wrap" id="rte-res">
+        <div class="rte-toolbar" onmousedown="if(event.target.tagName!=='SELECT')event.preventDefault()">
+          <select class="rte-fmt" title="Định dạng" onchange="rteFmt(this)"><option value="p">Normal</option><option value="h3">Heading</option></select>
+          <div class="rte-sep"></div>
+          <button type="button" class="rte-btn" data-cmd="bold" title="In đậm (Ctrl+B)" onclick="rteCmd('bold',this)"><b>B</b></button>
+          <button type="button" class="rte-btn" data-cmd="italic" title="In nghiêng (Ctrl+I)" onclick="rteCmd('italic',this)"><span style="font-style:italic">I</span></button>
+          <button type="button" class="rte-btn" data-cmd="underline" title="Gạch chân (Ctrl+U)" onclick="rteCmd('underline',this)"><u>U</u></button>
+          <div class="rte-sep"></div>
+          <div class="rte-color-wrap">
+            <button type="button" class="rte-color-trigger" title="Màu chữ" onclick="toggleColorPanel(this.closest('.rte-color-wrap'))"><span class="rte-color-indicator">A</span><i class="bx bx-chevron-down" style="font-size:10px;color:var(--z400)"></i></button>
+            <div class="rte-color-panel">
+              <button class="rte-swatch" style="background:#18181b" title="Đen" onclick="rteColor('#18181b',this)"></button>
+              <button class="rte-swatch" style="background:#dc2626" title="Đỏ" onclick="rteColor('#dc2626',this)"></button>
+              <button class="rte-swatch" style="background:#d97706" title="Cam" onclick="rteColor('#d97706',this)"></button>
+              <button class="rte-swatch" style="background:#16a34a" title="Xanh lá" onclick="rteColor('#16a34a',this)"></button>
+              <button class="rte-swatch" style="background:#2563eb" title="Xanh dương" onclick="rteColor('#2563eb',this)"></button>
+              <button class="rte-swatch" style="background:#7c3aed" title="Tím" onclick="rteColor('#7c3aed',this)"></button>
+              <button class="rte-swatch" style="background:#A50064" title="MoMo" onclick="rteColor('#A50064',this)"></button>
+            </div>
+          </div>
+          <div class="rte-sep"></div>
+          <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Danh sách" onclick="rteCmd('insertUnorderedList',this)"><i class="bx bx-list-ul" style="font-size:16px"></i></button>
+          <button type="button" class="rte-btn" title="Thêm liên kết" onclick="rteLink()"><i class="bx bx-link" style="font-size:15px"></i></button>
+        </div>
+        <div class="rte-body rte-lg" contenteditable="true" id="c-res" data-placeholder="KPI, Key Results và cách đo lường định lượng..." oninput="updateCnt('c-res','cnt-res',4000);markDirty()" onkeyup="updateRteState()" onmouseup="updateRteState()"></div>
+      </div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px">
+          <span class="fhint">Định lượng, đo lường được</span>
+          <span class="fcnt" id="cnt-res">0 / 4000</span>
+        </div>
+        <div class="ferr" id="e-res">Vui lòng nhập kết quả cần đạt</div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeCreate()">Huỷ</button>
+      <button class="btn btn-outline btn-sm" onclick="saveDraft()">Lưu nháp</button>
+      <button class="btn btn-default btn-sm" id="btn-submit" onclick="submitGoal()">Gửi quản lý <i class="bx bx-right-arrow-alt"></i></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     DIALOG: CHI TIẾT MỤC TIÊU
+══════════════════════════════ -->
+<div class="overlay" id="dlg-detail">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div style="flex:1;min-width:0">
+          <div class="dlg-badges" style="margin-bottom:0">
+            <span class="badge b-ok" id="d-status">Đã duyệt</span>
+            <span class="badge b-muted" id="d-type">Mục tiêu công việc</span>
+          </div>
+        </div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button>
+      </div>
+      <div class="dlg-tabs">
+        <button class="dlg-tab on" onclick="switchTab(0,this)">Thông tin</button>
+        <button class="dlg-tab" onclick="switchTab(1,this)">Bình luận <span class="dlg-tab-n" id="d-cmt-count">2</span></button>
+        <button class="dlg-tab" id="tab-eval" onclick="switchTab(2,this)" style="display:none">Đánh giá hoàn thành</button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <!-- Tab 0 -->
+      <div class="tpanel on" id="tp-0">
+        <div class="detail-row">
+          <span class="sec-lbl">Mục tiêu</span>
+          <div class="detail-val" id="d-title">Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms</div>
+        </div>
+        <div class="detail-row">
+          <span class="sec-lbl">Kết quả cần đạt</span>
+          <div class="detail-val" id="d-result">Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 &lt; 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026. Tiêu chí pass: không có payment latency incident trong suốt 90 ngày đo lường.</div>
+        </div>
+        <div class="detail-row" id="d-eval-summary" style="display:none">
+          <span class="sec-lbl">Đánh giá hoàn thành</span>
+          <div class="detail-eval" id="d-eval-summary-body"></div>
+        </div>
+        <div class="detail-row">
+          <div class="dg" style="margin-bottom:0">
+            <div class="df">
+              <label>Thời gian</label>
+              <div class="dv" id="d-time">01/01/2026 → 31/12/2026</div>
+            </div>
+            <div class="df" id="d-prio-wrap">
+              <label>Mức độ ưu tiên</label>
+              <div class="dv" id="d-prio">Cao</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Tab 1 -->
+      <div class="tpanel" id="tp-1">
+        <div class="comment-list" id="d-comments">
+          <div class="ci">
+            <div class="av av-what av-sm" style="flex-shrink:0">LT</div>
+            <div>
+              <div class="ci-name">Lê Thị Thanh</div>
+              <div class="ci-bubble">Mục tiêu rất rõ ràng, KPI đo lường cụ thể và có thể kiểm chứng. Đã duyệt.</div>
+              <div class="ci-time">14/01/2026, 16:30</div>
+            </div>
+          </div>
+          <div class="ci self">
+            <div class="av av-brand av-sm" style="flex-shrink:0">NT</div>
+            <div>
+              <div class="ci-name">Nguyễn Văn Tú</div>
+              <div class="ci-bubble">Cảm ơn anh/chị đã xem xét và duyệt ạ.</div>
+              <div class="ci-time">15/01/2026, 09:00</div>
+            </div>
+          </div>
+        </div>
+        <div class="cmt-empty" id="d-cmt-empty" style="display:none">
+          <i class="bx bx-message-square-dots"></i>
+          <span>Chưa có bình luận. Mục tiêu cần được gửi cho quản lý trước khi có thể trao đổi.</span>
+        </div>
+        <div class="cin-row" id="d-cmt-input">
+          <div class="av av-brand av-sm" style="flex-shrink:0;margin-bottom:2px">NT</div>
+          <textarea class="cin" placeholder="Nhập bình luận..."></textarea>
+          <button class="btn btn-default btn-sm">Gửi</button>
+        </div>
+      </div>
+      <!-- Tab 2: Đánh giá hoàn thành -->
+      <div class="tpanel" id="tp-2">
+        <div class="info-note" style="margin-bottom:14px">
+          <span class="proc-lbl" style="margin-top:1px">Lưu ý</span>
+          <span>Đánh giá hoàn thành áp dụng khi mục tiêu hoàn thành sớm trước kỳ MYR/YER. Nhân viên tự đánh giá trước, sau đó quản lý trực tiếp đánh giá.</span>
+        </div>
+        <div class="ev-steps">
+          <span class="ev-step" id="ev-step-1">① Nhân viên tự đánh giá</span>
+          <i class="bx bx-right-arrow-alt"></i>
+          <span class="ev-step" id="ev-step-2">② Quản lý đánh giá</span>
+        </div>
+
+        <div class="ev-cards" id="ev-cards">
+        <!-- Khối Nhân viên -->
+        <div class="ev-card" id="ev-self-card">
+          <div class="ev-card-hd-row">
+            <span class="ev-who-ico self"><i class="bx bx-user"></i></span>
+            <div class="ev-card-hd">Nhân viên tự đánh giá</div>
+          </div>
+          <!-- Chế độ nhập -->
+          <div id="ev-self-edit">
+            <div class="fg">
+              <label class="flbl" for="ev-self-score">Điểm của nhân viên <span class="req">*</span></label>
+              <select class="fc" id="ev-self-score" style="max-width:240px">
+                <option value="">Chọn điểm...</option>
+                <option value="5.0">5.0 — Hoàn thành vượt xa kỳ vọng</option>
+                <option value="4.5">4.5</option>
+                <option value="4.0">4.0 — Hoàn thành trên mức kỳ vọng</option>
+                <option value="3.5">3.5</option>
+                <option value="3.0">3.0 — Hoàn thành kỳ vọng</option>
+                <option value="2.5">2.5</option>
+                <option value="2.0">2.0 — Hoàn thành một phần</option>
+                <option value="1.5">1.5</option>
+                <option value="1.0">1.0 — Không đạt yêu cầu</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:10px">
+              <label class="flbl" for="ev-self-cmt">Đánh giá của nhân viên <span class="req">*</span></label>
+              <textarea class="fc" id="ev-self-cmt" rows="3" placeholder="Ghi nhận kết quả thực tế đã đạt được, số liệu minh chứng..."></textarea>
+              <div class="ferr" id="ev-self-err">Vui lòng chọn điểm và nhập kết quả thực đạt</div>
+            </div>
+            <button class="btn btn-default btn-sm" onclick="submitSelfEval()"><i class="bx bx-send"></i> Gửi đánh giá cho quản lý</button>
+          </div>
+          <!-- Chế độ xem -->
+          <div id="ev-self-view" style="display:none">
+            <div class="ev-score"><span id="ev-self-score-view"></span></div>
+            <div class="ev-cmt"><span class="ev-cmt-lbl">Đánh giá của nhân viên</span><span id="ev-self-cmt-view"></span></div>
+            <div class="ev-meta" id="ev-self-meta"></div>
+          </div>
+        </div>
+
+        <!-- Khối Quản lý -->
+        <div class="ev-card locked" id="ev-mgr-card">
+          <div class="ev-card-hd-row">
+            <span class="ev-who-ico mgr"><i class="bx bx-user-voice"></i></span>
+            <div class="ev-card-hd">Quản lý đánh giá</div>
+          </div>
+          <div class="ev-revise-box" id="ev-mgr-revise" style="display:none"><strong>Quản lý yêu cầu đánh giá lại:</strong> <span id="ev-mgr-revise-text"></span></div>
+          <div class="ev-locked-msg" id="ev-mgr-wait">Sẽ mở sau khi bạn gửi đánh giá cho quản lý.</div>
+          <div id="ev-mgr-view" style="display:none">
+            <div class="ev-score"><span id="ev-mgr-score-view"></span></div>
+            <div class="ev-cmt"><span class="ev-cmt-lbl">Đánh giá của quản lý</span><span id="ev-mgr-cmt-view"></span></div>
+            <div class="ev-meta" id="ev-mgr-meta"></div>
+          </div>
+        </div>
+        </div><!-- /ev-cards -->
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <span id="d-foot-note" style="font-size:12px;color:var(--z500);flex:1;display:flex;align-items:center;gap:4px">
+        <i class="bx bx-check-shield" style="color:var(--ok);font-size:14px"></i>
+        Duyệt bởi Lê Thị Thanh, 18/01/2026
+      </span>
+      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-detail')">Đóng</button>
+      <button class="btn btn-default btn-sm" id="d-foot-cta" style="display:none"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     DIALOG: CHI TIẾT MỤC TIÊU HÀNH VI
+══════════════════════════════ -->
+<div class="overlay" id="dlg-how">
+  <div class="dialog sm">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div style="flex:1;min-width:0">
+          <div class="dlg-badges" style="margin-bottom:3px"><span class="badge b-muted">Giá trị cốt lõi</span></div>
+          <div class="dlg-title" id="dh-name" style="font-size:15px">—</div>
+        </div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-how')"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <div style="margin-bottom:14px">
+        <span class="sec-lbl">Mô tả</span>
+        <div class="result-blk" id="dh-desc">—</div>
+      </div>
+      <div class="info-note">
+        <i class="bx bx-info-circle"></i>
+        <span>Giá trị cốt lõi cố định cho toàn bộ MoMoers, được đánh giá trong Kỳ giữa năm (MYR) và cuối năm (YER)</span>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-how')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     DIALOG: IMPORT CSV
+══════════════════════════════ -->
+<div class="overlay" id="dlg-import">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <span class="dlg-title">Import mục tiêu từ tập tin</span>
+        <button class="dlg-close" onclick="closeOverlay('dlg-import')"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <ol class="imp-steps">
+        <li class="imp-step">
+          <span class="proc-num">1</span>
+          <div class="imp-txt">
+            Tải xuống Template và điền thông tin theo đúng định dạng.
+            <div><button class="btn btn-outline btn-sm" style="margin-top:8px"><i class="bx bx-download"></i> Tải Template</button></div>
+          </div>
+        </li>
+        <li class="imp-step">
+          <span class="proc-num">2</span>
+          <div class="imp-txt">
+            Tải lên tập tin đã điền thông tin ở sheet <strong>'WHAT Goals'</strong> (Mục tiêu công việc) và <strong>'DEVELOPMENT Goals'</strong> (Mục tiêu phát triển).
+            <div class="imp-drop">
+              <i class="bx bx-cloud-upload"></i>
+              Kéo thả hoặc bấm để chọn tập tin (.xlsx, .csv)
+            </div>
+          </div>
+        </li>
+        <li class="imp-step">
+          <span class="proc-num">3</span>
+          <div class="imp-txt">Bấm <strong>'Đọc file'</strong> để hệ thống kiểm tra dữ liệu.</div>
+        </li>
+        <li class="imp-step">
+          <span class="proc-num">4</span>
+          <div class="imp-txt">Bấm nút <strong>'Import'</strong> để tải toàn bộ Mục tiêu lên hệ thống.</div>
+        </li>
+      </ol>
+      <div class="info-note">
+        <span class="proc-lbl" style="margin-top:1px">Lưu ý</span>
+        <span>Các mục tiêu lúc này sẽ ở trạng thái <strong style="color:var(--brand)">"Nháp"</strong>, hãy đọc lại toàn bộ trước khi Gửi duyệt cho Quản lý trực tiếp.</span>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-import')">Huỷ</button>
+      <button class="btn btn-outline btn-sm">Đọc file</button>
+      <button class="btn btn-default btn-sm"><i class="bx bx-upload"></i> Import</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Confirm dialog -->
+<div class="conf-dlg" id="dlg-confirm">
+  <div class="conf-box">
+    <div class="conf-title">Bỏ thay đổi?</div>
+    <div class="conf-body">Dữ liệu đã nhập sẽ bị mất nếu bạn đóng lúc này.</div>
+    <div class="conf-actions">
+      <button class="btn btn-ghost btn-sm" onclick="cancelConfirm()">Huỷ</button>
+      <button class="btn btn-destructive btn-sm" onclick="forceClose()">Đóng và mất dữ liệu</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ── FILTER ── */
+/* ── ROW ACTION MENU (table view) ── */
+function toggleRowMenu(btn) {
+  var menu = btn.closest('.gt-menu');
+  var isOpen = menu.classList.contains('open');
+  document.querySelectorAll('.gt-menu.open').forEach(function(m){ m.classList.remove('open'); });
+  if (!isOpen) menu.classList.add('open');
+  if (window.event) window.event.stopPropagation();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.gt-menu')) {
+    document.querySelectorAll('.gt-menu.open').forEach(function(m){ m.classList.remove('open'); });
+  }
+});
+
+/* ── VIEW SWITCH ── */
+function setView(v) {
+  document.getElementById('goal-grid').style.display = (v === 'table') ? 'none' : 'grid';
+  document.getElementById('view-table').style.display = (v === 'table') ? 'block' : 'none';
+  document.getElementById('vb-board').classList.toggle('on', v !== 'table');
+  document.getElementById('vb-table').classList.toggle('on', v === 'table');
+}
+
+/* ── SUMMARY COUNTS (ẩn trạng thái có 0 mục) ── */
+function renderSummary() {
+  var defs = [
+    { f: 'pending',  label: 'chờ duyệt' },
+    { f: 'update',   label: 'cần cập nhật' },
+    { f: 'rejected', label: 'từ chối' },
+    { f: 'approved', label: 'đã duyệt' }
+  ];
+  var counts = {};
+  document.querySelectorAll('#goal-grid .goal-item[data-status]').forEach(function(it) {
+    counts[it.dataset.status] = (counts[it.dataset.status] || 0) + 1;
+  });
+  var parts = defs.filter(function(d){ return (counts[d.f] || 0) > 0; }).map(function(d) {
+    return '<span class="s-link" data-f="' + d.f + '" onclick="applyFilter(\'' + d.f + '\');return false;"><b>' + counts[d.f] + '</b> ' + d.label + '</span>';
+  });
+  var html = parts.join('<span class="s-sep">|</span>');
+  html += '<span class="s-all" id="s-all" onclick="applyFilter(\'all\');return false;"><i class="bx bx-x"></i> Bỏ lọc</span>';
+  document.querySelector('.summary-text').innerHTML = html;
+}
+
+function applyFilter(val) {
+  var el = document.getElementById('sf');
+  if (el) el.value = val;
+  document.querySelectorAll('.goal-item[data-status]').forEach(function(item) {
+    item.classList.toggle('filtered-out', val !== 'all' && item.dataset.status !== val);
+  });
+  // lọc luôn hàng trong chế độ bảng
+  document.querySelectorAll('.gt-row[data-status]').forEach(function(row) {
+    row.classList.toggle('filtered-out', val !== 'all' && row.dataset.status !== val);
+  });
+  // nhóm Mục tiêu hành vi: ẩn khi đang lọc theo trạng thái mục tiêu
+  document.querySelectorAll('.gt-extra').forEach(function(row) {
+    row.classList.toggle('filtered-out', val !== 'all');
+  });
+  // "Bỏ lọc" chỉ hiện khi đang áp filter
+  var all = document.getElementById('s-all');
+  if (all) all.classList.toggle('show', val !== 'all');
+  // highlight mục đang lọc
+  document.querySelectorAll('.summary-text .s-link[data-f]').forEach(function(l) {
+    l.classList.toggle('active', val !== 'all' && l.dataset.f === val);
+  });
+  renderColEmpty();
+}
+
+/* ── EMPTY STATE cho cột mục tiêu ── */
+function renderColEmpty() {
+  [['list-what', 'what', 'công việc'], ['list-dev', 'develop', 'phát triển']].forEach(function(cfg) {
+    var list = document.getElementById(cfg[0]);
+    if (!list) return;
+    var items = list.querySelectorAll('.goal-item');
+    var visible = Array.prototype.filter.call(items, function(it) { return !it.classList.contains('filtered-out'); });
+    var empty = list.querySelector('.col-empty');
+    if (!empty) { empty = document.createElement('div'); empty.className = 'col-empty'; list.appendChild(empty); }
+    if (items.length === 0) {
+      empty.style.display = 'flex';
+      empty.innerHTML = '<i class="bx bx-folder-open"></i>'
+        + '<p class="col-empty-title">Bạn chưa có mục tiêu ' + cfg[2] + ' nào</p>'
+        + '<p class="col-empty-sub">Tạo mục tiêu đầu tiên để bắt đầu chu kỳ.</p>'
+        + '<button class="btn btn-default btn-sm" onclick="openCreate(\'' + cfg[1] + '\')"><i class="bx bx-plus"></i> Tạo mục tiêu đầu tiên</button>';
+    } else if (visible.length === 0) {
+      empty.style.display = 'flex';
+      empty.innerHTML = '<i class="bx bx-filter-alt"></i>'
+        + '<p class="col-empty-sub">Không có mục tiêu khớp bộ lọc hiện tại.</p>';
+    } else {
+      empty.style.display = 'none';
+    }
+  });
+}
+
+/* ── BULK ── */
+function syncBulk() {
+  var checked = document.querySelectorAll('.cb-item:checked');
+  var n = checked.length;
+  var bar = document.getElementById('bulk-bar');
+  var cntEl = document.getElementById('bulk-cnt');
+  var grid = document.getElementById('goal-grid');
+  var sendBtn = document.getElementById('bulk-send');
+
+  cntEl.textContent = n + ' đã chọn';
+  bar.classList.toggle('on', n > 0);
+  grid.classList.toggle('bulk-mode', n > 0);
+
+  var allDraft = n > 0 && Array.from(checked).every(function(cb) {
+    var item = cb.closest('.goal-item');
+    return item && item.dataset.status === 'draft';
+  });
+  sendBtn.disabled = !allDraft;
+  sendBtn.style.opacity = allDraft ? '1' : '.4';
+}
+
+function clearBulk() {
+  document.querySelectorAll('.cb-item').forEach(function(cb) { cb.checked = false; });
+  syncBulk();
+}
+
+function selAllDraft() {
+  document.querySelectorAll('.goal-item[data-status="draft"] .cb-item').forEach(function(cb) { cb.checked = true; });
+  syncBulk();
+}
+
+/* ── OVERLAYS ── */
+function openOverlay(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.overlay').forEach(function(o) {
+  o.addEventListener('click', function(e) {
+    if (e.target !== o) return;
+    if (o.id === 'dlg-create' && isDirty) { showConfirm(); return; }
+    closeOverlay(o.id);
+  });
+});
+
+/* ── DETAIL ── */
+function openDetail(el) {
+  if (el && el.classList.contains('goal-item')) {
+    var statusBadge = el.querySelector('.badge');
+    var prio = el.querySelector('.prio');
+    var titleEl = el.querySelector('.gi-title');
+    var dateEl = el.querySelector('.gi-date');
+    var col = el.closest('.goal-col');
+    var typeName = col ? col.querySelector('.col-type-lbl').textContent.trim() : '';
+
+    // Loại mục tiêu (lấy từ cột)
+    document.getElementById('d-type').textContent = typeName;
+
+    // Trạng thái (copy text + màu badge)
+    var dStatus = document.getElementById('d-status');
+    if (statusBadge) { dStatus.textContent = statusBadge.textContent.trim(); dStatus.className = statusBadge.className; }
+
+    // Tên mục tiêu + Kết quả cần đạt
+    document.getElementById('d-title').innerHTML = titleEl ? titleEl.innerHTML : '';
+    var richResult = el.querySelector('.gi-result-rich');
+    if (richResult) document.getElementById('d-result').innerHTML = richResult.innerHTML;
+    else document.getElementById('d-result').textContent = el.dataset.result || '—';
+
+    // Thời gian
+    document.getElementById('d-time').textContent = dateEl ? dateEl.textContent.trim() : '';
+
+    // Mức độ ưu tiên: ẩn với Mục tiêu phát triển
+    var isDev = typeName.indexOf('phát triển') >= 0;
+    var prioWrap = document.getElementById('d-prio-wrap');
+    if (prioWrap) prioWrap.style.display = isDev ? 'none' : '';
+    if (prio && !isDev) document.getElementById('d-prio').textContent = prio.textContent.trim();
+
+    // Footer "Duyệt bởi..." chỉ hiện khi đã duyệt
+    var foot = document.getElementById('d-foot-note');
+    if (foot) foot.style.display = (el.dataset.status === 'approved') ? 'flex' : 'none';
+
+    // CTA chính theo trạng thái mục tiêu
+    var cta = document.getElementById('d-foot-cta');
+    if (cta) {
+      var s = el.dataset.status;
+      cta.style.display = 'none'; cta.onclick = null;
+      if (s === 'update') {
+        cta.innerHTML = '<i class="bx bx-edit"></i> Sửa & gửi lại';
+        cta.className = 'btn btn-default btn-sm';
+        cta.onclick = function(){ closeOverlay('dlg-detail'); openEdit(el); };
+        cta.style.display = '';
+      } else if (s === 'draft') {
+        cta.innerHTML = '<i class="bx bx-send"></i> Gửi quản lý';
+        cta.className = 'btn btn-default btn-sm';
+        cta.onclick = function(){ closeOverlay('dlg-detail'); };
+        cta.style.display = '';
+      } else if (s === 'pending') {
+        cta.innerHTML = '<i class="bx bx-undo"></i> Thu hồi';
+        cta.className = 'btn btn-cta-outline btn-sm';
+        cta.onclick = function(){ closeOverlay('dlg-detail'); };
+        cta.style.display = '';
+      } else if (s === 'approved' && el.dataset.eval !== 'done') {
+        // Đã duyệt nhưng chưa hoàn thành đánh giá → cho phép NV thu hồi để sửa
+        cta.innerHTML = '<i class="bx bx-undo"></i> Thu hồi để sửa';
+        cta.className = 'btn btn-cta-outline btn-sm';
+        cta.onclick = function(){ closeOverlay('dlg-detail'); };
+        cta.style.display = '';
+      }
+    }
+
+    // Bình luận: nháp/chờ duyệt chưa được quản lý xem nên chưa có bình luận
+    var noCmt = (el.dataset.status === 'draft' || el.dataset.status === 'pending');
+    document.getElementById('d-comments').style.display = noCmt ? 'none' : '';
+    document.getElementById('d-cmt-empty').style.display = noCmt ? 'flex' : 'none';
+    document.getElementById('d-cmt-input').style.display = noCmt ? 'none' : '';
+    var cnt = document.getElementById('d-cmt-count');
+    cnt.textContent = noCmt ? '0' : '2';
+    cnt.style.display = noCmt ? 'none' : '';
+
+    // Tab Đánh giá hoàn thành: chỉ mục đã duyệt + tính năng đang bật
+    currentGoal = el;
+    var showEval = evalEnabled && el.dataset.status === 'approved' && el.dataset.eval;
+    document.getElementById('tab-eval').style.display = showEval ? '' : 'none';
+    if (showEval) renderEvalTab(el);
+
+    // Tóm tắt điểm đánh giá ngay trong tab Thông tin
+    var es = document.getElementById('d-eval-summary');
+    var esb = document.getElementById('d-eval-summary-body');
+    var st = el.dataset.eval;
+    if (showEval && st === 'done') {
+      es.style.display = '';
+      esb.innerHTML = '<span><span class="ev-who">NV</span><span class="ev-num">' + (el.dataset.evSelf || '') + '</span></span>'
+        + '<span class="ev-sep">·</span>'
+        + '<span><span class="ev-who">QL</span><span class="ev-num">' + (el.dataset.evMgr || '') + '</span></span>'
+        + '<span class="ev-sep">·</span>'
+        + '<a class="ev-link" onclick="switchTab(2,document.getElementById(\'tab-eval\'))">Xem chi tiết</a>';
+    } else if (showEval && st === 'selfdone') {
+      es.style.display = '';
+      esb.innerHTML = '<span><span class="ev-who">NV</span><span class="ev-num">' + (el.dataset.evSelf || '') + '</span></span>'
+        + '<span class="ev-sep">·</span>'
+        + '<span class="ev-wait-txt">Đang chờ quản lý đánh giá</span>'
+        + '<span class="ev-sep">·</span>'
+        + '<a class="ev-link" onclick="switchTab(2,document.getElementById(\'tab-eval\'))">Xem chi tiết</a>';
+    } else if (evalEnabled && el.dataset.status === 'approved' && (!st || st === 'none')) {
+      // Mục đã duyệt nhưng chưa đánh giá hoàn thành — hiện ghi chú đồng bộ với các info-note khác
+      es.style.display = '';
+      esb.innerHTML = '<span class="ev-note"><span class="proc-lbl">Lưu ý</span>'
+        + '<span>Đánh giá hoàn thành áp dụng khi mục tiêu hoàn thành sớm trước kỳ MYR/YER. '
+        + 'Khi đủ điều kiện, tab <strong>Đánh giá hoàn thành</strong> sẽ mở để bạn tự đánh giá trước, sau đó quản lý trực tiếp đánh giá.</span></span>';
+    } else {
+      es.style.display = 'none';
+    }
+  }
+  openOverlay('dlg-detail');
+  switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
+}
+function openHow(el) {
+  document.getElementById('dh-name').textContent = el.querySelector('.how-name').textContent.trim();
+  document.getElementById('dh-desc').textContent = el.dataset.desc || '—';
+  openOverlay('dlg-how');
+}
+function switchTab(i, btn) {
+  document.querySelectorAll('#dlg-detail .dlg-tab').forEach(function(t) { t.classList.remove('on'); });
+  document.querySelectorAll('.tpanel').forEach(function(p) { p.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+  var p = document.getElementById('tp-' + i);
+  if (p) p.classList.add('on');
+}
+
+/* ── COMPLETION EVALUATION ── */
+var evalEnabled = true;
+var currentGoal = null;
+
+function applyEvalFeature() {
+  evalEnabled = document.getElementById('eval-toggle').checked;
+  document.querySelectorAll('.eval-only').forEach(function(e) { e.style.display = evalEnabled ? '' : 'none'; });
+}
+
+function scoreLabel(v) {
+  var n = parseFloat(v);
+  if (n % 1 !== 0) return ''; // điểm thập phân (x.5) không có tên
+  if (n === 5) return 'Hoàn thành vượt xa kỳ vọng';
+  if (n === 4) return 'Hoàn thành trên mức kỳ vọng';
+  if (n === 3) return 'Hoàn thành kỳ vọng';
+  if (n === 2) return 'Hoàn thành một phần';
+  if (n === 1) return 'Không đạt yêu cầu';
+  return '';
+}
+function scoreHTML(v) {
+  if (!v) return '';
+  var lbl = scoreLabel(v);
+  return '<span class="ev-score-num">' + v + '</span>'
+       + '<span class="ev-score-max">/ 5</span>'
+       + (lbl ? '<span class="ev-score-lbl">' + lbl + '</span>' : '');
+}
+
+function todayStr() {
+  var d = new Date(), p = function(n){ return (n < 10 ? '0' : '') + n; };
+  return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear();
+}
+
+function renderEvalTab(el) {
+  var state = el.dataset.eval || 'none';
+  var $ = function(id){ return document.getElementById(id); };
+  $('ev-mgr-revise').style.display = 'none';
+  $('ev-mgr-wait').textContent = 'Sẽ mở sau khi bạn gửi đánh giá cho quản lý.';
+  // Bố cục song song khi nhân viên đã đánh giá xong (để so sánh với quản lý)
+  $('ev-cards').classList.toggle('compare', state === 'selfdone' || state === 'done');
+
+  if (state === 'none' || state === 'revise') {
+    $('ev-self-edit').style.display = 'block';
+    $('ev-self-view').style.display = 'none';
+    $('ev-self-score').value = el.dataset.evSelf || '';
+    $('ev-self-cmt').value = el.dataset.evSelfCmt || '';
+    hideErr('ev-self-err');
+    $('ev-mgr-wait').style.display = 'block';
+    $('ev-mgr-view').style.display = 'none';
+    $('ev-mgr-card').classList.add('locked');
+    if (state === 'revise') {
+      $('ev-mgr-revise').style.display = 'block';
+      $('ev-mgr-revise-text').textContent = el.dataset.evMgrRevise || '';
+      $('ev-mgr-wait').style.display = 'none';
+    }
+    $('ev-step-1').className = 'ev-step active';
+    $('ev-step-2').className = 'ev-step';
+  } else {
+    // selfdone hoặc done: ô NV read-only
+    $('ev-self-edit').style.display = 'none';
+    $('ev-self-view').style.display = 'block';
+    $('ev-self-score-view').innerHTML = scoreHTML(el.dataset.evSelf);
+    $('ev-self-cmt-view').textContent = el.dataset.evSelfCmt || '';
+    $('ev-self-meta').textContent = 'Nguyễn Văn Tú, ' + (el.dataset.evSelfTime || '');
+    if (state === 'done') {
+      $('ev-mgr-wait').style.display = 'none';
+      $('ev-mgr-view').style.display = 'block';
+      $('ev-mgr-card').classList.remove('locked');
+      $('ev-mgr-score-view').innerHTML = scoreHTML(el.dataset.evMgr);
+      $('ev-mgr-cmt-view').textContent = el.dataset.evMgrCmt || '';
+      $('ev-mgr-meta').textContent = 'Lê Thị Thanh, ' + (el.dataset.evMgrTime || '');
+      $('ev-step-1').className = 'ev-step done';
+      $('ev-step-2').className = 'ev-step done';
+    } else {
+      $('ev-mgr-wait').style.display = 'block';
+      $('ev-mgr-wait').textContent = 'Đang chờ quản lý trực tiếp đánh giá.';
+      $('ev-mgr-view').style.display = 'none';
+      $('ev-mgr-card').classList.add('locked');
+      $('ev-step-1').className = 'ev-step done';
+      $('ev-step-2').className = 'ev-step active';
+    }
+  }
+}
+
+function openEvalTab(el) {
+  openDetail(el);
+  var tab = document.getElementById('tab-eval');
+  if (tab && tab.style.display !== 'none') switchTab(2, tab);
+}
+
+function submitSelfEval() {
+  var score = document.getElementById('ev-self-score').value;
+  var cmt = document.getElementById('ev-self-cmt').value.trim();
+  if (!score || !cmt) { showErr('ev-self-err'); return; }
+  hideErr('ev-self-err');
+  if (currentGoal) {
+    currentGoal.dataset.eval = 'selfdone';
+    currentGoal.dataset.evSelf = score;
+    currentGoal.dataset.evSelfCmt = cmt;
+    currentGoal.dataset.evSelfTime = todayStr();
+    renderEvalTab(currentGoal);
+    updateEvalChip(currentGoal);
+  }
+}
+
+function updateEvalChip(el) {
+  var state = el.dataset.eval, meta = el.querySelector('.gi-meta');
+  if (meta) {
+    var existing = meta.querySelector('.eval-chip');
+    if (existing) existing.remove();
+    var html = '';
+    if (state === 'done') html = '<span class="eval-pair eval-only" title="Điểm tự đánh giá của nhân viên (NV) và điểm của quản lý (QL)"><span class="ep-seg"><span class="ep-who">NV</span>' + (el.dataset.evSelf || '') + '</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span>' + (el.dataset.evMgr || '') + '</span></span>';
+    else if (state === 'selfdone') html = '<span class="eval-chip eval-wait eval-only">Chờ quản lý đánh giá</span>';
+    else if (state === 'revise') html = '<span class="eval-chip eval-revise eval-only">Cần đánh giá lại</span>';
+    // Khi đã có cả 2 đánh giá → mục tiêu chuyển trạng thái "Hoàn thành"
+    var badge = meta.querySelector('.badge');
+    if (state === 'done' && badge) { badge.textContent = 'Hoàn thành'; badge.className = 'badge b-done'; }
+    if (html && badge) badge.insertAdjacentHTML('afterend', html);
+  }
+  // bỏ nút "Đánh giá hoàn thành" trên thẻ khi đã gửi
+  if (state !== 'none') el.querySelectorAll('.gi-actions .eval-only').forEach(function(x){ x.remove(); });
+}
+
+/* ── CREATE ── */
+var isDirty = false;
+var selType = null;
+
+function openCreate(type) {
+  openOverlay('dlg-create');
+  if (type) pickType(type);
+}
+
+function openEdit(el) {
+  if (!el) return;
+  resetCreate();
+  openOverlay('dlg-create');
+  var status = el.dataset.status;
+  var col = el.closest('.goal-col');
+  var typeName = col ? col.querySelector('.col-type-lbl').textContent : '';
+  pickType(typeName.indexOf('phát triển') >= 0 ? 'develop' : 'what');
+  // Ưu tiên
+  var prio = el.querySelector('.prio');
+  document.getElementById('c-pri').value = prio ? prio.textContent.trim() : '';
+  // Thời gian: tách từ "DD/MM → DD/MM/YYYY"
+  var dateEl = el.querySelector('.gi-date');
+  if (dateEl) {
+    var seg = dateEl.textContent.split('→');
+    if (seg.length === 2) {
+      var a = seg[0].trim().split('/'), b = seg[1].trim().split('/');
+      if (b.length === 3) {
+        document.getElementById('c-from').value = b[2] + '-' + a[1] + '-' + a[0];
+        document.getElementById('c-to').value = b[2] + '-' + b[1] + '-' + b[0];
+      }
+    }
+  }
+  // Tên + Kết quả
+  var titleEl = el.querySelector('.gi-title');
+  var cttl = document.getElementById('c-ttl');
+  if (cttl) { if (cttl.contentEditable==='true') cttl.innerText = titleEl ? titleEl.textContent.trim() : ''; else cttl.value = titleEl ? titleEl.textContent.trim() : ''; }
+  var rich = el.querySelector('.gi-result-rich');
+  var cres = document.getElementById('c-res');
+  if (cres) { if (cres.contentEditable==='true') { if (rich) cres.innerHTML = rich.innerHTML; else cres.innerText = el.dataset.result || ''; } else cres.value = rich ? rich.innerText.trim() : (el.dataset.result || ''); }
+  updateCnt('c-ttl', 'cnt-ttl', 1000);
+  updateCnt('c-res', 'cnt-res', 4000);
+  // Tiêu đề + banner + nút theo trạng thái
+  var note = el.dataset.updatenote;
+  if (status === 'update' && note) {
+    document.getElementById('create-title').textContent = 'Sửa & gửi lại mục tiêu';
+    document.getElementById('edit-banner-text').textContent = note;
+    document.getElementById('edit-banner').style.display = 'flex';
+    document.getElementById('btn-submit').innerHTML = 'Gửi lại <i class="bx bx-right-arrow-alt"></i>';
+  } else {
+    document.getElementById('create-title').textContent = 'Sửa mục tiêu';
+    document.getElementById('btn-submit').innerHTML = 'Gửi quản lý <i class="bx bx-right-arrow-alt"></i>';
+  }
+  isDirty = false;
+}
+
+function markDirty() { isDirty = true; }
+
+function pickType(t) {
+  isDirty = true;
+  selType = t || null;
+  var sel = document.getElementById('c-type');
+  if (sel && sel.value !== (t || '')) sel.value = t || '';
+  if (selType) hideErr('e-type');
+  var priWrap = document.getElementById('c-pri-wrap');
+  var frow = priWrap ? priWrap.parentElement : null;
+  if (priWrap) {
+    var isDev = (t === 'develop');
+    priWrap.style.display = isDev ? 'none' : '';
+    if (isDev) document.getElementById('c-pri').value = '';
+    if (frow) frow.style.gridTemplateColumns = isDev ? '1fr 1fr' : '1fr 1fr 1fr';
+  }
+  var tipIco = document.getElementById('c-ttl-tip-ico');
+  if (tipIco) {
+    if (t) {
+      tipIco.classList.add('visible');
+      tipIco.dataset.tip = (t === 'develop')
+        ? 'Thiết lập Mục tiêu theo nguyên tắc 70-20-10: 70% học thực tế trong công việc, 20% học hỏi từ người khác, và 10% là học thông qua các chương trình đào tạo.'
+        : 'Thiết lập Mục tiêu theo nguyên tắc SMART: rõ ràng, đo lường được, khả thi, liên quan đến Mục tiêu chung, và có thời hạn.';
+    } else {
+      tipIco.classList.remove('visible');
+    }
+  }
+}
+
+function updateCnt(fid, cid, max) {
+  var f = document.getElementById(fid), c = document.getElementById(cid);
+  if (!f || !c) return;
+  var l = f.contentEditable === 'true' ? f.innerText.replace(/\n$/, '').length : f.value.length;
+  c.textContent = l + ' / ' + max;
+  c.style.color = l > max * 0.85 ? 'var(--warn)' : 'var(--z400)';
+}
+
+function showErr(id) { var el = document.getElementById(id); if(el) el.classList.add('on'), el.style.display='block'; }
+function hideErr(id) { var el = document.getElementById(id); if(el) el.classList.remove('on'), el.style.display='none'; }
+
+function validate(full) {
+  var ok = true;
+  selType = document.getElementById('c-type').value || null;
+  if (!selType) { showErr('e-type'); ok = false; } else { hideErr('e-type'); }
+  if (full) {
+    var p = document.getElementById('c-pri').value;
+    var f = document.getElementById('c-from').value;
+    var t = document.getElementById('c-to').value;
+    var needPri = selType !== 'develop';
+    if ((needPri && !p) || !f || !t) { showErr('e-dates'); ok = false; } else { hideErr('e-dates'); }
+    var ttlEl = document.getElementById('c-ttl');
+    var ttl = ttlEl ? (ttlEl.contentEditable === 'true' ? ttlEl.innerText.trim() : ttlEl.value.trim()) : '';
+    if (!ttl) { showErr('e-ttl'); document.getElementById('rte-ttl').classList.add('err'); ok = false; }
+    else { hideErr('e-ttl'); document.getElementById('rte-ttl').classList.remove('err'); }
+    var resEl = document.getElementById('c-res');
+    var res = resEl ? (resEl.contentEditable === 'true' ? resEl.innerText.trim() : resEl.value.trim()) : '';
+    if (!res) { showErr('e-res'); document.getElementById('rte-res').classList.add('err'); ok = false; }
+    else { hideErr('e-res'); document.getElementById('rte-res').classList.remove('err'); }
+  }
+  return ok;
+}
+
+function saveDraft() { if (validate(false)) doClose(); }
+function submitGoal() { if (validate(true)) doClose(); }
+function closeCreate() { if (isDirty) showConfirm(); else doClose(); }
+
+function doClose() {
+  closeOverlay('dlg-create');
+  resetCreate();
+}
+function resetCreate() {
+  isDirty = false; selType = null;
+  ['c-ttl','c-res'].forEach(function(id){ var el=document.getElementById(id); if(el){ if(el.contentEditable==='true') el.innerHTML=''; else {el.value='';} } });
+  ['rte-ttl','rte-res'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('err'); });
+  ['c-type','c-pri','c-from','c-to'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('cnt-ttl').textContent='0 / 1000';
+  document.getElementById('cnt-res').textContent='0 / 4000';
+  ['e-type','e-dates','e-ttl','e-res'].forEach(function(id){ hideErr(id); });
+  var priWrap = document.getElementById('c-pri-wrap');
+  if (priWrap) { priWrap.style.display = ''; priWrap.parentElement.style.gridTemplateColumns = '1fr 1fr 1fr'; }
+  var tipIco = document.getElementById('c-ttl-tip-ico');
+  if (tipIco) { tipIco.classList.remove('visible'); hideTip(); }
+  // khôi phục về chế độ tạo mới (phòng khi vừa ở chế độ sửa)
+  document.getElementById('create-title').textContent = 'Tạo mục tiêu mới';
+  document.getElementById('edit-banner').style.display = 'none';
+  document.getElementById('btn-submit').innerHTML = 'Gửi quản lý <i class="bx bx-right-arrow-alt"></i>';
+}
+
+function showConfirm() { document.getElementById('dlg-confirm').classList.add('open'); }
+function cancelConfirm() { document.getElementById('dlg-confirm').classList.remove('open'); }
+function forceClose() { document.getElementById('dlg-confirm').classList.remove('open'); doClose(); }
+
+/* ── TOOLTIP ── */
+var _tipEl = null;
+function showTip(ico) {
+  if (!ico.dataset.tip) return;
+  if (!_tipEl) { _tipEl = document.createElement('div'); _tipEl.className = 'floating-tip'; document.body.appendChild(_tipEl); }
+  _tipEl.textContent = ico.dataset.tip;
+  _tipEl.style.display = 'block';
+  var r = ico.getBoundingClientRect();
+  var top = r.top + r.height / 2;
+  var left = r.right + 10;
+  _tipEl.style.left = left + 'px';
+  _tipEl.style.top = top + 'px';
+  _tipEl.style.transform = 'translateY(-50%)';
+  /* flip sang trái nếu tràn viewport */
+  var tw = _tipEl.offsetWidth;
+  if (left + tw + 8 > window.innerWidth) {
+    _tipEl.style.left = (r.left - tw - 10) + 'px';
+    _tipEl.style.setProperty('--arr-side','left');
+  }
+}
+function hideTip() { if (_tipEl) _tipEl.style.display = 'none'; }
+
+/* ── RICH TEXT EDITOR ── */
+function rteCmd(cmd, btn) {
+  document.execCommand(cmd, false, null);
+  updateRteState();
+}
+function rteFmt(sel) {
+  document.execCommand('formatBlock', false, sel.value);
+  var body = sel.closest('.rte-wrap').querySelector('.rte-body');
+  if (body) body.focus();
+}
+function rteColor(color, swatch) {
+  document.execCommand('foreColor', false, color);
+  var wrap = swatch.closest('.rte-color-wrap');
+  var ind = wrap ? wrap.querySelector('.rte-color-indicator') : null;
+  if (ind) ind.style.borderBottomColor = color;
+  if (wrap) wrap.classList.remove('open');
+}
+function toggleColorPanel(wrap) {
+  var isOpen = wrap.classList.contains('open');
+  document.querySelectorAll('.rte-color-wrap.open').forEach(function(w){ w.classList.remove('open'); });
+  if (!isOpen) wrap.classList.add('open');
+}
+function rteLink() {
+  var url = prompt('Nhập URL liên kết:', 'https://');
+  if (url && url.length > 8) document.execCommand('createLink', false, url);
+}
+function updateRteState() {
+  try {
+    document.querySelectorAll('.rte-btn[data-cmd]').forEach(function(btn) {
+      btn.classList.toggle('active', !!document.queryCommandState(btn.dataset.cmd));
+    });
+  } catch(e) {}
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.rte-color-wrap')) {
+    document.querySelectorAll('.rte-color-wrap.open').forEach(function(w){ w.classList.remove('open'); });
+  }
+});
+
+/* Khởi tạo */
+renderSummary();
+applyEvalFeature();
+renderColEmpty();
+</script>
+</body>
+</html>

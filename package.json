@@ -1,0 +1,11 @@
+{
+  "name": "pms-prototype-ui",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --port 5173 --open"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
