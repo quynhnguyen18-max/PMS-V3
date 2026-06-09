@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chi tiết Mục tiêu – Nguyễn Văn Tú | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══ TOKENS ═══ */
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --what:#2563eb;--what-bg:#eff6ff;--what-bd:#bfdbfe;
+  --dev:#7c3aed; --dev-bg:#f5f3ff; --dev-bd:#ddd6fe;
+  --how:#0f766e; --how-bg:#f0fdfa; --how-bd:#99f6e4;
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
+  --upd:#7c3aed;--upd-bg:#f5f3ff;--upd-bd:#ddd6fe;
+  --sw:232px;--nh:52px;
+  --r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--brand);text-decoration:none}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+
+/* ── SHELL ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ── SIDEBAR ── */
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t);letter-spacing:.1px}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.role-btn:hover:not(.on){background:var(--z100);border-color:var(--z400);color:var(--z700)}
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500);transition:var(--t)}
+.sb-item:hover i{color:var(--z600)}.sb-item.on i{color:var(--brand)}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0;background:var(--z0);position:sticky;bottom:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.sb-user:hover{background:var(--z100)}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:-.3px}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-sm{width:24px;height:24px;font-size:10px}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);border:none;background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative;cursor:pointer}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.notif-dot{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--err);border:1.5px solid var(--z0)}
+
+/* ── PAGE ── */
+.page{padding:20px 24px;flex:1}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
+.breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800);text-decoration:underline}.bc-sep{color:var(--z400)}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.cycle-row{display:flex;align-items:center;gap:8px}
+.cycle-row i{font-size:14px;color:var(--z500)}
+.cycle-lbl{font-size:13px;color:var(--z500)}
+.cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);font-weight:500;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}.btn-default:hover{background:var(--brand-h)}.btn-default:disabled{opacity:.45;cursor:not-allowed}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
+.btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600}.btn-cta-outline:hover{background:var(--brand-muted)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}.btn-ghost:hover{background:var(--z100);color:var(--z900)}
+.btn-destructive{background:transparent;border-color:var(--err-bd);color:var(--err)}.btn-destructive:hover{background:var(--err-bg)}
+.btn-ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn-ok:hover{background:#15803d}.btn-ok:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{padding:4px 10px;font-size:12.5px}
+.btn-xs{padding:2px 8px;font-size:11.5px}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
+.b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}
+.b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok);display:inline-flex;align-items:center;gap:3px}
+.b-done i{font-size:13px;line-height:1}
+.b-action{color:var(--brand);background:transparent;border-color:var(--brand)}
+.b-warn{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
+.b-err{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
+.b-info{color:var(--info);background:var(--info-bg);border-color:var(--info-bd)}
+.b-upd{color:var(--upd);background:var(--upd-bg);border-color:var(--upd-bd)}
+.b-muted{color:var(--z500);background:var(--z100);border-color:var(--z200)}
+.b-what{color:var(--what);background:var(--what-bg);border-color:var(--what-bd)}
+.b-dev{color:var(--dev);background:var(--dev-bg);border-color:var(--dev-bd)}
+.prio{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;white-space:nowrap}
+.prio-h{background:var(--z200);color:var(--z900);font-weight:600}
+.prio-m{background:var(--z100);color:var(--z600)}
+.prio-l{background:transparent;color:var(--z400)}
+.gt-na{color:var(--z400);font-size:13px;font-weight:400}
+
+/* ── EVAL PAIR (scores summary in table) ── */
+.eval-pair{display:inline-flex;align-items:center;gap:5px;height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid var(--z200);background:var(--z100);white-space:nowrap}
+.eval-pair .ep-seg{display:inline-flex;align-items:center;gap:3px;color:var(--z600)}
+.eval-pair .ep-seg.ep-mgr{color:var(--z600);font-weight:600}
+.eval-pair .ep-who{font-size:9px;font-weight:700;letter-spacing:.3px;color:var(--z500)}
+.eval-pair .ep-div{width:1px;height:11px;background:var(--z200)}
+
+/* ── BULK BAR ── */
+.bulk-bar{display:none;align-items:center;gap:7px;padding:7px 12px;background:var(--z0);border:1px solid var(--brand);border-radius:var(--rsm);margin-bottom:10px;position:sticky;top:calc(var(--nh) + 8px);z-index:50;box-shadow:var(--sh-md)}
+.bulk-bar.on{display:flex}
+.bulk-sep{width:1px;height:16px;background:var(--z200);margin:0 2px}
+.bulk-cnt{font-size:13px;font-weight:600;color:var(--brand)}
+.bulk-warn{font-size:12.5px;font-weight:500;color:var(--warn);display:flex;align-items:center;gap:4px}
+.bulk-warn i{font-size:14px}
+
+/* ── TABLE ── */
+.gtable-wrap{border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);overflow:visible;width:100%}
+.gtable{width:100%;border-collapse:collapse;background:var(--z0);font-size:13px}
+.gtable th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);background:var(--brand-muted);padding:10px 12px;border-bottom:1px solid var(--brand-ring);white-space:nowrap}
+.gtable td{padding:11px 12px;border-bottom:1px solid var(--z200);vertical-align:middle;color:var(--z900);font-size:13px;font-weight:500;line-height:1.45}
+.gtable tbody tr:last-child td{border-bottom:none}
+.gtable tbody tr{transition:background .08s}
+.gtable tbody tr:not(.gt-grouprow){cursor:pointer}
+.gtable tbody tr:not(.gt-grouprow):hover{background:var(--z50)}
+
+/* Goal type in column */
+.gt-type{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:13px;font-weight:500}
+.gt-type i{font-size:15px;flex-shrink:0}
+.gt-type.what{color:var(--what)}.gt-type.what i{color:var(--what)}
+.gt-type.dev{color:var(--dev)}.gt-type.dev i{color:var(--dev)}
+.gt-type.how{color:var(--how)}.gt-type.how i{color:var(--how)}
+
+/* Goal name cell */
+.gt-name{font-weight:500;color:var(--z900);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Result cell */
+.gt-result{color:var(--z700);font-weight:400;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+
+/* Date cell — single line DD/MM – DD/MM */
+.gt-date{white-space:nowrap;color:var(--z700);font-size:13px;font-weight:400}
+
+/* Status cell — badge + optional eval pair */
+.gt-status-cell{vertical-align:middle}
+.gt-eval-sub{display:block;margin-top:4px}
+
+/* Action cell */
+.gt-act-cell{display:flex;align-items:center;gap:2px}
+
+/* Checkbox column */
+.gt-cb-td{width:36px;padding:0 0 0 10px;text-align:center;vertical-align:middle}
+.gt-cb-wrap{opacity:0;transition:opacity .1s}
+.gt-row:hover .gt-cb-wrap,.gt-bulk-mode .gt-cb-wrap{opacity:1}
+.gt-row:has(.gt-cb:checked) .gt-cb-wrap{opacity:1}
+.gt-cb{width:13px;height:13px;cursor:pointer;accent-color:var(--brand);display:block}
+
+/* Icon-only action buttons */
+.gt-pri{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:16px}
+.gt-pri:hover{background:var(--z100);color:var(--z800)}
+.gt-pri.accent{color:var(--brand)}.gt-pri.accent:hover{background:var(--brand-muted);color:var(--brand)}
+.gt-pri.ok{color:var(--ok)}.gt-pri.ok:hover{background:var(--ok-bg)}
+.gt-pri.warn{color:var(--warn)}.gt-pri.warn:hover{background:var(--warn-bg)}
+.gt-pri.danger{color:var(--err)}.gt-pri.danger:hover{background:var(--err-bg)}
+
+/* Group row (for section headers) */
+.gt-grouprow td{background:var(--z100);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);padding:7px 12px;cursor:default}
+.gt-grouprow td i{font-size:13px;margin-right:4px;vertical-align:middle;color:var(--brand)}
+
+/* ── EMPLOYEE HEADER ── */
+.emp-hdr{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);margin-bottom:16px;box-shadow:var(--sh-sm)}
+.emp-hdr-av{width:44px;height:44px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;letter-spacing:-.5px}
+.emp-hdr-info{flex:1;min-width:0}
+.emp-hdr-name{font-size:15px;font-weight:700;color:var(--z900);line-height:1.2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.emp-hdr-login{font-size:13px;font-weight:400;color:var(--z500)}
+.emp-hdr-meta{font-size:12.5px;color:var(--z600);margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.emp-hdr-dot{width:3px;height:3px;border-radius:50%;background:var(--z400);flex-shrink:0}
+.emp-hdr-stats{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.emp-stat-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--rsm);font-size:12px;font-weight:500;border:1px solid;white-space:nowrap}
+.esp-total{background:var(--z50);border-color:var(--z200);color:var(--z700)}
+.esp-pending{background:var(--info-bg);border-color:var(--info-bd);color:var(--info)}
+.esp-eval{background:var(--brand-muted);border-color:var(--brand-ring);color:var(--brand)}
+.esp-num{font-size:15px;font-weight:700;line-height:1}
+
+/* ── FORM FIELDS ── */
+.fg{margin-bottom:13px}
+.flbl{display:block;font-size:12.5px;font-weight:500;color:var(--z700);margin-bottom:4px}
+.flbl .req{color:var(--err);margin-left:2px}
+.fc{width:100%;padding:6px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13.5px;font-family:inherit;color:var(--z900);background:var(--z0);transition:var(--t);outline:none;line-height:1.5}
+.fc:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.fc::placeholder{color:var(--z400)}
+select.fc{appearance:none;-webkit-appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;cursor:pointer}
+textarea.fc{resize:vertical;min-height:80px}
+.fhint{font-size:11.5px;color:var(--z500);margin-top:3px}
+
+/* ── DETAIL FIELDS ── */
+.dg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.dg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.df label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:3px}
+.df .dv{font-size:13.5px;color:var(--z700);font-weight:400;line-height:1.65}
+.detail-row{padding:13px 0;border-bottom:1px solid var(--z200)}
+.detail-row:first-child{padding-top:2px}
+.detail-row:last-child{border-bottom:none;padding-bottom:2px}
+.detail-val{font-size:13.5px;color:var(--z700);line-height:1.65;background:var(--z50);border-radius:var(--rsm);padding:9px 12px;margin-top:6px;word-break:break-word}
+.sec-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:6px}
+.divider{height:1px;background:var(--z100);margin:12px 0}
+
+/* ── MODAL / DIALOG ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.overlay.open{display:flex;animation:ov-in .15s ease}
+@keyframes ov-in{from{opacity:0}to{opacity:1}}
+.dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
+.dialog.md{max-width:640px}
+.dialog.sm{max-width:400px}
+@keyframes dlg-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.dlg-hd{padding:16px 20px 0;flex-shrink:0}
+.dlg-hd-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px}
+.dlg-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.dlg-title{font-size:15px;font-weight:600;color:var(--z900);flex:1;line-height:1.4;word-break:break-word}
+.dlg-close{width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--t);flex-shrink:0;cursor:pointer}
+.dlg-close:hover{background:var(--z100);color:var(--z700)}
+.dlg-tabs{display:flex;border-bottom:1px solid var(--z200);padding:0 20px;margin-top:8px}
+.dlg-tab{padding:7px 12px;font-size:13px;font-weight:400;color:var(--z500);border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--t);cursor:pointer;font-family:inherit;white-space:nowrap}
+.dlg-tab:hover{color:var(--z700)}
+.dlg-tab.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.dlg-body{padding:16px 20px;overflow-y:auto;flex:1}
+.dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:flex-end;flex-shrink:0;align-items:center}
+.tpanel{display:none}.tpanel.on{display:block}
+
+/* ── EVAL CARDS ── */
+.ev-card{border:1px solid var(--z200);border-radius:var(--rsm);padding:12px 13px;margin-bottom:12px}
+.ev-card.locked{background:var(--z50)}
+.ev-card-hd-row{display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.ev-card-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500)}
+.ev-who-ico{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:var(--z200);color:var(--z600)}
+.ev-score>span{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.ev-score-num{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
+.ev-score-max{font-size:12px;font-weight:500;color:var(--z500)}
+.ev-score-lbl{font-size:11px;font-weight:600;color:var(--z600);background:var(--z100);border:1px solid var(--z200);border-radius:var(--rxs);padding:1px 6px;margin-left:2px}
+.ev-cmt{font-size:13px;color:var(--z700);line-height:1.55;background:var(--z50);border-radius:var(--rxs);padding:8px 10px}
+.ev-cmt-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);display:block;margin-bottom:4px}
+.ev-meta{font-size:11.5px;color:var(--z500);margin-top:6px}
+.ev-cards-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ev-cards-compare .ev-card{margin-bottom:0}
+.ev-wait-box{background:var(--z50);border:1px dashed var(--z300);border-radius:var(--rsm);padding:22px;text-align:center;color:var(--z500);font-size:13px;line-height:1.55}
+.ev-wait-box i{font-size:28px;color:var(--z400);display:block;margin-bottom:8px}
+
+/* ── CONFIRM DIALOG ── */
+.conf-dlg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center;padding:16px}
+.conf-dlg.open{display:flex}
+.conf-box{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);max-width:400px;width:100%;padding:22px;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
+.conf-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px}
+.conf-icon.ok{background:var(--ok-bg);color:var(--ok)}
+.conf-icon.warn{background:var(--warn-bg);color:var(--warn)}
+.conf-icon.err{background:var(--err-bg);color:var(--err)}
+.conf-title{font-size:14.5px;font-weight:600;color:var(--z900);margin-bottom:7px}
+.conf-body{font-size:13px;color:var(--z600);margin-bottom:18px;line-height:1.6}
+.conf-body strong{color:var(--z900);font-weight:600}
+.conf-actions{display:flex;gap:7px;justify-content:flex-end}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:4px;top:8px;bottom:6px;width:1px;background:var(--z200)}
+.tl-item{position:relative;padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-18px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--z300);border:1.5px solid var(--z0);outline:1.5px solid var(--z300)}
+.tl-dot.ok{background:var(--ok);outline-color:var(--ok-bd)}.tl-dot.info{background:var(--info);outline-color:var(--info-bd)}.tl-dot.warn{background:var(--warn);outline-color:var(--warn-bd)}.tl-dot.err{background:var(--err);outline-color:var(--err-bd)}
+.tl-ev{font-size:13.5px;font-weight:500;color:var(--z800)}
+.tl-who{font-size:12px;color:var(--z500);margin-top:2px}
+
+/* ── TOOLTIP ── */
+.floating-tip{position:fixed;background:var(--z700);color:#fff;font-size:12px;font-weight:400;line-height:1.6;padding:9px 12px;border-radius:var(--rsm);max-width:260px;width:max-content;z-index:9999;display:none;box-shadow:var(--sh-lg);pointer-events:none}
+.floating-tip::before{content:'';position:absolute;right:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--z700)}
+.sep{width:1px;height:14px;background:var(--z200);display:inline-block}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><span>M</span></div>
+    <div>
+      <div class="sb-name">MoMo <em>HRM</em></div>
+      <div class="sb-sub">Performance Management</div>
+    </div>
+  </div>
+  <div class="role-sw">
+    <button class="role-btn" onclick="location.href='../E-01/'">Nhân viên</button>
+    <button class="role-btn on">Quản lý</button>
+  </div>
+  <nav class="sb-nav">
+    <span class="sb-grp">Tổng quan</span>
+    <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
+    <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+    <div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
+    <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av av-brand">LT</div>
+      <div>
+        <div class="sb-uname">Lê Thị Thanh</div>
+        <div class="sb-urole">Quản lý, ITC – Backend</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ WORKSPACE ══ -->
+<div class="workspace">
+
+  <header class="topbar">
+    <a href="../M-01/index.html" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);padding:4px 8px;border-radius:var(--rsm);transition:var(--t)" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Quay lại</a>
+    <span class="topbar-title">Chi tiết Mục tiêu nhân viên</span>
+    <div class="topbar-right">
+      <button class="ico-btn" style="position:relative"><i class="bx bx-bell"></i><span class="notif-dot"></span></button>
+      <button class="ico-btn"><i class="bx bx-help-circle"></i></button>
+      <div class="av av-brand av-sm" style="cursor:pointer;margin-left:3px">LT</div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="breadcrumb">
+      <a href="#">Trang chủ</a><span class="bc-sep"> / </span>
+      <a href="../M-01/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep"> / </span>
+      <span style="color:var(--z700)">Nguyễn Văn Tú</span>
+    </div>
+
+    <div class="page-hd">
+      <h1 class="page-title">Chi tiết Mục tiêu</h1>
+      <div class="cycle-row">
+        <i class="bx bx-calendar"></i>
+        <span class="cycle-lbl">Chu kỳ</span>
+        <select class="cycle-sel"><option>2026</option><option>2025</option></select>
+      </div>
+    </div>
+
+    <!-- Employee header -->
+    <div class="emp-hdr">
+      <div class="emp-hdr-av">TÚ</div>
+      <div class="emp-hdr-info">
+        <div class="emp-hdr-name">
+          Nguyễn Văn Tú
+          <span class="emp-hdr-login">(tu.nguyen)</span>
+        </div>
+        <div class="emp-hdr-meta">
+          <span>ITC</span><span class="emp-hdr-dot"></span>
+          <span>Backend</span><span class="emp-hdr-dot"></span>
+          <span>Software Engineer</span>
+        </div>
+      </div>
+      <div class="emp-hdr-stats">
+        <div class="emp-stat-pill esp-total">
+          <span class="esp-num" id="stat-total">6</span>
+          <span>mục tiêu</span>
+        </div>
+        <div class="emp-stat-pill esp-pending">
+          <span class="esp-num" id="stat-pending">3</span>
+          <span>chờ duyệt</span>
+        </div>
+        <div class="emp-stat-pill esp-eval">
+          <i class="bx bx-task" style="font-size:14px"></i>
+          <span class="esp-num" id="stat-eval">1</span>
+          <span>cần đánh giá</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk bar -->
+    <div class="bulk-bar" id="bulk-bar">
+      <span class="bulk-cnt" id="bulk-cnt">0 đã chọn</span>
+      <button class="btn btn-ghost btn-xs" onclick="clearBulk()">Bỏ chọn</button>
+      <button class="btn btn-ghost btn-xs" onclick="selAllPending()">Chọn tất cả Chờ duyệt</button>
+      <div class="bulk-sep"></div>
+      <span class="bulk-warn" id="bulk-warn" style="display:none"><i class="bx bx-error-circle"></i> <span id="bulk-warn-txt"></span></span>
+      <button class="btn btn-ok btn-xs" id="bulk-approve" onclick="doBulkApprove()" disabled>
+        <i class="bx bx-check-circle"></i> Duyệt đã chọn
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="gtable-wrap">
+      <table class="gtable">
+        <colgroup>
+          <col style="width:36px">
+          <col style="width:130px">
+          <col style="width:20%">
+          <col>
+          <col style="width:110px">
+          <col style="width:120px">
+          <col style="width:140px">
+          <col style="width:120px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="gt-cb-td"></th>
+            <th>Loại mục tiêu</th>
+            <th>Tên mục tiêu</th>
+            <th>Kết quả cần đạt</th>
+            <th>Mức độ ưu tiên</th>
+            <th>Thời gian</th>
+            <th>Trạng thái</th>
+            <th>Chức năng</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- g1: what / Cao / pending -->
+          <tr class="gt-row" id="row-g1" data-id="g1" data-status="pending" onclick="openDetail('g1')">
+            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g1" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
+            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
+            <td><div class="gt-name">Phát triển Payment SDK v3.0 tích hợp đa nền tảng (iOS, Android, Web)</div></td>
+            <td><div class="gt-result">SDK v3.0 được release chính thức, tích hợp thành công trên 3 platform, pass 100% test cases, latency &lt; 300ms trên production.</div></td>
+            <td><span class="prio prio-h">Cao</span></td>
+            <td class="gt-date">01/01 – 30/06</td>
+            <td class="gt-status-cell" id="status-g1"><span class="badge b-info">Chờ duyệt</span></td>
+            <td onclick="event.stopPropagation()" id="act-g1">
+              <div class="gt-act-cell">
+                <button class="gt-pri ok" data-tip="Duyệt" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openApprove('g1')"><i class="bx bx-check-circle"></i></button>
+                <button class="gt-pri warn" data-tip="Yêu cầu cập nhật" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openUpdateReq('g1')"><i class="bx bx-rotate-left"></i></button>
+                <button class="gt-pri danger" data-tip="Từ chối" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openReject('g1')"><i class="bx bx-x-circle"></i></button>
+                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g1')"><i class="bx bx-show"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- g2: what / Cao / approved + selfdone -->
+          <tr class="gt-row" id="row-g2" data-id="g2" data-status="approved" onclick="openDetail('g2')">
+            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g2" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
+            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
+            <td><div class="gt-name">Tối ưu hiệu năng API thanh toán, giảm latency trung bình xuống dưới 200ms</div></td>
+            <td><div class="gt-result">Latency p95 ≤ 200ms trên production, zero downtime trong triển khai, có báo cáo benchmark so sánh trước–sau.</div></td>
+            <td><span class="prio prio-h">Cao</span></td>
+            <td class="gt-date">01/01 – 31/03</td>
+            <td class="gt-status-cell" id="status-g2">
+              <span class="badge b-ok">Đã duyệt</span>
+              <span class="gt-eval-sub">
+                <span class="eval-pair">
+                  <span class="ep-seg"><span class="ep-who">NV</span> 4.0</span>
+                  <span class="ep-div"></span>
+                  <span class="ep-seg ep-mgr"><span class="ep-who">QL</span> —</span>
+                </span>
+              </span>
+            </td>
+            <td onclick="event.stopPropagation()" id="act-g2">
+              <div class="gt-act-cell">
+                <button class="gt-pri accent" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEval('g2')"><i class="bx bx-task"></i></button>
+                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g2')"><i class="bx bx-show"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- g3: what / Trung bình / approved + eval done -->
+          <tr class="gt-row" id="row-g3" data-id="g3" data-status="approved" onclick="openDetail('g3')">
+            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g3" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
+            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
+            <td><div class="gt-name">Refactor module xác thực &amp; bảo mật theo chuẩn OAuth 2.0</div></td>
+            <td><div class="gt-result">Module đạt chuẩn OAuth 2.0, pass security audit, không có critical vulnerability trong 30 ngày sau release.</div></td>
+            <td><span class="prio prio-m">Trung bình</span></td>
+            <td class="gt-date">01/01 – 28/02</td>
+            <td class="gt-status-cell" id="status-g3">
+              <span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>
+              <span class="gt-eval-sub">
+                <span class="eval-pair">
+                  <span class="ep-seg"><span class="ep-who">NV</span> 3.0</span>
+                  <span class="ep-div"></span>
+                  <span class="ep-seg ep-mgr"><span class="ep-who">QL</span> 4.0</span>
+                </span>
+              </span>
+            </td>
+            <td onclick="event.stopPropagation()" id="act-g3">
+              <div class="gt-act-cell">
+                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g3')"><i class="bx bx-show"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- g4: what / Thấp / pending -->
+          <tr class="gt-row" id="row-g4" data-id="g4" data-status="pending" onclick="openDetail('g4')">
+            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g4" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
+            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
+            <td><div class="gt-name">Nâng độ phủ unit test lên ≥ 80% cho toàn bộ payment module</div></td>
+            <td><div class="gt-result">Code coverage ≥ 80% trên Sonarqube, CI pipeline xanh, không có regression bug trong 2 sprint kế tiếp.</div></td>
+            <td><span class="prio prio-l">Thấp</span></td>
+            <td class="gt-date">01/03 – 30/04</td>
+            <td class="gt-status-cell" id="status-g4"><span class="badge b-info">Chờ duyệt</span></td>
+            <td onclick="event.stopPropagation()" id="act-g4">
+              <div class="gt-act-cell">
+                <button class="gt-pri ok" data-tip="Duyệt" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openApprove('g4')"><i class="bx bx-check-circle"></i></button>
+                <button class="gt-pri warn" data-tip="Yêu cầu cập nhật" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openUpdateReq('g4')"><i class="bx bx-rotate-left"></i></button>
+                <button class="gt-pri danger" data-tip="Từ chối" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openReject('g4')"><i class="bx bx-x-circle"></i></button>
+                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g4')"><i class="bx bx-show"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- g5: dev / Trung bình / pending -->
+          <tr class="gt-row" id="row-g5" data-id="g5" data-status="pending" onclick="openDetail('g5')">
+            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g5" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
+            <td><span class="gt-type dev"><i class="bx bx-trending-up"></i> Phát triển</span></td>
+            <td><div class="gt-name">Hoàn thành AWS Solutions Architect Associate certification (SAA-C03)</div></td>
+            <td><div class="gt-result">Pass kỳ thi SAA-C03 điểm ≥ 750/1000, apply ít nhất 1 AWS best practice vào project và chia sẻ với team.</div></td>
+            <td><span class="prio prio-m">Trung bình</span></td>
+            <td class="gt-date">01/02 – 31/05</td>
+            <td class="gt-status-cell" id="status-g5"><span class="badge b-info">Chờ duyệt</span></td>
+            <td onclick="event.stopPropagation()" id="act-g5">
+              <div class="gt-act-cell">
+                <button class="gt-pri ok" data-tip="Duyệt" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openApprove('g5')"><i class="bx bx-check-circle"></i></button>
+                <button class="gt-pri warn" data-tip="Yêu cầu cập nhật" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openUpdateReq('g5')"><i class="bx bx-rotate-left"></i></button>
+                <button class="gt-pri danger" data-tip="Từ chối" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openReject('g5')"><i class="bx bx-x-circle"></i></button>
+                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g5')"><i class="bx bx-show"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- g6: dev / Thấp / draft -->
+          <tr class="gt-row" id="row-g6" data-id="g6" data-status="draft" onclick="openDetail('g6')">
+            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g6" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
+            <td><span class="gt-type dev"><i class="bx bx-trending-up"></i> Phát triển</span></td>
+            <td><div class="gt-name">Mentoring 2 junior engineers trong team ITC-Backend</div></td>
+            <td><div class="gt-result">Mỗi junior hoàn thành ≥ 3 buổi 1-on-1/tháng, cải thiện code quality review score ≥ 20% đo qua Sonarqube.</div></td>
+            <td><span class="prio prio-l">Thấp</span></td>
+            <td class="gt-date">01/01 – 31/12</td>
+            <td class="gt-status-cell" id="status-g6"><span class="badge b-muted">Nháp</span></td>
+            <td onclick="event.stopPropagation()" id="act-g6">
+              <div class="gt-act-cell">
+                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g6')"><i class="bx bx-show"></i></button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ══ OVERLAY: DETAIL ══ -->
+<div class="overlay" id="dlg-detail" onclick="if(event.target===this)closeOverlay('dlg-detail')">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div class="dlg-title" id="d-title">—</div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button>
+      </div>
+      <div class="dlg-badges" id="d-badges"></div>
+      <div class="dlg-tabs">
+        <button class="dlg-tab on" id="dtab-0" onclick="switchTab(0)">Thông tin</button>
+        <button class="dlg-tab" id="dtab-1" onclick="switchTab(1)">Lịch sử</button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <div class="tpanel on" id="dtp-0"></div>
+      <div class="tpanel" id="dtp-1"></div>
+    </div>
+    <div class="dlg-foot" id="d-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-detail')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OVERLAY: APPROVE ══ -->
+<div class="conf-dlg" id="dlg-approve" onclick="if(event.target===this)closeConf('dlg-approve')">
+  <div class="conf-box">
+    <div class="conf-icon ok"><i class="bx bx-check-circle"></i></div>
+    <div class="conf-title">Xác nhận duyệt mục tiêu</div>
+    <div class="conf-body">Bạn sắp duyệt mục tiêu <strong id="approve-goal-name">—</strong> của <strong>Nguyễn Văn Tú</strong>. Sau khi duyệt, nhân viên sẽ được thông báo.</div>
+    <div class="conf-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-approve')">Huỷ</button>
+      <button class="btn btn-ok btn-sm" onclick="doApprove()"><i class="bx bx-check-circle"></i> Duyệt</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OVERLAY: YÊU CẦU CẬP NHẬT ══ -->
+<div class="conf-dlg" id="dlg-update" onclick="if(event.target===this)closeConf('dlg-update')">
+  <div class="conf-box" style="max-width:440px">
+    <div class="conf-icon warn"><i class="bx bx-rotate-left"></i></div>
+    <div class="conf-title">Yêu cầu cập nhật</div>
+    <div class="conf-body">Mục tiêu <strong id="update-goal-name">—</strong> sẽ được trả về cho nhân viên để chỉnh sửa.</div>
+    <div class="fg">
+      <label class="flbl">Ghi chú cho nhân viên <span style="font-size:11.5px;color:var(--z400);font-weight:400">(tuỳ chọn)</span></label>
+      <textarea class="fc" id="update-note" placeholder="Mô tả cụ thể điểm cần điều chỉnh..." rows="3"></textarea>
+    </div>
+    <div class="conf-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-update')">Huỷ</button>
+      <button class="btn btn-cta-outline btn-sm" onclick="doUpdateReq()"><i class="bx bx-rotate-left"></i> Gửi yêu cầu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OVERLAY: TỪ CHỐI ══ -->
+<div class="conf-dlg" id="dlg-reject" onclick="if(event.target===this)closeConf('dlg-reject')">
+  <div class="conf-box" style="max-width:440px">
+    <div class="conf-icon err"><i class="bx bx-x-circle"></i></div>
+    <div class="conf-title">Từ chối mục tiêu</div>
+    <div class="conf-body">Mục tiêu <strong id="reject-goal-name">—</strong> sẽ bị từ chối. Nhân viên cần tạo lại hoặc chỉnh sửa từ đầu.</div>
+    <div class="fg">
+      <label class="flbl">Lý do từ chối <span style="font-size:11.5px;color:var(--z400);font-weight:400">(tuỳ chọn)</span></label>
+      <textarea class="fc" id="reject-note" placeholder="Ví dụ: Mục tiêu không phù hợp định hướng team..." rows="3"></textarea>
+    </div>
+    <div class="conf-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-reject')">Huỷ</button>
+      <button class="btn btn-destructive btn-sm" onclick="doReject()"><i class="bx bx-x-circle"></i> Từ chối</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OVERLAY: MANAGER EVALUATION ══ -->
+<div class="overlay" id="dlg-eval" onclick="if(event.target===this)closeOverlay('dlg-eval')">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div class="dlg-title" id="eval-title">Đánh giá hoàn thành</div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-eval')"><i class="bx bx-x"></i></button>
+      </div>
+      <div class="dlg-badges" id="eval-badges"></div>
+    </div>
+    <div class="dlg-body">
+      <span class="sec-lbl" style="margin-bottom:10px">Đánh giá của nhân viên</span>
+      <div class="ev-card locked">
+        <div class="ev-card-hd-row">
+          <div class="ev-who-ico">NV</div>
+          <div class="ev-card-hd">tu.nguyen</div>
+        </div>
+        <div class="ev-score"><span id="eval-self-score-html"></span></div>
+        <div class="ev-cmt-lbl">Nhận xét</div>
+        <div class="ev-cmt" id="eval-self-cmt">—</div>
+        <div class="ev-meta" id="eval-self-meta"></div>
+      </div>
+      <div class="divider"></div>
+      <span class="sec-lbl" style="margin-bottom:10px">Đánh giá của bạn (Quản lý)</span>
+      <div class="ev-card">
+        <div class="ev-card-hd-row">
+          <div class="ev-who-ico" style="background:var(--brand-muted);color:var(--brand)">QL</div>
+          <div class="ev-card-hd">thanh.le</div>
+        </div>
+        <div class="fg">
+          <label class="flbl">Điểm đánh giá <span class="req">*</span></label>
+          <select class="fc" id="eval-mgr-score" style="max-width:280px">
+            <option value="">-- Chọn điểm --</option>
+            <option value="1">1 — Không đạt yêu cầu</option>
+            <option value="2">2 — Hoàn thành một phần</option>
+            <option value="3">3 — Hoàn thành kỳ vọng</option>
+            <option value="4">4 — Hoàn thành trên mức kỳ vọng</option>
+            <option value="5">5 — Hoàn thành vượt xa kỳ vọng</option>
+          </select>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="flbl">Nhận xét</label>
+          <textarea class="fc" id="eval-mgr-cmt" placeholder="Nhận xét về mức độ hoàn thành mục tiêu..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-eval')">Đóng</button>
+      <button class="btn btn-default btn-sm" onclick="doEval()"><i class="bx bx-check-double"></i> Lưu đánh giá</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══ GOAL DATA ═══ */
+var GOALS={
+  g1:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Phát triển Payment SDK v3.0 tích hợp đa nền tảng (iOS, Android, Web)',result:'SDK v3.0 được release chính thức, tích hợp thành công trên 3 platform, pass 100% test cases của QA, latency trung bình &lt; 300ms trên môi trường production.',from:'01/01',to:'30/06',prio:'h',prioLbl:'Cao',status:'pending',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'02/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'05/01/2026'}]},
+  g2:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Tối ưu hiệu năng API thanh toán, giảm latency trung bình xuống dưới 200ms',result:'Latency p95 ≤ 200ms đo trên production, zero downtime trong quá trình triển khai, có báo cáo benchmark so sánh trước–sau.',from:'01/01',to:'31/03',prio:'h',prioLbl:'Cao',status:'approved',eval:'selfdone',evSelfScore:'4',evSelfCmt:'Đã giảm latency trung bình xuống 145ms, vượt target 200ms. Triển khai thành công, zero downtime. Đính kèm báo cáo benchmark đầy đủ.',evSelfTime:'15/04/2026',evSelfBy:'tu.nguyen',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'02/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'05/01/2026'},{dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:'07/01/2026'},{dot:'info',ev:'Nhân viên gửi đánh giá hoàn thành',who:'tu.nguyen',time:'15/04/2026'}]},
+  g3:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Refactor module xác thực &amp; bảo mật theo chuẩn OAuth 2.0',result:'Module đạt chuẩn OAuth 2.0, pass security audit nội bộ, không có critical vulnerability trong 30 ngày sau release, có tài liệu kỹ thuật cập nhật.',from:'01/01',to:'28/02',prio:'m',prioLbl:'Trung bình',status:'approved',eval:'done',evSelfScore:'3',evSelfCmt:'Hoàn thành refactor module auth theo chuẩn OAuth 2.0. Đã pass code review 2 vòng và deploy thành công lên production.',evSelfTime:'20/02/2026',evSelfBy:'tu.nguyen',evMgrScore:'4',evMgrCmt:'Module xác thực sau refactor stable hơn rõ rệt, zero security incidents trong 2 tháng sau release. Đánh giá cao chất lượng code và tài liệu.',evMgrTime:'22/02/2026',evMgrBy:'thanh.le',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'02/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'05/01/2026'},{dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:'07/01/2026'},{dot:'info',ev:'Nhân viên gửi đánh giá hoàn thành',who:'tu.nguyen',time:'20/02/2026'},{dot:'ok',ev:'Quản lý đã đánh giá hoàn thành',who:'thanh.le',time:'22/02/2026'}]},
+  g4:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Nâng độ phủ unit test lên ≥ 80% cho toàn bộ payment module',result:'Code coverage ≥ 80% trên Sonarqube, CI pipeline xanh hoàn toàn, không có regression bug trong 2 sprint kế tiếp.',from:'01/03',to:'30/04',prio:'l',prioLbl:'Thấp',status:'pending',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'20/02/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'25/02/2026'}]},
+  g5:{type:'dev',typeLbl:'Phát triển',typeIco:'bx-trending-up',title:'Hoàn thành AWS Solutions Architect Associate certification (SAA-C03)',result:'Pass kỳ thi SAA-C03 điểm ≥ 750/1000, apply ít nhất 1 AWS best practice vào project và chia sẻ với team.',from:'01/02',to:'31/05',prio:'m',prioLbl:'Trung bình',status:'pending',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'25/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'28/01/2026'}]},
+  g6:{type:'dev',typeLbl:'Phát triển',typeIco:'bx-trending-up',title:'Mentoring 2 junior engineers trong team ITC-Backend',result:'Mỗi junior hoàn thành ≥ 3 buổi 1-on-1/tháng, cải thiện code quality review score ≥ 20% đo qua Sonarqube.',from:'01/01',to:'31/12',prio:'l',prioLbl:'Thấp',status:'draft',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu (nháp)',who:'tu.nguyen',time:'02/01/2026'}]}
+};
+
+var _tipEl=null,_activeGoalId=null;
+
+/* ── TOOLTIP ── */
+function showTip(el){
+  if(!el.dataset.tip)return;
+  if(!_tipEl){_tipEl=document.createElement('div');_tipEl.className='floating-tip';document.body.appendChild(_tipEl);}
+  _tipEl.textContent=el.dataset.tip;
+  _tipEl.style.display='block';
+  var r=el.getBoundingClientRect(),th=_tipEl.offsetHeight,tw=_tipEl.offsetWidth;
+  var left=r.right+10,top=r.top+r.height/2-th/2;
+  if(left+tw>window.innerWidth-8){left=r.left-tw-10;}
+  if(top<8)top=8;
+  if(top+th>window.innerHeight-8)top=window.innerHeight-th-8;
+  _tipEl.style.left=left+'px';_tipEl.style.top=top+'px';
+}
+function hideTip(){if(_tipEl)_tipEl.style.display='none';}
+
+/* ── OVERLAY ── */
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+function openConf(id){document.getElementById(id).classList.add('open');}
+function closeConf(id){document.getElementById(id).classList.remove('open');}
+
+/* ── TABS ── */
+function switchTab(idx){
+  [0,1].forEach(function(i){
+    document.getElementById('dtab-'+i).classList.toggle('on',i===idx);
+    document.getElementById('dtp-'+i).classList.toggle('on',i===idx);
+  });
+}
+
+/* ── SCORE ── */
+function scoreLabel(v){var n=parseFloat(v);if(n%1!==0)return'';if(n===5)return'Hoàn thành vượt xa kỳ vọng';if(n===4)return'Hoàn thành trên mức kỳ vọng';if(n===3)return'Hoàn thành kỳ vọng';if(n===2)return'Hoàn thành một phần';if(n===1)return'Không đạt yêu cầu';return'';}
+function scoreHTML(v){if(!v)return'';var d=parseFloat(v).toFixed(1),l=scoreLabel(v);return'<span class="ev-score-num">'+d+'</span><span class="ev-score-max">/ 5</span>'+(l?'<span class="ev-score-lbl">'+l+'</span>':'');}
+
+/* ── TYPE BADGE ── */
+function typeBadge(g){
+  if(g.type==='what')return'<span class="badge b-what"><i class="bx bx-target-lock" style="font-size:12px;margin-right:3px"></i>Công việc</span>';
+  if(g.type==='dev')return'<span class="badge b-dev"><i class="bx bx-trending-up" style="font-size:12px;margin-right:3px"></i>Phát triển</span>';
+  return'';
+}
+
+/* ── STATUS BADGE HTML ── */
+function statusBadgeHTML(g){
+  var badge='';
+  if(g.status==='pending')badge='<span class="badge b-info">Chờ duyệt</span>';
+  else if(g.status==='approved'&&g.eval==='done')badge='<span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>';
+  else if(g.status==='approved')badge='<span class="badge b-ok">Đã duyệt</span>';
+  else if(g.status==='update')badge='<span class="badge b-warn">Cần cập nhật</span>';
+  else if(g.status==='rejected')badge='<span class="badge b-err">Bị từ chối</span>';
+  else if(g.status==='draft')badge='<span class="badge b-muted">Nháp</span>';
+  else badge='<span class="badge b-muted">'+g.status+'</span>';
+
+  /* Eval pair sub-info */
+  if(g.status==='approved'&&g.eval==='selfdone'){
+    var nv=parseFloat(g.evSelfScore).toFixed(1);
+    badge+='<span class="gt-eval-sub"><span class="eval-pair"><span class="ep-seg"><span class="ep-who">NV</span> '+nv+'</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span> —</span></span></span>';
+  } else if(g.status==='approved'&&g.eval==='done'){
+    var nv2=parseFloat(g.evSelfScore).toFixed(1),ql=parseFloat(g.evMgrScore).toFixed(1);
+    badge+='<span class="gt-eval-sub"><span class="eval-pair"><span class="ep-seg"><span class="ep-who">NV</span> '+nv2+'</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span> '+ql+'</span></span></span>';
+  }
+  return badge;
+}
+
+/* ── ACTION BUTTONS HTML ── */
+function btn(cls,ico,tip,fn){return'<button class="gt-pri '+cls+'" data-tip="'+tip+'" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="'+fn+'"><i class="bx '+ico+'"></i></button>';}
+function actionBtnsHTML(g,id){
+  var b='';
+  if(g.status==='pending'){
+    b+=btn('ok','bx-check-circle','Duyệt',"openApprove('"+id+"')");
+    b+=btn('warn','bx-rotate-left','Yêu cầu cập nhật',"openUpdateReq('"+id+"')");
+    b+=btn('danger','bx-x-circle','Từ chối',"openReject('"+id+"')");
+  } else if(g.status==='approved'&&g.eval==='selfdone'){
+    b+=btn('accent','bx-task','Đánh giá hoàn thành',"openEval('"+id+"')");
+  }
+  b+=btn('','bx-show','Xem chi tiết',"openDetail('"+id+"')");
+  return'<div class="gt-act-cell">'+b+'</div>';
+}
+
+/* ── RENDER ROW ── */
+function renderRow(id){
+  var g=GOALS[id];
+  var row=document.getElementById('row-'+id);
+  if(row)row.dataset.status=g.status;
+  var sc=document.getElementById('status-'+id);
+  if(sc)sc.innerHTML=statusBadgeHTML(g);
+  var ac=document.getElementById('act-'+id);
+  if(ac)ac.innerHTML=actionBtnsHTML(g,id);
+}
+
+/* ── SUMMARY PILLS ── */
+function updateSummary(){
+  var pending=0,evalN=0;
+  Object.keys(GOALS).forEach(function(id){var g=GOALS[id];if(g.status==='pending')pending++;if(g.status==='approved'&&g.eval==='selfdone')evalN++;});
+  document.getElementById('stat-pending').textContent=pending;
+  document.getElementById('stat-eval').textContent=evalN;
+}
+
+/* ── OPEN DETAIL ── */
+function openDetail(id){
+  _activeGoalId=id;
+  var g=GOALS[id];
+  var rawTitle=g.title.replace(/&amp;/g,'&').replace(/&lt;/g,'<');
+
+  document.getElementById('d-title').textContent=rawTitle;
+  document.getElementById('d-badges').innerHTML=typeBadge(g)+'&nbsp;'+statusBadgeHTML(g).split('<span class="gt-eval-sub">')[0];
+
+  /* Tab 0: Info */
+  var prioHTML='<span class="prio prio-'+g.prio+'">'+g.prioLbl+'</span>';
+  var t0='<div class="dg3"><div class="df"><label>Loại mục tiêu</label><div class="dv">'+typeBadge(g)+'</div></div><div class="df"><label>Từ ngày</label><div class="dv">'+g.from+'/2026</div></div><div class="df"><label>Đến ngày</label><div class="dv">'+g.to+'/2026</div></div></div>';
+  t0+='<div class="detail-row"><span class="sec-lbl">Tên mục tiêu</span><div class="detail-val">'+rawTitle+'</div></div>';
+  t0+='<div class="detail-row"><span class="sec-lbl">Kết quả cần đạt</span><div class="detail-val">'+g.result.replace(/&lt;/g,'<')+'</div></div>';
+  t0+='<div class="detail-row" style="border-bottom:none"><span class="sec-lbl">Mức độ ưu tiên</span><div style="margin-top:4px">'+prioHTML+'</div></div>';
+
+  if(g.status==='approved'){
+    t0+='<div class="divider"></div><span class="sec-lbl">Đánh giá hoàn thành</span>';
+    if(g.eval==='none'){
+      t0+='<div class="ev-wait-box"><i class="bx bx-time-five"></i>Nhân viên chưa gửi đánh giá hoàn thành.</div>';
+    } else if(g.eval==='selfdone'){
+      t0+='<div class="ev-card locked"><div class="ev-card-hd-row"><div class="ev-who-ico">NV</div><div class="ev-card-hd">'+g.evSelfBy+'</div></div><div class="ev-score"><span>'+scoreHTML(g.evSelfScore)+'</span></div><div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+g.evSelfCmt+'</div><div class="ev-meta">Gửi lúc '+g.evSelfTime+'</div></div>';
+      t0+='<div class="ev-wait-box" style="margin-top:0"><i class="bx bx-edit"></i>Nhân viên đã nộp đánh giá và đang chờ bạn.<br><a style="color:var(--brand);cursor:pointer;font-weight:600" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')">Đánh giá ngay →</a></div>';
+    } else if(g.eval==='done'){
+      t0+='<div class="ev-cards-compare"><div class="ev-card locked"><div class="ev-card-hd-row"><div class="ev-who-ico">NV</div><div class="ev-card-hd">'+g.evSelfBy+'</div></div><div class="ev-score"><span>'+scoreHTML(g.evSelfScore)+'</span></div><div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+g.evSelfCmt+'</div><div class="ev-meta">'+g.evSelfTime+'</div></div><div class="ev-card locked"><div class="ev-card-hd-row"><div class="ev-who-ico" style="background:var(--brand-muted);color:var(--brand)">QL</div><div class="ev-card-hd">'+g.evMgrBy+'</div></div><div class="ev-score"><span>'+scoreHTML(g.evMgrScore)+'</span></div><div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+g.evMgrCmt+'</div><div class="ev-meta">'+g.evMgrTime+'</div></div></div>';
+    }
+  }
+  document.getElementById('dtp-0').innerHTML=t0;
+
+  /* Tab 1: History */
+  var t1='<div class="tl">';
+  (g.history||[]).forEach(function(h){t1+='<div class="tl-item"><div class="tl-dot '+h.dot+'"></div><div class="tl-ev">'+h.ev+'</div><div class="tl-who">'+h.who+' &nbsp;·&nbsp; '+h.time+'</div></div>';});
+  t1+='</div>';
+  document.getElementById('dtp-1').innerHTML=t1;
+
+  /* Footer */
+  var foot='<button class="btn btn-ghost btn-sm" onclick="closeOverlay(\'dlg-detail\')">Đóng</button>';
+  if(g.status==='pending'){
+    foot+='<button class="btn btn-destructive btn-sm" onclick="closeOverlay(\'dlg-detail\');openReject(\''+id+'\')"><i class="bx bx-x-circle"></i> Từ chối</button>';
+    foot+='<button class="btn btn-cta-outline btn-sm" onclick="closeOverlay(\'dlg-detail\');openUpdateReq(\''+id+'\')"><i class="bx bx-rotate-left"></i> Yêu cầu cập nhật</button>';
+    foot+='<button class="btn btn-ok btn-sm" onclick="closeOverlay(\'dlg-detail\');openApprove(\''+id+'\')"><i class="bx bx-check-circle"></i> Duyệt</button>';
+  } else if(g.status==='approved'&&g.eval==='selfdone'){
+    foot+='<button class="btn btn-default btn-sm" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')"><i class="bx bx-task"></i> Đánh giá hoàn thành</button>';
+  }
+  document.getElementById('d-foot').innerHTML=foot;
+
+  switchTab(0);
+  openOverlay('dlg-detail');
+}
+
+/* ── APPROVE ── */
+function openApprove(id){_activeGoalId=id;var g=GOALS[id];document.getElementById('approve-goal-name').textContent='"'+clip(g.title,55)+'"';openConf('dlg-approve');}
+function doApprove(){
+  var id=_activeGoalId,g=GOALS[id];
+  g.status='approved';g.history.push({dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:today()});
+  closeConf('dlg-approve');renderRow(id);updateSummary();syncBulk();
+  toast('Đã duyệt mục tiêu thành công','ok');
+}
+
+/* ── REQUEST UPDATE ── */
+function openUpdateReq(id){_activeGoalId=id;var g=GOALS[id];document.getElementById('update-goal-name').textContent='"'+clip(g.title,50)+'"';document.getElementById('update-note').value='';openConf('dlg-update');}
+function doUpdateReq(){
+  var id=_activeGoalId,g=GOALS[id],note=document.getElementById('update-note').value.trim();
+  g.status='update';g.history.push({dot:'warn',ev:'Quản lý yêu cầu cập nhật'+(note?' — "'+note+'"':''),who:'thanh.le',time:today()});
+  closeConf('dlg-update');renderRow(id);updateSummary();syncBulk();
+  toast('Đã gửi yêu cầu cập nhật đến nhân viên','warn');
+}
+
+/* ── REJECT ── */
+function openReject(id){_activeGoalId=id;var g=GOALS[id];document.getElementById('reject-goal-name').textContent='"'+clip(g.title,50)+'"';document.getElementById('reject-note').value='';openConf('dlg-reject');}
+function doReject(){
+  var id=_activeGoalId,g=GOALS[id],note=document.getElementById('reject-note').value.trim();
+  g.status='rejected';g.history.push({dot:'err',ev:'Quản lý từ chối mục tiêu'+(note?' — "'+note+'"':''),who:'thanh.le',time:today()});
+  closeConf('dlg-reject');renderRow(id);updateSummary();syncBulk();
+  toast('Đã từ chối mục tiêu','err');
+}
+
+/* ── EVAL ── */
+function openEval(id){
+  _activeGoalId=id;var g=GOALS[id];
+  document.getElementById('eval-title').textContent='Đánh giá hoàn thành';
+  document.getElementById('eval-badges').innerHTML=typeBadge(g)+'&nbsp;<span class="badge b-ok">Đã duyệt</span>';
+  document.getElementById('eval-self-score-html').innerHTML=scoreHTML(g.evSelfScore);
+  document.getElementById('eval-self-cmt').textContent=g.evSelfCmt;
+  document.getElementById('eval-self-meta').textContent='Gửi lúc '+g.evSelfTime+' · '+g.evSelfBy;
+  document.getElementById('eval-mgr-score').value='';
+  document.getElementById('eval-mgr-cmt').value='';
+  openOverlay('dlg-eval');
+}
+function doEval(){
+  var id=_activeGoalId,g=GOALS[id];
+  var score=document.getElementById('eval-mgr-score').value;
+  if(!score){alert('Vui lòng chọn điểm đánh giá.');return;}
+  var cmt=document.getElementById('eval-mgr-cmt').value.trim();
+  g.eval='done';g.evMgrScore=score;g.evMgrCmt=cmt||'(Không có nhận xét)';g.evMgrTime=today();g.evMgrBy='thanh.le';
+  g.history.push({dot:'ok',ev:'Quản lý đã đánh giá hoàn thành ('+parseFloat(score).toFixed(1)+'/5)',who:'thanh.le',time:today()});
+  closeOverlay('dlg-eval');renderRow(id);updateSummary();
+  toast('Đã lưu đánh giá hoàn thành','ok');
+}
+
+/* ── BULK ── */
+function syncBulk(){
+  var all=[].slice.call(document.querySelectorAll('.cb-item:checked'));
+  if(!all.length){document.getElementById('bulk-bar').classList.remove('on');return;}
+  var pend=all.filter(function(cb){var r=document.getElementById('row-'+cb.dataset.id);return r&&r.dataset.status==='pending';});
+  document.getElementById('bulk-bar').classList.add('on');
+  document.getElementById('bulk-cnt').textContent=all.length+' đã chọn';
+  var warn=document.getElementById('bulk-warn'),btn=document.getElementById('bulk-approve');
+  if(!pend.length){warn.style.display='flex';document.getElementById('bulk-warn-txt').textContent='Không có mục tiêu Chờ duyệt nào được chọn';btn.disabled=true;}
+  else if(pend.length<all.length){warn.style.display='flex';document.getElementById('bulk-warn-txt').textContent='Chỉ '+pend.length+'/'+all.length+' mục đang Chờ duyệt sẽ được duyệt';btn.disabled=false;}
+  else{warn.style.display='none';btn.disabled=false;}
+}
+function clearBulk(){document.querySelectorAll('.cb-item:checked').forEach(function(cb){cb.checked=false;});document.getElementById('bulk-bar').classList.remove('on');}
+function selAllPending(){document.querySelectorAll('.cb-item').forEach(function(cb){var r=document.getElementById('row-'+cb.dataset.id);if(r&&r.dataset.status==='pending')cb.checked=true;});syncBulk();}
+function doBulkApprove(){
+  var pend=[].slice.call(document.querySelectorAll('.cb-item:checked')).filter(function(cb){var r=document.getElementById('row-'+cb.dataset.id);return r&&r.dataset.status==='pending';});
+  pend.forEach(function(cb){var id=cb.dataset.id,g=GOALS[id];g.status='approved';g.history.push({dot:'ok',ev:'Quản lý đã duyệt (bulk)',who:'thanh.le',time:today()});renderRow(id);});
+  clearBulk();updateSummary();
+  toast('Đã duyệt '+pend.length+' mục tiêu','ok');
+}
+
+/* ── HELPERS ── */
+function today(){var d=new Date();return('0'+d.getDate()).slice(-2)+'/'+(('0'+(d.getMonth()+1)).slice(-2))+'/'+d.getFullYear();}
+function clip(s,n){var t=s.replace(/&amp;/g,'&').replace(/&lt;/g,'<');return t.length>n?t.substring(0,n)+'…':t;}
+
+/* ── TOAST ── */
+var _toastEl=null,_toastTmr=null;
+function toast(msg,type){
+  if(!_toastEl){_toastEl=document.createElement('div');_toastEl.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9998;padding:11px 16px;border-radius:var(--rsm);font-size:13px;font-weight:500;box-shadow:var(--sh-lg);display:flex;align-items:center;gap:8px;transition:opacity .25s';document.body.appendChild(_toastEl);}
+  clearTimeout(_toastTmr);
+  var map={ok:{bg:'var(--ok-bg)',c:'var(--ok)',bd:'var(--ok-bd)',ic:'bx-check-circle'},warn:{bg:'var(--warn-bg)',c:'var(--warn)',bd:'var(--warn-bd)',ic:'bx-error-circle'},err:{bg:'var(--err-bg)',c:'var(--err)',bd:'var(--err-bd)',ic:'bx-x-circle'}};
+  var m=map[type]||map.ok;
+  _toastEl.style.background=m.bg;_toastEl.style.color=m.c;_toastEl.style.border='1px solid '+m.bd;_toastEl.style.opacity='1';
+  _toastEl.innerHTML='<i class="bx '+m.ic+'" style="font-size:16px"></i>'+msg;
+  _toastTmr=setTimeout(function(){_toastEl.style.opacity='0';},2800);
+}
+</script>
+</body>
+</html>
