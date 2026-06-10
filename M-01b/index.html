@@ -3,28 +3,24 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Chi tiết Mục tiêu – Nguyễn Văn Tú | MoMo HRM</title>
+<title>Chi tiết Mục tiêu | MoMo HRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
 <style>
-/* ═══ TOKENS ═══ */
 :root{
   --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
   --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;
   --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
   --what:#2563eb;--what-bg:#eff6ff;--what-bd:#bfdbfe;
-  --dev:#7c3aed; --dev-bg:#f5f3ff; --dev-bd:#ddd6fe;
-  --how:#0f766e; --how-bg:#f0fdfa; --how-bd:#99f6e4;
+  --dev:#7c3aed;--dev-bg:#f5f3ff;--dev-bd:#ddd6fe;
   --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
   --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
   --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
   --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
-  --upd:#7c3aed;--upd-bg:#f5f3ff;--upd-bd:#ddd6fe;
   --sw:232px;--nh:52px;
   --r:8px;--rsm:6px;--rxs:4px;
-  --sh-sm:0 1px 2px rgba(0,0,0,.04);
-  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
   --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
   --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
   --t:all .12s ease;
@@ -38,13 +34,9 @@ input,select,textarea{font-family:inherit}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
-
-/* ── SHELL ── */
 .app{display:flex;min-height:100vh}
 .sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
 .workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
-
-/* ── SIDEBAR ── */
 .sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
 .sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb-logo span{font-size:13px;font-weight:800;color:#fff}
@@ -70,16 +62,12 @@ input,select,textarea{font-family:inherit}
 .av-sm{width:24px;height:24px;font-size:10px}
 .sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
 .sb-urole{font-size:11px;color:var(--z500)}
-
-/* ── TOPBAR ── */
 .topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100;flex-shrink:0}
 .topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
 .topbar-right{display:flex;align-items:center;gap:3px}
 .ico-btn{width:30px;height:30px;border-radius:var(--rsm);border:none;background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative;cursor:pointer}
 .ico-btn:hover{background:var(--z100);color:var(--z700)}
 .notif-dot{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--err);border:1.5px solid var(--z0)}
-
-/* ── PAGE ── */
 .page{padding:20px 24px;flex:1}
 .breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
 .breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800);text-decoration:underline}.bc-sep{color:var(--z400)}
@@ -89,8 +77,6 @@ input,select,textarea{font-family:inherit}
 .cycle-row i{font-size:14px;color:var(--z500)}
 .cycle-lbl{font-size:13px;color:var(--z500)}
 .cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);font-weight:500;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
-
-/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
 .btn-default{background:var(--brand);border-color:var(--brand);color:#fff}.btn-default:hover{background:var(--brand-h)}.btn-default:disabled{opacity:.45;cursor:not-allowed}
 .btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
@@ -100,17 +86,13 @@ input,select,textarea{font-family:inherit}
 .btn-ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn-ok:hover{background:#15803d}.btn-ok:disabled{opacity:.45;cursor:not-allowed}
 .btn-sm{padding:4px 10px;font-size:12.5px}
 .btn-xs{padding:2px 8px;font-size:11.5px}
-
-/* ── BADGES ── */
 .badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
 .b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}
 .b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok);display:inline-flex;align-items:center;gap:3px}
 .b-done i{font-size:13px;line-height:1}
-.b-action{color:var(--brand);background:transparent;border-color:var(--brand)}
 .b-warn{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
 .b-err{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
 .b-info{color:var(--info);background:var(--info-bg);border-color:var(--info-bd)}
-.b-upd{color:var(--upd);background:var(--upd-bg);border-color:var(--upd-bd)}
 .b-muted{color:var(--z500);background:var(--z100);border-color:var(--z200)}
 .b-what{color:var(--what);background:var(--what-bg);border-color:var(--what-bd)}
 .b-dev{color:var(--dev);background:var(--dev-bg);border-color:var(--dev-bd)}
@@ -118,78 +100,48 @@ input,select,textarea{font-family:inherit}
 .prio-h{background:var(--z200);color:var(--z900);font-weight:600}
 .prio-m{background:var(--z100);color:var(--z600)}
 .prio-l{background:transparent;color:var(--z400)}
-.gt-na{color:var(--z400);font-size:13px;font-weight:400}
-
-/* ── EVAL PAIR (scores summary in table) ── */
 .eval-pair{display:inline-flex;align-items:center;gap:5px;height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid var(--z200);background:var(--z100);white-space:nowrap}
 .eval-pair .ep-seg{display:inline-flex;align-items:center;gap:3px;color:var(--z600)}
 .eval-pair .ep-seg.ep-mgr{color:var(--z600);font-weight:600}
 .eval-pair .ep-who{font-size:9px;font-weight:700;letter-spacing:.3px;color:var(--z500)}
 .eval-pair .ep-div{width:1px;height:11px;background:var(--z200)}
-
-/* ── BULK BAR ── */
 .bulk-bar{display:none;align-items:center;gap:7px;padding:7px 12px;background:var(--z0);border:1px solid var(--brand);border-radius:var(--rsm);margin-bottom:10px;position:sticky;top:calc(var(--nh) + 8px);z-index:50;box-shadow:var(--sh-md)}
 .bulk-bar.on{display:flex}
 .bulk-sep{width:1px;height:16px;background:var(--z200);margin:0 2px}
 .bulk-cnt{font-size:13px;font-weight:600;color:var(--brand)}
 .bulk-warn{font-size:12.5px;font-weight:500;color:var(--warn);display:flex;align-items:center;gap:4px}
 .bulk-warn i{font-size:14px}
-
-/* ── TABLE ── */
 .gtable-wrap{border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);overflow:visible;width:100%}
 .gtable{width:100%;border-collapse:collapse;background:var(--z0);font-size:13px}
 .gtable th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);background:var(--brand-muted);padding:10px 12px;border-bottom:1px solid var(--brand-ring);white-space:nowrap}
 .gtable td{padding:11px 12px;border-bottom:1px solid var(--z200);vertical-align:middle;color:var(--z900);font-size:13px;font-weight:500;line-height:1.45}
 .gtable tbody tr:last-child td{border-bottom:none}
 .gtable tbody tr{transition:background .08s}
-.gtable tbody tr:not(.gt-grouprow){cursor:pointer}
-.gtable tbody tr:not(.gt-grouprow):hover{background:var(--z50)}
-
-/* Goal type in column */
+.gtable tbody tr.gt-row{cursor:pointer}
+.gtable tbody tr.gt-row:hover{background:var(--z50)}
 .gt-type{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:13px;font-weight:500}
 .gt-type i{font-size:15px;flex-shrink:0}
 .gt-type.what{color:var(--what)}.gt-type.what i{color:var(--what)}
 .gt-type.dev{color:var(--dev)}.gt-type.dev i{color:var(--dev)}
-.gt-type.how{color:var(--how)}.gt-type.how i{color:var(--how)}
-
-/* Goal name cell */
 .gt-name{font-weight:500;color:var(--z900);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
-/* Result cell */
 .gt-result{color:var(--z700);font-weight:400;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
-
-/* Date cell — single line DD/MM – DD/MM */
 .gt-date{white-space:nowrap;color:var(--z700);font-size:13px;font-weight:400}
-
-/* Status cell — badge + optional eval pair */
 .gt-status-cell{vertical-align:middle}
 .gt-eval-sub{display:block;margin-top:4px}
-
-/* Action cell */
 .gt-act-cell{display:flex;align-items:center;gap:2px}
-
-/* Checkbox column */
 .gt-cb-td{width:36px;padding:0 0 0 10px;text-align:center;vertical-align:middle}
 .gt-cb-wrap{opacity:0;transition:opacity .1s}
 .gt-row:hover .gt-cb-wrap,.gt-bulk-mode .gt-cb-wrap{opacity:1}
 .gt-row:has(.gt-cb:checked) .gt-cb-wrap{opacity:1}
 .gt-cb{width:13px;height:13px;cursor:pointer;accent-color:var(--brand);display:block}
-
-/* Icon-only action buttons */
 .gt-pri{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:16px}
 .gt-pri:hover{background:var(--z100);color:var(--z800)}
 .gt-pri.accent{color:var(--brand)}.gt-pri.accent:hover{background:var(--brand-muted);color:var(--brand)}
 .gt-pri.ok{color:var(--ok)}.gt-pri.ok:hover{background:var(--ok-bg)}
 .gt-pri.warn{color:var(--warn)}.gt-pri.warn:hover{background:var(--warn-bg)}
 .gt-pri.danger{color:var(--err)}.gt-pri.danger:hover{background:var(--err-bg)}
-
-/* Group row (for section headers) */
-.gt-grouprow td{background:var(--z100);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);padding:7px 12px;cursor:default}
-.gt-grouprow td i{font-size:13px;margin-right:4px;vertical-align:middle;color:var(--brand)}
-
-/* ── EMPLOYEE HEADER ── */
 .emp-hdr{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);margin-bottom:16px;box-shadow:var(--sh-sm)}
-.emp-hdr-av{width:44px;height:44px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;letter-spacing:-.5px}
+.emp-hdr-av{width:44px;height:44px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;letter-spacing:-.5px}
 .emp-hdr-info{flex:1;min-width:0}
 .emp-hdr-name{font-size:15px;font-weight:700;color:var(--z900);line-height:1.2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .emp-hdr-login{font-size:13px;font-weight:400;color:var(--z500)}
@@ -201,8 +153,9 @@ input,select,textarea{font-family:inherit}
 .esp-pending{background:var(--info-bg);border-color:var(--info-bd);color:var(--info)}
 .esp-eval{background:var(--brand-muted);border-color:var(--brand-ring);color:var(--brand)}
 .esp-num{font-size:15px;font-weight:700;line-height:1}
-
-/* ── FORM FIELDS ── */
+.emp-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:1px 8px;border-radius:50px;border:1px solid;white-space:nowrap;line-height:1.6}
+.emp-tag-resigned{background:var(--err-bg);color:var(--err);border-color:var(--err-bd)}
+.emp-tag-maternity{background:var(--info-bg);color:var(--info);border-color:var(--info-bd)}
 .fg{margin-bottom:13px}
 .flbl{display:block;font-size:12.5px;font-weight:500;color:var(--z700);margin-bottom:4px}
 .flbl .req{color:var(--err);margin-left:2px}
@@ -211,9 +164,6 @@ input,select,textarea{font-family:inherit}
 .fc::placeholder{color:var(--z400)}
 select.fc{appearance:none;-webkit-appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;cursor:pointer}
 textarea.fc{resize:vertical;min-height:80px}
-.fhint{font-size:11.5px;color:var(--z500);margin-top:3px}
-
-/* ── DETAIL FIELDS ── */
 .dg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .dg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
 .df label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:3px}
@@ -224,8 +174,6 @@ textarea.fc{resize:vertical;min-height:80px}
 .detail-val{font-size:13.5px;color:var(--z700);line-height:1.65;background:var(--z50);border-radius:var(--rsm);padding:9px 12px;margin-top:6px;word-break:break-word}
 .sec-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:6px}
 .divider{height:1px;background:var(--z100);margin:12px 0}
-
-/* ── MODAL / DIALOG ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
 .overlay.open{display:flex;animation:ov-in .15s ease}
 @keyframes ov-in{from{opacity:0}to{opacity:1}}
@@ -246,8 +194,6 @@ textarea.fc{resize:vertical;min-height:80px}
 .dlg-body{padding:16px 20px;overflow-y:auto;flex:1}
 .dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:flex-end;flex-shrink:0;align-items:center}
 .tpanel{display:none}.tpanel.on{display:block}
-
-/* ── EVAL CARDS ── */
 .ev-card{border:1px solid var(--z200);border-radius:var(--rsm);padding:12px 13px;margin-bottom:12px}
 .ev-card.locked{background:var(--z50)}
 .ev-card-hd-row{display:flex;align-items:center;gap:6px;margin-bottom:9px}
@@ -264,8 +210,6 @@ textarea.fc{resize:vertical;min-height:80px}
 .ev-cards-compare .ev-card{margin-bottom:0}
 .ev-wait-box{background:var(--z50);border:1px dashed var(--z300);border-radius:var(--rsm);padding:22px;text-align:center;color:var(--z500);font-size:13px;line-height:1.55}
 .ev-wait-box i{font-size:28px;color:var(--z400);display:block;margin-bottom:8px}
-
-/* ── CONFIRM DIALOG ── */
 .conf-dlg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center;padding:16px}
 .conf-dlg.open{display:flex}
 .conf-box{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);max-width:400px;width:100%;padding:22px;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
@@ -277,8 +221,6 @@ textarea.fc{resize:vertical;min-height:80px}
 .conf-body{font-size:13px;color:var(--z600);margin-bottom:18px;line-height:1.6}
 .conf-body strong{color:var(--z900);font-weight:600}
 .conf-actions{display:flex;gap:7px;justify-content:flex-end}
-
-/* ── TIMELINE ── */
 .tl{position:relative;padding-left:22px}
 .tl::before{content:'';position:absolute;left:4px;top:8px;bottom:6px;width:1px;background:var(--z200)}
 .tl-item{position:relative;padding-bottom:16px}
@@ -287,27 +229,20 @@ textarea.fc{resize:vertical;min-height:80px}
 .tl-dot.ok{background:var(--ok);outline-color:var(--ok-bd)}.tl-dot.info{background:var(--info);outline-color:var(--info-bd)}.tl-dot.warn{background:var(--warn);outline-color:var(--warn-bd)}.tl-dot.err{background:var(--err);outline-color:var(--err-bd)}
 .tl-ev{font-size:13.5px;font-weight:500;color:var(--z800)}
 .tl-who{font-size:12px;color:var(--z500);margin-top:2px}
-
-/* ── TOOLTIP ── */
 .floating-tip{position:fixed;background:var(--z700);color:#fff;font-size:12px;font-weight:400;line-height:1.6;padding:9px 12px;border-radius:var(--rsm);max-width:260px;width:max-content;z-index:9999;display:none;box-shadow:var(--sh-lg);pointer-events:none}
 .floating-tip::before{content:'';position:absolute;right:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--z700)}
-.sep{width:1px;height:14px;background:var(--z200);display:inline-block}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
   <div class="sb-brand">
     <div class="sb-logo"><span>M</span></div>
-    <div>
-      <div class="sb-name">MoMo <em>HRM</em></div>
-      <div class="sb-sub">Performance Management</div>
-    </div>
+    <div><div class="sb-name">MoMo <em>HRM</em></div><div class="sb-sub">Performance Management</div></div>
   </div>
   <div class="role-sw">
-    <button class="role-btn" onclick="location.href='../E-01/'">Nhân viên</button>
+    <button class="role-btn" onclick="location.href='../E-01/index.html'">Nhân viên</button>
     <button class="role-btn on">Quản lý</button>
   </div>
   <nav class="sb-nav">
@@ -320,17 +255,12 @@ textarea.fc{resize:vertical;min-height:80px}
   <div class="sb-foot">
     <div class="sb-user">
       <div class="av av-brand">LT</div>
-      <div>
-        <div class="sb-uname">Lê Thị Thanh</div>
-        <div class="sb-urole">Quản lý, ITC – Backend</div>
-      </div>
+      <div><div class="sb-uname">Lê Thị Thanh</div><div class="sb-urole">Quản lý, ITC – Backend</div></div>
     </div>
   </div>
 </aside>
 
-<!-- ══ WORKSPACE ══ -->
 <div class="workspace">
-
   <header class="topbar">
     <a href="../M-01/index.html" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);padding:4px 8px;border-radius:var(--rsm);transition:var(--t)" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Quay lại</a>
     <span class="topbar-title">Chi tiết Mục tiêu nhân viên</span>
@@ -345,321 +275,104 @@ textarea.fc{resize:vertical;min-height:80px}
     <div class="breadcrumb">
       <a href="#">Trang chủ</a><span class="bc-sep"> / </span>
       <a href="../M-01/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep"> / </span>
-      <span style="color:var(--z700)">Nguyễn Văn Tú</span>
+      <span id="bc-emp-name" style="color:var(--z700)">—</span>
     </div>
-
     <div class="page-hd">
       <h1 class="page-title">Chi tiết Mục tiêu</h1>
       <div class="cycle-row">
-        <i class="bx bx-calendar"></i>
-        <span class="cycle-lbl">Chu kỳ</span>
+        <i class="bx bx-calendar"></i><span class="cycle-lbl">Chu kỳ</span>
         <select class="cycle-sel"><option>2026</option><option>2025</option></select>
       </div>
     </div>
-
-    <!-- Employee header -->
-    <div class="emp-hdr">
-      <div class="emp-hdr-av">TÚ</div>
-      <div class="emp-hdr-info">
-        <div class="emp-hdr-name">
-          Nguyễn Văn Tú
-          <span class="emp-hdr-login">(tu.nguyen)</span>
-        </div>
-        <div class="emp-hdr-meta">
-          <span>ITC</span><span class="emp-hdr-dot"></span>
-          <span>Backend</span><span class="emp-hdr-dot"></span>
-          <span>Software Engineer</span>
-        </div>
-      </div>
-      <div class="emp-hdr-stats">
-        <div class="emp-stat-pill esp-total">
-          <span class="esp-num" id="stat-total">6</span>
-          <span>mục tiêu</span>
-        </div>
-        <div class="emp-stat-pill esp-pending">
-          <span class="esp-num" id="stat-pending">3</span>
-          <span>chờ duyệt</span>
-        </div>
-        <div class="emp-stat-pill esp-eval">
-          <i class="bx bx-task" style="font-size:14px"></i>
-          <span class="esp-num" id="stat-eval">1</span>
-          <span>cần đánh giá</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bulk bar -->
+    <div id="emp-hdr"></div>
     <div class="bulk-bar" id="bulk-bar">
       <span class="bulk-cnt" id="bulk-cnt">0 đã chọn</span>
       <button class="btn btn-ghost btn-xs" onclick="clearBulk()">Bỏ chọn</button>
       <button class="btn btn-ghost btn-xs" onclick="selAllPending()">Chọn tất cả Chờ duyệt</button>
       <div class="bulk-sep"></div>
-      <span class="bulk-warn" id="bulk-warn" style="display:none"><i class="bx bx-error-circle"></i> <span id="bulk-warn-txt"></span></span>
-      <button class="btn btn-ok btn-xs" id="bulk-approve" onclick="doBulkApprove()" disabled>
-        <i class="bx bx-check-circle"></i> Duyệt đã chọn
-      </button>
+      <span class="bulk-warn" id="bulk-warn" style="display:none"><i class="bx bx-error-circle"></i><span id="bulk-warn-txt"></span></span>
+      <button class="btn btn-ok btn-xs" id="bulk-approve-btn" onclick="doBulkApprove()" disabled><i class="bx bx-check-circle"></i> Duyệt đã chọn</button>
     </div>
-
-    <!-- Table -->
     <div class="gtable-wrap">
       <table class="gtable">
-        <colgroup>
-          <col style="width:36px">
-          <col style="width:130px">
-          <col style="width:20%">
-          <col>
-          <col style="width:110px">
-          <col style="width:120px">
-          <col style="width:140px">
-          <col style="width:120px">
-        </colgroup>
-        <thead>
-          <tr>
-            <th class="gt-cb-td"></th>
-            <th>Loại mục tiêu</th>
-            <th>Tên mục tiêu</th>
-            <th>Kết quả cần đạt</th>
-            <th>Mức độ ưu tiên</th>
-            <th>Thời gian</th>
-            <th>Trạng thái</th>
-            <th>Chức năng</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <!-- g1: what / Cao / pending -->
-          <tr class="gt-row" id="row-g1" data-id="g1" data-status="pending" onclick="openDetail('g1')">
-            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g1" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
-            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
-            <td><div class="gt-name">Phát triển Payment SDK v3.0 tích hợp đa nền tảng (iOS, Android, Web)</div></td>
-            <td><div class="gt-result">SDK v3.0 được release chính thức, tích hợp thành công trên 3 platform, pass 100% test cases, latency &lt; 300ms trên production.</div></td>
-            <td><span class="prio prio-h">Cao</span></td>
-            <td class="gt-date">01/01 – 30/06</td>
-            <td class="gt-status-cell" id="status-g1"><span class="badge b-info">Chờ duyệt</span></td>
-            <td onclick="event.stopPropagation()" id="act-g1">
-              <div class="gt-act-cell">
-                <button class="gt-pri ok" data-tip="Duyệt" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openApprove('g1')"><i class="bx bx-check-circle"></i></button>
-                <button class="gt-pri warn" data-tip="Yêu cầu cập nhật" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openUpdateReq('g1')"><i class="bx bx-rotate-left"></i></button>
-                <button class="gt-pri danger" data-tip="Từ chối" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openReject('g1')"><i class="bx bx-x-circle"></i></button>
-                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g1')"><i class="bx bx-show"></i></button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- g2: what / Cao / approved + selfdone -->
-          <tr class="gt-row" id="row-g2" data-id="g2" data-status="approved" onclick="openDetail('g2')">
-            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g2" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
-            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
-            <td><div class="gt-name">Tối ưu hiệu năng API thanh toán, giảm latency trung bình xuống dưới 200ms</div></td>
-            <td><div class="gt-result">Latency p95 ≤ 200ms trên production, zero downtime trong triển khai, có báo cáo benchmark so sánh trước–sau.</div></td>
-            <td><span class="prio prio-h">Cao</span></td>
-            <td class="gt-date">01/01 – 31/03</td>
-            <td class="gt-status-cell" id="status-g2">
-              <span class="badge b-ok">Đã duyệt</span>
-              <span class="gt-eval-sub">
-                <span class="eval-pair">
-                  <span class="ep-seg"><span class="ep-who">NV</span> 4.0</span>
-                  <span class="ep-div"></span>
-                  <span class="ep-seg ep-mgr"><span class="ep-who">QL</span> —</span>
-                </span>
-              </span>
-            </td>
-            <td onclick="event.stopPropagation()" id="act-g2">
-              <div class="gt-act-cell">
-                <button class="gt-pri accent" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEval('g2')"><i class="bx bx-task"></i></button>
-                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g2')"><i class="bx bx-show"></i></button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- g3: what / Trung bình / approved + eval done -->
-          <tr class="gt-row" id="row-g3" data-id="g3" data-status="approved" onclick="openDetail('g3')">
-            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g3" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
-            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
-            <td><div class="gt-name">Refactor module xác thực &amp; bảo mật theo chuẩn OAuth 2.0</div></td>
-            <td><div class="gt-result">Module đạt chuẩn OAuth 2.0, pass security audit, không có critical vulnerability trong 30 ngày sau release.</div></td>
-            <td><span class="prio prio-m">Trung bình</span></td>
-            <td class="gt-date">01/01 – 28/02</td>
-            <td class="gt-status-cell" id="status-g3">
-              <span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>
-              <span class="gt-eval-sub">
-                <span class="eval-pair">
-                  <span class="ep-seg"><span class="ep-who">NV</span> 3.0</span>
-                  <span class="ep-div"></span>
-                  <span class="ep-seg ep-mgr"><span class="ep-who">QL</span> 4.0</span>
-                </span>
-              </span>
-            </td>
-            <td onclick="event.stopPropagation()" id="act-g3">
-              <div class="gt-act-cell">
-                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g3')"><i class="bx bx-show"></i></button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- g4: what / Thấp / pending -->
-          <tr class="gt-row" id="row-g4" data-id="g4" data-status="pending" onclick="openDetail('g4')">
-            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g4" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
-            <td><span class="gt-type what"><i class="bx bx-target-lock"></i> Công việc</span></td>
-            <td><div class="gt-name">Nâng độ phủ unit test lên ≥ 80% cho toàn bộ payment module</div></td>
-            <td><div class="gt-result">Code coverage ≥ 80% trên Sonarqube, CI pipeline xanh, không có regression bug trong 2 sprint kế tiếp.</div></td>
-            <td><span class="prio prio-l">Thấp</span></td>
-            <td class="gt-date">01/03 – 30/04</td>
-            <td class="gt-status-cell" id="status-g4"><span class="badge b-info">Chờ duyệt</span></td>
-            <td onclick="event.stopPropagation()" id="act-g4">
-              <div class="gt-act-cell">
-                <button class="gt-pri ok" data-tip="Duyệt" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openApprove('g4')"><i class="bx bx-check-circle"></i></button>
-                <button class="gt-pri warn" data-tip="Yêu cầu cập nhật" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openUpdateReq('g4')"><i class="bx bx-rotate-left"></i></button>
-                <button class="gt-pri danger" data-tip="Từ chối" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openReject('g4')"><i class="bx bx-x-circle"></i></button>
-                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g4')"><i class="bx bx-show"></i></button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- g5: dev / Trung bình / pending -->
-          <tr class="gt-row" id="row-g5" data-id="g5" data-status="pending" onclick="openDetail('g5')">
-            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g5" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
-            <td><span class="gt-type dev"><i class="bx bx-trending-up"></i> Phát triển</span></td>
-            <td><div class="gt-name">Hoàn thành AWS Solutions Architect Associate certification (SAA-C03)</div></td>
-            <td><div class="gt-result">Pass kỳ thi SAA-C03 điểm ≥ 750/1000, apply ít nhất 1 AWS best practice vào project và chia sẻ với team.</div></td>
-            <td><span class="prio prio-m">Trung bình</span></td>
-            <td class="gt-date">01/02 – 31/05</td>
-            <td class="gt-status-cell" id="status-g5"><span class="badge b-info">Chờ duyệt</span></td>
-            <td onclick="event.stopPropagation()" id="act-g5">
-              <div class="gt-act-cell">
-                <button class="gt-pri ok" data-tip="Duyệt" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openApprove('g5')"><i class="bx bx-check-circle"></i></button>
-                <button class="gt-pri warn" data-tip="Yêu cầu cập nhật" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openUpdateReq('g5')"><i class="bx bx-rotate-left"></i></button>
-                <button class="gt-pri danger" data-tip="Từ chối" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openReject('g5')"><i class="bx bx-x-circle"></i></button>
-                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g5')"><i class="bx bx-show"></i></button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- g6: dev / Thấp / draft -->
-          <tr class="gt-row" id="row-g6" data-id="g6" data-status="draft" onclick="openDetail('g6')">
-            <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="g6" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
-            <td><span class="gt-type dev"><i class="bx bx-trending-up"></i> Phát triển</span></td>
-            <td><div class="gt-name">Mentoring 2 junior engineers trong team ITC-Backend</div></td>
-            <td><div class="gt-result">Mỗi junior hoàn thành ≥ 3 buổi 1-on-1/tháng, cải thiện code quality review score ≥ 20% đo qua Sonarqube.</div></td>
-            <td><span class="prio prio-l">Thấp</span></td>
-            <td class="gt-date">01/01 – 31/12</td>
-            <td class="gt-status-cell" id="status-g6"><span class="badge b-muted">Nháp</span></td>
-            <td onclick="event.stopPropagation()" id="act-g6">
-              <div class="gt-act-cell">
-                <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail('g6')"><i class="bx bx-show"></i></button>
-              </div>
-            </td>
-          </tr>
-
-        </tbody>
+        <colgroup><col style="width:36px"><col style="width:130px"><col style="width:20%"><col><col style="width:110px"><col style="width:120px"><col style="width:140px"><col style="width:120px"></colgroup>
+        <thead><tr>
+          <th class="gt-cb-td"></th>
+          <th>Loại mục tiêu</th><th>Tên mục tiêu</th><th>Kết quả cần đạt</th>
+          <th>Mức độ ưu tiên</th><th>Thời gian</th><th>Trạng thái</th><th>Chức năng</th>
+        </tr></thead>
+        <tbody id="goal-tbody"></tbody>
       </table>
     </div>
   </main>
 </div>
 </div>
 
-<!-- ══ OVERLAY: DETAIL ══ -->
+<!-- DETAIL DIALOG -->
 <div class="overlay" id="dlg-detail" onclick="if(event.target===this)closeOverlay('dlg-detail')">
   <div class="dialog md">
     <div class="dlg-hd">
-      <div class="dlg-hd-row">
-        <div class="dlg-title" id="d-title">—</div>
-        <button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button>
-      </div>
+      <div class="dlg-hd-row"><div class="dlg-title" id="d-title">—</div><button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button></div>
       <div class="dlg-badges" id="d-badges"></div>
-      <div class="dlg-tabs">
-        <button class="dlg-tab on" id="dtab-0" onclick="switchTab(0)">Thông tin</button>
-        <button class="dlg-tab" id="dtab-1" onclick="switchTab(1)">Lịch sử</button>
-      </div>
+      <div class="dlg-tabs"><button class="dlg-tab on" id="dtab-0" onclick="switchTab(0)">Thông tin</button><button class="dlg-tab" id="dtab-1" onclick="switchTab(1)">Lịch sử</button></div>
     </div>
-    <div class="dlg-body">
-      <div class="tpanel on" id="dtp-0"></div>
-      <div class="tpanel" id="dtp-1"></div>
-    </div>
-    <div class="dlg-foot" id="d-foot">
-      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-detail')">Đóng</button>
-    </div>
+    <div class="dlg-body"><div class="tpanel on" id="dtp-0"></div><div class="tpanel" id="dtp-1"></div></div>
+    <div class="dlg-foot" id="d-foot"></div>
   </div>
 </div>
 
-<!-- ══ OVERLAY: APPROVE ══ -->
+<!-- APPROVE DIALOG -->
 <div class="conf-dlg" id="dlg-approve" onclick="if(event.target===this)closeConf('dlg-approve')">
   <div class="conf-box">
     <div class="conf-icon ok"><i class="bx bx-check-circle"></i></div>
     <div class="conf-title">Xác nhận duyệt mục tiêu</div>
-    <div class="conf-body">Bạn sắp duyệt mục tiêu <strong id="approve-goal-name">—</strong> của <strong>Nguyễn Văn Tú</strong>. Sau khi duyệt, nhân viên sẽ được thông báo.</div>
-    <div class="conf-actions">
-      <button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-approve')">Huỷ</button>
-      <button class="btn btn-ok btn-sm" onclick="doApprove()"><i class="bx bx-check-circle"></i> Duyệt</button>
-    </div>
+    <div class="conf-body">Bạn sắp duyệt mục tiêu <strong id="approve-goal-name">—</strong> của <strong id="approve-emp-name">—</strong>. Sau khi duyệt, nhân viên sẽ được thông báo.</div>
+    <div class="conf-actions"><button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-approve')">Huỷ</button><button class="btn btn-ok btn-sm" onclick="doApprove()"><i class="bx bx-check-circle"></i> Duyệt</button></div>
   </div>
 </div>
 
-<!-- ══ OVERLAY: YÊU CẦU CẬP NHẬT ══ -->
+<!-- UPDATE REQUEST DIALOG -->
 <div class="conf-dlg" id="dlg-update" onclick="if(event.target===this)closeConf('dlg-update')">
   <div class="conf-box" style="max-width:440px">
     <div class="conf-icon warn"><i class="bx bx-rotate-left"></i></div>
     <div class="conf-title">Yêu cầu cập nhật</div>
     <div class="conf-body">Mục tiêu <strong id="update-goal-name">—</strong> sẽ được trả về cho nhân viên để chỉnh sửa.</div>
-    <div class="fg">
-      <label class="flbl">Ghi chú cho nhân viên <span style="font-size:11.5px;color:var(--z400);font-weight:400">(tuỳ chọn)</span></label>
-      <textarea class="fc" id="update-note" placeholder="Mô tả cụ thể điểm cần điều chỉnh..." rows="3"></textarea>
-    </div>
-    <div class="conf-actions">
-      <button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-update')">Huỷ</button>
-      <button class="btn btn-cta-outline btn-sm" onclick="doUpdateReq()"><i class="bx bx-rotate-left"></i> Gửi yêu cầu</button>
-    </div>
+    <div class="fg"><label class="flbl">Ghi chú cho nhân viên <span style="font-size:11.5px;color:var(--z400);font-weight:400">(tuỳ chọn)</span></label><textarea class="fc" id="update-note" placeholder="Mô tả cụ thể điểm cần điều chỉnh..." rows="3"></textarea></div>
+    <div class="conf-actions"><button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-update')">Huỷ</button><button class="btn btn-cta-outline btn-sm" onclick="doUpdateReq()"><i class="bx bx-rotate-left"></i> Gửi yêu cầu</button></div>
   </div>
 </div>
 
-<!-- ══ OVERLAY: TỪ CHỐI ══ -->
+<!-- REJECT DIALOG -->
 <div class="conf-dlg" id="dlg-reject" onclick="if(event.target===this)closeConf('dlg-reject')">
   <div class="conf-box" style="max-width:440px">
     <div class="conf-icon err"><i class="bx bx-x-circle"></i></div>
     <div class="conf-title">Từ chối mục tiêu</div>
     <div class="conf-body">Mục tiêu <strong id="reject-goal-name">—</strong> sẽ bị từ chối. Nhân viên cần tạo lại hoặc chỉnh sửa từ đầu.</div>
-    <div class="fg">
-      <label class="flbl">Lý do từ chối <span style="font-size:11.5px;color:var(--z400);font-weight:400">(tuỳ chọn)</span></label>
-      <textarea class="fc" id="reject-note" placeholder="Ví dụ: Mục tiêu không phù hợp định hướng team..." rows="3"></textarea>
-    </div>
-    <div class="conf-actions">
-      <button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-reject')">Huỷ</button>
-      <button class="btn btn-destructive btn-sm" onclick="doReject()"><i class="bx bx-x-circle"></i> Từ chối</button>
-    </div>
+    <div class="fg"><label class="flbl">Lý do từ chối <span style="font-size:11.5px;color:var(--z400);font-weight:400">(tuỳ chọn)</span></label><textarea class="fc" id="reject-note" placeholder="Ví dụ: Mục tiêu không phù hợp định hướng team..." rows="3"></textarea></div>
+    <div class="conf-actions"><button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-reject')">Huỷ</button><button class="btn btn-destructive btn-sm" onclick="doReject()"><i class="bx bx-x-circle"></i> Từ chối</button></div>
   </div>
 </div>
 
-<!-- ══ OVERLAY: MANAGER EVALUATION ══ -->
+<!-- EVAL DIALOG -->
 <div class="overlay" id="dlg-eval" onclick="if(event.target===this)closeOverlay('dlg-eval')">
   <div class="dialog md">
     <div class="dlg-hd">
-      <div class="dlg-hd-row">
-        <div class="dlg-title" id="eval-title">Đánh giá hoàn thành</div>
-        <button class="dlg-close" onclick="closeOverlay('dlg-eval')"><i class="bx bx-x"></i></button>
-      </div>
+      <div class="dlg-hd-row"><div class="dlg-title" id="eval-title">Đánh giá hoàn thành</div><button class="dlg-close" onclick="closeOverlay('dlg-eval')"><i class="bx bx-x"></i></button></div>
       <div class="dlg-badges" id="eval-badges"></div>
     </div>
     <div class="dlg-body">
       <span class="sec-lbl" style="margin-bottom:10px">Đánh giá của nhân viên</span>
       <div class="ev-card locked">
-        <div class="ev-card-hd-row">
-          <div class="ev-who-ico">NV</div>
-          <div class="ev-card-hd">tu.nguyen</div>
-        </div>
+        <div class="ev-card-hd-row"><div class="ev-who-ico" id="eval-self-ico">NV</div><div class="ev-card-hd" id="eval-self-lbl">—</div></div>
         <div class="ev-score"><span id="eval-self-score-html"></span></div>
-        <div class="ev-cmt-lbl">Nhận xét</div>
-        <div class="ev-cmt" id="eval-self-cmt">—</div>
+        <div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt" id="eval-self-cmt">—</div>
         <div class="ev-meta" id="eval-self-meta"></div>
       </div>
       <div class="divider"></div>
       <span class="sec-lbl" style="margin-bottom:10px">Đánh giá của bạn (Quản lý)</span>
       <div class="ev-card">
-        <div class="ev-card-hd-row">
-          <div class="ev-who-ico" style="background:var(--brand-muted);color:var(--brand)">QL</div>
-          <div class="ev-card-hd">thanh.le</div>
-        </div>
-        <div class="fg">
-          <label class="flbl">Điểm đánh giá <span class="req">*</span></label>
+        <div class="ev-card-hd-row"><div class="ev-who-ico" style="background:var(--brand-muted);color:var(--brand)">QL</div><div class="ev-card-hd">thanh.le</div></div>
+        <div class="fg"><label class="flbl">Điểm đánh giá <span class="req">*</span></label>
           <select class="fc" id="eval-mgr-score" style="max-width:280px">
             <option value="">-- Chọn điểm --</option>
             <option value="1">1 — Không đạt yêu cầu</option>
@@ -667,12 +380,8 @@ textarea.fc{resize:vertical;min-height:80px}
             <option value="3">3 — Hoàn thành kỳ vọng</option>
             <option value="4">4 — Hoàn thành trên mức kỳ vọng</option>
             <option value="5">5 — Hoàn thành vượt xa kỳ vọng</option>
-          </select>
-        </div>
-        <div class="fg" style="margin-bottom:0">
-          <label class="flbl">Nhận xét</label>
-          <textarea class="fc" id="eval-mgr-cmt" placeholder="Nhận xét về mức độ hoàn thành mục tiêu..." rows="3"></textarea>
-        </div>
+          </select></div>
+        <div class="fg" style="margin-bottom:0"><label class="flbl">Nhận xét</label><textarea class="fc" id="eval-mgr-cmt" placeholder="Nhận xét về mức độ hoàn thành mục tiêu..." rows="3"></textarea></div>
       </div>
     </div>
     <div class="dlg-foot">
@@ -683,40 +392,350 @@ textarea.fc{resize:vertical;min-height:80px}
 </div>
 
 <script>
-/* ═══ GOAL DATA ═══ */
-var GOALS={
-  g1:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Phát triển Payment SDK v3.0 tích hợp đa nền tảng (iOS, Android, Web)',result:'SDK v3.0 được release chính thức, tích hợp thành công trên 3 platform, pass 100% test cases của QA, latency trung bình &lt; 300ms trên môi trường production.',from:'01/01',to:'30/06',prio:'h',prioLbl:'Cao',status:'pending',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'02/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'05/01/2026'}]},
-  g2:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Tối ưu hiệu năng API thanh toán, giảm latency trung bình xuống dưới 200ms',result:'Latency p95 ≤ 200ms đo trên production, zero downtime trong quá trình triển khai, có báo cáo benchmark so sánh trước–sau.',from:'01/01',to:'31/03',prio:'h',prioLbl:'Cao',status:'approved',eval:'selfdone',evSelfScore:'4',evSelfCmt:'Đã giảm latency trung bình xuống 145ms, vượt target 200ms. Triển khai thành công, zero downtime. Đính kèm báo cáo benchmark đầy đủ.',evSelfTime:'15/04/2026',evSelfBy:'tu.nguyen',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'02/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'05/01/2026'},{dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:'07/01/2026'},{dot:'info',ev:'Nhân viên gửi đánh giá hoàn thành',who:'tu.nguyen',time:'15/04/2026'}]},
-  g3:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Refactor module xác thực &amp; bảo mật theo chuẩn OAuth 2.0',result:'Module đạt chuẩn OAuth 2.0, pass security audit nội bộ, không có critical vulnerability trong 30 ngày sau release, có tài liệu kỹ thuật cập nhật.',from:'01/01',to:'28/02',prio:'m',prioLbl:'Trung bình',status:'approved',eval:'done',evSelfScore:'3',evSelfCmt:'Hoàn thành refactor module auth theo chuẩn OAuth 2.0. Đã pass code review 2 vòng và deploy thành công lên production.',evSelfTime:'20/02/2026',evSelfBy:'tu.nguyen',evMgrScore:'4',evMgrCmt:'Module xác thực sau refactor stable hơn rõ rệt, zero security incidents trong 2 tháng sau release. Đánh giá cao chất lượng code và tài liệu.',evMgrTime:'22/02/2026',evMgrBy:'thanh.le',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'02/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'05/01/2026'},{dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:'07/01/2026'},{dot:'info',ev:'Nhân viên gửi đánh giá hoàn thành',who:'tu.nguyen',time:'20/02/2026'},{dot:'ok',ev:'Quản lý đã đánh giá hoàn thành',who:'thanh.le',time:'22/02/2026'}]},
-  g4:{type:'what',typeLbl:'Công việc',typeIco:'bx-target-lock',title:'Nâng độ phủ unit test lên ≥ 80% cho toàn bộ payment module',result:'Code coverage ≥ 80% trên Sonarqube, CI pipeline xanh hoàn toàn, không có regression bug trong 2 sprint kế tiếp.',from:'01/03',to:'30/04',prio:'l',prioLbl:'Thấp',status:'pending',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'20/02/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'25/02/2026'}]},
-  g5:{type:'dev',typeLbl:'Phát triển',typeIco:'bx-trending-up',title:'Hoàn thành AWS Solutions Architect Associate certification (SAA-C03)',result:'Pass kỳ thi SAA-C03 điểm ≥ 750/1000, apply ít nhất 1 AWS best practice vào project và chia sẻ với team.',from:'01/02',to:'31/05',prio:'m',prioLbl:'Trung bình',status:'pending',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu',who:'tu.nguyen',time:'25/01/2026'},{dot:'info',ev:'Gửi quản lý duyệt',who:'tu.nguyen',time:'28/01/2026'}]},
-  g6:{type:'dev',typeLbl:'Phát triển',typeIco:'bx-trending-up',title:'Mentoring 2 junior engineers trong team ITC-Backend',result:'Mỗi junior hoàn thành ≥ 3 buổi 1-on-1/tháng, cải thiện code quality review score ≥ 20% đo qua Sonarqube.',from:'01/01',to:'31/12',prio:'l',prioLbl:'Thấp',status:'draft',eval:'none',history:[{dot:'info',ev:'Tạo mục tiêu (nháp)',who:'tu.nguyen',time:'02/01/2026'}]}
+/* ═══════════════════════════════════════════
+   EMPLOYEE META
+═══════════════════════════════════════════ */
+var EMPS_META={
+  e1:{name:'Nguyễn Văn Tú',login:'tu.nguyen',ini:'NT',div:'ITC',dept:'Backend',pos:'Software Engineer'},
+  e2:{name:'Trần Thị Mai',login:'mai.tran',ini:'TM',div:'ITC',dept:'Frontend',pos:'Software Engineer'},
+  e3:{name:'Phạm Minh Đức',login:'duc.pham',ini:'PD',div:'ITC',dept:'Data',pos:'Data Engineer',resigned:true},
+  e4:{name:'Vũ Thị Lan',login:'lan.vu',ini:'VL',div:'ITC',dept:'QA',pos:'QA Engineer',maternity:true},
+  e5:{name:'Lê Văn Hùng',login:'hung.le',ini:'LH',div:'ITC',dept:'Backend',pos:'Senior Engineer'},
+  e6:{name:'Hoàng Thị Thu',login:'thu.hoang',ini:'HT',div:'ITC',dept:'Frontend',pos:'Frontend Engineer'},
+  e7:{name:'Đặng Quang Vinh',login:'vinh.dang',ini:'DV',div:'ITC',dept:'DevOps',pos:'DevOps Engineer'},
+  e8:{name:'Nguyễn Thị Hoa',login:'hoa.nguyen',ini:'NH',div:'PM',dept:'Product',pos:'Product Manager'},
+  e9:{name:'Bùi Quốc Anh',login:'anh.bui',ini:'BA',div:'ITC',dept:'Security',pos:'Security Engineer'},
+  e10:{name:'Đinh Thị Linh',login:'linh.dinh',ini:'DL',div:'ITC',dept:'AI/ML',pos:'ML Engineer'},
+  e11:{name:'Cao Văn Minh',login:'minh.cao',ini:'CM',div:'ITC',dept:'Infra',pos:'Infrastructure Engineer'},
+  e12:{name:'Phan Thị Bích',login:'bich.phan',ini:'PB',div:'ITC',dept:'Mobile',pos:'Mobile Engineer'},
+  e13:{name:'Lê Hoài Nam',login:'nam.le',ini:'LN',div:'ITC',dept:'Backend',pos:'Senior Software Engineer'},
+  e14:{name:'Nguyễn Thị Phương',login:'phuong.nguyen',ini:'NP',div:'ITC',dept:'Data',pos:'Data Scientist'},
+  e15:{name:'Trần Văn Khoa',login:'khoa.tran',ini:'TK',div:'ITC',dept:'Mobile',pos:'iOS Engineer'},
+  e16:{name:'Mai Thị Hằng',login:'hang.mai',ini:'MH',div:'ITC',dept:'DevOps',pos:'Platform Engineer'}
 };
 
-var _tipEl=null,_activeGoalId=null;
+/* ═══════════════════════════════════════════
+   GOAL DATA  (type,title,result,from,to,prio,status,eval,...)
+   eval: 'none' | 'selfdone' | 'done'
+   selfdone needs: evSelfScore,evSelfCmt,evSelfTime,evSelfBy
+   done adds:     evMgrScore,evMgrCmt,evMgrTime,evMgrBy
+═══════════════════════════════════════════ */
+var GOALS_DATA={
+  e1:{
+    g1:{type:'what',title:'Tối ưu API response time xuống dưới 200ms với 95th percentile',result:'95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026. Tự động cảnh báo Slack khi vượt ngưỡng.',from:'01/01',to:'31/12',prio:'m',status:'pending',eval:'none'},
+    g2:{type:'what',title:'Refactor authentication module sang stateless JWT',result:'Toàn bộ luồng xác thực chuyển sang JWT stateless, loại bỏ session store, deploy không downtime, hoàn thành trước 30/09/2026.',from:'01/03',to:'31/12',prio:'l',status:'update',eval:'none',updNote:'Bổ sung tiêu chí đo lường định lượng và mốc thời gian cụ thể cho từng giai đoạn triển khai.'},
+    g3:{type:'what',title:'Triển khai circuit breaker pattern cho microservices nội bộ',result:'100% microservice nội bộ áp dụng circuit breaker, giảm cascading failure rate về 0 trong 2 tháng vận hành liên tiếp từ Q3/2026.',from:'01/02',to:'31/12',prio:'h',status:'pending',eval:'none'},
+    g4:{type:'what',title:'Hoàn thiện hệ thống thanh toán real-time với độ trễ < 100ms',result:'Hệ thống xử lý 10,000 giao dịch/giây, P99 < 100ms, đo bằng Grafana trong 3 tháng liên tục từ Q2/2026. Vượt qua kiểm thử tải 2× lưu lượng đỉnh.',from:'01/01',to:'30/09',prio:'h',status:'approved',eval:'selfdone',evSelfScore:'4',evSelfCmt:'Đạt P99 < 85ms, vượt target. Hệ thống xử lý 12,000 TPS trong kiểm thử tải. Triển khai không downtime, Grafana dashboard đang monitor liên tục.',evSelfTime:'10/03/2026',evSelfBy:'tu.nguyen'},
+    g5:{type:'dev',title:'Học và thi AWS Solutions Architect Associate',result:'Đậu chứng chỉ AWS SAA-C03 trước 30/06/2026, đạt tối thiểu 750/1000 điểm và viết post chia sẻ với team.',from:'01/01',to:'30/06',prio:null,status:'approved',eval:'done',evSelfScore:'3',evSelfCmt:'Đậu SAA-C03 điểm 820/1000, vượt target. Đã viết post chia sẻ và trình bày với team backend trong buổi tech sharing tháng 6.',evSelfTime:'28/06/2026',evSelfBy:'tu.nguyen',evMgrScore:'4',evMgrCmt:'Nỗ lực học và apply kiến thức cloud vào thực tế rõ rệt. Điểm vượt mức tối thiểu, bài chia sẻ nhận phản hồi tích cực từ team.',evMgrTime:'02/07/2026',evMgrBy:'thanh.le'},
+    g6:{type:'dev',title:'Tham gia chương trình mentoring nội bộ ITC',result:'Hoàn thành 12 buổi mentoring (1 buổi/tháng), nhận feedback tích cực từ mentee vào cuối năm.',from:'01/04',to:'31/12',prio:null,status:'draft',eval:'none'}
+  },
+  e2:{
+    g7:{type:'what',title:'Tối ưu Core Web Vitals: LCP < 2.5s và CLS < 0.1',result:'LCP < 2.5s, CLS < 0.1, FID < 100ms trên toàn bộ trang chủ và checkout. Đo qua Lighthouse CI trong 30 ngày liên tiếp.',from:'01/01',to:'30/06',prio:'h',status:'pending',eval:'none'},
+    g8:{type:'what',title:'Implement MoMo Design System — 30 core components',result:'30 core components hoàn thành với Storybook docs, đạt WCAG 2.1 AA, tích hợp vào ít nhất 2 product team trước Q4.',from:'01/01',to:'31/12',prio:'m',status:'pending',eval:'none'},
+    g9:{type:'what',title:'Cải thiện UX luồng thanh toán: giảm drop-off 15%',result:'Tỷ lệ hoàn thành thanh toán tăng ≥ 15% so với baseline Q4/2025, đo bằng Mixpanel funnel trong 60 ngày A/B test.',from:'01/01',to:'30/09',prio:'m',status:'approved',eval:'done',evSelfScore:'4',evSelfCmt:'Drop-off giảm 22%, vượt target 15%. A/B test 60 ngày hoàn thành, Mixpanel dashboard đã báo cáo kết quả chính thức.',evSelfTime:'28/03/2026',evSelfBy:'mai.tran',evMgrScore:'4',evMgrCmt:'Kết quả đo lường rõ ràng, vượt KPI đặt ra. Phương pháp A/B test được thực hiện bài bản, số liệu đáng tin cậy.',evMgrTime:'01/04/2026',evMgrBy:'thanh.le'},
+    g10:{type:'dev',title:'Hoàn thành khóa học React Native và build app thực tế',result:'Hoàn thành khóa học, build và deploy 1 ứng dụng demo lên TestFlight trước 31/08/2026.',from:'01/03',to:'31/08',prio:null,status:'pending',eval:'none'},
+    g11:{type:'dev',title:'Tham dự UX/UI Workshop series tại MoMo',result:'Tham dự ít nhất 4/6 workshop, viết 1 case study ứng dụng sau khi hoàn thành series.',from:'01/01',to:'31/12',prio:null,status:'approved',eval:'selfdone',evSelfScore:'3',evSelfCmt:'Tham dự 5/6 workshop, viết 1 case study về accessibility improvements ứng dụng vào luồng checkout.',evSelfTime:'20/05/2026',evSelfBy:'mai.tran'}
+  },
+  e3:{
+    g12:{type:'what',title:'Xây dựng real-time data pipeline với Kafka và Spark',result:'Pipeline xử lý 1M events/phút, latency < 5 giây, uptime > 99.5%, có đầy đủ monitoring và alert theo SLA.',from:'01/01',to:'30/06',prio:'h',status:'pending',eval:'none'},
+    g13:{type:'what',title:'Triển khai ML model gợi ý giao dịch cho người dùng mới',result:'Model đạt Precision@10 > 0.3, deploy trên serving infra, A/B test với 10% user base trong 30 ngày liên tiếp.',from:'01/04',to:'31/10',prio:'m',status:'approved',eval:'none'},
+    g14:{type:'dev',title:'Hoàn thành Data Engineering Zoomcamp và apply thực tế',result:'Hoàn thành 7/7 module, submit capstone project có dùng dữ liệu thực của team trước 30/09/2026.',from:'01/01',to:'30/09',prio:null,status:'draft',eval:'none'}
+  },
+  e4:{
+    g15:{type:'what',title:'Triển khai automated regression test suite cho payment module',result:'200 test cases automation, coverage > 80% happy path, chạy tự động trong CI/CD pipeline với pass rate > 98%.',from:'01/01',to:'31/05',prio:'h',status:'pending',eval:'none'},
+    g16:{type:'what',title:'Nâng cao test coverage backend API từ 62% lên 85%',result:'Coverage đo bằng JaCoCo ≥ 85% line coverage, không regression trên feature đã stable.',from:'01/01',to:'30/09',prio:'m',status:'approved',eval:'none'},
+    g17:{type:'dev',title:'Thi đậu ISTQB Advanced Level – Test Analyst',result:'Đậu kỳ thi ISTQB CTAL-TA trước 31/10/2026, đạt tối thiểu 70% tổng điểm.',from:'01/01',to:'31/10',prio:null,status:'pending',eval:'none'},
+    g18:{type:'dev',title:'Nâng cao kỹ năng Selenium WebDriver qua dự án nội bộ',result:'Hoàn thành 3 module Selenium WebDriver nâng cao, contribute ≥ 20 test scripts vào framework nội bộ.',from:'01/06',to:'31/12',prio:null,status:'draft',eval:'none'}
+  },
+  e5:{
+    g19:{type:'what',title:'Migrate database từ MySQL sang PostgreSQL cho service account',result:'Migration hoàn thành không downtime, performance cải thiện ≥ 20% so với baseline MySQL đo qua benchmark.',from:'01/01',to:'30/06',prio:'h',status:'approved',eval:'done',evSelfScore:'4',evSelfCmt:'Migration hoàn thành zero downtime. Performance tăng 28% so với MySQL baseline. Rollback plan đã test thành công trước khi thực hiện.',evSelfTime:'25/06/2026',evSelfBy:'hung.le',evMgrScore:'4',evMgrCmt:'Kết quả vượt target 20%, kế hoạch migration bài bản, zero incident trong và sau quá trình chuyển đổi.',evMgrTime:'28/06/2026',evMgrBy:'thanh.le'},
+    g20:{type:'what',title:'Xây dựng unified logging và distributed tracing system',result:'Tích hợp OpenTelemetry cho 5 core services, dashboard Grafana hiển thị đầy đủ traces và logs tập trung.',from:'01/01',to:'30/09',prio:'m',status:'approved',eval:'selfdone',evSelfScore:'3',evSelfCmt:'Đã tích hợp OpenTelemetry cho 5 core services. Dashboard Grafana hoạt động tốt, trace end-to-end rõ ràng.',evSelfTime:'20/09/2026',evSelfBy:'hung.le'},
+    g21:{type:'dev',title:'Hoàn thành Kubernetes Administrator certification (CKA)',result:'Đậu chứng chỉ CKA trước 30/09/2026, chia sẻ learning notes với team.',from:'01/01',to:'30/09',prio:null,status:'approved',eval:'none'}
+  },
+  e6:{
+    g22:{type:'what',title:'Refactor legacy codebase MoMo Web sang TypeScript strict mode',result:'≥ 80% codebase migrate sang TypeScript strict, zero runtime type error trên production sau 30 ngày go-live.',from:'01/01',to:'31/10',prio:'m',status:'pending',eval:'none'},
+    g23:{type:'what',title:'Implement end-to-end testing với Playwright',result:'Coverage 50 critical user flows, tích hợp vào CI pipeline với pass rate > 99%.',from:'01/01',to:'31/08',prio:'m',status:'approved',eval:'none'}
+  },
+  e7:{
+    g24:{type:'what',title:'Triển khai Infrastructure as Code cho toàn bộ cloud resources',result:'100% cloud infra quản lý bằng Terraform, pipeline IaC qua GitOps với mandatory review trước khi apply.',from:'01/01',to:'30/09',prio:'h',status:'approved',eval:'none'},
+    g25:{type:'what',title:'Tối ưu CI/CD pipeline: giảm build time từ 18 phút xuống 10 phút',result:'Build time trung bình ≤ 10 phút, đo qua 30 build liên tiếp. Không ảnh hưởng đến độ tin cậy.',from:'01/03',to:'31/10',prio:'m',status:'pending',eval:'none'}
+  },
+  e8:{
+    g26:{type:'what',title:'Launch tính năng MoMo Pay Later Q2/2026',result:'Go-live đúng timeline Q2, DAU đạt ≥ 50K trong 30 ngày đầu sau launch.',from:'01/01',to:'30/06',prio:'h',status:'approved',eval:'none'},
+    g27:{type:'what',title:'Tăng NPS sản phẩm chính từ 42 lên 55 cuối năm 2026',result:'NPS survey tháng 12/2026 đạt ≥ 55, sample size ≥ 1000 users. Phân tích detractor để có action plan.',from:'01/01',to:'31/12',prio:'m',status:'pending',eval:'none'}
+  },
+  e9:{
+    g28:{type:'what',title:'Triển khai SAST/DAST scanning tự động vào SDLC',result:'100% repo có SAST tự động, DAST chạy weekly, zero P0/P1 finding tồn tại quá 48h.',from:'01/01',to:'30/06',prio:'h',status:'approved',eval:'none'},
+    g29:{type:'what',title:'Đạt ISO 27001 re-certification cho ITC cluster',result:'Hoàn thành audit không có NC Major, giấy chứng nhận được duy trì liên tục.',from:'01/01',to:'31/08',prio:'h',status:'pending',eval:'none'}
+  },
+  e10:{
+    g30:{type:'what',title:'Build MLOps platform phục vụ 20+ ML models nội bộ',result:'Platform triển khai xong Q3, phục vụ ≥ 15 models trong production với SLA 99.9%.',from:'01/01',to:'30/09',prio:'h',status:'approved',eval:'none'},
+    g31:{type:'what',title:'Giảm chi phí inference 30% qua model optimization',result:'Cost benchmark trước/sau, giảm ≥ 30% khi vẫn giữ accuracy ≥ 95% baseline đo qua holdout set.',from:'01/01',to:'31/10',prio:'m',status:'approved',eval:'none'},
+    g32:{type:'dev',title:'Nghiên cứu LLM Fine-tuning và trình bày tech talk nội bộ',result:'Hoàn thành 1 thực nghiệm fine-tuning có tài liệu, tổ chức tech talk nội bộ cho ≥ 10 engineers.',from:'01/07',to:'31/12',prio:null,status:'draft',eval:'none'}
+  },
+  e11:{
+    g33:{type:'what',title:'Nâng cấp Kubernetes 1.30 cho toàn bộ production cluster',result:'Upgrade hoàn thành zero downtime, rollback plan được test thành công, runbook đầy đủ.',from:'01/01',to:'31/03',prio:'h',status:'approved',eval:'done',evSelfScore:'4',evSelfCmt:'Upgrade K8s 1.30 hoàn thành zero downtime cho toàn bộ cluster. Rollback plan test pass, runbook đã cập nhật Confluence.',evSelfTime:'20/03/2026',evSelfBy:'minh.cao',evMgrScore:'4',evMgrCmt:'Hoàn thành đúng hạn, zero incident. Quy trình upgrade được document kỹ càng, có thể tái sử dụng cho các cluster khác.',evMgrTime:'25/03/2026',evMgrBy:'thanh.le'},
+    g34:{type:'what',title:'Triển khai Disaster Recovery site cho hệ thống core',result:'DR site hoạt động với RTO < 4h và RPO < 15 phút. DR drill thành công ≥ 2 lần trong năm.',from:'01/04',to:'31/12',prio:'h',status:'pending',eval:'none'}
+  },
+  e12:{
+    g35:{type:'what',title:'Giảm crash rate iOS xuống dưới 0.1%',result:'Crash-free rate > 99.9% trên Firebase Crashlytics, đo liên tục 30 ngày sau fix.',from:'01/01',to:'30/06',prio:'h',status:'approved',eval:'none'},
+    g36:{type:'what',title:'Launch Android Predictive Back Gesture',result:'100% màn hình hỗ trợ Predictive Back API, Google Play rating tăng ≥ 0.1 sao trong 60 ngày sau.',from:'01/01',to:'30/09',prio:'m',status:'approved',eval:'none'},
+    g37:{type:'dev',title:'Đào tạo 2 junior mobile engineers lên mid-level',result:'2 junior đạt mid-level assessment sau 6 tháng, đánh giá qua code review + peer feedback.',from:'01/01',to:'31/12',prio:null,status:'approved',eval:'none'}
+  },
+  e13:{
+    g38:{type:'what',title:'Xây dựng microservice xác thực eKYC tích hợp đối tác',result:'Service go-live Q2/2026, xử lý ≥ 500 req/s, error rate < 0.1%, đầy đủ audit log theo chuẩn PCI-DSS.',from:'01/01',to:'30/06',prio:'h',status:'pending',eval:'none'},
+    g39:{type:'what',title:'Nâng cấp hệ thống phân quyền RBAC lên ABAC',result:'ABAC model phủ 100% resource nhạy cảm, không regression trên permission cũ sau 30 ngày production.',from:'01/01',to:'31/08',prio:'m',status:'approved',eval:'selfdone',evSelfScore:'4',evSelfCmt:'ABAC model đã phủ 100% resource nhạy cảm. Zero regression sau 30 ngày production. Đã viết migration guide cho team.',evSelfTime:'15/04/2026',evSelfBy:'nam.le'},
+    g40:{type:'dev',title:'Đạt chứng chỉ Google Cloud Professional Developer',result:'Đậu kỳ thi trước 30/09/2026, chia sẻ kiến thức qua ít nhất 1 internal tech talk cho team.',from:'01/01',to:'30/09',prio:null,status:'pending',eval:'none'}
+  },
+  e14:{
+    g41:{type:'what',title:'Xây dựng mô hình credit scoring cho MoMo Pay Later',result:'Model F1-score ≥ 0.85 trên test set, deploy serving infra Q3, A/B test 5% user base trong 30 ngày.',from:'01/01',to:'30/09',prio:'h',status:'update',eval:'none',updNote:'Bổ sung KPI đo lường tác động kinh doanh và timeline cụ thể từng phase.'},
+    g42:{type:'what',title:'Phân tích hành vi người dùng mới trong 30 ngày đầu',result:'Dashboard phân tích hoàn thành, 3 insight hành vi được trình bày với product team trước Q2/2026.',from:'01/01',to:'31/03',prio:'m',status:'approved',eval:'done',evSelfScore:'4',evSelfCmt:'Dashboard hoàn thành đúng hạn. Đã trình bày 3 insight chính với product team, 2 insight được áp dụng vào roadmap Q3.',evSelfTime:'28/03/2026',evSelfBy:'phuong.nguyen',evMgrScore:'4',evMgrCmt:'Phân tích chuyên sâu, insight có giá trị thực tiễn. Product team đánh giá cao, 2/3 insight đã được đưa vào backlog.',evMgrTime:'01/04/2026',evMgrBy:'thanh.le'},
+    g43:{type:'dev',title:'Tham gia Kaggle competition và đạt top 20%',result:'Tham gia 1 competition phù hợp, đạt top 20%, viết writeup chia sẻ với team AI/ML nội bộ.',from:'01/05',to:'31/10',prio:null,status:'draft',eval:'none'}
+  },
+  e15:{
+    g44:{type:'what',title:'Migrate màn hình thanh toán từ UIKit sang SwiftUI',result:'100% màn hình thanh toán dùng SwiftUI, không regression, App Store rating ≥ 4.7 sau 30 ngày go-live.',from:'01/01',to:'30/09',prio:'h',status:'approved',eval:'done',evSelfScore:'4',evSelfCmt:'100% màn hình payment đã chuyển sang SwiftUI thành công, zero regression. App Store rating tăng lên 4.8 sau 30 ngày go-live.',evSelfTime:'28/09/2026',evSelfBy:'khoa.tran',evMgrScore:'5',evMgrCmt:'Hoàn thành vượt kỳ vọng, zero regression, rating cải thiện rõ rệt vượt target. Chất lượng code SwiftUI được senior engineer đánh giá cao.',evMgrTime:'02/10/2026',evMgrBy:'thanh.le'},
+    g45:{type:'what',title:'Tích hợp Apple Pay và Face ID cho luồng thanh toán nhanh',result:'Tỷ lệ chuyển đổi tăng ≥ 10% so với OTP PIN, go-live Q2/2026, pass security audit không lỗi P0.',from:'01/01',to:'30/06',prio:'h',status:'approved',eval:'selfdone',evSelfScore:'4',evSelfCmt:'Apple Pay và Face ID go-live Q2 đúng hẹn. Pass security audit không lỗi P0. Tỷ lệ chuyển đổi tăng 13%, vượt target 10%.',evSelfTime:'25/06/2026',evSelfBy:'khoa.tran'},
+    g46:{type:'dev',title:'Hoàn thành Apple Developer Program và submit app cá nhân',result:'Submit 1 app lên App Store trước cuối năm, đạt ≥ 10 review organic.',from:'01/01',to:'31/12',prio:null,status:'approved',eval:'none'}
+  },
+  e16:{
+    g47:{type:'what',title:'Triển khai Internal Developer Platform trên nền Backstage',result:'IDP go-live Q3/2026, ≥ 10 service đã onboard, developer satisfaction ≥ 4/5 qua khảo sát nội bộ.',from:'01/01',to:'30/09',prio:'h',status:'pending',eval:'none'},
+    g48:{type:'what',title:'Giảm MTTR từ 45 phút xuống 20 phút cho incident P1/P2',result:'MTTR trung bình ≤ 20 phút qua 3 tháng liên tiếp Q3–Q4/2026, có runbook và playbook đầy đủ.',from:'01/01',to:'31/12',prio:'m',status:'approved',eval:'none'},
+    g49:{type:'dev',title:'Đạt chứng chỉ HashiCorp Terraform Associate',result:'Đậu Terraform Associate 003 trước 31/08/2026, contribute ≥ 2 Terraform module vào internal library.',from:'01/01',to:'31/08',prio:null,status:'approved',eval:'none'}
+  }
+};
 
-/* ── TOOLTIP ── */
+/* ═══════════════════════════════════════════
+   RUNTIME STATE
+═══════════════════════════════════════════ */
+var GOALS={}, EMP={}, _activeGoalId=null, _tipEl=null;
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',function(){
+  var empId=(new URLSearchParams(location.search)).get('emp')||'e1';
+  EMP=EMPS_META[empId]||EMPS_META['e1'];
+  GOALS=GOALS_DATA[empId]||{};
+  document.title='Chi tiết Mục tiêu – '+EMP.name+' | MoMo HRM';
+  document.getElementById('bc-emp-name').textContent=EMP.name;
+  document.getElementById('approve-emp-name').textContent=EMP.name;
+  renderEmpHeader();
+  renderTable();
+  updateSummary();
+});
+
+/* ═══════════════════════════════════════════
+   RENDER EMPLOYEE HEADER
+═══════════════════════════════════════════ */
+function renderEmpHeader(){
+  var tags='';
+  if(EMP.resigned) tags+='<span class="emp-tag emp-tag-resigned">Đã nộp đơn nghỉ việc</span>';
+  if(EMP.maternity) tags+='<span class="emp-tag emp-tag-maternity">Đang nghỉ thai sản</span>';
+  document.getElementById('emp-hdr').innerHTML=
+    '<div class="emp-hdr">'
+    +'<div class="emp-hdr-av">'+EMP.ini+'</div>'
+    +'<div class="emp-hdr-info">'
+    +'<div class="emp-hdr-name">'+EMP.name
+    +' <span class="emp-hdr-login">('+EMP.login+')</span>'
+    +(tags?'&nbsp;'+tags:'')
+    +'</div>'
+    +'<div class="emp-hdr-meta">'
+    +'<span>'+EMP.div+'</span><span class="emp-hdr-dot"></span>'
+    +'<span>'+EMP.dept+'</span><span class="emp-hdr-dot"></span>'
+    +'<span>'+EMP.pos+'</span>'
+    +'</div></div>'
+    +'<div class="emp-hdr-stats">'
+    +'<div class="emp-stat-pill esp-total"><span class="esp-num" id="stat-total">0</span><span>mục tiêu</span></div>'
+    +'<div class="emp-stat-pill esp-pending"><span class="esp-num" id="stat-pending">0</span><span>chờ duyệt</span></div>'
+    +'<div class="emp-stat-pill esp-eval"><i class="bx bx-task" style="font-size:14px"></i><span class="esp-num" id="stat-eval">0</span><span>cần đánh giá</span></div>'
+    +'</div></div>';
+}
+
+/* ═══════════════════════════════════════════
+   SORT + RENDER TABLE
+═══════════════════════════════════════════ */
+function sortedGoalIds(){
+  var prioOrd={h:1,m:2,l:3};
+  var typeOrd={what:1,dev:2};
+  return Object.keys(GOALS).sort(function(a,b){
+    var ga=GOALS[a],gb=GOALS[b];
+    var td=(typeOrd[ga.type]||9)-(typeOrd[gb.type]||9);
+    if(td)return td;
+    return (prioOrd[ga.prio]||9)-(prioOrd[gb.prio]||9);
+  });
+}
+
+function renderTable(){
+  var tbody=document.getElementById('goal-tbody');
+  tbody.innerHTML=sortedGoalIds().map(function(id){return rowHTML(id);}).join('');
+}
+
+function rowHTML(id){
+  var g=GOALS[id];
+  var ti=typeInfo(g.type);
+  var pi=prioInfo(g.prio);
+  return '<tr class="gt-row" id="row-'+id+'" data-id="'+id+'" data-status="'+g.status+'" onclick="openDetail(\''+id+'\')">'
+    +'<td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="'+id+'" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>'
+    +'<td><span class="gt-type '+ti.cls+'"><i class="bx '+ti.ico+'"></i> '+ti.lbl+'</span></td>'
+    +'<td><div class="gt-name">'+esc(g.title)+'</div></td>'
+    +'<td><div class="gt-result">'+esc(g.result)+'</div></td>'
+    +'<td>'+(pi?'<span class="prio '+pi.cls+'">'+pi.lbl+'</span>':'<span style="color:var(--z400)">—</span>')+'</td>'
+    +'<td class="gt-date">'+g.from+' – '+g.to+'</td>'
+    +'<td class="gt-status-cell" id="status-'+id+'">'+statusHTML(g)+'</td>'
+    +'<td onclick="event.stopPropagation()" id="act-'+id+'">'+actionsHTML(g,id)+'</td>'
+    +'</tr>';
+}
+
+function statusHTML(g){
+  var b='';
+  if(g.status==='pending') b='<span class="badge b-info">Chờ duyệt</span>';
+  else if(g.status==='approved'&&g.eval==='done') b='<span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>';
+  else if(g.status==='approved') b='<span class="badge b-ok">Đã duyệt</span>';
+  else if(g.status==='update') b='<span class="badge b-warn">Cần cập nhật</span>';
+  else if(g.status==='rejected') b='<span class="badge b-err">Bị từ chối</span>';
+  else if(g.status==='draft') b='<span class="badge b-muted">Nháp</span>';
+  if(g.status==='approved'&&g.eval==='selfdone'){
+    var nv=parseFloat(g.evSelfScore).toFixed(1);
+    b+='<span class="gt-eval-sub"><span class="eval-pair">'
+      +'<span class="ep-seg"><span class="ep-who">NV</span> '+nv+'</span>'
+      +'<span class="ep-div"></span>'
+      +'<span class="ep-seg ep-mgr"><span class="ep-who">QL</span> —</span>'
+      +'</span></span>';
+  }else if(g.status==='approved'&&g.eval==='done'){
+    var nv2=parseFloat(g.evSelfScore).toFixed(1);
+    var ql=parseFloat(g.evMgrScore).toFixed(1);
+    b+='<span class="gt-eval-sub"><span class="eval-pair">'
+      +'<span class="ep-seg"><span class="ep-who">NV</span> '+nv2+'</span>'
+      +'<span class="ep-div"></span>'
+      +'<span class="ep-seg ep-mgr"><span class="ep-who">QL</span> '+ql+'</span>'
+      +'</span></span>';
+  }
+  return b;
+}
+
+function actionsHTML(g,id){
+  var b='';
+  if(g.status==='pending'){
+    b+=ab('ok','bx-check-circle','Duyệt',"openApprove('"+id+"')");
+    b+=ab('warn','bx-rotate-left','Yêu cầu cập nhật',"openUpdateReq('"+id+"')");
+    b+=ab('danger','bx-x-circle','Từ chối',"openReject('"+id+"')");
+  }else if(g.status==='approved'&&g.eval==='selfdone'){
+    b+=ab('accent','bx-task','Đánh giá hoàn thành',"openEval('"+id+"')");
+  }
+  b+=ab('','bx-show','Xem chi tiết',"openDetail('"+id+"')");
+  return '<div class="gt-act-cell">'+b+'</div>';
+}
+function ab(cls,ico,tip,fn){
+  return '<button class="gt-pri '+cls+'" data-tip="'+tip+'" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="'+fn+';event.stopPropagation()"><i class="bx '+ico+'"></i></button>';
+}
+
+function renderRow(id){
+  var g=GOALS[id];
+  var row=document.getElementById('row-'+id);
+  if(row) row.dataset.status=g.status;
+  var sc=document.getElementById('status-'+id);
+  if(sc) sc.innerHTML=statusHTML(g);
+  var ac=document.getElementById('act-'+id);
+  if(ac) ac.innerHTML=actionsHTML(g,id);
+}
+
+function updateSummary(){
+  var total=Object.keys(GOALS).length, pending=0, ev=0;
+  Object.keys(GOALS).forEach(function(id){
+    var g=GOALS[id];
+    if(g.status==='pending') pending++;
+    if(g.status==='approved'&&g.eval==='selfdone') ev++;
+  });
+  var ts=document.getElementById('stat-total'); if(ts) ts.textContent=total;
+  var ps=document.getElementById('stat-pending'); if(ps) ps.textContent=pending;
+  var es=document.getElementById('stat-eval'); if(es) es.textContent=ev;
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function typeInfo(t){
+  if(t==='what') return{lbl:'Công việc',ico:'bx-target-lock',cls:'what'};
+  if(t==='dev')  return{lbl:'Phát triển',ico:'bx-trending-up',cls:'dev'};
+  return{lbl:t,ico:'bx-circle',cls:''};
+}
+function prioInfo(p){
+  if(p==='h') return{lbl:'Cao',cls:'prio-h'};
+  if(p==='m') return{lbl:'Trung bình',cls:'prio-m'};
+  if(p==='l') return{lbl:'Thấp',cls:'prio-l'};
+  return null;
+}
+function typeBadge(t){
+  var ti=typeInfo(t);
+  return '<span class="badge b-'+ti.cls+'"><i class="bx '+ti.ico+'" style="font-size:12px;margin-right:3px"></i>'+ti.lbl+'</span>';
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function raw(s){return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');}
+function clip(s,n){var t=raw(s);return t.length>n?t.substring(0,n)+'…':t;}
+function today(){var d=new Date();return ('0'+d.getDate()).slice(-2)+'/'+(('0'+(d.getMonth()+1)).slice(-2))+'/'+d.getFullYear();}
+function scoreLabel(v){
+  var n=parseFloat(v);
+  if(n===5) return'Hoàn thành vượt xa kỳ vọng';
+  if(n===4) return'Hoàn thành trên mức kỳ vọng';
+  if(n===3) return'Hoàn thành kỳ vọng';
+  if(n===2) return'Hoàn thành một phần';
+  if(n===1) return'Không đạt yêu cầu';
+  return'';
+}
+function scoreHTML(v){
+  if(!v) return'';
+  var d=parseFloat(v).toFixed(1), l=scoreLabel(v);
+  return '<span class="ev-score-num">'+d+'</span>'
+    +'<span class="ev-score-max">/ 5</span>'
+    +(l?'<span class="ev-score-lbl">'+l+'</span>':'');
+}
+
+/* History: generated lazily, cached on g.history */
+function getHistory(g){
+  if(g.history&&g.history.length) return g.history;
+  var h=[{dot:'info',ev:'Tạo mục tiêu',who:EMP.login,time:'02/01/2026'}];
+  if(g.status!=='draft'){
+    h.push({dot:'info',ev:'Gửi quản lý duyệt',who:EMP.login,time:'05/01/2026'});
+    if(g.status==='approved'){
+      h.push({dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:'07/01/2026'});
+      if(g.eval==='selfdone'||g.eval==='done')
+        h.push({dot:'info',ev:'Nhân viên gửi đánh giá hoàn thành',who:g.evSelfBy,time:g.evSelfTime});
+      if(g.eval==='done')
+        h.push({dot:'ok',ev:'Quản lý đã đánh giá hoàn thành ('+parseFloat(g.evMgrScore).toFixed(1)+'/5)',who:'thanh.le',time:g.evMgrTime});
+    }else if(g.status==='update'){
+      h.push({dot:'warn',ev:'Quản lý yêu cầu cập nhật'+(g.updNote?' — "'+g.updNote+'"':''),who:'thanh.le',time:'08/01/2026'});
+    }else if(g.status==='rejected'){
+      h.push({dot:'err',ev:'Quản lý từ chối mục tiêu',who:'thanh.le',time:'08/01/2026'});
+    }
+  }
+  g.history=h;
+  return h;
+}
+
+/* ═══════════════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════════════ */
 function showTip(el){
-  if(!el.dataset.tip)return;
+  if(!el.dataset.tip) return;
   if(!_tipEl){_tipEl=document.createElement('div');_tipEl.className='floating-tip';document.body.appendChild(_tipEl);}
   _tipEl.textContent=el.dataset.tip;
   _tipEl.style.display='block';
   var r=el.getBoundingClientRect(),th=_tipEl.offsetHeight,tw=_tipEl.offsetWidth;
   var left=r.right+10,top=r.top+r.height/2-th/2;
   if(left+tw>window.innerWidth-8){left=r.left-tw-10;}
-  if(top<8)top=8;
-  if(top+th>window.innerHeight-8)top=window.innerHeight-th-8;
+  if(top<8) top=8;
+  if(top+th>window.innerHeight-8) top=window.innerHeight-th-8;
   _tipEl.style.left=left+'px';_tipEl.style.top=top+'px';
 }
-function hideTip(){if(_tipEl)_tipEl.style.display='none';}
+function hideTip(){if(_tipEl) _tipEl.style.display='none';}
 
-/* ── OVERLAY ── */
+/* ═══════════════════════════════════════════
+   OVERLAYS
+═══════════════════════════════════════════ */
 function openOverlay(id){document.getElementById(id).classList.add('open');}
 function closeOverlay(id){document.getElementById(id).classList.remove('open');}
 function openConf(id){document.getElementById(id).classList.add('open');}
 function closeConf(id){document.getElementById(id).classList.remove('open');}
-
-/* ── TABS ── */
 function switchTab(idx){
   [0,1].forEach(function(i){
     document.getElementById('dtab-'+i).classList.toggle('on',i===idx);
@@ -724,105 +743,71 @@ function switchTab(idx){
   });
 }
 
-/* ── SCORE ── */
-function scoreLabel(v){var n=parseFloat(v);if(n%1!==0)return'';if(n===5)return'Hoàn thành vượt xa kỳ vọng';if(n===4)return'Hoàn thành trên mức kỳ vọng';if(n===3)return'Hoàn thành kỳ vọng';if(n===2)return'Hoàn thành một phần';if(n===1)return'Không đạt yêu cầu';return'';}
-function scoreHTML(v){if(!v)return'';var d=parseFloat(v).toFixed(1),l=scoreLabel(v);return'<span class="ev-score-num">'+d+'</span><span class="ev-score-max">/ 5</span>'+(l?'<span class="ev-score-lbl">'+l+'</span>':'');}
-
-/* ── TYPE BADGE ── */
-function typeBadge(g){
-  if(g.type==='what')return'<span class="badge b-what"><i class="bx bx-target-lock" style="font-size:12px;margin-right:3px"></i>Công việc</span>';
-  if(g.type==='dev')return'<span class="badge b-dev"><i class="bx bx-trending-up" style="font-size:12px;margin-right:3px"></i>Phát triển</span>';
-  return'';
-}
-
-/* ── STATUS BADGE HTML ── */
-function statusBadgeHTML(g){
-  var badge='';
-  if(g.status==='pending')badge='<span class="badge b-info">Chờ duyệt</span>';
-  else if(g.status==='approved'&&g.eval==='done')badge='<span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>';
-  else if(g.status==='approved')badge='<span class="badge b-ok">Đã duyệt</span>';
-  else if(g.status==='update')badge='<span class="badge b-warn">Cần cập nhật</span>';
-  else if(g.status==='rejected')badge='<span class="badge b-err">Bị từ chối</span>';
-  else if(g.status==='draft')badge='<span class="badge b-muted">Nháp</span>';
-  else badge='<span class="badge b-muted">'+g.status+'</span>';
-
-  /* Eval pair sub-info */
-  if(g.status==='approved'&&g.eval==='selfdone'){
-    var nv=parseFloat(g.evSelfScore).toFixed(1);
-    badge+='<span class="gt-eval-sub"><span class="eval-pair"><span class="ep-seg"><span class="ep-who">NV</span> '+nv+'</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span> —</span></span></span>';
-  } else if(g.status==='approved'&&g.eval==='done'){
-    var nv2=parseFloat(g.evSelfScore).toFixed(1),ql=parseFloat(g.evMgrScore).toFixed(1);
-    badge+='<span class="gt-eval-sub"><span class="eval-pair"><span class="ep-seg"><span class="ep-who">NV</span> '+nv2+'</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span> '+ql+'</span></span></span>';
-  }
-  return badge;
-}
-
-/* ── ACTION BUTTONS HTML ── */
-function btn(cls,ico,tip,fn){return'<button class="gt-pri '+cls+'" data-tip="'+tip+'" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="'+fn+'"><i class="bx '+ico+'"></i></button>';}
-function actionBtnsHTML(g,id){
-  var b='';
-  if(g.status==='pending'){
-    b+=btn('ok','bx-check-circle','Duyệt',"openApprove('"+id+"')");
-    b+=btn('warn','bx-rotate-left','Yêu cầu cập nhật',"openUpdateReq('"+id+"')");
-    b+=btn('danger','bx-x-circle','Từ chối',"openReject('"+id+"')");
-  } else if(g.status==='approved'&&g.eval==='selfdone'){
-    b+=btn('accent','bx-task','Đánh giá hoàn thành',"openEval('"+id+"')");
-  }
-  b+=btn('','bx-show','Xem chi tiết',"openDetail('"+id+"')");
-  return'<div class="gt-act-cell">'+b+'</div>';
-}
-
-/* ── RENDER ROW ── */
-function renderRow(id){
-  var g=GOALS[id];
-  var row=document.getElementById('row-'+id);
-  if(row)row.dataset.status=g.status;
-  var sc=document.getElementById('status-'+id);
-  if(sc)sc.innerHTML=statusBadgeHTML(g);
-  var ac=document.getElementById('act-'+id);
-  if(ac)ac.innerHTML=actionBtnsHTML(g,id);
-}
-
-/* ── SUMMARY PILLS ── */
-function updateSummary(){
-  var pending=0,evalN=0;
-  Object.keys(GOALS).forEach(function(id){var g=GOALS[id];if(g.status==='pending')pending++;if(g.status==='approved'&&g.eval==='selfdone')evalN++;});
-  document.getElementById('stat-pending').textContent=pending;
-  document.getElementById('stat-eval').textContent=evalN;
-}
-
-/* ── OPEN DETAIL ── */
+/* ═══════════════════════════════════════════
+   DETAIL POPUP
+═══════════════════════════════════════════ */
 function openDetail(id){
   _activeGoalId=id;
   var g=GOALS[id];
-  var rawTitle=g.title.replace(/&amp;/g,'&').replace(/&lt;/g,'<');
-
-  document.getElementById('d-title').textContent=rawTitle;
-  document.getElementById('d-badges').innerHTML=typeBadge(g)+'&nbsp;'+statusBadgeHTML(g).split('<span class="gt-eval-sub">')[0];
+  var pi=prioInfo(g.prio);
+  document.getElementById('d-title').textContent=raw(g.title);
+  document.getElementById('d-badges').innerHTML=typeBadge(g.type)+'&nbsp;'+statusHTML(g).split('<span class="gt-eval-sub">')[0];
 
   /* Tab 0: Info */
-  var prioHTML='<span class="prio prio-'+g.prio+'">'+g.prioLbl+'</span>';
-  var t0='<div class="dg3"><div class="df"><label>Loại mục tiêu</label><div class="dv">'+typeBadge(g)+'</div></div><div class="df"><label>Từ ngày</label><div class="dv">'+g.from+'/2026</div></div><div class="df"><label>Đến ngày</label><div class="dv">'+g.to+'/2026</div></div></div>';
-  t0+='<div class="detail-row"><span class="sec-lbl">Tên mục tiêu</span><div class="detail-val">'+rawTitle+'</div></div>';
-  t0+='<div class="detail-row"><span class="sec-lbl">Kết quả cần đạt</span><div class="detail-val">'+g.result.replace(/&lt;/g,'<')+'</div></div>';
-  t0+='<div class="detail-row" style="border-bottom:none"><span class="sec-lbl">Mức độ ưu tiên</span><div style="margin-top:4px">'+prioHTML+'</div></div>';
+  var t0='<div class="dg3">'
+    +'<div class="df"><label>Loại mục tiêu</label><div class="dv">'+typeBadge(g.type)+'</div></div>'
+    +'<div class="df"><label>Từ ngày</label><div class="dv">'+g.from+'/2026</div></div>'
+    +'<div class="df"><label>Đến ngày</label><div class="dv">'+g.to+'/2026</div></div>'
+    +'</div>';
+  t0+='<div class="detail-row"><span class="sec-lbl">Tên mục tiêu</span><div class="detail-val">'+raw(g.title)+'</div></div>';
+  t0+='<div class="detail-row"><span class="sec-lbl">Kết quả cần đạt</span><div class="detail-val">'+raw(g.result)+'</div></div>';
+  t0+='<div class="detail-row" style="border-bottom:none"><span class="sec-lbl">Mức độ ưu tiên</span><div style="margin-top:4px">'
+    +(pi?'<span class="prio '+pi.cls+'">'+pi.lbl+'</span>':'<span style="color:var(--z400)">—</span>')+'</div></div>';
+
+  if(g.status==='update'&&g.updNote){
+    t0+='<div class="divider"></div>'
+      +'<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:var(--rsm);padding:10px 13px;font-size:13px;color:var(--warn)">'
+      +'<strong>Ghi chú yêu cầu cập nhật:</strong> '+esc(g.updNote)+'</div>';
+  }
 
   if(g.status==='approved'){
     t0+='<div class="divider"></div><span class="sec-lbl">Đánh giá hoàn thành</span>';
     if(g.eval==='none'){
       t0+='<div class="ev-wait-box"><i class="bx bx-time-five"></i>Nhân viên chưa gửi đánh giá hoàn thành.</div>';
-    } else if(g.eval==='selfdone'){
-      t0+='<div class="ev-card locked"><div class="ev-card-hd-row"><div class="ev-who-ico">NV</div><div class="ev-card-hd">'+g.evSelfBy+'</div></div><div class="ev-score"><span>'+scoreHTML(g.evSelfScore)+'</span></div><div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+g.evSelfCmt+'</div><div class="ev-meta">Gửi lúc '+g.evSelfTime+'</div></div>';
-      t0+='<div class="ev-wait-box" style="margin-top:0"><i class="bx bx-edit"></i>Nhân viên đã nộp đánh giá và đang chờ bạn.<br><a style="color:var(--brand);cursor:pointer;font-weight:600" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')">Đánh giá ngay →</a></div>';
-    } else if(g.eval==='done'){
-      t0+='<div class="ev-cards-compare"><div class="ev-card locked"><div class="ev-card-hd-row"><div class="ev-who-ico">NV</div><div class="ev-card-hd">'+g.evSelfBy+'</div></div><div class="ev-score"><span>'+scoreHTML(g.evSelfScore)+'</span></div><div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+g.evSelfCmt+'</div><div class="ev-meta">'+g.evSelfTime+'</div></div><div class="ev-card locked"><div class="ev-card-hd-row"><div class="ev-who-ico" style="background:var(--brand-muted);color:var(--brand)">QL</div><div class="ev-card-hd">'+g.evMgrBy+'</div></div><div class="ev-score"><span>'+scoreHTML(g.evMgrScore)+'</span></div><div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+g.evMgrCmt+'</div><div class="ev-meta">'+g.evMgrTime+'</div></div></div>';
+    }else if(g.eval==='selfdone'){
+      t0+='<div class="ev-card locked">'
+        +'<div class="ev-card-hd-row"><div class="ev-who-ico">NV</div><div class="ev-card-hd">'+g.evSelfBy+'</div></div>'
+        +'<div class="ev-score"><span>'+scoreHTML(g.evSelfScore)+'</span></div>'
+        +'<div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+esc(g.evSelfCmt)+'</div>'
+        +'<div class="ev-meta">Gửi lúc '+g.evSelfTime+'</div></div>';
+      t0+='<div class="ev-wait-box" style="margin-top:0"><i class="bx bx-edit"></i>'
+        +'Nhân viên đã nộp đánh giá và đang chờ bạn.<br>'
+        +'<a style="color:var(--brand);cursor:pointer;font-weight:600" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')">Đánh giá ngay →</a></div>';
+    }else if(g.eval==='done'){
+      t0+='<div class="ev-cards-compare">'
+        +'<div class="ev-card locked">'
+        +'<div class="ev-card-hd-row"><div class="ev-who-ico">NV</div><div class="ev-card-hd">'+g.evSelfBy+'</div></div>'
+        +'<div class="ev-score"><span>'+scoreHTML(g.evSelfScore)+'</span></div>'
+        +'<div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+esc(g.evSelfCmt)+'</div>'
+        +'<div class="ev-meta">'+g.evSelfTime+'</div></div>'
+        +'<div class="ev-card locked">'
+        +'<div class="ev-card-hd-row"><div class="ev-who-ico" style="background:var(--brand-muted);color:var(--brand)">QL</div><div class="ev-card-hd">'+g.evMgrBy+'</div></div>'
+        +'<div class="ev-score"><span>'+scoreHTML(g.evMgrScore)+'</span></div>'
+        +'<div class="ev-cmt-lbl">Nhận xét</div><div class="ev-cmt">'+esc(g.evMgrCmt)+'</div>'
+        +'<div class="ev-meta">'+g.evMgrTime+'</div></div>'
+        +'</div>';
     }
   }
   document.getElementById('dtp-0').innerHTML=t0;
 
   /* Tab 1: History */
+  var hist=getHistory(g);
   var t1='<div class="tl">';
-  (g.history||[]).forEach(function(h){t1+='<div class="tl-item"><div class="tl-dot '+h.dot+'"></div><div class="tl-ev">'+h.ev+'</div><div class="tl-who">'+h.who+' &nbsp;·&nbsp; '+h.time+'</div></div>';});
+  hist.forEach(function(h){
+    t1+='<div class="tl-item"><div class="tl-dot '+h.dot+'"></div>'
+      +'<div class="tl-ev">'+h.ev+'</div>'
+      +'<div class="tl-who">'+h.who+' &nbsp;·&nbsp; '+h.time+'</div></div>';
+  });
   t1+='</div>';
   document.getElementById('dtp-1').innerHTML=t1;
 
@@ -832,7 +817,7 @@ function openDetail(id){
     foot+='<button class="btn btn-destructive btn-sm" onclick="closeOverlay(\'dlg-detail\');openReject(\''+id+'\')"><i class="bx bx-x-circle"></i> Từ chối</button>';
     foot+='<button class="btn btn-cta-outline btn-sm" onclick="closeOverlay(\'dlg-detail\');openUpdateReq(\''+id+'\')"><i class="bx bx-rotate-left"></i> Yêu cầu cập nhật</button>';
     foot+='<button class="btn btn-ok btn-sm" onclick="closeOverlay(\'dlg-detail\');openApprove(\''+id+'\')"><i class="bx bx-check-circle"></i> Duyệt</button>';
-  } else if(g.status==='approved'&&g.eval==='selfdone'){
+  }else if(g.status==='approved'&&g.eval==='selfdone'){
     foot+='<button class="btn btn-default btn-sm" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')"><i class="bx bx-task"></i> Đánh giá hoàn thành</button>';
   }
   document.getElementById('d-foot').innerHTML=foot;
@@ -841,38 +826,80 @@ function openDetail(id){
   openOverlay('dlg-detail');
 }
 
-/* ── APPROVE ── */
-function openApprove(id){_activeGoalId=id;var g=GOALS[id];document.getElementById('approve-goal-name').textContent='"'+clip(g.title,55)+'"';openConf('dlg-approve');}
+/* ═══════════════════════════════════════════
+   APPROVE
+═══════════════════════════════════════════ */
+function openApprove(id){
+  _activeGoalId=id;
+  document.getElementById('approve-goal-name').textContent='"'+clip(GOALS[id].title,55)+'"';
+  openConf('dlg-approve');
+}
 function doApprove(){
-  var id=_activeGoalId,g=GOALS[id];
-  g.status='approved';g.history.push({dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:today()});
-  closeConf('dlg-approve');renderRow(id);updateSummary();syncBulk();
+  var g=GOALS[_activeGoalId];
+  g.status='approved';
+  var h=getHistory(g);
+  h.push({dot:'ok',ev:'Quản lý đã duyệt',who:'thanh.le',time:today()});
+  closeConf('dlg-approve');
+  renderRow(_activeGoalId);
+  updateSummary();
+  syncBulk();
   toast('Đã duyệt mục tiêu thành công','ok');
 }
 
-/* ── REQUEST UPDATE ── */
-function openUpdateReq(id){_activeGoalId=id;var g=GOALS[id];document.getElementById('update-goal-name').textContent='"'+clip(g.title,50)+'"';document.getElementById('update-note').value='';openConf('dlg-update');}
+/* ═══════════════════════════════════════════
+   REQUEST UPDATE
+═══════════════════════════════════════════ */
+function openUpdateReq(id){
+  _activeGoalId=id;
+  document.getElementById('update-goal-name').textContent='"'+clip(GOALS[id].title,50)+'"';
+  document.getElementById('update-note').value='';
+  openConf('dlg-update');
+}
 function doUpdateReq(){
-  var id=_activeGoalId,g=GOALS[id],note=document.getElementById('update-note').value.trim();
-  g.status='update';g.history.push({dot:'warn',ev:'Quản lý yêu cầu cập nhật'+(note?' — "'+note+'"':''),who:'thanh.le',time:today()});
-  closeConf('dlg-update');renderRow(id);updateSummary();syncBulk();
-  toast('Đã gửi yêu cầu cập nhật đến nhân viên','warn');
+  var g=GOALS[_activeGoalId];
+  var note=document.getElementById('update-note').value.trim();
+  g.status='update';
+  if(note) g.updNote=note;
+  var h=getHistory(g);
+  h.push({dot:'warn',ev:'Quản lý yêu cầu cập nhật'+(note?' — "'+note+'"':''),who:'thanh.le',time:today()});
+  closeConf('dlg-update');
+  renderRow(_activeGoalId);
+  updateSummary();
+  syncBulk();
+  toast('Đã gửi yêu cầu cập nhật','warn');
 }
 
-/* ── REJECT ── */
-function openReject(id){_activeGoalId=id;var g=GOALS[id];document.getElementById('reject-goal-name').textContent='"'+clip(g.title,50)+'"';document.getElementById('reject-note').value='';openConf('dlg-reject');}
+/* ═══════════════════════════════════════════
+   REJECT
+═══════════════════════════════════════════ */
+function openReject(id){
+  _activeGoalId=id;
+  document.getElementById('reject-goal-name').textContent='"'+clip(GOALS[id].title,50)+'"';
+  document.getElementById('reject-note').value='';
+  openConf('dlg-reject');
+}
 function doReject(){
-  var id=_activeGoalId,g=GOALS[id],note=document.getElementById('reject-note').value.trim();
-  g.status='rejected';g.history.push({dot:'err',ev:'Quản lý từ chối mục tiêu'+(note?' — "'+note+'"':''),who:'thanh.le',time:today()});
-  closeConf('dlg-reject');renderRow(id);updateSummary();syncBulk();
+  var g=GOALS[_activeGoalId];
+  var note=document.getElementById('reject-note').value.trim();
+  g.status='rejected';
+  var h=getHistory(g);
+  h.push({dot:'err',ev:'Quản lý từ chối mục tiêu'+(note?' — "'+note+'"':''),who:'thanh.le',time:today()});
+  closeConf('dlg-reject');
+  renderRow(_activeGoalId);
+  updateSummary();
+  syncBulk();
   toast('Đã từ chối mục tiêu','err');
 }
 
-/* ── EVAL ── */
+/* ═══════════════════════════════════════════
+   EVAL
+═══════════════════════════════════════════ */
 function openEval(id){
-  _activeGoalId=id;var g=GOALS[id];
+  _activeGoalId=id;
+  var g=GOALS[id];
   document.getElementById('eval-title').textContent='Đánh giá hoàn thành';
-  document.getElementById('eval-badges').innerHTML=typeBadge(g)+'&nbsp;<span class="badge b-ok">Đã duyệt</span>';
+  document.getElementById('eval-badges').innerHTML=typeBadge(g.type)+'&nbsp;<span class="badge b-ok">Đã duyệt</span>';
+  document.getElementById('eval-self-lbl').textContent=g.evSelfBy;
   document.getElementById('eval-self-score-html').innerHTML=scoreHTML(g.evSelfScore);
   document.getElementById('eval-self-cmt').textContent=g.evSelfCmt;
   document.getElementById('eval-self-meta').textContent='Gửi lúc '+g.evSelfTime+' · '+g.evSelfBy;
@@ -881,49 +908,96 @@ function openEval(id){
   openOverlay('dlg-eval');
 }
 function doEval(){
-  var id=_activeGoalId,g=GOALS[id];
+  var g=GOALS[_activeGoalId];
   var score=document.getElementById('eval-mgr-score').value;
   if(!score){alert('Vui lòng chọn điểm đánh giá.');return;}
   var cmt=document.getElementById('eval-mgr-cmt').value.trim();
-  g.eval='done';g.evMgrScore=score;g.evMgrCmt=cmt||'(Không có nhận xét)';g.evMgrTime=today();g.evMgrBy='thanh.le';
-  g.history.push({dot:'ok',ev:'Quản lý đã đánh giá hoàn thành ('+parseFloat(score).toFixed(1)+'/5)',who:'thanh.le',time:today()});
-  closeOverlay('dlg-eval');renderRow(id);updateSummary();
+  g.eval='done';
+  g.evMgrScore=score;
+  g.evMgrCmt=cmt||'(Không có nhận xét)';
+  g.evMgrTime=today();
+  g.evMgrBy='thanh.le';
+  var h=getHistory(g);
+  h.push({dot:'ok',ev:'Quản lý đã đánh giá hoàn thành ('+parseFloat(score).toFixed(1)+'/5)',who:'thanh.le',time:today()});
+  closeOverlay('dlg-eval');
+  renderRow(_activeGoalId);
+  updateSummary();
   toast('Đã lưu đánh giá hoàn thành','ok');
 }
 
-/* ── BULK ── */
+/* ═══════════════════════════════════════════
+   BULK SELECT
+═══════════════════════════════════════════ */
 function syncBulk(){
   var all=[].slice.call(document.querySelectorAll('.cb-item:checked'));
   if(!all.length){document.getElementById('bulk-bar').classList.remove('on');return;}
   var pend=all.filter(function(cb){var r=document.getElementById('row-'+cb.dataset.id);return r&&r.dataset.status==='pending';});
   document.getElementById('bulk-bar').classList.add('on');
   document.getElementById('bulk-cnt').textContent=all.length+' đã chọn';
-  var warn=document.getElementById('bulk-warn'),btn=document.getElementById('bulk-approve');
-  if(!pend.length){warn.style.display='flex';document.getElementById('bulk-warn-txt').textContent='Không có mục tiêu Chờ duyệt nào được chọn';btn.disabled=true;}
-  else if(pend.length<all.length){warn.style.display='flex';document.getElementById('bulk-warn-txt').textContent='Chỉ '+pend.length+'/'+all.length+' mục đang Chờ duyệt sẽ được duyệt';btn.disabled=false;}
-  else{warn.style.display='none';btn.disabled=false;}
+  var warn=document.getElementById('bulk-warn');
+  var btn=document.getElementById('bulk-approve-btn');
+  if(!pend.length){
+    warn.style.display='flex';
+    document.getElementById('bulk-warn-txt').textContent='Không có mục tiêu Chờ duyệt nào được chọn';
+    btn.disabled=true;
+  }else if(pend.length<all.length){
+    warn.style.display='flex';
+    document.getElementById('bulk-warn-txt').textContent='Chỉ '+pend.length+'/'+all.length+' mục Chờ duyệt sẽ được duyệt';
+    btn.disabled=false;
+  }else{
+    warn.style.display='none';
+    btn.disabled=false;
+  }
 }
-function clearBulk(){document.querySelectorAll('.cb-item:checked').forEach(function(cb){cb.checked=false;});document.getElementById('bulk-bar').classList.remove('on');}
-function selAllPending(){document.querySelectorAll('.cb-item').forEach(function(cb){var r=document.getElementById('row-'+cb.dataset.id);if(r&&r.dataset.status==='pending')cb.checked=true;});syncBulk();}
+function clearBulk(){
+  document.querySelectorAll('.cb-item:checked').forEach(function(cb){cb.checked=false;});
+  document.getElementById('bulk-bar').classList.remove('on');
+}
+function selAllPending(){
+  document.querySelectorAll('.cb-item').forEach(function(cb){
+    var r=document.getElementById('row-'+cb.dataset.id);
+    if(r&&r.dataset.status==='pending') cb.checked=true;
+  });
+  syncBulk();
+}
 function doBulkApprove(){
-  var pend=[].slice.call(document.querySelectorAll('.cb-item:checked')).filter(function(cb){var r=document.getElementById('row-'+cb.dataset.id);return r&&r.dataset.status==='pending';});
-  pend.forEach(function(cb){var id=cb.dataset.id,g=GOALS[id];g.status='approved';g.history.push({dot:'ok',ev:'Quản lý đã duyệt (bulk)',who:'thanh.le',time:today()});renderRow(id);});
-  clearBulk();updateSummary();
+  var pend=[].slice.call(document.querySelectorAll('.cb-item:checked')).filter(function(cb){
+    var r=document.getElementById('row-'+cb.dataset.id);
+    return r&&r.dataset.status==='pending';
+  });
+  pend.forEach(function(cb){
+    var id=cb.dataset.id, g=GOALS[id];
+    g.status='approved';
+    var h=getHistory(g);
+    h.push({dot:'ok',ev:'Quản lý đã duyệt (bulk)',who:'thanh.le',time:today()});
+    renderRow(id);
+  });
+  clearBulk();
+  updateSummary();
   toast('Đã duyệt '+pend.length+' mục tiêu','ok');
 }
 
-/* ── HELPERS ── */
-function today(){var d=new Date();return('0'+d.getDate()).slice(-2)+'/'+(('0'+(d.getMonth()+1)).slice(-2))+'/'+d.getFullYear();}
-function clip(s,n){var t=s.replace(/&amp;/g,'&').replace(/&lt;/g,'<');return t.length>n?t.substring(0,n)+'…':t;}
-
-/* ── TOAST ── */
-var _toastEl=null,_toastTmr=null;
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+var _toastEl=null, _toastTmr=null;
 function toast(msg,type){
-  if(!_toastEl){_toastEl=document.createElement('div');_toastEl.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9998;padding:11px 16px;border-radius:var(--rsm);font-size:13px;font-weight:500;box-shadow:var(--sh-lg);display:flex;align-items:center;gap:8px;transition:opacity .25s';document.body.appendChild(_toastEl);}
+  if(!_toastEl){
+    _toastEl=document.createElement('div');
+    _toastEl.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9998;padding:11px 16px;border-radius:var(--rsm);font-size:13px;font-weight:500;box-shadow:var(--sh-lg);display:flex;align-items:center;gap:8px;transition:opacity .25s';
+    document.body.appendChild(_toastEl);
+  }
   clearTimeout(_toastTmr);
-  var map={ok:{bg:'var(--ok-bg)',c:'var(--ok)',bd:'var(--ok-bd)',ic:'bx-check-circle'},warn:{bg:'var(--warn-bg)',c:'var(--warn)',bd:'var(--warn-bd)',ic:'bx-error-circle'},err:{bg:'var(--err-bg)',c:'var(--err)',bd:'var(--err-bd)',ic:'bx-x-circle'}};
+  var map={
+    ok:{bg:'var(--ok-bg)',c:'var(--ok)',bd:'var(--ok-bd)',ic:'bx-check-circle'},
+    warn:{bg:'var(--warn-bg)',c:'var(--warn)',bd:'var(--warn-bd)',ic:'bx-error-circle'},
+    err:{bg:'var(--err-bg)',c:'var(--err)',bd:'var(--err-bd)',ic:'bx-x-circle'}
+  };
   var m=map[type]||map.ok;
-  _toastEl.style.background=m.bg;_toastEl.style.color=m.c;_toastEl.style.border='1px solid '+m.bd;_toastEl.style.opacity='1';
+  _toastEl.style.background=m.bg;
+  _toastEl.style.color=m.c;
+  _toastEl.style.border='1px solid '+m.bd;
+  _toastEl.style.opacity='1';
   _toastEl.innerHTML='<i class="bx '+m.ic+'" style="font-size:16px"></i>'+msg;
   _toastTmr=setTimeout(function(){_toastEl.style.opacity='0';},2800);
 }

@@ -202,6 +202,7 @@ input,select,textarea{font-family:inherit}
 .b-action{color:var(--brand);background:transparent;border-color:var(--brand)}
 .b-warn{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
 .b-err{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
+.b-info{color:var(--info);background:var(--info-bg);border-color:var(--info-bd)}
 .b-muted{color:var(--z500);background:var(--z100);border-color:var(--z200)}
 .b-what{color:var(--what);background:var(--what-bg);border-color:var(--what-bd)}
 .b-dev{color:var(--dev);background:var(--dev-bg);border-color:var(--dev-bd)}
@@ -255,7 +256,7 @@ input,select,textarea{font-family:inherit}
 .btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600}.btn-cta-outline:hover{background:var(--brand-muted)}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}.btn-ghost:hover{background:var(--z100);color:var(--z900)}
 .btn-destructive{background:transparent;border-color:var(--err-bd);color:var(--err)}.btn-destructive:hover{background:var(--err-bg)}
-.btn-sm{padding:3px 9px;font-size:12px}
+.btn-sm{padding:4px 10px;font-size:12.5px}
 
 /* ── FORM ── */
 .fg{margin-bottom:13px}
@@ -611,15 +612,16 @@ textarea.fc{resize:vertical}
 <div class="overlay" id="dlg-detail" onclick="if(event.target===this)closeOverlay('dlg-detail')">
   <div class="dialog md">
     <div class="dlg-hd">
-      <div class="dlg-badges" id="det-badges"><!-- rendered --></div>
       <div class="dlg-hd-row">
-        <div class="dlg-title" id="det-title">—</div>
+        <div style="flex:1;min-width:0">
+          <div class="dlg-badges" id="det-badges" style="margin-bottom:0"><!-- rendered --></div>
+        </div>
         <button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button>
       </div>
-    </div>
-    <div class="dlg-tabs">
-      <button class="dlg-tab on" id="dt-0" onclick="switchDlgTab(0)">Thông tin</button>
-      <button class="dlg-tab" id="dt-1" onclick="switchDlgTab(1)">Bình luận <span class="dlg-tab-n" id="dt-n">0</span></button>
+      <div class="dlg-tabs">
+        <button class="dlg-tab on" id="dt-0" onclick="switchDlgTab(0)">Thông tin</button>
+        <button class="dlg-tab" id="dt-1" onclick="switchDlgTab(1)">Bình luận <span class="dlg-tab-n" id="dt-n">0</span></button>
+      </div>
     </div>
     <div class="dlg-body">
 
@@ -634,13 +636,18 @@ textarea.fc{resize:vertical}
           </div>
         </div>
 
+        <div class="detail-row" id="det-meta" style="padding-top:6px">
+          <!-- Metadata grid rendered by JS -->
+        </div>
+
+        <div class="detail-row">
+          <span class="sec-lbl">Tên mục tiêu</span>
+          <div class="detail-val" id="det-title">—</div>
+        </div>
+
         <div class="detail-row">
           <span class="sec-lbl">Kết quả cần đạt</span>
           <div class="detail-val" id="det-result">—</div>
-        </div>
-
-        <div class="detail-row" id="det-meta">
-          <!-- dg grid rendered by JS (1 or 2 cols depending on goal type) -->
         </div>
       </div>
 
@@ -799,10 +806,10 @@ function pendingCnt(emp){ return emp.goals.filter(g=>g.status==='pending').lengt
 function updateCnt(emp){ return emp.goals.filter(g=>g.status==='update').length; }
 
 function badgeSt(status){
-  if(status==='pending') return `<span class="badge b-action">Chờ duyệt</span>`;
+  if(status==='pending') return `<span class="badge b-info">Chờ duyệt</span>`;
   if(status==='approved') return `<span class="badge b-ok">Đã duyệt</span>`;
   if(status==='done') return `<span class="badge b-done"><i class="bx bx-check"></i>Hoàn thành</span>`;
-  if(status==='update') return `<span class="badge b-action">Cần cập nhật</span>`;
+  if(status==='update') return `<span class="badge b-warn">Cần cập nhật</span>`;
   if(status==='draft') return `<span class="badge b-muted">Nháp</span>`;
   return '';
 }
@@ -1118,7 +1125,7 @@ function goToGoals(eid){
   const emp=findEmp(eid);
   if(!emp) return;
   /* Navigate to detail page (M-01b) */
-  location.href='../M-01b/index.html';
+  location.href='../M-01b/index.html?emp='+eid;
   return;
   S.empId=eid;
 
@@ -1246,9 +1253,9 @@ function openDet(eid,gid){
   S.empId=eid; S.goalId=gid;
   const isRO=emp.lvl!=='lm1';
 
-  // Badges row
+  // Status and goal type match the E-01 detail header.
   document.getElementById('det-badges').innerHTML=
-    badgeType(g.type)+' '+badgeSt(g.status)+(g.type==='what'?(' '+badgePrio(g.prio)):'');
+    badgeSt(g.status)+' '+badgeType(g.type);
 
   // Title
   document.getElementById('det-title').textContent=g.title;
@@ -1263,12 +1270,13 @@ function openDet(eid,gid){
   // Result
   document.getElementById('det-result').innerHTML='<p>'+g.result+'</p>';
 
-  // Meta row: date + prio (only for what goals)
+  // Required detail order: priority/from/to, then title and result.
   const metaEl=document.getElementById('det-meta');
+  const prioLbl={h:'Cao',m:'Trung bình',l:'Thấp'}[g.prio]||'—';
   if(g.type==='dev'){
-    metaEl.innerHTML=`<div class="dg single"><div class="df"><label>Thời gian</label><div class="dv">${g.s} – ${g.e} / 2026</div></div></div>`;
+    metaEl.innerHTML=`<div class="dg" style="grid-template-columns:1fr 1fr;margin-bottom:0"><div class="df"><label>Từ ngày</label><div class="dv">${g.s}/2026</div></div><div class="df"><label>Đến ngày</label><div class="dv">${g.e}/2026</div></div></div>`;
   } else {
-    metaEl.innerHTML=`<div class="dg"><div class="df"><label>Thời gian</label><div class="dv">${g.s} – ${g.e} / 2026</div></div><div class="df"><label>Mức độ ưu tiên</label><div class="dv">${badgePrio(g.prio)||'—'}</div></div></div>`;
+    metaEl.innerHTML=`<div class="dg" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0"><div class="df"><label>Mức độ ưu tiên</label><div class="dv">${prioLbl}</div></div><div class="df"><label>Từ ngày</label><div class="dv">${g.s}/2026</div></div><div class="df"><label>Đến ngày</label><div class="dv">${g.e}/2026</div></div></div>`;
   }
 
   // Comment count
@@ -1280,11 +1288,11 @@ function openDet(eid,gid){
   const ft=document.getElementById('det-foot');
   if(!isRO&&g.status==='pending'){
     ft.innerHTML=`
-      <button class="btn btn-ghost" onclick="closeOv('dlg-detail')">Đóng</button>
-      <button class="btn btn-outline" onclick="closeOv('dlg-detail');openReq('${eid}','${gid}')"><i class="bx bx-message-square-edit"></i> Yêu cầu cập nhật</button>
-      <button class="btn btn-default" onclick="closeOv('dlg-detail');doApprove('${eid}','${gid}')"><i class="bx bx-check-circle"></i> Duyệt</button>`;
+      <button class="btn btn-ghost btn-sm" onclick="closeOv('dlg-detail')">Đóng</button>
+      <button class="btn btn-cta-outline btn-sm" onclick="closeOv('dlg-detail');openReq('${eid}','${gid}')"><i class="bx bx-message-square-edit"></i> Yêu cầu cập nhật</button>
+      <button class="btn btn-default btn-sm" onclick="closeOv('dlg-detail');doApprove('${eid}','${gid}')"><i class="bx bx-check-circle"></i> Duyệt</button>`;
   } else {
-    ft.innerHTML=`<button class="btn btn-ghost" onclick="closeOv('dlg-detail')">Đóng</button>`;
+    ft.innerHTML=`<button class="btn btn-ghost btn-sm" onclick="closeOv('dlg-detail')">Đóng</button>`;
   }
 
   switchDlgTab(0);
