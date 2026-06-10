@@ -91,6 +91,7 @@ input,select,textarea{font-family:inherit}
 .btn-sm{padding:4px 10px;font-size:12.5px}
 .btn-xs{padding:2px 8px;font-size:11.5px}
 .badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
+.b-action{color:var(--brand);background:transparent;border-color:var(--brand)}
 .b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}
 .b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok);display:inline-flex;align-items:center;gap:3px}
 .b-done i{font-size:13px;line-height:1}
@@ -123,10 +124,8 @@ input,select,textarea{font-family:inherit}
 .gtable tbody tr{transition:background .08s}
 .gtable tbody tr.gt-row{cursor:pointer}
 .gtable tbody tr.gt-row:hover{background:var(--z50)}
-.gt-type{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:13px;font-weight:500}
-.gt-type i{font-size:15px;flex-shrink:0}
-.gt-type.what{color:var(--what)}.gt-type.what i{color:var(--what)}
-.gt-type.dev{color:var(--dev)}.gt-type.dev i{color:var(--dev)}
+.gt-type{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:13px;color:var(--z900);font-weight:500}
+.gt-type i{font-size:15px;color:var(--brand);flex-shrink:0}
 .gt-name{font-weight:500;color:var(--z900);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .gt-result{color:var(--z700);font-weight:400;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
 .gt-date{white-space:nowrap;color:var(--z700);font-size:13px;font-weight:400}
@@ -141,8 +140,6 @@ input,select,textarea{font-family:inherit}
 .gt-pri{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:16px}
 .gt-pri:hover{background:var(--z100);color:var(--z800)}
 .gt-pri.accent{color:var(--brand)}.gt-pri.accent:hover{background:var(--brand-muted);color:var(--brand)}
-.gt-pri.ok{color:var(--ok)}.gt-pri.ok:hover{background:var(--ok-bg)}
-.gt-pri.warn{color:var(--warn)}.gt-pri.warn:hover{background:var(--warn-bg)}
 .gt-pri.danger{color:var(--err)}.gt-pri.danger:hover{background:var(--err-bg)}
 .emp-hdr{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);margin-bottom:16px;box-shadow:var(--sh-sm)}
 .emp-hdr-av{width:44px;height:44px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;letter-spacing:-.5px}
@@ -195,6 +192,20 @@ textarea.fc{resize:vertical;min-height:80px}
 .dlg-tab{padding:7px 12px;font-size:13px;font-weight:400;color:var(--z500);border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--t);cursor:pointer;font-family:inherit;white-space:nowrap}
 .dlg-tab:hover{color:var(--z700)}
 .dlg-tab.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.dlg-tab{display:flex;align-items:center;gap:4px}
+.dlg-tab-n{padding:0 5px;height:15px;line-height:15px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--brand-muted);color:var(--brand)}
+.comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.ci{display:flex;gap:8px;align-items:flex-start}.ci.self{flex-direction:row-reverse}
+.ci-name{font-size:12px;font-weight:600;color:var(--z700);margin-bottom:2px}.ci.self .ci-name{text-align:right}
+.ci-bubble{max-width:76%;padding:8px 11px;font-size:13px;color:var(--z700);line-height:1.5}
+.ci:not(.self) .ci-bubble{background:var(--z50);border:1px solid var(--z200);border-radius:0 8px 8px 8px}
+.ci.self .ci-bubble{background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:8px 0 8px 8px}
+.ci-time{font-size:11px;color:var(--z500);margin-top:3px}.ci.self .ci-time{text-align:right}
+.cin-row{display:flex;gap:7px;align-items:flex-end;padding-top:12px;border-top:1px solid var(--z100)}
+.cin{flex:1;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);resize:none;min-height:50px;outline:none;transition:var(--t);line-height:1.5}
+.cin:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.cmt-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:28px 16px;color:var(--z500);font-size:13px;line-height:1.5}
+.cmt-empty>i{font-size:30px;color:var(--z400)}
 .dlg-body{padding:16px 20px;overflow-y:auto;flex:1}
 .dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:flex-end;flex-shrink:0;align-items:center}
 .tpanel{display:none}.tpanel.on{display:block}
@@ -297,7 +308,7 @@ textarea.fc{resize:vertical;min-height:80px}
       <button class="btn btn-ghost btn-xs" onclick="selAllPending()">Chọn tất cả Chờ duyệt</button>
       <div class="bulk-sep"></div>
       <span class="bulk-warn" id="bulk-warn" style="display:none"><i class="bx bx-error-circle"></i><span id="bulk-warn-txt"></span></span>
-      <button class="btn btn-ok btn-xs" id="bulk-approve-btn" onclick="doBulkApprove()" disabled><i class="bx bx-check-circle"></i> Duyệt đã chọn</button>
+      <button class="btn btn-default btn-xs" id="bulk-approve-btn" onclick="doBulkApprove()" disabled><i class="bx bx-check-circle"></i> Duyệt đã chọn</button>
     </div>
     <div class="gtable-wrap">
       <table class="gtable">
@@ -319,7 +330,7 @@ textarea.fc{resize:vertical;min-height:80px}
   <div class="dialog md">
     <div class="dlg-hd">
       <div class="dlg-hd-row"><div style="flex:1;min-width:0"><div class="dlg-badges" id="d-badges" style="margin-bottom:0"></div></div><button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button></div>
-      <div class="dlg-tabs"><button class="dlg-tab on" id="dtab-0" onclick="switchTab(0)">Thông tin</button><button class="dlg-tab" id="dtab-1" onclick="switchTab(1)">Lịch sử</button></div>
+      <div class="dlg-tabs"><button class="dlg-tab on" id="dtab-0" onclick="switchTab(0)">Thông tin</button><button class="dlg-tab" id="dtab-1" onclick="switchTab(1)">Bình luận <span class="dlg-tab-n" id="d-cmt-count">0</span></button></div>
     </div>
     <div class="dlg-body"><div class="tpanel on" id="dtp-0"></div><div class="tpanel" id="dtp-1"></div></div>
     <div class="dlg-foot" id="d-foot"></div>
@@ -332,7 +343,7 @@ textarea.fc{resize:vertical;min-height:80px}
     <div class="conf-icon ok"><i class="bx bx-check-circle"></i></div>
     <div class="conf-title">Xác nhận duyệt mục tiêu</div>
     <div class="conf-body">Bạn sắp duyệt mục tiêu <strong id="approve-goal-name">—</strong> của <strong id="approve-emp-name">—</strong>. Sau khi duyệt, nhân viên sẽ được thông báo.</div>
-    <div class="conf-actions"><button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-approve')">Huỷ</button><button class="btn btn-ok btn-sm" onclick="doApprove()"><i class="bx bx-check-circle"></i> Duyệt</button></div>
+    <div class="conf-actions"><button class="btn btn-ghost btn-sm" onclick="closeConf('dlg-approve')">Huỷ</button><button class="btn btn-default btn-sm" onclick="doApprove()"><i class="bx bx-check-circle"></i> Duyệt</button></div>
   </div>
 </div>
 
@@ -513,6 +524,7 @@ var GOALS_DATA={
    RUNTIME STATE
 ═══════════════════════════════════════════ */
 var GOALS={}, EMP={}, _activeGoalId=null, _tipEl=null;
+var _isRO=(new URLSearchParams(location.search)).get('ro')==='1';
 
 /* ═══════════════════════════════════════════
    INIT
@@ -527,6 +539,7 @@ window.addEventListener('DOMContentLoaded',function(){
   renderEmpHeader();
   renderTable();
   updateSummary();
+  if(_isRO) document.getElementById('bulk-bar').style.display='none';
 });
 
 /* ═══════════════════════════════════════════
@@ -581,7 +594,7 @@ function rowHTML(id){
   var pi=prioInfo(g.prio);
   return '<tr class="gt-row" id="row-'+id+'" data-id="'+id+'" data-status="'+g.status+'" onclick="openDetail(\''+id+'\')">'
     +'<td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="'+id+'" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>'
-    +'<td><span class="gt-type '+ti.cls+'"><i class="bx '+ti.ico+'"></i> '+ti.lbl+'</span></td>'
+    +'<td><span class="gt-type"><i class="bx '+ti.ico+'"></i> '+ti.lbl+'</span></td>'
     +'<td><div class="gt-name">'+esc(g.title)+'</div></td>'
     +'<td><div class="gt-result">'+esc(g.result)+'</div></td>'
     +'<td>'+(pi?'<span class="prio '+pi.cls+'">'+pi.lbl+'</span>':'<span style="color:var(--z400)">—</span>')+'</td>'
@@ -593,10 +606,10 @@ function rowHTML(id){
 
 function statusHTML(g){
   var b='';
-  if(g.status==='pending') b='<span class="badge b-info">Chờ duyệt</span>';
+  if(g.status==='pending') b='<span class="badge b-action">Chờ duyệt</span>';
   else if(g.status==='approved'&&g.eval==='done') b='<span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>';
   else if(g.status==='approved') b='<span class="badge b-ok">Đã duyệt</span>';
-  else if(g.status==='update') b='<span class="badge b-warn">Cần cập nhật</span>';
+  else if(g.status==='update') b='<span class="badge b-action">Cần cập nhật</span>';
   else if(g.status==='rejected') b='<span class="badge b-err">Bị từ chối</span>';
   else if(g.status==='draft') b='<span class="badge b-muted">Nháp</span>';
   if(g.status==='approved'&&g.eval==='selfdone'){
@@ -620,12 +633,14 @@ function statusHTML(g){
 
 function actionsHTML(g,id){
   var b='';
-  if(g.status==='pending'){
-    b+=ab('ok','bx-check-circle','Duyệt',"openApprove('"+id+"')");
-    b+=ab('warn','bx-rotate-left','Yêu cầu cập nhật',"openUpdateReq('"+id+"')");
-    b+=ab('danger','bx-x-circle','Từ chối',"openReject('"+id+"')");
-  }else if(g.status==='approved'&&g.eval==='selfdone'){
-    b+=ab('accent','bx-task','Đánh giá hoàn thành',"openEval('"+id+"')");
+  if(!_isRO){
+    if(g.status==='pending'){
+      b+=ab('accent','bx-check-circle','Duyệt',"openApprove('"+id+"')");
+      b+=ab('','bx-rotate-left','Yêu cầu cập nhật',"openUpdateReq('"+id+"')");
+      b+=ab('danger','bx-x-circle','Từ chối',"openReject('"+id+"')");
+    }else if(g.status==='approved'&&g.eval==='selfdone'){
+      b+=ab('accent','bx-task','Đánh giá hoàn thành',"openEval('"+id+"')");
+    }
   }
   b+=ab('','bx-show','Xem chi tiết',"openDetail('"+id+"')");
   return '<div class="gt-act-cell">'+b+'</div>';
@@ -660,9 +675,9 @@ function updateSummary(){
    HELPERS
 ═══════════════════════════════════════════ */
 function typeInfo(t){
-  if(t==='what') return{lbl:'Công việc',ico:'bx-target-lock',cls:'what'};
-  if(t==='dev')  return{lbl:'Phát triển',ico:'bx-trending-up',cls:'dev'};
-  return{lbl:t,ico:'bx-circle',cls:''};
+  if(t==='what') return{lbl:'Công việc',ico:'bx-target-lock'};
+  if(t==='dev')  return{lbl:'Phát triển',ico:'bx-trending-up'};
+  return{lbl:t,ico:'bx-circle'};
 }
 function prioInfo(p){
   if(p==='h') return{lbl:'Cao',cls:'prio-h'};
@@ -671,8 +686,8 @@ function prioInfo(p){
   return null;
 }
 function typeBadge(t){
-  var ti=typeInfo(t);
-  return '<span class="badge b-'+ti.cls+'"><i class="bx '+ti.ico+'" style="font-size:12px;margin-right:3px"></i>'+ti.lbl+'</span>';
+  var lbl=t==='what'?'Mục tiêu công việc':t==='dev'?'Mục tiêu phát triển':'Mục tiêu khác';
+  return '<span class="badge b-muted">'+lbl+'</span>';
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function raw(s){return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');}
@@ -760,7 +775,7 @@ function openDetail(id){
   /* Header: status badge + type badge (E-01 style) */
   var sBadge=statusHTML(g).split('<span class="gt-eval-sub">')[0];
   var tBadge=typeBadge(g.type);
-  document.getElementById('d-badges').innerHTML=sBadge+'&nbsp;'+tBadge;
+  document.getElementById('d-badges').innerHTML=sBadge+tBadge;
 
   /* Tab 0: Info — E-01 layout */
   /* Row 1: grid (prio | from | to) — hide prio for dev goals */
@@ -813,24 +828,39 @@ function openDetail(id){
   }
   document.getElementById('dtp-0').innerHTML=t0;
 
-  /* Tab 1: History */
-  var hist=getHistory(g);
-  var t1='<div class="tl">';
-  hist.forEach(function(h){
-    t1+='<div class="tl-item"><div class="tl-dot '+h.dot+'"></div>'
-      +'<div class="tl-ev">'+h.ev+'</div>'
-      +'<div class="tl-who">'+h.who+' &nbsp;·&nbsp; '+h.time+'</div></div>';
-  });
-  t1+='</div>';
+  /* Tab 1: Bình luận */
+  var noCmt=(g.status==='draft'||g.status==='pending');
+  var cmtCount=noCmt?0:2;
+  document.getElementById('d-cmt-count').textContent=cmtCount||'';
+  var t1='';
+  if(noCmt){
+    t1='<div class="cmt-empty"><i class="bx bx-message-square-dots"></i><span>Chưa có bình luận. Mục tiêu cần được duyệt trước khi có thể trao đổi.</span></div>';
+  }else{
+    t1='<div class="comment-list">'
+      +'<div class="ci self"><div class="av av-brand av-sm" style="flex-shrink:0">LT</div><div>'
+      +'<div class="ci-name">Lê Thị Thanh</div>'
+      +'<div class="ci-bubble">Mục tiêu rõ ràng, KPI đo lường cụ thể. Đã duyệt.</div>'
+      +'<div class="ci-time">14/01/2026, 16:30</div>'
+      +'</div></div>'
+      +'<div class="ci"><div class="av av-brand av-sm" style="flex-shrink:0;background:var(--z100);color:var(--z600)">'+EMP.ini+'</div><div>'
+      +'<div class="ci-name">'+EMP.name+'</div>'
+      +'<div class="ci-bubble">Cảm ơn chị đã xem xét và duyệt ạ.</div>'
+      +'<div class="ci-time">15/01/2026, 09:00</div>'
+      +'</div></div>'
+      +'</div>'
+      +'<div class="cin-row"><div class="av av-brand av-sm" style="flex-shrink:0;margin-bottom:2px">LT</div>'
+      +'<textarea class="cin" placeholder="Nhập bình luận..."></textarea>'
+      +'<button class="btn btn-default btn-sm">Gửi</button></div>';
+  }
   document.getElementById('dtp-1').innerHTML=t1;
 
   /* Footer */
   var foot='<button class="btn btn-ghost btn-sm" onclick="closeOverlay(\'dlg-detail\')">Đóng</button>';
-  if(g.status==='pending'){
+  if(!_isRO && g.status==='pending'){
     foot+='<button class="btn btn-destructive btn-sm" onclick="closeOverlay(\'dlg-detail\');openReject(\''+id+'\')"><i class="bx bx-x-circle"></i> Từ chối</button>';
-    foot+='<button class="btn btn-cta-outline btn-sm" onclick="closeOverlay(\'dlg-detail\');openUpdateReq(\''+id+'\')"><i class="bx bx-rotate-left"></i> Yêu cầu cập nhật</button>';
-    foot+='<button class="btn btn-ok btn-sm" onclick="closeOverlay(\'dlg-detail\');openApprove(\''+id+'\')"><i class="bx bx-check-circle"></i> Duyệt</button>';
-  }else if(g.status==='approved'&&g.eval==='selfdone'){
+    foot+='<button class="btn btn-ghost btn-sm" onclick="closeOverlay(\'dlg-detail\');openUpdateReq(\''+id+'\')"><i class="bx bx-rotate-left"></i> Yêu cầu cập nhật</button>';
+    foot+='<button class="btn btn-default btn-sm" onclick="closeOverlay(\'dlg-detail\');openApprove(\''+id+'\')"><i class="bx bx-check-circle"></i> Duyệt</button>';
+  }else if(!_isRO && g.status==='approved'&&g.eval==='selfdone'){
     foot+='<button class="btn btn-default btn-sm" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')"><i class="bx bx-task"></i> Đánh giá hoàn thành</button>';
   }
   document.getElementById('d-foot').innerHTML=foot;
