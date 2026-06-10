@@ -312,8 +312,7 @@ textarea.fc{resize:vertical;min-height:80px}
 <div class="overlay" id="dlg-detail" onclick="if(event.target===this)closeOverlay('dlg-detail')">
   <div class="dialog md">
     <div class="dlg-hd">
-      <div class="dlg-hd-row"><div class="dlg-title" id="d-title">—</div><button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button></div>
-      <div class="dlg-badges" id="d-badges"></div>
+      <div class="dlg-hd-row"><div style="flex:1;min-width:0"><div class="dlg-badges" id="d-badges" style="margin-bottom:0"></div></div><button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button></div>
       <div class="dlg-tabs"><button class="dlg-tab on" id="dtab-0" onclick="switchTab(0)">Thông tin</button><button class="dlg-tab" id="dtab-1" onclick="switchTab(1)">Lịch sử</button></div>
     </div>
     <div class="dlg-body"><div class="tpanel on" id="dtp-0"></div><div class="tpanel" id="dtp-1"></div></div>
@@ -750,19 +749,27 @@ function openDetail(id){
   _activeGoalId=id;
   var g=GOALS[id];
   var pi=prioInfo(g.prio);
-  document.getElementById('d-title').textContent=raw(g.title);
-  document.getElementById('d-badges').innerHTML=typeBadge(g.type)+'&nbsp;'+statusHTML(g).split('<span class="gt-eval-sub">')[0];
+  var isDev=(g.type==='dev');
 
-  /* Tab 0: Info */
-  var t0='<div class="dg3">'
-    +'<div class="df"><label>Loại mục tiêu</label><div class="dv">'+typeBadge(g.type)+'</div></div>'
+  /* Header: status badge + type badge (E-01 style) */
+  var sBadge=statusHTML(g).split('<span class="gt-eval-sub">')[0];
+  var tBadge=typeBadge(g.type);
+  document.getElementById('d-badges').innerHTML=sBadge+'&nbsp;'+tBadge;
+
+  /* Tab 0: Info — E-01 layout */
+  /* Row 1: grid (prio | from | to) — hide prio for dev goals */
+  var cols=isDev?'1fr 1fr':'1fr 1fr 1fr';
+  var t0='<div class="detail-row" style="padding-top:6px">'
+    +'<div class="dg3" style="margin-bottom:0;grid-template-columns:'+cols+'">'
+    +(isDev?''
+      :'<div class="df"><label>Mức độ ưu tiên</label><div class="dv">'
+        +(pi?'<span class="prio '+pi.cls+'">'+pi.lbl+'</span>':'<span style="color:var(--z400)">—</span>')
+        +'</div></div>')
     +'<div class="df"><label>Từ ngày</label><div class="dv">'+g.from+'/2026</div></div>'
     +'<div class="df"><label>Đến ngày</label><div class="dv">'+g.to+'/2026</div></div>'
-    +'</div>';
+    +'</div></div>';
   t0+='<div class="detail-row"><span class="sec-lbl">Tên mục tiêu</span><div class="detail-val">'+raw(g.title)+'</div></div>';
-  t0+='<div class="detail-row"><span class="sec-lbl">Kết quả cần đạt</span><div class="detail-val">'+raw(g.result)+'</div></div>';
-  t0+='<div class="detail-row" style="border-bottom:none"><span class="sec-lbl">Mức độ ưu tiên</span><div style="margin-top:4px">'
-    +(pi?'<span class="prio '+pi.cls+'">'+pi.lbl+'</span>':'<span style="color:var(--z400)">—</span>')+'</div></div>';
+  t0+='<div class="detail-row" style="border-bottom:none"><span class="sec-lbl">Kết quả cần đạt</span><div class="detail-val">'+raw(g.result)+'</div></div>';
 
   if(g.status==='update'&&g.updNote){
     t0+='<div class="divider"></div>'
