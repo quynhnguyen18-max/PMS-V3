@@ -54,6 +54,10 @@ input,select,textarea{font-family:inherit}
 .sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
 .sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500);transition:var(--t)}
 .sb-item:hover i{color:var(--z600)}.sb-item.on i{color:var(--brand)}
+.sb-sub-item{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 34px;margin:1px 6px;border-radius:var(--rsm);color:var(--z500);font-size:12.5px;cursor:pointer;transition:var(--t)}
+.sb-sub-item:hover{background:var(--z100);color:var(--z800)}
+.sb-sub-item.on{color:var(--brand);font-weight:600}
+.sb-sub-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0;background:var(--z0);position:sticky;bottom:0}
 .sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
 .sb-user:hover{background:var(--z100)}
@@ -250,6 +254,8 @@ textarea.fc{resize:vertical;min-height:80px}
     <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
     <div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
+    <div class="sb-sub-item on" onclick="location.href='../M-01/index.html'"><span class="sb-sub-dot"></span>Phương án 1 — Popup</div>
+    <div class="sb-sub-item" onclick="location.href='../M-01d/index.html'"><span class="sb-sub-dot"></span>Phương án 2 — Split View</div>
     <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
   </nav>
   <div class="sb-foot">

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mục tiêu và Đánh giá nhân viên | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#fff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --what:#2563eb;--what-bg:#eff6ff;--what-bd:#bfdbfe;
+  --dev:#7c3aed;--dev-bg:#f5f3ff;--dev-bd:#ddd6fe;
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
+  --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);--sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}a{color:var(--brand);text-decoration:none}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;inset:0 auto 0 0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200}
+.workspace{margin-left:var(--sw);min-width:0;flex:1;display:flex;flex-direction:column}
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px;border-bottom:1px solid var(--z100)}
+.sb-logo{width:26px;height:26px;border-radius:6px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);line-height:1.15}.sb-name em{color:var(--brand);font-style:normal}.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}.role-btn{flex:1;padding:4px;border:1px solid var(--z200);border-radius:var(--rxs);background:transparent;color:var(--z500);font-size:12px;font-weight:600}.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sb-nav{flex:1;padding:2px 0}.sb-grp{display:block;padding:12px 14px 3px;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500)}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px}.sb-item i{font-size:15px;width:16px;text-align:center}.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-sub-item{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 34px;margin:1px 6px;border-radius:var(--rsm);color:var(--z500);font-size:12.5px;cursor:pointer;transition:var(--t)}
+.sb-sub-item:hover{background:var(--z100);color:var(--z800)}
+.sb-sub-item.on{color:var(--brand);font-weight:600}
+.sb-sub-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100)}.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px}.sb-uname{font-size:13px;font-weight:500;color:var(--z900)}.sb-urole{font-size:11px;color:var(--z500)}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;background:var(--z100);color:var(--z700)}
+.av-brand{background:var(--brand-muted);color:var(--brand)}.av-sm{width:24px;height:24px;font-size:10px}
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;gap:10px;padding:0 20px;position:sticky;top:0;z-index:100}
+.topbar-back{display:inline-flex;align-items:center;gap:4px;color:var(--z500);font-size:12.5px;padding:4px 8px;border-radius:var(--rsm)}.topbar-back:hover{background:var(--z100);color:var(--z900)}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}.topbar-right{display:flex;align-items:center;gap:3px}.ico-btn{width:30px;height:30px;border:0;border-radius:var(--rsm);background:transparent;color:var(--z500);font-size:15px}.ico-btn:hover{background:var(--z100);color:var(--z800)}
+.page{padding:18px 20px 24px;min-width:0;flex:1}.breadcrumb{display:flex;align-items:center;gap:4px;color:var(--z500);font-size:12px;margin-bottom:10px}.breadcrumb a{color:var(--z500)}.bc-sep{color:var(--z400)}
+.page-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}.page-title-wrap{min-width:0;flex:1}.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px}.page-sub{font-size:12.5px;color:var(--z500);margin-top:3px}
+.layout-label{display:inline-flex;align-items:center;padding:2px 7px;margin-left:7px;border:1px solid var(--brand-ring);border-radius:50px;background:var(--brand-muted);color:var(--brand);font-size:10px;font-weight:600;vertical-align:2px}
+.mode-tabs{display:none;align-items:center;border:1px solid var(--z200);border-radius:var(--rsm);overflow:hidden;background:var(--z0);margin:0 auto}.mode-tab{min-width:116px;padding:7px 18px;text-align:center;color:var(--z600);font-size:13px;font-weight:500}.mode-tab.on{background:var(--brand);color:#fff;font-weight:600}
+.cycle{display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:12.5px}.cycle i{color:var(--brand)}.cycle select{border:0;background:transparent;color:var(--z800);font-size:13px;font-weight:500;outline:0}
+.review-shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100vh - 154px);border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);overflow:hidden;transition:var(--t)}
+.employee-panel{min-width:0;border-right:1px solid var(--z200);display:flex;flex-direction:column;background:var(--z0);transition:var(--t)}
+.employee-search{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--z200)}.search-wrap{position:relative;flex:1}.search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--z400);font-size:15px}.search-input{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;outline:0}.search-input:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.filter-btn{width:34px;height:34px;border:0;border-radius:var(--rsm);background:transparent;color:var(--z600);font-size:17px}.filter-btn:hover{background:var(--z100)}
+.employee-list{flex:1;overflow-y:auto}.employee-item{position:relative;display:flex;align-items:center;gap:10px;padding:13px 12px;border-bottom:1px solid var(--z100);cursor:pointer;transition:var(--t)}.employee-item:hover{background:var(--z50)}.employee-item.on{background:var(--brand-muted)}.employee-item.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand)}
+.employee-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--z100);border:1px solid var(--z200);font-size:11px;font-weight:700;color:var(--z700)}
+.employee-copy{min-width:0;flex:1}.employee-name{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.employee-meta{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.employee-counts{font-size:10.5px;color:var(--z500);white-space:nowrap}.employee-counts .pending{color:var(--info)}.employee-counts .update{color:var(--brand)}
+.employee-foot{padding:10px 12px;border-top:1px solid var(--z200);font-size:11.5px;color:var(--z500)}
+.detail-panel{min-width:0;padding:14px;overflow:hidden;background:var(--z50)}
+.detail-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:7px;margin-bottom:10px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:6px 12px;border:1px solid transparent;border-radius:var(--rsm);background:transparent;font-size:13px;font-weight:500;line-height:1.4;white-space:nowrap;transition:var(--t)}.btn i{font-size:15px}.btn-sm{padding:4px 10px;font-size:12.5px}.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}.btn-default:hover{background:var(--brand-h)}.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}.btn-outline:hover{border-color:var(--z400);background:var(--z50)}.btn-ghost{color:var(--z600)}.btn-ghost:hover{background:var(--z100);color:var(--z900)}.btn-destructive{border-color:var(--err-bd);color:var(--err)}.btn-destructive:hover{background:var(--err-bg)}.btn-cta-outline{border-color:var(--brand);background:var(--z0);color:var(--brand);font-weight:600}.btn-cta-outline:hover{background:var(--brand-muted)}
+.employee-hero{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);margin-bottom:14px}.hero-avatar{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--z100);color:var(--z800);font-size:16px;font-weight:700;flex-shrink:0}.hero-info{min-width:0;flex:1}.hero-name{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:17px;font-weight:700;color:var(--z900)}.hero-login{font-size:12.5px;font-weight:400;color:var(--z500)}.hero-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--z600);margin-top:3px}.hero-dot{width:3px;height:3px;border-radius:50%;background:var(--z400)}
+.hero-stats{display:flex;gap:8px;flex-wrap:wrap}.stat-box{min-width:92px;padding:8px 12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);text-align:center}.stat-num{font-size:17px;font-weight:700;color:var(--z900);line-height:1.2}.stat-label{font-size:11.5px;color:var(--z600);margin-top:2px}.stat-box.pending .stat-num,.stat-box.pending .stat-label{color:var(--info)}.stat-box.update .stat-num,.stat-box.update .stat-label{color:var(--brand)}
+.table-wrap{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);overflow:auto;box-shadow:var(--sh-sm)}.goal-table{width:100%;min-width:690px;border-collapse:collapse;table-layout:fixed}.goal-table th{padding:9px 8px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);text-align:left;font-size:10px;font-weight:600;line-height:1.35;letter-spacing:.3px;text-transform:uppercase;color:var(--z500)}.goal-table td{padding:10px 8px;border-bottom:1px solid var(--z200);vertical-align:middle;font-size:12px;color:var(--z800)}.goal-table tbody tr:last-child td{border-bottom:0}.goal-table tbody tr:hover{background:var(--z50)}
+.goal-type{display:flex;align-items:center;gap:5px;font-weight:500;white-space:nowrap}.goal-type i{font-size:15px}.goal-type.what{color:var(--what)}.goal-type.dev{color:var(--dev)}.goal-title{font-weight:500;color:var(--z900);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.goal-result{color:var(--z600);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.goal-date{white-space:nowrap;color:var(--z600)}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;height:20px;border-radius:var(--rxs);border:1px solid;font-size:11px;font-weight:500;white-space:nowrap}.b-info{color:var(--info);background:var(--info-bg);border-color:var(--info-bd)}.b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}.b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok)}.b-warn{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}.b-muted{color:var(--z500);background:var(--z100);border-color:var(--z200)}
+.prio{display:inline-flex;padding:1px 7px;height:20px;align-items:center;border-radius:var(--rxs);font-size:11px;white-space:nowrap}.prio-h{background:var(--z200);color:var(--z900);font-weight:600}.prio-m{background:var(--z100);color:var(--z600)}.prio-l{color:var(--z400)}
+.eval-pair{display:flex;gap:4px;margin-top:4px}.eval-chip{padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)}
+.goal-actions{display:flex;align-items:center;gap:2px}.icon-action{width:27px;height:27px;border:0;border-radius:var(--rxs);background:transparent;color:var(--z500);font-size:16px;display:flex;align-items:center;justify-content:center;transition:var(--t)}.icon-action:hover{background:var(--z100);color:var(--z900)}.icon-action.ok{color:var(--ok)}.icon-action.ok:hover{background:var(--ok-bg)}.icon-action.warn{color:var(--warn)}.icon-action.warn:hover{background:var(--warn-bg)}.icon-action.danger{color:var(--err)}.icon-action.danger:hover{background:var(--err-bg)}
+.quick-bottom{display:none;grid-template-columns:1fr 1.15fr;gap:12px;margin-top:12px}.quick-card{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);padding:12px 14px}.quick-title{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--z800);margin-bottom:8px}.quick-title i{color:var(--brand)}.quick-note{width:100%;min-height:80px;padding:8px 10px;border:1px solid var(--z200);border-radius:var(--rsm);resize:vertical;font-size:12.5px;outline:0}.quick-note:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}.activity-list{display:flex;flex-direction:column;gap:7px}.activity-item{display:flex;gap:8px;font-size:11.5px;color:var(--z600)}.activity-time{color:var(--z400);white-space:nowrap}.activity-more{display:inline-block;margin-top:8px;font-size:12px;text-decoration:underline}
+.overlay{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}.overlay.open{display:flex;animation:ov-in .15s ease}@keyframes ov-in{from{opacity:0}to{opacity:1}}.dialog{width:100%;max-width:640px;max-height:90vh;display:flex;flex-direction:column;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-lg);animation:dlg-in .18s ease}@keyframes dlg-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}.dialog.sm{max-width:420px}
+.dlg-hd{padding:16px 20px 0}.dlg-hd-row{display:flex;align-items:flex-start;gap:8px}.dlg-badges{display:flex;gap:5px;flex-wrap:wrap;flex:1}.dlg-close{width:24px;height:24px;border:0;border-radius:var(--rxs);background:transparent;color:var(--z500);font-size:14px}.dlg-close:hover{background:var(--z100)}.dlg-tabs{display:flex;border-bottom:1px solid var(--z200);margin-top:8px}.dlg-tab{padding:7px 12px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--z500);font-size:13px}.dlg-tab.on{border-bottom-color:var(--brand);color:var(--brand);font-weight:600}.dlg-body{padding:16px 20px;overflow:auto}.dlg-foot{display:flex;justify-content:flex-end;gap:7px;padding:10px 20px 14px;border-top:1px solid var(--z100)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:6px 0 13px;border-bottom:1px solid var(--z200)}.detail-grid.two{grid-template-columns:1fr 1fr}.detail-field label,.sec-lbl{display:block;margin-bottom:4px;color:var(--z500);font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}.detail-field div{font-size:13.5px;color:var(--z700)}.detail-row{padding:13px 0;border-bottom:1px solid var(--z200)}.detail-row:last-child{border-bottom:0}.detail-val{padding:9px 12px;border-radius:var(--rsm);background:var(--z50);font-size:13.5px;line-height:1.65;color:var(--z700)}
+.form-label{display:block;margin-bottom:4px;font-size:12.5px;font-weight:500;color:var(--z700)}.form-control{width:100%;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;outline:0;resize:vertical}.form-control:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.toast{position:fixed;right:24px;bottom:24px;z-index:1200;display:none;align-items:center;gap:7px;padding:10px 14px;border:1px solid var(--ok-bd);border-radius:var(--rsm);background:var(--ok-bg);color:var(--ok);font-size:12.5px;font-weight:500;box-shadow:var(--sh-lg)}
+body.hybrid .mode-tabs{display:flex}body.hybrid .quick-bottom{display:grid}
+body.collapsed .review-shell{grid-template-columns:72px minmax(0,1fr)}body.collapsed .employee-search{padding:10px}body.collapsed .search-wrap,body.collapsed .filter-btn,body.collapsed .employee-copy,body.collapsed .employee-counts,body.collapsed .employee-foot{display:none}body.collapsed .employee-item{justify-content:center;padding:12px 8px}body.collapsed .employee-panel{min-width:72px}
+@media(max-width:1180px){.review-shell{grid-template-columns:250px minmax(0,1fr)}.hero-stats{width:100%}.employee-hero{flex-wrap:wrap}.goal-table{min-width:820px}}
+@media(max-width:860px){.sidebar{display:none}.workspace{margin-left:0}.review-shell{grid-template-columns:1fr}.employee-panel{border-right:0;border-bottom:1px solid var(--z200);max-height:320px}.detail-panel{padding:10px}.quick-bottom{grid-template-columns:1fr}.page-hd{flex-wrap:wrap}.mode-tabs{order:3;width:100%}.mode-tab{flex:1}.hero-stats{gap:5px}.stat-box{flex:1;min-width:78px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sb-brand"><div class="sb-logo">M</div><div><div class="sb-name">MoMo <em>HRM</em></div><div class="sb-sub">Performance Management</div></div></div>
+    <div class="role-sw"><button class="role-btn" onclick="location.href='../E-01/index.html'">Nhân viên</button><button class="role-btn on">Quản lý</button></div>
+    <nav class="sb-nav">
+      <span class="sb-grp">Tổng quan</span><div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
+      <span class="sb-grp">Mục tiêu &amp; Đánh giá</span><div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
+      <div class="sb-sub-item" onclick="location.href='../M-01/index.html'"><span class="sb-sub-dot"></span>Phương án 1 — Popup</div>
+      <div class="sb-sub-item on" onclick="location.href='../M-01d/index.html'"><span class="sb-sub-dot"></span>Phương án 2 — Split View</div>
+      <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
+    </nav>
+    <div class="sb-foot"><div class="sb-user"><div class="av av-brand">LT</div><div><div class="sb-uname">Lê Thị Thanh</div><div class="sb-urole">Quản lý, ITC - Backend</div></div></div></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <a class="topbar-back" href="../M-01/index.html"><i class="bx bx-chevron-left"></i>Quay lại</a>
+      <span class="topbar-title">Mục tiêu và Đánh giá nhân viên</span>
+      <div class="topbar-right"><button class="ico-btn" title="Thông báo"><i class="bx bx-bell"></i></button><button class="ico-btn" title="Trợ giúp"><i class="bx bx-help-circle"></i></button><div class="av av-brand av-sm">LT</div></div>
+    </header>
+    <main class="page">
+      <div class="breadcrumb"><a href="#">Trang chủ</a><span class="bc-sep">/</span><a href="../M-01/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep">/</span><span id="layout-breadcrumb">Split View</span></div>
+      <div class="page-hd">
+        <div class="page-title-wrap"><h1 class="page-title">Mục tiêu và Đánh giá nhân viên <span class="layout-label" id="layout-label">Option A - Split View</span></h1><div class="page-sub">Xem danh sách nhân viên và rà soát mục tiêu ngay trên cùng một màn hình.</div></div>
+        <div class="mode-tabs"><a class="mode-tab" href="../M-01/index.html">Danh sách</a><a class="mode-tab on" href="../M-01d/index.html">Xem nhanh</a></div>
+        <div class="cycle"><i class="bx bx-calendar"></i><span>Chu kỳ</span><select><option>2026</option><option>2025</option></select></div>
+      </div>
+      <section class="review-shell">
+        <aside class="employee-panel">
+          <div class="employee-search"><div class="search-wrap"><i class="bx bx-search"></i><input class="search-input" id="employee-search" placeholder="Tìm nhân viên..." oninput="renderEmployeeList()"/></div><button class="filter-btn" title="Bộ lọc"><i class="bx bx-slider-alt"></i></button></div>
+          <div class="employee-list" id="employee-list"></div>
+          <div class="employee-foot" id="employee-foot"></div>
+        </aside>
+        <section class="detail-panel">
+          <div class="detail-toolbar">
+            <button class="btn btn-outline btn-sm" onclick="openFullPage()"><i class="bx bx-link-external"></i>Mở toàn trang</button>
+            <button class="btn btn-outline btn-sm" id="collapse-btn" onclick="toggleCollapse()" style="display:none"><i class="bx bx-collapse-horizontal"></i><span>Thu gọn</span></button>
+          </div>
+          <div class="employee-hero" id="employee-hero"></div>
+          <div class="table-wrap">
+            <table class="goal-table">
+              <colgroup><col style="width:12%"><col style="width:19%"><col style="width:22%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:104px"></colgroup>
+              <thead><tr><th>Loại mục tiêu</th><th>Tên mục tiêu</th><th>Kết quả cần đạt</th><th>Mức độ ưu tiên</th><th>Thời gian</th><th>Trạng thái</th><th>Chức năng</th></tr></thead>
+              <tbody id="goal-body"></tbody>
+            </table>
+          </div>
+          <div class="quick-bottom">
+            <div class="quick-card"><div class="quick-title"><i class="bx bx-note"></i>Ghi chú</div><textarea class="quick-note" id="quick-note" placeholder="Nhập ghi chú nhanh..." onblur="saveNote()"></textarea></div>
+            <div class="quick-card"><div class="quick-title">Hoạt động gần đây</div><div class="activity-list" id="activity-list"></div><a href="#" class="activity-more">Xem thêm</a></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="overlay" id="detail-overlay" onclick="if(event.target===this)closeOverlay('detail-overlay')">
+  <div class="dialog">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row"><div class="dlg-badges" id="detail-badges"></div><button class="dlg-close" onclick="closeOverlay('detail-overlay')"><i class="bx bx-x"></i></button></div>
+      <div class="dlg-tabs"><button class="dlg-tab on">Thông tin</button></div>
+    </div>
+    <div class="dlg-body" id="detail-body"></div>
+    <div class="dlg-foot"><button class="btn btn-ghost btn-sm" onclick="closeOverlay('detail-overlay')">Đóng</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="update-overlay" onclick="if(event.target===this)closeOverlay('update-overlay')">
+  <div class="dialog sm">
+    <div class="dlg-hd"><div class="dlg-hd-row"><div style="flex:1;font-size:15px;font-weight:600;color:var(--z900)">Yêu cầu cập nhật</div><button class="dlg-close" onclick="closeOverlay('update-overlay')"><i class="bx bx-x"></i></button></div></div>
+    <div class="dlg-body"><label class="form-label">Nội dung yêu cầu</label><textarea class="form-control" id="update-note" rows="4" placeholder="Mô tả rõ điều nhân viên cần chỉnh sửa hoặc bổ sung..."></textarea></div>
+    <div class="dlg-foot"><button class="btn btn-ghost btn-sm" onclick="closeOverlay('update-overlay')">Huỷ</button><button class="btn btn-default btn-sm" onclick="submitUpdate()"><i class="bx bx-send"></i>Gửi yêu cầu</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="reject-overlay" onclick="if(event.target===this)closeOverlay('reject-overlay')">
+  <div class="dialog sm">
+    <div class="dlg-hd"><div class="dlg-hd-row"><div style="flex:1;font-size:15px;font-weight:600;color:var(--z900)">Từ chối mục tiêu</div><button class="dlg-close" onclick="closeOverlay('reject-overlay')"><i class="bx bx-x"></i></button></div></div>
+    <div class="dlg-body"><div style="font-size:13px;color:var(--z600);line-height:1.6">Mục tiêu sẽ bị từ chối và nhân viên cần chỉnh sửa trước khi gửi lại.</div></div>
+    <div class="dlg-foot"><button class="btn btn-ghost btn-sm" onclick="closeOverlay('reject-overlay')">Huỷ</button><button class="btn btn-destructive btn-sm" onclick="submitReject()"><i class="bx bx-x-circle"></i>Từ chối</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toast-text"></span></div>
+
+<script>
+var IS_HYBRID=location.pathname.toLowerCase().indexOf('m-01d')>=0;
+var selectedEmployeeId='e1',activeGoalId=null,toastTimer=null;
+var EMPLOYEES=[
+  {id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',ini:'NT',div:'ITC',dept:'Backend',pos:'Software Engineer',note:'',goals:[
+    {id:'g1',type:'what',title:'Phát triển Payment SDK v3.0 tích hợp đa nền tảng (iOS, Android, Web)',result:'SDK v3.0 được release chính thức, tích hợp thành công trên 3 platform, pass 100% test cases của QA, latency trung bình < 300ms trên môi trường production.',status:'pending',prio:'h',from:'01/01',to:'30/06'},
+    {id:'g2',type:'what',title:'Tối ưu hiệu năng API thanh toán, giảm latency trung bình xuống dưới 200ms',result:'Latency p95 ≤ 200ms trên production, zero downtime trong quá trình triển khai, có báo cáo benchmark so sánh trước-sau.',status:'update',prio:'h',from:'01/01',to:'31/03'},
+    {id:'g3',type:'what',title:'Refactor module xác thực và bảo mật theo chuẩn OAuth 2.0',result:'Module đạt chuẩn OAuth 2.0, pass security audit nội bộ, không có critical vulnerability trong 30 ngày sau release.',status:'done',prio:'m',from:'01/01',to:'28/02',selfScore:'3.0',managerScore:'4.0'},
+    {id:'g4',type:'dev',title:'Học và thi AWS Solutions Architect Associate',result:'Đậu chứng chỉ AWS SAA-C03 trước 30/06/2026 và viết bài chia sẻ với team.',status:'approved',prio:null,from:'01/01',to:'30/06'},
+    {id:'g5',type:'what',title:'Triển khai circuit breaker pattern cho microservices nội bộ',result:'100% microservice nội bộ áp dụng circuit breaker và giảm cascading failure rate về 0.',status:'pending',prio:'h',from:'01/02',to:'31/12'},
+    {id:'g6',type:'dev',title:'Tham gia chương trình mentoring nội bộ ITC',result:'Hoàn thành 12 buổi mentoring và nhận feedback tích cực từ mentee.',status:'approved',prio:null,from:'01/04',to:'31/12'}
+  ]},
+  {id:'e2',name:'Trần Thị Mai',login:'mai.tran',ini:'TM',div:'ITC',dept:'Frontend',pos:'Software Engineer',note:'',goals:[
+    {id:'g7',type:'what',title:'Tối ưu Core Web Vitals: LCP < 2.5s và CLS < 0.1',result:'LCP < 2.5s, CLS < 0.1 trên trang chủ và checkout trong 30 ngày liên tiếp.',status:'pending',prio:'h',from:'01/01',to:'30/06'},
+    {id:'g8',type:'what',title:'Implement MoMo Design System - 30 core components',result:'30 components hoàn thành với Storybook docs và đạt WCAG 2.1 AA.',status:'pending',prio:'m',from:'01/01',to:'31/12'},
+    {id:'g9',type:'what',title:'Cải thiện UX luồng thanh toán: giảm drop-off 15%',result:'Tỷ lệ hoàn thành thanh toán tăng tối thiểu 15% so với baseline.',status:'approved',prio:'m',from:'01/01',to:'30/09'},
+    {id:'g10',type:'dev',title:'Hoàn thành khóa học React Native và build app thực tế',result:'Build và deploy một ứng dụng demo lên TestFlight.',status:'pending',prio:null,from:'01/03',to:'31/08'}
+  ]},
+  {id:'e13',name:'Lê Hoài Nam',login:'nam.le',ini:'LN',div:'ITC',dept:'Backend',pos:'Senior Software Engineer',note:'',goals:[
+    {id:'g11',type:'what',title:'Xây dựng microservice xác thực eKYC tích hợp đối tác',result:'Service go-live Q2/2026, xử lý tối thiểu 500 req/s.',status:'pending',prio:'h',from:'01/01',to:'30/06'},
+    {id:'g12',type:'what',title:'Nâng cấp hệ thống phân quyền RBAC lên ABAC',result:'ABAC model phủ 100% resource nhạy cảm.',status:'approved',prio:'m',from:'01/01',to:'31/08'},
+    {id:'g13',type:'dev',title:'Đạt chứng chỉ Google Cloud Professional Developer',result:'Đậu kỳ thi trước 30/09/2026.',status:'update',prio:null,from:'01/01',to:'30/09'}
+  ]},
+  {id:'e16',name:'Mai Thị Hằng',login:'hang.mai',ini:'MH',div:'ITC',dept:'DevOps',pos:'Platform Engineer',note:'',goals:[
+    {id:'g14',type:'what',title:'Triển khai Internal Developer Platform trên nền Backstage',result:'IDP go-live Q3/2026 và onboard tối thiểu 10 service.',status:'pending',prio:'h',from:'01/01',to:'30/09'},
+    {id:'g15',type:'what',title:'Giảm MTTR từ 45 phút xuống 20 phút cho incident P1/P2',result:'MTTR trung bình ≤ 20 phút qua ba tháng liên tiếp.',status:'approved',prio:'m',from:'01/01',to:'31/12'},
+    {id:'g16',type:'dev',title:'Đạt chứng chỉ HashiCorp Terraform Associate',result:'Đậu chứng chỉ trước 31/08/2026.',status:'approved',prio:null,from:'01/01',to:'31/08'}
+  ]},
+  {id:'e14',name:'Nguyễn Thị Phương',login:'phuong.nguyen',ini:'NP',div:'ITC',dept:'Data',pos:'Data Scientist',note:'',goals:[
+    {id:'g17',type:'what',title:'Xây dựng mô hình credit scoring cho MoMo Pay Later',result:'Model F1-score ≥ 0.85 và A/B test với 5% user base.',status:'update',prio:'h',from:'01/01',to:'30/09'},
+    {id:'g18',type:'what',title:'Phân tích hành vi người dùng mới trong 30 ngày đầu',result:'Dashboard hoàn thành và trình bày ba insight với product team.',status:'approved',prio:'m',from:'01/01',to:'31/03'}
+  ]},
+  {id:'e15',name:'Trần Văn Khoa',login:'khoa.tran',ini:'TK',div:'ITC',dept:'Mobile',pos:'iOS Engineer',note:'',goals:[
+    {id:'g19',type:'what',title:'Migrate màn hình thanh toán từ UIKit sang SwiftUI',result:'100% màn hình thanh toán dùng SwiftUI, không regression.',status:'approved',prio:'h',from:'01/01',to:'30/09'},
+    {id:'g20',type:'what',title:'Tích hợp Apple Pay và Face ID cho thanh toán nhanh',result:'Tỷ lệ chuyển đổi tăng tối thiểu 10%.',status:'approved',prio:'h',from:'01/01',to:'30/06'}
+  ]},
+  {id:'e3',name:'Phạm Minh Đức',login:'duc.pham',ini:'PD',div:'ITC',dept:'Data',pos:'Data Engineer',note:'',goals:[
+    {id:'g21',type:'what',title:'Xây dựng real-time data pipeline với Kafka và Spark',result:'Pipeline xử lý 1M events/phút, uptime > 99.5%.',status:'pending',prio:'h',from:'01/01',to:'30/06'},
+    {id:'g22',type:'what',title:'Triển khai ML model gợi ý giao dịch',result:'Model đạt Precision@10 > 0.3.',status:'approved',prio:'m',from:'01/04',to:'31/10'}
+  ]},
+  {id:'e4',name:'Vũ Thị Lan',login:'lan.vu',ini:'VL',div:'ITC',dept:'QA',pos:'QA Engineer',note:'',goals:[
+    {id:'g23',type:'what',title:'Triển khai automated regression test suite',result:'200 test cases automation, coverage > 80%.',status:'pending',prio:'h',from:'01/01',to:'31/05'},
+    {id:'g24',type:'what',title:'Nâng test coverage backend API lên 85%',result:'JaCoCo line coverage đạt tối thiểu 85%.',status:'approved',prio:'m',from:'01/01',to:'30/09'}
+  ]}
+];
+function currentEmployee(){return EMPLOYEES.find(function(e){return e.id===selectedEmployeeId;})||EMPLOYEES[0];}
+function goalCounts(emp){return{pending:emp.goals.filter(function(g){return g.status==='pending';}).length,update:emp.goals.filter(function(g){return g.status==='update';}).length};}
+function statusBadge(status){
+  if(status==='pending')return'<span class="badge b-info">Chờ duyệt</span>';
+  if(status==='update')return'<span class="badge b-warn">Cần cập nhật</span>';
+  if(status==='approved')return'<span class="badge b-ok">Đã duyệt</span>';
+  if(status==='done')return'<span class="badge b-done"><i class="bx bx-check-circle"></i>Hoàn thành</span>';
+  return'<span class="badge b-muted">Nháp</span>';
+}
+function typeLabel(type){return type==='what'?'<span class="goal-type what"><i class="bx bx-target-lock"></i>Công việc</span>':'<span class="goal-type dev"><i class="bx bx-trending-up"></i>Phát triển</span>';}
+function priority(prio){if(prio==='h')return'<span class="prio prio-h">Cao</span>';if(prio==='m')return'<span class="prio prio-m">Trung bình</span>';if(prio==='l')return'<span class="prio prio-l">Thấp</span>';return'<span style="color:var(--z400)">—</span>';}
+function renderEmployeeList(){
+  var term=document.getElementById('employee-search').value.trim().toLowerCase();
+  var visible=EMPLOYEES.filter(function(e){return(e.name+' '+e.login+' '+e.dept+' '+e.pos).toLowerCase().indexOf(term)>=0;});
+  document.getElementById('employee-list').innerHTML=visible.map(function(emp){
+    var c=goalCounts(emp);
+    return'<div class="employee-item'+(emp.id===selectedEmployeeId?' on':'')+'" onclick="selectEmployee(\''+emp.id+'\')">'+
+      '<div class="employee-avatar">'+emp.ini+'</div><div class="employee-copy"><div class="employee-name">'+emp.name+'</div><div class="employee-meta">'+emp.dept+' - '+emp.pos+'</div></div>'+
+      '<div class="employee-counts"><span class="pending">'+c.pending+' chờ duyệt</span>'+(c.update?' · <span class="update">'+c.update+' cập nhật</span>':'')+'</div></div>';
+  }).join('');
+  document.getElementById('employee-foot').textContent='Hiển thị '+visible.length+' / '+EMPLOYEES.length+' nhân viên';
+}
+function selectEmployee(id){selectedEmployeeId=id;renderEmployeeList();renderDetail();}
+function renderDetail(){
+  var emp=currentEmployee(),c=goalCounts(emp);
+  document.getElementById('employee-hero').innerHTML='<div class="hero-avatar">'+emp.ini+'</div><div class="hero-info"><div class="hero-name">'+emp.name+' <span class="hero-login">('+emp.login+')</span></div><div class="hero-meta"><span>'+emp.div+'</span><span class="hero-dot"></span><span>'+emp.dept+'</span><span class="hero-dot"></span><span>'+emp.pos+'</span></div></div><div class="hero-stats"><div class="stat-box"><div class="stat-num">'+emp.goals.length+'</div><div class="stat-label">mục tiêu</div></div><div class="stat-box pending"><div class="stat-num">'+c.pending+'</div><div class="stat-label">chờ duyệt</div></div><div class="stat-box update"><div class="stat-num">'+c.update+'</div><div class="stat-label">đang cập nhật</div></div></div>';
+  document.getElementById('goal-body').innerHTML=emp.goals.map(function(g){
+    var score=g.status==='done'?'<div class="eval-pair"><span class="eval-chip">NV '+g.selfScore+'</span><span class="eval-chip">QL '+g.managerScore+'</span></div>':'';
+    var actions='<button class="icon-action" title="Xem chi tiết" onclick="openDetail(\''+g.id+'\')"><i class="bx bx-show"></i></button>';
+    if(g.status==='pending')actions='<button class="icon-action ok" title="Duyệt" onclick="approveGoal(\''+g.id+'\')"><i class="bx bx-check-circle"></i></button><button class="icon-action warn" title="Yêu cầu cập nhật" onclick="openUpdate(\''+g.id+'\')"><i class="bx bx-rotate-left"></i></button><button class="icon-action danger" title="Từ chối" onclick="openReject(\''+g.id+'\')"><i class="bx bx-x-circle"></i></button>'+actions;
+    return'<tr><td>'+typeLabel(g.type)+'</td><td><div class="goal-title">'+g.title+'</div></td><td><div class="goal-result">'+g.result+'</div></td><td>'+priority(g.prio)+'</td><td><span class="goal-date">'+g.from+' - '+g.to+'</span></td><td>'+statusBadge(g.status)+score+'</td><td><div class="goal-actions">'+actions+'</div></td></tr>';
+  }).join('');
+  var note=document.getElementById('quick-note');if(note)note.value=emp.note||'';
+  renderActivities(emp);
+}
+function renderActivities(emp){
+  var el=document.getElementById('activity-list');if(!el)return;
+  var c=goalCounts(emp),items=[];
+  if(c.update)items.push('<div class="activity-item"><span class="activity-time">12/05/2026 10:15</span><span>Quản lý đã yêu cầu chỉnh sửa '+c.update+' mục tiêu.</span></div>');
+  items.push('<div class="activity-item"><span class="activity-time">02/05/2026 09:30</span><span>Nhân viên đã cập nhật tiến độ mục tiêu gần nhất.</span></div>');
+  el.innerHTML=items.join('');
+}
+function findGoal(id){return currentEmployee().goals.find(function(g){return g.id===id;});}
+function openDetail(id){
+  var g=findGoal(id);if(!g)return;activeGoalId=id;
+  document.getElementById('detail-badges').innerHTML=statusBadge(g.status)+' '+(g.type==='what'?'<span class="badge" style="color:var(--what);background:var(--what-bg);border-color:var(--what-bd)">Mục tiêu công việc</span>':'<span class="badge" style="color:var(--dev);background:var(--dev-bg);border-color:var(--dev-bd)">Mục tiêu phát triển</span>');
+  var grid=g.type==='what'?'<div class="detail-grid"><div class="detail-field"><label>Mức độ ưu tiên</label><div>'+(g.prio==='h'?'Cao':g.prio==='m'?'Trung bình':'Thấp')+'</div></div><div class="detail-field"><label>Từ ngày</label><div>'+g.from+'/2026</div></div><div class="detail-field"><label>Đến ngày</label><div>'+g.to+'/2026</div></div></div>':'<div class="detail-grid two"><div class="detail-field"><label>Từ ngày</label><div>'+g.from+'/2026</div></div><div class="detail-field"><label>Đến ngày</label><div>'+g.to+'/2026</div></div></div>';
+  document.getElementById('detail-body').innerHTML=grid+'<div class="detail-row"><span class="sec-lbl">Tên mục tiêu</span><div class="detail-val">'+g.title+'</div></div><div class="detail-row"><span class="sec-lbl">Kết quả cần đạt</span><div class="detail-val">'+g.result+'</div></div>';
+  openOverlay('detail-overlay');
+}
+function approveGoal(id){var g=findGoal(id);if(!g)return;g.status='approved';renderEmployeeList();renderDetail();showToast('Đã duyệt mục tiêu');}
+function openUpdate(id){activeGoalId=id;document.getElementById('update-note').value='';openOverlay('update-overlay');}
+function submitUpdate(){var g=findGoal(activeGoalId);if(!g)return;g.status='update';closeOverlay('update-overlay');renderEmployeeList();renderDetail();showToast('Đã gửi yêu cầu cập nhật');}
+function openReject(id){activeGoalId=id;openOverlay('reject-overlay');}
+function submitReject(){var g=findGoal(activeGoalId);if(!g)return;g.status='draft';closeOverlay('reject-overlay');renderEmployeeList();renderDetail();showToast('Đã từ chối mục tiêu');}
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+function saveNote(){currentEmployee().note=document.getElementById('quick-note').value;showToast('Đã lưu ghi chú nhanh');}
+function openFullPage(){location.href='../M-01b/index.html?emp='+selectedEmployeeId;}
+function toggleCollapse(){
+  document.body.classList.toggle('collapsed');
+  var collapsed=document.body.classList.contains('collapsed'),btn=document.getElementById('collapse-btn');
+  btn.querySelector('i').className='bx '+(collapsed?'bx-expand-horizontal':'bx-collapse-horizontal');
+  btn.querySelector('span').textContent=collapsed?'Mở rộng':'Thu gọn';
+}
+function showToast(text){var t=document.getElementById('toast');document.getElementById('toast-text').textContent=text;t.style.display='flex';clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.style.display='none';},2200);}
+function init(){
+  if(IS_HYBRID){
+    document.body.classList.add('hybrid');
+    document.getElementById('layout-label').textContent='Option D - Hybrid Quick Review';
+    document.getElementById('layout-breadcrumb').textContent='Hybrid Quick Review';
+    document.getElementById('collapse-btn').style.display='';
+    document.title='Hybrid Quick Review | MoMo HRM';
+  }
+  renderEmployeeList();renderDetail();
+}
+init();
+</script>
+</body>
+</html>
