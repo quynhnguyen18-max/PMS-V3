@@ -469,8 +469,8 @@ textarea.fc{resize:vertical}
     <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
     <div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
-    <div class="sb-sub-item on" onclick="location.href='../M-01/index.html'"><span class="sb-sub-dot"></span>Phương án 1 — Popup</div>
-    <div class="sb-sub-item" onclick="location.href='../M-01d/index.html'"><span class="sb-sub-dot"></span>Phương án 2 — Split View</div>
+    <div class="sb-sub-item" id="sb-pa1" onclick="location.href='../M-01/index.html'"><span class="sb-sub-dot"></span>Phương án 1 — Popup</div>
+    <div class="sb-sub-item" id="sb-pa2" onclick="location.href='../M-01/index.html?mode=split'"><span class="sb-sub-dot"></span>Phương án 2 — Split View</div>
     <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
   </nav>
 
@@ -1130,8 +1130,8 @@ function renderEmpList(){
 function goToGoals(eid){
   const emp=findEmp(eid);
   if(!emp) return;
-  /* Navigate to detail page (M-01b) */
-  location.href='../M-01b/index.html?emp='+eid;
+  const _split=new URLSearchParams(location.search).get('mode')==='split';
+  location.href=_split?'../M-01d/index.html?emp='+eid:'../M-01b/index.html?emp='+eid;
   return;
   S.empId=eid;
 
@@ -1371,6 +1371,10 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
 
 /* ═══════════ INIT ═══════════ */
 (function(){
+  /* Set active sidebar sub-item based on ?mode param */
+  var _splitMode=new URLSearchParams(location.search).get('mode')==='split';
+  var pa1=document.getElementById('sb-pa1'),pa2=document.getElementById('sb-pa2');
+  if(pa1&&pa2){if(_splitMode){pa2.classList.add('on');}else{pa1.classList.add('on');}}
   renderKpi();
   renderFilterRow();
   renderEmpList();
