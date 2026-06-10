@@ -44,6 +44,59 @@ input,select,textarea{font-family:inherit}
 .app{display:flex;min-height:100vh}
 .sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
 .workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+/* ── PA2 SPLIT MODE ── */
+body.split-mode #kpi-row{display:none}
+/* ── SPLIT SHELL (M-01d layout inside M-01 page) ── */
+.page-sticky-hd{position:sticky;top:0;background:var(--z50);z-index:10;padding-bottom:4px}
+.sp-shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100vh - 220px);border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);overflow:hidden}
+.sp-left{border-right:1px solid var(--z200);display:flex;flex-direction:column;background:var(--z0)}
+.sp-search-bar{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--z200)}
+.sp-sw{position:relative;flex:1}.sp-sw i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--z400);font-size:15px}
+.sp-si{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;outline:0;font-family:inherit}
+.sp-si:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.sp-emp-list{flex:1;overflow-y:auto}
+.sp-ei{position:relative;display:flex;align-items:center;gap:10px;padding:13px 12px;border-bottom:1px solid var(--z100);cursor:pointer;transition:var(--t)}
+.sp-ei:hover{background:var(--z50)}.sp-ei.on{background:var(--brand-muted)}
+.sp-ei.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand)}
+.sp-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--z100);border:1px solid var(--z200);font-size:11px;font-weight:700;color:var(--z700)}
+.sp-ec{min-width:0;flex:1}
+.sp-en{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-em{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.sp-ect{font-size:10.5px;color:var(--z500);white-space:nowrap;margin-top:2px}
+.sp-ect .pnd{color:var(--info)}.sp-ect .upd{color:var(--brand)}
+.sp-foot{padding:10px 12px;border-top:1px solid var(--z200);font-size:11.5px;color:var(--z500)}
+.sp-right{display:flex;flex-direction:column;background:var(--z50);overflow-y:auto}
+.sp-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:12px 14px 6px;flex-shrink:0}
+.sp-hero{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);margin:0 14px 12px;flex-shrink:0}
+.sp-hero-av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--z100);color:var(--z800);font-size:16px;font-weight:700;flex-shrink:0}
+.sp-hero-info{min-width:0;flex:1}
+.sp-hero-name{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:17px;font-weight:700;color:var(--z900)}
+.sp-hero-login{font-size:12.5px;font-weight:400;color:var(--z500)}
+.sp-hero-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--z600);margin-top:3px}
+.sp-hdot{width:3px;height:3px;border-radius:50%;background:var(--z400)}
+.sp-hero-stats{display:flex;gap:8px;flex-wrap:wrap}
+.sp-sbox{min-width:90px;padding:8px 12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);text-align:center}
+.sp-sn{font-size:17px;font-weight:700;color:var(--z900);line-height:1.2;display:block}
+.sp-sl{font-size:11.5px;color:var(--z600);margin-top:2px}
+.sp-sbox.pnd{border-color:var(--info-bd);background:var(--info-bg)}.sp-sbox.pnd .sp-sn,.sp-sbox.pnd .sp-sl{color:var(--info)}
+.sp-sbox.upd{border-color:var(--brand-ring);background:var(--brand-muted)}.sp-sbox.upd .sp-sn,.sp-sbox.upd .sp-sl{color:var(--brand)}
+.sp-tbl-wrap{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);overflow:auto;box-shadow:var(--sh-sm);margin:0 14px 14px}
+.sp-tbl{width:100%;min-width:680px;border-collapse:collapse;table-layout:fixed}
+.sp-tbl th{padding:9px 8px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);text-align:left;font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--z500)}
+.sp-tbl td{padding:10px 8px;border-bottom:1px solid var(--z200);vertical-align:middle;font-size:12px;color:var(--z800)}
+.sp-tbl tbody tr:last-child td{border-bottom:0}
+.sp-tbl tbody tr:hover{background:var(--z50)}
+.sp-type{display:flex;align-items:center;gap:5px;font-weight:500;white-space:nowrap;font-size:12px}
+.sp-type i{font-size:15px}.sp-type.what{color:var(--what)}.sp-type.dev{color:var(--dev)}
+.sp-tc-title{font-weight:500;color:var(--z900);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sp-tc-result{color:var(--z600);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sp-tc-date{white-space:nowrap;color:var(--z600)}
+.sp-acts{display:flex;align-items:center;gap:2px}
+.sp-ia{width:27px;height:27px;border:0;border-radius:var(--rxs);background:transparent;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--z500);transition:var(--t)}
+.sp-ia:hover{background:var(--z100);color:var(--z900)}
+.sp-ia.ok{color:var(--ok)}.sp-ia.ok:hover{background:var(--ok-bg)}
+.sp-ia.warn{color:var(--warn)}.sp-ia.warn:hover{background:var(--warn-bg)}
+.sp-ia.danger{color:var(--err)}.sp-ia.danger:hover{background:var(--err-bg)}
 
 /* ── SIDEBAR ── */
 .sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
@@ -501,6 +554,8 @@ textarea.fc{resize:vertical}
 
   <!-- ═══ VIEW: EMPLOYEE LIST ═══ -->
   <main class="page" id="view-list">
+    <!-- STICKY HEADER: breadcrumb + title + tabs + role switcher -->
+    <div class="page-sticky-hd">
     <div class="breadcrumb">
       <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Mục tiêu và Đánh giá nhân viên</span>
     </div>
@@ -529,6 +584,7 @@ textarea.fc{resize:vertical}
         Đánh giá cuối năm
       </button>
     </div>
+    </div><!-- /page-sticky-hd -->
 
     <!-- ── Panel: Mục tiêu ── -->
     <div id="cy-panel-0">
@@ -558,6 +614,31 @@ textarea.fc{resize:vertical}
 
       <!-- Employee list -->
       <div class="emp-list" id="emp-list"></div>
+      <!-- SPLIT SHELL: M-01d layout, shown when employee clicked in PA2 mode -->
+      <div id="split-shell" style="display:none">
+        <div class="sp-shell">
+          <aside class="sp-left">
+            <div class="sp-search-bar">
+              <div class="sp-sw"><i class="bx bx-search"></i><input class="sp-si" id="sp-search" placeholder="Tìm nhân viên..." oninput="renderSpList()"/></div>
+            </div>
+            <div class="sp-emp-list" id="sp-emp-list"></div>
+            <div class="sp-foot" id="sp-foot"></div>
+          </aside>
+          <section class="sp-right" id="sp-right">
+            <div class="sp-toolbar">
+              <button class="btn btn-outline btn-sm" onclick="openSpFullPage()"><i class="bx bx-link-external"></i>Mở toàn trang</button>
+            </div>
+            <div class="sp-hero" id="sp-hero"></div>
+            <div class="sp-tbl-wrap">
+              <table class="sp-tbl">
+                <colgroup><col style="width:12%"><col style="width:19%"><col style="width:22%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:104px"></colgroup>
+                <thead><tr><th>Loại mục tiêu</th><th>Tên mục tiêu</th><th>Kết quả cần đạt</th><th>Mức độ ưu tiên</th><th>Thời gian</th><th>Trạng thái</th><th>Chức năng</th></tr></thead>
+                <tbody id="sp-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
 
     <!-- ── Panel: Mid-Year Review (WIP) ── -->
@@ -1107,7 +1188,7 @@ function renderEmpList(){
       lm1Cell=mgrCell+mgr2Cell;
     }
 
-    return `<div class="emp-row" onclick="goToGoals('${emp.id}')">
+    return `<div class="emp-row" data-eid="${emp.id}" onclick="goToGoals('${emp.id}')">
       <div class="er-info">
         <div class="er-name">${emp.name} <span class="er-login">(${emp.login})</span>${lockIco}</div>
         ${statusTags?`<div class="er-tags">${statusTags}</div>`:''}
@@ -1126,12 +1207,125 @@ function renderEmpList(){
   el.innerHTML=hdr+rows;
 }
 
-/* ═══════════ NAVIGATE: GOALS VIEW ═══════════ */
+/* ═══════════ NAVIGATE: GOALS VIEW / PA2 SPLIT SHELL ═══════════ */
+var _spEmpId=null;
+
+function openGoalPanel(eid){
+  _spEmpId=eid;
+  // Hide normal content, show split shell
+  document.getElementById('kpi-row').style.display='none';
+  document.getElementById('filter-row').style.display='none';
+  document.getElementById('emp-list').style.display='none';
+  document.getElementById('split-shell').style.display='';
+  renderSpList();
+  renderSpDetail(eid);
+}
+
+function closeGoalPanel(){
+  _spEmpId=null;
+  document.getElementById('split-shell').style.display='none';
+  document.getElementById('filter-row').style.display='';
+  document.getElementById('emp-list').style.display='';
+  if(!document.body.classList.contains('split-mode')){
+    document.getElementById('kpi-row').style.display='';
+  }
+}
+
+function renderSpList(){
+  const term=(document.getElementById('sp-search').value||'').toLowerCase();
+  const emps=EMPS.filter(e=>(e.name+' '+e.login+' '+e.dept).toLowerCase().includes(term));
+  document.getElementById('sp-emp-list').innerHTML=emps.map(emp=>{
+    const pnd=emp.goals.filter(g=>g.status==='pending').length;
+    const upd=emp.goals.filter(g=>g.status==='update').length;
+    const counts=(pnd?`<span class="pnd">${pnd} chờ duyệt</span>`:'')+
+                 (upd?(pnd?' · ':'')+`<span class="upd">${upd} cập nhật</span>`:'');
+    return `<div class="sp-ei${emp.id===_spEmpId?' on':''}" onclick="spSelectEmp('${emp.id}')">`+
+      `<div class="sp-av">${emp.ini}</div>`+
+      `<div class="sp-ec">`+
+        `<div class="sp-en">${emp.name}</div>`+
+        `<div class="sp-em">${emp.dept} · ${emp.pos}</div>`+
+        (counts?`<div class="sp-ect">${counts}</div>`:'')+
+      `</div></div>`;
+  }).join('');
+  document.getElementById('sp-foot').textContent=`Hiển thị ${emps.length} / ${EMPS.length} nhân viên`;
+}
+
+function spSelectEmp(eid){
+  _spEmpId=eid;
+  renderSpList();
+  renderSpDetail(eid);
+}
+
+function renderSpDetail(eid){
+  const emp=findEmp(eid);
+  if(!emp)return;
+  const pnd=emp.goals.filter(g=>g.status==='pending').length;
+  const upd=emp.goals.filter(g=>g.status==='update').length;
+  // Hero
+  document.getElementById('sp-hero').innerHTML=
+    `<div class="sp-hero-av">${emp.ini}</div>`+
+    `<div class="sp-hero-info">`+
+      `<div class="sp-hero-name">${emp.name} <span class="sp-hero-login">(${emp.login})</span></div>`+
+      `<div class="sp-hero-meta"><span>${emp.div}</span><span class="sp-hdot"></span><span>${emp.dept}</span><span class="sp-hdot"></span><span>${emp.pos}</span></div>`+
+    `</div>`+
+    `<div class="sp-hero-stats">`+
+      `<div class="sp-sbox"><span class="sp-sn">${emp.goals.length}</span><span class="sp-sl">mục tiêu</span></div>`+
+      (pnd?`<div class="sp-sbox pnd"><span class="sp-sn">${pnd}</span><span class="sp-sl">chờ duyệt</span></div>`:'')+
+      (upd?`<div class="sp-sbox upd"><span class="sp-sn">${upd}</span><span class="sp-sl">đang cập nhật</span></div>`:'')+
+    `</div>`;
+  // Table rows
+  const prioMap={h:'<span class="prio prio-h">Cao</span>',m:'<span class="prio prio-m">Trung bình</span>',l:'<span class="prio prio-l">Thấp</span>'};
+  document.getElementById('sp-tbody').innerHTML=emp.goals.map(g=>{
+    const typeHtml=g.type==='what'
+      ?`<span class="sp-type what"><i class="bx bx-target-lock"></i>Công việc</span>`
+      :`<span class="sp-type dev"><i class="bx bx-trending-up"></i>Phát triển</span>`;
+    const prioHtml=g.type==='what'&&g.prio?prioMap[g.prio]:`<span style="color:var(--z400)">—</span>`;
+    const evalPair=g.selfScore?`<div style="display:flex;gap:4px;margin-top:4px"><span style="padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)">NV ${g.selfScore}</span><span style="padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)">QL ${g.managerScore}</span></div>`:'';
+    let acts=`<button class="sp-ia" title="Xem chi tiết" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
+    if(g.status==='pending'){
+      acts=
+        `<button class="sp-ia ok" title="Duyệt" onclick="event.stopPropagation();spApprove('${g.id}')"><i class="bx bx-check-circle"></i></button>`+
+        `<button class="sp-ia warn" title="Yêu cầu cập nhật" onclick="event.stopPropagation();spReqUpdate('${g.id}')"><i class="bx bx-rotate-left"></i></button>`+
+        `<button class="sp-ia danger" title="Từ chối" onclick="event.stopPropagation();spReject('${g.id}')"><i class="bx bx-x-circle"></i></button>`+
+        `<button class="sp-ia" title="Xem chi tiết" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
+    }
+    return `<tr>`+
+      `<td>${typeHtml}</td>`+
+      `<td><div class="sp-tc-title">${g.title}</div></td>`+
+      `<td><div class="sp-tc-result">${g.result}</div></td>`+
+      `<td>${prioHtml}</td>`+
+      `<td class="sp-tc-date">${g.s} – ${g.e}</td>`+
+      `<td>${badgeSt(g.status)}${evalPair}</td>`+
+      `<td><div class="sp-acts">${acts}</div></td>`+
+      `</tr>`;
+  }).join('');
+}
+
+function spApprove(gid){
+  const emp=findEmp(_spEmpId);if(!emp)return;
+  const g=emp.goals.find(x=>x.id===gid);
+  if(g){g.status='approved';renderSpDetail(_spEmpId);renderSpList();}
+}
+function spReqUpdate(gid){
+  const emp=findEmp(_spEmpId);if(!emp)return;
+  const g=emp.goals.find(x=>x.id===gid);
+  if(g){g.status='update';renderSpDetail(_spEmpId);renderSpList();}
+}
+function spReject(gid){
+  const emp=findEmp(_spEmpId);if(!emp)return;
+  const g=emp.goals.find(x=>x.id===gid);
+  if(g){g.status='draft';renderSpDetail(_spEmpId);renderSpList();}
+}
+function openSpFullPage(){
+  if(_spEmpId) location.href='../M-01b/index.html?emp='+_spEmpId;
+}
+
 function goToGoals(eid){
   const emp=findEmp(eid);
   if(!emp) return;
   const _split=new URLSearchParams(location.search).get('mode')==='split';
-  location.href=_split?'../M-01d/index.html?emp='+eid:'../M-01b/index.html?emp='+eid;
+  if(_split){openGoalPanel(eid);return;}
+  location.href='../M-01b/index.html?emp='+eid;
   return;
   S.empId=eid;
 
@@ -1371,10 +1565,11 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
 
 /* ═══════════ INIT ═══════════ */
 (function(){
-  /* Set active sidebar sub-item based on ?mode param */
+  /* Set active sidebar sub-item + body class based on ?mode param */
   var _splitMode=new URLSearchParams(location.search).get('mode')==='split';
   var pa1=document.getElementById('sb-pa1'),pa2=document.getElementById('sb-pa2');
   if(pa1&&pa2){if(_splitMode){pa2.classList.add('on');}else{pa1.classList.add('on');}}
+  if(_splitMode){document.body.classList.add('split-mode');}
   renderKpi();
   renderFilterRow();
   renderEmpList();
