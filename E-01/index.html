@@ -683,20 +683,20 @@ textarea.fc{resize:vertical}
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn on">Mục tiêu<span class="tab-cnt">6</span></button>
-      <button class="tab-btn disabled" title="Chưa mở">Mid-Year Review</button>
+      <button class="tab-btn" onclick="location.href='../E-02/self-assessment.html'">Mid-Year Review</button>
       <button class="tab-btn disabled" title="Chưa mở">End-Year Review</button>
     </div>
 
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="summary-text">
-        <span class="s-link" data-f="pending" onclick="applyFilter('pending');return false;"><b>2</b> chờ duyệt</span>
+        <span class="s-link" data-f="pending" onclick="applyFilter('pending');return false;"><b>0</b> chờ duyệt</span>
         <span class="s-sep">|</span>
         <span class="s-link" data-f="update" onclick="applyFilter('update');return false;"><b>1</b> cần cập nhật</span>
         <span class="s-sep">|</span>
         <span class="s-link" data-f="rejected" onclick="applyFilter('rejected');return false;"><b>0</b> từ chối</span>
         <span class="s-sep">|</span>
-        <span class="s-link" data-f="approved" onclick="applyFilter('approved');return false;"><b>2</b> đã duyệt</span>
+        <span class="s-link" data-f="approved" onclick="applyFilter('approved');return false;"><b>5</b> đã duyệt</span>
         <span class="s-all" id="s-all" onclick="applyFilter('all');return false;"><i class="bx bx-x"></i> Bỏ lọc</span>
       </div>
       <div class="spacer"></div>
@@ -762,18 +762,18 @@ textarea.fc{resize:vertical}
         </div>
         <div class="col-list" id="list-what">
 
-          <div class="goal-item" id="g1" data-status="pending" data-result="95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026." onclick="openDetail(this)">
+          <div class="goal-item" id="g1" data-status="approved" data-eval="none" data-result="95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026." onclick="openDetail(this)">
             <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
             <div class="gi-body">
               <div class="gi-title">Tối ưu API response time xuống dưới 200ms với 95th percentile</div>
               <div class="gi-meta">
-                <span class="badge b-action">Chờ duyệt</span>
+                <span class="badge b-ok">Đã duyệt</span>
                 <span class="prio prio-m">Trung bình</span>
                 <span class="gi-date">01/01 – 31/12</span>
               </div>
               <div class="gi-actions">
-                <button class="gi-act" data-tip="Xem" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))"><i class="bx bx-show"></i></button>
-                <button class="gi-act" data-tip="Thu hồi" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-undo"></i></button>
+                <button class="gi-act accent eval-only" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openEvalTab(this.closest('.goal-item'))"><i class="bx bx-task"></i></button>
+                <button class="gi-act" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))"><i class="bx bx-show"></i></button>
               </div>
             </div>
           </div>
@@ -865,33 +865,32 @@ textarea.fc{resize:vertical}
         </div>
         <div class="col-list" id="list-dev">
 
-          <div class="goal-item" id="g5" data-status="pending" data-result="Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor." onclick="openDetail(this)">
+          <div class="goal-item" id="g5" data-status="approved" data-eval="none" data-result="Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor." onclick="openDetail(this)">
             <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
             <div class="gi-body">
               <div class="gi-title">Cải thiện kỹ năng system design qua self-study và practice</div>
               <div class="gi-meta">
-                <span class="badge b-action">Chờ duyệt</span>
+                <span class="badge b-ok">Đã duyệt</span>
                 <span class="gi-date">01/01 – 31/12</span>
               </div>
               <div class="gi-actions">
-                <button class="gi-act" data-tip="Xem" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))"><i class="bx bx-show"></i></button>
-                <button class="gi-act" data-tip="Thu hồi" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-undo"></i></button>
+                <button class="gi-act accent eval-only" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openEvalTab(this.closest('.goal-item'))"><i class="bx bx-task"></i></button>
+                <button class="gi-act" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))"><i class="bx bx-show"></i></button>
               </div>
             </div>
           </div>
 
-          <div class="goal-item" id="g6" data-status="draft" data-result="Đạt chứng chỉ AWS Solutions Architect Associate trước 31/12/2026 và áp dụng vào tối thiểu 1 dự án thực tế." onclick="openDetail(this)">
+          <div class="goal-item" id="g6" data-status="approved" data-eval="none" data-result="Đạt chứng chỉ AWS Solutions Architect Associate trước 31/12/2026 và áp dụng vào tối thiểu 1 dự án thực tế." onclick="openDetail(this)">
             <div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>
             <div class="gi-body">
               <div class="gi-title">Hoàn thành khoá AWS Solutions Architect và đạt chứng chỉ</div>
               <div class="gi-meta">
-                <span class="badge b-action">Nháp</span>
+                <span class="badge b-ok">Đã duyệt</span>
                 <span class="gi-date">01/01 – 31/12</span>
               </div>
               <div class="gi-actions">
-                <button class="gi-act accent" data-tip="Gửi quản lý" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-send"></i></button>
-                <button class="gi-act" data-tip="Sửa &amp; Gửi" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openEdit(this.closest('.goal-item'))"><i class="bx bx-edit"></i></button>
-                <button class="gi-act danger" data-tip="Xoá" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-trash"></i></button>
+                <button class="gi-act accent eval-only" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openEvalTab(this.closest('.goal-item'))"><i class="bx bx-task"></i></button>
+                <button class="gi-act" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDetail(this.closest('.goal-item'))"><i class="bx bx-show"></i></button>
               </div>
             </div>
           </div>
@@ -956,19 +955,19 @@ textarea.fc{resize:vertical}
             </tr>
           </thead>
           <tbody>
-            <!-- A: WHAT, Chờ duyệt -->
-            <tr class="gt-row" data-status="pending">
+            <!-- A: WHAT, Đã duyệt -->
+            <tr class="gt-row" data-status="approved">
               <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
               <td><span class="gt-type"><i class="bx bx-target-lock"></i> Công việc</span></td>
               <td class="gt-name">Tối ưu API response time xuống dưới 200ms với 95th percentile</td>
               <td><div class="gt-result">95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026.</div></td>
               <td><span class="prio prio-m">Trung bình</span></td>
               <td class="gt-date">01/01 – 31/12</td>
-              <td><span class="badge b-action">Chờ duyệt</span></td>
+              <td><span class="badge b-ok">Đã duyệt</span></td>
               <td>
                 <div class="gt-act-cell">
                   <button class="gt-pri" data-tip="Xem" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail(document.getElementById('g1'))"><i class="bx bx-show"></i></button>
-                  <button class="gt-pri" data-tip="Thu hồi" onmouseenter="showTip(this)" onmouseleave="hideTip()"><i class="bx bx-undo"></i></button>
+                  <button class="gt-pri eval-only" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEvalTab(document.getElementById('g1'))"><i class="bx bx-task"></i></button>
                 </div>
               </td>
             </tr>
@@ -1018,37 +1017,35 @@ textarea.fc{resize:vertical}
                 </div>
               </td>
             </tr>
-            <!-- E: DEVELOP, Chờ duyệt -->
-            <tr class="gt-row" data-status="pending">
+            <!-- E: DEVELOP, Đã duyệt -->
+            <tr class="gt-row" data-status="approved">
               <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
               <td><span class="gt-type"><i class="bx bx-trending-up"></i> Phát triển</span></td>
               <td class="gt-name">Cải thiện kỹ năng system design qua self-study và practice</td>
               <td><div class="gt-result">Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor.</div></td>
               <td class="gt-na">—</td>
               <td class="gt-date">01/01 – 31/12</td>
-              <td><span class="badge b-action">Chờ duyệt</span></td>
+              <td><span class="badge b-ok">Đã duyệt</span></td>
               <td>
                 <div class="gt-act-cell">
                   <button class="gt-pri" data-tip="Xem" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail(document.getElementById('g5'))"><i class="bx bx-show"></i></button>
-                  <button class="gt-pri" data-tip="Thu hồi" onmouseenter="showTip(this)" onmouseleave="hideTip()"><i class="bx bx-undo"></i></button>
+                  <button class="gt-pri eval-only" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEvalTab(document.getElementById('g5'))"><i class="bx bx-task"></i></button>
                 </div>
               </td>
             </tr>
-            <!-- F: DEVELOP, Nháp -->
-            <tr class="gt-row" data-status="draft">
+            <!-- F: DEVELOP, Đã duyệt -->
+            <tr class="gt-row" data-status="approved">
               <td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>
               <td><span class="gt-type"><i class="bx bx-trending-up"></i> Phát triển</span></td>
               <td class="gt-name">Hoàn thành khoá AWS Solutions Architect và đạt chứng chỉ</td>
               <td><div class="gt-result">Đạt chứng chỉ AWS Solutions Architect Associate trước 31/12/2026 và áp dụng vào tối thiểu 1 dự án thực tế.</div></td>
               <td class="gt-na">—</td>
               <td class="gt-date">01/01 – 31/12</td>
-              <td><span class="badge b-action">Nháp</span></td>
+              <td><span class="badge b-ok">Đã duyệt</span></td>
               <td>
                 <div class="gt-act-cell">
-                  <button class="gt-pri accent" data-tip="Sửa &amp; Gửi" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEdit(document.getElementById('g6'))"><i class="bx bx-edit"></i></button>
-                  <button class="gt-pri" data-tip="Xem chi tiết" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail(document.getElementById('g6'))"><i class="bx bx-show"></i></button>
-                  <button class="gt-pri" data-tip="Gửi quản lý" onmouseenter="showTip(this)" onmouseleave="hideTip()"><i class="bx bx-send"></i></button>
-                  <button class="gt-pri danger" data-tip="Xoá" onmouseenter="showTip(this)" onmouseleave="hideTip()"><i class="bx bx-trash"></i></button>
+                  <button class="gt-pri" data-tip="Xem" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openDetail(document.getElementById('g6'))"><i class="bx bx-show"></i></button>
+                  <button class="gt-pri eval-only" data-tip="Đánh giá hoàn thành" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEvalTab(document.getElementById('g6'))"><i class="bx bx-task"></i></button>
                 </div>
               </td>
             </tr>
