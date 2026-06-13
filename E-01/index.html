@@ -599,34 +599,34 @@ textarea.fc{resize:vertical}
 /* ═══════════════════════════════
    MYR self-assessment (ported from E-02)
 ═══════════════════════════════ */
-.sc-lbl{font-size:10px;font-weight:600;padding:1px 6px;border-radius:var(--rxs);display:none;white-space:nowrap}
+.sc-lbl{height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:500;display:none;align-items:center;white-space:nowrap;letter-spacing:.1px}
 .sc-lbl.show{display:inline-flex;border:1px solid}
 .lbl-xs{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-bd)}
-.lbl-good{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
-.lbl-ok{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
-.lbl-need{background:#fffbeb;color:#d97706;border-color:#fde68a}
+.lbl-good{background:var(--info-bg);color:var(--info);border-color:var(--info-bd)}
+.lbl-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-bd)}
+.lbl-need{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bd)}
 .lbl-fail{background:var(--err-bg);color:var(--err);border-color:var(--err-bd)}
 .cycle-actions{display:flex;align-items:center;gap:7px}
 /* ── Progress stepper ── */
-.stepper-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:18px 20px 14px;margin-bottom:14px}
-.stepper-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--z500);margin-bottom:16px;display:flex;align-items:center;gap:5px}
+.stepper-card{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:16px 18px 14px;margin-bottom:14px}
+.stepper-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:16px;display:flex;align-items:center;gap:5px}
 .stepper-hd i{font-size:13px;color:var(--brand)}
 .stepper-track{display:flex;align-items:flex-start;position:relative}
 .stepper-track::before{content:'';position:absolute;top:13px;left:14px;right:14px;height:2px;background:var(--z200);z-index:0}
 .step-item{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;text-align:center;padding:0 4px}
 .step-circle{width:28px;height:28px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--t)}
-.step-item.done .step-circle{background:var(--ok);color:#fff}
-.step-item.active .step-circle{background:var(--brand);color:#fff;box-shadow:0 0 0 3px var(--brand-ring)}
+.step-item.done .step-circle{background:var(--ok);color:var(--brand-fg)}
+.step-item.active .step-circle{background:var(--brand);color:var(--brand-fg);box-shadow:0 0 0 3px var(--brand-ring)}
 .step-body{margin-top:9px;width:100%}
 .step-label{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35}
 .step-item.active .step-label{color:var(--brand)}
 .step-item.muted .step-label{color:var(--z400)}
-.step-timeline{font-size:10.5px;color:var(--z500);margin-top:3px;line-height:1.35}
+.step-timeline{font-size:11px;color:var(--z500);margin-top:3px;line-height:1.35}
 .step-item.muted .step-timeline{color:var(--z400)}
-.step-badge{display:inline-flex;align-items:center;margin-top:5px;font-size:10px;font-weight:600;padding:1px 7px;border-radius:50px;letter-spacing:.1px}
+.step-badge{display:inline-flex;align-items:center;margin-top:5px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:50px;letter-spacing:.1px}
 .step-badge.required{color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring)}
 .step-badge.optional{color:var(--z500);background:var(--z100);border:1px solid var(--z200);font-style:italic}
-.step-active-tag{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:10.5px;color:var(--brand);font-weight:600}
+.step-active-tag{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;color:var(--brand);font-weight:600}
 .step-active-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 1.4s ease-in-out infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
 
@@ -636,37 +636,37 @@ textarea.fc{resize:vertical}
 #mpanel-myr .info-note strong, .overlay .info-note strong{color:var(--z700);font-weight:600}
 
 /* ── Review section wrapper ── */
-.rv-section{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
-.rv-section-hd{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid #f3cfe1;background:#fbe4f0}
+.rv-section{background:var(--z0);border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+.rv-section-hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #f3cfe1;background:#fbe4f0}
 .rv-section-hd i{font-size:16px;color:var(--brand);flex-shrink:0}
 .rv-type{font-size:13px;font-weight:700;color:var(--z900);letter-spacing:-.1px}
 
 /* ── Review table ── */
 .rv-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.rv-grid{width:100%;border-collapse:collapse;min-width:700px}
-.rv-grid th{text-align:left;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);padding:9px 11px;border-bottom:1px solid var(--z200);background:var(--z50);white-space:nowrap;vertical-align:middle}
+.rv-grid{width:100%;border-collapse:collapse;min-width:700px;background:var(--z0);font-size:13px}
+.rv-grid th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);background:var(--z50);padding:10px 12px;border-bottom:1px solid var(--z200);white-space:nowrap;vertical-align:middle}
 .rv-grid th.th-ql{background:var(--z100);color:var(--z600)}
 .rv-grid th.th-c{text-align:center}
-.rv-grid td{padding:11px;border-bottom:1px solid var(--z200);vertical-align:middle}
+.rv-grid td{padding:11px 12px;border-bottom:1px solid var(--z200);vertical-align:top;color:var(--z900);font-size:13px;font-weight:500;line-height:1.45}
 .rv-grid tr:last-child td{border-bottom:none}
-.rv-grid tbody tr{transition:background .08s}
+.rv-grid tbody tr{transition:var(--t)}
 .rv-grid tbody tr:hover{background:var(--z50)}
 .rv-grid tbody tr.g-row-done{border-left:3px solid var(--ok)}
 
 /* Goal info cells */
-.g-name{font-size:13px;font-weight:400;color:var(--z900);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.g-result{font-size:13px;color:var(--z700);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.g-name{font-size:13px;font-weight:500;color:var(--z900);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.g-result{font-size:13px;font-weight:400;color:var(--z900);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .g-meta{font-size:12px;color:var(--z500)}
 
 /* Score cell */
 .sc-cell{text-align:center;min-width:72px}
-.sc-select{width:64px;padding:5px 20px 5px 8px;border:1px solid var(--z400);border-radius:var(--rsm);font-size:15px;font-weight:700;color:var(--z900);text-align:center;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center}
+.sc-select{width:64px;padding:5px 22px 5px 8px;border:1px solid var(--z300);border-radius:var(--rsm);font-size:13px;font-weight:700;color:var(--z900);text-align:center;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
 .sc-select:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 
 /* Locked QL cell */
 .ql-cell{text-align:center;min-width:72px;background:var(--z50)}
 .ql-dash{color:var(--z400);font-size:18px;display:flex;align-items:center;justify-content:center;height:40px}
-.ql-val{color:var(--z700);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;height:40px}
+.ql-val{color:var(--z900);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;height:40px}
 
 /* Status cell */
 .st-cell{text-align:center;min-width:110px}
@@ -676,56 +676,62 @@ textarea.fc{resize:vertical}
 .g-det-row td{padding:0}
 .g-det-inner{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--z50);padding:12px 16px;border-top:1px solid var(--z100)}
 .g-det-panel{background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:10px 12px}
-.g-det-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z600);display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.g-det-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:flex;align-items:center;gap:5px;margin-bottom:6px}
 .g-det-lbl i{font-size:13px;color:var(--brand)}
-.g-det-score{display:inline-flex;padding:1px 6px;border-radius:var(--rxs);background:var(--z100);border:1px solid var(--z200);font-size:10px;font-weight:700;color:var(--z700);margin-left:4px}
-.g-det-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
+.g-det-score{display:inline-flex;align-items:center;height:20px;padding:1px 7px;border-radius:var(--rxs);background:var(--z100);border:1px solid var(--z200);font-size:11px;font-weight:600;color:var(--z700);margin-left:4px}
+.g-det-txt{font-size:13px;color:var(--z700);line-height:1.55}
 .g-det-time{font-size:11px;color:var(--z500);margin-top:5px}
-.det-btn{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--ok);background:transparent;border:1px solid var(--ok);cursor:pointer;padding:2px 7px;border-radius:var(--rxs);transition:var(--t);margin-top:5px;white-space:nowrap}
-.det-btn:hover{color:#15803d;background:var(--ok-bg);border-color:#16a34a}
+.det-btn{color:var(--ok);border-color:var(--ok);margin-top:5px}
+.det-btn:hover{color:var(--ok);background:var(--ok-bg);border-color:var(--ok)}
 .det-btn i{font-size:12px}
 /* hover tooltip */
-#goal-tip{position:fixed;z-index:9999;background:var(--z900);color:#fff;padding:10px 13px;border-radius:var(--rsm);font-size:12px;line-height:1.5;max-width:320px;pointer-events:none;display:none;box-shadow:var(--sh-md)}
+#goal-tip{position:fixed;z-index:9999;background:var(--z900);color:var(--z0);padding:10px 13px;border-radius:var(--rsm);font-size:12px;line-height:1.5;max-width:320px;pointer-events:none;display:none;box-shadow:var(--sh-md)}
 #goal-tip .tt-name{font-weight:600;margin-bottom:5px}
-#goal-tip .tt-sep{height:1px;background:rgba(255,255,255,.15);margin:6px 0}
-#goal-tip .tt-result{color:rgba(255,255,255,.8);font-size:11.5px}
+#goal-tip .tt-sep{height:1px;background:var(--z600);margin:6px 0}
+#goal-tip .tt-result{color:var(--z300);font-size:11.5px}
 .section-cmt{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--z200)}
 .scmt-panel{padding:14px 16px}
 .scmt-panel+.scmt-panel{border-left:1px solid var(--z200)}
-.scmt-panel.scmt-locked{background:var(--z100)}
-.scmt-hd{font-size:12px;font-weight:600;color:var(--z600);margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.scmt-hd i{font-size:13px}
+.scmt-panel.scmt-locked{background:var(--z50)}
+.editable-panel{background:var(--z0)}
+.field-state{margin-left:auto;text-transform:none;letter-spacing:.1px}
+.editable-panel .ev-editor-wrap{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm)}
+.editable-panel .ev-content{padding-left:11px}
+.editable-panel .op-select{border-color:var(--brand-ring)}
+.page-submitted .field-state{display:none}
+.scmt-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.scmt-hd i{font-size:13px;color:var(--brand)}
 .scmt-locked-ph{display:flex;align-items:center;gap:6px;color:var(--z400);font-size:12.5px;padding:6px 0}
 .scmt-locked-ph i{font-size:15px}
-.ev-textarea{width:100%;padding:6px 8px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;font-family:inherit;color:var(--z800);resize:vertical;min-height:58px;outline:none;transition:var(--t);background:var(--z0);line-height:1.5}
+.ev-textarea{width:100%;padding:6px 8px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);resize:vertical;min-height:58px;outline:none;transition:var(--t);background:var(--z0);line-height:1.5}
 .ev-textarea:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 .ev-textarea::placeholder{color:var(--z400);font-size:12px}
-.char-ct{font-size:10.5px;color:var(--z400);margin-top:2px;text-align:right}
+.char-ct{font-size:11px;color:var(--z500);margin-top:3px;text-align:right}
 
 /* ── Overall card ── */
-.overall-card{background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--r);padding:18px 20px;margin-top:4px}
-.overall-hd{display:flex;align-items:center;gap:7px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--z200)}
-.overall-title{font-size:14px;font-weight:700;color:var(--brand);letter-spacing:-.1px}
-.overall-hd i{font-size:18px;color:var(--brand)}
-.overall-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.overall-panel{padding:14px 16px;border:1px solid var(--z200);border-radius:var(--rsm)}
+.overall-card{background:var(--z0);border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);margin-top:4px;overflow:hidden}
+.overall-hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #f3cfe1;background:#fbe4f0}
+.overall-title{font-size:13px;font-weight:700;color:var(--z900);letter-spacing:-.1px}
+.overall-hd i{font-size:16px;color:var(--brand)}
+.overall-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px}
+.overall-panel{padding:14px 16px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0)}
 .overall-panel.locked{background:var(--z50);border-color:var(--z200)}
 .op-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:12px;display:flex;align-items:center;gap:5px}
-.op-hd i{font-size:13px}
+.op-hd i{font-size:13px;color:var(--brand)}
 .op-score-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.op-score-lbl{font-size:12.5px;font-weight:500;color:var(--z700);white-space:nowrap}
-.op-select{padding:5px 26px 5px 10px;border:1px solid var(--z300);border-radius:var(--rsm);font-size:16px;font-weight:700;color:var(--z900);background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+.op-score-lbl{font-size:13px;font-weight:500;color:var(--z700);white-space:nowrap}
+.op-select{padding:5px 26px 5px 10px;border:1px solid var(--z300);border-radius:var(--rsm);font-size:13px;font-weight:700;color:var(--z900);background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
 .op-select:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
-.op-flbl{display:block;font-size:12.5px;font-weight:500;color:var(--z700);margin-bottom:4px}
+.op-flbl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:6px}
 .op-hint{font-size:11px;color:var(--z500);margin-top:6px;display:flex;align-items:center;gap:4px}
 .locked-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:120px;color:var(--z400)}
 .locked-placeholder i{font-size:24px;color:var(--z300)}
 .locked-placeholder p{font-size:12.5px;text-align:center;color:var(--z400);line-height:1.5}
 .locked-placeholder small{font-size:11px;color:var(--z400)}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--z900);color:#fff;padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;z-index:2000;box-shadow:var(--sh-lg);opacity:0;transition:opacity .2s ease,transform .2s ease;pointer-events:none}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--z900);color:var(--z0);padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;z-index:2000;box-shadow:var(--sh-lg);opacity:0;transition:opacity .2s ease,transform .2s ease;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ── Rich text editor ── */
-.ev-editor-wrap{border:1px solid var(--z300);border-radius:var(--rsm);overflow:hidden;background:var(--z0);transition:border-color .12s}
+.ev-editor-wrap{border:1px solid var(--z300);border-radius:var(--rsm);overflow:hidden;background:var(--z0);transition:var(--t)}
 .ev-editor-wrap:focus-within{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 .ev-toolbar{display:flex;align-items:center;gap:1px;padding:3px 5px;background:var(--z50);border-bottom:1px solid var(--z200);flex-wrap:wrap}
 .ev-tb-sep{width:1px;height:14px;background:var(--z300);margin:0 3px;flex-shrink:0}
@@ -737,7 +743,7 @@ label.ev-tb-btn{cursor:pointer}
 .ev-color-icon-wrap{display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none}
 .ev-color-bar{width:10px;height:2.5px;border-radius:1px;display:block}
 .ev-color-input{position:absolute;opacity:0;width:0;height:0;border:none;padding:0;pointer-events:none}
-.ev-content{padding:6px 8px;min-height:58px;font-size:12.5px;color:var(--z800);line-height:1.55;outline:none;word-break:break-word}
+.ev-content{padding:6px 8px;min-height:58px;font-size:13px;color:var(--z800);line-height:1.55;outline:none;word-break:break-word}
 .ev-content:empty::before{content:attr(data-placeholder);color:var(--z400);pointer-events:none}
 .ev-content p{margin:0;padding:0}
 .ev-content ul{margin:2px 0;padding-left:18px}
@@ -747,35 +753,51 @@ label.ev-tb-btn{cursor:pointer}
 .rv-grid tbody tr[data-name]{cursor:pointer}
 /* ── Submitted state ── */
 .submit-banner{display:flex;align-items:center;gap:14px;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;flex-wrap:wrap}
-.sb-icon{width:38px;height:38px;border-radius:50%;background:#dcfce7;border:1px solid var(--ok-bd);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-icon{width:38px;height:38px;border-radius:50%;background:var(--z0);border:1px solid var(--ok-bd);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb-icon i{font-size:20px;color:var(--ok)}
 .sb-info{flex:1;min-width:180px}
-.sb-title{font-size:14px;font-weight:700;color:var(--ok);line-height:1.3}
+.sb-title{font-size:13px;font-weight:700;color:var(--ok);line-height:1.3}
 .sb-sub{font-size:12.5px;color:var(--z600);margin-top:3px;line-height:1.4}
 .sb-score-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0}
 .sb-score-lbl{font-size:12.5px;color:var(--z600);white-space:nowrap}
-.sb-score-val{font-size:22px;font-weight:800;color:var(--z900);line-height:1}
-.sb-score-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--rxs);border:1px solid}
+.sb-score-val{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
+.sb-score-tag{height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
 .cycle-submitted-tag{display:none;align-items:center;gap:5px;font-size:12.5px;color:var(--ok);font-weight:600;white-space:nowrap;padding:5px 11px;border:1px solid var(--ok-bd);border-radius:var(--rsm);background:var(--ok-bg)}
 .cycle-submitted-tag i{font-size:14px}
 .page-submitted .cycle-actions{display:none}
 .page-submitted .cycle-submitted-tag{display:flex}
-.page-submitted .sc-select,.page-submitted .op-select{pointer-events:none;opacity:.6}
+.page-submitted .sc-select,.page-submitted .op-select{pointer-events:none;opacity:1;color:var(--z900);font-weight:700}
 .page-submitted .ev-content{pointer-events:none}
 .page-submitted .ev-toolbar{opacity:.4;pointer-events:none}
 .page-submitted .det-btn{pointer-events:auto}
 /* ── Goal detail popup ── */
 .gd-meta-grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:14px;margin-bottom:14px}
 .gd-field{display:flex;flex-direction:column}
-.gd-field-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:5px}
-.gd-field-val{font-size:13px;color:var(--z800);line-height:1.4}
-.gd-field-box{background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);padding:9px 11px;font-size:13px;color:var(--z800);line-height:1.6}
+.gd-field-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:5px}
+.gd-field-val{font-size:13.5px;color:var(--z700);line-height:1.65}
+.gd-field-box{background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);padding:11px 13px;font-size:13.5px;color:var(--z700);line-height:1.65}
+.dlg-copy{font-size:13.5px;color:var(--z700);line-height:1.65}
+.dlg-subtitle{font-size:12px;color:var(--z500);margin-top:2px}
 /* ── Validate popup ── */
 .validate-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
 .validate-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--z700);padding:8px 10px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);line-height:1.4}
 .validate-item i{font-size:15px;color:var(--err);flex-shrink:0;margin-top:1px}
 .main-panel{display:none}.main-panel.on{display:block}
-#mpanel-myr .cycle-actions{justify-content:flex-end;margin-bottom:14px}
+#mpanel-myr .cycle-actions{justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}
+@media(max-width:900px){
+  .stepper-card{overflow-x:auto}
+  .stepper-track{min-width:700px}
+  .section-cmt,.g-det-inner,.overall-grid{grid-template-columns:1fr}
+  .scmt-panel+.scmt-panel{border-left:none;border-top:1px solid var(--z200)}
+  .gd-meta-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  #mpanel-myr .cycle-actions .btn{flex:1;justify-content:center}
+  .submit-banner{align-items:flex-start}
+  .sb-score-wrap{width:100%}
+  .gd-meta-grid{grid-template-columns:1fr}
+  .overall-grid{padding:12px}
+}
 </style>
 </head>
 <body>
@@ -1423,7 +1445,7 @@ label.ev-tb-btn{cursor:pointer}
             <!-- Cao: g3 (Hoàn thành) -->
             <tr class="g-row-done" data-name="Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms" data-result="Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.">
               <td><div class="g-name">Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms</div>
-                <button class="det-btn" onclick="toggleDet('det-g3',this)"><i class="bx bx-check-circle"></i>Đã đánh giá hoàn thành</button></td>
+                <button class="btn btn-outline btn-xs det-btn" onclick="toggleDet('det-g3',this)"><i class="bx bx-check-circle"></i>Đã đánh giá hoàn thành</button></td>
               <td><div class="g-result">Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.</div></td>
               <td><div class="g-meta"><span class="prio prio-h">Cao</span></div></td>
               <td><div class="g-meta">01/01 – 31/12</div></td>
@@ -1483,8 +1505,8 @@ label.ev-tb-btn{cursor:pointer}
         </table>
       </div>
       <div class="section-cmt">
-        <div class="scmt-panel">
-          <div class="scmt-hd"><i class="bx bx-user"></i>Đánh giá của Nhân viên</div>
+        <div class="scmt-panel editable-panel">
+          <div class="scmt-hd"><i class="bx bx-user"></i>Đánh giá của Nhân viên<span class="badge b-action field-state">Bắt buộc</span></div>
           <div class="ev-editor-wrap"><div class="ev-toolbar" onmousedown="event.preventDefault()"><select class="ev-tb-sel" onchange="edFmt(this)"><option value="p">Normal</option><option value="h3">Tiêu đề</option></select><span class="ev-tb-sep"></span><button class="ev-tb-btn" onclick="edCmd('bold')" title="Bold"><span style="font-weight:700;font-size:12px">B</span></button><button class="ev-tb-btn" onclick="edCmd('italic')" title="In nghiêng"><span style="font-style:italic;font-size:12px">I</span></button><button class="ev-tb-btn" onclick="edCmd('underline')" title="Gạch chân"><span style="text-decoration:underline;font-size:12px">U</span></button><span class="ev-tb-sep"></span><label class="ev-tb-btn" title="Màu chữ"><span class="ev-color-icon-wrap"><span style="font-weight:700;font-size:12px">A</span><span class="ev-color-bar" style="background:var(--z900)"></span></span><input type="color" class="ev-color-input" value="#18181b" oninput="edColorApply(this)"></label><span class="ev-tb-sep"></span><button class="ev-tb-btn" onclick="edCmd('insertUnorderedList')" title="Danh sách"><i class="bx bx-list-ul" style="font-size:14px"></i></button><button class="ev-tb-btn" onclick="edLink()" title="Chèn link"><i class="bx bx-link-alt" style="font-size:14px"></i></button></div><div class="ev-content" contenteditable="true" data-placeholder="Nhận xét chung về mục tiêu công việc…" id="cmt-what" oninput="edCount(this,'cc-what',500)"></div></div>
           <div class="char-ct" id="cc-what">0 / 500</div>
         </div>
@@ -1541,8 +1563,8 @@ label.ev-tb-btn{cursor:pointer}
         </table>
       </div>
       <div class="section-cmt">
-        <div class="scmt-panel">
-          <div class="scmt-hd"><i class="bx bx-user"></i>Đánh giá của Nhân viên</div>
+        <div class="scmt-panel editable-panel">
+          <div class="scmt-hd"><i class="bx bx-user"></i>Đánh giá của Nhân viên<span class="badge b-action field-state">Bắt buộc</span></div>
           <div class="ev-editor-wrap"><div class="ev-toolbar" onmousedown="event.preventDefault()"><select class="ev-tb-sel" onchange="edFmt(this)"><option value="p">Normal</option><option value="h3">Tiêu đề</option></select><span class="ev-tb-sep"></span><button class="ev-tb-btn" onclick="edCmd('bold')" title="Bold"><span style="font-weight:700;font-size:12px">B</span></button><button class="ev-tb-btn" onclick="edCmd('italic')" title="In nghiêng"><span style="font-style:italic;font-size:12px">I</span></button><button class="ev-tb-btn" onclick="edCmd('underline')" title="Gạch chân"><span style="text-decoration:underline;font-size:12px">U</span></button><span class="ev-tb-sep"></span><label class="ev-tb-btn" title="Màu chữ"><span class="ev-color-icon-wrap"><span style="font-weight:700;font-size:12px">A</span><span class="ev-color-bar" style="background:var(--z900)"></span></span><input type="color" class="ev-color-input" value="#18181b" oninput="edColorApply(this)"></label><span class="ev-tb-sep"></span><button class="ev-tb-btn" onclick="edCmd('insertUnorderedList')" title="Danh sách"><i class="bx bx-list-ul" style="font-size:14px"></i></button><button class="ev-tb-btn" onclick="edLink()" title="Chèn link"><i class="bx bx-link-alt" style="font-size:14px"></i></button></div><div class="ev-content" contenteditable="true" data-placeholder="Nhận xét chung về mục tiêu phát triển…" id="cmt-dev" oninput="edCount(this,'cc-dev',500)"></div></div>
           <div class="char-ct" id="cc-dev">0 / 500</div>
         </div>
@@ -1629,8 +1651,8 @@ label.ev-tb-btn{cursor:pointer}
         </table>
       </div>
       <div class="section-cmt">
-        <div class="scmt-panel">
-          <div class="scmt-hd"><i class="bx bx-user"></i>Đánh giá của Nhân viên</div>
+        <div class="scmt-panel editable-panel">
+          <div class="scmt-hd"><i class="bx bx-user"></i>Đánh giá của Nhân viên<span class="badge b-action field-state">Bắt buộc</span></div>
           <div class="ev-editor-wrap"><div class="ev-toolbar" onmousedown="event.preventDefault()"><select class="ev-tb-sel" onchange="edFmt(this)"><option value="p">Normal</option><option value="h3">Tiêu đề</option></select><span class="ev-tb-sep"></span><button class="ev-tb-btn" onclick="edCmd('bold')" title="Bold"><span style="font-weight:700;font-size:12px">B</span></button><button class="ev-tb-btn" onclick="edCmd('italic')" title="In nghiêng"><span style="font-style:italic;font-size:12px">I</span></button><button class="ev-tb-btn" onclick="edCmd('underline')" title="Gạch chân"><span style="text-decoration:underline;font-size:12px">U</span></button><span class="ev-tb-sep"></span><label class="ev-tb-btn" title="Màu chữ"><span class="ev-color-icon-wrap"><span style="font-weight:700;font-size:12px">A</span><span class="ev-color-bar" style="background:var(--z900)"></span></span><input type="color" class="ev-color-input" value="#18181b" oninput="edColorApply(this)"></label><span class="ev-tb-sep"></span><button class="ev-tb-btn" onclick="edCmd('insertUnorderedList')" title="Danh sách"><i class="bx bx-list-ul" style="font-size:14px"></i></button><button class="ev-tb-btn" onclick="edLink()" title="Chèn link"><i class="bx bx-link-alt" style="font-size:14px"></i></button></div><div class="ev-content" contenteditable="true" data-placeholder="Nhận xét chung về mục tiêu hành vi…" id="cmt-how" oninput="edCount(this,'cc-how',500)"></div></div>
           <div class="char-ct" id="cc-how">0 / 500</div>
         </div>
@@ -1649,8 +1671,8 @@ label.ev-tb-btn{cursor:pointer}
       </div>
       <div class="overall-grid">
 
-        <div class="overall-panel">
-          <div class="op-hd"><i class="bx bx-user"></i>Nhân viên tự đánh giá</div>
+        <div class="overall-panel editable-panel">
+          <div class="op-hd"><i class="bx bx-user"></i>Nhân viên tự đánh giá<span class="badge b-action field-state">Bắt buộc</span></div>
           <div class="op-score-row">
             <span class="op-score-lbl">Điểm toàn diện:</span>
             <select class="op-select" id="op-score" onchange="updateOpLbl()">
@@ -2916,7 +2938,7 @@ function switchMainTab(idx){
 <!-- ═══ MYR overlays (ported from E-02) ═══ -->
 <!-- Dialog: Xác nhận gửi -->
 <div class="overlay" id="confirm-overlay" onclick="if(event.target===this)closeConfirm()">
-  <div class="dialog" style="max-width:440px">
+  <div class="dialog sm">
     <div class="dlg-hd">
       <div class="dlg-hd-row">
         <div style="flex:1"><div class="dlg-title">Xác nhận gửi tự đánh giá</div></div>
@@ -2928,17 +2950,17 @@ function switchMainTab(idx){
         <i class="bx bx-info-circle"></i>
         <span>Sau khi gửi, bạn <strong>không thể chỉnh sửa</strong> bản tự đánh giá này. Quản lý trực tiếp sẽ nhận thông báo và bắt đầu đánh giá từ 07/07/2026.</span>
       </div>
-      <p style="font-size:13px;color:var(--z700);line-height:1.6">Bạn có chắc muốn gửi tự đánh giá cho kỳ MYR 2026 không?</p>
+      <p class="dlg-copy">Bạn có chắc muốn gửi tự đánh giá cho kỳ MYR 2026 không?</p>
     </div>
     <div class="dlg-foot">
-      <button class="btn btn-outline btn-sm" onclick="closeConfirm()">Hủy</button>
+      <button class="btn btn-outline btn-sm" onclick="closeConfirm()"><i class="bx bx-x"></i>Hủy</button>
       <button class="btn btn-default btn-sm" onclick="doSubmit()"><i class="bx bx-send"></i>Xác nhận gửi</button>
     </div>
   </div>
 </div>
 
 <div id="toast">
-  <i class="bx bx-check-circle" style="font-size:16px;color:#4ade80;flex-shrink:0"></i>
+  <i class="bx bx-check-circle" style="font-size:16px;color:var(--ok);flex-shrink:0"></i>
   <span id="toast-msg">Đã lưu nháp thành công</span>
 </div>
 
@@ -2950,7 +2972,7 @@ function switchMainTab(idx){
 
 <!-- Goal detail popup -->
 <div class="overlay" id="goal-detail-overlay" onclick="if(event.target===this)closeGoalDetail()">
-  <div class="dialog" style="max-width:540px">
+  <div class="dialog">
     <div class="dlg-hd">
       <div class="dlg-hd-row">
         <div style="flex:1"><div class="dlg-title">Chi tiết mục tiêu</div></div>
@@ -2982,14 +3004,14 @@ function switchMainTab(idx){
       </div>
     </div>
     <div class="dlg-foot">
-      <button class="btn btn-outline btn-sm" onclick="closeGoalDetail()">Đóng</button>
+      <button class="btn btn-outline btn-sm" onclick="closeGoalDetail()"><i class="bx bx-x"></i>Đóng</button>
     </div>
   </div>
 </div>
 
 <!-- Recall confirm overlay -->
 <div class="overlay" id="recall-overlay" onclick="if(event.target===this)closeRecall()">
-  <div class="dialog" style="max-width:420px">
+  <div class="dialog sm">
     <div class="dlg-hd">
       <div class="dlg-hd-row">
         <div style="flex:1"><div class="dlg-title">Thu hồi tự đánh giá?</div></div>
@@ -3001,24 +3023,24 @@ function switchMainTab(idx){
         <i class="bx bx-error" style="color:var(--err)"></i>
         <span>Sau khi thu hồi, bản tự đánh giá sẽ trở về trạng thái <strong>nháp</strong>. Quản lý trực tiếp chưa nhận được bản nộp cho đến khi bạn gửi lại.</span>
       </div>
-      <p style="font-size:13px;color:var(--z700);line-height:1.6">Hạn chỉnh sửa: <strong>06/07/2026</strong>. Sau thời hạn này bạn không thể thu hồi.</p>
+      <p class="dlg-copy">Hạn chỉnh sửa: <strong>06/07/2026</strong>. Sau thời hạn này bạn không thể thu hồi.</p>
     </div>
     <div class="dlg-foot">
-      <button class="btn btn-outline btn-sm" onclick="closeRecall()">Hủy</button>
-      <button class="btn btn-sm" style="background:var(--err);border-color:var(--err);color:#fff" onclick="doRecall()"><i class="bx bx-undo"></i>Xác nhận thu hồi</button>
+      <button class="btn btn-outline btn-sm" onclick="closeRecall()"><i class="bx bx-x"></i>Hủy</button>
+      <button class="btn btn-destructive btn-sm" onclick="doRecall()"><i class="bx bx-undo"></i>Xác nhận thu hồi</button>
     </div>
   </div>
 </div>
 
 <!-- Validation popup -->
 <div class="overlay" id="validate-overlay" onclick="if(event.target===this)closeValidate()">
-  <div class="dialog" style="max-width:480px">
+  <div class="dialog">
     <div class="dlg-hd">
       <div class="dlg-hd-row" style="align-items:center">
         <div style="width:34px;height:34px;border-radius:50%;background:var(--err-bg);border:1px solid var(--err-bd);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="bx bx-error" style="color:var(--err);font-size:17px"></i></div>
         <div style="flex:1;margin-left:10px">
           <div class="dlg-title">Vui lòng bổ sung thông tin</div>
-          <div style="font-size:12.5px;color:var(--z500);margin-top:2px">Hoàn thành các mục sau trước khi gửi tự đánh giá</div>
+          <div class="dlg-subtitle">Hoàn thành các mục sau trước khi gửi tự đánh giá</div>
         </div>
         <button class="dlg-close" onclick="closeValidate()"><i class="bx bx-x"></i></button>
       </div>
@@ -3027,7 +3049,7 @@ function switchMainTab(idx){
       <ul class="validate-list" id="validate-list"></ul>
     </div>
     <div class="dlg-foot">
-      <button class="btn btn-default btn-sm" onclick="closeValidate()">Đã hiểu, bổ sung ngay</button>
+      <button class="btn btn-default btn-sm" onclick="closeValidate()"><i class="bx bx-check"></i>Đã hiểu, bổ sung ngay</button>
     </div>
   </div>
 </body>
