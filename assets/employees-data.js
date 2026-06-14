@@ -5,12 +5,12 @@
 window.PMS_EMPLOYEES = [
   /* ── LM1 Direct (4) ── */
   { id:'e1', name:'Nguyễn Văn Tú', login:'tu.nguyen', ini:'NT', div:'ITC', dept:'Backend', pos:'Software Engineer', lvl:'lm1', goals:[
-    { id:'g1', type:'what', title:'Tối ưu API response time xuống dưới 200ms với 95th percentile', result:'95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026. Tự động cảnh báo Slack khi vượt ngưỡng.', status:'pending', s:'01/01', e:'31/12', prio:'m', comments:[] },
-    { id:'g2', type:'what', title:'Refactor authentication module sang stateless JWT', result:'Toàn bộ luồng xác thực chuyển sang JWT stateless, loại bỏ session store, deploy không downtime, hoàn thành trước 30/09/2026.', status:'update', updNote:'Bổ sung tiêu chí đo lường định lượng và mốc thời gian cụ thể cho từng giai đoạn triển khai.', s:'01/03', e:'31/12', prio:'l', comments:[{self:false, name:'Lê Thị Thanh', ini:'LT', text:'Mục tiêu cần cụ thể hơn về mốc thời gian và tiêu chí đo lường.', time:'15/01/2026'}] },
-    { id:'g3', type:'what', title:'Triển khai circuit breaker pattern cho microservices nội bộ', result:'100% microservice nội bộ áp dụng circuit breaker, giảm cascading failure rate về 0 trong 2 tháng vận hành liên tiếp từ Q3/2026.', status:'pending', s:'01/02', e:'31/12', prio:'h', comments:[] },
-    { id:'g4', type:'what', title:'Hoàn thiện hệ thống thanh toán real-time với độ trễ < 100ms', result:'Hệ thống xử lý 10,000 giao dịch/giây, P99 < 100ms. Đo bằng Grafana trong 3 tháng liên tục từ Q2/2026. Vượt qua kiểm thử tải mô phỏng 2× lưu lượng đỉnh.', status:'approved', s:'01/01', e:'30/09', prio:'h', comments:[{self:true, name:'Lê Thị Thanh', ini:'LT', text:'Tốt! Kết quả vượt kỳ vọng, ghi nhận nỗ lực.', time:'10/03/2026'}] },
-    { id:'g5', type:'dev', title:'Học và thi AWS Solutions Architect Associate', result:'Đậu chứng chỉ AWS SAA-C03 trước 30/06/2026, đạt tối thiểu 750/1000 điểm và viết post chia sẻ với team.', status:'approved', s:'01/01', e:'30/06', prio:null, comments:[] },
-    { id:'g6', type:'dev', title:'Tham gia chương trình mentoring nội bộ ITC', result:'Hoàn thành 12 buổi mentoring (1 buổi/tháng), nhận feedback tích cực từ mentee vào cuối năm.', status:'draft', s:'01/04', e:'31/12', prio:null, comments:[] },
+    { id:'g1', type:'what', title:'Tối ưu API response time xuống dưới 200ms với 95th percentile', result:'95% request đạt response time dưới 200ms (P95), đo qua APM dashboard liên tục trong Q2 và Q3/2026.', status:'approved', s:'01/01', e:'31/12', prio:'m', comments:[] },
+    { id:'g2', type:'what', title:'Refactor authentication module sang stateless JWT', result:'Toàn bộ luồng xác thực chuyển sang JWT stateless, loại bỏ session store, deploy không downtime, hoàn thành trước 30/09/2026.', status:'update', updNote:'Bổ sung tiêu chí đo lường định lượng và mốc thời gian cụ thể cho từng giai đoạn triển khai.', s:'01/03', e:'31/12', prio:'l', comments:[] },
+    { id:'g3', type:'what', title:'Hoàn thiện hệ thống thanh toán real-time với độ trễ < 100ms', result:'Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.', status:'approved', s:'01/01', e:'31/12', prio:'h', comments:[] },
+    { id:'g4', type:'what', title:'Triển khai monitoring và alerting cho toàn bộ microservices', result:'100% microservices có dashboard Grafana và alert rule đầy đủ, giảm MTTR 30% so với năm 2025.', status:'approved', s:'01/01', e:'30/06', prio:'m', comments:[] },
+    { id:'g5', type:'dev', title:'Cải thiện kỹ năng system design qua self-study và practice', result:'Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor.', status:'approved', s:'01/01', e:'31/12', prio:null, comments:[] },
+    { id:'g6', type:'dev', title:'Hoàn thành khoá AWS Solutions Architect và đạt chứng chỉ', result:'Đạt chứng chỉ AWS Solutions Architect Associate trước 31/12/2026 và áp dụng vào tối thiểu 1 dự án thực tế.', status:'approved', s:'01/01', e:'31/12', prio:null, comments:[] },
   ]},
   { id:'e2', name:'Trần Thị Mai', login:'mai.tran', ini:'TM', div:'ITC', dept:'Frontend', pos:'Software Engineer', lvl:'lm1', goals:[
     { id:'g7', type:'what', title:'Tối ưu Core Web Vitals: LCP < 2.5s và CLS < 0.1', result:'LCP < 2.5s, CLS < 0.1, FID < 100ms trên toàn bộ trang chủ và checkout. Đo qua Lighthouse CI trong 30 ngày liên tiếp.', status:'pending', s:'01/01', e:'30/06', prio:'h', comments:[] },
@@ -110,7 +110,7 @@ window.PMS_MYR = {
 
 window.PMS_SELFEVAL = {
   e1: {
-    goalScores: { g4:4, g5:4 },
+    goalScores: { g1:4, g3:4, g4:3, g5:4, g6:3 },
     howScores: [4,4,5,4,5],
     comments: {
       what: 'Hoàn thành mục tiêu trọng tâm hệ thống thanh toán real-time với P99 ổn định 85ms, vượt target 100ms và sớm 2 tháng so với kế hoạch.',

@@ -755,6 +755,10 @@ label.ev-tb-btn{cursor:pointer}
 .submit-banner{display:flex;align-items:center;gap:14px;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;flex-wrap:wrap}
 .sb-icon{width:38px;height:38px;border-radius:50%;background:var(--z0);border:1px solid var(--ok-bd);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb-icon i{font-size:20px;color:var(--ok)}
+.submit-banner--pending{background:var(--z50);border-color:var(--z200)}
+.submit-banner--pending .sb-icon{background:var(--z100);border-color:var(--z200)}
+.submit-banner--pending .sb-icon i{color:var(--z500)}
+.submit-banner--pending .sb-title{color:var(--z800)}
 .sb-info{flex:1;min-width:180px}
 .sb-title{font-size:13px;font-weight:700;color:var(--ok);line-height:1.3}
 .sb-sub{font-size:12.5px;color:var(--z600);margin-top:3px;line-height:1.4}
@@ -3222,18 +3226,29 @@ function setupManagerDetail(){
     renderManagerEmpty(panel,emp,role,'bx-error-circle','Chưa đủ điều kiện tham gia MYR',emp.name+' hiện '+status.toLowerCase()+'. Nhân viên cần có ít nhất 1 mục tiêu công việc và 1 mục tiêu phát triển được duyệt.');
     return;
   }
-  if(!submitted){
-    renderManagerEmpty(panel,emp,role,'bx-time-five','Chờ Nhân viên gửi Tự đánh giá',emp.name+' đã đủ điều kiện tham gia MYR nhưng chưa hoàn thành và gửi Tự đánh giá.');
-    return;
-  }
-
   populateEmployeeMyr(MANAGER_DETAIL_STATE.empId);
   panel.insertAdjacentHTML('afterbegin',managerContextHtml(emp,role));
   var actions=panel.querySelector('.cycle-actions');
   if(actions) actions.innerHTML='';
 
+  var banner=panel.querySelector('.submit-banner');
   var bannerTitle=panel.querySelector('.submit-banner .sb-title');
   var bannerSub=panel.querySelector('.submit-banner .sb-sub');
+
+  if(!submitted){
+    // Đủ điều kiện nhưng chưa tự đánh giá → cho QL xem trước mục tiêu (read-only), khóa trường đánh giá
+    if(banner) banner.classList.add('submit-banner--pending');
+    var bicon=panel.querySelector('.submit-banner .sb-icon i');
+    if(bicon) bicon.className='bx bx-time-five';
+    if(bannerTitle) bannerTitle.textContent='Nhân viên chưa gửi Tự đánh giá MYR 2026';
+    if(bannerSub) bannerSub.textContent='Đang chờ '+emp.name+' hoàn thành tự đánh giá. Bạn có thể xem trước danh sách mục tiêu đã duyệt; các trường đánh giá sẽ mở sau khi nhân viên nộp.';
+    var sw=panel.querySelector('.submit-banner .sb-score-wrap'); if(sw) sw.style.display='none';
+    var rb=panel.querySelector('.submit-banner > .btn'); if(rb) rb.style.display='none';
+    lockManagerStructure(panel,role,lm1Score);
+    if(banner) banner.insertAdjacentHTML('afterend','<div class="manager-lock-note"><i class="bx bx-lock-alt"></i><span>Nhân viên chưa tự đánh giá nên các trường đánh giá của '+managerRoleName(role)+' đang bị khóa. Bảng dưới chỉ hiển thị mục tiêu đã duyệt để bạn xem trước.</span></div>');
+    return;
+  }
+
   if(bannerTitle) bannerTitle.textContent='Nhân viên đã gửi Tự đánh giá MYR 2026';
   if(bannerSub) bannerSub.textContent=phase==='employee'?'Đang trong giai đoạn Nhân viên tự đánh giá':'Đã hoàn thành Tự đánh giá';
   var managerScoreDisplay=document.getElementById('sb-manager-score');
