@@ -465,10 +465,14 @@ textarea.fc{resize:vertical}
 .myr-step-label{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35;margin-top:9px}
 .myr-step.active .myr-step-label{color:var(--brand)}
 .myr-step-time{font-size:11px;color:var(--z500);margin-top:3px}
-.myr-step-tag{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:10.5px;font-weight:600;color:var(--brand)}
+.myr-step-meta{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:5px}
+.myr-step-tag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--brand)}
 .myr-step-dot{width:5px;height:5px;border-radius:50%;background:var(--brand)}
-.myr-info{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;margin-bottom:14px;border:1px solid var(--info-bd);border-radius:var(--rsm);background:var(--info-bg);font-size:12.5px;color:var(--z700);line-height:1.5}
-.myr-info i{font-size:16px;color:var(--info);margin-top:1px;flex-shrink:0}
+.myr-step-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:1px 7px;border-radius:50px;letter-spacing:.1px}
+.myr-step-badge.required{color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring)}
+.myr-step-badge.optional{color:var(--z500);background:var(--z100);border:1px solid var(--z200);font-style:italic}
+.myr-info{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;margin-bottom:14px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);font-size:12.5px;color:var(--z700);line-height:1.5}
+.myr-info i{font-size:16px;color:var(--brand);margin-top:1px;flex-shrink:0}
 .myr-manager{font-size:12.5px;color:var(--z800);line-height:1.35}
 .myr-manager .er-login{display:block;margin-top:2px}
 .myr-rating-action{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
@@ -671,22 +675,25 @@ textarea.fc{resize:vertical}
             <div class="myr-step-circle">1</div>
             <div class="myr-step-label">Nhân viên tự đánh giá</div>
             <div class="myr-step-time">22/06 – 06/07/2026</div>
-            <div class="myr-step-tag"><span class="myr-step-dot"></span>Đang thực hiện</div>
+            <div class="myr-step-meta"><span class="myr-step-badge required">Bắt buộc</span></div>
           </div>
           <div class="myr-step" data-phase="lm1">
             <div class="myr-step-circle">2</div>
             <div class="myr-step-label">QLTT đánh giá</div>
             <div class="myr-step-time">07/07 – 16/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge required">Bắt buộc</span></div>
           </div>
           <div class="myr-step" data-phase="lm2">
             <div class="myr-step-circle">3</div>
             <div class="myr-step-label">Quản lý cấp 2 đánh giá</div>
             <div class="myr-step-time">17/07 – 21/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge optional">Khuyến khích</span></div>
           </div>
           <div class="myr-step" data-phase="hod">
             <div class="myr-step-circle">4</div>
             <div class="myr-step-label">HOD đánh giá</div>
             <div class="myr-step-time">22/07 – 25/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge optional">Khuyến khích</span></div>
           </div>
           <div class="myr-step" data-phase="publish">
             <div class="myr-step-circle">5</div>
@@ -909,9 +916,9 @@ const EMPS = [
     { id:'g18', type:'dev', title:'Nâng cao kỹ năng Selenium WebDriver qua dự án nội bộ', result:'Hoàn thành 3 module Selenium WebDriver nâng cao, contribute ≥ 20 test scripts vào framework nội bộ.', status:'draft', s:'01/06', e:'31/12', prio:null, comments:[] },
   ]},
   { id:'e13', name:'Lê Hoài Nam', login:'nam.le', ini:'LN', div:'ITC', dept:'Backend', pos:'Senior Software Engineer', lvl:'lm1', goals:[
-    { id:'g38', type:'what', title:'Xây dựng microservice xác thực eKYC tích hợp đối tác', result:'Service go-live Q2/2026, xử lý ≥ 500 req/s, error rate < 0.1%, đầy đủ audit log theo chuẩn PCI-DSS.', status:'pending', s:'01/01', e:'30/06', prio:'h', comments:[] },
+    { id:'g38', type:'what', title:'Xây dựng microservice xác thực eKYC tích hợp đối tác', result:'Service go-live Q2/2026, xử lý ≥ 500 req/s, error rate < 0.1%, đầy đủ audit log theo chuẩn PCI-DSS.', status:'approved', s:'01/01', e:'30/06', prio:'h', comments:[] },
     { id:'g39', type:'what', title:'Nâng cấp hệ thống phân quyền RBAC lên ABAC', result:'ABAC model phủ 100% resource nhạy cảm, không regression trên permission cũ sau 30 ngày production.', status:'approved', s:'01/01', e:'31/08', prio:'m', comments:[] },
-    { id:'g40', type:'dev', title:'Đạt chứng chỉ Google Cloud Professional Developer', result:'Đậu kỳ thi trước 30/09/2026, chia sẻ kiến thức qua ít nhất 1 internal tech talk cho team.', status:'pending', s:'01/01', e:'30/09', prio:null, comments:[] },
+    { id:'g40', type:'dev', title:'Đạt chứng chỉ Google Cloud Professional Developer', result:'Đậu kỳ thi trước 30/09/2026, chia sẻ kiến thức qua ít nhất 1 internal tech talk cho team.', status:'approved', s:'01/01', e:'30/09', prio:null, comments:[] },
   ]},
   { id:'e14', name:'Nguyễn Thị Phương', login:'phuong.nguyen', ini:'NP', div:'ITC', dept:'Data', pos:'Data Scientist', lvl:'lm1', goals:[
     { id:'g41', type:'what', title:'Xây dựng mô hình credit scoring cho MoMo Pay Later', result:'Model F1-score ≥ 0.85 trên test set, deploy serving infra Q3, A/B test 5% user base trong 30 ngày.', status:'update', updNote:'Bổ sung KPI đo lường tác động kinh doanh và timeline cụ thể từng phase.', s:'01/01', e:'30/09', prio:'h', comments:[{self:false, name:'Lê Thị Thanh', ini:'LT', text:'Cần định nghĩa rõ tiêu chí thành công và mốc kiểm tra tiến độ theo từng tháng.', time:'20/01/2026'}] },
@@ -990,7 +997,7 @@ const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
 const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'employee';
 
 /* ═══════════ STATE ═══════════ */
-const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', splitView:false };
+const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', splitView:false };
 
 /* ═══════════ HELPERS ═══════════ */
 function findEmp(id){ return EMPS.find(e=>e.id===id); }
@@ -1134,7 +1141,9 @@ function renderMyrProcess(){
     const oldTag=step.querySelector('.myr-step-tag');
     if(oldTag) oldTag.remove();
     if(stepIndex===currentIndex){
-      step.insertAdjacentHTML('beforeend','<div class="myr-step-tag"><span class="myr-step-dot"></span>Đang thực hiện</div>');
+      let meta=step.querySelector('.myr-step-meta');
+      if(!meta){meta=document.createElement('div');meta.className='myr-step-meta';step.appendChild(meta);}
+      meta.insertAdjacentHTML('beforeend','<span class="myr-step-tag"><span class="myr-step-dot"></span>Đang thực hiện</span>');
     }
   });
 }
@@ -1201,6 +1210,7 @@ function agreeMyrRating(empId,role,value){
 function setMyrRole(role){
   S.myrRole=role;
   S.myrSearchTerm='';
+  S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
   const direct=role==='lm1';
   document.getElementById('myr-tab-lm1').classList.toggle('on',direct);
   document.getElementById('myr-tab-indirect').classList.toggle('on',!direct);
@@ -1215,12 +1225,50 @@ function setMyrRole(role){
 function renderMyrFilterRow(){
   const el=document.getElementById('myr-filter-row');
   if(!el) return;
-  el.innerHTML=`<div class="filter-row">
-    <div class="fsearch-wrap">
-      <i class="bx bx-search"></i>
-      <input type="text" class="fsearch" placeholder="Tìm nhân viên..." value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
-    </div>
-  </div>`;
+  if(S.myrRole==='lm1'){
+    el.innerHTML=`<div class="filter-row">
+      <div class="fsearch-wrap">
+        <i class="bx bx-search"></i>
+        <input type="text" class="fsearch" placeholder="Tìm nhân viên..." value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
+      </div>
+    </div>`;
+  } else if(S.myrRole==='lm2'){
+    const emps=visibleMyrEmps();
+    const divs=[...new Set(emps.map(e=>e.div))].sort();
+    const depts=[...new Set(emps.map(e=>e.dept))].sort();
+    const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
+    const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+    el.innerHTML=`<div class="filter-row">
+      <input class="f-combo" list="myr-dl-emp" placeholder="Nhân viên" value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
+      <datalist id="myr-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-div" placeholder="Division" value="${S.myrFilterDiv}" oninput="S.myrFilterDiv=this.value;renderMyrList()">
+      <datalist id="myr-dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-dept" placeholder="Department" value="${S.myrFilterDept}" oninput="S.myrFilterDept=this.value;renderMyrList()">
+      <datalist id="myr-dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-team" placeholder="Team" value="${S.myrFilterTeam}" oninput="S.myrFilterTeam=this.value;renderMyrList()">
+      <datalist id="myr-dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList()">
+      <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+    </div>`;
+  } else {
+    const emps=visibleMyrEmps();
+    const divs=[...new Set(emps.map(e=>e.div))].sort();
+    const depts=[...new Set(emps.map(e=>e.dept))].sort();
+    const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+    const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+    el.innerHTML=`<div class="filter-row">
+      <input class="f-combo" list="myr-dl-emp" placeholder="Nhân viên" value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
+      <datalist id="myr-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-div" placeholder="Division" value="${S.myrFilterDiv}" oninput="S.myrFilterDiv=this.value;renderMyrList()">
+      <datalist id="myr-dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-dept" placeholder="Department" value="${S.myrFilterDept}" oninput="S.myrFilterDept=this.value;renderMyrList()">
+      <datalist id="myr-dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList()">
+      <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-lm2" placeholder="Quản lý cấp 2" value="${S.myrFilterLm2}" oninput="S.myrFilterLm2=this.value;renderMyrList()">
+      <datalist id="myr-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+    </div>`;
+  }
 }
 
 function renderMyrList(){
@@ -1231,6 +1279,11 @@ function renderMyrList(){
     const query=S.myrSearchTerm.toLowerCase();
     emps=emps.filter(e=>(e.name+' '+e.login+' '+e.dept+' '+(e.team||'')).toLowerCase().includes(query));
   }
+  if(S.myrFilterDiv){const q=S.myrFilterDiv.toLowerCase();emps=emps.filter(e=>e.div.toLowerCase().includes(q));}
+  if(S.myrFilterDept){const q=S.myrFilterDept.toLowerCase();emps=emps.filter(e=>e.dept.toLowerCase().includes(q));}
+  if(S.myrFilterTeam){const q=S.myrFilterTeam.toLowerCase();emps=emps.filter(e=>e.team&&e.team.toLowerCase().includes(q));}
+  if(S.myrFilterLm1){const q=S.myrFilterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
+  if(S.myrFilterLm2){const q=S.myrFilterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
   emps=emps.slice().sort((a,b)=>{
     const aStatus=myrStatus(a),bStatus=myrStatus(b);
     const rank=s=>s.tone==='completed'?0:1;

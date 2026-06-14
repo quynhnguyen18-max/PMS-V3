@@ -607,7 +607,6 @@ textarea.fc{resize:vertical}
 .lbl-need{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bd)}
 .lbl-fail{background:var(--err-bg);color:var(--err);border-color:var(--err-bd)}
 .cycle-actions{display:flex;align-items:center;gap:7px}
-.myr-download-row{display:flex;justify-content:flex-end;margin-bottom:10px}
 /* ── Progress stepper ── */
 .stepper-card{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:16px 18px 14px;margin-bottom:14px}
 .stepper-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:16px;display:flex;align-items:center;gap:5px}
@@ -770,8 +769,9 @@ label.ev-tb-btn{cursor:pointer}
 .page-submitted .cycle-actions{display:none}
 .page-submitted .cycle-submitted-tag{display:flex}
 .page-submitted .sc-select,.page-submitted .op-select{pointer-events:none;opacity:1;color:var(--z900);font-weight:700}
-.page-submitted .ev-content{pointer-events:none}
-.page-submitted .ev-toolbar{opacity:.4;pointer-events:none}
+.page-submitted .ev-content{pointer-events:none;color:var(--z900)}
+.page-submitted .ev-toolbar{display:none}
+.page-submitted .ev-editor-wrap{background:var(--z50)}
 .page-submitted .det-btn{pointer-events:auto}
 /* ── Goal detail popup ── */
 .gd-meta-grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:14px;margin-bottom:14px}
@@ -789,14 +789,16 @@ label.ev-tb-btn{cursor:pointer}
 #mpanel-myr .cycle-actions{justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}
 .manager-detail .demo-toggle{display:none}
 .manager-detail .page-submitted .cycle-actions{display:flex}
+.manager-detail .cycle-actions:empty{display:none}
 .manager-detail .cycle-actions .btn{display:inline-flex}
 .manager-detail .submit-banner .btn{display:none}
 .manager-detail .manager-score{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand)}
 .manager-detail .page-submitted .manager-score,.manager-detail .page-submitted .manager-comment{pointer-events:auto}
 .manager-detail .manager-comment{min-height:72px;padding-left:11px}
-.manager-detail .page-submitted .manager-editor .ev-toolbar{opacity:1;pointer-events:auto}
+.manager-detail .page-submitted .manager-editor .ev-toolbar{display:flex;opacity:1;pointer-events:auto}
 .manager-detail .page-submitted .manager-editor .ev-content{pointer-events:auto}
-.manager-detail .manager-back{display:inline-flex;align-items:center;gap:5px;margin-left:auto;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:12.5px;font-weight:500;color:var(--z700);cursor:pointer}
+.manager-detail .page-submitted .manager-editor .ev-editor-wrap{background:var(--z0)}
+.manager-detail .manager-back{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:12.5px;font-weight:500;color:var(--z700);cursor:pointer}
 .manager-detail .manager-back:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
 .manager-detail .manager-lock-note{display:flex;align-items:flex-start;gap:9px;padding:12px 14px;margin-bottom:14px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50);font-size:12.5px;line-height:1.5;color:var(--z700)}
 .manager-detail .manager-lock-note i{font-size:17px;color:var(--z500);margin-top:1px}
@@ -809,7 +811,7 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .manager-empty i{display:block;font-size:42px;color:var(--z300);margin-bottom:12px}
 .manager-detail .manager-empty h3{font-size:16px;font-weight:600;color:var(--z800);margin-bottom:6px}
 .manager-detail .manager-empty p{font-size:13px;color:var(--z500);line-height:1.6}
-.manager-detail .manager-detail-nav{display:flex;justify-content:flex-end;margin-bottom:12px}
+.manager-detail .manager-detail-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .manager-detail .manager-locked-structure{opacity:.58;pointer-events:none;filter:grayscale(.15)}
 .manager-detail .manager-locked-structure .manager-score{box-shadow:none;border-color:var(--z300)}
 .manager-detail .manager-locked-structure .ev-content{min-height:72px;background:var(--z0)}
@@ -1368,9 +1370,6 @@ label.ev-tb-btn{cursor:pointer}
 
     <!-- ═══ PANEL: Mid-Year Review (MYR) ═══ -->
     <div class="main-panel" id="mpanel-myr">
-    <div class="myr-download-row">
-      <button class="btn btn-outline btn-sm" onclick="downloadManagerMyrPdf()"><i class="bx bxs-file-pdf"></i> Tải kết quả PDF</button>
-    </div>
     <div class="cycle-actions">
       <button class="btn btn-outline btn-sm" onclick="myrSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
       <button class="btn btn-default btn-sm" onclick="openConfirm()"><i class="bx bx-send"></i> Gửi tự đánh giá</button>
@@ -2686,6 +2685,22 @@ function updateOpLbl() {
   el.className   = 'sc-lbl show ' + cls;
 }
 
+function updateManagerOpLbl() {
+  const el = document.getElementById('manager-op-lbl');
+  const sel = document.getElementById('manager-overall-score');
+  if (!el || !sel) return;
+  const v = parseFloat(sel.value);
+  if (!v || v % 1 !== 0) { el.textContent = ''; el.className = 'sc-lbl'; return; }
+  let txt, cls;
+  if      (v === 5) { txt = 'Hoàn thành vượt xa kỳ vọng';   cls = 'lbl-xs'; }
+  else if (v === 4) { txt = 'Hoàn thành trên mức kỳ vọng';  cls = 'lbl-good'; }
+  else if (v === 3) { txt = 'Hoàn thành kỳ vọng';           cls = 'lbl-ok'; }
+  else if (v === 2) { txt = 'Hoàn thành một phần';          cls = 'lbl-need'; }
+  else              { txt = 'Không đạt yêu cầu';            cls = 'lbl-fail'; }
+  el.textContent = txt;
+  el.className   = 'sc-lbl show ' + cls;
+}
+
 /* ── Goal detail popup ── */
 function openGoalDetail(tr) {
   const name = tr.dataset.name || '';
@@ -3011,7 +3026,7 @@ function renderManagerActions(){
 }
 
 function managerContextHtml(emp,role){
-  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button></div>';
+  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button><button class="btn btn-outline btn-sm" onclick="downloadManagerMyrPdf()"><i class="bx bxs-file-pdf"></i> Tải kết quả PDF</button></div>';
 }
 
 function renderManagerEmpty(panel,emp,role,icon,title,message){
@@ -3073,7 +3088,8 @@ function setupLm1DetailedForm(panel){
   if(overall){
     overall.className='overall-panel editable-panel';
     overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>Quản lý trực tiếp đánh giá<span class="badge b-action field-state">Bắt buộc</span></div>'+
-      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của Quản lý">'+managerScoreOptions()+'</select></div>'+
+      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của Quản lý" onchange="updateManagerOpLbl()">'+managerScoreOptions()+'</select><span class="sc-lbl" id="manager-op-lbl"></span></div>'+
+      '<label class="op-flbl">Đánh giá toàn diện của Quản lý trực tiếp</label>'+
       managerEditor('Nhập nhận xét đánh giá toàn diện cho Nhân viên…','lm1-overall',1000);
   }
 }
@@ -3081,6 +3097,7 @@ function setupLm1DetailedForm(panel){
 function agreeWithLm1Score(score){
   var select=document.querySelector('#manager-overall-score');
   if(select&&score!=='') select.value=String(score);
+  updateManagerOpLbl();
   showToast('Đã chọn đồng thuận với điểm của Quản lý trực tiếp.');
 }
 
@@ -3093,8 +3110,9 @@ function setupOverallOnlyForm(panel,role,lm1Score){
   if(overall){
     overall.className='overall-panel editable-panel';
     overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>'+managerRoleName(role)+' đánh giá<span class="badge b-action field-state">Bắt buộc</span></div>'+
-      '<div class="manager-overall-choice"><span class="op-score-lbl">Overall performance rating:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của '+managerRoleName(role)+'">'+managerScoreOptions()+'</select>'+
+      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của '+managerRoleName(role)+'" onchange="updateManagerOpLbl()">'+managerScoreOptions()+'</select><span class="sc-lbl" id="manager-op-lbl"></span>'+
       '<button class="manager-agree" '+(lm1Score===''?'disabled':'')+' onclick="agreeWithLm1Score(\''+lm1Score+'\')"><i class="bx bx-check-double"></i> Đồng thuận điểm LM1'+(lm1Score!==''?' ('+String(lm1Score)+')':'')+'</button></div>'+
+      '<label class="op-flbl">Đánh giá toàn diện của '+managerRoleName(role)+'</label>'+
       managerEditor('Nhập nhận xét tổng quan của '+managerRoleName(role)+'…',role+'-overall',1000);
   }
 }
@@ -3159,8 +3177,8 @@ function setupManagerDetail(){
   maskFutureManagerScores(panel,phase);
   if(phase!==role){
     lockManagerStructure(panel,role,lm1Score);
-    var navigation=panel.querySelector('.manager-detail-nav');
-    if(navigation) navigation.insertAdjacentHTML('afterend','<div class="manager-lock-note"><i class="bx bx-lock-alt"></i><span>'+managerLockMessage(role,phase)+'</span></div>');
+    var anchor=panel.querySelector('.submit-banner')||panel.querySelector('.manager-detail-nav');
+    if(anchor) anchor.insertAdjacentHTML('afterend','<div class="manager-lock-note"><i class="bx bx-lock-alt"></i><span>'+managerLockMessage(role,phase)+'</span></div>');
     return;
   }
 
