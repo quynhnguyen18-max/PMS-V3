@@ -1414,7 +1414,7 @@ label.ev-tb-btn{cursor:pointer}
               <th class="th-c th-ql" style="width:9%">Điểm QLTT</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="what-tbody">
             <!-- Cao: g3 (Hoàn thành) -->
             <tr class="g-row-done" data-name="Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms" data-result="Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.">
               <td><div class="g-name">Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms</div>
@@ -1507,7 +1507,7 @@ label.ev-tb-btn{cursor:pointer}
               <th class="th-c th-ql" style="width:8%">Điểm QLTT</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="dev-tbody">
             <tr data-name="Cải thiện kỹ năng system design qua self-study và practice" data-result="Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor.">
               <td><div class="g-name">Cải thiện kỹ năng system design qua self-study và practice</div></td>
               <td><div class="g-result">Hoàn thành 6 bài thực hành system design và 1 buổi mock interview đạt đánh giá tốt từ mentor.</div></td>
@@ -1564,7 +1564,7 @@ label.ev-tb-btn{cursor:pointer}
               <th class="th-c th-ql" style="width:12%">Điểm QLTT</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="how-tbody">
             <tr>
               <td><div class="g-name">Tập trung vào khách hàng</div></td>
               <td><div class="g-result">Thấu hiểu khách hàng: Chúng tôi chủ động lắng nghe khách hàng và thấu hiểu các nhu cầu của họ.<br>Nghĩ về khách hàng trước tiên: Chúng tôi cân nhắc góc nhìn của khách hàng trước tất cả góc nhìn khác trong quá trình ra quyết định.<br>Cung cấp trải nghiệm khách hàng vượt trội: Chúng tôi nỗ lực hết mình để tạo ra trải nghiệm vượt xa kỳ vọng hợp lý của khách hàng.</div></td>
@@ -2050,6 +2050,7 @@ label.ev-tb-btn{cursor:pointer}
 </div>
 
 
+<script src="../assets/employees-data.js"></script>
 <script>
 /* ── FILTER ── */
 /* ── ROW ACTION MENU (table view) ── */
@@ -3127,6 +3128,70 @@ function downloadManagerMyrPdf(){
   link.remove();
 }
 
+/* ── Render an employee's submitted MYR from shared data (PMS_*) ── */
+function myrEsc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function myrScSelect(score){
+  var opts='<option value="">—</option>';
+  for(var i=1;i<=5;i++) opts+='<option'+(String(i)===String(score)?' selected':'')+'>'+i+'</option>';
+  return '<td class="sc-cell"><select class="sc-select" aria-label="Điểm tự đánh giá">'+opts+'</select></td>';
+}
+function myrPrioCell(prio){
+  var map={h:['prio-h','Cao'],m:['prio-m','Trung bình'],l:['prio-l','Thấp']};
+  var pp=map[prio];
+  return '<td><div class="g-meta">'+(pp?'<span class="prio '+pp[0]+'">'+pp[1]+'</span>':'—')+'</div></td>';
+}
+function myrGoalRow(g,score,withPrio){
+  return '<tr data-name="'+myrEsc(g.title)+'" data-result="'+myrEsc(g.result)+'" onclick="openGoalDetail(this)">'+
+    '<td><div class="g-name">'+myrEsc(g.title)+'</div></td>'+
+    '<td><div class="g-result">'+myrEsc(g.result)+'</div></td>'+
+    (withPrio?myrPrioCell(g.prio):'')+
+    '<td><div class="g-meta">'+myrEsc(g.s)+' – '+myrEsc(g.e)+'</div></td>'+
+    myrScSelect(score)+
+    '<td class="ql-cell"><div class="ql-dash">—</div></td>'+
+  '</tr>';
+}
+function myrScoreLabel(v){
+  v=parseFloat(v); if(!v||v%1!==0) return null;
+  if(v===5) return {txt:'Hoàn thành vượt xa kỳ vọng',cls:'lbl-xs'};
+  if(v===4) return {txt:'Hoàn thành trên mức kỳ vọng',cls:'lbl-good'};
+  if(v===3) return {txt:'Hoàn thành kỳ vọng',cls:'lbl-ok'};
+  if(v===2) return {txt:'Hoàn thành một phần',cls:'lbl-need'};
+  return {txt:'Không đạt yêu cầu',cls:'lbl-fail'};
+}
+function populateEmployeeMyr(empId){
+  var emps=window.PMS_EMPLOYEES||[];
+  var emp=emps.find(function(e){return e.id===empId;});
+  if(!emp) return;
+  var se=(window.PMS_SELFEVAL||{})[empId]||{};
+  var scores=se.goalScores||{};
+  var whatG=emp.goals.filter(function(g){return g.type==='what'&&g.status==='approved';});
+  var devG=emp.goals.filter(function(g){return g.type==='dev'&&g.status==='approved';});
+  var wt=document.getElementById('what-tbody');
+  var dt=document.getElementById('dev-tbody');
+  if(wt) wt.innerHTML=whatG.map(function(g){return myrGoalRow(g,scores[g.id],true);}).join('');
+  if(dt) dt.innerHTML=devG.map(function(g){return myrGoalRow(g,scores[g.id],false);}).join('');
+  if(se.howScores){
+    var howSel=document.querySelectorAll('#how-tbody .sc-select');
+    se.howScores.forEach(function(v,i){ if(howSel[i]) howSel[i].value=String(v); });
+  }
+  if(se.comments){
+    ['what','dev','how'].forEach(function(k){
+      var el=document.getElementById('cmt-'+k);
+      if(el) el.textContent=se.comments[k]||'';
+    });
+  }
+  var myr=(window.PMS_MYR||{})[empId]||{};
+  var nv=(se.overall&&se.overall.score!=null)?se.overall.score:myr.nv;
+  var op=document.getElementById('op-score');
+  if(op){ op.value=(nv!=null?String(nv):''); updateOpLbl(); }
+  var opc=document.getElementById('op-cmt');
+  if(opc) opc.textContent=(se.overall&&se.overall.comment)||'';
+  var sv=document.getElementById('sb-score-val');
+  if(sv) sv.textContent=(nv!=null?String(nv):'—');
+  var tag=document.getElementById('sb-score-tag');
+  if(tag){ var lbl=myrScoreLabel(nv); if(lbl){tag.textContent=lbl.txt;tag.className='sb-score-tag '+lbl.cls;tag.hidden=false;} else {tag.textContent='';tag.className='sb-score-tag';tag.hidden=true;} }
+}
+
 function setupManagerDetail(){
   var params=new URLSearchParams(location.search);
   var emp=MANAGER_EMPLOYEES[params.get('emp')]||MANAGER_EMPLOYEES.e1;
@@ -3162,6 +3227,7 @@ function setupManagerDetail(){
     return;
   }
 
+  populateEmployeeMyr(MANAGER_DETAIL_STATE.empId);
   panel.insertAdjacentHTML('afterbegin',managerContextHtml(emp,role));
   var actions=panel.querySelector('.cycle-actions');
   if(actions) actions.innerHTML='';
