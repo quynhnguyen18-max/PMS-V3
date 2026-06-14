@@ -825,9 +825,14 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .manager-locked-structure .ev-content{min-height:72px;background:var(--z0)}
 .manager-detail .ql-cell.manager-locked-structure{opacity:.45;pointer-events:none}
 .manager-detail .employee-readonly{opacity:1;filter:none;pointer-events:none}
-.manager-detail .employee-readonly .ev-editor-wrap{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm);background:var(--z0)}
-.manager-detail .employee-readonly .ev-toolbar{display:flex;opacity:1;background:var(--z50)}
-.manager-detail .employee-readonly .ev-content{color:var(--z900);opacity:1;background:var(--z0)}
+.manager-detail .employee-readonly .ev-editor-wrap{border:1px solid var(--brand-ring);border-radius:var(--rsm);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm);background:var(--z0)}
+.manager-detail .employee-readonly .ev-toolbar{display:flex;opacity:1;background:var(--z50);border-bottom:1px solid var(--z200)}
+.manager-detail .employee-readonly .ev-content{padding:6px 8px 6px 11px;color:var(--z900);opacity:1;background:var(--z0);box-shadow:inset 3px 0 0 var(--brand)}
+.manager-detail .employee-readonly .ev-tb-sel:disabled{opacity:1;color:var(--z700);background:transparent;border-color:transparent;-webkit-text-fill-color:var(--z700);cursor:default}
+.manager-detail .employee-readonly .ev-tb-btn:disabled,
+.manager-detail .employee-readonly label.ev-tb-btn{opacity:1;color:var(--z700);background:transparent;border-color:transparent;cursor:default}
+.manager-detail .employee-readonly .ev-tb-sep{background:var(--z300)}
+.manager-detail .employee-readonly .ev-color-bar{background:var(--z900)!important}
 .manager-detail .employee-readonly .sc-select,
 .manager-detail .employee-readonly .op-select{color:var(--z900);opacity:1;background-color:var(--z0);border-color:var(--z300);-webkit-text-fill-color:var(--z900)}
 .manager-detail .employee-readonly .char-ct{color:var(--z500)}
@@ -835,6 +840,17 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .lm1-readonly .ev-editor-wrap{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm)}
 .manager-detail .lm1-readonly .ev-toolbar{display:flex;opacity:1}
 .manager-detail .lm1-readonly .ev-content{color:var(--z900);background:var(--z0)}
+body.embedded-detail{background:var(--z50)}
+body.embedded-detail .sidebar,
+body.embedded-detail .topbar,
+body.embedded-detail .breadcrumb,
+body.embedded-detail .page>.cycle-row,
+body.embedded-detail .page>.tabs,
+body.embedded-detail .manager-detail-nav{display:none!important}
+body.embedded-detail .workspace{margin-left:0}
+body.embedded-detail .page{padding:14px}
+body.embedded-detail .page-hd{margin-bottom:14px}
+body.embedded-detail .page-title{font-size:16px}
 @media(max-width:900px){
   .stepper-card{overflow-x:auto}
   .stepper-track{min-width:700px}
@@ -3293,6 +3309,7 @@ function setEmployeeReadOnly(panel){
 
 function setupManagerDetail(){
   var params=new URLSearchParams(location.search);
+  document.body.classList.toggle('embedded-detail',params.get('embed')==='1');
   var empId=params.get('emp')||'e1';
   var emp=managerEmployeeMeta(empId);
   var role=params.get('role')||'lm1';

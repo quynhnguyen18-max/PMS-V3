@@ -61,7 +61,7 @@ input,select,textarea{font-family:inherit}
 .sp-en{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp-em{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .sp-ect{font-size:10.5px;color:var(--z500);white-space:nowrap;margin-top:2px}
-.sp-ect .pnd{color:var(--info)}.sp-ect .upd{color:var(--brand)}
+.sp-ect .pnd{color:var(--info)}.sp-ect .upd{color:var(--brand)}.sp-ect .ok{color:var(--ok)}
 .sp-foot{padding:10px 12px;border-top:1px solid var(--z200);font-size:11.5px;color:var(--z500)}
 .sp-right{display:flex;flex-direction:column;background:var(--z50);overflow-y:auto}
 .sp-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:12px 14px 6px;flex-shrink:0}
@@ -94,6 +94,9 @@ input,select,textarea{font-family:inherit}
 .sp-ia:hover{background:var(--z100);color:var(--z900)}
 .sp-ia.accent{color:var(--brand)}.sp-ia.accent:hover{background:var(--brand-muted);color:var(--brand)}
 .sp-ia.danger{color:var(--err)}.sp-ia.danger:hover{background:var(--err-bg)}
+.myr-sp-right{min-height:calc(100vh - 220px)}
+.myr-sp-frame{display:block;width:100%;min-height:calc(100vh - 275px);flex:1;border:0;background:var(--z50)}
+.myr-sp-toolbar{border-bottom:1px solid var(--z200);padding-bottom:12px;background:var(--z0)}
 
 /* ── SIDEBAR ── */
 .sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
@@ -204,6 +207,24 @@ input,select,textarea{font-family:inherit}
 .role-sub-btn:not(.on):hover{background:var(--z100);color:var(--z800)}
 /* ── Filter row ── */
 .filter-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 12px;box-shadow:var(--sh-sm)}
+.filter-shell{position:relative;margin-bottom:14px;z-index:30}
+.filter-toolbar{display:flex;align-items:center;gap:8px;min-height:30px}
+.filter-menu{position:relative}
+.filter-toggle{gap:6px}
+.filter-toggle[aria-expanded="true"]{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.filter-toggle .bx-chevron-down{font-size:15px;transition:transform var(--t)}
+.filter-toggle[aria-expanded="true"] .bx-chevron-down{transform:rotate(180deg)}
+.filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 5px;border-radius:50px;background:var(--brand);color:var(--z0);font-size:10px;font-weight:700}
+.filter-popover{position:absolute;top:calc(100% + 6px);left:0;width:min(620px,calc(100vw - 80px));padding:12px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg);z-index:40}
+.filter-popover.is-single{width:min(320px,calc(100vw - 80px))}
+.filter-popover-grid{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:8px}
+.filter-popover.is-single .filter-popover-grid{grid-template-columns:1fr}
+.filter-popover .f-combo{width:100%}
+.filter-popover-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--z200)}
+.filter-hint{font-size:11.5px;color:var(--z500)}
+.filter-clear{border:none;background:transparent;color:var(--brand);font:600 12px inherit;cursor:pointer;padding:3px 0}
+.filter-clear:hover{text-decoration:underline}
+.filter-clear:disabled{color:var(--z400);cursor:not-allowed;text-decoration:none}
 .fsearch-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
 .fsearch-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--z400);pointer-events:none}
 .fsearch{width:100%;padding:6px 10px 6px 30px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);background:var(--z0);outline:none;transition:var(--t);box-sizing:border-box}
@@ -211,6 +232,7 @@ input,select,textarea{font-family:inherit}
 .f-combo{flex:1;min-width:0;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);background:var(--z0);outline:none;transition:var(--t);box-sizing:border-box}
 .f-combo:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 .f-combo::placeholder{color:var(--z400)}
+@media(max-width:720px){.filter-popover-grid{grid-template-columns:1fr}.filter-popover{width:min(360px,calc(100vw - 48px))}}
 .list-toolbar{display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px}
 .split-view-btn[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
 .split-view-btn[aria-pressed="true"]:hover{background:var(--brand-h);border-color:var(--brand-h)}
@@ -747,7 +769,12 @@ textarea.fc{resize:vertical}
       </div>
 
       <div id="myr-filter-row"></div>
-      <div class="myr-table-wrap">
+      <div class="list-toolbar">
+        <button class="btn btn-outline btn-sm split-view-btn" id="myr-split-view-btn" type="button" aria-pressed="false" onclick="toggleMyrSplitView()">
+          <i class="bx bx-columns"></i>Split View
+        </button>
+      </div>
+      <div class="myr-table-wrap" id="myr-list-view">
         <table class="myr-table">
           <colgroup id="myr-colgroup">
             <col style="width:23%"><col style="width:25%">
@@ -758,14 +785,31 @@ textarea.fc{resize:vertical}
               <th>Nhân viên</th>
               <th>Trạng thái</th>
               <th class="score">Điểm của NV</th>
-              <th class="score">Điểm của LM1</th>
-              <th class="score">Điểm của LM2</th>
+              <th class="score">Điểm của QLTT</th>
+              <th class="score">Điểm của QL cấp 2</th>
               <th class="score">Điểm của HOD</th>
               <th class="score">Điểm cuối cùng</th>
             </tr>
           </thead>
           <tbody id="myr-tbody"></tbody>
         </table>
+      </div>
+      <div id="myr-split-shell" style="display:none">
+        <div class="sp-shell">
+          <aside class="sp-left">
+            <div class="sp-search-bar">
+              <div class="sp-sw"><i class="bx bx-search"></i><input class="sp-si" id="myr-sp-search" placeholder="Tìm nhân viên..." oninput="renderMyrSpList()"/></div>
+            </div>
+            <div class="sp-emp-list" id="myr-sp-emp-list"></div>
+            <div class="sp-foot" id="myr-sp-foot"></div>
+          </aside>
+          <section class="sp-right myr-sp-right">
+            <div class="sp-toolbar myr-sp-toolbar">
+              <button class="btn btn-outline btn-sm" onclick="openMyrSpFullPage()"><i class="bx bx-link-external"></i>Mở toàn trang</button>
+            </div>
+            <iframe class="myr-sp-frame" id="myr-sp-frame" title="Chi tiết đánh giá của nhân viên"></iframe>
+          </section>
+        </div>
       </div>
     </div>
 
@@ -968,7 +1012,7 @@ const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
 const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'employee';
 
 /* ═══════════ STATE ═══════════ */
-const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', splitView:false, myrSelected:new Set() };
+const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', filterOpen:false, myrFilterOpen:false, splitView:false, myrSplitView:false, myrSelected:new Set() };
 
 /* ═══════════ HELPERS ═══════════ */
 function findEmp(id){ return EMPS.find(e=>e.id===id); }
@@ -1052,7 +1096,7 @@ const ROLE_GUIDE = {
   hod: 'Đang xem Danh sách nhân viên <strong>của Khối phòng ban</strong>. Tại đây, bạn có thể xem chi tiết mục tiêu của nhân viên. <span style="color:var(--z500)">(Không bao gồm nhân viên quản lý trực tiếp)</span>',
 };
 function setRole(r){
-  S.role=r; S.searchTerm=''; S.filterDiv=''; S.filterDept=''; S.filterTeam=''; S.filterLm1=''; S.filterLm2='';
+  S.role=r; S.filterOpen=false; S.searchTerm=''; S.filterDiv=''; S.filterDept=''; S.filterTeam=''; S.filterLm1=''; S.filterLm2='';
   // Main toggle buttons
   const isDir=r==='lm1';
   const mainLm1=document.getElementById('tab-lm1');
@@ -1071,7 +1115,15 @@ function setRole(r){
   renderFilterRow();
   renderEmpList();
   const _ss=document.getElementById('split-shell');
-  if(_ss&&_ss.style.display!=='none'){_spEmpId=null;renderSpList();}
+  if(S.splitView&&_ss){
+    const first=filteredGoalEmps()[0];
+    if(first) openGoalPanel(first.id);
+    else{
+      S.splitView=false;
+      closeGoalPanel();
+      updateSplitViewButton();
+    }
+  }
 }
 
 function myrEligibility(emp){
@@ -1087,8 +1139,8 @@ function myrStatus(emp){
   const eligibility=myrEligibility(emp);
   const review=MYR_DATA[emp.id]||{};
   return review.submitted
-    ?{eligible:eligibility.eligible,text:'Đã hoàn thành tự đánh giá',tone:'completed'}
-    :{eligible:eligibility.eligible,text:'Chưa hoàn thành tự đánh giá',tone:'incomplete'};
+    ?{eligible:eligibility.eligible,text:'Hoàn thành tự đánh giá',tone:'completed'}
+    :{eligible:eligibility.eligible,text:'Chưa tự đánh giá',tone:'incomplete'};
 }
 
 function formatMyrScore(value,finalScore){
@@ -1137,10 +1189,10 @@ function renderMyrTableHeader(){
     :S.myrRole==='hod'
       ?'<col style="width:13%"><col style="width:13%">'
       :'';
-  colgroup.innerHTML=selectionCol+'<col style="width:19%"><col style="width:19%">'+managerCols+
+  colgroup.innerHTML=selectionCol+'<col style="width:19%">'+managerCols+'<col style="width:19%">'+
     '<col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:6%">';
-  thead.innerHTML='<tr>'+selectionHeader+'<th>Nhân viên</th><th>Trạng thái</th>'+managerHeaders+
-    '<th class="score">Điểm của NV</th><th class="score">Điểm của LM1</th><th class="score">Điểm của LM2</th><th class="score">Điểm của HOD</th><th class="score">Điểm cuối cùng</th><th class="score">Chức năng</th></tr>';
+  thead.innerHTML='<tr>'+selectionHeader+'<th>Nhân viên</th>'+managerHeaders+'<th>Trạng thái</th>'+
+    '<th class="score">Điểm của NV</th><th class="score">Điểm của QLTT</th><th class="score">Điểm của QL cấp 2</th><th class="score">Điểm của HOD</th><th class="score">Điểm cuối cùng</th><th class="score">Chức năng</th></tr>';
 }
 
 function myrManagerCell(manager){
@@ -1376,6 +1428,7 @@ function importMyrRatings(file){
 function setMyrRole(role){
   S.myrRole=role;
   S.myrSelected.clear();
+  S.myrFilterOpen=false;
   S.myrSearchTerm='';
   S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
   const direct=role==='lm1';
@@ -1387,62 +1440,115 @@ function setMyrRole(role){
   renderMyrTableHeader();
   renderMyrFilterRow();
   renderMyrList();
+  if(S.myrSplitView){
+    const first=filteredMyrEmps()[0];
+    if(first) openMyrPanel(first.id);
+    else{
+      S.myrSplitView=false;
+      closeMyrPanel();
+      updateMyrSplitViewButton();
+    }
+  }
+}
+
+function activeFilterCount(scope){
+  const values=scope==='myr'
+    ?[S.myrSearchTerm,S.myrFilterDiv,S.myrFilterDept,S.myrFilterTeam,S.myrFilterLm1,S.myrFilterLm2]
+    :[S.searchTerm,S.filterDiv,S.filterDept,S.filterTeam,S.filterLm1,S.filterLm2];
+  return values.filter(value=>String(value||'').trim()).length;
+}
+
+function filterPopoverHtml(scope,fieldsHtml,isSingle){
+  const isMyr=scope==='myr';
+  const open=isMyr?S.myrFilterOpen:S.filterOpen;
+  const count=activeFilterCount(scope);
+  return `<div class="filter-menu">
+    <button class="btn btn-outline btn-sm filter-toggle" aria-expanded="${open}" aria-controls="${scope}-filter-popover" onclick="event.stopPropagation();toggleFilterPanel('${scope}')">
+      <i class="bx bx-filter-alt"></i> Bộ lọc
+      <span class="filter-count" id="${scope}-filter-count"${count?'':' hidden'}>${count}</span>
+      <i class="bx bx-chevron-down"></i>
+    </button>
+    ${open?`<div class="filter-popover${isSingle?' is-single':''}" id="${scope}-filter-popover">
+      <div class="filter-popover-grid">${fieldsHtml}</div>
+      <div class="filter-popover-foot">
+        <span class="filter-hint">Có thể chọn nhiều điều kiện</span>
+        <button class="filter-clear" id="${scope}-filter-clear" ${count?'':'disabled'} onclick="clearListFilters('${scope}')">Xóa bộ lọc</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function toggleFilterPanel(scope){
+  if(scope==='myr'){
+    S.myrFilterOpen=!S.myrFilterOpen;
+    renderMyrFilterRow();
+    updateMyrBulkControls();
+  }else{
+    S.filterOpen=!S.filterOpen;
+    renderFilterRow();
+  }
+}
+
+function updateFilterUi(scope){
+  const count=activeFilterCount(scope);
+  const badge=document.getElementById(scope+'-filter-count');
+  const clear=document.getElementById(scope+'-filter-clear');
+  if(badge){
+    badge.textContent=count;
+    badge.hidden=count===0;
+  }
+  if(clear) clear.disabled=count===0;
+}
+
+function clearListFilters(scope){
+  if(scope==='myr'){
+    S.myrSearchTerm='';
+    S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
+    renderMyrFilterRow();
+    renderMyrList();
+  }else{
+    S.searchTerm='';
+    S.filterDiv='';S.filterDept='';S.filterTeam='';S.filterLm1='';S.filterLm2='';
+    renderFilterRow();
+    renderEmpList();
+  }
 }
 
 function renderMyrFilterRow(){
   const el=document.getElementById('myr-filter-row');
   if(!el) return;
-  if(S.myrRole==='lm1'){
-    el.innerHTML=`<div class="filter-row">
-      <div class="fsearch-wrap">
-        <i class="bx bx-search"></i>
-        <input type="text" class="fsearch" placeholder="Tìm nhân viên..." value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
-      </div>
-    </div>`;
-  } else if(S.myrRole==='lm2'){
-    const emps=visibleMyrEmps();
-    const divs=[...new Set(emps.map(e=>e.div))].sort();
-    const depts=[...new Set(emps.map(e=>e.dept))].sort();
-    const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
-    const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
-    el.innerHTML=`<div class="filter-row">
-      <input class="f-combo" list="myr-dl-emp" placeholder="Nhân viên" value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
-      <datalist id="myr-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-div" placeholder="Division" value="${S.myrFilterDiv}" oninput="S.myrFilterDiv=this.value;renderMyrList()">
+  const emps=visibleMyrEmps();
+  const divs=[...new Set(emps.map(e=>e.div))].sort();
+  const depts=[...new Set(emps.map(e=>e.dept))].sort();
+  const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
+  const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  let fields=`<input class="f-combo" list="myr-dl-emp" placeholder="Nhân viên" value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList();updateFilterUi('myr')">
+    <datalist id="myr-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>`;
+  if(S.myrRole!=='lm1'){
+    fields+=`<input class="f-combo" list="myr-dl-div" placeholder="Division" value="${S.myrFilterDiv}" oninput="S.myrFilterDiv=this.value;renderMyrList();updateFilterUi('myr')">
       <datalist id="myr-dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-dept" placeholder="Department" value="${S.myrFilterDept}" oninput="S.myrFilterDept=this.value;renderMyrList()">
-      <datalist id="myr-dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-team" placeholder="Team" value="${S.myrFilterTeam}" oninput="S.myrFilterTeam=this.value;renderMyrList()">
-      <datalist id="myr-dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList()">
-      <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
-      ${myrBulkActionsHtml()}
-    </div>`;
-  } else {
-    const emps=visibleMyrEmps();
-    const divs=[...new Set(emps.map(e=>e.div))].sort();
-    const depts=[...new Set(emps.map(e=>e.dept))].sort();
-    const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
-    const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
-    el.innerHTML=`<div class="filter-row">
-      <input class="f-combo" list="myr-dl-emp" placeholder="Nhân viên" value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
-      <datalist id="myr-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-div" placeholder="Division" value="${S.myrFilterDiv}" oninput="S.myrFilterDiv=this.value;renderMyrList()">
-      <datalist id="myr-dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-dept" placeholder="Department" value="${S.myrFilterDept}" oninput="S.myrFilterDept=this.value;renderMyrList()">
-      <datalist id="myr-dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList()">
-      <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
-      <input class="f-combo" list="myr-dl-lm2" placeholder="Quản lý cấp 2" value="${S.myrFilterLm2}" oninput="S.myrFilterLm2=this.value;renderMyrList()">
-      <datalist id="myr-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
-      ${myrBulkActionsHtml()}
-    </div>`;
+      <input class="f-combo" list="myr-dl-dept" placeholder="Department" value="${S.myrFilterDept}" oninput="S.myrFilterDept=this.value;renderMyrList();updateFilterUi('myr')">
+      <datalist id="myr-dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>`;
+    if(S.myrRole==='lm2'){
+      fields+=`<input class="f-combo" list="myr-dl-team" placeholder="Team" value="${S.myrFilterTeam}" oninput="S.myrFilterTeam=this.value;renderMyrList();updateFilterUi('myr')">
+        <datalist id="myr-dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>`;
+    }
+    fields+=`<input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList();updateFilterUi('myr')">
+      <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    if(S.myrRole==='hod'){
+      fields+=`<input class="f-combo" list="myr-dl-lm2" placeholder="Quản lý cấp 2" value="${S.myrFilterLm2}" oninput="S.myrFilterLm2=this.value;renderMyrList();updateFilterUi('myr')">
+        <datalist id="myr-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    }
   }
+  el.innerHTML=`<div class="filter-shell"><div class="filter-toolbar">
+    ${filterPopoverHtml('myr',fields,S.myrRole==='lm1')}
+    ${myrBulkActionsHtml()}
+  </div></div>`;
+  updateMyrBulkControls();
 }
 
-function renderMyrList(){
-  const tbody=document.getElementById('myr-tbody');
-  if(!tbody) return;
+function filteredMyrEmps(){
   let emps=visibleMyrEmps();
   if(S.myrSearchTerm){
     const query=S.myrSearchTerm.toLowerCase();
@@ -1458,6 +1564,13 @@ function renderMyrList(){
     const rank=s=>s.tone==='completed'?0:1;
     return rank(aStatus)-rank(bStatus)||a.name.localeCompare(b.name,'vi');
   });
+  return emps;
+}
+
+function renderMyrList(){
+  const tbody=document.getElementById('myr-tbody');
+  if(!tbody) return;
+  const emps=filteredMyrEmps();
   if(!emps.length){
     S.myrSelected.clear();
     const colspan=S.myrRole==='lm1'?8:S.myrRole==='lm2'?10:11;
@@ -1497,8 +1610,8 @@ function renderMyrList(){
           </div>
         </div>
       </td>
-      <td><span class="myr-status ${status.tone}">${status.text}</span></td>
       ${managerCells}
+      <td><span class="myr-status ${status.tone}">${status.text}</span></td>
       <td class="score">${formatMyrScore(review.nv,false)}</td>
       <td class="score">${formatMyrScore(visibleMyrScore(review,'lm1'),false)}</td>
       <td class="score">${myrRatingCell(emp,review,'lm2')}</td>
@@ -1513,6 +1626,16 @@ function renderMyrList(){
 function openMyrDetail(empId){
   const emp=findEmp(empId);
   if(!emp) return;
+  if(S.myrSplitView){
+    openMyrPanel(empId);
+    return;
+  }
+  location.href=myrDetailUrl(empId,false);
+}
+
+function myrDetailUrl(empId,embedded){
+  const emp=findEmp(empId);
+  if(!emp) return '#';
   const status=myrStatus(emp);
   const review=MYR_DATA[emp.id]||{};
   const params=new URLSearchParams({
@@ -1525,7 +1648,97 @@ function openMyrDetail(empId){
     lm1:review.lm1===null?'':review.lm1,
     lm2:review.lm2===null?'':review.lm2
   });
-  location.href='../M-02/index.html?'+params.toString();
+  if(embedded) params.set('embed','1');
+  return '../M-02/index.html?'+params.toString();
+}
+
+var _myrSpEmpId=null;
+
+function updateMyrSplitViewButton(){
+  const btn=document.getElementById('myr-split-view-btn');
+  if(btn) btn.setAttribute('aria-pressed',String(S.myrSplitView));
+}
+
+function toggleMyrSplitView(){
+  S.myrSplitView=!S.myrSplitView;
+  updateMyrSplitViewButton();
+  if(!S.myrSplitView){
+    closeMyrPanel();
+    return;
+  }
+  const first=filteredMyrEmps()[0];
+  if(!first){
+    S.myrSplitView=false;
+    updateMyrSplitViewButton();
+    toast('Không có nhân viên phù hợp để hiển thị Split View.');
+    return;
+  }
+  openMyrPanel(first.id);
+}
+
+function openMyrPanel(empId){
+  const emp=findEmp(empId);
+  if(!emp) return;
+  _myrSpEmpId=empId;
+  document.getElementById('myr-filter-row').style.display='none';
+  document.getElementById('myr-list-view').style.display='none';
+  document.getElementById('myr-split-shell').style.display='';
+  const search=document.getElementById('myr-sp-search');
+  if(search&&search.dataset.role!==S.myrRole){
+    search.value='';
+    search.dataset.role=S.myrRole;
+  }
+  renderMyrSpList();
+  const frame=document.getElementById('myr-sp-frame');
+  const src=myrDetailUrl(empId,true);
+  if(frame&&frame.getAttribute('src')!==src) frame.src=src;
+}
+
+function closeMyrPanel(){
+  _myrSpEmpId=null;
+  const shell=document.getElementById('myr-split-shell');
+  const list=document.getElementById('myr-list-view');
+  const filters=document.getElementById('myr-filter-row');
+  if(shell) shell.style.display='none';
+  if(list) list.style.display='';
+  if(filters) filters.style.display='';
+  const frame=document.getElementById('myr-sp-frame');
+  if(frame) frame.removeAttribute('src');
+}
+
+function renderMyrSpList(){
+  const search=document.getElementById('myr-sp-search');
+  const term=search?(search.value||'').toLowerCase():'';
+  const base=filteredMyrEmps();
+  const emps=term?base.filter(emp=>(emp.name+' '+emp.login+' '+emp.dept+' '+(emp.team||'')).toLowerCase().includes(term)):base;
+  const list=document.getElementById('myr-sp-emp-list');
+  if(!list) return;
+  list.innerHTML=emps.map(emp=>{
+    const status=myrStatus(emp);
+    const review=MYR_DATA[emp.id]||{};
+    const score=visibleMyrScore(review,S.myrRole);
+    return `<div class="sp-ei${emp.id===_myrSpEmpId?' on':''}" onclick="myrSpSelectEmp('${emp.id}')">
+      <div class="sp-av">${emp.ini}</div>
+      <div class="sp-ec">
+        <div class="sp-en">${emp.name}</div>
+        <div class="sp-em">${emp.dept}${emp.team?' · '+emp.team:''}</div>
+        <div class="sp-ect"><span class="${status.tone==='completed'?'ok':'upd'}">${status.text}</span>${score!==null&&score!==undefined?' · Điểm '+S.myrRole.toUpperCase()+': '+score:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const foot=document.getElementById('myr-sp-foot');
+  if(foot) foot.textContent=`Hiển thị ${emps.length} / ${base.length} nhân viên`;
+}
+
+function myrSpSelectEmp(empId){
+  _myrSpEmpId=empId;
+  renderMyrSpList();
+  const frame=document.getElementById('myr-sp-frame');
+  if(frame) frame.src=myrDetailUrl(empId,true);
+}
+
+function openMyrSpFullPage(){
+  if(_myrSpEmpId) location.href=myrDetailUrl(_myrSpEmpId,false);
 }
 
 function updateSplitViewButton(){
@@ -1537,8 +1750,16 @@ function updateSplitViewButton(){
 function toggleSplitView(){
   S.splitView=!S.splitView;
   document.body.classList.toggle('split-mode',S.splitView);
-  if(!S.splitView&&document.getElementById('split-shell').style.display!=='none'){
+  if(!S.splitView){
     closeGoalPanel();
+  }else{
+    const first=filteredGoalEmps()[0];
+    if(first) openGoalPanel(first.id);
+    else{
+      S.splitView=false;
+      document.body.classList.remove('split-mode');
+      toast('Không có nhân viên phù hợp để hiển thị Split View.');
+    }
   }
   updateSplitViewButton();
 }
@@ -1546,54 +1767,37 @@ function toggleSplitView(){
 function renderFilterRow(){
   const el=document.getElementById('filter-row');
   if(!el) return;
-  if(S.role==='lm1'){
-    el.innerHTML=`<div class="filter-row">
-      <div class="fsearch-wrap">
-        <i class="bx bx-search"></i>
-        <input type="text" class="fsearch" id="emp-search" placeholder="Tìm nhân viên..." value="${S.searchTerm}" oninput="S.searchTerm=this.value;renderEmpList()">
-      </div>
-    </div>`;
-  } else if(S.role==='lm2'){
-    const emps=visibleEmps();
-    const divs=[...new Set(emps.map(e=>e.div))].sort();
-    const depts=[...new Set(emps.map(e=>e.dept))].sort();
-    const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
-    const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
-    el.innerHTML=`<div class="filter-row">
-      <input class="f-combo" list="dl-emp" placeholder="Nhân viên" value="${S.searchTerm}" oninput="S.searchTerm=this.value;renderEmpList()">
-      <datalist id="dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
-      <input class="f-combo" list="dl-div" placeholder="Division" value="${S.filterDiv}" oninput="S.filterDiv=this.value;renderEmpList()">
+  const emps=visibleEmps();
+  const divs=[...new Set(emps.map(e=>e.div))].sort();
+  const depts=[...new Set(emps.map(e=>e.dept))].sort();
+  const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
+  const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  let fields=`<input class="f-combo" list="dl-emp" placeholder="Nhân viên" value="${S.searchTerm}" oninput="S.searchTerm=this.value;renderEmpList();updateFilterUi('goal')">
+    <datalist id="dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>`;
+  if(S.role!=='lm1'){
+    fields+=`<input class="f-combo" list="dl-div" placeholder="Division" value="${S.filterDiv}" oninput="S.filterDiv=this.value;renderEmpList();updateFilterUi('goal')">
       <datalist id="dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="dl-dept" placeholder="Department" value="${S.filterDept}" oninput="S.filterDept=this.value;renderEmpList()">
-      <datalist id="dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="dl-team" placeholder="Team" value="${S.filterTeam}" oninput="S.filterTeam=this.value;renderEmpList()">
-      <datalist id="dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>
-      <input class="f-combo" list="dl-lm1" placeholder="Quản lý trực tiếp" value="${S.filterLm1}" oninput="S.filterLm1=this.value;renderEmpList()">
-      <datalist id="dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
-    </div>`;
-  } else {
-    const emps=visibleEmps();
-    const divs=[...new Set(emps.map(e=>e.div))].sort();
-    const depts=[...new Set(emps.map(e=>e.dept))].sort();
-    const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
-    const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
-    el.innerHTML=`<div class="filter-row">
-      <input class="f-combo" list="dl-emp" placeholder="Nhân viên" value="${S.searchTerm}" oninput="S.searchTerm=this.value;renderEmpList()">
-      <datalist id="dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
-      <input class="f-combo" list="dl-div" placeholder="Division" value="${S.filterDiv}" oninput="S.filterDiv=this.value;renderEmpList()">
-      <datalist id="dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="dl-dept" placeholder="Department" value="${S.filterDept}" oninput="S.filterDept=this.value;renderEmpList()">
-      <datalist id="dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>
-      <input class="f-combo" list="dl-lm1" placeholder="Quản lý trực tiếp" value="${S.filterLm1}" oninput="S.filterLm1=this.value;renderEmpList()">
-      <datalist id="dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
-      <input class="f-combo" list="dl-lm2" placeholder="Quản lý cấp 2" value="${S.filterLm2}" oninput="S.filterLm2=this.value;renderEmpList()">
-      <datalist id="dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
-    </div>`;
+      <input class="f-combo" list="dl-dept" placeholder="Department" value="${S.filterDept}" oninput="S.filterDept=this.value;renderEmpList();updateFilterUi('goal')">
+      <datalist id="dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>`;
+    if(S.role==='lm2'){
+      fields+=`<input class="f-combo" list="dl-team" placeholder="Team" value="${S.filterTeam}" oninput="S.filterTeam=this.value;renderEmpList();updateFilterUi('goal')">
+        <datalist id="dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>`;
+    }
+    fields+=`<input class="f-combo" list="dl-lm1" placeholder="Quản lý trực tiếp" value="${S.filterLm1}" oninput="S.filterLm1=this.value;renderEmpList();updateFilterUi('goal')">
+      <datalist id="dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    if(S.role==='hod'){
+      fields+=`<input class="f-combo" list="dl-lm2" placeholder="Quản lý cấp 2" value="${S.filterLm2}" oninput="S.filterLm2=this.value;renderEmpList();updateFilterUi('goal')">
+        <datalist id="dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    }
   }
+  el.innerHTML=`<div class="filter-shell"><div class="filter-toolbar">
+    ${filterPopoverHtml('goal',fields,S.role==='lm1')}
+  </div></div>`;
 }
 
 /* ═══════════ RENDER: EMPLOYEE LIST ═══════════ */
-function renderEmpList(){
+function filteredGoalEmps(){
   const raw=visibleEmps();
   // Sort: pending-action first → regular → resigned/maternity last
   const sortKey=e=>(e.resigned||e.maternity)?2:e.goals.some(g=>g.status==='pending')?0:1;
@@ -1606,6 +1810,11 @@ function renderEmpList(){
   if(S.filterTeam){const q=S.filterTeam.toLowerCase();emps=emps.filter(e=>e.team&&e.team.toLowerCase().includes(q));}
   if(S.filterLm1){const q=S.filterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
   if(S.filterLm2){const q=S.filterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
+  return emps;
+}
+
+function renderEmpList(){
+  const emps=filteredGoalEmps();
   const el=document.getElementById('emp-list');
   if(!emps.length){ el.innerHTML='<div style="padding:24px;text-align:center;font-size:13px;color:var(--z500)">Không có nhân viên nào khớp.</div>'; return; }
 
@@ -1706,6 +1915,11 @@ function openGoalPanel(eid){
   document.getElementById('filter-row').style.display='none';
   document.getElementById('emp-list').style.display='none';
   document.getElementById('split-shell').style.display='';
+  const search=document.getElementById('sp-search');
+  if(search&&search.dataset.role!==S.role){
+    search.value='';
+    search.dataset.role=S.role;
+  }
   renderSpList();
   renderSpDetail(eid);
 }
@@ -1719,7 +1933,7 @@ function closeGoalPanel(){
 
 function renderSpList(){
   const term=(document.getElementById('sp-search').value||'').toLowerCase();
-  const base=visibleEmps();
+  const base=filteredGoalEmps();
   const emps=term?base.filter(e=>(e.name+' '+e.login+' '+e.dept).toLowerCase().includes(term)):base;
   document.getElementById('sp-emp-list').innerHTML=emps.map(emp=>{
     const pnd=emp.goals.filter(g=>g.status==='pending').length;
@@ -1734,7 +1948,7 @@ function renderSpList(){
         (counts?`<div class="sp-ect">${counts}</div>`:'')+
       `</div></div>`;
   }).join('');
-  document.getElementById('sp-foot').textContent=`Hiển thị ${emps.length} / ${EMPS.length} nhân viên`;
+  document.getElementById('sp-foot').textContent=`Hiển thị ${emps.length} / ${base.length} nhân viên`;
 }
 
 function spSelectEmp(eid){
@@ -2068,6 +2282,7 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
   renderFilterRow();
   renderEmpList();
   updateSplitViewButton();
+  updateMyrSplitViewButton();
   const initialParams=new URLSearchParams(location.search);
   if(initialParams.get('tab')==='myr'){
     const initialRole=['lm1','lm2','hod'].includes(initialParams.get('role'))?initialParams.get('role'):'lm1';
@@ -2075,6 +2290,19 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
     switchCycleTab(1);
   }
 })();
+
+document.addEventListener('click',event=>{
+  const goalMenu=document.querySelector('#filter-row .filter-menu');
+  if(S.filterOpen&&goalMenu&&!goalMenu.contains(event.target)){
+    S.filterOpen=false;
+    renderFilterRow();
+  }
+  const myrMenu=document.querySelector('#myr-filter-row .filter-menu');
+  if(S.myrFilterOpen&&myrMenu&&!myrMenu.contains(event.target)){
+    S.myrFilterOpen=false;
+    renderMyrFilterRow();
+  }
+});
 </script>
 </body>
 </html>
