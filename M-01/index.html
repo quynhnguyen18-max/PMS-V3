@@ -216,6 +216,28 @@ input,select,textarea{font-family:inherit}
 .split-view-btn[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
 .split-view-btn[aria-pressed="true"]:hover{background:var(--brand-h);border-color:var(--brand-h)}
 
+/* ── MID-YEAR REVIEW LIST ── */
+.myr-table-wrap{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-md);overflow:auto}
+.myr-table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed}
+.myr-table th{padding:9px 12px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z700);text-align:left;white-space:nowrap}
+.myr-table th.score,.myr-table td.score{text-align:center}
+.myr-table td{padding:12px;border-bottom:1px solid var(--z200);font-size:13px;color:var(--z800);vertical-align:middle}
+.myr-table tbody tr{cursor:pointer;transition:background .08s}
+.myr-table tbody tr:hover{background:var(--z50)}
+.myr-table tbody tr:last-child td{border-bottom:0}
+.myr-emp{display:flex;align-items:center;gap:10px;min-width:0}
+.myr-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--brand-muted);color:var(--brand);font-size:11px;font-weight:700;flex-shrink:0}
+.myr-emp-info{min-width:0}
+.myr-emp-name{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.myr-emp-meta{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.myr-status{display:inline-flex;align-items:center;max-width:100%;padding:3px 8px;border:1px solid;border-radius:50px;font-size:11.5px;font-weight:500;line-height:1.35}
+.myr-status.completed{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
+.myr-status.incomplete{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
+.myr-score{font-size:13px;font-weight:700;color:var(--z900)}
+.myr-score.empty{font-weight:400;color:var(--z300)}
+.myr-final{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:25px;border-radius:var(--rsm);background:var(--z100);border:1px solid var(--z200);font-weight:700;color:var(--z900)}
+.myr-empty{padding:30px 16px;text-align:center;font-size:13px;color:var(--z500)}
+
 /* ── NOTICE BANNER ── */
 .notice-bar{display:flex;align-items:flex-start;gap:9px;padding:10px 14px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);margin-bottom:14px;font-size:13px;color:var(--z600);line-height:1.5}
 .notice-bar>i{color:var(--z400);font-size:16px;flex-shrink:0;margin-top:1px}
@@ -427,6 +449,32 @@ textarea.fc{resize:vertical}
 .cy-tab-btn.wip{color:var(--z400);cursor:not-allowed}
 .cy-tab-cnt{display:inline-flex;align-items:center;justify-content:center;padding:0 6px;min-width:18px;height:17px;border-radius:50px;font-size:10px;font-weight:700;background:var(--z100);color:var(--z500)}
 .cy-tab-btn.on .cy-tab-cnt{background:var(--brand-muted);color:var(--brand)}
+.cy-tab-btn.has-active-label{position:relative}
+.cy-active-label{position:absolute;top:-6px;right:4px;height:13px;padding:0 4px;font-size:8px;font-weight:500;line-height:11px;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:50px;pointer-events:none}
+
+/* ── MYR PROCESS ── */
+.myr-process{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:16px 18px 14px;margin-bottom:14px}
+.myr-process-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:16px;display:flex;align-items:center;gap:5px}
+.myr-process-hd i{font-size:13px;color:var(--brand)}
+.myr-process-track{display:flex;align-items:flex-start;position:relative}
+.myr-process-track::before{content:'';position:absolute;top:13px;left:14px;right:14px;height:2px;background:var(--z200)}
+.myr-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;text-align:center;padding:0 4px}
+.myr-step-circle{width:28px;height:28px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.myr-step.active .myr-step-circle{background:var(--brand);color:#fff;box-shadow:0 0 0 3px var(--brand-ring)}
+.myr-step.done .myr-step-circle{background:var(--ok);color:#fff}
+.myr-step-label{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35;margin-top:9px}
+.myr-step.active .myr-step-label{color:var(--brand)}
+.myr-step-time{font-size:11px;color:var(--z500);margin-top:3px}
+.myr-step-tag{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:10.5px;font-weight:600;color:var(--brand)}
+.myr-step-dot{width:5px;height:5px;border-radius:50%;background:var(--brand)}
+.myr-info{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;margin-bottom:14px;border:1px solid var(--info-bd);border-radius:var(--rsm);background:var(--info-bg);font-size:12.5px;color:var(--z700);line-height:1.5}
+.myr-info i{font-size:16px;color:var(--info);margin-top:1px;flex-shrink:0}
+.myr-manager{font-size:12.5px;color:var(--z800);line-height:1.35}
+.myr-manager .er-login{display:block;margin-top:2px}
+.myr-rating-action{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.myr-rating-select{min-width:72px;padding:4px 22px 4px 8px;border:1px solid var(--brand-ring);border-radius:var(--rsm);background:var(--z0);font:600 12px inherit;color:var(--z900)}
+.myr-agree-btn{padding:4px 7px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font:500 11px inherit;color:var(--z700);cursor:pointer;white-space:nowrap}
+.myr-agree-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
 
 /* ── View switcher ── */
 .view-sw{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px;gap:2px}
@@ -546,10 +594,10 @@ textarea.fc{resize:vertical}
       <button class="cy-tab-btn on" id="cy-0" onclick="switchCycleTab(0)">
         Mục tiêu nhân viên <span class="cy-tab-cnt" id="cy-0-cnt">0</span>
       </button>
-      <button class="cy-tab-btn wip" title="Chưa mở trong chu kỳ 2026">
-        Đánh giá giữa năm
+      <button class="cy-tab-btn has-active-label" id="cy-1" onclick="switchCycleTab(1)">
+        Mid-Year Review <span class="cy-active-label">Đang hoạt động</span>
       </button>
-      <button class="cy-tab-btn wip" title="Chưa mở trong chu kỳ 2026">
+      <button class="cy-tab-btn wip" id="cy-2" title="Chưa mở trong chu kỳ 2026">
         Đánh giá cuối năm
       </button>
     </div>
@@ -614,12 +662,81 @@ textarea.fc{resize:vertical}
       </div>
     </div>
 
-    <!-- ── Panel: Mid-Year Review (WIP) ── -->
+    <!-- ── Panel: Mid-Year Review ── -->
     <div id="cy-panel-1" style="display:none">
-      <div class="wip-panel">
-        <i class="bx bx-clipboard"></i>
-        <h3>Đánh giá giữa năm chưa bắt đầu</h3>
-        <p>Kỳ đánh giá giữa năm sẽ được mở vào tháng 6/2026.<br>Bạn sẽ nhận thông báo khi chu kỳ đánh giá bắt đầu.</p>
+      <div class="myr-process">
+        <div class="myr-process-hd"><i class="bx bx-directions"></i>Quy trình đánh giá MYR 2026</div>
+        <div class="myr-process-track">
+          <div class="myr-step active" data-phase="employee">
+            <div class="myr-step-circle">1</div>
+            <div class="myr-step-label">Nhân viên tự đánh giá</div>
+            <div class="myr-step-time">22/06 – 06/07/2026</div>
+            <div class="myr-step-tag"><span class="myr-step-dot"></span>Đang thực hiện</div>
+          </div>
+          <div class="myr-step" data-phase="lm1">
+            <div class="myr-step-circle">2</div>
+            <div class="myr-step-label">QLTT đánh giá</div>
+            <div class="myr-step-time">07/07 – 16/07/2026</div>
+          </div>
+          <div class="myr-step" data-phase="lm2">
+            <div class="myr-step-circle">3</div>
+            <div class="myr-step-label">Quản lý cấp 2 đánh giá</div>
+            <div class="myr-step-time">17/07 – 21/07/2026</div>
+          </div>
+          <div class="myr-step" data-phase="hod">
+            <div class="myr-step-circle">4</div>
+            <div class="myr-step-label">HOD đánh giá</div>
+            <div class="myr-step-time">22/07 – 25/07/2026</div>
+          </div>
+          <div class="myr-step" data-phase="publish">
+            <div class="myr-step-circle">5</div>
+            <div class="myr-step-label">Công bố kết quả</div>
+            <div class="myr-step-time">26/07/2026</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="myr-info">
+        <i class="bx bx-info-circle"></i>
+        <span>Kết quả cuối cùng của nhân viên là điểm của cấp quản lý cao nhất có tham gia đánh giá giữa năm.</span>
+      </div>
+
+      <div class="role-sw-row">
+        <div class="role-main-group">
+          <button class="role-main-btn on" id="myr-tab-lm1" onclick="setMyrRole('lm1')">
+            <i class="bx bx-user-check"></i><span>Direct reports</span>
+          </button>
+          <button class="role-main-btn" id="myr-tab-indirect" onclick="if(S.myrRole==='lm1')setMyrRole('lm2')">
+            <i class="bx bx-sitemap"></i><span>Indirect reports</span>
+          </button>
+        </div>
+        <div class="role-sub-group" id="myr-role-sub-group" style="display:none">
+          <span class="role-sub-lbl">Vai trò:</span>
+          <button class="role-sub-btn on" id="myr-tab-lm2" onclick="setMyrRole('lm2')">LM2</button>
+          <button class="role-sub-btn" id="myr-tab-hod" onclick="setMyrRole('hod')">HOD</button>
+        </div>
+      </div>
+
+      <div id="myr-filter-row"></div>
+      <div class="myr-table-wrap">
+        <table class="myr-table">
+          <colgroup id="myr-colgroup">
+            <col style="width:23%"><col style="width:25%">
+            <col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%">
+          </colgroup>
+          <thead id="myr-thead">
+            <tr>
+              <th>Nhân viên</th>
+              <th>Trạng thái</th>
+              <th class="score">Điểm của NV</th>
+              <th class="score">Điểm của LM1</th>
+              <th class="score">Điểm của LM2</th>
+              <th class="score">Điểm của HOD</th>
+              <th class="score">Điểm cuối cùng</th>
+            </tr>
+          </thead>
+          <tbody id="myr-tbody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -850,8 +967,30 @@ const EMPS = [
   ]},
 ];
 
+const MYR_DATA = {
+  e1:{submitted:true,nv:4,lm1:null,lm2:null,hod:null,final:null},
+  e2:{submitted:true,nv:3.5,lm1:4,lm2:null,hod:null,final:4},
+  e3:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e4:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e5:{submitted:true,nv:4,lm1:4,lm2:4.5,hod:null,final:4.5},
+  e6:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e7:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e8:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e9:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e10:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e11:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e12:{submitted:true,nv:4,lm1:4,lm2:4,hod:4.5,final:4.5},
+  e13:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e14:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
+  e15:{submitted:true,nv:4.5,lm1:4.5,lm2:4,hod:null,final:4},
+  e16:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null}
+};
+
+const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
+const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'employee';
+
 /* ═══════════ STATE ═══════════ */
-const S = { role:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', splitView:false };
+const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', splitView:false };
 
 /* ═══════════ HELPERS ═══════════ */
 function findEmp(id){ return EMPS.find(e=>e.id===id); }
@@ -860,6 +999,10 @@ function visibleEmps(){
   if(S.role==='lm1') return EMPS.filter(e=>e.lvl==='lm1');
   if(S.role==='lm2') return EMPS.filter(e=>e.lvl==='lm2');
   return EMPS.filter(e=>e.lvl==='hod');
+}
+
+function visibleMyrEmps(){
+  return EMPS.filter(e=>e.lvl===S.myrRole);
 }
 
 function pendingCnt(emp){ return emp.goals.filter(g=>g.status==='pending').length; }
@@ -910,6 +1053,12 @@ function switchCycleTab(n){
     const p=document.getElementById('cy-panel-'+i);
     if(p) p.style.display=i===n?'block':'none';
   });
+  if(n===1){
+    renderMyrProcess();
+    renderMyrTableHeader();
+    renderMyrFilterRow();
+    renderMyrList();
+  }
 }
 
 function renderCycleBadge(){
@@ -945,6 +1094,197 @@ function setRole(r){
   renderEmpList();
   const _ss=document.getElementById('split-shell');
   if(_ss&&_ss.style.display!=='none'){_spEmpId=null;renderSpList();}
+}
+
+function myrEligibility(emp){
+  const hasWhat=emp.goals.some(g=>g.type==='what'&&g.status==='approved');
+  const hasDev=emp.goals.some(g=>g.type==='dev'&&g.status==='approved');
+  if(hasWhat&&hasDev) return {eligible:true,text:'Đủ điều kiện tham gia MYR',tone:'eligible'};
+  if(!hasWhat&&!hasDev) return {eligible:false,text:'Thiếu mục tiêu công việc và phát triển',tone:'missing'};
+  if(!hasWhat) return {eligible:false,text:'Thiếu mục tiêu công việc',tone:'missing'};
+  return {eligible:false,text:'Thiếu mục tiêu phát triển',tone:'missing'};
+}
+
+function myrStatus(emp){
+  const eligibility=myrEligibility(emp);
+  const review=MYR_DATA[emp.id]||{};
+  return review.submitted
+    ?{eligible:eligibility.eligible,text:'Đã hoàn thành tự đánh giá',tone:'completed'}
+    :{eligible:eligibility.eligible,text:'Chưa hoàn thành tự đánh giá',tone:'incomplete'};
+}
+
+function formatMyrScore(value,finalScore){
+  if(value===null||value===undefined||value==='') return '<span class="myr-score empty">—</span>';
+  const text=String(value);
+  return finalScore
+    ?`<span class="myr-final">${text}</span>`
+    :`<span class="myr-score">${text}</span>`;
+}
+
+function myrPhaseIndex(phase){
+  return MYR_PHASES.indexOf(phase);
+}
+
+function renderMyrProcess(){
+  const currentIndex=myrPhaseIndex(MYR_CURRENT_PHASE);
+  document.querySelectorAll('.myr-step').forEach(step=>{
+    const stepIndex=myrPhaseIndex(step.dataset.phase);
+    step.classList.toggle('done',stepIndex<currentIndex);
+    step.classList.toggle('active',stepIndex===currentIndex);
+    const oldTag=step.querySelector('.myr-step-tag');
+    if(oldTag) oldTag.remove();
+    if(stepIndex===currentIndex){
+      step.insertAdjacentHTML('beforeend','<div class="myr-step-tag"><span class="myr-step-dot"></span>Đang thực hiện</div>');
+    }
+  });
+}
+
+function renderMyrTableHeader(){
+  const colgroup=document.getElementById('myr-colgroup');
+  const thead=document.getElementById('myr-thead');
+  if(!colgroup||!thead) return;
+  const managerHeaders=S.myrRole==='lm2'
+    ?'<th>Quản lý trực tiếp</th>'
+    :S.myrRole==='hod'
+      ?'<th>Quản lý trực tiếp</th><th>Quản lý cấp 2</th>'
+      :'';
+  const managerCols=S.myrRole==='lm2'
+    ?'<col style="width:15%">'
+    :S.myrRole==='hod'
+      ?'<col style="width:13%"><col style="width:13%">'
+      :'';
+  colgroup.innerHTML='<col style="width:21%"><col style="width:23%">'+managerCols+
+    '<col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:9%">';
+  thead.innerHTML='<tr><th>Nhân viên</th><th>Trạng thái</th>'+managerHeaders+
+    '<th class="score">Điểm của NV</th><th class="score">Điểm của LM1</th><th class="score">Điểm của LM2</th><th class="score">Điểm của HOD</th><th class="score">Điểm cuối cùng</th></tr>';
+}
+
+function myrManagerCell(manager){
+  if(!manager) return '<td><span class="myr-score empty">—</span></td>';
+  return `<td><div class="myr-manager">${manager.name}<span class="er-login">(${manager.login})</span></div></td>`;
+}
+
+function visibleMyrScore(review,role){
+  if(role==='final') return MYR_CURRENT_PHASE==='publish'?review.final:null;
+  return myrPhaseIndex(MYR_CURRENT_PHASE)>=myrPhaseIndex(role)?review[role]:null;
+}
+
+function myrRatingOptions(selected){
+  return ['','1','1.5','2','2.5','3','3.5','4','4.5','5'].map(value=>{
+    const label=value===''?'Chọn điểm':value;
+    return `<option value="${value}"${String(selected??'')===value?' selected':''}>${label}</option>`;
+  }).join('');
+}
+
+function myrRatingCell(emp,review,role){
+  const canRate=MYR_CURRENT_PHASE===role&&S.myrRole===role&&myrStatus(emp).tone==='completed';
+  if(!canRate) return formatMyrScore(visibleMyrScore(review,role),false);
+  const lm1Score=visibleMyrScore(review,'lm1');
+  return `<div class="myr-rating-action">
+    <select class="myr-rating-select" aria-label="Điểm ${role.toUpperCase()}" onclick="event.stopPropagation()" onchange="setMyrRating('${emp.id}','${role}',this.value)">
+      ${myrRatingOptions(review[role])}
+    </select>
+    ${lm1Score!==null&&lm1Score!==undefined?`<button class="myr-agree-btn" onclick="event.stopPropagation();agreeMyrRating('${emp.id}','${role}',${lm1Score})">Duyệt điểm LM1 (${String(lm1Score)})</button>`:''}
+  </div>`;
+}
+
+function setMyrRating(empId,role,value){
+  if(!MYR_DATA[empId]) return;
+  MYR_DATA[empId][role]=value===''?null:Number(value);
+}
+
+function agreeMyrRating(empId,role,value){
+  setMyrRating(empId,role,value);
+  renderMyrList();
+}
+
+function setMyrRole(role){
+  S.myrRole=role;
+  S.myrSearchTerm='';
+  const direct=role==='lm1';
+  document.getElementById('myr-tab-lm1').classList.toggle('on',direct);
+  document.getElementById('myr-tab-indirect').classList.toggle('on',!direct);
+  document.getElementById('myr-role-sub-group').style.display=direct?'none':'flex';
+  document.getElementById('myr-tab-lm2').classList.toggle('on',role==='lm2');
+  document.getElementById('myr-tab-hod').classList.toggle('on',role==='hod');
+  renderMyrTableHeader();
+  renderMyrFilterRow();
+  renderMyrList();
+}
+
+function renderMyrFilterRow(){
+  const el=document.getElementById('myr-filter-row');
+  if(!el) return;
+  el.innerHTML=`<div class="filter-row">
+    <div class="fsearch-wrap">
+      <i class="bx bx-search"></i>
+      <input type="text" class="fsearch" placeholder="Tìm nhân viên..." value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList()">
+    </div>
+  </div>`;
+}
+
+function renderMyrList(){
+  const tbody=document.getElementById('myr-tbody');
+  if(!tbody) return;
+  let emps=visibleMyrEmps();
+  if(S.myrSearchTerm){
+    const query=S.myrSearchTerm.toLowerCase();
+    emps=emps.filter(e=>(e.name+' '+e.login+' '+e.dept+' '+(e.team||'')).toLowerCase().includes(query));
+  }
+  emps=emps.slice().sort((a,b)=>{
+    const aStatus=myrStatus(a),bStatus=myrStatus(b);
+    const rank=s=>s.tone==='completed'?0:1;
+    return rank(aStatus)-rank(bStatus)||a.name.localeCompare(b.name,'vi');
+  });
+  if(!emps.length){
+    const colspan=S.myrRole==='lm1'?7:S.myrRole==='lm2'?8:9;
+    tbody.innerHTML=`<tr><td colspan="${colspan}"><div class="myr-empty">Không có nhân viên nào khớp.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=emps.map(emp=>{
+    const status=myrStatus(emp);
+    const review=MYR_DATA[emp.id]||{};
+    const managerCells=S.myrRole==='lm2'
+      ?myrManagerCell(emp.mgr)
+      :S.myrRole==='hod'
+        ?myrManagerCell(emp.mgr)+myrManagerCell(emp.mgr2)
+        :'';
+    return `<tr onclick="openMyrDetail('${emp.id}')">
+      <td>
+        <div class="myr-emp">
+          <div class="myr-av">${emp.ini}</div>
+          <div class="myr-emp-info">
+            <div class="myr-emp-name">${emp.name} <span class="er-login">(${emp.login})</span></div>
+            <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?` – ${emp.team}`:''} – ${emp.pos}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="myr-status ${status.tone}">${status.text}</span></td>
+      ${managerCells}
+      <td class="score">${formatMyrScore(review.nv,false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'lm1'),false)}</td>
+      <td class="score">${myrRatingCell(emp,review,'lm2')}</td>
+      <td class="score">${myrRatingCell(emp,review,'hod')}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'final'),true)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openMyrDetail(empId){
+  const emp=findEmp(empId);
+  if(!emp) return;
+  const status=myrStatus(emp);
+  const review=MYR_DATA[emp.id]||{};
+  const params=new URLSearchParams({
+    emp:emp.id,
+    role:S.myrRole,
+    eligible:status.eligible?'1':'0',
+    submitted:review.submitted?'1':'0',
+    status:status.text,
+    phase:MYR_CURRENT_PHASE,
+    lm1:review.lm1===null?'':review.lm1
+  });
+  location.href='../M-02/index.html?'+params.toString();
 }
 
 function updateSplitViewButton(){
@@ -1481,6 +1821,12 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
   renderFilterRow();
   renderEmpList();
   updateSplitViewButton();
+  const initialParams=new URLSearchParams(location.search);
+  if(initialParams.get('tab')==='myr'){
+    const initialRole=['lm1','lm2','hod'].includes(initialParams.get('role'))?initialParams.get('role'):'lm1';
+    setMyrRole(initialRole);
+    switchCycleTab(1);
+  }
 })();
 </script>
 </body>

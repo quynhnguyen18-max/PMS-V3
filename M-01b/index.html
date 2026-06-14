@@ -73,6 +73,7 @@ input,select,textarea{font-family:inherit}
 .breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800);text-decoration:underline}.bc-sep{color:var(--z400)}
 .page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
 .page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.page-hd-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .cycle-row{display:flex;align-items:center;gap:8px}
 .cycle-row i{font-size:14px;color:var(--z500)}
 .cycle-lbl{font-size:13px;color:var(--z500)}
@@ -290,9 +291,13 @@ textarea.fc{resize:vertical;min-height:80px}
     </div>
     <div class="page-hd">
       <h1 class="page-title">Chi tiết Mục tiêu</h1>
-      <div class="cycle-row">
-        <i class="bx bx-calendar"></i><span class="cycle-lbl">Chu kỳ</span>
-        <select class="cycle-sel"><option>2026</option><option>2025</option></select>
+      <div class="page-hd-actions">
+        <div class="cycle-row">
+          <i class="bx bx-calendar"></i><span class="cycle-lbl">Chu kỳ</span>
+          <select class="cycle-sel"><option>2026</option><option>2025</option></select>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="downloadManagerGoals('xls')"><i class="bx bx-spreadsheet"></i> Tải Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadManagerGoals('csv')"><i class="bx bx-download"></i> Tải CSV</button>
       </div>
     </div>
     <div id="emp-hdr"></div>
@@ -1012,6 +1017,67 @@ function doBulkApprove(){
   clearBulk();
   updateSummary();
   toast('Đã duyệt '+pend.length+' mục tiêu','ok');
+}
+
+/* ═══════════════════════════════════════════
+   DOWNLOAD GOALS
+═══════════════════════════════════════════ */
+function managerGoalExportRows(){
+  return sortedGoalIds().map(function(id){
+    var g=GOALS[id];
+    var priority=prioInfo(g.prio);
+    var status={
+      pending:'Chờ duyệt',
+      approved:'Đã duyệt',
+      update:'Cần cập nhật',
+      rejected:'Bị từ chối',
+      draft:'Nháp'
+    }[g.status]||g.status;
+    return [
+      typeInfo(g.type).lbl,
+      g.title,
+      g.result,
+      priority?priority.lbl:'—',
+      g.from+' – '+g.to,
+      status
+    ];
+  });
+}
+
+function exportHtml(value){
+  return String(value).replace(/[&<>"']/g,function(char){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+  });
+}
+
+function downloadManagerGoals(format){
+  var headers=['Loại mục tiêu','Tên mục tiêu','Kết quả cần đạt','Mức độ ưu tiên','Thời gian','Trạng thái'];
+  var rows=managerGoalExportRows();
+  var blob;
+  var extension;
+  if(format==='csv'){
+    var csv=[headers].concat(rows).map(function(row){
+      return row.map(function(value){return '"'+String(value).replace(/"/g,'""')+'"';}).join(',');
+    }).join('\r\n');
+    blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    extension='csv';
+  }else{
+    var html='<html><head><meta charset="utf-8"></head><body><table border="1"><thead><tr>'+
+      headers.map(function(value){return '<th>'+exportHtml(value)+'</th>';}).join('')+
+      '</tr></thead><tbody>'+
+      rows.map(function(row){return '<tr>'+row.map(function(value){return '<td>'+exportHtml(value)+'</td>';}).join('')+'</tr>';}).join('')+
+      '</tbody></table></body></html>';
+    blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+    extension='xls';
+  }
+  var url=URL.createObjectURL(blob);
+  var link=document.createElement('a');
+  link.href=url;
+  link.download='muc-tieu-'+EMP.login.replace(/\./g,'-')+'-2026.'+extension;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},0);
 }
 
 /* ═══════════════════════════════════════════
