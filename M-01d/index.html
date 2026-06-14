@@ -38,10 +38,6 @@ button{cursor:pointer}a{color:var(--brand);text-decoration:none}
 .role-sw{display:flex;gap:2px;padding:10px 12px 6px}.role-btn{flex:1;padding:4px;border:1px solid var(--z200);border-radius:var(--rxs);background:transparent;color:var(--z500);font-size:12px;font-weight:600}.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
 .sb-nav{flex:1;padding:2px 0}.sb-grp{display:block;padding:12px 14px 3px;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500)}
 .sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px}.sb-item i{font-size:15px;width:16px;text-align:center}.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
-.sb-sub-item{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 34px;margin:1px 6px;border-radius:var(--rsm);color:var(--z500);font-size:12.5px;cursor:pointer;transition:var(--t)}
-.sb-sub-item:hover{background:var(--z100);color:var(--z800)}
-.sb-sub-item.on{color:var(--brand);font-weight:600}
-.sb-sub-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .sb-foot{padding:8px 10px;border-top:1px solid var(--z100)}.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px}.sb-uname{font-size:13px;font-weight:500;color:var(--z900)}.sb-urole{font-size:11px;color:var(--z500)}
 .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;background:var(--z100);color:var(--z700)}
 .av-brand{background:var(--brand-muted);color:var(--brand)}.av-sm{width:24px;height:24px;font-size:10px}
@@ -91,8 +87,6 @@ body.collapsed .review-shell{grid-template-columns:72px minmax(0,1fr)}body.colla
     <nav class="sb-nav">
       <span class="sb-grp">Tổng quan</span><div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
       <span class="sb-grp">Mục tiêu &amp; Đánh giá</span><div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
-      <div class="sb-sub-item" onclick="location.href='../M-01/index.html'"><span class="sb-sub-dot"></span>Phương án 1 — Popup</div>
-      <div class="sb-sub-item on" onclick="location.href='../M-01/index.html?mode=split'"><span class="sb-sub-dot"></span>Phương án 2 — Split View</div>
       <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
     </nav>
     <div class="sb-foot"><div class="sb-user"><div class="av av-brand">LT</div><div><div class="sb-uname">Lê Thị Thanh</div><div class="sb-urole">Quản lý, ITC - Backend</div></div></div></div>

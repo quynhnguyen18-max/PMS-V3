@@ -44,8 +44,6 @@ input,select,textarea{font-family:inherit}
 .app{display:flex;min-height:100vh}
 .sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
 .workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
-/* ── PA2 SPLIT MODE ── */
-body.split-mode #kpi-row{display:none}
 /* ── SPLIT SHELL (M-01d layout inside M-01 page) ── */
 .page-sticky-hd{position:sticky;top:0;background:var(--z50);z-index:10;padding-bottom:4px}
 .sp-shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100vh - 220px);border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);overflow:hidden}
@@ -115,10 +113,6 @@ body.split-mode #kpi-row{display:none}
 .sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
 .sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500);transition:var(--t)}
 .sb-item:hover i{color:var(--z600)}.sb-item.on i{color:var(--brand)}
-.sb-sub-item{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 34px;margin:1px 6px;border-radius:var(--rsm);color:var(--z500);font-size:12.5px;cursor:pointer;transition:var(--t)}
-.sb-sub-item:hover{background:var(--z100);color:var(--z800)}
-.sb-sub-item.on{color:var(--brand);font-weight:600}
-.sb-sub-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0;background:var(--z0);position:sticky;bottom:0}
 .sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
 .sb-user:hover{background:var(--z100)}
@@ -218,6 +212,9 @@ body.split-mode #kpi-row{display:none}
 .f-combo{flex:1;min-width:0;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);background:var(--z0);outline:none;transition:var(--t);box-sizing:border-box}
 .f-combo:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 .f-combo::placeholder{color:var(--z400)}
+.list-toolbar{display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px}
+.split-view-btn[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.split-view-btn[aria-pressed="true"]:hover{background:var(--brand-h);border-color:var(--brand-h)}
 
 /* ── NOTICE BANNER ── */
 .notice-bar{display:flex;align-items:flex-start;gap:9px;padding:10px 14px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);margin-bottom:14px;font-size:13px;color:var(--z600);line-height:1.5}
@@ -237,8 +234,11 @@ body.split-mode #kpi-row{display:none}
 .er-stat i{font-size:13px}
 .er-stat.what-s{background:var(--what-bg);color:var(--what);border-color:var(--what-bd)}
 .er-stat.dev-s{background:var(--dev-bg);color:var(--dev);border-color:var(--dev-bd)}
-.er-pending{flex-shrink:0;width:190px;display:flex;flex-direction:row;align-items:center;gap:6px;flex-wrap:nowrap;justify-content:center}
-.er-stat.er-stat-pend{background:var(--z0);color:var(--z600);border-color:var(--brand-ring)}
+.er-status{flex-shrink:0;width:170px;display:flex;align-items:center;justify-content:flex-start}
+.er-status-text{font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap}
+.er-status-text.action{color:var(--brand)}
+.er-status-text.pending{color:var(--info)}
+.er-status-text.setup{color:var(--z600)}
 .er-pending-empty{font-size:14px;color:var(--z300)}
 .er-action{flex-shrink:0;width:100px;display:flex;justify-content:center;align-items:center}
 .er-lm1{flex-shrink:0;width:155px;min-width:0}
@@ -407,7 +407,7 @@ textarea.fc{resize:vertical}
 .elh-stats{flex-shrink:0;width:220px;text-align:left;white-space:nowrap}
 .elh-lm1{flex-shrink:0;width:155px;text-align:left;white-space:nowrap}
 .elh-lm2{flex-shrink:0;width:155px;text-align:left;white-space:nowrap}
-.elh-pend{flex-shrink:0;width:190px;text-align:center;white-space:nowrap}
+.elh-status{flex-shrink:0;width:170px;text-align:left;white-space:nowrap}
 .elh-action{flex-shrink:0;width:100px;text-align:center;white-space:nowrap}
 .elh-note{display:block;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--z700);margin-top:0}
 /* Employee name domain */
@@ -463,34 +463,6 @@ textarea.fc{resize:vertical}
 .ov-note i{font-size:14px;color:var(--z400)}
 .ov-note strong{color:var(--z700)}
 
-/* ── KPI summary cards ── */
-.kpi-cards{display:flex;align-items:stretch;gap:10px;margin-bottom:20px;flex-wrap:nowrap}
-.kpi-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh-md);flex:1;min-width:0;display:flex;align-items:center;gap:13px;cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s}
-.kpi-card:hover:not(.kpi-active){border-color:var(--z300);background:var(--z50);box-shadow:var(--sh-lg)}
-.kpi-card.kpi-active{border-color:var(--brand)!important;background:var(--brand-muted)!important;box-shadow:0 0 0 2px var(--brand-ring),var(--sh-md)}
-.kpi-card.kpi-active .kpi-n{color:var(--brand)}
-.kpi-card.kpi-active .kpi-lbl{color:var(--brand)}
-.kpi-card.kpi-active .kpi-sub{color:var(--brand)}
-.kpi-card.kpi-active .kpi-ico{background:rgba(165,0,100,.13);color:var(--brand)}
-.kpi-ico{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;background:var(--brand-muted);color:var(--brand);transition:background .12s,color .12s}
-.kpi-ico.ico-warn{background:var(--warn-bg);color:var(--warn)}
-.kpi-ico.ico-err{background:var(--err-bg);color:var(--err)}
-.kpi-ico.ico-ok{background:var(--ok-bg);color:var(--ok)}
-.kpi-ico.ico-info{background:var(--info-bg);color:var(--info)}
-.kpi-n{font-size:26px;font-weight:700;color:var(--brand);line-height:1;flex-shrink:0}
-.kpi-lbl-wrap{display:flex;flex-direction:column;gap:2px;min-width:0}
-.kpi-lbl{font-size:12.5px;font-weight:500;color:var(--z700);line-height:1.4}
-.kpi-sub{font-size:10px;font-weight:400;color:var(--z400);line-height:1.35;margin-top:1px}
-.kpi-sep{width:1px;background:var(--z200);flex-shrink:0;margin:0 4px;align-self:stretch}
-.kpi-card-group{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-md);flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
-.kpig-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .12s,box-shadow .12s;flex:1}
-.kpig-item+.kpig-item{border-top:1px solid var(--z200)}
-.kpig-item:hover:not(.kpi-active){background:var(--z50)}
-.kpig-item.kpi-active{background:var(--brand-muted);box-shadow:inset 0 0 0 2px var(--brand)}
-.kpig-n{font-size:20px;font-weight:700;color:var(--brand);line-height:1;flex-shrink:0;min-width:22px}
-.kpig-lbl{font-size:11.5px;font-weight:400;color:var(--z600);line-height:1.4}
-.kpig-item.kpi-active .kpig-n,.kpig-item.kpi-active .kpig-lbl{color:var(--brand)}
-
 /* ── WIP tab panel placeholder ── */
 .wip-panel{padding:56px 24px;text-align:center;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r)}
 .wip-panel i.bx{font-size:40px;color:var(--z300);display:block;margin-bottom:14px}
@@ -521,8 +493,6 @@ textarea.fc{resize:vertical}
     <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
     <div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
-    <div class="sb-sub-item" id="sb-pa1" onclick="location.href='../M-01/index.html'"><span class="sb-sub-dot"></span>Phương án 1 — Popup</div>
-    <div class="sb-sub-item" id="sb-pa2" onclick="location.href='../M-01/index.html?mode=split'"><span class="sb-sub-dot"></span>Phương án 2 — Split View</div>
     <div class="sb-item"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
   </nav>
 
@@ -605,15 +575,19 @@ textarea.fc{resize:vertical}
         </div>
       </div>
 
-      <!-- KPI summary cards (rendered by JS) -->
-      <div id="kpi-row"></div>
-
       <!-- Filter row (rendered by JS) -->
       <div id="filter-row"></div>
 
+      <!-- Employee list view mode -->
+      <div class="list-toolbar">
+        <button class="btn btn-outline btn-sm split-view-btn" id="split-view-btn" type="button" aria-pressed="false" onclick="toggleSplitView()">
+          <i class="bx bx-columns"></i>Split View
+        </button>
+      </div>
+
       <!-- Employee list -->
       <div class="emp-list" id="emp-list"></div>
-      <!-- SPLIT SHELL: M-01d layout, shown when employee clicked in PA2 mode -->
+      <!-- SPLIT SHELL: M-01d layout, shown when an employee is selected -->
       <div id="split-shell" style="display:none">
         <div class="sp-shell">
           <aside class="sp-left">
@@ -877,7 +851,7 @@ const EMPS = [
 ];
 
 /* ═══════════ STATE ═══════════ */
-const S = { role:'lm1', empId:null, goalId:null, dlgTab:0, kpiFilter:null, searchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'' };
+const S = { role:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', splitView:false };
 
 /* ═══════════ HELPERS ═══════════ */
 function findEmp(id){ return EMPS.find(e=>e.id===id); }
@@ -889,7 +863,24 @@ function visibleEmps(){
 }
 
 function pendingCnt(emp){ return emp.goals.filter(g=>g.status==='pending').length; }
-function updateCnt(emp){ return emp.goals.filter(g=>g.status==='update').length; }
+
+function employeeGoalStatus(emp,isDirect){
+  const pending=pendingCnt(emp);
+  const hasApproved=emp.goals.some(g=>g.status==='approved');
+  if(pending>0){
+    return {
+      text:isDirect?`Duyệt ${pending} mục tiêu`:`${pending} chờ duyệt`,
+      tone:isDirect?'action':'pending'
+    };
+  }
+  if(!hasApproved){
+    return {
+      text:isDirect?'Nhắc nhở thiết lập':'Chưa thiết lập',
+      tone:'setup'
+    };
+  }
+  return {text:'',tone:''};
+}
 
 function badgeSt(status){
   if(status==='pending') return `<span class="badge b-action">Chờ duyệt</span>`;
@@ -921,81 +912,10 @@ function switchCycleTab(n){
   });
 }
 
-/* ═══════════ KPI CARD HELPER ═══════════ */
-function kpiCard(lbl, n, fk, sub=''){
-  const cls='kpi-card'+(S.kpiFilter===fk?' kpi-active':'');
-  const subHtml=sub?`<div class="kpi-sub">${sub}</div>`:'';
-  return `<div class="${cls}" onclick="filterByKpi('${fk}')"><div class="kpi-n">${n}</div><div class="kpi-lbl-wrap"><div class="kpi-lbl">${lbl}</div>${subHtml}</div></div>`;
-}
-function kpiCardGroup(items){
-  const inner=items.map(({lbl,n,fk})=>{
-    const act=S.kpiFilter===fk?' kpi-active':'';
-    return `<div class="kpig-item${act}" onclick="filterByKpi('${fk}')"><div class="kpig-n">${n}</div><div class="kpig-lbl">${lbl}</div></div>`;
-  }).join('');
-  return `<div class="kpi-card-group">${inner}</div>`;
-}
-
-/* ═══════════ RENDER: KPI CARDS ═══════════ */
-function renderKpi(){
-  const emps=visibleEmps();
-  const r=S.role;
-
-  // Common counts across visible employees
-  const total=emps.length;
-  const needGoals=emps.filter(e=>e.goals.filter(g=>g.status!=='draft').length===0).length;
-  const resigned=emps.filter(e=>e.resigned).length;
-  const maternity=emps.filter(e=>e.maternity).length;
-
-  // Tab badge: actionable pending (exclude resigned + maternity — cannot approve for either)
+function renderCycleBadge(){
   const lm1Pend=EMPS.filter(e=>e.lvl==='lm1'&&!e.resigned&&!e.maternity&&e.goals.some(g=>g.status==='pending')).length;
   const badge=document.getElementById('cy-0-cnt');
   if(badge){ badge.textContent=lm1Pend; badge.style.display=lm1Pend>0?'':'none'; }
-
-  let cards='';
-  if(r==='lm1'){
-    const withPending=emps.filter(e=>!e.resigned&&!e.maternity&&e.goals.some(g=>g.status==='pending')).length;
-    const withUpdate=emps.filter(e=>!e.resigned&&!e.maternity&&e.goals.some(g=>g.status==='update')).length;
-    cards=
-      kpiCard('NV có mục tiêu <strong>chờ duyệt</strong>', withPending, 'pending')+
-      kpiCard('NV có mục tiêu <strong>đang cập nhật</strong>', withUpdate, 'update')+
-      kpiCardGroup([
-        {lbl:'NV đã <strong>nộp đơn nghỉ việc</strong>', n:resigned, fk:'resigned'},
-        {lbl:'NV đang <strong>nghỉ thai sản</strong>', n:maternity, fk:'maternity'}
-      ]);
-  } else if(r==='lm2'){
-    const active=emps.filter(e=>!e.resigned&&!e.maternity);
-    const completed=active.filter(e=>
-      e.goals.some(g=>g.type==='what'&&g.status==='approved')&&
-      e.goals.some(g=>g.type==='dev'&&g.status==='approved')&&
-      !e.goals.some(g=>g.status==='pending')
-    ).length;
-    const needSetup=active.length;
-    cards=
-      kpiCard('NV cần <strong>Thiết lập Mục tiêu</strong>', needSetup, 'need-setup')+
-      kpiCard('NV hoàn thành <strong>Thiết lập mục tiêu</strong>', completed, 'completed', 'NV có ít nhất 1 Mục tiêu công việc và Phát triển đã duyệt, không có Mục tiêu chờ duyệt')+
-      kpiCardGroup([
-        {lbl:'NV đã <strong>nộp đơn nghỉ việc</strong>', n:resigned, fk:'resigned'},
-        {lbl:'NV đang <strong>nghỉ thai sản</strong>', n:maternity, fk:'maternity'}
-      ]);
-  } else {
-    const active=emps.filter(e=>!e.resigned&&!e.maternity);
-    const completed=active.filter(e=>
-      e.goals.some(g=>g.type==='what'&&g.status==='approved')&&
-      e.goals.some(g=>g.type==='dev'&&g.status==='approved')&&
-      !e.goals.some(g=>g.status==='pending')
-    ).length;
-    const needSetup=active.length;
-    cards=
-      kpiCard('NV cần <strong>Thiết lập Mục tiêu</strong>', needSetup, 'need-setup')+
-      kpiCard('NV hoàn thành <strong>Thiết lập mục tiêu</strong>', completed, 'completed', 'NV có ít nhất 1 Mục tiêu công việc và Phát triển đã duyệt, không có Mục tiêu chờ duyệt')+
-      kpiCardGroup([
-        {lbl:'NV đã <strong>nộp đơn nghỉ việc</strong>', n:resigned, fk:'resigned'},
-        {lbl:'NV đang <strong>nghỉ thai sản</strong>', n:maternity, fk:'maternity'}
-      ]);
-  }
-
-  const el=document.getElementById('kpi-row');
-  if(el) el.innerHTML=`<div class="kpi-cards">${cards}</div>`;
 }
 
 /* ═══════════ ROLE TABS ═══════════ */
@@ -1005,7 +925,7 @@ const ROLE_GUIDE = {
   hod: 'Đang xem Danh sách nhân viên <strong>của Khối phòng ban</strong>. Tại đây, bạn có thể xem chi tiết mục tiêu của nhân viên. <span style="color:var(--z500)">(Không bao gồm nhân viên quản lý trực tiếp)</span>',
 };
 function setRole(r){
-  S.role=r; S.kpiFilter=null; S.searchTerm=''; S.filterDiv=''; S.filterDept=''; S.filterTeam=''; S.filterLm1=''; S.filterLm2='';
+  S.role=r; S.searchTerm=''; S.filterDiv=''; S.filterDept=''; S.filterTeam=''; S.filterLm1=''; S.filterLm2='';
   // Main toggle buttons
   const isDir=r==='lm1';
   const mainLm1=document.getElementById('tab-lm1');
@@ -1021,17 +941,25 @@ function setRole(r){
     if(subLm2) subLm2.classList.toggle('on',r==='lm2');
     if(subHod) subHod.classList.toggle('on',r==='hod');
   }
-  renderKpi();
   renderFilterRow();
   renderEmpList();
   const _ss=document.getElementById('split-shell');
   if(_ss&&_ss.style.display!=='none'){_spEmpId=null;renderSpList();}
 }
 
-function filterByKpi(fk){
-  S.kpiFilter=S.kpiFilter===fk?null:fk;
-  renderKpi();
-  renderEmpList();
+function updateSplitViewButton(){
+  const btn=document.getElementById('split-view-btn');
+  if(!btn) return;
+  btn.setAttribute('aria-pressed',String(S.splitView));
+}
+
+function toggleSplitView(){
+  S.splitView=!S.splitView;
+  document.body.classList.toggle('split-mode',S.splitView);
+  if(!S.splitView&&document.getElementById('split-shell').style.display!=='none'){
+    closeGoalPanel();
+  }
+  updateSplitViewButton();
 }
 
 function renderFilterRow(){
@@ -1089,18 +1017,6 @@ function renderEmpList(){
   // Sort: pending-action first → regular → resigned/maternity last
   const sortKey=e=>(e.resigned||e.maternity)?2:e.goals.some(g=>g.status==='pending')?0:1;
   let emps=raw.slice().sort((a,b)=>sortKey(a)-sortKey(b));
-  // Apply KPI quick-filter
-  const kf=S.kpiFilter;
-  if(kf&&kf!=='all'){
-    if(kf==='pending') emps=emps.filter(e=>!e.resigned&&e.goals.some(g=>g.status==='pending'));
-    else if(kf==='update') emps=emps.filter(e=>e.goals.some(g=>g.status==='update'));
-    else if(kf==='resigned') emps=emps.filter(e=>e.resigned);
-    else if(kf==='maternity') emps=emps.filter(e=>e.maternity);
-    else if(kf==='nogoal') emps=emps.filter(e=>e.goals.filter(g=>g.status!=='draft').length===0);
-    else if(kf==='both') emps=emps.filter(e=>e.goals.some(g=>g.type==='what'&&g.status==='approved')&&e.goals.some(g=>g.type==='dev'&&g.status==='approved'));
-    else if(kf==='completed') emps=emps.filter(e=>e.goals.some(g=>g.type==='what'&&g.status==='approved')&&e.goals.some(g=>g.type==='dev'&&g.status==='approved')&&!e.goals.some(g=>g.status==='pending'));
-    else if(kf==='need-setup') emps=emps.filter(e=>!(e.goals.some(g=>g.type==='what'&&g.status==='approved')&&e.goals.some(g=>g.type==='dev'&&g.status==='approved')&&!e.goals.some(g=>g.status==='pending')));
-  }
   // Apply employee filter (partial text match for both LM1 text-search and LM2/HOD combo)
   if(S.searchTerm){const q=S.searchTerm.toLowerCase();emps=emps.filter(e=>e.name.toLowerCase().includes(q)||e.login.toLowerCase().includes(q));}
   // Apply division/dept/team filters (partial match supports both typing and dropdown)
@@ -1120,7 +1036,8 @@ function renderEmpList(){
     ?`<div class="emp-list-hdr">
         <div class="elh-info">Nhân viên</div>
         <div class="elh-lm1">Quản lý trực tiếp</div>
-        <div class="elh-stats">Tổng số Mục tiêu đã duyệt</div>
+        <div class="elh-stats">Mục tiêu đã duyệt</div>
+        <div class="elh-status">Trạng thái</div>
         <div class="elh-action">Chức năng</div>
       </div>`
     :isHod
@@ -1128,19 +1045,20 @@ function renderEmpList(){
           <div class="elh-info">Nhân viên</div>
           <div class="elh-lm1">Quản lý trực tiếp</div>
           <div class="elh-lm2">Quản lý cấp 2</div>
-          <div class="elh-stats">Tổng số Mục tiêu đã duyệt</div>
+          <div class="elh-stats">Mục tiêu đã duyệt</div>
+          <div class="elh-status">Trạng thái</div>
           <div class="elh-action">Chức năng</div>
         </div>`
     :isLm1
       ?`<div class="emp-list-hdr">
           <div class="elh-info">Nhân viên</div>
-          <div class="elh-stats">Tổng số Mục tiêu đã duyệt</div>
-          <div class="elh-pend">Tổng số Mục tiêu chờ duyệt</div>
+          <div class="elh-stats">Mục tiêu đã duyệt</div>
+          <div class="elh-status">Quản lý cần làm</div>
           <div class="elh-action">Chức năng</div>
         </div>`
       :`<div class="emp-list-hdr">
           <div class="elh-info">Nhân viên</div>
-          <div class="elh-stats">Tổng số Mục tiêu đã duyệt</div>
+          <div class="elh-stats">Mục tiêu đã duyệt</div>
           <div class="elh-action">Chức năng</div>
         </div>`;
 
@@ -1150,20 +1068,10 @@ function renderEmpList(){
     const wAll=emp.goals.filter(g=>g.type==='what'&&g.status==='approved').length;
     const dAll=emp.goals.filter(g=>g.type==='dev'&&g.status==='approved').length;
     const pCnt=pendingCnt(emp);
-    const uCnt=updateCnt(emp);
-
-    // "Chờ duyệt" column — tổng số, tooltip hiện breakdown
-    const wPend=emp.goals.filter(g=>g.type==='what'&&g.status==='pending').length;
-    const dPend=emp.goals.filter(g=>g.type==='dev'&&g.status==='pending').length;
-    let pendingHtml='';
-    if(pCnt>0){
-      const tipParts=[];
-      if(wPend>0) tipParts.push(`${wPend} Mục tiêu công việc`);
-      if(dPend>0) tipParts.push(`${dPend} Mục tiêu phát triển`);
-      pendingHtml=`<span class="er-stat er-stat-pend" title="${tipParts.join(', ')}">${pCnt}</span>`;
-    } else {
-      pendingHtml=`<span class="er-pending-empty">—</span>`;
-    }
+    const goalStatus=employeeGoalStatus(emp,isLm1);
+    const statusHtml=goalStatus.text
+      ?`<span class="er-status-text ${goalStatus.tone}">${goalStatus.text}</span>`
+      :'';
 
     const lockIco=isRO?` <i class="bx bx-lock-alt" style="font-size:11px;color:var(--z400);margin-left:2px" title="Nhân viên gián tiếp — chỉ xem"></i>`:'';
     const statusTags=
@@ -1200,7 +1108,7 @@ function renderEmpList(){
         <span class="er-stat" title="Mục tiêu công việc đã duyệt"><i class="bx bx-target-lock"></i>${wAll} công việc</span>
         ${dAll>0?`<span class="er-stat" title="Mục tiêu phát triển đã duyệt"><i class="bx bx-book-open"></i>${dAll} phát triển</span>`:''}
       </div>
-      ${isLm1?`<div class="er-pending">${pendingHtml}</div>`:''}
+      <div class="er-status">${statusHtml}</div>
       <div class="er-action">${actionBtn}</div>
     </div>`;
   }).join('');
@@ -1208,13 +1116,12 @@ function renderEmpList(){
   el.innerHTML=hdr+rows;
 }
 
-/* ═══════════ NAVIGATE: GOALS VIEW / PA2 SPLIT SHELL ═══════════ */
+/* ═══════════ NAVIGATE: GOALS VIEW / SPLIT SHELL ═══════════ */
 var _spEmpId=null;
 
 function openGoalPanel(eid){
   _spEmpId=eid;
   // Hide normal content, show split shell
-  document.getElementById('kpi-row').style.display='none';
   document.getElementById('filter-row').style.display='none';
   document.getElementById('emp-list').style.display='none';
   document.getElementById('split-shell').style.display='';
@@ -1227,9 +1134,6 @@ function closeGoalPanel(){
   document.getElementById('split-shell').style.display='none';
   document.getElementById('filter-row').style.display='';
   document.getElementById('emp-list').style.display='';
-  if(!document.body.classList.contains('split-mode')){
-    document.getElementById('kpi-row').style.display='';
-  }
 }
 
 function renderSpList(){
@@ -1307,17 +1211,17 @@ function renderSpDetail(eid){
 function spApprove(gid){
   const emp=findEmp(_spEmpId);if(!emp)return;
   const g=emp.goals.find(x=>x.id===gid);
-  if(g){g.status='approved';renderSpDetail(_spEmpId);renderSpList();}
+  if(g){g.status='approved';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
 }
 function spReqUpdate(gid){
   const emp=findEmp(_spEmpId);if(!emp)return;
   const g=emp.goals.find(x=>x.id===gid);
-  if(g){g.status='update';renderSpDetail(_spEmpId);renderSpList();}
+  if(g){g.status='update';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
 }
 function spReject(gid){
   const emp=findEmp(_spEmpId);if(!emp)return;
   const g=emp.goals.find(x=>x.id===gid);
-  if(g){g.status='draft';renderSpDetail(_spEmpId);renderSpList();}
+  if(g){g.status='draft';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
 }
 function openSpFullPage(){
   if(_spEmpId) location.href='../M-01b/index.html?emp='+_spEmpId;
@@ -1326,10 +1230,12 @@ function openSpFullPage(){
 function goToGoals(eid){
   const emp=findEmp(eid);
   if(!emp) return;
-  const _split=new URLSearchParams(location.search).get('mode')==='split';
-  if(_split){openGoalPanel(eid);return;}
-  const _ro=emp.lvl!=='lm1';
-  location.href='../M-01b/index.html?emp='+eid+(_ro?'&ro=1':'');
+  if(S.splitView){
+    openGoalPanel(eid);
+    return;
+  }
+  const isReadOnly=emp.lvl!=='lm1';
+  location.href='../M-01b/index.html?emp='+eid+(isReadOnly?'&ro=1':'');
   return;
   S.empId=eid;
 
@@ -1420,7 +1326,8 @@ function doApprove(eid,gid){
   if(!g) return;
   g.status='approved';
   renderGoals(emp);
-  renderKpi();
+  renderEmpList();
+  renderCycleBadge();
   toast('Đã duyệt mục tiêu');
 }
 
@@ -1444,7 +1351,8 @@ function submitRequest(){
   if(!g) return;
   g.status='update'; g.updNote=note;
   renderGoals(emp);
-  renderKpi();
+  renderEmpList();
+  renderCycleBadge();
   closeOv('dlg-request');
   toast('Đã gửi yêu cầu cập nhật');
 }
@@ -1569,14 +1477,10 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
 
 /* ═══════════ INIT ═══════════ */
 (function(){
-  /* Set active sidebar sub-item + body class based on ?mode param */
-  var _splitMode=new URLSearchParams(location.search).get('mode')==='split';
-  var pa1=document.getElementById('sb-pa1'),pa2=document.getElementById('sb-pa2');
-  if(pa1&&pa2){if(_splitMode){pa2.classList.add('on');}else{pa1.classList.add('on');}}
-  if(_splitMode){document.body.classList.add('split-mode');}
-  renderKpi();
+  renderCycleBadge();
   renderFilterRow();
   renderEmpList();
+  updateSplitViewButton();
 })();
 </script>
 </body>
