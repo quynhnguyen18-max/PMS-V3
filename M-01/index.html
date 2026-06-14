@@ -180,11 +180,10 @@ input,select,textarea{font-family:inherit}
 .ctx-msg{font-size:12px;color:var(--z600);line-height:1.4;flex:1}
 .ctx-bar.is-direct .ctx-msg{color:var(--brand)}
 /* ── Icon action buttons ── */
-.ico-act{width:28px;height:28px;border-radius:var(--rsm);border:1px solid;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;transition:var(--t)}
-.ico-act-approve{color:var(--brand);border-color:var(--brand-ring);background:var(--brand-muted)}
-.ico-act-approve:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
-.ico-act-view{color:var(--z600);border-color:var(--z200);background:transparent}
-.ico-act-view:hover{background:var(--z100);color:var(--z800);border-color:var(--z300)}
+.ico-act{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:var(--z500);transition:var(--t)}
+.ico-act-approve{color:var(--brand)}
+.ico-act-approve:hover{background:var(--brand-muted);color:var(--brand)}
+.ico-act-view:hover{background:var(--z100);color:var(--z800)}
 /* ── Role main switcher (Direct / Indirect) ── */
 .role-sw-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .role-main-group{display:flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--r);padding:3px;gap:2px;box-shadow:var(--sh-sm)}
@@ -218,7 +217,7 @@ input,select,textarea{font-family:inherit}
 
 /* ── MID-YEAR REVIEW LIST ── */
 .myr-table-wrap{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-md);overflow:auto}
-.myr-table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed}
+.myr-table{width:100%;min-width:1160px;border-collapse:collapse;table-layout:fixed}
 .myr-table th{padding:9px 12px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z700);text-align:left;white-space:nowrap}
 .myr-table th.score,.myr-table td.score{text-align:center}
 .myr-table td{padding:12px;border-bottom:1px solid var(--z200);font-size:13px;color:var(--z800);vertical-align:middle}
@@ -230,6 +229,7 @@ input,select,textarea{font-family:inherit}
 .myr-emp-info{min-width:0}
 .myr-emp-name{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .myr-emp-meta{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.myr-emp-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
 .myr-status{display:inline-flex;align-items:center;max-width:100%;padding:3px 8px;border:1px solid;border-radius:50px;font-size:11.5px;font-weight:500;line-height:1.35}
 .myr-status.completed{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
 .myr-status.incomplete{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
@@ -262,7 +262,7 @@ input,select,textarea{font-family:inherit}
 .er-status-text.pending{color:var(--info)}
 .er-status-text.setup{color:var(--z600)}
 .er-pending-empty{font-size:14px;color:var(--z300)}
-.er-action{flex-shrink:0;width:100px;display:flex;justify-content:center;align-items:center}
+.er-action{flex-shrink:0;width:64px;display:flex;justify-content:center;align-items:center}
 .er-lm1{flex-shrink:0;width:155px;min-width:0}
 .er-lm2{flex-shrink:0;width:155px;min-width:0}
 .er-lm1-name{font-size:13px;font-weight:600;color:var(--z800);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -320,7 +320,7 @@ input,select,textarea{font-family:inherit}
 .gr-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .gr-date{font-size:11.5px;color:var(--z500)}
 .gr-acts{display:flex;align-items:center;gap:2px;padding:8px 10px;flex-shrink:0;align-self:center}
-.gra{width:30px;height:30px;border-radius:var(--rsm);border:none;background:transparent;color:var(--z400);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:16px;position:relative}
+.gra{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:16px;position:relative}
 .gra:hover{background:var(--z100);color:var(--z700)}
 .gra.accent{color:var(--brand)}.gra.accent:hover{background:var(--brand-muted);color:var(--brand)}
 .gra.danger{color:var(--err)}.gra.danger:hover{background:var(--err-bg);color:var(--err)}
@@ -335,6 +335,7 @@ input,select,textarea{font-family:inherit}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}.btn-ghost:hover{background:var(--z100);color:var(--z900)}
 .btn-destructive{background:transparent;border-color:var(--err-bd);color:var(--err)}.btn-destructive:hover{background:var(--err-bg)}
 .btn-sm{padding:4px 10px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
 
 /* ── FORM ── */
 .fg{margin-bottom:13px}
@@ -430,7 +431,7 @@ textarea.fc{resize:vertical}
 .elh-lm1{flex-shrink:0;width:155px;text-align:left;white-space:nowrap}
 .elh-lm2{flex-shrink:0;width:155px;text-align:left;white-space:nowrap}
 .elh-status{flex-shrink:0;width:170px;text-align:left;white-space:nowrap}
-.elh-action{flex-shrink:0;width:100px;text-align:center;white-space:nowrap}
+.elh-action{flex-shrink:0;width:64px;text-align:center;white-space:nowrap}
 .elh-note{display:block;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--z700);margin-top:0}
 /* Employee name domain */
 .er-login{color:var(--z500);font-size:13px;font-weight:400}
@@ -475,10 +476,31 @@ textarea.fc{resize:vertical}
 .myr-info i{font-size:16px;color:var(--brand);margin-top:1px;flex-shrink:0}
 .myr-manager{font-size:12.5px;color:var(--z800);line-height:1.35}
 .myr-manager .er-login{display:block;margin-top:2px}
-.myr-rating-action{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.myr-rating-action{display:flex;align-items:center;justify-content:center}
 .myr-rating-select{min-width:72px;padding:4px 22px 4px 8px;border:1px solid var(--brand-ring);border-radius:var(--rsm);background:var(--z0);font:600 12px inherit;color:var(--z900)}
-.myr-agree-btn{padding:4px 7px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font:500 11px inherit;color:var(--z700);cursor:pointer;white-space:nowrap}
-.myr-agree-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.myr-rating-select:disabled{color:var(--z500);border-color:var(--z200);background:var(--z50);cursor:not-allowed}
+.myr-bulk-actions{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap}
+.myr-bulk-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:50px;background:var(--brand);color:var(--z0);font-size:10.5px;font-weight:700}
+.myr-bulk-approve:disabled .myr-bulk-count{background:var(--z300);color:var(--z600)}
+.myr-check-cell{width:40px;text-align:center!important;vertical-align:middle!important;padding-left:8px!important;padding-right:8px!important}
+.myr-row-check{width:14px;height:14px;margin:0;accent-color:var(--brand);cursor:pointer}
+.myr-row-check:disabled{cursor:not-allowed;opacity:.45}
+.upload-guide-intro{font-size:13px;color:var(--z600);line-height:1.55;margin-bottom:14px}
+.upload-guide-steps{display:flex;flex-direction:column;gap:10px}
+.upload-guide-step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0)}
+.upload-guide-step.is-upload{border-color:var(--brand-ring);background:var(--brand-muted)}
+.upload-step-no{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--brand);color:#fff;font-size:12px;font-weight:700}
+.upload-step-title{font-size:13px;font-weight:600;color:var(--z900);line-height:1.4;margin:3px 0 4px}
+.upload-step-desc{font-size:12.5px;color:var(--z600);line-height:1.55}
+.upload-step-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.upload-column-name{display:inline-flex;align-items:center;padding:2px 7px;margin:0 2px;border-radius:var(--rxs);border:1px solid var(--brand-ring);background:var(--brand-muted);color:var(--brand);font-weight:600;white-space:nowrap}
+.upload-file-note{display:flex;align-items:flex-start;gap:6px;margin-top:7px;color:var(--z500);font-size:11.5px;line-height:1.45}
+.upload-file-note i{font-size:14px;margin-top:1px;flex-shrink:0}
+.myr-action-cell{text-align:center}
+.myr-action-btn{width:27px;height:27px;display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:var(--rxs);background:transparent;color:var(--z500);font-size:16px;cursor:pointer;transition:var(--t)}
+.myr-action-btn:hover{color:var(--z800);background:var(--z100)}
+.myr-action-btn.accent{color:var(--brand)}
+.myr-action-btn.accent:hover{color:var(--brand);background:var(--brand-muted)}
 
 /* ── View switcher ── */
 .view-sw{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px;gap:2px}
@@ -877,6 +899,56 @@ textarea.fc{resize:vertical}
   </div>
 </div>
 
+<!-- ══════════ MODAL: MYR Rating Upload Guide ══════════ -->
+<div class="overlay" id="dlg-myr-upload" onclick="if(event.target===this)closeOverlay('dlg-myr-upload')">
+  <div class="dialog">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div class="dlg-title">Upload điểm đánh giá MYR</div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-myr-upload')" aria-label="Đóng"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <div class="upload-guide-intro">Thực hiện lần lượt 3 bước dưới đây để cập nhật điểm hàng loạt cho nhân viên.</div>
+      <div class="upload-guide-steps">
+        <div class="upload-guide-step">
+          <div class="upload-step-no">1</div>
+          <div>
+            <div class="upload-step-title">Tải file template</div>
+            <div class="upload-step-desc">Tải danh sách nhân viên theo một trong hai định dạng dưới đây.</div>
+            <div class="upload-step-actions">
+              <button class="btn btn-outline btn-sm" onclick="downloadMyrRatingTemplate('xls')"><i class="bx bx-spreadsheet"></i> Tải Excel</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadMyrRatingTemplate('csv')"><i class="bx bx-download"></i> Tải CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="upload-guide-step">
+          <div class="upload-step-no">2</div>
+          <div>
+            <div class="upload-step-title">Điền điểm đánh giá</div>
+            <div class="upload-step-desc">Mở file vừa tải và điền điểm từ 1 đến 5, theo bước 0.5, vào cột <span class="upload-column-name" id="myr-upload-column">Điểm LM2</span>. Không thay đổi mã nhân viên hoặc cấu trúc các cột còn lại.</div>
+          </div>
+        </div>
+        <div class="upload-guide-step is-upload">
+          <div class="upload-step-no">3</div>
+          <div>
+            <div class="upload-step-title">Upload file đã điền điểm</div>
+            <div class="upload-step-desc" id="myr-upload-step-desc">Chọn file Excel hoặc CSV đã hoàn tất để cập nhật điểm LM2 lên hệ thống.</div>
+            <div class="upload-step-actions">
+              <button class="btn btn-default btn-sm" id="myr-upload-file-btn" onclick="document.getElementById('myr-rating-upload').click()"><i class="bx bx-upload"></i> Chọn file để upload</button>
+              <input id="myr-rating-upload" type="file" accept=".csv,.xls" hidden onchange="handleMyrRatingUpload(this)">
+            </div>
+            <div class="upload-file-note" id="myr-upload-timeline-note"><i class="bx bx-info-circle"></i><span>Chỉ có thể cập nhật điểm trong timeline đánh giá của vai trò hiện tại.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('dlg-myr-upload')">Đóng</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"><i class="bx bx-check-circle" style="color:#4ade80"></i><span id="toast-msg">—</span></div>
 
@@ -896,7 +968,7 @@ const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
 const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'employee';
 
 /* ═══════════ STATE ═══════════ */
-const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', splitView:false };
+const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', splitView:false, myrSelected:new Set() };
 
 /* ═══════════ HELPERS ═══════════ */
 function findEmp(id){ return EMPS.find(e=>e.id===id); }
@@ -1051,6 +1123,10 @@ function renderMyrTableHeader(){
   const colgroup=document.getElementById('myr-colgroup');
   const thead=document.getElementById('myr-thead');
   if(!colgroup||!thead) return;
+  const selectionCol=S.myrRole==='lm1'?'':'<col style="width:40px">';
+  const selectionHeader=S.myrRole==='lm1'
+    ?''
+    :'<th class="myr-check-cell"><input id="myr-select-all" class="myr-row-check" type="checkbox" aria-label="Chọn tất cả nhân viên đủ điều kiện" title="Chọn tất cả nhân viên đủ điều kiện" onchange="toggleAllMyrRows(this.checked)"></th>';
   const managerHeaders=S.myrRole==='lm2'
     ?'<th>Quản lý trực tiếp</th>'
     :S.myrRole==='hod'
@@ -1061,10 +1137,10 @@ function renderMyrTableHeader(){
     :S.myrRole==='hod'
       ?'<col style="width:13%"><col style="width:13%">'
       :'';
-  colgroup.innerHTML='<col style="width:21%"><col style="width:23%">'+managerCols+
-    '<col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:9%">';
-  thead.innerHTML='<tr><th>Nhân viên</th><th>Trạng thái</th>'+managerHeaders+
-    '<th class="score">Điểm của NV</th><th class="score">Điểm của LM1</th><th class="score">Điểm của LM2</th><th class="score">Điểm của HOD</th><th class="score">Điểm cuối cùng</th></tr>';
+  colgroup.innerHTML=selectionCol+'<col style="width:19%"><col style="width:19%">'+managerCols+
+    '<col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:6%">';
+  thead.innerHTML='<tr>'+selectionHeader+'<th>Nhân viên</th><th>Trạng thái</th>'+managerHeaders+
+    '<th class="score">Điểm của NV</th><th class="score">Điểm của LM1</th><th class="score">Điểm của LM2</th><th class="score">Điểm của HOD</th><th class="score">Điểm cuối cùng</th><th class="score">Chức năng</th></tr>';
 }
 
 function myrManagerCell(manager){
@@ -1085,14 +1161,19 @@ function myrRatingOptions(selected){
 }
 
 function myrRatingCell(emp,review,role){
-  const canRate=MYR_CURRENT_PHASE===role&&S.myrRole===role&&myrStatus(emp).tone==='completed';
-  if(!canRate) return formatMyrScore(visibleMyrScore(review,role),false);
-  const lm1Score=visibleMyrScore(review,'lm1');
+  const previousRole=role==='hod'?'lm2':'lm1';
+  if(S.myrRole!==role) return formatMyrScore(visibleMyrScore(review,role),false);
+  const previousScore=visibleMyrScore(review,previousRole);
+  const predecessorComplete=review.submitted&&previousScore!==null&&previousScore!==undefined;
+  const canRate=MYR_CURRENT_PHASE===role&&predecessorComplete;
+  const selectedScore=visibleMyrScore(review,role);
+  const lockReason=MYR_CURRENT_PHASE!==role
+    ?'Chức năng mở trong timeline '+role.toUpperCase()+' đánh giá'
+    :'Chỉ mở sau khi bước '+previousRole.toUpperCase()+' đánh giá hoàn thành';
   return `<div class="myr-rating-action">
-    <select class="myr-rating-select" aria-label="Điểm ${role.toUpperCase()}" onclick="event.stopPropagation()" onchange="setMyrRating('${emp.id}','${role}',this.value)">
-      ${myrRatingOptions(review[role])}
+    <select class="myr-rating-select" aria-label="Điểm ${role.toUpperCase()}" title="${canRate?'Chọn điểm '+role.toUpperCase():lockReason}" ${canRate?'':'disabled'} onclick="event.stopPropagation()" onchange="setMyrRating('${emp.id}','${role}',this.value)">
+      ${myrRatingOptions(selectedScore)}
     </select>
-    ${lm1Score!==null&&lm1Score!==undefined?`<button class="myr-agree-btn" onclick="event.stopPropagation();agreeMyrRating('${emp.id}','${role}',${lm1Score})">Duyệt điểm LM1 (${String(lm1Score)})</button>`:''}
   </div>`;
 }
 
@@ -1101,13 +1182,200 @@ function setMyrRating(empId,role,value){
   MYR_DATA[empId][role]=value===''?null:Number(value);
 }
 
-function agreeMyrRating(empId,role,value){
-  setMyrRating(empId,role,value);
+function canApproveMyrRating(empId){
+  if(S.myrRole==='lm1'||MYR_CURRENT_PHASE!==S.myrRole) return false;
+  const review=MYR_DATA[empId]||{};
+  const previousRole=S.myrRole==='hod'?'lm2':'lm1';
+  const previousScore=visibleMyrScore(review,previousRole);
+  return review.submitted&&previousScore!==null&&previousScore!==undefined;
+}
+
+function toggleMyrRow(empId,checked){
+  if(!canApproveMyrRating(empId)) return;
+  if(checked) S.myrSelected.add(empId);
+  else S.myrSelected.delete(empId);
+  updateMyrBulkControls();
+}
+
+function toggleAllMyrRows(checked){
+  document.querySelectorAll('.myr-row-check[data-emp-id]:not(:disabled)').forEach(input=>{
+    input.checked=checked;
+    if(checked) S.myrSelected.add(input.dataset.empId);
+    else S.myrSelected.delete(input.dataset.empId);
+  });
+  updateMyrBulkControls();
+}
+
+function updateMyrBulkControls(){
+  const eligibleInputs=[...document.querySelectorAll('.myr-row-check[data-emp-id]:not(:disabled)')];
+  const visibleIds=new Set(eligibleInputs.map(input=>input.dataset.empId));
+  [...S.myrSelected].forEach(id=>{if(!visibleIds.has(id)) S.myrSelected.delete(id);});
+  eligibleInputs.forEach(input=>{input.checked=S.myrSelected.has(input.dataset.empId);});
+  const selectedCount=S.myrSelected.size;
+  const bulkButton=document.getElementById('myr-bulk-approve');
+  const count=document.getElementById('myr-bulk-count');
+  if(bulkButton) bulkButton.disabled=selectedCount===0||MYR_CURRENT_PHASE!==S.myrRole;
+  if(count) count.textContent=selectedCount;
+  const selectAll=document.getElementById('myr-select-all');
+  if(selectAll){
+    const checkedCount=eligibleInputs.filter(input=>input.checked).length;
+    selectAll.disabled=eligibleInputs.length===0;
+    selectAll.checked=eligibleInputs.length>0&&checkedCount===eligibleInputs.length;
+    selectAll.indeterminate=checkedCount>0&&checkedCount<eligibleInputs.length;
+  }
+}
+
+function approveSelectedMyrRatings(){
+  if(MYR_CURRENT_PHASE!==S.myrRole||S.myrRole==='lm1') return;
+  const previousRole=S.myrRole==='hod'?'lm2':'lm1';
+  let updated=0;
+  [...S.myrSelected].forEach(empId=>{
+    if(!canApproveMyrRating(empId)) return;
+    MYR_DATA[empId][S.myrRole]=Number(MYR_DATA[empId][previousRole]);
+    updated++;
+  });
+  S.myrSelected.clear();
   renderMyrList();
+  toast('Đã duyệt điểm '+previousRole.toUpperCase()+' cho '+updated+' nhân viên.');
+}
+
+function myrBulkActionsHtml(){
+  if(S.myrRole==='lm1') return '';
+  const previousRole=S.myrRole==='hod'?'LM2':'LM1';
+  return `<div class="myr-bulk-actions">
+    <button id="myr-bulk-approve" class="btn btn-cta-outline btn-sm myr-bulk-approve" disabled onclick="approveSelectedMyrRatings()"><i class="bx bx-check-double"></i> Duyệt điểm ${previousRole} <span id="myr-bulk-count" class="myr-bulk-count">0</span></button>
+    <button class="btn btn-default btn-sm" onclick="openMyrUploadGuide()"><i class="bx bx-upload"></i> Upload điểm</button>
+  </div>`;
+}
+
+function openMyrUploadGuide(){
+  if(S.myrRole==='lm1') return;
+  const ratingRole=S.myrRole.toUpperCase();
+  document.getElementById('myr-upload-column').textContent='Điểm '+ratingRole;
+  document.getElementById('myr-upload-step-desc').textContent='Chọn file Excel hoặc CSV đã hoàn tất để cập nhật điểm '+ratingRole+' lên hệ thống.';
+  const canUpload=MYR_CURRENT_PHASE===S.myrRole;
+  const uploadButton=document.getElementById('myr-upload-file-btn');
+  uploadButton.disabled=!canUpload;
+  const note=document.getElementById('myr-upload-timeline-note');
+  note.querySelector('span').textContent=canUpload
+    ?'Hệ thống sẽ kiểm tra mã nhân viên và giá trị điểm trước khi cập nhật.'
+    :'Chưa đến timeline '+ratingRole+' đánh giá nên chức năng chọn file đang bị khóa.';
+  openOv('dlg-myr-upload');
+}
+
+function handleMyrRatingUpload(input){
+  const file=input.files&&input.files[0];
+  input.value='';
+  if(file) importMyrRatings(file);
+}
+
+function myrExportEscape(value){
+  return String(value==null?'':value).replace(/[&<>"']/g,function(char){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+  });
+}
+
+function myrTemplateRows(){
+  const role=S.myrRole;
+  const previousRole=role==='hod'?'lm2':'lm1';
+  return visibleMyrEmps().map(emp=>{
+    const review=MYR_DATA[emp.id]||{};
+    return [emp.id,emp.name,emp.login,review[previousRole]??'',review[role]??''];
+  });
+}
+
+function downloadMyrRatingTemplate(format){
+  const role=S.myrRole;
+  if(role==='lm1') return;
+  const previousRole=role==='hod'?'LM2':'LM1';
+  const ratingRole=role.toUpperCase();
+  const headers=['Mã nhân viên','Nhân viên','Tài khoản','Điểm '+previousRole,'Điểm '+ratingRole];
+  const rows=myrTemplateRows();
+  let blob,extension;
+  if(format==='csv'){
+    const csv=[headers].concat(rows).map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+    blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    extension='csv';
+  }else{
+    const html='<html><head><meta charset="utf-8"></head><body><table border="1"><thead><tr>'+
+      headers.map(value=>'<th>'+myrExportEscape(value)+'</th>').join('')+
+      '</tr></thead><tbody>'+
+      rows.map(row=>'<tr>'+row.map(value=>'<td>'+myrExportEscape(value)+'</td>').join('')+'</tr>').join('')+
+      '</tbody></table></body></html>';
+    blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+    extension='xls';
+  }
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download='template-diem-myr-'+role+'-2026.'+extension;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),0);
+}
+
+function parseMyrCsv(text){
+  const rows=[];
+  let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){
+    const char=text[i];
+    if(char==='"'){
+      if(quoted&&text[i+1]==='"'){cell+='"';i++;}
+      else quoted=!quoted;
+    }else if(char===','&&!quoted){row.push(cell);cell='';}
+    else if((char==='\n'||char==='\r')&&!quoted){
+      if(char==='\r'&&text[i+1]==='\n') i++;
+      row.push(cell);cell='';
+      if(row.some(value=>value!=='')) rows.push(row);
+      row=[];
+    }else cell+=char;
+  }
+  row.push(cell);
+  if(row.some(value=>value!=='')) rows.push(row);
+  return rows;
+}
+
+function parseMyrRatingFile(text,isExcel){
+  if(!isExcel) return parseMyrCsv(text.replace(/^\ufeff/,''));
+  const doc=new DOMParser().parseFromString(text,'text/html');
+  return Array.from(doc.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(cell=>cell.textContent.trim()));
+}
+
+function importMyrRatings(file){
+  if(!file||S.myrRole==='lm1') return;
+  if(MYR_CURRENT_PHASE!==S.myrRole){
+    toast('Chưa đến timeline '+S.myrRole.toUpperCase()+' đánh giá, chưa thể upload điểm.');
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const rows=parseMyrRatingFile(String(reader.result||''),/\.xls$/i.test(file.name));
+    if(rows.length<2){toast('File không có dữ liệu điểm hợp lệ.');return;}
+    let updated=0,skipped=0;
+    rows.slice(1).forEach(row=>{
+      const empId=String(row[0]||'').trim();
+      const value=String(row[4]||'').trim();
+      const review=MYR_DATA[empId];
+      const previousRole=S.myrRole==='hod'?'lm2':'lm1';
+      const score=Number(value);
+      if(!review||!review.submitted||review[previousRole]==null||value===''||!Number.isFinite(score)||score<1||score>5||!Number.isInteger(score*2)){
+        skipped++;
+        return;
+      }
+      review[S.myrRole]=score;
+      updated++;
+    });
+    renderMyrList();
+    closeOv('dlg-myr-upload');
+    toast('Đã cập nhật '+updated+' điểm'+(skipped?' · Bỏ qua '+skipped+' dòng chưa hợp lệ':'')+'.');
+  };
+  reader.readAsText(file,'utf-8');
 }
 
 function setMyrRole(role){
   S.myrRole=role;
+  S.myrSelected.clear();
   S.myrSearchTerm='';
   S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
   const direct=role==='lm1';
@@ -1148,6 +1416,7 @@ function renderMyrFilterRow(){
       <datalist id="myr-dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>
       <input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList()">
       <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+      ${myrBulkActionsHtml()}
     </div>`;
   } else {
     const emps=visibleMyrEmps();
@@ -1166,6 +1435,7 @@ function renderMyrFilterRow(){
       <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
       <input class="f-combo" list="myr-dl-lm2" placeholder="Quản lý cấp 2" value="${S.myrFilterLm2}" oninput="S.myrFilterLm2=this.value;renderMyrList()">
       <datalist id="myr-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+      ${myrBulkActionsHtml()}
     </div>`;
   }
 }
@@ -1189,10 +1459,14 @@ function renderMyrList(){
     return rank(aStatus)-rank(bStatus)||a.name.localeCompare(b.name,'vi');
   });
   if(!emps.length){
-    const colspan=S.myrRole==='lm1'?7:S.myrRole==='lm2'?8:9;
+    S.myrSelected.clear();
+    const colspan=S.myrRole==='lm1'?8:S.myrRole==='lm2'?10:11;
     tbody.innerHTML=`<tr><td colspan="${colspan}"><div class="myr-empty">Không có nhân viên nào khớp.</div></td></tr>`;
+    updateMyrBulkControls();
     return;
   }
+  const visibleIds=new Set(emps.map(emp=>emp.id));
+  [...S.myrSelected].forEach(id=>{if(!visibleIds.has(id)||!canApproveMyrRating(id)) S.myrSelected.delete(id);});
   tbody.innerHTML=emps.map(emp=>{
     const status=myrStatus(emp);
     const review=MYR_DATA[emp.id]||{};
@@ -1201,13 +1475,25 @@ function renderMyrList(){
       :S.myrRole==='hod'
         ?myrManagerCell(emp.mgr)+myrManagerCell(emp.mgr2)
         :'';
+    const employeeTags=(emp.resigned||emp.maternity)
+      ?`<div class="myr-emp-tags">${emp.resigned?'<span class="emp-tag emp-tag-resigned">Đã nộp đơn nghỉ việc</span>':''}${emp.maternity?'<span class="emp-tag emp-tag-maternity">Đang nghỉ thai sản</span>':''}</div>`
+      :'';
+    const canEvaluate=S.myrRole==='lm1';
+    const actionLabel=canEvaluate?'Xem & đánh giá':'Xem';
+    const actionIcon=canEvaluate?'bx-edit-alt':'bx-show';
+    const canApprove=canApproveMyrRating(emp.id);
+    const selectionCell=S.myrRole==='lm1'
+      ?''
+      :`<td class="myr-check-cell"><input class="myr-row-check" data-emp-id="${emp.id}" type="checkbox" aria-label="Chọn ${emp.name}" title="${canApprove?'Chọn để duyệt điểm':'Chưa đủ điều kiện duyệt điểm'}" ${S.myrSelected.has(emp.id)?'checked':''} ${canApprove?'':'disabled'} onclick="event.stopPropagation()" onchange="toggleMyrRow('${emp.id}',this.checked)"></td>`;
     return `<tr onclick="openMyrDetail('${emp.id}')">
+      ${selectionCell}
       <td>
         <div class="myr-emp">
           <div class="myr-av">${emp.ini}</div>
           <div class="myr-emp-info">
             <div class="myr-emp-name">${emp.name} <span class="er-login">(${emp.login})</span></div>
             <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?` – ${emp.team}`:''} – ${emp.pos}</div>
+            ${employeeTags}
           </div>
         </div>
       </td>
@@ -1218,8 +1504,10 @@ function renderMyrList(){
       <td class="score">${myrRatingCell(emp,review,'lm2')}</td>
       <td class="score">${myrRatingCell(emp,review,'hod')}</td>
       <td class="score">${formatMyrScore(visibleMyrScore(review,'final'),true)}</td>
+      <td class="myr-action-cell"><button class="myr-action-btn${canEvaluate?' accent':''}" aria-label="${actionLabel}" data-tip="${actionLabel}" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openMyrDetail('${emp.id}')"><i class="bx ${actionIcon}"></i></button></td>
     </tr>`;
   }).join('');
+  updateMyrBulkControls();
 }
 
 function openMyrDetail(empId){
@@ -1234,7 +1522,8 @@ function openMyrDetail(empId){
     submitted:review.submitted?'1':'0',
     status:status.text,
     phase:MYR_CURRENT_PHASE,
-    lm1:review.lm1===null?'':review.lm1
+    lm1:review.lm1===null?'':review.lm1,
+    lm2:review.lm2===null?'':review.lm2
   });
   location.href='../M-02/index.html?'+params.toString();
 }
@@ -1370,8 +1659,8 @@ function renderEmpList(){
       (emp.resigned?`<span class="emp-tag emp-tag-resigned">Đã nộp đơn nghỉ việc</span>`:'')+
       (emp.maternity?`<span class="emp-tag emp-tag-maternity">Đang nghỉ thai sản</span>`:'');
     const actionBtn=(!isRO&&pCnt>0)
-      ?`<button class="ico-act ico-act-approve" title="Xem &amp; Duyệt" onclick="event.stopPropagation();goToGoals('${emp.id}')"><i class="bx bx-check-double"></i></button>`
-      :`<button class="ico-act ico-act-view" title="Xem mục tiêu" onclick="event.stopPropagation();goToGoals('${emp.id}')"><i class="bx bx-show"></i></button>`;
+      ?`<button class="ico-act ico-act-approve" aria-label="Xem &amp; duyệt mục tiêu" data-tip="Xem &amp; duyệt mục tiêu" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();goToGoals('${emp.id}')"><i class="bx bx-check-double"></i></button>`
+      :`<button class="ico-act ico-act-view" aria-label="Xem mục tiêu" data-tip="Xem mục tiêu" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();goToGoals('${emp.id}')"><i class="bx bx-show"></i></button>`;
 
     // Manager columns — LM2 view: LM1 col; HOD view: LM1 + LM2 cols
     let lm1Cell='';
@@ -1480,13 +1769,13 @@ function renderSpDetail(eid){
     const prioHtml=g.type==='what'&&g.prio?prioMap[g.prio]:`<span style="color:var(--z400)">—</span>`;
     const evalPair=g.selfScore?`<div style="display:flex;gap:4px;margin-top:4px"><span style="padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)">NV ${g.selfScore}</span><span style="padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)">QL ${g.managerScore}</span></div>`:'';
     const isRO=emp.lvl!=='lm1';
-    let acts=`<button class="sp-ia" title="Xem chi tiết" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
+    let acts=`<button class="sp-ia" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
     if(!isRO&&g.status==='pending'){
       acts=
-        `<button class="sp-ia accent" title="Duyệt" onclick="event.stopPropagation();spApprove('${g.id}')"><i class="bx bx-check-circle"></i></button>`+
-        `<button class="sp-ia" title="Yêu cầu cập nhật" onclick="event.stopPropagation();spReqUpdate('${g.id}')"><i class="bx bx-rotate-left"></i></button>`+
-        `<button class="sp-ia danger" title="Từ chối" onclick="event.stopPropagation();spReject('${g.id}')"><i class="bx bx-x-circle"></i></button>`+
-        `<button class="sp-ia" title="Xem chi tiết" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
+        `<button class="sp-ia accent" aria-label="Duyệt" data-tip="Duyệt" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();spApprove('${g.id}')"><i class="bx bx-check-circle"></i></button>`+
+        `<button class="sp-ia" aria-label="Yêu cầu cập nhật" data-tip="Yêu cầu cập nhật" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();spReqUpdate('${g.id}')"><i class="bx bx-rotate-left"></i></button>`+
+        `<button class="sp-ia danger" aria-label="Từ chối" data-tip="Từ chối" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();spReject('${g.id}')"><i class="bx bx-x-circle"></i></button>`+
+        `<button class="sp-ia" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
     }
     return `<tr>`+
       `<td>${typeHtml}</td>`+
@@ -1571,12 +1860,12 @@ function renderGoals(emp){
     const canAct=!isRO&&g.status==='pending';
     const acts=canAct
       ? `<div class="gr-acts">
-           <button class="gra accent" onmouseenter="tip(this,'Duyệt')" onmouseleave="hideTip()" onclick="event.stopPropagation();doApprove('${emp.id}','${g.id}')"><i class="bx bx-check-circle"></i></button>
-           <button class="gra" onmouseenter="tip(this,'Yêu cầu cập nhật')" onmouseleave="hideTip()" onclick="event.stopPropagation();openReq('${emp.id}','${g.id}')"><i class="bx bx-message-square-edit"></i></button>
-           <button class="gra" onmouseenter="tip(this,'Xem chi tiết')" onmouseleave="hideTip()" onclick="event.stopPropagation();openDet('${emp.id}','${g.id}')"><i class="bx bx-show"></i></button>
+           <button class="gra accent" aria-label="Duyệt" data-tip="Duyệt" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();doApprove('${emp.id}','${g.id}')"><i class="bx bx-check-circle"></i></button>
+           <button class="gra" aria-label="Yêu cầu cập nhật" data-tip="Yêu cầu cập nhật" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openReq('${emp.id}','${g.id}')"><i class="bx bx-message-square-edit"></i></button>
+           <button class="gra" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDet('${emp.id}','${g.id}')"><i class="bx bx-show"></i></button>
          </div>`
       : `<div class="gr-acts">
-           <button class="gra" onmouseenter="tip(this,'Xem chi tiết')" onmouseleave="hideTip()" onclick="event.stopPropagation();openDet('${emp.id}','${g.id}')"><i class="bx bx-show"></i></button>
+           <button class="gra" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDet('${emp.id}','${g.id}')"><i class="bx bx-show"></i></button>
          </div>`;
     return `<div class="gr-item" onclick="openDet('${emp.id}','${g.id}')">
       <div class="gr-bar ${g.type}"></div>
@@ -1762,8 +2051,14 @@ function tip(el,text){
   const t=document.getElementById('flt');
   t.textContent=text; t.style.display='block';
   const r=el.getBoundingClientRect();
-  t.style.top=(r.top+(r.height-t.offsetHeight)/2)+'px';
-  t.style.left=(r.left-t.offsetWidth-7)+'px';
+  const gap=8;
+  let left=r.right+gap;
+  let top=r.top+(r.height-t.offsetHeight)/2;
+  if(left+t.offsetWidth>window.innerWidth-gap) left=r.left-t.offsetWidth-gap;
+  if(top<gap) top=gap;
+  if(top+t.offsetHeight>window.innerHeight-gap) top=window.innerHeight-t.offsetHeight-gap;
+  t.style.left=left+'px';
+  t.style.top=top+'px';
 }
 function hideTip(){ document.getElementById('flt').style.display='none'; }
 

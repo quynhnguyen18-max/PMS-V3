@@ -160,3 +160,46 @@ window.PMS_SELFEVAL = {
     overall: { score:4.5, comment:'Tôi tự đánh giá hoàn thành vượt mong đợi ở các mục tiêu trọng tâm trong kỳ này.' }
   }
 };
+
+window.PMS_LM1EVAL = {
+  e2: {
+    goalScores: { g9:4, g11:4 },
+    howScores: [4,4,4,4,4],
+    comments: {
+      what: 'Kết quả cải thiện trải nghiệm thanh toán đạt mục tiêu và có số liệu theo dõi rõ ràng.',
+      dev: 'Chủ động áp dụng kiến thức từ workshop vào công việc thực tế.',
+      how: 'Phối hợp tốt với Product và giữ tư duy tập trung vào khách hàng.'
+    },
+    overall: { score:4, comment:'Hoàn thành tốt các mục tiêu trọng tâm và thể hiện tinh thần hợp tác tích cực.' }
+  },
+  e5: {
+    goalScores: { g19:4, g20:4, g21:4 },
+    howScores: [4,4,5,4,4],
+    comments: {
+      what: 'Hoàn thành tốt các hạng mục migration và observability, không ảnh hưởng vận hành.',
+      dev: 'Đạt chứng chỉ CKA và chia sẻ kiến thức có giá trị cho đội ngũ.',
+      how: 'Thể hiện rõ tinh thần đồng đội và trách nhiệm trong thực thi.'
+    },
+    overall: { score:4, comment:'Kết quả ổn định, đáp ứng tốt kỳ vọng của vai trò Senior Engineer.' }
+  },
+  e12: {
+    goalScores: { g35:4, g36:4, g37:4 },
+    howScores: [4,4,4,5,4],
+    comments: {
+      what: 'Các mục tiêu chất lượng ứng dụng được hoàn thành đúng kế hoạch.',
+      dev: 'Có đóng góp rõ ràng trong việc phát triển năng lực hai thành viên junior.',
+      how: 'Thực thi xuất sắc và hỗ trợ đồng đội hiệu quả.'
+    },
+    overall: { score:4, comment:'Hoàn thành trên mức kỳ vọng về kỹ thuật và phát triển đội ngũ.' }
+  },
+  e15: {
+    goalScores: { g44:5, g45:4, g46:5 },
+    howScores: [5,4,5,4,5],
+    comments: {
+      what: 'Hoàn thành nổi bật các hạng mục SwiftUI và phương thức thanh toán mới.',
+      dev: 'Chủ động học hỏi và chuyển hóa kiến thức thành sản phẩm thực tế.',
+      how: 'Thể hiện tốt tinh thần đổi mới, đồng đội và học hỏi không ngừng.'
+    },
+    overall: { score:4.5, comment:'Kết quả nổi bật, vượt kỳ vọng ở nhiều mục tiêu quan trọng.' }
+  }
+};

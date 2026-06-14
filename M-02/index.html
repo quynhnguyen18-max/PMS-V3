@@ -125,6 +125,10 @@ input,select,textarea{font-family:inherit}
 .ec-line{font-size:12px;color:var(--z800);line-height:1.35}
 .ec-lbl{color:var(--z500);font-weight:500}
 .ec-dom{color:var(--z500);font-weight:400}
+.ec-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.emp-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:1px 8px;border-radius:50px;border:1px solid;white-space:nowrap;line-height:1.6}
+.emp-tag-resigned{background:var(--err-bg);color:var(--err);border-color:var(--err-bd)}
+.emp-tag-maternity{background:var(--info-bg);color:var(--info);border-color:var(--info-bd)}
 
 /* ── CYCLE / TABS / TOOLBAR ── */
 .cycle-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
@@ -820,6 +824,17 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .manager-locked-structure .manager-score{box-shadow:none;border-color:var(--z300)}
 .manager-detail .manager-locked-structure .ev-content{min-height:72px;background:var(--z0)}
 .manager-detail .ql-cell.manager-locked-structure{opacity:.45;pointer-events:none}
+.manager-detail .employee-readonly{opacity:1;filter:none;pointer-events:none}
+.manager-detail .employee-readonly .ev-editor-wrap{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm);background:var(--z0)}
+.manager-detail .employee-readonly .ev-toolbar{display:flex;opacity:1;background:var(--z50)}
+.manager-detail .employee-readonly .ev-content{color:var(--z900);opacity:1;background:var(--z0)}
+.manager-detail .employee-readonly .sc-select,
+.manager-detail .employee-readonly .op-select{color:var(--z900);opacity:1;background-color:var(--z0);border-color:var(--z300);-webkit-text-fill-color:var(--z900)}
+.manager-detail .employee-readonly .char-ct{color:var(--z500)}
+.manager-detail .lm1-readonly{opacity:1;filter:none;pointer-events:none;background:var(--z0)}
+.manager-detail .lm1-readonly .ev-editor-wrap{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm)}
+.manager-detail .lm1-readonly .ev-toolbar{display:flex;opacity:1}
+.manager-detail .lm1-readonly .ev-content{color:var(--z900);background:var(--z0)}
 @media(max-width:900px){
   .stepper-card{overflow-x:auto}
   .stepper-track{min-width:700px}
@@ -1495,7 +1510,7 @@ label.ev-tb-btn{cursor:pointer}
     </div>
 
     <!-- ════════ DEVELOPMENT: Mục tiêu phát triển ════════ -->
-    <div class="rv-section">
+    <div class="rv-section" id="myr-dev-section">
       <div class="rv-section-hd">
         <i class="bx bx-trending-up"></i>
         <span class="rv-type">Mục tiêu phát triển</span>
@@ -2947,12 +2962,30 @@ const MANAGER_EMPLOYEES = {
   e16:{name:'Mai Thị Hằng',login:'hang.mai',ini:'MH',team:'ITC - DevOps',manager:'Lê Thị Thanh (thanh.le)'}
 };
 
+function managerEmployeeMeta(empId){
+  var shared=(window.PMS_EMPLOYEES||[]).find(function(emp){return emp.id===empId;});
+  if(!shared) return MANAGER_EMPLOYEES[empId]||MANAGER_EMPLOYEES.e1;
+  var manager=shared.mgr
+    ?shared.mgr.name+' ('+shared.mgr.login+')'
+    :'Lê Thị Thanh (thanh.le)';
+  return {
+    id:shared.id,
+    name:shared.name,
+    login:shared.login,
+    ini:shared.ini,
+    team:[shared.div,shared.dept,shared.team].filter(Boolean).join(' - '),
+    manager:manager,
+    resigned:!!shared.resigned,
+    maternity:!!shared.maternity
+  };
+}
+
 function managerScoreOptions(){
   return '<option value="">Chọn điểm</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4</option><option>4.5</option><option>5</option>';
 }
 
 const MANAGER_PHASES = ['employee','lm1','lm2','hod','publish'];
-var MANAGER_DETAIL_STATE = {empId:'e1',role:'lm1',phase:'employee',submitted:false};
+var MANAGER_DETAIL_STATE = {empId:'e1',role:'lm1',phase:'employee',submitted:false,viewOnly:false};
 
 function managerRoleName(role){
   if(role==='lm2') return 'Quản lý cấp 2';
@@ -3056,9 +3089,8 @@ function maskFutureManagerScores(panel,phase){
 }
 
 function lockManagerStructure(panel,role,lm1Score){
-  if(role==='lm1') setupLm1DetailedForm(panel);
-  else setupOverallOnlyForm(panel,role,lm1Score);
-  panel.querySelectorAll('.editable-panel').forEach(function(section){
+  setupLm1DetailedForm(panel);
+  panel.querySelectorAll('.manager-evaluation-panel').forEach(function(section){
     section.classList.add('manager-locked-structure');
   });
   panel.querySelectorAll('.ql-cell').forEach(function(cell){
@@ -3077,6 +3109,9 @@ function lockManagerStructure(panel,role,lm1Score){
 }
 
 function setupLm1DetailedForm(panel){
+  var review=(window.PMS_MYR||{})[MANAGER_DETAIL_STATE.empId]||{};
+  var canShowExisting=review.lm1!=null&&MANAGER_PHASES.indexOf(MANAGER_DETAIL_STATE.phase)>=MANAGER_PHASES.indexOf('lm1');
+  var lm1Data=canShowExisting?((window.PMS_LM1EVAL||{})[MANAGER_DETAIL_STATE.empId]||{}):{};
   panel.querySelectorAll('.ql-cell').forEach(function(cell){
     var current=cell.querySelector('.ql-val')?cell.querySelector('.ql-val').textContent.trim():'';
     cell.innerHTML='<select class="sc-select manager-score" aria-label="Điểm của Quản lý trực tiếp">'+managerScoreOptions()+'</select>';
@@ -3085,17 +3120,25 @@ function setupLm1DetailedForm(panel){
   });
   panel.querySelectorAll('.scmt-panel.scmt-locked').forEach(function(commentPanel,index){
     var labels=['mục tiêu công việc','mục tiêu phát triển','mục tiêu hành vi'];
-    commentPanel.className='scmt-panel editable-panel';
+    var keys=['what','dev','how'];
+    commentPanel.className='scmt-panel editable-panel manager-evaluation-panel';
     commentPanel.innerHTML='<div class="scmt-hd"><i class="bx bx-user-check"></i>Đánh giá của Quản lý trực tiếp<span class="badge b-action field-state">Bắt buộc</span></div>'+
       managerEditor('Nhập nhận xét của Quản lý về '+(labels[index]||'kết quả đánh giá')+'…','lm1-'+index,500);
+    var editor=commentPanel.querySelector('.manager-comment');
+    if(editor&&lm1Data.comments) editor.textContent=lm1Data.comments[keys[index]]||'';
   });
   var overall=panel.querySelector('.overall-panel.locked');
   if(overall){
-    overall.className='overall-panel editable-panel';
+    overall.className='overall-panel editable-panel manager-evaluation-panel';
     overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>Quản lý trực tiếp đánh giá<span class="badge b-action field-state">Bắt buộc</span></div>'+
       '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của Quản lý" onchange="updateManagerOpLbl()">'+managerScoreOptions()+'</select><span class="sc-lbl" id="manager-op-lbl"></span></div>'+
       '<label class="op-flbl">Đánh giá toàn diện của Quản lý trực tiếp</label>'+
       managerEditor('Nhập nhận xét đánh giá toàn diện cho Nhân viên…','lm1-overall',1000);
+    var overallScore=overall.querySelector('#manager-overall-score');
+    if(overallScore&&lm1Data.overall&&lm1Data.overall.score!=null) overallScore.value=String(lm1Data.overall.score);
+    var overallComment=overall.querySelector('.manager-comment');
+    if(overallComment&&lm1Data.overall) overallComment.textContent=lm1Data.overall.comment||'';
+    updateManagerOpLbl();
   }
 }
 
@@ -3106,26 +3149,42 @@ function agreeWithLm1Score(score){
   showToast('Đã chọn đồng thuận với điểm của Quản lý trực tiếp.');
 }
 
-function setupOverallOnlyForm(panel,role,lm1Score){
-  panel.querySelectorAll('.scmt-panel.scmt-locked').forEach(function(commentPanel){
-    commentPanel.className='scmt-panel';
-    commentPanel.innerHTML='<div class="scmt-hd"><i class="bx bx-lock-alt"></i>'+managerRoleName(role)+'</div><div class="manager-readonly">Đánh giá chi tiết mục tiêu và hành vi do Quản lý trực tiếp thực hiện. '+managerRoleName(role)+' chỉ đánh giá điểm toàn diện.</div>';
+function renderLm1ReadOnly(panel,empId,showLm1Data){
+  var lm1Data=showLm1Data?((window.PMS_LM1EVAL||{})[empId]||{}):{};
+  var keys=['what','dev','how'];
+  panel.querySelectorAll('.scmt-panel.scmt-locked').forEach(function(commentPanel,index){
+    commentPanel.className='scmt-panel lm1-readonly';
+    commentPanel.innerHTML='<div class="scmt-hd"><i class="bx bx-user-check"></i>Đánh giá của Quản lý trực tiếp</div>'+
+      managerEditor('Chưa có nhận xét của Quản lý trực tiếp','lm1-view-'+index,500);
+    var editor=commentPanel.querySelector('.manager-comment');
+    if(editor){
+      editor.textContent=lm1Data.comments?lm1Data.comments[keys[index]]||'':'';
+      editor.setAttribute('contenteditable','false');
+    }
   });
   var overall=panel.querySelector('.overall-panel.locked');
   if(overall){
-    overall.className='overall-panel editable-panel';
-    overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>'+managerRoleName(role)+' đánh giá<span class="badge b-action field-state">Bắt buộc</span></div>'+
-      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của '+managerRoleName(role)+'" onchange="updateManagerOpLbl()">'+managerScoreOptions()+'</select><span class="sc-lbl" id="manager-op-lbl"></span>'+
-      '<button class="manager-agree" '+(lm1Score===''?'disabled':'')+' onclick="agreeWithLm1Score(\''+lm1Score+'\')"><i class="bx bx-check-double"></i> Đồng thuận điểm LM1'+(lm1Score!==''?' ('+String(lm1Score)+')':'')+'</button></div>'+
-      '<label class="op-flbl">Đánh giá toàn diện của '+managerRoleName(role)+'</label>'+
-      managerEditor('Nhập nhận xét tổng quan của '+managerRoleName(role)+'…',role+'-overall',1000);
+    var lm1Score=lm1Data.overall&&lm1Data.overall.score!=null?lm1Data.overall.score:'';
+    overall.className='overall-panel lm1-readonly';
+    overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>Quản lý trực tiếp đánh giá</div>'+
+      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select" disabled>'+managerScoreOptions()+'</select></div>'+
+      '<label class="op-flbl">Đánh giá toàn diện của Quản lý trực tiếp</label>'+
+      managerEditor('Chưa có nhận xét đánh giá toàn diện','lm1-view-overall',1000);
+    var select=overall.querySelector('.op-select');
+    if(select) select.value=String(lm1Score);
+    var comment=overall.querySelector('.manager-comment');
+    if(comment){
+      comment.textContent=lm1Data.overall?lm1Data.overall.comment||'':'';
+      comment.setAttribute('contenteditable','false');
+    }
   }
+  panel.querySelectorAll('.lm1-readonly select,.lm1-readonly input,.lm1-readonly button').forEach(function(control){control.disabled=true;});
 }
 
 function downloadManagerMyrPdf(){
-  var emp=MANAGER_EMPLOYEES[MANAGER_DETAIL_STATE.empId]||MANAGER_EMPLOYEES.e1;
+  var emp=managerEmployeeMeta(MANAGER_DETAIL_STATE.empId);
   var link=document.createElement('a');
-  link.href='../assets/myr-results/'+MANAGER_DETAIL_STATE.empId+'.pdf';
+  link.href='../assets/myr-results/'+MANAGER_DETAIL_STATE.empId+'.pdf?v=20260614-data';
   link.download='ket-qua-myr-2026-'+emp.login.replace(/\./g,'-')+'.pdf';
   document.body.appendChild(link);
   link.click();
@@ -3144,14 +3203,14 @@ function myrPrioCell(prio){
   var pp=map[prio];
   return '<td><div class="g-meta">'+(pp?'<span class="prio '+pp[0]+'">'+pp[1]+'</span>':'—')+'</div></td>';
 }
-function myrGoalRow(g,score,withPrio){
+function myrGoalRow(g,score,managerScore,withPrio){
   return '<tr data-name="'+myrEsc(g.title)+'" data-result="'+myrEsc(g.result)+'" onclick="openGoalDetail(this)">'+
     '<td><div class="g-name">'+myrEsc(g.title)+'</div></td>'+
     '<td><div class="g-result">'+myrEsc(g.result)+'</div></td>'+
     (withPrio?myrPrioCell(g.prio):'')+
     '<td><div class="g-meta">'+myrEsc(g.s)+' – '+myrEsc(g.e)+'</div></td>'+
     myrScSelect(score)+
-    '<td class="ql-cell"><div class="ql-dash">—</div></td>'+
+    '<td class="ql-cell">'+(managerScore!=null?'<div class="ql-val">'+myrEsc(managerScore)+'</div>':'<div class="ql-dash">—</div>')+'</td>'+
   '</tr>';
 }
 function myrScoreLabel(v){
@@ -3162,21 +3221,44 @@ function myrScoreLabel(v){
   if(v===2) return {txt:'Hoàn thành một phần',cls:'lbl-need'};
   return {txt:'Không đạt yêu cầu',cls:'lbl-fail'};
 }
-function populateEmployeeMyr(empId){
+function resetEmployeeMyr(panel){
+  panel.querySelectorAll('.sc-select,.op-select').forEach(function(select){select.value='';});
+  panel.querySelectorAll('#cmt-what,#cmt-dev,#cmt-how,#op-cmt').forEach(function(editor){editor.textContent='';});
+  panel.querySelectorAll('#how-tbody .ql-cell').forEach(function(cell){cell.innerHTML='<div class="ql-dash">—</div>';});
+  var sv=document.getElementById('sb-score-val'); if(sv) sv.textContent='—';
+  var mv=document.getElementById('sb-manager-score'); if(mv) mv.textContent='—';
+  var tag=document.getElementById('sb-score-tag');
+  if(tag){tag.textContent='';tag.className='sb-score-tag';tag.hidden=true;}
+  var lbl=document.getElementById('op-lbl'); if(lbl){lbl.textContent='';lbl.className='sc-lbl';}
+}
+
+function populateEmployeeMyr(empId,showSelfData,showLm1Data){
   var emps=window.PMS_EMPLOYEES||[];
   var emp=emps.find(function(e){return e.id===empId;});
   if(!emp) return;
-  var se=(window.PMS_SELFEVAL||{})[empId]||{};
+  var panel=document.getElementById('mpanel-myr');
+  resetEmployeeMyr(panel);
+  var se=showSelfData?((window.PMS_SELFEVAL||{})[empId]||{}):{};
+  var lm1=showLm1Data?((window.PMS_LM1EVAL||{})[empId]||{}):{};
   var scores=se.goalScores||{};
+  var lm1Scores=lm1.goalScores||{};
   var whatG=emp.goals.filter(function(g){return g.type==='what'&&g.status==='approved';});
   var devG=emp.goals.filter(function(g){return g.type==='dev'&&g.status==='approved';});
   var wt=document.getElementById('what-tbody');
   var dt=document.getElementById('dev-tbody');
-  if(wt) wt.innerHTML=whatG.map(function(g){return myrGoalRow(g,scores[g.id],true);}).join('');
-  if(dt) dt.innerHTML=devG.map(function(g){return myrGoalRow(g,scores[g.id],false);}).join('');
+  var devSection=document.getElementById('myr-dev-section');
+  if(devSection) devSection.hidden=devG.length===0;
+  if(wt) wt.innerHTML=whatG.map(function(g){return myrGoalRow(g,scores[g.id],lm1Scores[g.id],true);}).join('');
+  if(dt) dt.innerHTML=devG.map(function(g){return myrGoalRow(g,scores[g.id],lm1Scores[g.id],false);}).join('');
   if(se.howScores){
     var howSel=document.querySelectorAll('#how-tbody .sc-select');
     se.howScores.forEach(function(v,i){ if(howSel[i]) howSel[i].value=String(v); });
+  }
+  if(lm1.howScores){
+    var howManagerCells=document.querySelectorAll('#how-tbody .ql-cell');
+    lm1.howScores.forEach(function(v,i){
+      if(howManagerCells[i]) howManagerCells[i].innerHTML=v!=null?'<div class="ql-val">'+myrEsc(v)+'</div>':'<div class="ql-dash">—</div>';
+    });
   }
   if(se.comments){
     ['what','dev','how'].forEach(function(k){
@@ -3194,18 +3276,40 @@ function populateEmployeeMyr(empId){
   if(sv) sv.textContent=(nv!=null?String(nv):'—');
   var tag=document.getElementById('sb-score-tag');
   if(tag){ var lbl=myrScoreLabel(nv); if(lbl){tag.textContent=lbl.txt;tag.className='sb-score-tag '+lbl.cls;tag.hidden=false;} else {tag.textContent='';tag.className='sb-score-tag';tag.hidden=true;} }
+  var managerScore=document.getElementById('sb-manager-score');
+  if(managerScore) managerScore.textContent=lm1.overall&&lm1.overall.score!=null?String(lm1.overall.score):'—';
+}
+
+function setEmployeeReadOnly(panel){
+  panel.querySelectorAll('.section-cmt .scmt-panel:first-child,.overall-grid .overall-panel:first-child').forEach(function(section){
+    section.classList.add('employee-readonly');
+    var badge=section.querySelector('.field-state');
+    if(badge){badge.className='badge b-muted field-state';badge.textContent='Chỉ xem';}
+  });
+  panel.querySelectorAll('.sc-cell').forEach(function(cell){cell.classList.add('employee-readonly');});
+  panel.querySelectorAll('.employee-readonly select,.employee-readonly input,.employee-readonly button').forEach(function(control){control.disabled=true;});
+  panel.querySelectorAll('.employee-readonly [contenteditable="true"]').forEach(function(editor){editor.setAttribute('contenteditable','false');});
 }
 
 function setupManagerDetail(){
   var params=new URLSearchParams(location.search);
-  var emp=MANAGER_EMPLOYEES[params.get('emp')]||MANAGER_EMPLOYEES.e1;
+  var empId=params.get('emp')||'e1';
+  var emp=managerEmployeeMeta(empId);
   var role=params.get('role')||'lm1';
   var phase=params.get('phase')||'employee';
-  var lm1Score=params.get('lm1')||'';
-  var eligible=params.get('eligible')!=='0';
-  var submitted=params.get('submitted')!=='0';
-  var status=params.get('status')||'Đủ điều kiện tham gia MYR';
-  MANAGER_DETAIL_STATE={empId:params.get('emp')||'e1',role:role,phase:phase,submitted:false};
+  var review=(window.PMS_MYR||{})[empId]||{};
+  var lm1Score=review.lm1!=null?String(review.lm1):(params.get('lm1')||'');
+  var submitted=review.submitted===true;
+  var viewOnly=role==='lm2'||role==='hod';
+  var lm1Visible=submitted&&review.lm1!=null&&MANAGER_PHASES.indexOf(phase)>=MANAGER_PHASES.indexOf('lm1');
+  MANAGER_DETAIL_STATE={empId:empId,role:role,phase:phase,submitted:false,viewOnly:viewOnly};
+
+  var detailTitle=viewOnly?'Chi tiết đánh giá của Nhân viên và LM1':'Chi tiết đánh giá của Nhân viên';
+  document.title=detailTitle+' | MoMo HRM';
+  var topTitle=document.querySelector('.topbar-title'); if(topTitle) topTitle.textContent=detailTitle;
+  var pageTitle=document.querySelector('.page-title'); if(pageTitle) pageTitle.textContent=detailTitle;
+  var breadcrumbTitle=document.querySelector('.breadcrumb span:last-child'); if(breadcrumbTitle) breadcrumbTitle.textContent=detailTitle;
+
   var chip=document.querySelector('.emp-chip');
   if(chip){
     chip.querySelector('.av').textContent=emp.ini;
@@ -3213,6 +3317,13 @@ function setupManagerDetail(){
     if(lines[0]) lines[0].innerHTML='<span class="ec-lbl">Nhân viên:</span> '+emp.name+' <span class="ec-dom">('+emp.login+')</span>';
     if(lines[1]) lines[1].innerHTML='<span class="ec-lbl">Team:</span> '+emp.team;
     if(lines[2]) lines[2].innerHTML='<span class="ec-lbl">Quản lý trực tiếp:</span> '+emp.manager;
+    var oldTags=chip.querySelector('.ec-tags'); if(oldTags) oldTags.remove();
+    if(emp.resigned||emp.maternity){
+      chip.querySelector('.ec-info').insertAdjacentHTML('beforeend','<div class="ec-tags">'+
+        (emp.resigned?'<span class="emp-tag emp-tag-resigned">Đã nộp đơn nghỉ việc</span>':'')+
+        (emp.maternity?'<span class="emp-tag emp-tag-maternity">Đang nghỉ thai sản</span>':'')+
+      '</div>');
+    }
   }
 
   var tabs=document.querySelectorAll('.tabs .tab-btn');
@@ -3222,11 +3333,8 @@ function setupManagerDetail(){
 
   var panel=document.getElementById('mpanel-myr');
   if(!panel) return;
-  if(!eligible){
-    renderManagerEmpty(panel,emp,role,'bx-error-circle','Chưa đủ điều kiện tham gia MYR',emp.name+' hiện '+status.toLowerCase()+'. Nhân viên cần có ít nhất 1 mục tiêu công việc và 1 mục tiêu phát triển được duyệt.');
-    return;
-  }
-  populateEmployeeMyr(MANAGER_DETAIL_STATE.empId);
+  populateEmployeeMyr(empId,submitted,lm1Visible);
+  setEmployeeReadOnly(panel);
   panel.insertAdjacentHTML('afterbegin',managerContextHtml(emp,role));
   var actions=panel.querySelector('.cycle-actions');
   if(actions) actions.innerHTML='';
@@ -3236,26 +3344,27 @@ function setupManagerDetail(){
   var bannerSub=panel.querySelector('.submit-banner .sb-sub');
 
   if(!submitted){
-    // Đủ điều kiện nhưng chưa tự đánh giá → cho QL xem trước mục tiêu (read-only), khóa trường đánh giá
     if(banner) banner.classList.add('submit-banner--pending');
     var bicon=panel.querySelector('.submit-banner .sb-icon i');
     if(bicon) bicon.className='bx bx-time-five';
-    if(bannerTitle) bannerTitle.textContent='Nhân viên chưa gửi Tự đánh giá MYR 2026';
-    if(bannerSub) bannerSub.textContent='Đang chờ '+emp.name+' hoàn thành tự đánh giá. Bạn có thể xem trước danh sách mục tiêu đã duyệt; các trường đánh giá sẽ mở sau khi nhân viên nộp.';
+    if(bannerTitle) bannerTitle.textContent='Nhân viên chưa hoàn thành tự đánh giá MYR 2026';
+    if(bannerSub) bannerSub.textContent='Hiển thị các mục tiêu đã duyệt; điểm và nhận xét để trống cho đến khi nhân viên hoàn thành tự đánh giá.';
     var sw=panel.querySelector('.submit-banner .sb-score-wrap'); if(sw) sw.style.display='none';
     var rb=panel.querySelector('.submit-banner > .btn'); if(rb) rb.style.display='none';
-    lockManagerStructure(panel,role,lm1Score);
-    if(banner) banner.insertAdjacentHTML('afterend','<div class="manager-lock-note"><i class="bx bx-lock-alt"></i><span>Nhân viên chưa tự đánh giá nên các trường đánh giá của '+managerRoleName(role)+' đang bị khóa. Bảng dưới chỉ hiển thị mục tiêu đã duyệt để bạn xem trước.</span></div>');
+    if(viewOnly) renderLm1ReadOnly(panel,empId,false);
+    else lockManagerStructure(panel,role,lm1Score);
     return;
   }
 
-  if(bannerTitle) bannerTitle.textContent='Nhân viên đã gửi Tự đánh giá MYR 2026';
-  if(bannerSub) bannerSub.textContent=phase==='employee'?'Đang trong giai đoạn Nhân viên tự đánh giá':'Đã hoàn thành Tự đánh giá';
-  var managerScoreDisplay=document.getElementById('sb-manager-score');
-  var rolePhaseReached=MANAGER_PHASES.indexOf(phase)>=MANAGER_PHASES.indexOf(role);
-  if(managerScoreDisplay) managerScoreDisplay.textContent=role==='lm1'&&rolePhaseReached&&lm1Score!==''?lm1Score:'—';
+  if(bannerTitle) bannerTitle.textContent='Nhân viên đã hoàn thành Tự đánh giá MYR 2026';
+  if(bannerSub) bannerSub.style.display='none';
 
   maskFutureManagerScores(panel,phase);
+  if(viewOnly){
+    renderLm1ReadOnly(panel,empId,lm1Visible);
+    return;
+  }
+
   if(phase!==role){
     lockManagerStructure(panel,role,lm1Score);
     var anchor=panel.querySelector('.submit-banner')||panel.querySelector('.manager-detail-nav');
@@ -3263,8 +3372,7 @@ function setupManagerDetail(){
     return;
   }
 
-  if(role==='lm1') setupLm1DetailedForm(panel);
-  else setupOverallOnlyForm(panel,role,lm1Score);
+  setupLm1DetailedForm(panel);
   renderManagerActions();
 }
 
