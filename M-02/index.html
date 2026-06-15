@@ -771,7 +771,9 @@ label.ev-tb-btn{cursor:pointer}
 .sb-score-group:first-child{border-left:0}
 .sb-score-lbl{font-size:12.5px;color:var(--z600);white-space:nowrap}
 .sb-score-val{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
-.sb-score-tag{height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
+.sb-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.sb-icon-action{width:30px;height:30px;padding:0;justify-content:center;flex:0 0 30px}
+.sb-icon-action i{font-size:14px}
 .cycle-submitted-tag{display:none;align-items:center;gap:5px;font-size:12.5px;color:var(--ok);font-weight:600;white-space:nowrap;padding:5px 11px;border:1px solid var(--ok-bd);border-radius:var(--rsm);background:var(--ok-bg)}
 .cycle-submitted-tag i{font-size:14px}
 .page-submitted .cycle-actions{display:none}
@@ -799,7 +801,7 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .page-submitted .cycle-actions{display:flex}
 .manager-detail .cycle-actions:empty{display:none}
 .manager-detail .cycle-actions .btn{display:inline-flex}
-.manager-detail .submit-banner .btn{display:none}
+.manager-detail .submit-banner .sb-recall-btn{display:none}
 .manager-detail .manager-score{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand)}
 .manager-detail .page-submitted .manager-score,.manager-detail .page-submitted .manager-comment{pointer-events:auto}
 .manager-detail .manager-comment{min-height:72px;padding-left:11px}
@@ -1427,16 +1429,20 @@ body.embedded-detail .page-title{font-size:16px}
         <div class="sb-score-group">
           <span class="sb-score-lbl">Điểm của NV:</span>
           <span class="sb-score-val" id="sb-score-val">—</span>
-          <span class="sb-score-tag" id="sb-score-tag" hidden></span>
         </div>
         <div class="sb-score-group">
-          <span class="sb-score-lbl">Điểm QL đánh giá:</span>
+          <span class="sb-score-lbl">Điểm của QLTT:</span>
           <span class="sb-score-val" id="sb-manager-score">—</span>
         </div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="openRecall()">
-        <i class="bx bx-undo"></i>Thu hồi để chỉnh sửa
-      </button>
+      <div class="sb-actions">
+        <button class="btn btn-outline btn-sm sb-recall-btn" onclick="openRecall()">
+          <i class="bx bx-undo"></i>Thu hồi để chỉnh sửa
+        </button>
+        <button class="btn btn-outline sb-icon-action sb-pdf-btn" type="button" aria-label="Tải kết quả PDF" data-tip="Tải kết quả PDF" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="downloadManagerMyrPdf()">
+          <i class="bx bxs-file-pdf"></i>
+        </button>
+      </div>
     </div>
 
     <!-- ════════ WHAT: Mục tiêu công việc ════════ -->
@@ -2823,20 +2829,12 @@ function closeConfirm() { document.getElementById('confirm-overlay').classList.r
 function doSubmit() {
   closeConfirm();
   const scoreVal = document.getElementById('op-score')?.value || '';
-  const scoreLblEl = document.getElementById('op-lbl');
-  const scoreLbl = scoreLblEl?.textContent || '';
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
   const timeStr = pad(now.getDate()) + '/' + pad(now.getMonth()+1) + '/' + now.getFullYear()
                 + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
   document.getElementById('sb-time').textContent = timeStr;
   document.getElementById('sb-score-val').textContent = scoreVal || '—';
-  const tagEl = document.getElementById('sb-score-tag');
-  if (scoreLbl && scoreLblEl) {
-    tagEl.textContent = scoreLbl;
-    tagEl.className = 'sb-score-tag ' + scoreLblEl.className.replace('sc-lbl show ','').replace('sc-lbl','').trim();
-    tagEl.hidden = false;
-  } else { tagEl.hidden = true; }
   document.getElementById('submit-banner').hidden = false;
   var _chip = document.getElementById('submitted-time-chip'); if (_chip) _chip.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
   document.querySelector('.page').classList.add('page-submitted');
@@ -2918,10 +2916,6 @@ function toggleDet(id, btn) {
   document.getElementById('sb-time').textContent = '13/06/2026 09:15';
   var _chip2 = document.getElementById('submitted-time-chip'); if (_chip2) _chip2.textContent = '09:15';
   document.getElementById('sb-score-val').textContent = '4';
-  const tagEl = document.getElementById('sb-score-tag');
-  tagEl.textContent = 'Hoàn thành trên mức kỳ vọng';
-  tagEl.className = 'sb-score-tag lbl-good';
-  tagEl.hidden = false;
   document.getElementById('submit-banner').hidden = false;
   document.querySelector('.page').classList.add('page-submitted');
 })();
@@ -3088,7 +3082,7 @@ function renderManagerActions(){
 }
 
 function managerContextHtml(emp,role){
-  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button><button class="btn btn-outline btn-sm" onclick="downloadManagerMyrPdf()"><i class="bx bxs-file-pdf"></i> Tải kết quả PDF</button></div>';
+  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button></div>';
 }
 
 function renderManagerEmpty(panel,emp,role,icon,title,message){
@@ -3251,8 +3245,6 @@ function resetEmployeeMyr(panel){
   panel.querySelectorAll('#how-tbody .ql-cell').forEach(function(cell){cell.innerHTML='<div class="ql-dash">—</div>';});
   var sv=document.getElementById('sb-score-val'); if(sv) sv.textContent='—';
   var mv=document.getElementById('sb-manager-score'); if(mv) mv.textContent='—';
-  var tag=document.getElementById('sb-score-tag');
-  if(tag){tag.textContent='';tag.className='sb-score-tag';tag.hidden=true;}
   var lbl=document.getElementById('op-lbl'); if(lbl){lbl.textContent='';lbl.className='sc-lbl';}
 }
 
@@ -3298,8 +3290,6 @@ function populateEmployeeMyr(empId,showSelfData,showLm1Data){
   if(opc) opc.textContent=(se.overall&&se.overall.comment)||'';
   var sv=document.getElementById('sb-score-val');
   if(sv) sv.textContent=(nv!=null?String(nv):'—');
-  var tag=document.getElementById('sb-score-tag');
-  if(tag){ var lbl=myrScoreLabel(nv); if(lbl){tag.textContent=lbl.txt;tag.className='sb-score-tag '+lbl.cls;tag.hidden=false;} else {tag.textContent='';tag.className='sb-score-tag';tag.hidden=true;} }
   var managerScore=document.getElementById('sb-manager-score');
   if(managerScore) managerScore.textContent=lm1.overall&&lm1.overall.score!=null?String(lm1.overall.score):'—';
 }
@@ -3375,7 +3365,7 @@ function setupManagerDetail(){
     if(bannerTitle) bannerTitle.textContent='Nhân viên chưa hoàn thành tự đánh giá MYR 2026';
     if(bannerSub) bannerSub.textContent='Hiển thị các mục tiêu đã duyệt; điểm và nhận xét để trống cho đến khi nhân viên hoàn thành tự đánh giá.';
     var sw=panel.querySelector('.submit-banner .sb-score-wrap'); if(sw) sw.style.display='none';
-    var rb=panel.querySelector('.submit-banner > .btn'); if(rb) rb.style.display='none';
+    var pdfButton=panel.querySelector('.submit-banner .sb-pdf-btn'); if(pdfButton) pdfButton.style.display='none';
     if(viewOnly) renderLm1ReadOnly(panel,empId,false);
     else lockManagerStructure(panel,role,lm1Score);
     return;

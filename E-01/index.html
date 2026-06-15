@@ -219,6 +219,15 @@ input,select,textarea{font-family:inherit}
 .btn-destructive:hover{background:var(--err-bg)}
 .btn-sm{padding:4px 10px;font-size:12.5px}
 .btn-xs{padding:2px 8px;font-size:11.5px}
+.download-menu{position:relative;display:inline-flex}
+.download-toggle .bx-chevron-down{font-size:15px;transition:transform var(--t)}
+.download-menu.open .download-toggle{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.download-menu.open .download-toggle .bx-chevron-down{transform:rotate(180deg)}
+.download-popover{display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:300;min-width:168px;padding:4px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);box-shadow:var(--sh-md)}
+.download-menu.open .download-popover{display:block}
+.download-option{width:100%;display:flex;align-items:center;gap:8px;padding:7px 9px;border:0;border-radius:var(--rxs);background:transparent;color:var(--z700);font-family:inherit;font-size:12.5px;font-weight:500;line-height:1.4;text-align:left;white-space:nowrap;transition:var(--t)}
+.download-option:hover{background:var(--z100);color:var(--z900)}
+.download-option i{width:16px;font-size:15px;color:var(--z500);text-align:center}
 
 /* ── BADGES (shadcn bordered style) ── */
 .badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
@@ -607,7 +616,6 @@ textarea.fc{resize:vertical}
 .lbl-need{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bd)}
 .lbl-fail{background:var(--err-bg);color:var(--err);border-color:var(--err-bd)}
 .cycle-actions{display:flex;align-items:center;gap:7px}
-.myr-download-row{display:flex;justify-content:flex-end;margin-bottom:10px}
 /* ── Progress stepper ── */
 .stepper-card{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:16px 18px 14px;margin-bottom:14px}
 .stepper-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:16px;display:flex;align-items:center;gap:5px}
@@ -763,6 +771,9 @@ label.ev-tb-btn{cursor:pointer}
 .sb-score-lbl{font-size:12.5px;color:var(--z600);white-space:nowrap}
 .sb-score-val{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
 .sb-score-tag{height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
+.sb-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.sb-icon-action{width:30px;height:30px;padding:0;justify-content:center;flex:0 0 30px}
+.sb-icon-action i{font-size:14px}
 .cycle-submitted-tag{display:none;align-items:center;gap:5px;font-size:12.5px;color:var(--ok);font-weight:600;white-space:nowrap;padding:5px 11px;border:1px solid var(--ok-bd);border-radius:var(--rsm);background:var(--ok-bg)}
 .cycle-submitted-tag i{font-size:14px}
 .page-submitted .cycle-actions{display:none}
@@ -926,8 +937,15 @@ label.ev-tb-btn{cursor:pointer}
       </div>
       <button class="btn btn-default btn-sm" onclick="openCreate()"><i class="bx bx-plus"></i> Tạo mục tiêu</button>
       <button class="btn btn-outline btn-sm" onclick="openOverlay('dlg-import')"><i class="bx bx-upload"></i> Import CSV</button>
-      <button class="btn btn-outline btn-sm" onclick="downloadEmployeeGoals('xls')"><i class="bx bx-spreadsheet"></i> Tải Excel</button>
-      <button class="btn btn-outline btn-sm" onclick="downloadEmployeeGoals('csv')"><i class="bx bx-download"></i> Tải CSV</button>
+      <div class="download-menu">
+        <button class="btn btn-outline btn-sm download-toggle" type="button" aria-haspopup="menu" aria-expanded="false" onclick="event.stopPropagation();toggleDownloadMenu(this)">
+          <i class="bx bx-download"></i> Tải xuống <i class="bx bx-chevron-down"></i>
+        </button>
+        <div class="download-popover" role="menu">
+          <button class="download-option" type="button" role="menuitem" onclick="downloadEmployeeGoals('xls');closeDownloadMenus()"><i class="bx bx-spreadsheet"></i> Excel (.xls)</button>
+          <button class="download-option" type="button" role="menuitem" onclick="downloadEmployeeGoals('csv');closeDownloadMenus()"><i class="bx bx-file"></i> CSV (.csv)</button>
+        </div>
+      </div>
     </div>
 
     <!-- Guidance card: hướng dẫn + quy trình -->
@@ -1341,9 +1359,6 @@ label.ev-tb-btn{cursor:pointer}
 
     <!-- ═══ PANEL: Mid-Year Review (MYR) ═══ -->
     <div class="main-panel" id="mpanel-myr">
-    <div class="myr-download-row">
-      <button class="btn btn-outline btn-sm" onclick="downloadMyrPdf()"><i class="bx bxs-file-pdf"></i> Tải kết quả PDF</button>
-    </div>
     <div class="cycle-actions">
       <button class="btn btn-outline btn-sm" onclick="myrSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
       <button class="btn btn-default btn-sm" onclick="openConfirm()"><i class="bx bx-send"></i> Gửi tự đánh giá</button>
@@ -1359,9 +1374,14 @@ label.ev-tb-btn{cursor:pointer}
         <span class="sb-score-val" id="sb-score-val">—</span>
         <span class="sb-score-tag" id="sb-score-tag" hidden></span>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="openRecall()">
-        <i class="bx bx-undo"></i>Thu hồi để chỉnh sửa
-      </button>
+      <div class="sb-actions">
+        <button class="btn btn-outline btn-sm sb-recall-btn" onclick="openRecall()">
+          <i class="bx bx-undo"></i>Thu hồi để chỉnh sửa
+        </button>
+        <button class="btn btn-outline sb-icon-action" type="button" aria-label="Tải kết quả PDF" data-tip="Tải kết quả PDF" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="downloadMyrPdf()">
+          <i class="bx bxs-file-pdf"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Progress Stepper -->
@@ -2986,6 +3006,28 @@ function downloadEmployeeGoals(format){
     'muc-tieu-nguyen-van-tu-2026'
   );
 }
+
+function closeDownloadMenus(){
+  document.querySelectorAll('.download-menu.open').forEach(function(menu){
+    menu.classList.remove('open');
+    var toggle=menu.querySelector('.download-toggle');
+    if(toggle) toggle.setAttribute('aria-expanded','false');
+  });
+}
+
+function toggleDownloadMenu(button){
+  var menu=button.closest('.download-menu');
+  var shouldOpen=!menu.classList.contains('open');
+  closeDownloadMenus();
+  if(shouldOpen){
+    menu.classList.add('open');
+    button.setAttribute('aria-expanded','true');
+  }
+}
+
+document.addEventListener('click',function(event){
+  if(!event.target.closest('.download-menu')) closeDownloadMenus();
+});
 
 function downloadMyrPdf(){
   var link=document.createElement('a');
