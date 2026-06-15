@@ -1009,7 +1009,7 @@ const EMPS = window.PMS_EMPLOYEES;
 const MYR_DATA = window.PMS_MYR;
 
 const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
-const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'employee';
+const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'hod'; // DEMO: bypass phase lock
 
 /* ═══════════ STATE ═══════════ */
 const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', filterOpen:false, myrFilterOpen:false, splitView:false, myrSplitView:false, myrSelected:new Set() };
@@ -1216,7 +1216,7 @@ function myrRatingCell(emp,review,role){
   if(S.myrRole!==role) return formatMyrScore(visibleMyrScore(review,role),false);
   const previousScore=visibleMyrScore(review,previousRole);
   const predecessorComplete=review.submitted&&previousScore!==null&&previousScore!==undefined;
-  const canRate=MYR_CURRENT_PHASE===role&&predecessorComplete;
+  const canRate=S.myrRole===role&&review.submitted; // DEMO: bypass phase/predecessor lock
   const selectedScore=visibleMyrScore(review,role);
   const lockReason=MYR_CURRENT_PHASE!==role
     ?'Chức năng mở trong timeline '+role.toUpperCase()+' đánh giá'
@@ -1234,7 +1234,7 @@ function setMyrRating(empId,role,value){
 }
 
 function canApproveMyrRating(empId){
-  if(S.myrRole==='lm1'||MYR_CURRENT_PHASE!==S.myrRole) return false;
+  if(S.myrRole==='lm1') return false; // DEMO: bypass phase check
   const review=MYR_DATA[empId]||{};
   const previousRole=S.myrRole==='hod'?'lm2':'lm1';
   const previousScore=visibleMyrScore(review,previousRole);

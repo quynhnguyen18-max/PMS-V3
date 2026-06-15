@@ -3003,7 +3003,7 @@ function managerScoreOptions(){
 }
 
 const MANAGER_PHASES = ['employee','lm1','lm2','hod','publish'];
-var MANAGER_DETAIL_STATE = {empId:'e1',role:'lm1',phase:'employee',submitted:false,viewOnly:false};
+var MANAGER_DETAIL_STATE = {empId:'e1',role:'lm1',phase:'lm1',submitted:false,viewOnly:false}; // DEMO: default phase lm1
 
 function managerRoleName(role){
   if(role==='lm2') return 'Quản lý cấp 2';
@@ -3054,7 +3054,7 @@ function managerSubmitAssessment(){
 }
 
 function managerRecallAssessment(){
-  if(MANAGER_DETAIL_STATE.role!=='lm1'||MANAGER_DETAIL_STATE.phase!=='lm1') return;
+  if(MANAGER_DETAIL_STATE.role!=='lm1') return; // DEMO: bypass phase check
   MANAGER_DETAIL_STATE.submitted=false;
   showToast('Đã thu hồi đánh giá. Bạn có thể chỉnh sửa và gửi lại trước khi hết hạn.');
   renderManagerActions();
@@ -3076,7 +3076,7 @@ function renderManagerActions(){
     actions.innerHTML='<button class="btn btn-outline btn-sm" onclick="managerSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button><button class="btn btn-default btn-sm" onclick="managerSubmitAssessment()"><i class="bx bx-send"></i> Gửi đánh giá</button>';
     return;
   }
-  actions.innerHTML=MANAGER_DETAIL_STATE.role==='lm1'&&MANAGER_DETAIL_STATE.phase==='lm1'
+  actions.innerHTML=MANAGER_DETAIL_STATE.role==='lm1' // DEMO: show recall for lm1 regardless of phase
     ?'<span class="cycle-submitted-tag" style="display:flex"><i class="bx bx-check-circle"></i>Đã gửi đánh giá</span><button class="btn btn-outline btn-sm" onclick="managerRecallAssessment()"><i class="bx bx-undo"></i> Thu hồi để chỉnh sửa</button>'
     :'<span class="cycle-submitted-tag" style="display:flex"><i class="bx bx-check-circle"></i>Đã gửi đánh giá</span>';
 }

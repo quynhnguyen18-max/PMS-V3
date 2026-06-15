@@ -2873,51 +2873,7 @@ function toggleDet(id, btn) {
   }
 }
 
-/* ── Prototype: pre-fill Tú's completed self-assessment ── */
-(function initPrototypeState() {
-  // WHAT + DEV scores by data-name prefix
-  const nameScores = [
-    ['Tối ưu API', 4], ['Triển khai monitoring', 3],
-    ['Cải thiện kỹ năng system design', 4], ['Hoàn thành khoá AWS', 3],
-  ];
-  nameScores.forEach(([prefix, score]) => {
-    const tr = document.querySelector(`.rv-grid tbody tr[data-name^="${prefix}"]`);
-    if (tr) { const s = tr.querySelector('.sc-select'); if (s) s.value = score; }
-  });
-  // HOW scores by g-name text
-  const howScores = { 'Tập trung vào khách hàng': 4, 'Đổi mới sáng tạo': 4, 'Tinh thần đồng đội': 5, 'Thực thi xuất sắc': 4, 'Tinh thần học hỏi không ngừng': 5 };
-  document.querySelectorAll('.rv-grid tbody tr .g-name').forEach(div => {
-    const key = div.textContent.trim();
-    if (howScores[key] !== undefined) {
-      const s = div.closest('tr')?.querySelector('.sc-select');
-      if (s) s.value = howScores[key];
-    }
-  });
-  // Section comments
-  const texts = {
-    'cmt-what': 'Trong kỳ MYR 2026, tôi đã hoàn thành mục tiêu trọng tâm là hệ thống thanh toán real-time với P99 ổn định ở 85ms, vượt target 100ms và hoàn thành sớm 2 tháng so với kế hoạch. Hai mục tiêu còn lại đang được triển khai đúng tiến độ, dự kiến hoàn thành trong Q3–Q4/2026.',
-    'cmt-dev':  'Đã hoàn thành 4/6 bài thực hành system design và tham gia 1 buổi mock interview nội bộ với phản hồi tích cực. Đang trong giai đoạn ôn tập cuối khoá AWS Solutions Architect, dự kiến thi vào tháng 10/2026.',
-    'cmt-how':  'Tôi chủ động thể hiện các giá trị cốt lõi trong công việc hàng ngày. Đặc biệt chú trọng tinh thần đồng đội qua các buổi knowledge sharing và peer review, đồng thời duy trì thói quen đọc tài liệu kỹ thuật và theo dõi tech blog mỗi tuần.',
-  };
-  Object.entries(texts).forEach(([id, txt]) => {
-    const el = document.getElementById(id); if (el) el.textContent = txt;
-  });
-  // Overall score + comment
-  const opScore = document.getElementById('op-score');
-  if (opScore) { opScore.value = '4'; updateOpLbl(); }
-  const opCmt = document.getElementById('op-cmt');
-  if (opCmt) opCmt.textContent = 'Nhìn chung, tôi đánh giá bản thân hoàn thành trên mức kỳ vọng trong kỳ MYR 2026. Mục tiêu kỹ thuật quan trọng nhất đã hoàn thành sớm và vượt chỉ tiêu. Các mục tiêu phát triển đang đi đúng lộ trình. Tôi cam kết tiếp tục nâng cao năng lực và đóng góp tích cực cho team Backend trong nửa cuối năm.';
-  // Activate submitted state with hardcoded prototype timestamp
-  document.getElementById('sb-time').textContent = '13/06/2026 09:15';
-  var _chip2 = document.getElementById('submitted-time-chip'); if (_chip2) _chip2.textContent = '09:15';
-  document.getElementById('sb-score-val').textContent = '4';
-  const tagEl = document.getElementById('sb-score-tag');
-  tagEl.textContent = 'Hoàn thành trên mức kỳ vọng';
-  tagEl.className = 'sb-score-tag lbl-good';
-  tagEl.hidden = false;
-  document.getElementById('submit-banner').hidden = false;
-  document.querySelector('.page').classList.add('page-submitted');
-})();
+/* ── DEMO MODE: initPrototypeState disabled — form starts empty for live testing ── */
 
 /* ── Hover tooltip + click goal detail ── */
 (function initGoalInteractions() {
