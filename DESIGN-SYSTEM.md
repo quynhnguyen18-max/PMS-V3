@@ -164,7 +164,67 @@ Mở/đóng bằng toggle class `.open`. Field trong dialog: label uppercase 11p
 - Input/textarea cùng quy ước border + focus ring brand.
 - Checkbox: `accent-color:var(--brand)`, 13px.
 
-## 13. QUY TẮC CHUNG (bắt buộc)
+## 13. RICH-TEXT EVALUATION EDITOR (ô ghi nội dung đánh giá)
+Áp dụng bắt buộc cho mọi ô nhận xét/đánh giá của Nhân viên và Quản lý trong Mid-Year Review, End-Year Review và các màn hình chi tiết đánh giá.
+
+### Cấu trúc màu và bo viền chuẩn
+- Khung ngoài: border hồng nhạt `1px solid var(--brand-ring)`, bo góc `var(--rsm)` (6px), nền `var(--z0)`, `overflow:hidden`.
+- Cạnh trái có nhấn `3px` bằng `inset box-shadow` màu `var(--brand)`.
+- Phần toolbar/format text dùng nền `var(--z50)`. Khi chỉ xem, đã nộp hoặc bị khóa, toolbar dùng `opacity:.4`, vì vậy đoạn cạnh trái đi qua toolbar hiển thị **hồng nhạt**.
+- Phần nội dung phải để nền trong suốt, không đặt background che khung. Vì vậy đoạn cạnh trái bên dưới toolbar hiển thị **hồng đậm `var(--brand)`**.
+- Hai đoạn màu phải liền mạch theo cùng cạnh trái: hồng nhạt ở vùng toolbar, hồng đậm ở vùng nội dung.
+- Nội dung dùng `padding-left:11px` để không đè lên thanh nhấn 3px.
+
+```css
+.ev-editor-wrap{
+  border:1px solid var(--brand-ring);
+  border-radius:var(--rsm);
+  overflow:hidden;
+  background:var(--z0);
+  box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm);
+  transition:var(--t);
+}
+.ev-toolbar{
+  display:flex;
+  align-items:center;
+  gap:1px;
+  padding:3px 5px;
+  background:var(--z50);
+  border-bottom:1px solid var(--z200);
+  flex-wrap:wrap;
+}
+.ev-content{
+  min-height:58px;
+  padding:6px 8px 6px 11px;
+  background:transparent;
+  color:var(--z900);
+  font-size:13px;
+  line-height:1.55;
+  outline:none;
+  word-break:break-word;
+}
+.evaluation-readonly .ev-toolbar,
+.evaluation-locked .ev-toolbar,
+.page-submitted .ev-toolbar{
+  opacity:.4;
+  pointer-events:none;
+}
+.evaluation-readonly .ev-content,
+.evaluation-locked .ev-content,
+.page-submitted .ev-content{
+  pointer-events:none;
+}
+```
+
+### Quy tắc triển khai bắt buộc
+1. Nhân viên và Quản lý phải dùng cùng component, cùng border, radius, toolbar và cấu trúc hai sắc hồng.
+2. Trạng thái khóa/chỉ xem chỉ vô hiệu hóa thao tác và làm mờ toolbar; không giảm opacity của toàn bộ editor, không làm mờ nội dung đã có.
+3. Không dùng pseudo-element phủ một màu trên toàn chiều cao cạnh trái.
+4. Không đặt `box-shadow` hồng riêng trên `.ev-content`; thanh nhấn phải thuộc `.ev-editor-wrap`.
+5. Không đặt nền trắng trên `.ev-content`, vì nền này sẽ che `inset box-shadow` của wrapper.
+6. Không thay `var(--brand)` hoặc `var(--brand-ring)` bằng màu hardcode.
+
+## 14. QUY TẮC CHUNG (bắt buộc)
 1. Chỉ dùng token đã định nghĩa; không hardcode hex ngoài bảng (ngoại lệ duy nhất: nền header hồng `#fbe4f0`/`#f3cfe1`).
 2. Bo góc: card/dialog `--r`(8) · control/badge-nhỏ `--rsm`(6) · pill/badge `--rxs`(4) · chip tròn `50px`.
 3. Border mặc định `1px solid var(--z200)`; card nổi dùng z300 + `--sh`.

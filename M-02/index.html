@@ -820,14 +820,23 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .manager-empty h3{font-size:16px;font-weight:600;color:var(--z800);margin-bottom:6px}
 .manager-detail .manager-empty p{font-size:13px;color:var(--z500);line-height:1.6}
 .manager-detail .manager-detail-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.manager-detail .manager-locked-structure{opacity:.58;pointer-events:none;filter:grayscale(.15)}
+.manager-detail .manager-locked-structure{opacity:1;pointer-events:none;filter:none}
 .manager-detail .manager-locked-structure .manager-score{box-shadow:none;border-color:var(--z300)}
 .manager-detail .manager-locked-structure .ev-content{min-height:72px;background:var(--z0)}
 .manager-detail .ql-cell.manager-locked-structure{opacity:.45;pointer-events:none}
 .manager-detail .employee-readonly{opacity:1;filter:none;pointer-events:none}
-.manager-detail .employee-readonly .ev-editor-wrap{border:1px solid var(--brand-ring);border-radius:var(--rsm);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm);background:var(--z0)}
-.manager-detail .employee-readonly .ev-toolbar{display:flex;opacity:1;background:var(--z50);border-bottom:1px solid var(--z200)}
-.manager-detail .employee-readonly .ev-content{padding:6px 8px 6px 11px;color:var(--z900);opacity:1;background:var(--z0);box-shadow:inset 3px 0 0 var(--brand)}
+.manager-detail .employee-readonly .ev-editor-wrap,
+.manager-detail .manager-evaluation-panel .ev-editor-wrap,
+.manager-detail .lm1-readonly .ev-editor-wrap{border:1px solid var(--brand-ring);border-radius:var(--rsm);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm);background:var(--z0)}
+.manager-detail .employee-readonly .ev-toolbar{display:flex;opacity:.4;background:var(--z50);border-bottom:1px solid var(--z200)}
+.manager-detail .manager-locked-structure .ev-toolbar,
+.manager-detail .lm1-readonly .ev-toolbar{opacity:.4}
+.manager-detail .page-submitted .manager-locked-structure .manager-editor .ev-toolbar,
+.manager-detail .page-submitted .lm1-readonly .manager-editor .ev-toolbar{opacity:.4;pointer-events:none}
+.manager-detail .employee-readonly .ev-content,
+.manager-detail .manager-evaluation-panel .ev-content,
+.manager-detail .lm1-readonly .ev-content{padding-left:11px;box-shadow:none;background:transparent}
+.manager-detail .employee-readonly .ev-content{color:var(--z900);opacity:1}
 .manager-detail .employee-readonly .ev-tb-sel:disabled{opacity:1;color:var(--z700);background:transparent;border-color:transparent;-webkit-text-fill-color:var(--z700);cursor:default}
 .manager-detail .employee-readonly .ev-tb-btn:disabled,
 .manager-detail .employee-readonly label.ev-tb-btn{opacity:1;color:var(--z700);background:transparent;border-color:transparent;cursor:default}
@@ -837,9 +846,8 @@ label.ev-tb-btn{cursor:pointer}
 .manager-detail .employee-readonly .op-select{color:var(--z900);opacity:1;background-color:var(--z0);border-color:var(--z300);-webkit-text-fill-color:var(--z900)}
 .manager-detail .employee-readonly .char-ct{color:var(--z500)}
 .manager-detail .lm1-readonly{opacity:1;filter:none;pointer-events:none;background:var(--z0)}
-.manager-detail .lm1-readonly .ev-editor-wrap{border-color:var(--brand-ring);box-shadow:inset 3px 0 0 var(--brand),var(--sh-sm)}
-.manager-detail .lm1-readonly .ev-toolbar{display:flex;opacity:1}
-.manager-detail .lm1-readonly .ev-content{color:var(--z900);background:var(--z0)}
+.manager-detail .lm1-readonly .ev-toolbar{display:flex;opacity:.4}
+.manager-detail .lm1-readonly .ev-content{color:var(--z900)}
 body.embedded-detail{background:var(--z50)}
 body.embedded-detail .sidebar,
 body.embedded-detail .topbar,
