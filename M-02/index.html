@@ -3132,7 +3132,7 @@ function setupLm1DetailedForm(panel){
   var lm1Data=canShowExisting?((window.PMS_LM1EVAL||{})[MANAGER_DETAIL_STATE.empId]||{}):{};
   panel.querySelectorAll('.ql-cell').forEach(function(cell){
     var current=cell.querySelector('.ql-val')?cell.querySelector('.ql-val').textContent.trim():'';
-    cell.innerHTML='<select class="sc-select manager-score" aria-label="Điểm của Quản lý trực tiếp">'+managerScoreOptions()+'</select>';
+    cell.innerHTML='<select class="sc-select manager-score" aria-label="Điểm của Quản lý trực tiếp" onclick="event.stopPropagation()">'+managerScoreOptions()+'</select>';
     var select=cell.querySelector('select');
     if(select&&current&&current!=='—') select.value=current;
   });
