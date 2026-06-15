@@ -90,7 +90,7 @@ window.PMS_EMPLOYEES = [
 ];
 
 window.PMS_MYR = {
-  e1:{submitted:true,nv:4,lm1:null,lm2:null,hod:null,final:null},
+  e1:{submitted:true,nv:4,lm1:4,lm2:null,hod:null,final:null},
   e2:{submitted:true,nv:3.5,lm1:4,lm2:null,hod:null,final:4},
   e3:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},
   e4:{submitted:false,nv:null,lm1:null,lm2:null,hod:null,final:null},

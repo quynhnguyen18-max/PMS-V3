@@ -1265,7 +1265,7 @@ function updateMyrBulkControls(){
   const selectedCount=S.myrSelected.size;
   const bulkButton=document.getElementById('myr-bulk-approve');
   const count=document.getElementById('myr-bulk-count');
-  if(bulkButton) bulkButton.disabled=selectedCount===0||MYR_CURRENT_PHASE!==S.myrRole;
+  if(bulkButton) bulkButton.disabled=selectedCount===0; // DEMO: bypass phase check
   if(count) count.textContent=selectedCount;
   const selectAll=document.getElementById('myr-select-all');
   if(selectAll){
@@ -1277,7 +1277,7 @@ function updateMyrBulkControls(){
 }
 
 function approveSelectedMyrRatings(){
-  if(MYR_CURRENT_PHASE!==S.myrRole||S.myrRole==='lm1') return;
+  if(S.myrRole==='lm1') return; // DEMO: bypass phase check
   const previousRole=S.myrRole==='hod'?'lm2':'lm1';
   let updated=0;
   [...S.myrSelected].forEach(empId=>{
