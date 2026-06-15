@@ -3380,12 +3380,7 @@ function setupManagerDetail(){
     return;
   }
 
-  if(phase!==role){
-    lockManagerStructure(panel,role,lm1Score);
-    var anchor=panel.querySelector('.submit-banner')||panel.querySelector('.manager-detail-nav');
-    if(anchor) anchor.insertAdjacentHTML('afterend','<div class="manager-lock-note"><i class="bx bx-lock-alt"></i><span>'+managerLockMessage(role,phase)+'</span></div>');
-    return;
-  }
+  // DEMO: phase-role lock removed — LM1 can always evaluate regardless of current phase
 
   setupLm1DetailedForm(panel);
   renderManagerActions();
