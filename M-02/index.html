@@ -3001,6 +3001,9 @@ function managerEmployeeMeta(empId){
 function managerScoreOptions(){
   return '<option value="">Chọn điểm</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>';
 }
+function managerOverallScoreOptions(){
+  return '<option value="">Chọn điểm</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4</option><option>4.5</option><option>5</option>';
+}
 
 const MANAGER_PHASES = ['employee','lm1','lm2','hod','publish'];
 var MANAGER_DETAIL_STATE = {empId:'e1',role:'lm1',phase:'lm1',submitted:false,viewOnly:false}; // DEMO: default phase lm1
@@ -3149,7 +3152,7 @@ function setupLm1DetailedForm(panel){
   if(overall){
     overall.className='overall-panel editable-panel manager-evaluation-panel';
     overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>Quản lý trực tiếp đánh giá<span class="badge b-action field-state">Bắt buộc</span></div>'+
-      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của Quản lý" onchange="updateManagerOpLbl()">'+managerScoreOptions()+'</select><span class="sc-lbl" id="manager-op-lbl"></span></div>'+
+      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select manager-score" id="manager-overall-score" aria-label="Điểm toàn diện của Quản lý" onchange="updateManagerOpLbl()">'+managerOverallScoreOptions()+'</select><span class="sc-lbl" id="manager-op-lbl"></span></div>'+
       '<label class="op-flbl">Đánh giá toàn diện của Quản lý trực tiếp</label>'+
       managerEditor('Nhập nhận xét đánh giá toàn diện cho Nhân viên…','lm1-overall',1000);
     var overallScore=overall.querySelector('#manager-overall-score');
@@ -3185,7 +3188,7 @@ function renderLm1ReadOnly(panel,empId,showLm1Data){
     var lm1Score=lm1Data.overall&&lm1Data.overall.score!=null?lm1Data.overall.score:'';
     overall.className='overall-panel lm1-readonly';
     overall.innerHTML='<div class="op-hd"><i class="bx bx-user-check"></i>Quản lý trực tiếp đánh giá</div>'+
-      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select" disabled>'+managerScoreOptions()+'</select></div>'+
+      '<div class="op-score-row"><span class="op-score-lbl">Điểm toàn diện:</span><select class="op-select" disabled>'+managerOverallScoreOptions()+'</select></div>'+
       '<label class="op-flbl">Đánh giá toàn diện của Quản lý trực tiếp</label>'+
       managerEditor('Chưa có nhận xét đánh giá toàn diện','lm1-view-overall',1000);
     var select=overall.querySelector('.op-select');
