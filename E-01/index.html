@@ -795,7 +795,7 @@ label.ev-tb-btn{cursor:pointer}
 .validate-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--z700);padding:8px 10px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);line-height:1.4}
 .validate-item i{font-size:15px;color:var(--err);flex-shrink:0;margin-top:1px}
 .main-panel{display:none}.main-panel.on{display:block}
-#mpanel-myr .cycle-actions{justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}
+#mpanel-myr .myr-toolbar{justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}
 @media(max-width:900px){
   .stepper-card{overflow-x:auto}
   .stepper-track{min-width:700px}
@@ -804,7 +804,7 @@ label.ev-tb-btn{cursor:pointer}
   .gd-meta-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
-  #mpanel-myr .cycle-actions .btn{flex:1;justify-content:center}
+  #mpanel-myr .myr-draft-actions .btn{flex:1;justify-content:center}
   .submit-banner{align-items:flex-start}
   .sb-score-wrap{width:100%}
   .gd-meta-grid{grid-template-columns:1fr}
@@ -828,6 +828,9 @@ label.ev-tb-btn{cursor:pointer}
 .fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:11px;font-weight:500;padding:4px 8px;border-radius:var(--rxs);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
 .fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
 .fb-badge-wrap:hover .fb-badge-tip{opacity:1}
+.myr-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.myr-draft-actions{display:flex;align-items:center;gap:7px}
+.page-submitted .myr-draft-actions{display:none}
 </style>
 </head>
 <body>
@@ -1377,12 +1380,12 @@ label.ev-tb-btn{cursor:pointer}
 
     <!-- ═══ PANEL: Mid-Year Review (MYR) ═══ -->
     <div class="main-panel" id="mpanel-myr">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <div class="myr-toolbar">
       <button class="btn btn-cta-outline btn-sm" onclick="openOverlay('dlg-feedback')"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button>
-    </div>
-    <div class="cycle-actions">
-      <button class="btn btn-outline btn-sm" onclick="myrSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
-      <button class="btn btn-default btn-sm" onclick="openConfirm()"><i class="bx bx-send"></i> Gửi tự đánh giá</button>
+      <div class="myr-draft-actions">
+        <button class="btn btn-outline btn-sm" onclick="myrSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
+        <button class="btn btn-default btn-sm" onclick="openConfirm()"><i class="bx bx-send"></i> Gửi tự đánh giá</button>
+      </div>
     </div>
     <div class="submit-banner" id="submit-banner" hidden>
       <div class="sb-icon"><i class="bx bx-check-circle"></i></div>
@@ -3144,10 +3147,11 @@ function switchMainTab(idx){
       <button class="btn btn-default btn-sm" onclick="closeValidate()"><i class="bx bx-check"></i>Đã hiểu, bổ sung ngay</button>
     </div>
   </div>
+</div>
 
-  <!-- ═══ DIALOG: PHẢN HỒI ĐÃ NHẬN ═══ -->
-  <div class="overlay" id="dlg-feedback" onclick="if(event.target===this)closeOverlay('dlg-feedback')">
-  <div class="dialog" style="max-width:620px;width:100%">
+<!-- ═══ DIALOG: PHẢN HỒI ĐÃ NHẬN ═══ -->
+<div class="overlay" id="dlg-feedback" onclick="if(event.target===this)closeOverlay('dlg-feedback')">
+<div class="dialog" style="max-width:620px;width:100%">
     <div class="dlg-hd">
       <div style="display:flex;align-items:center;gap:8px">
         <span class="dlg-title">Phản hồi đã nhận</span>
@@ -3169,7 +3173,7 @@ function switchMainTab(idx){
           </div>
           <span class="fb-date">14/03/2026</span>
         </div>
-        <p class="fb-body" style="margin-bottom:10px">Mình ấn tượng với cách Quỳnh luôn chủ động cập nhật stakeholder về tiến độ dự án. Bạn có khả năng điều phối rất tốt, tư duy linh hoạt và luôn tìm cách cải tiến quy trình — những điều này tạo ra ảnh hưởng rõ rệt đến hiệu quả của cả team.</p>
+        <p class="fb-body" style="margin-bottom:10px">Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức, góp phần tạo ra một môi trường team rất tích cực.</p>
         <div class="fb-badges">
           <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""/><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
           <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""/><span class="fb-badge-tip">Đổi mới</span></div>
@@ -3186,15 +3190,15 @@ function switchMainTab(idx){
             <div class="fb-av">TD</div>
             <div>
               <div class="fb-sender-name">Trương Minh Đức <span class="fb-sender-dom">(duc.truong)</span></div>
-              <div class="fb-sender-org">DIV – People Operations – HR Business Partner</div>
+              <div class="fb-sender-org">ITC – Backend – Senior Engineer</div>
             </div>
           </div>
           <span class="fb-date">05/06/2026</span>
         </div>
-        <p class="fb-body" style="margin-bottom:10px">Quỳnh tổ chức chương trình onboarding Q1 rất chuyên nghiệp. Từ khâu thiết kế nội dung đến điều phối logistics đều được thực hiện chu đáo và nhận được phản hồi rất tích cực từ tất cả new joiners trong đợt đó.</p>
+        <p class="fb-body" style="margin-bottom:10px">Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện sự cố đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime. Cách Tú handle crisis là hình mẫu mình muốn team học theo.</p>
         <div class="fb-badges">
           <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""/><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""/><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Teamwork.png" alt=""/><span class="fb-badge-tip">Tinh thần đồng đội</span></div>
         </div>
       </div>
 
@@ -3212,9 +3216,9 @@ function switchMainTab(idx){
         </div>
         <div class="fb-qbox">
           <div class="fb-q-lbl">Câu hỏi</div>
-          <p class="fb-q-txt">Bạn đánh giá như thế nào về khả năng xử lý tình huống phát sinh của mình?</p>
+          <p class="fb-q-txt">Bạn nhận thấy Tú có thể cải thiện thêm gì trong việc communicate kết quả kỹ thuật với non-tech stakeholder?</p>
         </div>
-        <p class="fb-body" style="margin-bottom:10px">Quỳnh xử lý tình huống rất bình tĩnh và nhìn vấn đề toàn diện. Buổi workshop bị trục trặc kỹ thuật giữa chừng nhưng bạn ứng biến nhanh, giữ được không khí tích cực và đảm bảo mục tiêu buổi học vẫn đạt được.</p>
+        <p class="fb-body" style="margin-bottom:10px">Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ rất trực quan giúp business team hiểu được tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.</p>
         <div class="fb-badges">
           <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""/><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
         </div>
@@ -3232,7 +3236,7 @@ function switchMainTab(idx){
           </div>
           <span class="fb-date">28/07/2026</span>
         </div>
-        <p class="fb-body" style="margin-bottom:10px">Trong dự án cross-function vừa rồi, Quỳnh chủ động đề xuất một cách tiếp cận hoàn toàn mới giúp cắt giảm đáng kể thời gian xử lý báo cáo. Mình rất ấn tượng với tư duy không bị giới hạn bởi quy trình cũ.</p>
+        <p class="fb-body" style="margin-bottom:10px">Tú optimize performance cho payment processing service, giảm được 35% latency mà không cần scale thêm infrastructure. Tư duy kỹ thuật của bạn rất sâu — không chỉ fix symptom mà tìm đến tận root cause. Đây là điểm khác biệt rõ rệt so với average developer.</p>
         <div class="fb-badges">
           <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""/><span class="fb-badge-tip">Đổi mới</span></div>
         </div>
@@ -3250,7 +3254,7 @@ function switchMainTab(idx){
           </div>
           <span class="fb-date">12/08/2026</span>
         </div>
-        <p class="fb-body">Mình rất trân trọng cách Quỳnh luôn lắng nghe và phản hồi nhanh chóng khi team cần hỗ trợ. Sự nhiệt tình và thái độ làm việc tích cực của bạn tạo ra năng lượng rất tốt cho cả nhóm.</p>
+        <p class="fb-body">Mình trân trọng cách Tú luôn sẵn lòng support khi team cần. Dù đang bận sprint của mình, bạn vẫn dành thời gian review code và cho feedback rất cụ thể, giúp mình tránh được nhiều bug tiềm ẩn. Tinh thần đồng đội của Tú tạo ra culture làm việc rất tích cực cho cả nhóm.</p>
       </div>
 
       <!-- Card 6: có câu hỏi, 0 huy hiệu -->
@@ -3267,9 +3271,9 @@ function switchMainTab(idx){
         </div>
         <div class="fb-qbox">
           <div class="fb-q-lbl">Câu hỏi</div>
-          <p class="fb-q-txt">Theo bạn, mình nên tập trung phát triển kỹ năng gì để thăng tiến lên level tiếp theo?</p>
+          <p class="fb-q-txt">Theo bạn, Tú nên tập trung phát triển thêm kỹ năng gì để lên Senior level?</p>
         </div>
-        <p class="fb-body">Kỹ năng chuyên môn của Quỳnh đã rất vững. Để lên level tiếp theo, mình nghĩ bạn nên tập trung thêm vào việc mentor junior members và chủ động dẫn dắt các initiative có tầm ảnh hưởng rộng hơn trong team.</p>
+        <p class="fb-body">Technical skill của Tú đã rất solid, đặc biệt về backend architecture và system design. Để lên Senior, mình nghĩ bạn nên đầu tư thêm vào việc mentor junior developers và chủ động tham gia nhiều hơn vào các technical decision ở team level — đây đều là những thứ Tú hoàn toàn có khả năng làm được.</p>
       </div>
 
     </div>

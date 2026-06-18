@@ -957,15 +957,12 @@ body.embedded-detail .page-title{font-size:16px}
     </div>
     <div class="page-hd">
       <h1 class="page-title">Chi tiết đánh giá của Nhân viên</h1>
-      <div style="display:flex;align-items:center;gap:10px">
-        <button class="btn btn-cta-outline btn-sm" onclick="openFbPopup()"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button>
-        <div class="emp-chip">
-          <div class="av av-brand av-xs">NT</div>
-          <div class="ec-info">
-            <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
-            <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
-            <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
-          </div>
+      <div class="emp-chip">
+        <div class="av av-brand av-xs">NT</div>
+        <div class="ec-info">
+          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
+          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
+          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
         </div>
       </div>
     </div>
@@ -3103,7 +3100,7 @@ function renderManagerActions(){
 }
 
 function managerContextHtml(emp,role){
-  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button></div>';
+  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button><button class="btn btn-cta-outline btn-sm" onclick="openFbPopup()"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button></div>';
 }
 
 function renderManagerEmpty(panel,emp,role,icon,title,message){
@@ -3529,128 +3526,20 @@ setupManagerDetail();
   </div>
 </div>
 
-<!-- ═══ DIALOG: FEEDBACK RECEIVED ═══ -->
+<!-- ═══ DIALOG: PHẢN HỒI ĐÃ NHẬN (dynamic) ═══ -->
 <div class="overlay" id="dlg-feedback" onclick="if(event.target===this)closeOverlay('dlg-feedback')">
   <div class="dialog" style="max-width:580px">
     <div class="dlg-hd">
       <div class="dlg-hd-row" style="align-items:center">
-        <span class="dlg-title">Phản hồi đã nhận</span>
-        <span class="badge b-action" style="margin-left:8px;height:18px;font-size:10px;font-weight:700;padding:0 6px">6</span>
-        <div class="spacer"></div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+          <span class="dlg-title" style="white-space:nowrap">Phản hồi đã nhận</span>
+          <span id="fb-emp-name" style="font-size:13px;font-weight:400;color:var(--z500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <span class="badge b-action" id="fb-cnt" style="flex-shrink:0;height:18px;font-size:10px;font-weight:700;padding:0 6px">0</span>
+        </div>
         <button class="dlg-close" onclick="closeOverlay('dlg-feedback')"><i class="bx bx-x"></i></button>
       </div>
     </div>
-    <div class="dlg-body" style="padding:14px 18px 8px">
-
-      <div class="fb-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-          <div style="display:flex;align-items:flex-start;gap:9px">
-            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">LN</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Lê Thành Nam <span style="color:var(--z500);font-weight:400">(nam.le)</span></div>
-              <div style="font-size:11px;color:var(--z500);line-height:1.4">ITC – Mobile – iOS Developer</div>
-            </div>
-          </div>
-          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">14/03/2026</span>
-        </div>
-        <p class="fb-body" style="margin-bottom:10px">Mình ấn tượng với cách Quỳnh luôn chủ động cập nhật stakeholder về tiến độ dự án. Bạn có khả năng điều phối rất tốt, tư duy linh hoạt và luôn tìm cách cải tiến quy trình — những điều này tạo ra ảnh hưởng rõ rệt đến hiệu quả của cả team.</p>
-        <div class="fb-badges">
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""><span class="fb-badge-tip">Đổi mới</span></div>
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Teamwork.png" alt=""><span class="fb-badge-tip">Tinh thần đồng đội</span></div>
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
-        </div>
-      </div>
-
-      <div class="fb-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-          <div style="display:flex;align-items:flex-start;gap:9px">
-            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">TD</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Trương Minh Đức <span style="color:var(--z500);font-weight:400">(duc.truong)</span></div>
-              <div style="font-size:11px;color:var(--z500);line-height:1.4">DIV – People Operations – HR Business Partner</div>
-            </div>
-          </div>
-          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">05/06/2026</span>
-        </div>
-        <p class="fb-body" style="margin-bottom:10px">Quỳnh tổ chức chương trình onboarding Q1 rất chuyên nghiệp. Từ khâu thiết kế nội dung đến điều phối logistics đều được thực hiện chu đáo, đúng timeline và nhận được phản hồi rất tích cực từ tất cả new joiners trong đợt đó.</p>
-        <div class="fb-badges">
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
-        </div>
-      </div>
-
-      <div class="fb-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-          <div style="display:flex;align-items:flex-start;gap:9px">
-            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">HL</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Hoàng Thị Lan <span style="color:var(--z500);font-weight:400">(lan.hoang)</span></div>
-              <div style="font-size:11px;color:var(--z500);line-height:1.4">MKT – Brand – Senior Designer</div>
-            </div>
-          </div>
-          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">22/04/2026</span>
-        </div>
-        <div class="fb-qbox">
-          <div class="fb-q-lbl">Câu hỏi</div>
-          <p class="fb-q-txt">Bạn đánh giá như thế nào về khả năng xử lý tình huống phát sinh của mình?</p>
-        </div>
-        <p class="fb-body" style="margin-bottom:10px">Quỳnh xử lý tình huống rất bình tĩnh và nhìn vấn đề toàn diện. Buổi workshop bị trục trặc kỹ thuật giữa chừng nhưng bạn ứng biến nhanh, giữ được không khí tích cực và đảm bảo mục tiêu buổi học vẫn đạt được.</p>
-        <div class="fb-badges">
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
-        </div>
-      </div>
-
-      <div class="fb-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-          <div style="display:flex;align-items:flex-start;gap:9px">
-            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">PH</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Phạm Trung Hiếu <span style="color:var(--z500);font-weight:400">(hieu.pham)</span></div>
-              <div style="font-size:11px;color:var(--z500);line-height:1.4">FIN – Finance Control – Finance Analyst</div>
-            </div>
-          </div>
-          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">28/07/2026</span>
-        </div>
-        <p class="fb-body" style="margin-bottom:10px">Trong dự án cross-function vừa rồi, Quỳnh chủ động đề xuất một cách tiếp cận hoàn toàn mới giúp cắt giảm đáng kể thời gian xử lý báo cáo. Mình rất ấn tượng với tư duy không bị giới hạn bởi quy trình cũ.</p>
-        <div class="fb-badges">
-          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""><span class="fb-badge-tip">Đổi mới</span></div>
-        </div>
-      </div>
-
-      <div class="fb-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-          <div style="display:flex;align-items:flex-start;gap:9px">
-            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">MH</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Mai Thanh Hương <span style="color:var(--z500);font-weight:400">(huong.mai)</span></div>
-              <div style="font-size:11px;color:var(--z500);line-height:1.4">DIV – Employer Brand – Content Specialist</div>
-            </div>
-          </div>
-          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">12/08/2026</span>
-        </div>
-        <p class="fb-body">Mình rất trân trọng cách Quỳnh luôn lắng nghe và phản hồi nhanh chóng khi team cần hỗ trợ. Sự nhiệt tình và thái độ làm việc tích cực của bạn tạo ra năng lượng rất tốt cho cả nhóm.</p>
-      </div>
-
-      <div class="fb-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-          <div style="display:flex;align-items:flex-start;gap:9px">
-            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">NB</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Nguyễn Quốc Bảo <span style="color:var(--z500);font-weight:400">(bao.nguyen)</span></div>
-              <div style="font-size:11px;color:var(--z500);line-height:1.4">ITC – Platform – Tech Lead</div>
-            </div>
-          </div>
-          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">08/09/2026</span>
-        </div>
-        <div class="fb-qbox">
-          <div class="fb-q-lbl">Câu hỏi</div>
-          <p class="fb-q-txt">Theo bạn, mình nên tập trung phát triển kỹ năng gì để thăng tiến lên level tiếp theo?</p>
-        </div>
-        <p class="fb-body">Kỹ năng chuyên môn của Quỳnh đã rất vững. Để lên level tiếp theo, mình nghĩ bạn nên tập trung thêm vào việc mentor junior members và chủ động dẫn dắt các initiative có tầm ảnh hưởng rộng hơn trong team.</p>
-      </div>
-
+    <div class="dlg-body" id="fb-body" style="padding:12px 16px;max-height:520px;overflow-y:auto;display:flex;flex-direction:column;gap:10px">
     </div>
     <div class="dlg-foot">
       <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-feedback')">Đóng</button>
@@ -3659,7 +3548,62 @@ setupManagerDetail();
 </div>
 
 <script>
-function openFbPopup() { openOverlay('dlg-feedback'); }
+var BADGE_TIPS={Customer_:'Khách hàng là trung tâm',Innovation:'Đổi mới',Excellence:'Thực thi xuất sắc',Teamwork:'Tinh thần đồng đội',Constant_:'Không ngừng học hỏi'};
+
+var FB_DATA={
+  e1:[
+    {ini:'LN',from:'Lê Thành Nam',login:'nam.le',org:'ITC – Mobile – iOS Developer',date:'14/03/2026',q:null,body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',badges:['Customer_','Innovation','Excellence','Teamwork','Constant_']},
+    {ini:'TD',from:'Trương Minh Đức',login:'duc.truong',org:'ITC – Backend – Senior Engineer',date:'05/06/2026',q:null,body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện sự cố đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',badges:['Excellence','Teamwork']},
+    {ini:'HL',from:'Hoàng Thị Lan',login:'lan.hoang',org:'MKT – Brand – Senior Designer',date:'22/04/2026',q:'Bạn nhận thấy Tú có thể cải thiện thêm gì trong việc communicate kết quả kỹ thuật với non-tech stakeholder?',body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ rất trực quan giúp business team hiểu tại sao cần refactor service đó.',badges:['Customer_']},
+    {ini:'PH',from:'Phạm Trung Hiếu',login:'hieu.pham',org:'FIN – Finance Control – Finance Analyst',date:'28/07/2026',q:null,body:'Tú optimize performance cho payment processing service, giảm 35% latency mà không cần scale thêm infrastructure. Tư duy kỹ thuật của bạn rất sâu — không chỉ fix symptom mà tìm đến tận root cause.',badges:['Innovation']},
+    {ini:'MH',from:'Mai Thanh Hương',login:'huong.mai',org:'DIV – Employer Brand – Content Specialist',date:'12/08/2026',q:null,body:'Mình trân trọng cách Tú luôn sẵn lòng support khi team cần. Dù đang bận sprint của mình, bạn vẫn dành thời gian review code và cho feedback rất cụ thể, giúp mình tránh được nhiều bug tiềm ẩn.',badges:[]},
+    {ini:'NB',from:'Nguyễn Quốc Bảo',login:'bao.nguyen',org:'ITC – Platform – Tech Lead',date:'08/09/2026',q:'Theo bạn, Tú nên tập trung phát triển thêm kỹ năng gì để lên Senior level?',body:'Technical skill của Tú đã rất solid, đặc biệt về backend architecture và system design. Để lên Senior, mình nghĩ bạn nên đầu tư thêm vào việc mentor junior developers và tham gia nhiều hơn vào các technical decision ở team level.',badges:[]}
+  ],
+  e13:[
+    {ini:'PH',from:'Phạm Trung Hiếu',login:'hieu.pham',org:'FIN – Finance Control – Finance Analyst',date:'15/02/2026',q:null,body:'Nam có tư duy technical rất sắc bén. Trong dự án migration database vừa rồi, bạn identify và xử lý các edge case mà cả team không ai nhận ra. Code review của Nam rất chất lượng — không chỉ comment về bug mà còn suggest cách cải thiện architecture tổng thể.',badges:['Excellence','Innovation','Constant_']},
+    {ini:'TD',from:'Trương Minh Đức',login:'duc.truong',org:'ITC – Backend – Senior Engineer',date:'10/04/2026',q:null,body:'Nam support mình rất nhiều trong giai đoạn onboard vào project mới. Bạn kiên nhẫn giải thích codebase và không bao giờ để mình cảm thấy câu hỏi nào là ngốc. Tinh thần đồng đội của Nam rất đáng học hỏi.',badges:['Teamwork','Constant_']},
+    {ini:'MH',from:'Mai Thanh Hương',login:'huong.mai',org:'DIV – Employer Brand – Content Specialist',date:'25/05/2026',q:'Nam nghĩ mình có thể học thêm gì từ bạn về cách tiếp cận vấn đề có hệ thống?',body:'Mình học được rất nhiều từ Nam về cách break down problem. Bạn không bao giờ panic khi gặp bug khó — luôn chia nhỏ vấn đề và giải quyết từng bước một cách rất có hệ thống.',badges:['Excellence']},
+    {ini:'NB',from:'Nguyễn Quốc Bảo',login:'bao.nguyen',org:'ITC – Platform – Tech Lead',date:'18/07/2026',q:null,body:'Nam hoàn thành tất cả deliverable đúng timeline ngay cả khi scope thay đổi giữa sprint. Bạn communicate rất tốt khi có blocker và không để team bị bất ngờ. Đây là working style mình đánh giá cao.',badges:[]}
+  ],
+  e2:[
+    {ini:'LN',from:'Lê Thành Nam',login:'nam.le',org:'ITC – Mobile – iOS Developer',date:'20/03/2026',q:null,body:'Mai có eye for detail rất tốt trong UI implementation. Bạn không chỉ implement đúng design mà còn chủ động catch các inconsistency nhỏ và đề xuất fix. Design system compliance của team cải thiện rõ rệt nhờ Mai.',badges:['Excellence','Customer_']},
+    {ini:'PH',from:'Phạm Trung Hiếu',login:'hieu.pham',org:'FIN – Finance Control – Finance Analyst',date:'15/05/2026',q:'Theo bạn, Mai cần cải thiện thêm gì để collaborate tốt hơn với backend team?',body:'Mai collaborate rất tốt, luôn clear về API contract và không để miscommunication kéo dài. Nếu Mai familiar hơn với data structure phía backend thì sẽ smooth hơn trong việc handle error case.',badges:['Teamwork']},
+    {ini:'MH',from:'Mai Thanh Hương',login:'huong.mai',org:'DIV – Employer Brand – Content Specialist',date:'10/07/2026',q:null,body:'Mình ấn tượng với cách Mai handle deadline pressure. Sprint cuối rất intense nhưng Mai vẫn deliver quality work và giữ attitude tích cực cho cả team. Tinh thần này rất valuable.',badges:[]}
+  ],
+  e3:[
+    {ini:'LN',from:'Lê Thành Nam',login:'nam.le',org:'ITC – Mobile – iOS Developer',date:'05/03/2026',q:null,body:'Đức có growth mindset rất rõ ràng. Từ khi join team, bạn liên tục cải thiện và không ngại tackle bài toán khó. Đặc biệt ấn tượng với cách Đức tự học và áp dụng nhanh các pattern mới vào project thực tế.',badges:['Excellence','Innovation','Constant_']},
+    {ini:'NB',from:'Nguyễn Quốc Bảo',login:'bao.nguyen',org:'ITC – Platform – Tech Lead',date:'22/05/2026',q:null,body:'Đức xử lý task được assign rất có trách nhiệm. Khi gặp blocker, bạn luôn try hết các options trước khi escalate — điều này cho thấy Đức có ownership rất tốt với công việc của mình.',badges:['Excellence','Constant_']},
+    {ini:'TD',from:'Trương Minh Đức',login:'duc.truong',org:'ITC – Backend – Senior Engineer',date:'30/06/2026',q:'Bạn thấy Đức có điểm gì cần phát triển thêm trong năm tới?',body:'Technical của Đức đang tiến bộ rất nhanh. Để lên level tiếp theo, mình nghĩ bạn nên expose bản thân với các bài toán có scale lớn hơn và tham gia nhiều hơn vào tech discussion ở team level.',badges:[]}
+  ]
+};
+
+function fbDefaultCards(empId){
+  var emp=managerEmployeeMeta(empId);
+  var fn=emp.name.split(' ').pop();
+  return[
+    {ini:'PT',from:'Phạm Văn Tuấn',login:'tuan.pham',org:'ITC – Platform – Senior Engineer',date:'15/04/2026',q:null,body:fn+' có kỹ năng kỹ thuật tốt và luôn hoàn thành công việc đúng deadline. Mình đánh giá cao sự tập trung và trách nhiệm của bạn trong các sprint vừa qua.',badges:['Excellence']},
+    {ini:'NH',from:'Nguyễn Thị Hoa',login:'hoa.nguyen',org:'DIV – HR – HR Business Partner',date:'08/06/2026',q:'Theo bạn, '+fn+' có điểm gì cần phát triển thêm để tạo ra impact lớn hơn?',body:'Team rất quý '+fn+'. Bạn làm việc rất có trách nhiệm và luôn support đồng đội. Để tạo impact lớn hơn, mình nghĩ bạn nên chủ động hơn trong việc đề xuất cải tiến quy trình.',badges:[]},
+    {ini:'LT',from:'Lê Văn Thắng',login:'thang.le',org:'ITC – Backend – Tech Lead',date:'02/08/2026',q:null,body:'Mình ấn tượng với cách '+fn+' tiếp cận vấn đề phức tạp. Bạn không chỉ giải quyết bug mà còn trace về root cause và đưa ra giải pháp bền vững — đây là tư duy mình muốn thấy ở tất cả team member.',badges:['Excellence','Innovation']}
+  ];
+}
+
+function fbCardHtml(fb){
+  var q=fb.q?'<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">'+fb.q+'</p></div>':'';
+  var bHtml='';
+  if(fb.badges&&fb.badges.length){bHtml='<div class="fb-badges">'+fb.badges.map(function(b){return'<div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/'+b+'.png" alt=""><span class="fb-badge-tip">'+BADGE_TIPS[b]+'</span></div>';}).join('')+'</div>';}
+  var mb=(q||bHtml)?' style="margin-bottom:10px"':'';
+  return'<div class="fb-card"><div class="fb-card-top"><div style="display:flex;align-items:flex-start;gap:9px"><div class="fb-av">'+fb.ini+'</div><div><div class="fb-sender-name">'+fb.from+' <span class="fb-sender-dom">('+fb.login+')</span></div><div class="fb-sender-org">'+fb.org+'</div></div></div><span class="fb-date">'+fb.date+'</span></div>'+q+'<p class="fb-body"'+mb+'>'+fb.body+'</p>'+bHtml+'</div>';
+}
+
+function openFbPopup(){
+  var empId=(MANAGER_DETAIL_STATE&&MANAGER_DETAIL_STATE.empId)||'e1';
+  var cards=FB_DATA[empId]||fbDefaultCards(empId);
+  var emp=managerEmployeeMeta(empId);
+  document.getElementById('fb-body').innerHTML=cards.map(fbCardHtml).join('');
+  document.getElementById('fb-emp-name').textContent='— '+emp.name;
+  document.getElementById('fb-cnt').textContent=cards.length;
+  openOverlay('dlg-feedback');
+}
 </script>
 </body>
 </html>
