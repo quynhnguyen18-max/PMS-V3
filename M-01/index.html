@@ -256,6 +256,7 @@ input,select,textarea{font-family:inherit}
 .myr-status{display:inline-flex;align-items:center;justify-content:flex-start;max-width:100%;padding:3px 7px;border:1px solid;border-radius:50px;font-size:11.5px;font-weight:500;line-height:1.3;text-align:left}
 .myr-status.completed{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
 .myr-status.incomplete{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
+.myr-status.pending{color:var(--z600);background:var(--z100);border-color:var(--z300)}
 .myr-score{font-size:13px;font-weight:700;color:var(--z900)}
 .myr-score.empty{font-weight:400;color:var(--z300)}
 .myr-final{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:25px;border-radius:var(--rsm);background:var(--z100);border:1px solid var(--z200);font-weight:700;color:var(--z900)}
@@ -899,13 +900,13 @@ textarea.fc{resize:vertical}
           <tr>
             <th class="myr-check-cell"><input id="calib-select-all" class="myr-row-check" type="checkbox" aria-label="Chọn tất cả" onchange="toggleAllCalibRows(this.checked)"></th>
             <th>Nhân viên</th>
-            <th>Quản lý TT</th>
+            <th>Quản lý trực tiếp</th>
             <th>Quản lý cấp 2</th>
-            <th class="score">Điểm NV</th>
-            <th class="score">Điểm QLTT</th>
-            <th class="score">Điểm QL2</th>
+            <th class="score">Điểm của NV</th>
+            <th class="score">Điểm của QLTT</th>
+            <th class="score">Điểm của QL cấp 2</th>
             <th class="score calib-upload-col">Điểm Upload</th>
-            <th class="score">Điểm HOD</th>
+            <th class="score">Điểm của HOD</th>
             <th class="score">Chức năng</th>
           </tr>
         </thead>
@@ -1195,9 +1196,11 @@ function myrEligibility(emp){
 function myrStatus(emp){
   const eligibility=myrEligibility(emp);
   const review=MYR_DATA[emp.id]||{};
-  return review.submitted
-    ?{eligible:eligibility.eligible,text:'Hoàn thành tự đánh giá',tone:'completed'}
-    :{eligible:eligibility.eligible,text:'Chưa tự đánh giá',tone:'incomplete'};
+  if(!review.submitted) return {eligible:eligibility.eligible,text:'Chưa tự đánh giá',tone:'incomplete'};
+  if(visibleMyrScore(review,'hod')!=null) return {eligible:eligibility.eligible,text:'Hoàn thành',tone:'completed'};
+  if(visibleMyrScore(review,'lm2')!=null) return {eligible:eligibility.eligible,text:'Chờ HOD đánh giá',tone:'pending'};
+  if(visibleMyrScore(review,'lm1')!=null) return {eligible:eligibility.eligible,text:'Chờ QL Cấp 2 đánh giá',tone:'pending'};
+  return {eligible:eligibility.eligible,text:'Chờ QLTT đánh giá',tone:'pending'};
 }
 
 function formatMyrScore(value,finalScore){
@@ -2485,7 +2488,7 @@ function renderCalibTable(){
         onchange="toggleCalibRow('${emp.id}',this.checked)"></td>
       <td><div class="myr-emp-info">
         <div class="myr-emp-name">${emp.name} <span class="er-login">(${emp.login})</span></div>
-        <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?' – '+emp.team:''}</div>
+        <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?' – '+emp.team:''} – ${emp.pos}</div>
       </div></td>
       <td>${mgr1}</td>
       <td>${mgr2}</td>
