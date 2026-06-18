@@ -158,6 +158,46 @@ window.PMS_SELFEVAL = {
       how: 'Luôn đổi mới sáng tạo và học hỏi không ngừng để áp dụng công nghệ mới vào sản phẩm.'
     },
     overall: { score:4.5, comment:'Tôi tự đánh giá hoàn thành vượt mong đợi ở các mục tiêu trọng tâm trong kỳ này.' }
+  },
+  e8: {
+    goalScores: { g26:4, g27:3 },
+    howScores: [4,3,4,3,4],
+    comments: {
+      what: 'MoMo Pay Later đã go-live đúng Q2/2026 với DAU đạt 62K sau 30 ngày đầu, vượt target 50K. NPS hiện tại đang ở mức 47, lộ trình đạt 55 cuối năm đang đi đúng kế hoạch.',
+      dev: 'Đã hoàn thành khoá Product Strategy của Reforge và áp dụng framework vào roadmap Q3/2026.',
+      how: 'Tôi luôn đặt người dùng làm trung tâm của mọi quyết định sản phẩm và phối hợp chặt chẽ với Engineering, Design để đảm bảo chất lượng delivery.'
+    },
+    overall: { score:3.5, comment:'Tôi hoàn thành các mục tiêu trọng tâm trong nửa đầu năm, một số chỉ số dài hạn cần tiếp tục theo dõi và cải thiện trong H2.' }
+  },
+  e9: {
+    goalScores: { g28:4, g29:4 },
+    howScores: [4,4,4,4,4],
+    comments: {
+      what: 'SAST/DAST đã được tích hợp vào 100% repo trong pipeline CI/CD, không có P0/P1 finding tồn tại quá 48h trong 3 tháng qua. Audit ISO 27001 re-certification đang trong giai đoạn chuẩn bị tài liệu cuối.',
+      dev: 'Đã hoàn thành OSCP và ứng dụng kỹ thuật penetration testing vào quy trình red team nội bộ.',
+      how: 'Tôi chủ động nâng cao nhận thức bảo mật cho toàn tổ chức thông qua các buổi security awareness training và phối hợp tốt với các team product.'
+    },
+    overall: { score:4, comment:'Tôi hoàn thành đúng tiến độ các mục tiêu bảo mật quan trọng và đóng góp tích cực vào việc nâng cao năng lực bảo mật của tổ chức.' }
+  },
+  e10: {
+    goalScores: { g30:3, g31:3 },
+    howScores: [3,3,4,3,3],
+    comments: {
+      what: 'MLOps platform đang trong giai đoạn staging với 8/15 models đã migrate thành công, dự kiến hoàn thành Q3. Tối ưu inference giảm được 22% chi phí, chưa đạt mục tiêu 30% nhưng đang tiếp tục nghiên cứu thêm kỹ thuật quantization.',
+      dev: 'Đang trong quá trình nghiên cứu LLM fine-tuning, dự kiến tổ chức tech talk nội bộ vào Q3/2026.',
+      how: 'Tôi tập trung vào việc xây dựng nền tảng MLOps bền vững và chia sẻ kiến thức với team, tuy nhiên cần cải thiện tốc độ thực thi ở một số hạng mục.'
+    },
+    overall: { score:3, comment:'Tôi đang trên đúng lộ trình với các mục tiêu dài hạn, một số kết quả cần thêm thời gian để hoàn thiện theo đúng tiêu chí đã cam kết.' }
+  },
+  e11: {
+    goalScores: { g33:5, g34:4 },
+    howScores: [4,5,4,5,4],
+    comments: {
+      what: 'Upgrade Kubernetes 1.30 hoàn thành zero downtime trên toàn bộ production cluster từ tháng 3/2026, rollback plan đã được test thành công 2 lần. DR site đã triển khai với RTO thực đo 2h45m và RPO 8 phút, vượt SLA yêu cầu.',
+      dev: 'Đã hoàn thành khoá CKS (Certified Kubernetes Security Specialist) và cập nhật runbook disaster recovery đầy đủ cho team.',
+      how: 'Tôi luôn ưu tiên độ tin cậy và an toàn hệ thống, chủ động chuẩn bị kỹ lưỡng trước mọi thay đổi production và chia sẻ kiến thức với team Infra.'
+    },
+    overall: { score:4.5, comment:'Tôi hoàn thành vượt kỳ vọng cả hai mục tiêu hạ tầng quan trọng, đặc biệt DR site đạt chỉ số tốt hơn target và K8s upgrade không có sự cố.' }
   }
 };
 
@@ -201,5 +241,45 @@ window.PMS_LM1EVAL = {
       how: 'Thể hiện tốt tinh thần đổi mới, đồng đội và học hỏi không ngừng.'
     },
     overall: { score:4.5, comment:'Kết quả nổi bật, vượt kỳ vọng ở nhiều mục tiêu quan trọng.' }
+  },
+  e8: {
+    goalScores: { g26:4, g27:4 },
+    howScores: [4,4,4,3,4],
+    comments: {
+      what: 'Pay Later go-live đúng hạn và vượt chỉ tiêu DAU tháng đầu. Chỉ số NPS đang tăng đúng lộ trình, cần theo dõi sát trong H2.',
+      dev: 'Chủ động nâng cao năng lực qua khoá học ngoài và áp dụng thực tiễn vào công việc.',
+      how: 'Thể hiện tư duy product rõ ràng, phối hợp tốt với các bên liên quan.'
+    },
+    overall: { score:4, comment:'Hoàn thành tốt mục tiêu trọng tâm H1, kỳ vọng duy trì đà này trong H2 với các chỉ số dài hạn.' }
+  },
+  e9: {
+    goalScores: { g28:4, g29:4 },
+    howScores: [4,4,4,4,4],
+    comments: {
+      what: 'Triển khai SAST/DAST hiệu quả, không có sự cố bảo mật nghiêm trọng. Công tác chuẩn bị ISO 27001 đang đúng tiến độ.',
+      dev: 'Đầu tư nghiêm túc vào năng lực chuyên môn, ứng dụng tốt vào thực tế.',
+      how: 'Chủ động nâng cao văn hoá bảo mật trong tổ chức, phối hợp tốt với các team.'
+    },
+    overall: { score:4, comment:'Hoàn thành tốt nhiệm vụ bảo mật trọng tâm, đóng góp rõ ràng vào việc giảm thiểu rủi ro cho tổ chức.' }
+  },
+  e10: {
+    goalScores: { g30:3, g31:3 },
+    howScores: [3,3,4,3,3],
+    comments: {
+      what: 'Tiến độ MLOps platform còn chậm so với mốc Q3 ban đầu, cần đẩy nhanh trong nửa cuối năm. Tối ưu inference cần thêm cải tiến để đạt target 30%.',
+      dev: 'Đang trong quá trình nghiên cứu, cần hoàn thành và chia sẻ kết quả sớm hơn.',
+      how: 'Cần chủ động hơn trong việc giao tiếp tiến độ và xử lý các điểm nghẽn kỹ thuật.'
+    },
+    overall: { score:3, comment:'Đang đi đúng hướng nhưng tốc độ thực thi cần cải thiện để đảm bảo hoàn thành các mục tiêu đúng hạn cuối năm.' }
+  },
+  e11: {
+    goalScores: { g33:5, g34:4 },
+    howScores: [5,5,4,5,4],
+    comments: {
+      what: 'K8s upgrade hoàn thành xuất sắc, không có downtime, vượt kỳ vọng về chất lượng. DR site đạt chỉ số tốt hơn target đề ra.',
+      dev: 'Đầu tư liên tục vào năng lực và chia sẻ kiến thức hiệu quả trong team Infra.',
+      how: 'Thể hiện tinh thần trách nhiệm cao, luôn đặt độ tin cậy hệ thống lên hàng đầu.'
+    },
+    overall: { score:4.5, comment:'Kết quả vượt kỳ vọng ở cả hai mục tiêu hạ tầng quan trọng nhất. Đây là đóng góp rất có giá trị cho sự ổn định của hệ thống production.' }
   }
 };
