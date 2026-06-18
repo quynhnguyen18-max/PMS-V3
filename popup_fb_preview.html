@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Phản hồi đã nhận – Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Public Sans',sans-serif;background:#b0b0b0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:4px}
+
+.overlay-bg{background:rgba(0,0,0,.46);border-radius:12px;padding:28px;width:100%;max-width:640px}
+
+.dialog{background:#fff;border-radius:8px;border:1px solid #e4e4e7;display:flex;flex-direction:column}
+
+.dlg-hd{padding:16px 20px 14px;flex-shrink:0;border-bottom:1px solid #f4f4f5;display:flex;align-items:center;justify-content:space-between}
+.dlg-title{font-size:15px;font-weight:600;color:#18181b}
+.dlg-cnt{padding:0 6px;height:18px;line-height:18px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(165,0,100,.07);color:#A50064;display:inline-flex;align-items:center}
+.dlg-close{width:26px;height:26px;border-radius:4px;border:none;background:transparent;color:#71717a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;transition:background .12s ease}
+.dlg-close:hover{background:#f4f4f5}
+
+.dlg-body{padding:12px 16px 12px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px}
+
+.card{background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:14px 16px;transition:border-color .12s ease}
+.card:hover{border-color:#d4d4d8}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;letter-spacing:-.2px;background:rgba(165,0,100,.07);color:#A50064;margin-top:1px}
+.sender-name{font-size:13px;font-weight:600;color:#18181b;line-height:1.35}
+.sender-dom{color:#71717a;font-weight:400}
+.sender-org{font-size:11px;color:#71717a;line-height:1.4}
+.card-date{font-size:11.5px;color:#71717a;flex-shrink:0;margin-top:2px}
+
+.qbox{border-left:3px solid rgba(165,0,100,.22);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
+.q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#71717a;margin-bottom:4px}
+.q-txt{font-size:12.5px;color:#27272a;line-height:1.55}
+
+.fb-body{font-size:13px;color:#3f3f46;line-height:1.65}
+
+.badges{border-top:1px solid #f4f4f5;padding-top:8px;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block;cursor:default}
+.badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#18181b;color:#fff;font-size:11px;font-weight:500;padding:4px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:10;line-height:1.4}
+.badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#18181b}
+.badge-wrap:hover .badge-tip{opacity:1}
+
+.dlg-foot{padding:10px 20px 14px;border-top:1px solid #f4f4f5;display:flex;justify-content:flex-end;flex-shrink:0}
+.btn-close{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;border:1px solid #e4e4e7;background:#fff;color:#3f3f46;cursor:pointer;font-family:inherit;transition:background .12s ease}
+.btn-close:hover{background:#f4f4f5}
+</style>
+</head>
+<body>
+
+<div class="overlay-bg">
+<div class="dialog">
+
+  <div class="dlg-hd">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="dlg-title">Phản hồi đã nhận</span>
+      <span class="dlg-cnt">6</span>
+    </div>
+    <button class="dlg-close">&#x2715;</button>
+  </div>
+
+  <div class="dlg-body">
+
+    <!-- Card 1: proactive, 5 badges -->
+    <div class="card">
+      <div class="card-top">
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div class="av">LN</div>
+          <div>
+            <div class="sender-name">Lê Thành Nam <span class="sender-dom">(nam.le)</span></div>
+            <div class="sender-org">ITC – Mobile – iOS Developer</div>
+          </div>
+        </div>
+        <span class="card-date">14/03/2026</span>
+      </div>
+      <p class="fb-body" style="margin-bottom:10px">Mình ấn tượng với cách Quỳnh luôn chủ động cập nhật stakeholder về tiến độ dự án. Bạn có khả năng điều phối rất tốt, tư duy linh hoạt và luôn tìm cách cải tiến quy trình — những điều này tạo ra ảnh hưởng rõ rệt đến hiệu quả của cả team.</p>
+      <div class="badges">
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Customer_.png" alt=""/><span class="badge-tip">Khách hàng là trung tâm</span></div>
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Innovation.png" alt=""/><span class="badge-tip">Đổi mới</span></div>
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Excellence.png" alt=""/><span class="badge-tip">Thực thi xuất sắc</span></div>
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Teamwork.png" alt=""/><span class="badge-tip">Tinh thần đồng đội</span></div>
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Constant_.png" alt=""/><span class="badge-tip">Không ngừng học hỏi</span></div>
+      </div>
+    </div>
+
+    <!-- Card 2: proactive, 2 badges -->
+    <div class="card">
+      <div class="card-top">
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div class="av">TD</div>
+          <div>
+            <div class="sender-name">Trương Minh Đức <span class="sender-dom">(duc.truong)</span></div>
+            <div class="sender-org">DIV – People Operations – HR Business Partner</div>
+          </div>
+        </div>
+        <span class="card-date">05/06/2026</span>
+      </div>
+      <p class="fb-body" style="margin-bottom:10px">Quỳnh tổ chức chương trình onboarding Q1 rất chuyên nghiệp. Từ khâu thiết kế nội dung đến điều phối logistics đều được thực hiện chu đáo và nhận được phản hồi rất tích cực từ tất cả new joiners trong đợt đó.</p>
+      <div class="badges">
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Excellence.png" alt=""/><span class="badge-tip">Thực thi xuất sắc</span></div>
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Constant_.png" alt=""/><span class="badge-tip">Không ngừng học hỏi</span></div>
+      </div>
+    </div>
+
+    <!-- Card 3: requested, 1 badge -->
+    <div class="card">
+      <div class="card-top">
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div class="av">HL</div>
+          <div>
+            <div class="sender-name">Hoàng Thị Lan <span class="sender-dom">(lan.hoang)</span></div>
+            <div class="sender-org">MKT – Brand – Senior Designer</div>
+          </div>
+        </div>
+        <span class="card-date">22/04/2026</span>
+      </div>
+      <div class="qbox">
+        <div class="q-lbl">Câu hỏi</div>
+        <p class="q-txt">Bạn đánh giá như thế nào về khả năng xử lý tình huống phát sinh của mình?</p>
+      </div>
+      <p class="fb-body" style="margin-bottom:10px">Quỳnh xử lý tình huống rất bình tĩnh và nhìn vấn đề toàn diện. Buổi workshop bị trục trặc kỹ thuật giữa chừng nhưng bạn ứng biến nhanh, giữ được không khí tích cực và đảm bảo mục tiêu buổi học vẫn đạt được.</p>
+      <div class="badges">
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Customer_.png" alt=""/><span class="badge-tip">Khách hàng là trung tâm</span></div>
+      </div>
+    </div>
+
+    <!-- Card 4: proactive, 1 badge -->
+    <div class="card">
+      <div class="card-top">
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div class="av">PH</div>
+          <div>
+            <div class="sender-name">Phạm Trung Hiếu <span class="sender-dom">(hieu.pham)</span></div>
+            <div class="sender-org">FIN – Finance Control – Finance Analyst</div>
+          </div>
+        </div>
+        <span class="card-date">28/07/2026</span>
+      </div>
+      <p class="fb-body" style="margin-bottom:10px">Trong dự án cross-function vừa rồi, Quỳnh chủ động đề xuất một cách tiếp cận hoàn toàn mới giúp cắt giảm đáng kể thời gian xử lý báo cáo. Mình rất ấn tượng với tư duy không bị giới hạn bởi quy trình cũ.</p>
+      <div class="badges">
+        <div class="badge-wrap"><img class="badge-img" src="Core value with BG/Innovation.png" alt=""/><span class="badge-tip">Đổi mới</span></div>
+      </div>
+    </div>
+
+    <!-- Card 5: proactive, 0 badges -->
+    <div class="card">
+      <div class="card-top">
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div class="av">MH</div>
+          <div>
+            <div class="sender-name">Mai Thanh Hương <span class="sender-dom">(huong.mai)</span></div>
+            <div class="sender-org">DIV – Employer Brand – Content Specialist</div>
+          </div>
+        </div>
+        <span class="card-date">12/08/2026</span>
+      </div>
+      <p class="fb-body">Mình rất trân trọng cách Quỳnh luôn lắng nghe và phản hồi nhanh chóng khi team cần hỗ trợ. Sự nhiệt tình và thái độ làm việc tích cực của bạn tạo ra năng lượng rất tốt cho cả nhóm.</p>
+    </div>
+
+    <!-- Card 6: requested, 0 badges -->
+    <div class="card">
+      <div class="card-top">
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div class="av">NB</div>
+          <div>
+            <div class="sender-name">Nguyễn Quốc Bảo <span class="sender-dom">(bao.nguyen)</span></div>
+            <div class="sender-org">ITC – Platform – Tech Lead</div>
+          </div>
+        </div>
+        <span class="card-date">08/09/2026</span>
+      </div>
+      <div class="qbox">
+        <div class="q-lbl">Câu hỏi</div>
+        <p class="q-txt">Theo bạn, mình nên tập trung phát triển kỹ năng gì để thăng tiến lên level tiếp theo?</p>
+      </div>
+      <p class="fb-body">Kỹ năng chuyên môn của Quỳnh đã rất vững. Để lên level tiếp theo, mình nghĩ bạn nên tập trung thêm vào việc mentor junior members và chủ động dẫn dắt các initiative có tầm ảnh hưởng rộng hơn trong team.</p>
+    </div>
+
+  </div>
+
+  <div class="dlg-foot">
+    <button class="btn-close">Đóng</button>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>

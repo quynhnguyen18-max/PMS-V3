@@ -875,6 +875,21 @@ body.embedded-detail .page-title{font-size:16px}
   .gd-meta-grid{grid-template-columns:1fr}
   .overall-grid{padding:12px}
 }
+
+/* Feedback popup */
+.fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;margin-bottom:10px}
+.fb-card:last-child{margin-bottom:0}
+.fb-card:hover{border-color:var(--z300)}
+.fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
+.fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
+.fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
+.fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
+.fb-badges{border-top:1px solid var(--z100);padding-top:8px;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:11px;font-weight:500;padding:4px 8px;border-radius:var(--rxs);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.fb-badge-wrap:hover .fb-badge-tip{opacity:1}
 </style>
 </head>
 <body class="manager-detail">
@@ -942,12 +957,15 @@ body.embedded-detail .page-title{font-size:16px}
     </div>
     <div class="page-hd">
       <h1 class="page-title">Chi tiết đánh giá của Nhân viên</h1>
-      <div class="emp-chip">
-        <div class="av av-brand av-xs">NT</div>
-        <div class="ec-info">
-          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
-          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
-          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-cta-outline btn-sm" onclick="openFbPopup()"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button>
+        <div class="emp-chip">
+          <div class="av av-brand av-xs">NT</div>
+          <div class="ec-info">
+            <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
+            <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
+            <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -3509,5 +3527,139 @@ setupManagerDetail();
       <button class="btn btn-default btn-sm" onclick="closeValidate()"><i class="bx bx-check"></i>Đã hiểu, bổ sung ngay</button>
     </div>
   </div>
+</div>
+
+<!-- ═══ DIALOG: FEEDBACK RECEIVED ═══ -->
+<div class="overlay" id="dlg-feedback" onclick="if(event.target===this)closeOverlay('dlg-feedback')">
+  <div class="dialog" style="max-width:580px">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row" style="align-items:center">
+        <span class="dlg-title">Phản hồi đã nhận</span>
+        <span class="badge b-action" style="margin-left:8px;height:18px;font-size:10px;font-weight:700;padding:0 6px">6</span>
+        <div class="spacer"></div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-feedback')"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body" style="padding:14px 18px 8px">
+
+      <div class="fb-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">LN</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Lê Thành Nam <span style="color:var(--z500);font-weight:400">(nam.le)</span></div>
+              <div style="font-size:11px;color:var(--z500);line-height:1.4">ITC – Mobile – iOS Developer</div>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">14/03/2026</span>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Mình ấn tượng với cách Quỳnh luôn chủ động cập nhật stakeholder về tiến độ dự án. Bạn có khả năng điều phối rất tốt, tư duy linh hoạt và luôn tìm cách cải tiến quy trình — những điều này tạo ra ảnh hưởng rõ rệt đến hiệu quả của cả team.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""><span class="fb-badge-tip">Đổi mới</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Teamwork.png" alt=""><span class="fb-badge-tip">Tinh thần đồng đội</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
+        </div>
+      </div>
+
+      <div class="fb-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">TD</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Trương Minh Đức <span style="color:var(--z500);font-weight:400">(duc.truong)</span></div>
+              <div style="font-size:11px;color:var(--z500);line-height:1.4">DIV – People Operations – HR Business Partner</div>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">05/06/2026</span>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Quỳnh tổ chức chương trình onboarding Q1 rất chuyên nghiệp. Từ khâu thiết kế nội dung đến điều phối logistics đều được thực hiện chu đáo, đúng timeline và nhận được phản hồi rất tích cực từ tất cả new joiners trong đợt đó.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
+        </div>
+      </div>
+
+      <div class="fb-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">HL</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Hoàng Thị Lan <span style="color:var(--z500);font-weight:400">(lan.hoang)</span></div>
+              <div style="font-size:11px;color:var(--z500);line-height:1.4">MKT – Brand – Senior Designer</div>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">22/04/2026</span>
+        </div>
+        <div class="fb-qbox">
+          <div class="fb-q-lbl">Câu hỏi</div>
+          <p class="fb-q-txt">Bạn đánh giá như thế nào về khả năng xử lý tình huống phát sinh của mình?</p>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Quỳnh xử lý tình huống rất bình tĩnh và nhìn vấn đề toàn diện. Buổi workshop bị trục trặc kỹ thuật giữa chừng nhưng bạn ứng biến nhanh, giữ được không khí tích cực và đảm bảo mục tiêu buổi học vẫn đạt được.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
+        </div>
+      </div>
+
+      <div class="fb-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">PH</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Phạm Trung Hiếu <span style="color:var(--z500);font-weight:400">(hieu.pham)</span></div>
+              <div style="font-size:11px;color:var(--z500);line-height:1.4">FIN – Finance Control – Finance Analyst</div>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">28/07/2026</span>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Trong dự án cross-function vừa rồi, Quỳnh chủ động đề xuất một cách tiếp cận hoàn toàn mới giúp cắt giảm đáng kể thời gian xử lý báo cáo. Mình rất ấn tượng với tư duy không bị giới hạn bởi quy trình cũ.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""><span class="fb-badge-tip">Đổi mới</span></div>
+        </div>
+      </div>
+
+      <div class="fb-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">MH</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Mai Thanh Hương <span style="color:var(--z500);font-weight:400">(huong.mai)</span></div>
+              <div style="font-size:11px;color:var(--z500);line-height:1.4">DIV – Employer Brand – Content Specialist</div>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">12/08/2026</span>
+        </div>
+        <p class="fb-body">Mình rất trân trọng cách Quỳnh luôn lắng nghe và phản hồi nhanh chóng khi team cần hỗ trợ. Sự nhiệt tình và thái độ làm việc tích cực của bạn tạo ra năng lượng rất tốt cho cả nhóm.</p>
+      </div>
+
+      <div class="fb-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="av av-brand av-xs" style="margin-top:2px;width:26px;height:26px;font-size:9px">NB</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--z900);line-height:1.35">Nguyễn Quốc Bảo <span style="color:var(--z500);font-weight:400">(bao.nguyen)</span></div>
+              <div style="font-size:11px;color:var(--z500);line-height:1.4">ITC – Platform – Tech Lead</div>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px">08/09/2026</span>
+        </div>
+        <div class="fb-qbox">
+          <div class="fb-q-lbl">Câu hỏi</div>
+          <p class="fb-q-txt">Theo bạn, mình nên tập trung phát triển kỹ năng gì để thăng tiến lên level tiếp theo?</p>
+        </div>
+        <p class="fb-body">Kỹ năng chuyên môn của Quỳnh đã rất vững. Để lên level tiếp theo, mình nghĩ bạn nên tập trung thêm vào việc mentor junior members và chủ động dẫn dắt các initiative có tầm ảnh hưởng rộng hơn trong team.</p>
+      </div>
+
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-feedback')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openFbPopup() { openOverlay('dlg-feedback'); }
+</script>
 </body>
 </html>
