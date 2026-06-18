@@ -660,14 +660,14 @@ textarea.fc{resize:vertical}
 .g-meta{font-size:12px;color:var(--z500)}
 
 /* Score cell */
-.sc-cell{text-align:center;min-width:72px}
+.sc-cell{text-align:center;min-width:72px}.rv-grid .sc-cell{vertical-align:middle}
 .sc-select{width:64px;padding:5px 22px 5px 8px;border:1px solid var(--z300);border-radius:var(--rsm);font-size:13px;font-weight:700;color:var(--z900);text-align:center;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
 .sc-select:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 
 /* Locked QL cell */
-.ql-cell{text-align:center;min-width:72px;background:var(--z50)}
-.ql-dash{color:var(--z400);font-size:18px;display:flex;align-items:center;justify-content:center;height:40px}
-.ql-val{color:var(--z900);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;height:40px}
+.ql-cell{text-align:center;min-width:72px;background:var(--z50)}.rv-grid .ql-cell{vertical-align:middle}
+.ql-dash{color:var(--z400);font-size:18px;line-height:1}
+.ql-val{color:var(--z900);font-size:13px;font-weight:700}
 
 /* Status cell */
 .st-cell{text-align:center;min-width:110px}
