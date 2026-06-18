@@ -624,20 +624,12 @@ textarea.fc{resize:vertical}
 .stepper-track::before{content:'';position:absolute;top:13px;left:14px;right:14px;height:2px;background:var(--z200);z-index:0}
 .step-item{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;text-align:center;padding:0 4px}
 .step-circle{width:28px;height:28px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--t)}
-.step-item.done .step-circle{background:var(--ok);color:var(--brand-fg)}
-.step-item.active .step-circle{background:var(--brand);color:var(--brand-fg);box-shadow:0 0 0 3px var(--brand-ring)}
 .step-body{margin-top:9px;width:100%}
 .step-label{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35}
-.step-item.active .step-label{color:var(--brand)}
-.step-item.muted .step-label{color:var(--z400)}
 .step-timeline{font-size:11px;color:var(--z500);margin-top:3px;line-height:1.35}
-.step-item.muted .step-timeline{color:var(--z400)}
 .step-badge{display:inline-flex;align-items:center;margin-top:5px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:50px;letter-spacing:.1px}
 .step-badge.required{color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring)}
 .step-badge.optional{color:var(--z500);background:var(--z100);border:1px solid var(--z200);font-style:italic}
-.step-active-tag{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;color:var(--brand);font-weight:600}
-.step-active-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 1.4s ease-in-out infinite;flex-shrink:0}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
 
 /* ── Info note ── */
 #mpanel-myr .info-note, .overlay .info-note{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--z500);line-height:1.5;margin-bottom:14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:10px 13px}
@@ -1413,13 +1405,12 @@ label.ev-tb-btn{cursor:pointer}
       <div class="stepper-hd"><i class="bx bx-directions"></i>Quy trình đánh giá MYR 2026</div>
       <div class="stepper-track">
 
-        <div class="step-item active">
+        <div class="step-item">
           <div class="step-circle">1</div>
           <div class="step-body">
             <div class="step-label">Nhân viên tự đánh giá</div>
             <div class="step-timeline">22/06 – 06/07/2026</div>
             <span class="step-badge required">Bắt buộc</span>
-            <div class="step-active-tag"><span class="step-active-dot"></span>Đang thực hiện</div>
           </div>
         </div>
 
@@ -1432,7 +1423,7 @@ label.ev-tb-btn{cursor:pointer}
           </div>
         </div>
 
-        <div class="step-item muted">
+        <div class="step-item">
           <div class="step-circle">3</div>
           <div class="step-body">
             <div class="step-label">Quản lý cấp 2 đánh giá</div>
@@ -1441,7 +1432,7 @@ label.ev-tb-btn{cursor:pointer}
           </div>
         </div>
 
-        <div class="step-item muted">
+        <div class="step-item">
           <div class="step-circle">4</div>
           <div class="step-body">
             <div class="step-label">HOD đánh giá</div>
@@ -1450,7 +1441,7 @@ label.ev-tb-btn{cursor:pointer}
           </div>
         </div>
 
-        <div class="step-item muted">
+        <div class="step-item">
           <div class="step-circle">5</div>
           <div class="step-body">
             <div class="step-label">Công bố kết quả</div>
@@ -3028,6 +3019,48 @@ function switchMainTab(idx){
   var pl=document.getElementById(ids[idx]);
   if(pl)pl.classList.add("on");
 }
+
+/* ── Demo data pre-fill (ensures submitted state shows complete info) ── */
+function initDemoData(){
+  // Per-goal self-assessment scores (in DOM order: WHAT g1/g2/g3, DEV g1/g2, HOW x5)
+  var goalScores=[4,3,4,3,4,4,3,4,4,4];
+  document.querySelectorAll('.sc-select').forEach(function(sel,i){
+    if(goalScores[i]!==undefined) sel.value=String(goalScores[i]);
+  });
+
+  // Overall score
+  var opScore=document.getElementById('op-score');
+  if(opScore){ opScore.value='4'; if(typeof updateOpLbl==='function') updateOpLbl(); }
+
+  // WHAT section comment
+  var cmtWhat=document.getElementById('cmt-what');
+  if(cmtWhat){
+    cmtWhat.innerHTML='Hệ thống thanh toán real-time hoàn thành sớm 2 tháng, P99 ổn định ở 85ms. API response time đang được tối ưu liên tục, đạt 87% target P95 trong Q2. Monitoring microservices đã phủ 70% dịch vụ và đang mở rộng đúng tiến độ.';
+    edCount(cmtWhat,'cc-what',500);
+  }
+
+  // DEV section comment
+  var cmtDev=document.getElementById('cmt-dev');
+  if(cmtDev){
+    cmtDev.innerHTML='Đã hoàn thành 4/6 bài thực hành system design, tiến độ đúng kế hoạch. Khoá AWS Solutions Architect đã hoàn thành 60%, dự kiến thi chứng chỉ vào tháng 10/2026 và áp dụng vào dự án migration cloud Q4.';
+    edCount(cmtDev,'cc-dev',500);
+  }
+
+  // HOW section comment
+  var cmtHow=document.getElementById('cmt-how');
+  if(cmtHow){
+    cmtHow.innerHTML='Tôi luôn đặt chất lượng trải nghiệm người dùng cuối làm ưu tiên trong các quyết định kỹ thuật. Đã chủ động đề xuất giải pháp alerting giúp giảm MTTR 25%, chia sẻ kiến thức với 2 thành viên junior và tham gia tích cực vào các buổi planning chung của team.';
+    edCount(cmtHow,'cc-how',500);
+  }
+
+  // Overall self-assessment comment
+  var opCmt=document.getElementById('op-cmt');
+  if(opCmt){
+    opCmt.innerHTML='Trong nửa đầu năm 2026, tôi đã hoàn thành phần lớn các mục tiêu đề ra, đặc biệt hệ thống thanh toán real-time vượt kỳ vọng về hiệu năng và tiến độ. Tôi tự đánh giá bản thân đã thể hiện tốt tinh thần trách nhiệm, chủ động giải quyết sự cố và hỗ trợ đồng đội. Điểm cần cải thiện là kỹ năng trình bày kết quả kỹ thuật cho stakeholder ngoài team.';
+    edCount(opCmt,'cc-op',1000);
+  }
+}
+document.addEventListener('DOMContentLoaded',initDemoData);
 </script>
 
 <!-- ═══ MYR overlays (ported from E-02) ═══ -->

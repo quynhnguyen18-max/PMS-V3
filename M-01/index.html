@@ -484,14 +484,9 @@ textarea.fc{resize:vertical}
 .myr-process-track::before{content:'';position:absolute;top:13px;left:14px;right:14px;height:2px;background:var(--z200)}
 .myr-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;text-align:center;padding:0 4px}
 .myr-step-circle{width:28px;height:28px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.myr-step.active .myr-step-circle{background:var(--brand);color:#fff;box-shadow:0 0 0 3px var(--brand-ring)}
-.myr-step.done .myr-step-circle{background:var(--ok);color:#fff}
 .myr-step-label{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35;margin-top:9px}
-.myr-step.active .myr-step-label{color:var(--brand)}
 .myr-step-time{font-size:11px;color:var(--z500);margin-top:3px}
 .myr-step-meta{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:5px}
-.myr-step-tag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--brand)}
-.myr-step-dot{width:5px;height:5px;border-radius:50%;background:var(--brand)}
 .myr-step-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:1px 7px;border-radius:50px;letter-spacing:.1px}
 .myr-step-badge.required{color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring)}
 .myr-step-badge.optional{color:var(--z500);background:var(--z100);border:1px solid var(--z200);font-style:italic}
@@ -715,7 +710,7 @@ textarea.fc{resize:vertical}
       <div class="myr-process">
         <div class="myr-process-hd"><i class="bx bx-directions"></i>Quy trình đánh giá MYR 2026</div>
         <div class="myr-process-track">
-          <div class="myr-step active" data-phase="employee">
+          <div class="myr-step" data-phase="employee">
             <div class="myr-step-circle">1</div>
             <div class="myr-step-label">Nhân viên tự đánh giá</div>
             <div class="myr-step-time">22/06 – 06/07/2026</div>
@@ -1156,18 +1151,10 @@ function myrPhaseIndex(phase){
 }
 
 function renderMyrProcess(){
-  const currentIndex=myrPhaseIndex(MYR_CURRENT_PHASE);
-  document.querySelectorAll('.myr-step').forEach(step=>{
-    const stepIndex=myrPhaseIndex(step.dataset.phase);
-    step.classList.toggle('done',stepIndex<currentIndex);
-    step.classList.toggle('active',stepIndex===currentIndex);
-    const oldTag=step.querySelector('.myr-step-tag');
+  document.querySelectorAll('.myr-step').forEach(function(step){
+    step.classList.remove('done','active');
+    var oldTag=step.querySelector('.myr-step-tag');
     if(oldTag) oldTag.remove();
-    if(stepIndex===currentIndex){
-      let meta=step.querySelector('.myr-step-meta');
-      if(!meta){meta=document.createElement('div');meta.className='myr-step-meta';step.appendChild(meta);}
-      meta.insertAdjacentHTML('beforeend','<span class="myr-step-tag"><span class="myr-step-dot"></span>Đang thực hiện</span>');
-    }
   });
 }
 
