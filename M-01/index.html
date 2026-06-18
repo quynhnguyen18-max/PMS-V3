@@ -574,6 +574,8 @@ textarea.fc{resize:vertical}
 .calib-back:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
 .calib-info-note{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--z500);line-height:1.5;margin-bottom:14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:10px 13px}
 .calib-info-note i{flex-shrink:0;color:var(--upd);font-size:15px;margin-top:1px}
+.calib-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.calib-toolbar .filter-shell{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -883,14 +885,15 @@ textarea.fc{resize:vertical}
   <div class="calib-body">
     <div class="calib-info-note">
       <i class="bx bx-info-circle"></i>
-      <span>Cột <strong style="color:var(--upd)">Điểm Upload</strong> là điểm hiệu chuẩn được nhập từ file. Tích chọn nhân viên và nhấn <strong>Duyệt điểm</strong> để áp dụng điểm Upload vào cột <strong>Điểm của HOD</strong>.</span>
+      <span>Cột <strong style="color:var(--upd)">Điểm Upload</strong> là Điểm HRBP tải lên hệ thống. Bạn hãy tick chọn nhân viên và nhấn <strong>Duyệt điểm</strong> để phê duyệt.</span>
     </div>
+    <div class="calib-toolbar" id="calib-toolbar-row"></div>
     <div class="myr-table-wrap">
       <table class="myr-table" style="table-layout:fixed">
         <colgroup>
           <col style="width:3%"><col style="width:18%"><col style="width:11%"><col style="width:11%">
-          <col style="width:9%"><col style="width:6%"><col style="width:6%"><col style="width:7%">
-          <col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:7%">
+          <col style="width:6%"><col style="width:6%"><col style="width:7%">
+          <col style="width:8%"><col style="width:7%"><col style="width:7%">
         </colgroup>
         <thead>
           <tr>
@@ -898,13 +901,11 @@ textarea.fc{resize:vertical}
             <th>Nhân viên</th>
             <th>Quản lý TT</th>
             <th>Quản lý cấp 2</th>
-            <th>Trạng thái</th>
             <th class="score">Điểm NV</th>
             <th class="score">Điểm QLTT</th>
             <th class="score">Điểm QL2</th>
             <th class="score calib-upload-col">Điểm Upload</th>
             <th class="score">Điểm HOD</th>
-            <th class="score">Điểm cuối</th>
             <th class="score">Chức năng</th>
           </tr>
         </thead>
@@ -1503,13 +1504,15 @@ function setMyrRole(role){
 function activeFilterCount(scope){
   const values=scope==='myr'
     ?[S.myrSearchTerm,S.myrFilterDiv,S.myrFilterDept,S.myrFilterTeam,S.myrFilterLm1,S.myrFilterLm2]
+    :scope==='calib'
+    ?[calibSearchTerm,calibFilterLm1,calibFilterLm2]
     :[S.searchTerm,S.filterDiv,S.filterDept,S.filterTeam,S.filterLm1,S.filterLm2];
   return values.filter(value=>String(value||'').trim()).length;
 }
 
 function filterPopoverHtml(scope,fieldsHtml,isSingle){
-  const isMyr=scope==='myr';
-  const open=isMyr?S.myrFilterOpen:S.filterOpen;
+  const isMyr=scope==='myr';const isCalib=scope==='calib';
+  const open=isMyr?S.myrFilterOpen:(isCalib?calibFilterOpen:S.filterOpen);
   const count=activeFilterCount(scope);
   return `<div class="filter-menu">
     <button class="btn btn-outline btn-sm filter-toggle" aria-expanded="${open}" aria-controls="${scope}-filter-popover" onclick="event.stopPropagation();toggleFilterPanel('${scope}')">
@@ -1532,6 +1535,9 @@ function toggleFilterPanel(scope){
     S.myrFilterOpen=!S.myrFilterOpen;
     renderMyrFilterRow();
     updateMyrBulkControls();
+  }else if(scope==='calib'){
+    calibFilterOpen=!calibFilterOpen;
+    renderCalibToolbar();
   }else{
     S.filterOpen=!S.filterOpen;
     renderFilterRow();
@@ -1555,6 +1561,10 @@ function clearListFilters(scope){
     S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
     renderMyrFilterRow();
     renderMyrList();
+  }else if(scope==='calib'){
+    calibSearchTerm='';calibFilterLm1='';calibFilterLm2='';
+    renderCalibToolbar();
+    renderCalibTable();
   }else{
     S.searchTerm='';
     S.filterDiv='';S.filterDept='';S.filterTeam='';S.filterLm1='';S.filterLm2='';
@@ -2349,6 +2359,16 @@ document.addEventListener('click',event=>{
     S.myrFilterOpen=false;
     renderMyrFilterRow();
   }
+  const calibTb=document.getElementById('calib-toolbar-row');
+  if(calibTb){
+    const calibMenus=calibTb.querySelectorAll('.filter-menu');
+    if(calibFilterOpen&&calibMenus[0]&&!calibMenus[0].contains(event.target)){
+      calibFilterOpen=false;renderCalibToolbar();
+    }
+    if(calibDownloadOpen&&calibMenus[1]&&!calibMenus[1].contains(event.target)){
+      calibDownloadOpen=false;renderCalibToolbar();
+    }
+  }
 });
 
 /* ══════════════════════════════════════
@@ -2364,6 +2384,11 @@ const CALIBRATION_DATA={
 };
 
 let calibSelected=new Set();
+let calibFilterOpen=false;
+let calibSearchTerm='';
+let calibFilterLm1='';
+let calibFilterLm2='';
+let calibDownloadOpen=false;
 
 function openCalibScreen(){
   renderCalibTable();
@@ -2373,13 +2398,72 @@ function openCalibScreen(){
 function closeCalibScreen(){
   document.getElementById('calib-screen').style.display='none';
   calibSelected.clear();
+  calibFilterOpen=false;calibSearchTerm='';calibFilterLm1='';calibFilterLm2='';calibDownloadOpen=false;
   renderMyrList();
+}
+
+function filteredCalibEmps(){
+  let emps=visibleMyrEmps();
+  if(calibSearchTerm){const q=calibSearchTerm.toLowerCase();emps=emps.filter(e=>(e.name+' '+e.login).toLowerCase().includes(q));}
+  if(calibFilterLm1){const q=calibFilterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
+  if(calibFilterLm2){const q=calibFilterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
+  return emps;
+}
+
+function renderCalibToolbar(){
+  const el=document.getElementById('calib-toolbar-row');
+  if(!el) return;
+  const emps=visibleMyrEmps();
+  const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const fields=`<input class="f-combo" list="calib-dl-emp" placeholder="Nhân viên" value="${calibSearchTerm}" oninput="calibSearchTerm=this.value;renderCalibTable();updateFilterUi('calib')">
+    <datalist id="calib-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
+    <input class="f-combo" list="calib-dl-lm1" placeholder="Quản lý trực tiếp" value="${calibFilterLm1}" oninput="calibFilterLm1=this.value;renderCalibTable();updateFilterUi('calib')">
+    <datalist id="calib-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+    <input class="f-combo" list="calib-dl-lm2" placeholder="Quản lý cấp 2" value="${calibFilterLm2}" oninput="calibFilterLm2=this.value;renderCalibTable();updateFilterUi('calib')">
+    <datalist id="calib-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+  const dlMenuHtml=`<div class="filter-menu">
+    <button class="btn btn-outline btn-sm filter-toggle" onclick="event.stopPropagation();calibDownloadOpen=!calibDownloadOpen;renderCalibToolbar()">
+      <i class="bx bx-download"></i> Tải xuống <i class="bx bx-chevron-down"></i>
+    </button>
+    ${calibDownloadOpen?`<div class="filter-popover is-single" style="min-width:150px">
+      <div class="filter-popover-grid" style="flex-direction:column;gap:2px;padding:4px 0">
+        <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;width:100%;padding:6px 10px;border-radius:4px" onclick="downloadCalibTable('excel')"><i class="bx bx-file"></i> Excel (.xlsx)</button>
+        <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;width:100%;padding:6px 10px;border-radius:4px" onclick="downloadCalibTable('csv')"><i class="bx bx-spreadsheet"></i> CSV (.csv)</button>
+      </div>
+    </div>`:''}
+  </div>`;
+  el.innerHTML=`<div class="filter-shell"><div class="filter-toolbar">${filterPopoverHtml('calib',fields,false)}${dlMenuHtml}</div></div>`;
+}
+
+function downloadCalibTable(fmt){
+  calibDownloadOpen=false;
+  renderCalibToolbar();
+  const emps=filteredCalibEmps();
+  const headers=['Nhân viên','Login','Quản lý TT','Quản lý cấp 2','Điểm NV','Điểm QLTT','Điểm QL2','Điểm Upload','Điểm HOD'];
+  const rows=emps.map(function(emp){
+    const review=MYR_DATA[emp.id]||{};
+    const calib=CALIBRATION_DATA[emp.id];
+    return [emp.name,emp.login,emp.mgr?emp.mgr.name:'',emp.mgr2?emp.mgr2.name:'',
+      review.nv!=null?review.nv:'',review.lm1!=null?review.lm1:'',review.lm2!=null?review.lm2:'',
+      calib&&calib.upload!=null?calib.upload:'',review.hod!=null?review.hod:''];
+  });
+  const csv=[headers].concat(rows).map(function(r){
+    return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
+  }).join('\n');
+  const ext=fmt==='excel'?'xlsx':'csv';
+  const mime=fmt==='excel'?'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'text/csv';
+  const a=document.createElement('a');
+  a.href='data:'+mime+';charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download='diem-hieu-chuan-myr2026.'+ext;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
 function renderCalibTable(){
   calibSelected.clear();
   updateCalibBulk();
-  const emps=visibleMyrEmps();
+  renderCalibToolbar();
+  const emps=filteredCalibEmps();
   const tbody=document.getElementById('calib-tbody');
   if(!tbody) return;
   tbody.innerHTML=emps.map(emp=>{
@@ -2390,7 +2474,6 @@ function renderCalibTable(){
     const uploadCell=hasUpload
       ?`<td class="score calib-upload-col"><span class="calib-upload-score">${calib.upload}</span></td>`
       :`<td class="score calib-upload-col"><span class="myr-score empty">—</span></td>`;
-    const status=myrStatus(emp);
     const mgr1=emp.mgr?`<div class="myr-manager">${emp.mgr.name}<span class="er-login">(${emp.mgr.login})</span></div>`:'<span class="myr-score empty">—</span>';
     const mgr2=emp.mgr2?`<div class="myr-manager">${emp.mgr2.name}<span class="er-login">(${emp.mgr2.login})</span></div>`:'<span class="myr-score empty">—</span>';
     return `<tr onclick="openMyrDetail('${emp.id}')">
@@ -2406,13 +2489,11 @@ function renderCalibTable(){
       </div></td>
       <td>${mgr1}</td>
       <td>${mgr2}</td>
-      <td><span class="myr-status ${status.tone}">${status.text}</span></td>
       <td class="score">${formatMyrScore(review.nv,false)}</td>
       <td class="score">${formatMyrScore(visibleMyrScore(review,'lm1'),false)}</td>
       <td class="score">${formatMyrScore(visibleMyrScore(review,'lm2'),false)}</td>
       ${uploadCell}
       <td class="score">${formatMyrScore(visibleMyrScore(review,'hod'),false)}</td>
-      <td class="score">${formatMyrScore(visibleMyrScore(review,'final'),true)}</td>
       <td class="myr-action-cell"><button class="myr-action-btn" aria-label="Xem" data-tip="Xem" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openMyrDetail('${emp.id}')"><i class="bx bx-show"></i></button></td>
     </tr>`;
   }).join('');
