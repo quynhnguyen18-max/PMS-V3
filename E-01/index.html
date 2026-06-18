@@ -810,6 +810,24 @@ label.ev-tb-btn{cursor:pointer}
   .gd-meta-grid{grid-template-columns:1fr}
   .overall-grid{padding:12px}
 }
+.fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease}
+.fb-card:hover{border-color:var(--z300)}
+.fb-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.fb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;letter-spacing:-.2px;background:rgba(165,0,100,.07);color:var(--brand);margin-top:1px}
+.fb-sender-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.35}
+.fb-sender-dom{color:var(--z500);font-weight:400}
+.fb-sender-org{font-size:11px;color:var(--z500);line-height:1.4}
+.fb-date{font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px}
+.fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
+.fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
+.fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
+.fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
+.fb-badges{border-top:1px solid var(--z100);padding-top:8px;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:11px;font-weight:500;padding:4px 8px;border-radius:var(--rxs);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.fb-badge-wrap:hover .fb-badge-tip{opacity:1}
 </style>
 </head>
 <body>
@@ -1360,6 +1378,7 @@ label.ev-tb-btn{cursor:pointer}
     <!-- ═══ PANEL: Mid-Year Review (MYR) ═══ -->
     <div class="main-panel" id="mpanel-myr">
     <div class="cycle-actions">
+      <button class="btn btn-cta-outline btn-sm" onclick="openOverlay('dlg-feedback')"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button>
       <button class="btn btn-outline btn-sm" onclick="myrSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
       <button class="btn btn-default btn-sm" onclick="openConfirm()"><i class="bx bx-send"></i> Gửi tự đánh giá</button>
     </div>
@@ -3122,6 +3141,140 @@ function switchMainTab(idx){
     <div class="dlg-foot">
       <button class="btn btn-default btn-sm" onclick="closeValidate()"><i class="bx bx-check"></i>Đã hiểu, bổ sung ngay</button>
     </div>
+  </div>
+
+  <!-- ═══ DIALOG: PHẢN HỒI ĐÃ NHẬN ═══ -->
+  <div class="overlay" id="dlg-feedback" onclick="if(event.target===this)closeOverlay('dlg-feedback')">
+  <div class="dialog" style="max-width:620px;width:100%">
+    <div class="dlg-hd">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="dlg-title">Phản hồi đã nhận</span>
+        <span style="height:18px;line-height:18px;padding:0 6px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(165,0,100,.07);color:var(--brand);display:inline-flex;align-items:center">6</span>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-feedback')">&#x2715;</button>
+    </div>
+    <div class="dlg-body" style="max-height:520px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:12px 16px">
+
+      <!-- Card 1: chủ động, 5 huy hiệu -->
+      <div class="fb-card">
+        <div class="fb-card-top">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="fb-av">LN</div>
+            <div>
+              <div class="fb-sender-name">Lê Thành Nam <span class="fb-sender-dom">(nam.le)</span></div>
+              <div class="fb-sender-org">ITC – Mobile – iOS Developer</div>
+            </div>
+          </div>
+          <span class="fb-date">14/03/2026</span>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Mình ấn tượng với cách Quỳnh luôn chủ động cập nhật stakeholder về tiến độ dự án. Bạn có khả năng điều phối rất tốt, tư duy linh hoạt và luôn tìm cách cải tiến quy trình — những điều này tạo ra ảnh hưởng rõ rệt đến hiệu quả của cả team.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""/><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""/><span class="fb-badge-tip">Đổi mới</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""/><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Teamwork.png" alt=""/><span class="fb-badge-tip">Tinh thần đồng đội</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""/><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
+        </div>
+      </div>
+
+      <!-- Card 2: chủ động, 2 huy hiệu -->
+      <div class="fb-card">
+        <div class="fb-card-top">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="fb-av">TD</div>
+            <div>
+              <div class="fb-sender-name">Trương Minh Đức <span class="fb-sender-dom">(duc.truong)</span></div>
+              <div class="fb-sender-org">DIV – People Operations – HR Business Partner</div>
+            </div>
+          </div>
+          <span class="fb-date">05/06/2026</span>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Quỳnh tổ chức chương trình onboarding Q1 rất chuyên nghiệp. Từ khâu thiết kế nội dung đến điều phối logistics đều được thực hiện chu đáo và nhận được phản hồi rất tích cực từ tất cả new joiners trong đợt đó.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Excellence.png" alt=""/><span class="fb-badge-tip">Thực thi xuất sắc</span></div>
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Constant_.png" alt=""/><span class="fb-badge-tip">Không ngừng học hỏi</span></div>
+        </div>
+      </div>
+
+      <!-- Card 3: có câu hỏi, 1 huy hiệu -->
+      <div class="fb-card">
+        <div class="fb-card-top">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="fb-av">HL</div>
+            <div>
+              <div class="fb-sender-name">Hoàng Thị Lan <span class="fb-sender-dom">(lan.hoang)</span></div>
+              <div class="fb-sender-org">MKT – Brand – Senior Designer</div>
+            </div>
+          </div>
+          <span class="fb-date">22/04/2026</span>
+        </div>
+        <div class="fb-qbox">
+          <div class="fb-q-lbl">Câu hỏi</div>
+          <p class="fb-q-txt">Bạn đánh giá như thế nào về khả năng xử lý tình huống phát sinh của mình?</p>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Quỳnh xử lý tình huống rất bình tĩnh và nhìn vấn đề toàn diện. Buổi workshop bị trục trặc kỹ thuật giữa chừng nhưng bạn ứng biến nhanh, giữ được không khí tích cực và đảm bảo mục tiêu buổi học vẫn đạt được.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Customer_.png" alt=""/><span class="fb-badge-tip">Khách hàng là trung tâm</span></div>
+        </div>
+      </div>
+
+      <!-- Card 4: chủ động, 1 huy hiệu -->
+      <div class="fb-card">
+        <div class="fb-card-top">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="fb-av">PH</div>
+            <div>
+              <div class="fb-sender-name">Phạm Trung Hiếu <span class="fb-sender-dom">(hieu.pham)</span></div>
+              <div class="fb-sender-org">FIN – Finance Control – Finance Analyst</div>
+            </div>
+          </div>
+          <span class="fb-date">28/07/2026</span>
+        </div>
+        <p class="fb-body" style="margin-bottom:10px">Trong dự án cross-function vừa rồi, Quỳnh chủ động đề xuất một cách tiếp cận hoàn toàn mới giúp cắt giảm đáng kể thời gian xử lý báo cáo. Mình rất ấn tượng với tư duy không bị giới hạn bởi quy trình cũ.</p>
+        <div class="fb-badges">
+          <div class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/Innovation.png" alt=""/><span class="fb-badge-tip">Đổi mới</span></div>
+        </div>
+      </div>
+
+      <!-- Card 5: chủ động, 0 huy hiệu -->
+      <div class="fb-card">
+        <div class="fb-card-top">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="fb-av">MH</div>
+            <div>
+              <div class="fb-sender-name">Mai Thanh Hương <span class="fb-sender-dom">(huong.mai)</span></div>
+              <div class="fb-sender-org">DIV – Employer Brand – Content Specialist</div>
+            </div>
+          </div>
+          <span class="fb-date">12/08/2026</span>
+        </div>
+        <p class="fb-body">Mình rất trân trọng cách Quỳnh luôn lắng nghe và phản hồi nhanh chóng khi team cần hỗ trợ. Sự nhiệt tình và thái độ làm việc tích cực của bạn tạo ra năng lượng rất tốt cho cả nhóm.</p>
+      </div>
+
+      <!-- Card 6: có câu hỏi, 0 huy hiệu -->
+      <div class="fb-card">
+        <div class="fb-card-top">
+          <div style="display:flex;align-items:flex-start;gap:9px">
+            <div class="fb-av">NB</div>
+            <div>
+              <div class="fb-sender-name">Nguyễn Quốc Bảo <span class="fb-sender-dom">(bao.nguyen)</span></div>
+              <div class="fb-sender-org">ITC – Platform – Tech Lead</div>
+            </div>
+          </div>
+          <span class="fb-date">08/09/2026</span>
+        </div>
+        <div class="fb-qbox">
+          <div class="fb-q-lbl">Câu hỏi</div>
+          <p class="fb-q-txt">Theo bạn, mình nên tập trung phát triển kỹ năng gì để thăng tiến lên level tiếp theo?</p>
+        </div>
+        <p class="fb-body">Kỹ năng chuyên môn của Quỳnh đã rất vững. Để lên level tiếp theo, mình nghĩ bạn nên tập trung thêm vào việc mentor junior members và chủ động dẫn dắt các initiative có tầm ảnh hưởng rộng hơn trong team.</p>
+      </div>
+
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-feedback')">Đóng</button>
+    </div>
+  </div>
   </div>
 </body>
 </html>
