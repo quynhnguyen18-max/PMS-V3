@@ -560,6 +560,20 @@ textarea.fc{resize:vertical}
 .wip-panel i.bx{font-size:40px;color:var(--z300);display:block;margin-bottom:14px}
 .wip-panel h3{font-size:15px;font-weight:600;color:var(--z600);margin-bottom:6px}
 .wip-panel p{font-size:13px;color:var(--z400);line-height:1.6}
+
+/* ── Calibration screen (Phê duyệt điểm hiệu chuẩn) ── */
+.calib-screen{position:fixed;left:var(--sw);top:0;right:0;bottom:0;z-index:300;background:var(--z50);display:flex;flex-direction:column}
+.calib-hd{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--z0);border-bottom:1px solid var(--z200);flex-shrink:0}
+.calib-hd-info{flex:1;min-width:0}
+.calib-hd-title{font-size:15px;font-weight:700;color:var(--z900)}
+.calib-hd-sub{font-size:11.5px;color:var(--z500);margin-top:1px}
+.calib-body{flex:1;overflow-y:auto;padding:16px 20px}
+.calib-upload-col{background:rgba(124,58,237,.06)!important;color:var(--upd)!important}
+.calib-upload-score{font-size:13px;font-weight:700;color:var(--upd);background:var(--upd-bg);border:1px solid var(--upd-bd);border-radius:var(--rxs);padding:1px 9px;display:inline-block}
+.calib-back{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:12.5px;font-weight:500;color:var(--z700);cursor:pointer}
+.calib-back:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.calib-info-note{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--z500);line-height:1.5;margin-bottom:14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:10px 13px}
+.calib-info-note i{flex-shrink:0;color:var(--upd);font-size:15px;margin-top:1px}
 </style>
 </head>
 <body>
@@ -852,6 +866,53 @@ textarea.fc{resize:vertical}
 
 </div><!-- /workspace -->
 </div><!-- /app -->
+
+<!-- ══════════ SCREEN: Phê duyệt điểm hiệu chuẩn (HOD only) ══════════ -->
+<div class="calib-screen" id="calib-screen" style="display:none">
+  <div class="calib-hd">
+    <button class="calib-back" onclick="closeCalibScreen()"><i class="bx bx-left-arrow-alt"></i> Quay lại</button>
+    <div class="calib-hd-info">
+      <div class="calib-hd-title">Phê duyệt điểm hiệu chuẩn</div>
+      <div class="calib-hd-sub">MYR 2026 · HOD · Indirect reports</div>
+    </div>
+    <button id="calib-approve-btn" class="btn btn-default btn-sm" disabled onclick="approveCalibRatings()">
+      <i class="bx bx-check-shield"></i> Duyệt điểm
+      <span id="calib-count" class="myr-bulk-count">0</span>
+    </button>
+  </div>
+  <div class="calib-body">
+    <div class="calib-info-note">
+      <i class="bx bx-info-circle"></i>
+      <span>Cột <strong style="color:var(--upd)">Điểm Upload</strong> là điểm hiệu chuẩn được nhập từ file. Tích chọn nhân viên và nhấn <strong>Duyệt điểm</strong> để áp dụng điểm Upload vào cột <strong>Điểm của HOD</strong>.</span>
+    </div>
+    <div class="myr-table-wrap">
+      <table class="myr-table" style="table-layout:fixed">
+        <colgroup>
+          <col style="width:3%"><col style="width:18%"><col style="width:11%"><col style="width:11%">
+          <col style="width:9%"><col style="width:6%"><col style="width:6%"><col style="width:7%">
+          <col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:7%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="myr-check-cell"><input id="calib-select-all" class="myr-row-check" type="checkbox" aria-label="Chọn tất cả" onchange="toggleAllCalibRows(this.checked)"></th>
+            <th>Nhân viên</th>
+            <th>Quản lý TT</th>
+            <th>Quản lý cấp 2</th>
+            <th>Trạng thái</th>
+            <th class="score">Điểm NV</th>
+            <th class="score">Điểm QLTT</th>
+            <th class="score">Điểm QL2</th>
+            <th class="score calib-upload-col">Điểm Upload</th>
+            <th class="score">Điểm HOD</th>
+            <th class="score">Điểm cuối</th>
+            <th class="score">Chức năng</th>
+          </tr>
+        </thead>
+        <tbody id="calib-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════ MODAL: Goal Detail ══════════ -->
 <div class="overlay" id="dlg-detail" onclick="if(event.target===this)closeOverlay('dlg-detail')">
@@ -1280,9 +1341,11 @@ function approveSelectedMyrRatings(){
 function myrBulkActionsHtml(){
   if(S.myrRole==='lm1') return '';
   const previousRole=S.myrRole==='hod'?'LM2':'LM1';
+  const calibBtn=S.myrRole==='hod'?`<button class="btn btn-outline btn-sm" onclick="openCalibScreen()"><i class="bx bx-check-shield"></i> Duyệt điểm hiệu chuẩn</button>`:'';
   return `<div class="myr-bulk-actions">
     <button id="myr-bulk-approve" class="btn btn-cta-outline btn-sm myr-bulk-approve" disabled onclick="approveSelectedMyrRatings()"><i class="bx bx-check-double"></i> Duyệt điểm ${previousRole} <span id="myr-bulk-count" class="myr-bulk-count">0</span></button>
     <button class="btn btn-default btn-sm" onclick="openMyrUploadGuide()"><i class="bx bx-upload"></i> Upload điểm</button>
+    ${calibBtn}
   </div>`;
 }
 
@@ -2287,6 +2350,122 @@ document.addEventListener('click',event=>{
     renderMyrFilterRow();
   }
 });
+
+/* ══════════════════════════════════════
+   CALIBRATION SCREEN (Phê duyệt điểm hiệu chuẩn)
+══════════════════════════════════════ */
+
+const CALIBRATION_DATA={
+  e8:{upload:3.5},
+  e9:{upload:4},
+  e10:{upload:3},
+  e11:{upload:4.5},
+  e12:{upload:4.5},
+};
+
+let calibSelected=new Set();
+
+function openCalibScreen(){
+  renderCalibTable();
+  document.getElementById('calib-screen').style.display='flex';
+}
+
+function closeCalibScreen(){
+  document.getElementById('calib-screen').style.display='none';
+  calibSelected.clear();
+  renderMyrList();
+}
+
+function renderCalibTable(){
+  calibSelected.clear();
+  updateCalibBulk();
+  const emps=visibleMyrEmps();
+  const tbody=document.getElementById('calib-tbody');
+  if(!tbody) return;
+  tbody.innerHTML=emps.map(emp=>{
+    const review=MYR_DATA[emp.id]||{};
+    const calib=CALIBRATION_DATA[emp.id];
+    const hasUpload=calib&&calib.upload!=null;
+    const canSelect=hasUpload&&review.submitted;
+    const uploadCell=hasUpload
+      ?`<td class="score calib-upload-col"><span class="calib-upload-score">${calib.upload}</span></td>`
+      :`<td class="score calib-upload-col"><span class="myr-score empty">—</span></td>`;
+    const status=myrStatus(emp);
+    const mgr1=emp.mgr?`<div class="myr-manager">${emp.mgr.name}<span class="er-login">(${emp.mgr.login})</span></div>`:'<span class="myr-score empty">—</span>';
+    const mgr2=emp.mgr2?`<div class="myr-manager">${emp.mgr2.name}<span class="er-login">(${emp.mgr2.login})</span></div>`:'<span class="myr-score empty">—</span>';
+    return `<tr onclick="openMyrDetail('${emp.id}')">
+      <td class="myr-check-cell"><input class="myr-row-check calib-row-check" data-emp-id="${emp.id}" type="checkbox"
+        aria-label="Chọn ${emp.name}" title="${canSelect?'Chọn để duyệt':'Chưa đủ điều kiện'}"
+        ${calibSelected.has(emp.id)?'checked':''}
+        ${canSelect?'':'disabled'}
+        onclick="event.stopPropagation()"
+        onchange="toggleCalibRow('${emp.id}',this.checked)"></td>
+      <td><div class="myr-emp-info">
+        <div class="myr-emp-name">${emp.name} <span class="er-login">(${emp.login})</span></div>
+        <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?' – '+emp.team:''}</div>
+      </div></td>
+      <td>${mgr1}</td>
+      <td>${mgr2}</td>
+      <td><span class="myr-status ${status.tone}">${status.text}</span></td>
+      <td class="score">${formatMyrScore(review.nv,false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'lm1'),false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'lm2'),false)}</td>
+      ${uploadCell}
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'hod'),false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'final'),true)}</td>
+      <td class="myr-action-cell"><button class="myr-action-btn" aria-label="Xem" data-tip="Xem" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openMyrDetail('${emp.id}')"><i class="bx bx-show"></i></button></td>
+    </tr>`;
+  }).join('');
+  updateCalibSelectAll();
+}
+
+function toggleCalibRow(empId,checked){
+  if(checked) calibSelected.add(empId);
+  else calibSelected.delete(empId);
+  updateCalibBulk();
+  updateCalibSelectAll();
+}
+
+function toggleAllCalibRows(checked){
+  document.querySelectorAll('.calib-row-check:not(:disabled)').forEach(cb=>{
+    cb.checked=checked;
+    if(checked) calibSelected.add(cb.dataset.empId);
+    else calibSelected.delete(cb.dataset.empId);
+  });
+  updateCalibBulk();
+}
+
+function updateCalibBulk(){
+  const btn=document.getElementById('calib-approve-btn');
+  const ct=document.getElementById('calib-count');
+  if(btn) btn.disabled=calibSelected.size===0;
+  if(ct) ct.textContent=calibSelected.size;
+}
+
+function updateCalibSelectAll(){
+  const all=document.querySelectorAll('.calib-row-check:not(:disabled)');
+  const checked=document.querySelectorAll('.calib-row-check:not(:disabled):checked');
+  const sa=document.getElementById('calib-select-all');
+  if(!sa) return;
+  sa.checked=all.length>0&&checked.length===all.length;
+  sa.indeterminate=checked.length>0&&checked.length<all.length;
+}
+
+function approveCalibRatings(){
+  let updated=0;
+  [...calibSelected].forEach(id=>{
+    const calib=CALIBRATION_DATA[id];
+    if(calib&&calib.upload!=null){
+      if(!MYR_DATA[id]) MYR_DATA[id]={};
+      MYR_DATA[id].hod=calib.upload;
+      updated++;
+    }
+  });
+  calibSelected.clear();
+  renderCalibTable();
+  renderMyrList();
+  if(updated) toast(`Đã duyệt điểm hiệu chuẩn HOD cho ${updated} nhân viên.`);
+}
 </script>
 </body>
 </html>
