@@ -880,6 +880,13 @@ body.embedded-detail .page-title{font-size:16px}
 .fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;margin-bottom:10px}
 .fb-card:last-child{margin-bottom:0}
 .fb-card:hover{border-color:var(--z300)}
+.fb-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.fb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;letter-spacing:-.2px;background:rgba(165,0,100,.07);color:var(--brand);margin-top:1px}
+.fb-sender-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.35}
+.fb-sender-dom{color:var(--z500);font-weight:400}
+.fb-sender-org{font-size:11px;color:var(--z500);line-height:1.4}
+.fb-date{font-size:11.5px;color:var(--z500);flex-shrink:0;margin-top:2px}
+.manager-nav-right{display:flex;align-items:center;gap:7px}
 .fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
 .fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
 .fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
@@ -3088,19 +3095,17 @@ function backToMyrList(){
 }
 
 function renderManagerActions(){
-  var actions=document.querySelector('#mpanel-myr .cycle-actions');
+  var actions=document.getElementById('manager-nav-actions');
   if(!actions) return;
   if(!MANAGER_DETAIL_STATE.submitted){
     actions.innerHTML='<button class="btn btn-outline btn-sm" onclick="managerSaveDraft()"><i class="bx bx-save"></i> Lưu nháp</button><button class="btn btn-default btn-sm" onclick="managerSubmitAssessment()"><i class="bx bx-send"></i> Gửi đánh giá</button>';
     return;
   }
-  actions.innerHTML=MANAGER_DETAIL_STATE.role==='lm1' // DEMO: show recall for lm1 regardless of phase
-    ?'<span class="cycle-submitted-tag" style="display:flex"><i class="bx bx-check-circle"></i>Đã gửi đánh giá</span><button class="btn btn-outline btn-sm" onclick="managerRecallAssessment()"><i class="bx bx-undo"></i> Thu hồi để chỉnh sửa</button>'
-    :'<span class="cycle-submitted-tag" style="display:flex"><i class="bx bx-check-circle"></i>Đã gửi đánh giá</span>';
+  actions.innerHTML='<span class="cycle-submitted-tag" style="display:flex"><i class="bx bx-check-circle"></i>Đã gửi đánh giá</span>';
 }
 
 function managerContextHtml(emp,role){
-  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button><button class="btn btn-cta-outline btn-sm" onclick="openFbPopup()"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button></div>';
+  return '<div class="manager-detail-nav"><button class="manager-back" onclick="backToMyrList()"><i class="bx bx-left-arrow-alt"></i> Quay lại danh sách nhân viên</button><div class="manager-nav-right"><div id="manager-nav-actions"></div><button class="btn btn-cta-outline btn-sm" onclick="openFbPopup()"><i class="bx bx-message-square-dots"></i> Phản hồi đã nhận</button></div></div>';
 }
 
 function renderManagerEmpty(panel,emp,role,icon,title,message){
