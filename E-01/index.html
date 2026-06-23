@@ -164,6 +164,13 @@ input,select,textarea{font-family:inherit}
 .filter-box>i{position:absolute;left:9px;font-size:15px;color:var(--z500);pointer-events:none}
 .filter-box select.fc{width:auto;padding:5px 26px 5px 30px;font-size:12.5px;font-weight:500;color:var(--z700);background-color:var(--z50)}
 .filter-box select.fc:hover{border-color:var(--z400)}
+/* icon-only filter button */
+.filter-box.filter-icon{width:32px;height:30px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);transition:var(--t)}
+.filter-box.filter-icon:hover{border-color:var(--z400);background:var(--z100)}
+.filter-box.filter-icon>i{left:50%;transform:translateX(-50%);color:var(--z600)}
+.filter-box.filter-icon select.fc{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;padding:0}
+.filter-box.filter-icon.active{border-color:var(--brand);background:var(--brand-muted)}
+.filter-box.filter-icon.active>i{color:var(--brand)}
 
 /* Guidance card (info + process, unified) */
 .guide-box{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
@@ -686,10 +693,15 @@ textarea.fc{resize:vertical}
 .det-btn:hover{color:var(--ok);background:var(--ok-bg);border-color:var(--ok)}
 .det-btn i{font-size:12px}
 /* hover tooltip */
-#goal-tip{position:fixed;z-index:9999;background:var(--z900);color:var(--z0);padding:10px 13px;border-radius:var(--rsm);font-size:12px;line-height:1.5;max-width:320px;pointer-events:none;display:none;box-shadow:var(--sh-md)}
-#goal-tip .tt-name{font-weight:600;margin-bottom:5px}
-#goal-tip .tt-sep{height:1px;background:var(--z600);margin:6px 0}
-#goal-tip .tt-result{color:var(--z300);font-size:11.5px}
+#goal-tip{position:fixed;z-index:9999;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:11px 13px;font-size:12px;line-height:1.5;max-width:360px;max-height:min(400px,70vh);overflow-y:auto;pointer-events:auto;display:none;box-shadow:var(--sh-md)}
+#goal-tip .tt-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.45}
+#goal-tip .tt-sep{height:1px;background:var(--z200);margin:8px 0}
+#goal-tip .tt-result{font-size:12px;color:var(--z600);line-height:1.55}
+#goal-tip .tt-result p{margin:0 0 5px}
+#goal-tip .tt-result p:last-child{margin-bottom:0}
+#goal-tip .tt-result ul,#goal-tip .tt-result ol{margin:2px 0 5px 14px;padding:0}
+#goal-tip .tt-result li{margin-bottom:2px}
+#goal-tip .tt-result strong{color:var(--z700);font-weight:600}
 .section-cmt{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--z200)}
 .scmt-panel{padding:14px 16px}
 .scmt-panel+.scmt-panel{border-left:1px solid var(--z200)}
@@ -938,7 +950,7 @@ label.ev-tb-btn{cursor:pointer}
         <button class="view-btn on" id="vb-board" onclick="setView('board')"><i class="bx bx-columns"></i> Cột</button>
         <button class="view-btn" id="vb-table" onclick="setView('table')"><i class="bx bx-table"></i> Bảng</button>
       </div>
-      <div class="filter-box">
+      <div class="filter-box filter-icon" title="Lọc trạng thái">
         <i class="bx bx-filter-alt"></i>
         <select class="fc" id="sf" onchange="applyFilter(this.value)">
           <option value="all">Tất cả trạng thái</option>
@@ -950,10 +962,10 @@ label.ev-tb-btn{cursor:pointer}
         </select>
       </div>
       <button class="btn btn-default btn-sm" onclick="openCreate()"><i class="bx bx-plus"></i> Tạo mục tiêu</button>
-      <button class="btn btn-outline btn-sm" onclick="openOverlay('dlg-import')"><i class="bx bx-upload"></i> Import CSV</button>
+      <button class="btn btn-outline btn-sm" title="Import CSV" onclick="openOverlay('dlg-import')"><i class="bx bx-upload"></i></button>
       <div class="download-menu">
-        <button class="btn btn-outline btn-sm download-toggle" type="button" aria-haspopup="menu" aria-expanded="false" onclick="event.stopPropagation();toggleDownloadMenu(this)">
-          <i class="bx bx-download"></i> Tải xuống <i class="bx bx-chevron-down"></i>
+        <button class="btn btn-outline btn-sm download-toggle" type="button" aria-haspopup="menu" aria-expanded="false" title="Tải xuống" onclick="event.stopPropagation();toggleDownloadMenu(this)">
+          <i class="bx bx-download"></i>
         </button>
         <div class="download-popover" role="menu">
           <button class="download-option" type="button" role="menuitem" onclick="downloadEmployeeGoals('xls');closeDownloadMenus()"><i class="bx bx-spreadsheet"></i> Excel (.xls)</button>
@@ -2177,6 +2189,8 @@ function applyFilter(val) {
   // "Bỏ lọc" chỉ hiện khi đang áp filter
   var all = document.getElementById('s-all');
   if (all) all.classList.toggle('show', val !== 'all');
+  var filterBox = document.querySelector('.filter-box.filter-icon');
+  if (filterBox) filterBox.classList.toggle('active', val !== 'all');
   // highlight mục đang lọc
   document.querySelectorAll('.summary-text .s-link[data-f]').forEach(function(l) {
     l.classList.toggle('active', val !== 'all' && l.dataset.f === val);
@@ -2889,34 +2903,123 @@ function toggleDet(id, btn) {
 /* ── DEMO MODE: initPrototypeState disabled — form starts empty for live testing ── */
 
 /* ── Hover tooltip + click goal detail ── */
-(function initGoalInteractions() {
+document.addEventListener('DOMContentLoaded', function initGoalInteractions() {
   const tip = document.getElementById('goal-tip');
-  document.querySelectorAll('.rv-grid tbody tr[data-name]').forEach(tr => {
-    if (tip) {
-      tr.addEventListener('mouseenter', e => {
-        tip.querySelector('.tt-name').textContent = tr.dataset.name || '';
-        tip.querySelector('.tt-result').textContent = tr.dataset.result || '';
-        tip.style.display = 'block';
-        positionTip(e);
-      });
-      tr.addEventListener('mousemove', positionTip);
-      tr.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  if (!tip) return;
+  let _hideTimer = null;
+
+  function scheduleHide() {
+    _hideTimer = setTimeout(function() { tip.style.display = 'none'; tip.scrollTop = 0; }, 150);
+  }
+  function cancelHide() { clearTimeout(_hideTimer); }
+  function hideNow() { cancelHide(); tip.style.display = 'none'; tip.scrollTop = 0; }
+
+  let _tipAbove = false; // direction locked once per show, prevents flip-flop on mousemove
+
+  function positionTip(e) {
+    const pad = 18, tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = e.clientX + pad;
+    let y = _tipAbove ? (e.clientY - th - pad) : (e.clientY + pad);
+    if (x + tw + 8 > window.innerWidth)  x = e.clientX - tw - pad;
+    if (x < 8) x = 8;
+    // hard clamp — never let tooltip escape viewport
+    if (y < 8) y = 8;
+    if (y + th + 8 > window.innerHeight) y = window.innerHeight - th - 8;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  }
+
+  // Find .goal-item card by its title text (to access .gi-result-rich)
+  function findGoalItemByName(name) {
+    const items = document.querySelectorAll('.goal-item');
+    for (let i = 0; i < items.length; i++) {
+      const t = items[i].querySelector('.gi-title');
+      if (t && t.textContent.trim() === name.trim()) return items[i];
     }
+    return null;
+  }
+
+  // Extract goal-item from table row via its button onclick attribute
+  function findGoalItemByRow(row) {
+    const btn = row.querySelector('button[onclick*="getElementById"]');
+    const m = btn && btn.getAttribute('onclick').match(/getElementById\('([^']+)'\)/);
+    return m ? document.getElementById(m[1]) : null;
+  }
+
+  function setTipResult(goalItem, fallbackText) {
+    const resultEl = tip.querySelector('.tt-result');
+    const rich = goalItem && goalItem.querySelector('.gi-result-rich');
+    if (rich) {
+      resultEl.innerHTML = rich.innerHTML;
+    } else {
+      resultEl.textContent = fallbackText || (goalItem && goalItem.dataset.result) || '';
+    }
+  }
+
+  function showGoalTip(name, e, goalItem, fallbackText) {
+    cancelHide();
+    tip.querySelector('.tt-name').textContent = name;
+    setTipResult(goalItem, fallbackText);
+    tip.scrollTop = 0;
+    tip.style.display = 'block';
+    const th = tip.offsetHeight;
+    _tipAbove = (e.clientY + 18 + th + 8 > window.innerHeight);
+    positionTip(e);
+  }
+
+  // wheel on row → scroll tooltip content without needing to hover tooltip
+  function wheelOnRow(e) {
+    if (tip.style.display === 'none') return;
+    const before = tip.scrollTop;
+    tip.scrollTop += e.deltaY || 0;
+    if (tip.scrollTop !== before) e.preventDefault();
+  }
+
+  // Tooltip hover keeps it alive
+  tip.addEventListener('mouseenter', cancelHide);
+  tip.addEventListener('mouseleave', hideNow);
+
+  // MYR tab: tr[data-name] rows — find matching goal-item for rich content
+  document.querySelectorAll('.rv-grid tbody tr[data-name]').forEach(tr => {
+    tr.addEventListener('mouseenter', e => {
+      const name = tr.dataset.name || '';
+      showGoalTip(name, e, findGoalItemByName(name), tr.dataset.result || '');
+    });
+    tr.addEventListener('mousemove',  positionTip);
+    tr.addEventListener('mouseleave', scheduleHide);
+    tr.addEventListener('wheel', wheelOnRow, { passive: false });
     tr.addEventListener('click', e => {
       if (e.target.closest('.sc-select, .det-btn, select, input')) return;
-      if (tip) tip.style.display = 'none';
+      hideNow();
       openGoalDetail(tr);
     });
   });
-  function positionTip(e) {
-    if (!tip) return;
-    const pad = 14, tw = tip.offsetWidth, th = tip.offsetHeight;
-    let x = e.clientX + pad, y = e.clientY + pad;
-    if (x + tw > window.innerWidth) x = e.clientX - tw - pad;
-    if (y + th > window.innerHeight) y = e.clientY - th - pad;
-    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+
+  // Goals tab table view — col 2 (gt-name) or col 3 (gt-result)
+  const gtBody = document.querySelector('#view-table .gtable tbody');
+  if (gtBody) {
+    let _activeRow = null;
+    gtBody.addEventListener('mouseover', e => {
+      const cell = e.target.closest('td');
+      if (!cell || (cell.cellIndex !== 2 && cell.cellIndex !== 3)) {
+        if (_activeRow) { _activeRow = null; scheduleHide(); }
+        return;
+      }
+      const row = cell.closest('tr.gt-row');
+      if (!row) { scheduleHide(); return; }
+      cancelHide();
+      if (row !== _activeRow) {
+        _activeRow = row;
+        const name = (row.querySelector('.gt-name') || {}).textContent || '';
+        const fallback = (row.querySelector('.gt-result') || {}).textContent || '';
+        showGoalTip(name.trim(), e, findGoalItemByRow(row), fallback.trim());
+      }
+    });
+    gtBody.addEventListener('mousemove',  e => { if (tip.style.display !== 'none') positionTip(e); });
+    gtBody.addEventListener('mouseleave', () => { _activeRow = null; scheduleHide(); });
+    gtBody.addEventListener('wheel', wheelOnRow, { passive: false });
   }
-})();
+});
 
 /* ── Downloads ── */
 function employeeGoalExportRows(){
