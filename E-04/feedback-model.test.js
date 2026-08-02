@@ -55,3 +55,11 @@ test('prototype 2026 data exposes all eight request responses in Received', () =
   assert.equal(received.length, 11);
   assert.equal(new Set(received.map(item => item.id)).size, received.length);
 });
+
+test('reply popup reuses the concise visibility labels and omits the one-time-send footer note', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+
+  assert.match(html, /id="rvisR"[\s\S]*?Chỉ người nhận/);
+  assert.match(html, /id="rvisM"[\s\S]*?Người nhận \+ Quản lý của họ/);
+  assert.doesNotMatch(html, /Gửi một lần — sau khi gửi không thể chỉnh sửa/);
+});

@@ -815,8 +815,7 @@ input,select,textarea{font-family:inherit}
     </div>
 
     <div class="dlg-foot" id="replyFoot">
-      <span class="vis-hint"><i class="bx bx-info-circle"></i> Gửi một lần — sau khi gửi không thể chỉnh sửa.</span>
-      <div style="display:flex;gap:7px">
+      <div style="display:flex;gap:7px;margin-left:auto">
         <button class="btn btn-default btn-sm" id="replySend" disabled onclick="submitReply()"><i class="bx bx-send"></i> Gửi phản hồi</button>
       </div>
     </div>
@@ -1865,8 +1864,8 @@ function renderReplyVis(item){
     el.innerHTML=`
       <label class="field-label">Ai có thể xem phản hồi này?<span class="req-star">*</span></label>
       <div class="vis-opts">
-        <label class="vis-card" id="rvisR"><input type="radio" name="rvis" onchange="setReplyVis('receiver')"/><div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ ${item.from}</div><div class="vc-d">Chỉ người yêu cầu (${item.from}) xem được phản hồi của bạn.</div></div></label>
-        <label class="vis-card" id="rvisM"><input type="radio" name="rvis" onchange="setReplyVis('manager')"/><div><div class="vc-t"><i class="bx bx-group"></i>${item.from} + Quản lý của họ</div><div class="vc-d">${item.from} và quản lý trực tiếp của họ xem được phản hồi.</div></div></label>
+        <label class="vis-card" id="rvisR"><input type="radio" name="rvis" onchange="setReplyVis('receiver')"/><div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ người nhận</div></div></label>
+        <label class="vis-card" id="rvisM"><input type="radio" name="rvis" onchange="setReplyVis('manager')"/><div><div class="vc-t"><i class="bx bx-group"></i>Người nhận + Quản lý của họ</div></div></label>
       </div>`;
   }
 }
