@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>E-04 – Phản hồi | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══ TOKENS — shadcn / zinc (đồng bộ E-01) ═══ */
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;
+  --z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#fff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
+  --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--brand);text-decoration:none}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+
+/* ── SHELL ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t);letter-spacing:.1px}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.role-btn:hover:not(.on){background:var(--z100);border-color:var(--z400);color:var(--z700)}
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500);transition:var(--t)}
+.sb-item:hover i{color:var(--z600)}.sb-item.on i{color:var(--brand)}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0;background:var(--z0);position:sticky;bottom:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.sb-user:hover{background:var(--z100)}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:-.3px}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-sm{width:24px;height:24px;font-size:10px}
+.av-xs{width:20px;height:20px;font-size:9px}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);border:none;background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative;cursor:pointer}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.notif-dot{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--err);border:1.5px solid var(--z0)}
+.sep{width:1px;height:14px;background:var(--z200);display:inline-block}
+
+/* ── PAGE ── */
+.page{padding:20px 24px;flex:1;max-width:1080px}
+
+/* two-column layout: feed + rail */
+.fb-layout{display:flex;gap:22px;align-items:flex-start}
+.fb-main{flex:1;min-width:0;max-width:720px}
+.fb-rail{width:290px;flex-shrink:0;display:flex;flex-direction:column;gap:14px;position:sticky;top:72px}
+@media (max-width:960px){
+  .fb-layout{flex-direction:column}
+  .fb-main{max-width:none;width:100%}
+  .fb-rail{width:100%;position:static;flex-direction:row;flex-wrap:wrap}
+  .fb-rail>*{flex:1;min-width:240px}
+}
+
+/* rail cards */
+.rail-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 15px}
+.rail-title{font-size:12.5px;font-weight:700;color:var(--z900);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rail-title i{font-size:15px;color:var(--z500)}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--z100)}
+.stat-row:last-child{border-bottom:none}
+.stat-lbl{font-size:12.5px;color:var(--z600);display:flex;align-items:center;gap:8px}
+.stat-lbl i{font-size:15px;width:16px;text-align:center;color:var(--z400)}
+.stat-val{font-size:15px;font-weight:700;color:var(--z900)}
+.stat-val.hl{color:var(--brand)}
+.cv-rank{display:flex;align-items:center;gap:10px;padding:6px 0}
+.cv-rank img{width:30px;height:30px;border-radius:50%;flex-shrink:0}
+.cv-rank-name{font-size:12px;color:var(--z700);flex:1;line-height:1.3}
+.cv-rank-cnt{font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-muted);border-radius:50px;padding:1px 8px}
+.rail-empty{font-size:12px;color:var(--z400);font-style:italic;padding:4px 0}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
+.breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800)}.bc-sep{color:var(--z400)}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.page-sub{font-size:12.5px;color:var(--z500);margin-top:6px;max-width:520px;line-height:1.5}
+.hd-actions{display:flex;gap:8px;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default:hover{background:var(--brand-h)}
+.btn-secondary{background:var(--z100);border-color:var(--z200);color:var(--z700)}
+.btn-secondary:hover{background:var(--z200);border-color:var(--z400)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
+.btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600}
+.btn-cta-outline:hover{background:var(--brand-muted);border-color:var(--brand-h);color:var(--brand-h)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}
+.btn-ghost:hover{background:var(--z100);color:var(--z900)}
+.btn-sm{padding:4px 10px;font-size:12.5px}
+.btn-xs{padding:2px 8px;font-size:11.5px}
+
+/* ── CYCLE ── */
+.cycle-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.cycle-row i{font-size:14px;color:var(--z500)}
+.cycle-lbl{font-size:12.5px;color:var(--z600);font-weight:500}
+.cycle-sel{padding:5px 28px 5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;font-size:12.5px;color:var(--z800);font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none}
+.cycle-sel:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.cycle-open{font-size:11px;font-weight:600;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-bd);padding:1px 8px;border-radius:50px}
+
+/* ── ACTION QUEUE (Cần bạn phản hồi) ── */
+.queue{background:linear-gradient(180deg,rgba(165,0,100,.04),rgba(165,0,100,.012));border:1px solid var(--brand-ring);border-radius:var(--r);padding:11px 13px;margin-bottom:20px}
+.queue-hd{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.queue-ic{width:22px;height:22px;border-radius:var(--rsm);background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.queue-title{font-size:12.5px;font-weight:700;color:var(--z900)}
+.queue-cnt{height:17px;line-height:17px;padding:0 6px;border-radius:50px;font-size:10.5px;font-weight:700;background:var(--brand);color:#fff}
+.queue-list{display:flex;flex-direction:column;gap:6px}
+.qrow{display:flex;align-items:center;gap:10px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 11px;transition:var(--t)}
+.qrow:hover{border-color:var(--z300);box-shadow:var(--sh-sm)}
+.qrow-main{flex:1;min-width:0}
+.qrow-t{font-size:12.5px;color:var(--z900);line-height:1.4}
+.qrow-t b{font-weight:600}
+.qrow-sub{font-size:11.5px;color:var(--z500);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow-t .q-pre{color:var(--z500);font-weight:400}
+.qrow.over{border-left:3px solid var(--err);padding-left:9px}
+.due{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--z500);flex-shrink:0;white-space:nowrap}
+.due i{font-size:12px}
+.due.soon{color:var(--warn)}.due.over{color:var(--err);font-weight:600}
+.queue-more{width:100%;margin-top:7px;padding:7px;background:none;border:1px dashed var(--brand-ring);border-radius:var(--rsm);color:var(--brand);font-size:12px;font-weight:600;cursor:pointer;transition:var(--t);display:flex;align-items:center;justify-content:center;gap:5px}
+.queue-more:hover{background:var(--z0)}
+.queue-more i{font-size:15px}
+
+/* ── FEED FILTER ── */
+.feed-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px}
+.seg-btn{padding:5px 12px;border:none;background:transparent;border-radius:var(--rxs);font-size:12.5px;font-weight:500;color:var(--z600);transition:var(--t);display:inline-flex;align-items:center;gap:5px}
+.seg-btn:hover{color:var(--z900)}
+.seg-btn.on{background:var(--z0);color:var(--z900);font-weight:600;box-shadow:var(--sh-sm)}
+.seg-n{font-size:10.5px;font-weight:700;color:var(--z500);background:var(--z200);border-radius:50px;padding:0 6px;height:15px;line-height:15px}
+.seg-btn.on .seg-n{background:var(--brand-muted);color:var(--brand)}
+.feed-search{position:relative}
+.feed-search i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--z400)}
+.feed-search input{padding:6px 10px 6px 28px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;color:var(--z800);width:200px;background:var(--z0)}
+.feed-search input:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+
+/* ── FEED ── */
+.feed{display:flex;flex-direction:column;gap:10px}
+.fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;position:relative}
+.fb-card:hover{border-color:var(--z300)}
+.fb-card.kind-request{border-left:3px solid var(--brand)}
+.card-label{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;margin-bottom:9px}
+.card-label i{font-size:14px}
+.card-label .cl-date{margin-left:auto;font-weight:400;color:var(--z500)}
+.cl-received{color:var(--info)}
+.cl-given{color:var(--brand)}
+.cl-request{color:var(--z600)}
+.fb-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.fb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;letter-spacing:-.2px;background:rgba(165,0,100,.07);color:var(--brand);margin-top:1px}
+.fb-sender-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.35}
+.fb-sender-dom{color:var(--z600);font-weight:400}
+.fb-sender-org{font-size:11px;color:var(--z500);line-height:1.4}
+.fb-lead{font-size:11.5px;color:var(--z500);margin-bottom:1px}
+.fb-date{font-size:11.5px;color:var(--z600);flex-shrink:0}
+.fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
+.fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
+.fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
+.fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
+.fb-badges{border-top:1px solid var(--z100);padding-top:8px;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fb-badge-lbl{font-size:11px;color:var(--z500);font-weight:500;margin-right:2px}
+.fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:11px;font-weight:500;padding:4px 8px;border-radius:var(--rxs);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.fb-badge-wrap:hover .fb-badge-tip{opacity:1}
+
+/* visibility tag */
+.vis{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--z500);font-weight:500}
+.vis i{font-size:12px}
+.card-foot{border-top:1px solid var(--z100);padding-top:8px;margin-top:10px;display:flex;align-items:center;gap:10px}
+.card-foot2{border-top:1px solid var(--z100);padding-top:9px;margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.cvline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.card-foot2 .vis{flex-shrink:0}
+
+/* ── REQUEST CARD ── */
+.req-title{font-size:13.5px;font-weight:600;color:var(--z900);line-height:1.4}
+.req-sub{font-size:11.5px;color:var(--z500);margin-top:2px}
+.req-prog{margin-top:11px}
+.prog-top{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--z600);margin-bottom:5px}
+.prog-top b{color:var(--z900);font-weight:600}
+.bar{height:6px;background:var(--z100);border-radius:50px;overflow:hidden}
+.bar-fill{height:100%;background:var(--brand);border-radius:50px;transition:width .3s ease}
+.req-actions{display:flex;gap:7px;margin-top:12px}
+
+/* status chips */
+.chip{display:inline-flex;align-items:center;gap:3px;height:19px;padding:0 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.chip i{font-size:12px}
+.ch-pending{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
+.ch-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
+.ch-expired{color:var(--z500);background:var(--z100);border-color:var(--z200)}
+.ch-overdue{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
+
+/* empty */
+.empty{text-align:center;padding:48px 20px;color:var(--z500)}
+.empty i{font-size:34px;color:var(--z300);margin-bottom:10px}
+.empty p{font-size:13px}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.overlay.open{display:flex;animation:ov-in .15s ease}
+@keyframes ov-in{from{opacity:0}to{opacity:1}}
+@keyframes dlg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
+.dialog.md{max-width:640px}
+.dlg-hd{padding:16px 20px 14px;flex-shrink:0;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.dlg-title{font-size:15px;font-weight:600;color:var(--z900);line-height:1.4}
+.dlg-sub{font-size:12px;color:var(--z500);margin-top:3px}
+.dlg-close{width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--t);flex-shrink:0;cursor:pointer}
+.dlg-close:hover{background:var(--z100);color:var(--z700)}
+.dlg-body{padding:16px 20px;overflow-y:auto;flex:1}
+.dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:space-between;flex-shrink:0;align-items:center}
+
+/* reviewer status list in overlay */
+.rv-item{padding:11px 0;border-bottom:1px solid var(--z100)}
+.rv-item:last-child{border-bottom:none}
+.rv-row{display:flex;align-items:center;gap:10px}
+.rv-info{flex:1;min-width:0}
+.rv-name{font-size:12.5px;font-weight:500;color:var(--z900)}
+.rv-dom{color:var(--z500);font-weight:400}
+.rv-org{font-size:11px;color:var(--z500)}
+.rv-fb{margin:9px 0 1px 34px;padding:10px 12px;background:var(--z50);border:1px solid var(--z100);border-radius:var(--rsm)}
+.rv-fb .fb-body{font-size:12.5px}
+.rv-fb .fb-badges{margin-top:9px;padding-top:8px}
+.rv-pending{margin:7px 0 1px 34px;font-size:11.5px;color:var(--z400);font-style:italic}
+/* popup header meta (không dùng dấu chấm phân cách) */
+.dlg-meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:10px}
+.mi{display:flex;flex-direction:column;gap:2px}
+.mi-l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z400)}
+.mi-v{font-size:13px;font-weight:600;color:var(--z900)}
+.mi-due{font-size:11.5px;font-weight:600;color:var(--z500)}
+.mi-due.soon{color:var(--warn)}.mi-due.over{color:var(--err)}
+/* câu hỏi chung ở đầu popup */
+.qshared{border-left:3px solid var(--brand-ring);padding:9px 12px;background:rgba(165,0,100,.03);border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:14px}
+.rv-h{font-size:12px;font-weight:600;color:var(--z600);margin-bottom:2px}
+.rv-q{margin:9px 0 0 34px}
+/* origin tag cho card đã nhận từ yêu cầu */
+.origin-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rsm);padding:3px 9px;margin-bottom:10px;max-width:100%}
+.origin-tag i{font-size:13px;flex-shrink:0}
+.origin-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* stub note */
+.stub{display:flex;align-items:flex-start;gap:8px;background:var(--info-bg);border:1px solid var(--info-bd);border-radius:var(--rsm);padding:10px 12px;font-size:12.5px;color:var(--z700);line-height:1.5}
+.stub i{color:var(--info);font-size:15px;margin-top:1px;flex-shrink:0}
+
+/* ═══ CHO PHẢN HỒI (UC2) + AI COACH ═══ */
+.dialog.lg{max-width:680px}
+.field{margin-bottom:16px}
+.field-label{display:block;font-size:12.5px;font-weight:600;color:var(--z800);margin-bottom:7px}
+.field-hint{font-size:11.5px;color:var(--z500);font-weight:400}
+/* recipient picker */
+.pick-inputwrap{position:relative}
+.pick-inputwrap>i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--z400)}
+.pick-input{width:100%;padding:8px 10px 8px 30px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);background:var(--z0)}
+.pick-input:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.pick-results{border:1px solid var(--z200);border-radius:var(--rsm);margin-top:5px;max-height:196px;overflow-y:auto;box-shadow:var(--sh-sm)}
+.pick-results:empty{display:none}
+.pick-item{display:flex;align-items:center;gap:9px;padding:8px 11px;cursor:pointer;transition:var(--t);border-bottom:1px solid var(--z100)}
+.pick-item:last-child{border-bottom:none}
+.pick-item:hover{background:var(--z50)}
+.pick-item .fb-av{margin-top:0}
+.pi-name{font-size:12.5px;font-weight:500;color:var(--z900)}
+.pi-dom{color:var(--z500);font-weight:400}
+.pi-org{font-size:11px;color:var(--z500)}
+.pick-empty{padding:12px;font-size:12px;color:var(--z400);text-align:center}
+.pick-chosen{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px solid var(--brand-ring);background:var(--brand-muted);border-radius:var(--rsm)}
+.pick-chosen .fb-av{background:var(--brand);color:#fff}
+.pc-x{margin-left:auto;width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.pc-x:hover{background:var(--z0);color:var(--z800)}
+/* textarea */
+.compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:var(--z0)}
+.compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.ai-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
+.quick-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.quick-chips>span{font-size:11px;color:var(--z500)}
+.qchip{padding:3px 10px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:11.5px;color:var(--z600);transition:var(--t)}
+.qchip:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.btn-ai{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;border:1px solid var(--brand);background:linear-gradient(135deg,var(--brand),#c21a7f);color:#fff;transition:var(--t);cursor:pointer}
+.btn-ai:hover{filter:brightness(1.06)}
+.btn-ai:disabled{background:var(--z100);border-color:var(--z200);color:var(--z400);cursor:not-allowed}
+.btn-ai i{font-size:15px}
+/* AI panel */
+.ai-panel{border:1px solid var(--brand-ring);border-radius:var(--r);padding:14px;margin-bottom:16px;background:linear-gradient(180deg,rgba(165,0,100,.035),rgba(165,0,100,.008))}
+.ai-head{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--brand);margin-bottom:11px}
+.ai-head i{font-size:15px}
+.ai-insights{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.insight-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:50px;border:1px solid var(--z200);background:var(--z0);color:var(--z700)}
+.insight-chip i{font-size:13px}
+.insight-chip.intent{color:var(--info);border-color:var(--info-bd);background:var(--info-bg)}
+.insight-chip.fw{color:var(--brand);border-color:var(--brand-ring);background:var(--brand-muted);cursor:help}
+.insight-chip.fw i{color:var(--brand)}
+/* core value suggest */
+.cvs-lbl{font-size:11.5px;color:var(--z600);font-weight:500;margin-bottom:8px}
+.cvs-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+.cvsel{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:4px;padding:7px 6px 5px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);cursor:pointer;transition:var(--t);width:78px}
+.cvsel:hover{border-color:var(--brand-ring)}
+.cvsel img{width:30px;height:30px;border-radius:50%;transition:var(--t)}
+.cvsel span{font-size:9.5px;color:var(--z600);text-align:center;line-height:1.25}
+.cvsel.on{border-color:var(--brand);background:var(--brand-muted)}
+.cvsel.on span{color:var(--brand);font-weight:600}
+.cvsel .cv-check{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--brand);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center}
+.cvsel.on .cv-check{display:flex}
+.cvsel:not(.on) img{filter:grayscale(.55);opacity:.85}
+/* feedback type selector */
+.type-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.type-lbl{font-size:11.5px;color:var(--z600);font-weight:500;margin-right:2px}
+.type-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:12px;color:var(--z600);transition:var(--t)}
+.type-chip i{font-size:14px}
+.type-chip:hover{border-color:var(--brand-ring);color:var(--brand)}
+.type-chip.on{border-color:var(--brand);background:var(--brand-muted);color:var(--brand);font-weight:600}
+/* framework guide (STAR / STAR-AR) */
+.type-guide{border:1px solid var(--brand-ring);border-radius:var(--rsm);padding:9px 11px;margin-bottom:10px;background:var(--brand-muted)}
+.tpl-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tpl-txt{font-size:11.5px;color:var(--z600);display:flex;align-items:center;gap:5px;flex:1;min-width:120px}
+.tpl-txt i{font-size:14px;color:var(--brand)}
+.tpl-txt b{color:var(--brand);font-weight:700}
+.tpl-note{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--z500);margin-top:7px;line-height:1.4}
+.tpl-note i{font-size:13px;color:var(--brand);flex-shrink:0}
+.tg-head{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.tg-badge{font-size:11px;font-weight:700;color:#fff;background:var(--brand);border-radius:var(--rxs);padding:2px 8px;letter-spacing:.3px}
+.tg-htext{font-size:12px;font-weight:600;color:var(--z800)}
+.tg-purpose{font-size:11.5px;color:var(--z600);line-height:1.5;margin-bottom:11px}
+.tg-steps{display:flex;flex-direction:column;gap:7px;margin-bottom:11px}
+.tg-step{display:flex;gap:9px;align-items:flex-start}
+.tg-letter{flex-shrink:0;min-width:34px;height:22px;padding:0 6px;border-radius:var(--rxs);background:var(--brand-muted);color:var(--brand);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tg-stext{font-size:11.5px;color:var(--z600);line-height:1.45}
+.tg-stext b{color:var(--z900);font-weight:600}
+.tg-actions{display:flex;align-items:center;gap:12px;border-top:1px solid var(--z100);padding-top:10px}
+.tg-toggle{background:none;border:none;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer;padding:0}
+.tg-toggle:hover{text-decoration:underline}
+.tg-sample{margin-top:9px;padding:10px 11px;background:var(--z0);border:1px dashed var(--z300);border-radius:var(--rsm);font-size:12px;color:var(--z600);line-height:1.65;display:none}
+.tg-sample.show{display:block}
+.ai-note{font-size:11px;color:var(--z500);display:flex;align-items:center;gap:5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.ai-note i{font-size:13px;flex-shrink:0}
+/* huy hiệu picker — icon rõ, hover tên */
+.cvpick-row{display:flex;gap:10px;flex-wrap:wrap}
+.cvpick{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;cursor:pointer;border:2px solid var(--z200);transition:var(--t);padding:0;background:var(--z0)}
+.cvpick img{width:34px;height:34px;border-radius:50%;display:block;transition:var(--t)}
+.cvpick:hover{border-color:var(--brand-ring);transform:translateY(-1px)}
+.cvpick.on{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-muted)}
+.cvpick:hover .fb-badge-tip{opacity:1}
+/* AI panel actions + compare toggle + good state */
+.cmp-actions{align-items:center}
+.cmp-toggle{margin-left:auto;background:none;border:none;color:var(--z500);font-size:11.5px;font-weight:500;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:4px}
+.cmp-toggle:hover{color:var(--z800)}
+.cmp-block.orig{margin-top:10px}
+.ai-good{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--ok);line-height:1.5;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:var(--rsm);padding:10px 12px}
+.ai-good i{font-size:16px;flex-shrink:0;margin-top:1px}
+/* compare */
+.compare{display:flex;flex-direction:column;gap:10px}
+.cmp-block{border:1px solid var(--z200);border-radius:var(--rsm);overflow:hidden;background:var(--z0)}
+.cmp-block.sugg{border-color:var(--brand-ring);box-shadow:0 0 0 3px var(--brand-muted)}
+.cmp-head{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:7px 12px;background:var(--z50);color:var(--z500);border-bottom:1px solid var(--z100)}
+.cmp-block.sugg .cmp-head{background:var(--brand-muted);color:var(--brand)}
+.cmp-head i{font-size:13px}
+.cmp-body{padding:11px 12px;font-size:12.5px;line-height:1.65;color:var(--z700);white-space:pre-wrap}
+.cmp-block.orig .cmp-body{color:var(--z500)}
+.cmp-actions{display:flex;gap:7px;padding:0 12px 12px;flex-wrap:wrap}
+.ai-done{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ok);font-weight:600;padding:2px}
+.ai-done i{font-size:15px}
+/* accepted tag on textarea */
+.ai-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:50px;padding:2px 9px}
+.ai-tag i{font-size:12px}
+/* visibility radio cards */
+.vis-opts{display:flex;flex-direction:column;gap:8px}
+.vis-card{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.vis-card:hover{border-color:var(--z300);background:var(--z50)}
+.vis-card.on{border-color:var(--brand);background:var(--brand-muted)}
+.vis-card input{margin-top:2px;accent-color:var(--brand);flex-shrink:0}
+.vc-t{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--z900)}
+.vc-t i{font-size:14px;color:var(--z500)}
+.vis-card.on .vc-t i{color:var(--brand)}
+.vc-d{font-size:11.5px;color:var(--z500);margin-top:3px;line-height:1.45}
+.vis-hint{font-size:11.5px;color:var(--z500)}
+/* success */
+.give-ok{text-align:center;padding:20px 16px}
+.give-ok-ic{width:52px;height:52px;border-radius:50%;background:var(--ok-bg);border:1px solid var(--ok-bd);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px}
+.give-ok-t{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.give-ok-d{font-size:12.5px;color:var(--z600);line-height:1.6;max-width:400px;margin:0 auto}
+.give-ok-note{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11.5px;color:var(--z500);background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);padding:7px 12px}
+
+/* ═══ YÊU CẦU PHẢN HỒI (UC1) ═══ */
+.rv-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.rv-chip{display:inline-flex;align-items:center;gap:7px;padding:4px 6px 4px 5px;border:1px solid var(--brand-ring);background:var(--brand-muted);border-radius:50px}
+.rv-chip .fb-av{width:22px;height:22px;font-size:9px;background:var(--brand);color:#fff}
+.rv-chip-name{font-size:12px;font-weight:500;color:var(--z800)}
+.rv-chip-x{width:18px;height:18px;border:none;background:transparent;color:var(--z500);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.rv-chip-x:hover{background:var(--z0);color:var(--err)}
+.rv-count{font-size:11.5px;color:var(--z500);font-weight:500}
+.field-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+/* toggle chung/riêng */
+.opt-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:12px;color:var(--z700);font-weight:500}
+.opt-toggle input{appearance:none;-webkit-appearance:none;width:32px;height:18px;background:var(--z300);border-radius:50px;position:relative;cursor:pointer;transition:var(--t);flex-shrink:0;margin:0}
+.opt-toggle input:checked{background:var(--brand)}
+.opt-toggle input::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:var(--t)}
+.opt-toggle input:checked::after{left:16px}
+/* per-person questions */
+.person-row{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--z100)}
+.person-row:last-child{border-bottom:none}
+.person-q{flex:1;min-width:0}
+.person-name{font-size:12px;font-weight:600;color:var(--z900);margin-bottom:5px}
+.person-ta{width:100%;min-height:44px;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;color:var(--z800);line-height:1.5;resize:vertical;background:var(--z0)}
+.person-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.date-input{padding:8px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);font-family:inherit;background:var(--z0)}
+.date-input:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+
+/* ═══ TRẢ LỜI (UC-R) ═══ */
+.reply-ask{border-left:3px solid var(--brand-ring);padding:10px 13px;background:var(--brand-muted);border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:16px}
+.reply-ask-ctx{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--z600);margin-bottom:8px}
+.reply-ask-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);margin-bottom:5px}
+.reply-ask-q{font-size:13px;color:var(--z800);line-height:1.55}
+.vis-locked{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}
+.vis-locked>i{font-size:16px;color:var(--z500);margin-top:1px;flex-shrink:0}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast i{font-size:16px;color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><span>M</span></div>
+    <div>
+      <div class="sb-name">MoMo <em>HRM</em></div>
+      <div class="sb-sub">Performance Management</div>
+    </div>
+  </div>
+  <div class="role-sw">
+    <button class="role-btn on">Nhân viên</button>
+    <button class="role-btn" onclick="location.href='../M-01/index.html'">Quản lý</button>
+  </div>
+  <nav class="sb-nav">
+    <span class="sb-grp">Tổng quan</span>
+    <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
+    <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+    <div class="sb-item" onclick="location.href='../E-01/index.html'"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</div>
+    <div class="sb-item on"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av av-brand">NT</div>
+      <div>
+        <div class="sb-uname">Nguyễn Văn Tú</div>
+        <div class="sb-urole">Nhân viên, Backend Team</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════ WORKSPACE ═══════ -->
+<div class="workspace">
+  <header class="topbar">
+    <a href="/" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Home</a>
+    <span class="topbar-title">Phản hồi</span>
+    <div class="topbar-right">
+      <button class="ico-btn" aria-label="Thông báo" title="Thông báo"><i class="bx bx-bell"></i><span class="notif-dot"></span></button>
+      <button class="ico-btn" aria-label="Trợ giúp" title="Trợ giúp"><i class="bx bx-help-circle"></i></button>
+      <div class="av av-brand av-sm" style="cursor:pointer;margin-left:3px">NT</div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="breadcrumb">
+      <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Phản hồi</span>
+    </div>
+
+    <div class="page-hd">
+      <div>
+        <h1 class="page-title">Phản hồi</h1>
+        <p class="page-sub">Phản hồi là món quà giúp MoMoers cùng nhau phát triển.</p>
+      </div>
+      <div class="hd-actions">
+        <button class="btn btn-default" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi</button>
+        <button class="btn btn-cta-outline" onclick="openRequest()"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button>
+      </div>
+    </div>
+
+    <!-- Cycle -->
+    <div class="cycle-row">
+      <i class="bx bx-calendar"></i>
+      <span class="cycle-lbl">Chu kỳ</span>
+      <select class="cycle-sel" id="cycleSel" onchange="renderAll()">
+        <option value="2026">Năm 2026</option>
+        <option value="2025">Năm 2025</option>
+      </select>
+      <span class="cycle-open" id="cycleOpen">Đang mở</span>
+    </div>
+
+    <div class="fb-layout">
+      <!-- MAIN COLUMN -->
+      <div class="fb-main">
+        <!-- Action queue -->
+        <section class="queue" id="queueSec">
+          <div class="queue-hd">
+            <div class="queue-ic"><i class="bx bx-bell"></i></div>
+            <span class="queue-title">Cần bạn phản hồi</span>
+            <span class="queue-cnt" id="queueCnt">0</span>
+          </div>
+          <div class="queue-list" id="queueList"></div>
+        </section>
+
+        <!-- Feed filter -->
+        <div class="feed-bar">
+          <div class="seg" id="seg">
+            <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả <span class="seg-n" id="n-all">0</span></button>
+            <button class="seg-btn" data-f="received" onclick="setFilter('received')">Đã nhận <span class="seg-n" id="n-received">0</span></button>
+            <button class="seg-btn" data-f="given" onclick="setFilter('given')">Đã cho <span class="seg-n" id="n-given">0</span></button>
+            <button class="seg-btn" data-f="request" onclick="setFilter('request')">Yêu cầu của tôi <span class="seg-n" id="n-request">0</span></button>
+          </div>
+          <div class="feed-search">
+            <i class="bx bx-search"></i>
+            <input type="text" id="feedSearch" placeholder="Tìm theo tên, nội dung…" oninput="renderFeed()"/>
+          </div>
+        </div>
+
+        <!-- Feed -->
+        <div class="feed" id="feed"></div>
+      </div>
+
+      <!-- RIGHT RAIL -->
+      <aside class="fb-rail">
+        <div class="rail-card">
+          <div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Hoạt động chu kỳ <span id="railYear" style="color:var(--z500);font-weight:600">2026</span></div>
+          <div id="railStats"></div>
+        </div>
+        <div class="rail-card">
+          <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
+          <div id="railCV"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- Request detail overlay -->
+<div class="overlay" id="dlg-req" onclick="if(event.target===this)closeOverlay('dlg-req')">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div>
+        <div class="dlg-title" id="reqTitle">Chi tiết yêu cầu</div>
+        <div class="dlg-sub" id="reqSub"></div>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-req')">&#x2715;</button>
+    </div>
+    <div class="dlg-body" id="reqBody"></div>
+    <div class="dlg-foot">
+      <span style="font-size:11.5px;color:var(--z500)" id="reqRemindNote"></span>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-req')">Đóng</button>
+        <button class="btn btn-default btn-sm" id="reqRemindBtn" onclick="stub('Nhắc reviewer','Gửi nhắc thủ công sẽ hoạt động ở Phase C.')"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cần bạn phản hồi — tất cả (overlay) -->
+<div class="overlay" id="dlg-queue" onclick="if(event.target===this)closeOverlay('dlg-queue')">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="dlg-title">Cần bạn phản hồi</div>
+        <span class="queue-cnt" id="queueAllCnt">0</span>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-queue')">&#x2715;</button>
+    </div>
+    <div class="dlg-body" id="queueAllList" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="dlg-foot">
+      <span style="font-size:11.5px;color:var(--z500)"><i class="bx bx-sort-down"></i> Sắp theo độ khẩn — quá hạn lên đầu</span>
+      <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-queue')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cho phản hồi (UC2) overlay -->
+<div class="overlay" id="dlg-give" onclick="if(event.target===this)closeOverlay('dlg-give')">
+  <div class="dialog lg">
+    <div class="dlg-hd">
+      <div>
+        <div class="dlg-title">Cho phản hồi</div>
+        <div class="dlg-sub">Phản hồi là món quà — viết tự nhiên, AI sẽ giúp bạn nói rõ ràng hơn.</div>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-give')">&#x2715;</button>
+    </div>
+
+    <div class="dlg-body" id="giveBody">
+      <!-- FORM -->
+      <div id="giveForm">
+        <!-- recipient -->
+        <div class="field">
+          <label class="field-label">Gửi đến</label>
+          <div id="pickChosen" style="display:none"></div>
+          <div id="pickWrap">
+            <div class="pick-inputwrap">
+              <i class="bx bx-search"></i>
+              <input class="pick-input" id="pickInput" placeholder="Tìm theo tên hoặc domain (vd: mai.tran)…" oninput="pickSearch()" autocomplete="off"/>
+            </div>
+            <div class="pick-results" id="pickResults"></div>
+          </div>
+        </div>
+
+        <!-- content -->
+        <div class="field">
+          <label class="field-label">Nội dung phản hồi</label>
+          <div class="type-row">
+            <span class="type-lbl">Bạn muốn phản hồi điều gì? <span class="field-hint">(tùy chọn)</span></span>
+            <button class="type-chip" data-type="recognition" onclick="setType('recognition')"><i class="bx bx-medal"></i>Ghi nhận</button>
+            <button class="type-chip" data-type="appreciation" onclick="setType('appreciation')"><i class="bx bx-heart"></i>Cảm ơn</button>
+            <button class="type-chip" data-type="constructive" onclick="setType('constructive')"><i class="bx bx-bulb"></i>Góp ý</button>
+          </div>
+          <div class="type-guide" id="typeGuide" style="display:none"></div>
+          <textarea class="compose-ta" id="giveTA" placeholder="Viết tự nhiên những gì bạn muốn ghi nhận, cảm ơn hay góp ý cho đồng nghiệp…" oninput="onGiveInput()"></textarea>
+          <div class="ai-bar">
+            <span class="ai-note"><i class="bx bx-info-circle"></i> AI giúp bạn diễn đạt rõ ràng hơn — bạn luôn quyết định nội dung cuối.</span>
+            <button class="btn-ai" id="aiBtn" onclick="runAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
+          </div>
+        </div>
+
+        <!-- AI panel -->
+        <div class="ai-panel" id="aiPanel" style="display:none"></div>
+
+        <!-- huy hiệu (core values): field riêng, tùy chọn -->
+        <div class="field">
+          <label class="field-label">Huy hiệu <span class="field-hint">(tùy chọn — chọn giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
+          <div class="cvpick-row" id="cvPick"></div>
+        </div>
+
+        <!-- visibility -->
+        <div class="field">
+          <label class="field-label">Ai có thể xem phản hồi này? <span class="field-hint">(bắt buộc chọn)</span></label>
+          <div class="vis-opts">
+            <label class="vis-card" id="visCardR">
+              <input type="radio" name="gvis" value="receiver" onchange="setGVis('receiver')"/>
+              <div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ người nhận</div><div class="vc-d">Chỉ bạn và người nhận nhìn thấy phản hồi này.</div></div>
+            </label>
+            <label class="vis-card" id="visCardM">
+              <input type="radio" name="gvis" value="manager" onchange="setGVis('manager')"/>
+              <div><div class="vc-t"><i class="bx bx-group"></i>Người nhận + Quản lý của họ</div><div class="vc-d">Người nhận và quản lý trực tiếp của họ nhìn thấy phản hồi này.</div></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="giveSuccess" style="display:none"></div>
+    </div>
+
+    <div class="dlg-foot" id="giveFoot">
+      <span class="vis-hint" id="giveHint"><i class="bx bx-info-circle"></i> AI chỉ hỗ trợ — bạn luôn là người quyết định nội dung cuối.</span>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-give')">Hủy</button>
+        <button class="btn btn-default btn-sm" id="giveSend" disabled onclick="sendGive()"><i class="bx bx-send"></i> Gửi phản hồi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Yêu cầu phản hồi (UC1) overlay -->
+<div class="overlay" id="dlg-newreq" onclick="if(event.target===this)closeOverlay('dlg-newreq')">
+  <div class="dialog lg">
+    <div class="dlg-hd">
+      <div class="dlg-title">Yêu cầu phản hồi</div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-newreq')">&#x2715;</button>
+    </div>
+
+    <div class="dlg-body" id="reqBodyForm">
+      <div id="reqForm">
+        <!-- reviewers -->
+        <div class="field">
+          <div class="field-row">
+            <label class="field-label" style="margin:0">Gửi yêu cầu phản hồi đến <span class="field-hint">(1–20 người)</span></label>
+            <span class="rv-count" id="reqCount">0/20</span>
+          </div>
+          <div class="pick-inputwrap">
+            <i class="bx bx-search"></i>
+            <input class="pick-input" id="reqPickInput" placeholder="Tìm theo tên hoặc domain (vd: nam.le)…" oninput="reqPickSearch()" autocomplete="off"/>
+          </div>
+          <div class="pick-results" id="reqPickResults"></div>
+          <div class="rv-chips" id="reqChosen"></div>
+        </div>
+
+        <!-- question -->
+        <div class="field">
+          <div class="field-row">
+            <label class="field-label" style="margin:0">Câu hỏi cho người phản hồi</label>
+            <label class="opt-toggle" id="reqPersRow" style="display:none"><input type="checkbox" id="reqPersonalize" onchange="togglePersonalize(this)"/> Cá nhân hóa cho từng người</label>
+          </div>
+          <textarea class="compose-ta" id="reqQ" style="min-height:64px" placeholder="Vd: Bạn thấy phần trình bày của mình rõ ràng chưa, có điểm nào nên cải thiện?" oninput="onCommonQInput()"></textarea>
+          <div id="reqPersonWrap" style="display:none">
+            <div class="field-hint" style="margin-bottom:2px">Mỗi người một câu hỏi riêng (đã điền sẵn theo câu hỏi chung, bạn có thể sửa):</div>
+            <div id="reqPersonList"></div>
+          </div>
+        </div>
+
+        <!-- due -->
+        <div class="field">
+          <label class="field-label">Hạn phản hồi</label>
+          <input type="date" class="date-input" id="reqDue" onchange="syncReq()"/>
+          <div class="field-hint" style="margin-top:5px"><i class="bx bx-info-circle"></i> Hệ thống sẽ tự nhắc người phản hồi 3 ngày trước hạn.</div>
+        </div>
+      </div>
+
+      <div id="reqSuccess" style="display:none"></div>
+    </div>
+
+    <div class="dlg-foot" id="reqFoot">
+      <span></span>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-newreq')">Hủy</button>
+        <button class="btn btn-default btn-sm" id="reqSend" disabled onclick="submitRequest()"><i class="bx bx-send"></i> Gửi yêu cầu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trả lời phản hồi (UC-R) overlay -->
+<div class="overlay" id="dlg-reply" onclick="if(event.target===this)closeOverlay('dlg-reply')">
+  <div class="dialog lg">
+    <div class="dlg-hd">
+      <div>
+        <div class="dlg-title" id="replyTitle">Trả lời Yêu cầu phản hồi</div>
+        <div class="dlg-sub" id="replySub"></div>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-reply')">&#x2715;</button>
+    </div>
+
+    <div class="dlg-body">
+      <div id="replyForm">
+        <div class="reply-ask" id="replyAsk"></div>
+
+        <div class="field">
+          <label class="field-label">Phản hồi của bạn</label>
+          <textarea class="compose-ta" id="replyTA" placeholder="Viết phản hồi của bạn cho câu hỏi trên…" oninput="onReplyInput()"></textarea>
+          <div class="ai-bar">
+            <span class="ai-note"><i class="bx bx-info-circle"></i> AI giúp bạn diễn đạt rõ ràng hơn — bạn luôn quyết định nội dung cuối.</span>
+            <button class="btn-ai" id="replyAiBtn" onclick="runReplyAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
+          </div>
+        </div>
+
+        <div class="ai-panel" id="replyAiPanel" style="display:none"></div>
+
+        <div class="field">
+          <label class="field-label">Huy hiệu <span class="field-hint">(tùy chọn — chọn giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
+          <div class="cvpick-row" id="replyCvPick"></div>
+        </div>
+
+        <div class="field" id="replyVisField"></div>
+      </div>
+
+      <div id="replySuccess" style="display:none"></div>
+    </div>
+
+    <div class="dlg-foot" id="replyFoot">
+      <span class="vis-hint"><i class="bx bx-info-circle"></i> Gửi một lần — sau khi gửi không thể chỉnh sửa.</span>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-reply')">Hủy</button>
+        <button class="btn btn-default btn-sm" id="replySend" disabled onclick="submitReply()"><i class="bx bx-send"></i> Gửi phản hồi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="bx bx-info-circle"></i><span id="toastMsg"></span></div>
+
+<script>
+/* ═══ CORE VALUES map ═══ */
+const CV = {
+  'Đổi mới':'Innovation.png',
+  'Tinh thần đồng đội':'Teamwork.png',
+  'Không ngừng học hỏi':'Constant_.png',
+  'Khách hàng là trung tâm':'Customer_.png',
+  'Thực thi xuất sắc':'Excellence.png'
+};
+function badgeImgs(list){
+  return (list||[]).map(n=>`<span class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/${CV[n]}" alt=""/><span class="fb-badge-tip">${n}</span></span>`).join('');
+}
+/* full-width badge row — dùng trong popup */
+function badges(list){
+  if(!list||!list.length) return '';
+  return `<div class="fb-badges"><span class="fb-badge-lbl">Giá trị cốt lõi:</span>${badgeImgs(list)}</div>`;
+}
+/* 1 hàng gộp: giá trị cốt lõi (trái) + visibility (phải) */
+function cardFoot(cv, vis, persp){
+  const left = (cv&&cv.length)
+    ? `<div class="cvline"><span class="fb-badge-lbl">Giá trị cốt lõi:</span>${badgeImgs(cv)}</div>`
+    : `<span></span>`;
+  return `<div class="card-foot2">${left}${visTag(vis,persp)}</div>`;
+}
+
+/* ═══ MOCK DATA — feed của Nguyễn Văn Tú (tu.nguyen) ═══ */
+/* kind: received | given | request ; cycle theo mục 6b */
+const FEED = [
+  // ── RECEIVED ──
+  { kind:'received', cycle:'2026', date:'14/03/2026', ts:20260314, vis:'receiver',
+    who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
+    body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',
+    cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi'] },
+  { kind:'received', cycle:'2026', date:'22/04/2026', ts:20260422, vis:'receiver',
+    fromReq:'Xin phản hồi sau buổi trình bày roadmap kỹ thuật Q1',
+    who:{name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand – Senior Designer'},
+    q:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
+    body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.',
+    cv:['Khách hàng là trung tâm'] },
+  { kind:'received', cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager',
+    who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
+    body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
+    cv:['Thực thi xuất sắc','Tinh thần đồng đội'] },
+  { kind:'received', cycle:'2025', date:'18/09/2025', ts:20250918, vis:'receiver',
+    who:{name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform – Tech Lead'},
+    body:'Năm nay Tú tiến bộ rõ về tư duy hệ thống. Các đề xuất kiến trúc của bạn ngày càng chững chạc và có tính đến vận hành lâu dài.',
+    cv:['Không ngừng học hỏi'] },
+
+  // ── GIVEN ──
+  { kind:'given', cycle:'2026', date:'12/03/2026', ts:20260312,
+    who:{name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
+    body:'Mai làm việc rất chủ động trong dự án Design System. Bạn không chỉ hoàn thành phần component được giao mà còn chủ động chuẩn hoá tài liệu Storybook, giúp cả team dùng lại dễ dàng hơn nhiều.',
+    cv:['Tinh thần đồng đội','Thực thi xuất sắc'], vis:'receiver' },
+  { kind:'given', cycle:'2026', date:'18/05/2026', ts:20260518,
+    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
+    body:'Cảm ơn Lan đã hỗ trợ dựng bộ regression test cho payment module rất kỹ. Nhờ vậy đợt release vừa rồi mình phát hiện sớm được 2 lỗi nghiêm trọng trước khi lên production.',
+    cv:['Khách hàng là trung tâm'], vis:'manager' },
+
+  // ── REQUEST (UC1 - của Tú) ──
+  { kind:'request', cycle:'2026', date:'06/03/2026', ts:20260306,
+    context:'Xin phản hồi sau buổi trình bày roadmap kỹ thuật Q1 với các stakeholder',
+    due:'20/03/2026', status:'open',
+    qMode:'shared', question:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
+    reviewers:[
+      {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile', st:'done', vis:'receiver',
+        fb:'Phần trình bày của Tú rất mạch lạc, đi thẳng vào vấn đề. Slide kiến trúc dễ theo dõi và bạn trả lời câu hỏi kỹ thuật rất tự tin. Nếu có thể, lần sau thêm 1 slide tóm tắt impact về business ở đầu sẽ giúp stakeholder non-tech nắm nhanh hơn.',
+        cv:['Thực thi xuất sắc']},
+      {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand', st:'done', vis:'receiver',
+        fb:'Mình đánh giá cao cách Tú dùng ví dụ trực quan để giải thích lý do refactor. Business team hiểu được ngay. Điểm cần lưu ý là đôi lúc bạn nói hơi nhanh ở phần số liệu, có thể chậm lại một chút.',
+        cv:['Khách hàng là trung tâm']},
+      {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend', st:'done', vis:'manager',
+        fb:'Nội dung kỹ thuật rất chắc. Cách Tú phân tích trade-off giữa các phương án migration cho thấy tư duy hệ thống tốt. Rất đáng để junior trong team học theo.',
+        cv:['Không ngừng học hỏi','Thực thi xuất sắc']},
+      {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN – Finance Control', st:'pending'},
+      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'pending'}
+    ] },
+  { kind:'request', cycle:'2026', date:'10/07/2026', ts:20260710,
+    context:'Xin phản hồi sau dự án migration hệ thống thanh toán sang PostgreSQL',
+    due:'25/07/2026', status:'open', qMode:'individual',
+    reviewers:[
+      {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps', st:'done', vis:'receiver',
+        q:'Việc phối hợp giữa mình và team DevOps trong quá trình migration diễn ra thế nào?',
+        fb:'Tú lên kế hoạch migration rất bài bản, chia nhỏ theo từng giai đoạn nên team DevOps chủ động được hạ tầng. Rollback plan rõ ràng giúp mình yên tâm khi go-live. Lần sau nếu thông báo lịch cutover sớm hơn 1–2 ngày thì sẽ càng mượt.',
+        cv:['Tinh thần đồng đội']},
+      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver',
+        q:'Chất lượng kỹ thuật của phần chuyển đổi schema và data như thế nào?',
+        fb:'Phần chuyển đổi schema được xử lý cẩn thận, không mất mát dữ liệu và downtime gần như bằng 0. Cách Tú viết script migration idempotent rất chuyên nghiệp.',
+        cv:['Thực thi xuất sắc']},
+      {name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC – Data', st:'pending',
+        q:'Sau migration, hiệu năng truy vấn trên các báo cáo dữ liệu có cải thiện không?'},
+      {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA', st:'pending',
+        q:'Quá trình kiểm thử hồi quy sau migration có thuận lợi không?'}
+    ] },
+  { kind:'request', cycle:'2026', date:'02/02/2026', ts:20260202,
+    context:'Xin góp ý về khả năng mentor junior để chuẩn bị cho lộ trình lên Senior',
+    due:'12/02/2026', status:'completed', qMode:'individual',
+    reviewers:[
+      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'done', vis:'manager',
+        q:'Theo bạn, mình cần phát triển thêm điều gì để sẵn sàng cho vai trò Senior?',
+        fb:'Tú có tố chất mentor tốt: kiên nhẫn và giải thích rõ ràng. Để lên Senior, mình khuyến khích bạn chủ động nhận review code cho junior thường xuyên hơn và tham gia sâu vào các technical decision ở cấp team.',
+        cv:['Tinh thần đồng đội']},
+      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver',
+        q:'Trải nghiệm được mình hỗ trợ/mentor của bạn như thế nào?',
+        fb:'Mình từng được Tú hỗ trợ debug một vấn đề khó và bạn hướng dẫn rất tận tình, chỉ cả cách tư duy chứ không chỉ đưa đáp án. Đây chính là chất của một mentor.',
+        cv:['Không ngừng học hỏi']},
+      {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend', st:'done', vis:'receiver',
+        q:'Bạn có gợi ý gì để mình dẫn dắt team hiệu quả hơn?',
+        fb:'Tú luôn sẵn sàng chia sẻ kiến thức cross-team. Nếu muốn phát triển hơn ở vai trò dẫn dắt, bạn có thể chủ động đứng ra tổ chức vài buổi tech sharing ngắn cho team.',
+        cv:['Tinh thần đồng đội']}
+    ] },
+];
+
+/* ═══ ACTION QUEUE — yêu cầu người khác gửi Tú (UC-R) ═══ */
+const QUEUE = [
+  { cycle:'2026', from:'Trần Thị Mai', ini:'TM', about:'self', context:'Dự án Design System', sent:'28/07/2026', dueDate:'04/08/2026', due:'còn 2 ngày', urgency:'soon' },
+  { cycle:'2026', from:'Lê Thị Thanh', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', context:'Chuẩn bị buổi 1:1 định kỳ', sent:'25/07/2026', dueDate:'01/08/2026', due:'quá hạn 1 ngày', urgency:'over' },
+  { cycle:'2026', from:'Nguyễn Quốc Bảo', ini:'NB', about:'self', context:'Buổi tech talk tháng 7', sent:'30/07/2026', dueDate:'07/08/2026', due:'còn 5 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Cao Văn Sơn', ini:'CS', about:'self', context:'Dự án tối ưu chi phí hạ tầng', sent:'20/07/2026', dueDate:'30/07/2026', due:'quá hạn 3 ngày', urgency:'over' },
+  { cycle:'2026', from:'Phan Anh Tú', ini:'PT', about:'other', aboutName:'Trần Văn Khoa', context:'Chuẩn bị buổi coaching phát triển', sent:'27/07/2026', dueDate:'03/08/2026', due:'còn 1 ngày', urgency:'soon' },
+  { cycle:'2026', from:'Đỗ Minh Quân', ini:'ĐQ', about:'self', context:'Sprint retrospective Q3', sent:'30/07/2026', dueDate:'06/08/2026', due:'còn 4 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Vương Gia Bảo', ini:'VB', about:'other', aboutName:'Nguyễn Thị Phương', context:'Coaching tháng 8', sent:'31/07/2026', dueDate:'08/08/2026', due:'còn 6 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Lý Thu Hà', ini:'LH', about:'self', context:'Workshop onboarding nhân viên mới', sent:'31/07/2026', dueDate:'09/08/2026', due:'còn 7 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Bùi Thị Ngọc', ini:'BN', about:'self', context:'Buổi demo sản phẩm với khách hàng', sent:'01/08/2026', dueDate:'10/08/2026', due:'còn 8 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Đặng Thu Trang', ini:'ĐT', about:'self', context:'Khảo sát trải nghiệm nội bộ', sent:'01/08/2026', dueDate:'11/08/2026', due:'còn 9 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Hồ Nhật Minh', ini:'HM', about:'self', context:'Hội thảo kỹ thuật nội bộ', sent:'02/08/2026', dueDate:'12/08/2026', due:'còn 10 ngày', urgency:'normal' },
+];
+QUEUE.forEach((q,i)=>q.id='q'+i);
+/* câu hỏi của người yêu cầu (fallback nếu item không có sẵn) */
+function itemQuestion(q){
+  if(q.question) return q.question;
+  return q.about==='other'
+    ? `Bạn có nhận xét gì về ${q.aboutName} liên quan đến “${q.context}”?`
+    : `Bạn có phản hồi gì cho mình sau “${q.context}”?`;
+}
+
+let curFilter='all';
+let queueExpanded=false;
+
+/* ═══ RENDER ═══ */
+function cy(){ return document.getElementById('cycleSel').value; }
+
+function sortedQueue(){
+  const rank={over:0,soon:1,normal:2};
+  return QUEUE.filter(q=>q.cycle===cy()).sort((a,b)=>(rank[a.urgency]??2)-(rank[b.urgency]??2));  // gấp nhất lên đầu
+}
+function queueRowHTML(q){
+  const headline = q.about==='self'
+    ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b>`
+    : `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b> <span class="q-pre">cho</span> <b>${q.aboutName}</b>`;
+  const dueIcon = q.urgency==='over' ? 'bx-error-circle' : 'bx-time-five';
+  return `<div class="qrow ${q.urgency==='over'?'over':''}">
+    <div class="av av-brand av-sm">${q.ini}</div>
+    <div class="qrow-main">
+      <div class="qrow-t">${headline}</div>
+      <div class="qrow-sub">${q.context}</div>
+    </div>
+    <span class="due ${q.urgency}"><i class="bx ${dueIcon}"></i>${q.due}</span>
+    <button class="btn btn-default btn-sm" onclick="openReply('${q.id}')">Trả lời</button>
+  </div>`;
+}
+function renderQueue(){
+  const items = sortedQueue();
+  document.getElementById('queueCnt').textContent = items.length;
+  const sec = document.getElementById('queueSec');
+  if(!items.length){ sec.style.display='none'; return; }
+  sec.style.display='';
+  const LIMIT=3;
+  let html = items.slice(0,LIMIT).map(queueRowHTML).join('');
+  if(items.length>LIMIT){
+    html += `<button class="queue-more" onclick="openQueueAll()"><i class="bx bx-list-ul"></i> Xem tất cả (${items.length})</button>`;
+  }
+  document.getElementById('queueList').innerHTML = html;
+}
+function openQueueAll(){
+  const items = sortedQueue();
+  document.getElementById('queueAllCnt').textContent = items.length;
+  document.getElementById('queueAllList').innerHTML = items.map(queueRowHTML).join('');
+  openOverlay('dlg-queue');
+}
+
+function statusChip(st){
+  const m={ done:['ch-done','bx-check','Đã trả lời'], pending:['ch-pending','bx-time','Chưa trả lời'],
+            expired:['ch-expired','bx-x','Hết hạn'], overdue:['ch-overdue','bx-error','Quá hạn'] };
+  const [c,i,t]=m[st]||m.pending;
+  return `<span class="chip ${c}"><i class="bx ${i}"></i>${t}</span>`;
+}
+function visTag(v, persp){
+  const map={
+    sender:{ receiver:['bx-lock-alt','Chỉ người nhận'], manager:['bx-group','Người nhận + Quản lý của họ'] },
+    receiver:{ receiver:['bx-lock-alt','Chỉ mình bạn'], manager:['bx-group','Bạn + Quản lý của bạn'] }
+  };
+  const [ic,txt]=(map[persp]||map.sender)[v]||(map[persp]||map.sender).receiver;
+  return `<span class="vis"><i class="bx ${ic}"></i>${txt}</span>`;
+}
+
+function cardReceived(f){
+  return `<div class="fb-card" data-kind="received">
+    <div class="card-label cl-received"><i class="bx bx-down-arrow-alt"></i>Đã nhận phản hồi từ<span class="cl-date">${f.date}</span></div>
+    <div class="fb-card-top">
+      <div style="display:flex;align-items:flex-start;gap:9px">
+        <div class="fb-av">${f.who.ini}</div>
+        <div>
+          <div class="fb-sender-name">${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span></div>
+          <div class="fb-sender-org">${f.who.org}</div>
+        </div>
+      </div>
+    </div>
+    ${f.q?`<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>`:''}
+    <p class="fb-body">${f.body}</p>
+    ${cardFoot(f.cv, f.vis||'receiver', 'receiver')}
+  </div>`;
+}
+function cardGiven(f){
+  return `<div class="fb-card" data-kind="given">
+    <div class="card-label cl-given"><i class="bx bx-up-arrow-alt"></i>Đã cho phản hồi đến<span class="cl-date">${f.date}</span></div>
+    <div class="fb-card-top">
+      <div style="display:flex;align-items:flex-start;gap:9px">
+        <div class="fb-av">${f.who.ini}</div>
+        <div>
+          <div class="fb-sender-name">${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span></div>
+          <div class="fb-sender-org">${f.who.org}</div>
+        </div>
+      </div>
+    </div>
+    <p class="fb-body">${f.body}</p>
+    ${cardFoot(f.cv, f.vis, 'sender')}
+  </div>`;
+}
+function cardRequest(f,idx){
+  const done=f.reviewers.filter(r=>r.st==='done').length, tot=f.reviewers.length;
+  const pct=Math.round(done/tot*100);
+  const st = f.status==='completed'
+    ? `<span class="chip ch-done"><i class="bx bx-check-circle"></i>Hoàn thành</span>`
+    : `<span class="chip ch-pending"><i class="bx bx-loader-alt"></i>Đang thu thập</span>`;
+  const title = f.context || (f.qMode==='individual' ? 'Câu hỏi riêng cho từng người' : (f.question || 'Yêu cầu phản hồi'));
+  return `<div class="fb-card kind-request" data-kind="request">
+    <div class="card-label cl-request"><i class="bx bx-user-voice"></i>Yêu cầu của tôi<span class="cl-date" style="display:flex;align-items:center;gap:8px">${st}${f.date}</span></div>
+    <div class="req-title">${title}</div>
+    <div class="req-sub">Hạn ${f.due}</div>
+    <div class="req-prog">
+      <div class="prog-top"><span>Tiến độ trả lời</span><span><b>${done}/${tot}</b> đã trả lời</span></div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="req-actions">
+      <button class="btn btn-outline btn-sm" onclick="openReq(${idx})"><i class="bx bx-list-ul"></i> Xem chi tiết</button>
+      ${f.status!=='completed'?`<button class="btn btn-ghost btn-sm" onclick="stub('Nhắc reviewer','Gửi nhắc thủ công sẽ hoạt động ở Phase C.')"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderFeed(){
+  const q=(document.getElementById('feedSearch').value||'').toLowerCase().trim();
+  let items = FEED.filter(f=>f.cycle===cy());
+  if(curFilter!=='all') items=items.filter(f=>f.kind===curFilter);
+  if(q) items=items.filter(f=>JSON.stringify(f).toLowerCase().includes(q));
+  // Tab "Tất cả": nhóm theo loại (đã nhận → đã cho → yêu cầu), trong mỗi loại xếp mới nhất trước.
+  const kindOrder={received:0,given:1,request:2};
+  items.sort((a,b)=> (curFilter==='all' ? kindOrder[a.kind]-kindOrder[b.kind] : 0) || b.ts-a.ts);
+  const feed=document.getElementById('feed');
+  if(!items.length){ feed.innerHTML=`<div class="empty"><i class="bx bx-message-square-dots"></i><p>Chưa có phản hồi nào trong mục này.</p></div>`; return; }
+  feed.innerHTML = items.map(f=>{
+    if(f.kind==='received') return cardReceived(f);
+    if(f.kind==='given') return cardGiven(f);
+    return cardRequest(f, FEED.indexOf(f));
+  }).join('');
+}
+
+function renderCounts(){
+  const inCy=FEED.filter(f=>f.cycle===cy());
+  const c={all:inCy.length,received:0,given:0,request:0};
+  inCy.forEach(f=>c[f.kind]++);
+  ['all','received','given','request'].forEach(k=>document.getElementById('n-'+k).textContent=c[k]);
+}
+
+function setFilter(f){
+  curFilter=f;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
+  renderFeed();
+}
+
+function renderRail(){
+  const inCy=FEED.filter(f=>f.cycle===cy());
+  const rec=inCy.filter(f=>f.kind==='received').length;
+  const giv=inCy.filter(f=>f.kind==='given').length;
+  const openReq=inCy.filter(f=>f.kind==='request'&&f.status!=='completed').length;
+  const todo=QUEUE.filter(q=>q.cycle===cy()).length;
+  document.getElementById('railYear').textContent=cy();
+  document.getElementById('railStats').innerHTML=`
+    <div class="stat-row"><span class="stat-lbl"><i class="bx bx-down-arrow-alt"></i>Phản hồi đã nhận</span><span class="stat-val">${rec}</span></div>
+    <div class="stat-row"><span class="stat-lbl"><i class="bx bx-up-arrow-alt"></i>Phản hồi đã cho</span><span class="stat-val">${giv}</span></div>
+    <div class="stat-row"><span class="stat-lbl"><i class="bx bx-user-voice"></i>Yêu cầu đang mở</span><span class="stat-val">${openReq}</span></div>
+    <div class="stat-row"><span class="stat-lbl"><i class="bx bx-bell"></i>Cần bạn phản hồi</span><span class="stat-val ${todo?'hl':''}">${todo}</span></div>`;
+  // tally core values from received feedback (incl. request responses)
+  const tally={};
+  inCy.forEach(f=>{
+    if(f.kind==='received'&&f.cv) f.cv.forEach(c=>tally[c]=(tally[c]||0)+1);
+    if(f.kind==='request') f.reviewers.forEach(r=>{ if(r.st==='done'&&r.cv) r.cv.forEach(c=>tally[c]=(tally[c]||0)+1); });
+  });
+  const ranked=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  const el=document.getElementById('railCV');
+  el.innerHTML = ranked.length
+    ? ranked.map(([c,n])=>`<div class="cv-rank"><img src="../Core value with BG/${CV[c]}" alt=""/><span class="cv-rank-name">${c}</span><span class="cv-rank-cnt">${n}</span></div>`).join('')
+    : `<div class="rail-empty">Chưa có ghi nhận trong chu kỳ này.</div>`;
+}
+
+function renderAll(){
+  document.getElementById('cycleOpen').style.display = cy()==='2026' ? '' : 'none';
+  renderQueue(); renderCounts(); renderFeed(); renderRail();
+}
+
+/* request detail overlay (read-only) */
+function openReq(idx){
+  const f=FEED[idx];
+  const done=f.reviewers.filter(r=>r.st==='done').length, tot=f.reviewers.length;
+  const allDone = done===tot;
+  document.getElementById('reqTitle').textContent='Yêu cầu phản hồi của tôi';
+  document.getElementById('reqSub').innerHTML=`
+    <div class="dlg-meta">
+      <div class="mi"><span class="mi-l">Ngày gửi</span><span class="mi-v">${f.date}</span></div>
+      <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${f.due}</span></div>
+      <div class="mi"><span class="mi-l">Đã trả lời</span><span class="mi-v">${done}/${tot}</span></div>
+    </div>`;
+
+  let body='';
+  // câu hỏi CHUNG → hiển thị 1 ô ở đầu
+  if(f.qMode==='shared' && f.question){
+    body += `<div class="qshared"><div class="fb-q-lbl">Câu hỏi chung cho tất cả người được yêu cầu</div><p class="fb-q-txt">${f.question}</p></div>`;
+  }
+  body += f.reviewers.map(r=>`
+    <div class="rv-item">
+      <div class="rv-row">
+        <div class="av av-brand av-sm">${r.ini}</div>
+        <div class="rv-info">
+          <div class="rv-name">${r.name} <span class="rv-dom">(${r.dom})</span></div>
+          <div class="rv-org">${r.org}</div>
+        </div>
+        ${statusChip(r.st)}
+      </div>
+      ${f.qMode==='individual' && r.q
+        ? `<div class="fb-qbox rv-q"><div class="fb-q-lbl">Câu hỏi riêng</div><p class="fb-q-txt">${r.q}</p></div>` : ''}
+      ${r.st==='done' && r.fb
+        ? `<div class="rv-fb"><p class="fb-body">${r.fb}</p>${cardFoot(r.cv, r.vis||'receiver', 'receiver')}</div>`
+        : `<div class="rv-pending">Chưa gửi phản hồi.</div>`}
+    </div>`).join('');
+  document.getElementById('reqBody').innerHTML = body;
+
+  // ẩn nút nhắc khi đã đủ câu trả lời
+  document.getElementById('reqRemindBtn').style.display = allDone ? 'none' : '';
+  document.getElementById('reqRemindNote').textContent = allDone
+    ? 'Tất cả đã trả lời — yêu cầu hoàn thành.'
+    : 'Hệ thống tự nhắc 3 ngày trước hạn.';
+  openOverlay('dlg-req');
+}
+
+/* ═══════ CHO PHẢN HỒI (UC2) + AI COACH ═══════ */
+const DIRECTORY=[
+  {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
+  {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
+  {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
+  {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform – Tech Lead'},
+  {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
+  {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand – Senior Designer'},
+  {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend – Senior Engineer'},
+  {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps – Platform Engineer'},
+  {name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC – Data – Data Engineer'},
+  {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN – Finance Control – Analyst'},
+  {name:'Nguyễn Thị Phương', dom:'phuong.nguyen', ini:'NP', org:'ITC – Data – Data Scientist'},
+  {name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC – Mobile – iOS Engineer'}
+];
+
+/* AI mock: draft → phân tích + bản cải thiện theo STAR / STAR-AR */
+const AI_DEMOS={
+  recognition:{
+    draft:'Cảm ơn Mai đã hỗ trợ mình rất nhiều trong dự án Design System. Bạn làm việc trách nhiệm và chủ động.',
+    intent:'Ghi nhận', framework:'STAR', cvs:['Tinh thần đồng đội','Thực thi xuất sắc'],
+    improved:'Trong dự án Design System quý này, khi team cần chuẩn hoá lại bộ component dùng chung, Mai đã chủ động nhận phần khó nhất, viết đầy đủ tài liệu Storybook và hỗ trợ các bạn khác tích hợp. Kết quả là cả hai product team đã tái sử dụng được component và giảm đáng kể thời gian phát triển. Cảm ơn tinh thần trách nhiệm và sự chủ động của Mai!'
+  },
+  appreciation:{
+    draft:'Cảm ơn anh Bảo đã dành thời gian review kiến trúc giúp em cuối tuần vừa rồi.',
+    intent:'Cảm ơn', framework:'STAR', cvs:['Tinh thần đồng đội','Không ngừng học hỏi'],
+    improved:'Cuối tuần vừa rồi khi em đang bí ở phần thiết kế service xác thực, anh Bảo đã dành thời gian ngoài giờ để review kiến trúc cùng em. Những góp ý của anh về cách tách bounded context đã giúp em tránh được một thiết kế sai ngay từ đầu. Em rất trân trọng sự hỗ trợ và tinh thần chia sẻ của anh!'
+  },
+  constructive:{
+    draft:'Phần trình bày roadmap của Nam hơi dài và nhiều chi tiết kỹ thuật, khiến người nghe khó nắm ý chính.',
+    intent:'Góp ý', framework:'STAR-AR', cvs:['Khách hàng là trung tâm'],
+    improved:'Trong buổi trình bày roadmap tuần trước, mục tiêu là giúp stakeholder non-tech nắm được định hướng quý tới. Mình thấy phần trình bày đi khá sâu vào chi tiết kỹ thuật và hơi dài, khiến một số người khó theo dõi ý chính. Gợi ý cho lần sau: mở đầu bằng 2–3 điểm chính ở mức business, để phần kỹ thuật ở phụ lục. Như vậy stakeholder sẽ nắm nhanh hơn và buổi họp hiệu quả hơn.'
+  }
+};
+const FW_DESC={
+  'STAR':'STAR — Situation · Task · Action · Result. Phù hợp khi ghi nhận, khen, cảm ơn.',
+  'STAR-AR':'STAR-AR — STAR + Alternative Action & Result. Phù hợp khi góp ý phát triển.'
+};
+/* Reference khung phản hồi — dùng cho bảng hướng dẫn + câu mẫu */
+const FRAMEWORKS={
+  'STAR':{
+    name:'STAR',
+    purpose:'Dùng khi ghi nhận, cảm ơn — kể lại điều tốt và tác động của nó.',
+    steps:[
+      ['S','Situation — Bối cảnh','Điều gì đã xảy ra? Giúp người nhận nhớ đúng tình huống.'],
+      ['T','Task — Nhiệm vụ','Người đó có vai trò, trách nhiệm gì trong tình huống?'],
+      ['A','Action — Hành động','Mô tả điều bạn thực sự quan sát được, thay vì nhận xét chung.'],
+      ['R','Result — Kết quả','Hành động đó tạo ra giá trị, tác động gì?']
+    ],
+    sample:'Trong buổi họp Kick-off dự án tuần trước (Situation), bạn là người điều phối cuộc họp (Task). Bạn đã chuẩn bị đầy đủ tài liệu, gửi agenda trước và chủ động điều phối các nội dung trao đổi (Action). Nhờ đó, các bên liên quan nhanh chóng thống nhất kế hoạch triển khai và dự án được khởi động đúng tiến độ (Result).'
+  },
+  'STAR-AR':{
+    name:'STAR-AR',
+    purpose:'Dùng khi góp ý — thêm đề xuất Hành động & Kết quả cho lần sau (không phải mệnh lệnh).',
+    steps:[
+      ['S / T','Situation / Task — Tình huống / Nhiệm vụ','Bắt đầu bằng bối cảnh cụ thể.'],
+      ['A','Action — Hành động','Mô tả điều quan sát được. Tập trung vào hành động, không đánh giá con người.'],
+      ['R','Result — Kết quả','Hành động đó dẫn đến điều gì?'],
+      ['A','Alternative Action — Hành động thay thế','Nếu có cơ hội làm lại, có thể làm khác đi thế nào? Là phương án để cân nhắc.'],
+      ['R','Alternative Result — Kết quả thay thế','Điều gì sẽ xảy ra nếu áp dụng cách làm mới?']
+    ],
+    sample:'Trong buổi Sprint Review tuần này, bạn phụ trách cập nhật tiến độ dự án và các nội dung cần đội ngũ thống nhất (Situation / Task). Trong phần trình bày, bạn tập trung vào tiến độ nhưng chưa đề cập đến các rủi ro và phương án xử lý (Action). Nhóm cần thêm thời gian làm rõ thông tin, một số nội dung phải chuyển sang cuộc họp sau, ảnh hưởng đến tiến độ chung (Result). Ở các buổi Sprint Review tiếp theo, bạn có thể dành thêm vài phút cập nhật những rủi ro chính, tác động và kế hoạch xử lý (Alternative Action). Khi rủi ro được chia sẻ đầy đủ, nhóm sẽ dễ thống nhất hướng xử lý ngay trong họp, ra quyết định nhanh hơn và đảm bảo tiến độ dự án (Alternative Result).'
+  }
+};
+
+let G={recipient:null, vis:null, types:[], aiRun:false, aiUsed:false, ai:null, cvs:[], fromSample:false, tplText:null, _stage:null};
+
+function openGive(){
+  G={recipient:null, vis:null, types:[], aiRun:false, aiUsed:false, ai:null, cvs:[], fromSample:false, tplText:null, _stage:null};
+  document.getElementById('giveForm').style.display='';
+  document.getElementById('giveSuccess').style.display='none';
+  document.getElementById('giveFoot').style.display='';
+  document.getElementById('pickChosen').style.display='none';
+  document.getElementById('pickWrap').style.display='';
+  document.getElementById('pickInput').value='';
+  document.getElementById('pickResults').innerHTML='';
+  document.getElementById('giveTA').value='';
+  document.getElementById('aiPanel').style.display='none';
+  document.getElementById('aiPanel').innerHTML='';
+  document.querySelectorAll('input[name="gvis"]').forEach(r=>r.checked=false);
+  document.getElementById('visCardR').classList.remove('on');
+  document.getElementById('visCardM').classList.remove('on');
+  document.querySelectorAll('.type-chip').forEach(c=>c.classList.remove('on'));
+  document.getElementById('typeGuide').style.display='none';
+  document.getElementById('typeGuide').innerHTML='';
+  renderCVPick();
+  syncGive();
+  openOverlay('dlg-give');
+  setTimeout(()=>document.getElementById('pickInput').focus(),50);
+}
+
+/* recipient search */
+function pickSearch(){
+  const q=document.getElementById('pickInput').value.toLowerCase().trim();
+  const box=document.getElementById('pickResults');
+  if(!q){ box.innerHTML=''; return; }
+  const res=DIRECTORY.filter(p=>p.name.toLowerCase().includes(q)||p.dom.toLowerCase().includes(q)).slice(0,6);
+  box.innerHTML = res.length
+    ? res.map(p=>`<div class="pick-item" onclick='pickChoose(${JSON.stringify(p)})'>
+        <div class="fb-av">${p.ini}</div>
+        <div><div class="pi-name">${p.name} <span class="pi-dom">(${p.dom})</span></div><div class="pi-org">${p.org}</div></div>
+      </div>`).join('')
+    : `<div class="pick-empty">Không tìm thấy đồng nghiệp phù hợp.</div>`;
+}
+function pickChoose(p){
+  G.recipient=p;
+  document.getElementById('pickWrap').style.display='none';
+  const c=document.getElementById('pickChosen');
+  c.style.display='';
+  c.className='pick-chosen';
+  c.innerHTML=`<div class="fb-av">${p.ini}</div>
+    <div><div class="pi-name">${p.name} <span class="pi-dom">(${p.dom})</span></div><div class="pi-org">${p.org}</div></div>
+    <button class="pc-x" onclick="pickClear()" title="Chọn người khác">&#x2715;</button>`;
+  syncGive();
+}
+function pickClear(){
+  G.recipient=null;
+  document.getElementById('pickChosen').style.display='none';
+  document.getElementById('pickWrap').style.display='';
+  document.getElementById('pickInput').value='';
+  document.getElementById('pickResults').innerHTML='';
+  syncGive();
+  document.getElementById('pickInput').focus();
+}
+
+/* content + AI */
+function onGiveInput(){
+  G.fromSample=false;
+  if(G.tplText!=null && document.getElementById('giveTA').value!==G.tplText) G.tplText=null;  // user tự sửa mẫu → ngừng đồng bộ
+  // sửa tay sau khi AI → coi như vẫn là tác giả cuối; bỏ cờ aiUsed nếu khác bản gợi ý
+  if(G.aiUsed && G.ai && document.getElementById('giveTA').value.trim()!==G.ai.improved.trim()) G.aiUsed=false;
+  syncGive();
+}
+/* bộ chọn loại phản hồi (multi-select) → khung phù hợp + steer AI */
+function setType(t){
+  const i=G.types.indexOf(t);
+  if(i>=0) G.types.splice(i,1); else G.types.push(t);
+  renderTypeGuide();
+  syncInsertedTemplate();
+}
+function currentTemplate(){
+  const fw=activeFramework();
+  if(!fw) return null;
+  return isMixedIntent() ? TEMPLATES.combined : TEMPLATES[fw];
+}
+/* nếu ô nội dung đang là mẫu câu chưa sửa → cập nhật theo ý định mới */
+function syncInsertedTemplate(){
+  if(G.tplText==null) return;
+  const ta=document.getElementById('giveTA');
+  if(ta.value!==G.tplText) { G.tplText=null; return; }   // user đã sửa → ngừng đồng bộ
+  const nt=currentTemplate();
+  ta.value = nt || '';
+  G.tplText = nt;
+  G.aiRun=false; G.aiUsed=false; G.ai=null; G._stage=null;
+  document.getElementById('aiPanel').style.display='none';
+  document.getElementById('aiPanel').innerHTML='';
+  syncGive();
+}
+function activeFramework(){
+  if(!G.types.length) return null;
+  return G.types.includes('constructive') ? 'STAR-AR' : 'STAR';   // có "Góp ý" → STAR-AR (bao quát cả khen + góp ý)
+}
+function intentLabel(){
+  const has=t=>G.types.includes(t);
+  if(has('constructive') && (has('recognition')||has('appreciation'))) return 'Ghi nhận + Góp ý';
+  if(has('constructive')) return 'Góp ý';
+  if(has('appreciation') && !has('recognition')) return 'Cảm ơn';
+  return 'Ghi nhận';
+}
+/* mẫu câu (syntax) để user điền/sửa ngay — gọn, không giải thích dài dòng */
+const TEMPLATES={
+  'STAR':'Trong [tình huống cụ thể], bạn [vai trò/nhiệm vụ]. Bạn đã [hành động bạn quan sát được]. Nhờ đó, [kết quả/tác động tích cực].',
+  'STAR-AR':'Trong [tình huống/nhiệm vụ], mình quan sát thấy [hành động cụ thể], dẫn đến [kết quả]. Ở lần sau, bạn có thể [đề xuất cách làm khác], khi đó [kết quả kỳ vọng].',
+  'combined':'Điều mình đánh giá cao ở bạn là [hành động tốt và kết quả]. Bên cạnh đó, ở [tình huống], bạn có thể [đề xuất cách làm khác] để [kết quả kỳ vọng].'
+};
+const COMBINED_SAMPLE='Mình rất đánh giá cao việc bạn chuẩn bị tài liệu kỹ và điều phối cuộc họp trôi chảy, giúp cả nhóm tiết kiệm thời gian. Bên cạnh đó, ở các buổi review tới, bạn có thể dành thêm vài phút điểm qua các rủi ro chính và hướng xử lý, để nhóm có đủ thông tin ra quyết định ngay trong họp.';
+function isMixedIntent(){ return G.types.includes('constructive') && (G.types.includes('recognition')||G.types.includes('appreciation')); }
+function renderTypeGuide(){
+  document.querySelectorAll('.type-chip').forEach(c=>c.classList.toggle('on', G.types.includes(c.dataset.type)));
+  const fw=activeFramework();
+  const g=document.getElementById('typeGuide');
+  if(!fw){ g.style.display='none'; g.innerHTML=''; return; }
+  const F=FRAMEWORKS[fw];
+  const mixed = isMixedIntent();
+  const sample = mixed ? COMBINED_SAMPLE : F.sample;
+  g.style.display='';
+  g.innerHTML=`
+    <div class="tpl-bar">
+      <span class="tpl-txt"><i class="bx bx-bulb"></i> Gợi ý khung <b>${F.name}</b>${mixed?' — bao quát cả ghi nhận &amp; góp ý':''}</span>
+      <button class="btn btn-outline btn-xs" onclick="insertTemplate()"><i class="bx bx-edit-alt"></i> Dùng mẫu câu</button>
+      <button class="tg-toggle" onclick="toggleGuideSample(this)">Xem ví dụ</button>
+    </div>
+    ${mixed?'<div class="tpl-note"><i class="bx bx-magic"></i> Cứ viết tự nhiên rồi bấm “Cải thiện với AI” — AI sẽ giúp bạn sắp xếp rõ ràng.</div>':''}
+    <div class="tg-sample" id="tgSample">${sample}</div>`;
+}
+function toggleGuideSample(btn){
+  const s=document.getElementById('tgSample');
+  s.classList.toggle('show');
+  btn.textContent = s.classList.contains('show') ? 'Ẩn ví dụ' : 'Xem ví dụ';
+}
+function insertTemplate(){
+  const fw=activeFramework(); if(!fw) return;
+  const ta=document.getElementById('giveTA');
+  ta.value= isMixedIntent() ? TEMPLATES.combined : TEMPLATES[fw];
+  G.tplText=ta.value;
+  G.aiRun=false; G.aiUsed=false; G.ai=null; G._stage=null; G.fromSample=false;
+  document.getElementById('aiPanel').style.display='none';
+  document.getElementById('aiPanel').innerHTML='';
+  syncGive();
+  ta.focus();
+  const a=ta.value.indexOf('['), b=ta.value.indexOf(']');
+  if(a>=0&&b>a) ta.setSelectionRange(a,b+1);   // bôi sẵn chỗ trống đầu tiên để user gõ đè
+}
+/* core value picker — icon-only, tự chọn */
+function renderCVPick(){
+  const el=document.getElementById('cvPick'); if(!el) return;
+  el.innerHTML = Object.keys(CV).map(name=>{
+    const on=G.cvs.includes(name)?' on':'';
+    return `<button type="button" class="cvpick${on}" onclick="toggleCV('${name}')"><img src="../Core value with BG/${CV[name]}" alt=""/><span class="fb-badge-tip">${name}</span></button>`;
+  }).join('');
+}
+function buildFallback(text, intent, framework){
+  // nếu nội dung đã dài / có cấu trúc khung → AI xác nhận thay vì viết lại
+  const structured = text.trim().length>170 || /\((?:Situation|Task|Action|Result|Alternative)/i.test(text);
+  if(structured) return {draft:text, intent, framework, improved:text, good:true};
+  const body = text.trim().replace(/\s*[.!]?\s*$/,'');
+  const improved = framework==='STAR-AR'
+    ? `Trong công việc gần đây, mình quan sát thấy: ${lc(body)}. Gợi ý cho lần tới, bạn có thể điều chỉnh theo hướng cụ thể hơn để tăng hiệu quả — như vậy kết quả chung sẽ tốt hơn.`
+    : `Trong công việc gần đây, ${lc(body)}. Điều này tạo ra ảnh hưởng tích cực đến kết quả của cả team. Cảm ơn bạn vì đóng góp này!`;
+  return {draft:text, intent, framework, improved, good:false};
+}
+function detectAI(text){
+  const t=text.trim().toLowerCase();
+  const fw=activeFramework();
+  if(fw) return buildFallback(text, intentLabel(), fw);   // đã chọn loại → dùng khung tương ứng
+  // chưa chọn loại → khớp câu mẫu, hoặc tự nhận diện theo keyword
+  for(const k in AI_DEMOS){ if(AI_DEMOS[k].draft.toLowerCase()===t) return {...AI_DEMOS[k], good:false}; }
+  let intent='Ghi nhận';
+  if(/cảm ơn|trân trọng|biết ơn|thank/.test(t)) intent='Cảm ơn';
+  if(/nên |hơi |cần cải thiện|góp ý|chưa |thiếu |lần sau|cải thiện|khó theo dõi|quá /.test(t)) intent='Góp ý';
+  const framework = intent==='Góp ý' ? 'STAR-AR' : 'STAR';
+  return buildFallback(text, intent, framework);
+}
+function lc(s){ return s ? s.charAt(0).toLowerCase()+s.slice(1) : s; }
+
+function runAI(){
+  const text=document.getElementById('giveTA').value.trim();
+  if(!text) return;
+  const btn=document.getElementById('aiBtn');
+  btn.disabled=true; btn.innerHTML='<i class="bx bx-loader-alt bx-spin"></i> Đang phân tích…';
+  setTimeout(()=>{
+    G.ai=detectAI(text);
+    G.aiRun=true;
+    G._stage='compare';
+    renderAIPanel('compare');
+    btn.disabled=false; btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
+    syncGive();
+  }, 650);
+}
+function renderAIPanel(stage){
+  const a=G.ai; if(!a) return;
+  const p=document.getElementById('aiPanel');
+  let mainHTML;
+  if(a.good){
+    mainHTML=`<div class="ai-good"><i class="bx bx-check-shield"></i><span>Nội dung của bạn đã khá rõ ràng. Bạn có thể gửi luôn, hoặc chỉnh thêm nếu muốn.</span></div>`;
+  } else if(stage==='compare'){
+    // nhấn mạnh bản gợi ý; bản gốc ẩn sau nút So sánh (pattern Notion/Grammarly)
+    mainHTML=`
+      <div class="cmp-block sugg">
+        <div class="cmp-body">${a.improved}</div>
+        <div class="cmp-actions">
+          <button class="btn btn-default btn-xs" onclick="acceptAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
+          <button class="btn btn-outline btn-xs" onclick="editAI()"><i class="bx bx-edit-alt"></i> Chỉnh sửa</button>
+          <button class="btn btn-ghost btn-xs" onclick="dismissAI()">Giữ bản gốc</button>
+          <button class="cmp-toggle" onclick="toggleOrig(this)"><i class="bx bx-git-compare"></i> So sánh bản gốc</button>
+        </div>
+      </div>
+      <div class="cmp-block orig" id="cmpOrig" style="display:none">
+        <div class="cmp-head">Bản của bạn</div>
+        <div class="cmp-body">${document.getElementById('giveTA').value.trim()}</div>
+      </div>`;
+  } else {
+    const msg = stage==='accepted' ? 'Đã dùng gợi ý của AI — bạn vẫn có thể sửa trong ô nội dung.'
+              : stage==='edited' ? 'Đã đưa gợi ý vào ô nội dung để bạn chỉnh sửa.'
+              : 'Giữ nguyên bản của bạn.';
+    mainHTML=`<div class="ai-done"><i class="bx bx-check-circle"></i>${msg}</div>`;
+  }
+  p.style.display='';
+  p.innerHTML=`<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>${mainHTML}`;
+}
+function toggleOrig(btn){
+  const o=document.getElementById('cmpOrig');
+  const show=o.style.display==='none';
+  o.style.display=show?'':'none';
+  btn.innerHTML = show ? '<i class="bx bx-x"></i> Ẩn bản gốc' : '<i class="bx bx-git-compare"></i> So sánh bản gốc';
+}
+function toggleCV(name){
+  const i=G.cvs.indexOf(name);
+  if(i>=0) G.cvs.splice(i,1); else G.cvs.push(name);
+  renderCVPick();
+}
+function acceptAI(){ document.getElementById('giveTA').value=G.ai.improved; G.aiUsed=true; G._stage='accepted'; renderAIPanel('accepted'); syncGive(); }
+function editAI(){ document.getElementById('giveTA').value=G.ai.improved; G.aiUsed=true; G._stage='edited'; renderAIPanel('edited'); syncGive(); document.getElementById('giveTA').focus(); }
+function dismissAI(){ G.aiUsed=false; G._stage='dismissed'; renderAIPanel('dismissed'); syncGive(); }
+
+function setGVis(v){
+  G.vis=v;
+  document.getElementById('visCardR').classList.toggle('on',v==='receiver');
+  document.getElementById('visCardM').classList.toggle('on',v==='manager');
+  syncGive();
+}
+
+function syncGive(){
+  const text=document.getElementById('giveTA').value.trim();
+  document.getElementById('aiBtn').disabled = !text;
+  const ok = G.recipient && text && G.vis;
+  document.getElementById('giveSend').disabled = !ok;
+}
+
+function sendGive(){
+  const p=G.recipient, text=document.getElementById('giveTA').value.trim();
+  const visTxt = G.vis==='manager' ? 'Người nhận và Quản lý trực tiếp của họ' : 'Chỉ người nhận';
+  const cvHTML = G.cvs.length ? `<div class="give-ok-note"><i class="bx bx-medal"></i>Giá trị đính kèm: ${G.cvs.join(', ')}</div>` : '';
+  document.getElementById('giveForm').style.display='none';
+  document.getElementById('giveFoot').style.display='none';
+  const s=document.getElementById('giveSuccess');
+  s.style.display='';
+  s.innerHTML=`
+    <div class="give-ok">
+      <div class="give-ok-ic"><i class="bx bx-check"></i></div>
+      <div class="give-ok-t">Đã gửi phản hồi tới ${p.name}</div>
+      <div class="give-ok-d">${p.name} sẽ nhận thông báo ngay.${G.vis==='manager'?' Quản lý trực tiếp của họ cũng sẽ thấy phản hồi này.':''} Sau khi gửi, phản hồi không thể chỉnh sửa.</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+        <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt}</div>
+        ${G.aiUsed?'<div class="give-ok-note"><i class="bx bx-magic"></i>Có hỗ trợ từ AI</div>':''}
+      </div>
+      ${cvHTML}
+      <div style="margin-top:18px;display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-give')">Đóng</button>
+        <button class="btn btn-default btn-sm" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi khác</button>
+      </div>
+    </div>`;
+}
+
+/* ═══════ YÊU CẦU PHẢN HỒI (UC1) ═══════ */
+let R={reviewers:[], personalize:false};
+const SELF_DOM='tu.nguyen';
+
+function openRequest(){
+  R={reviewers:[], personalize:false};
+  document.getElementById('reqForm').style.display='';
+  document.getElementById('reqSuccess').style.display='none';
+  document.getElementById('reqFoot').style.display='';
+  document.getElementById('reqPickInput').value='';
+  document.getElementById('reqPickResults').innerHTML='';
+  document.getElementById('reqQ').value='';
+  document.getElementById('reqQ').style.display='';
+  document.getElementById('reqDue').value='';
+  document.getElementById('reqPersonalize').checked=false;
+  document.getElementById('reqPersonWrap').style.display='none';
+  renderChosen(); syncPersonalizeVis(); syncReq();
+  openOverlay('dlg-newreq');
+  setTimeout(()=>document.getElementById('reqPickInput').focus(),50);
+}
+function reqPickSearch(){
+  const q=document.getElementById('reqPickInput').value.toLowerCase().trim();
+  const box=document.getElementById('reqPickResults');
+  if(!q){ box.innerHTML=''; return; }
+  const chosen=new Set(R.reviewers.map(r=>r.dom));
+  const res=DIRECTORY.filter(p=>p.dom!==SELF_DOM && !chosen.has(p.dom) && (p.name.toLowerCase().includes(q)||p.dom.toLowerCase().includes(q))).slice(0,6);
+  box.innerHTML = res.length
+    ? res.map(p=>`<div class="pick-item" onclick='reqAdd(${JSON.stringify(p)})'>
+        <div class="fb-av">${p.ini}</div>
+        <div><div class="pi-name">${p.name} <span class="pi-dom">(${p.dom})</span></div><div class="pi-org">${p.org}</div></div>
+      </div>`).join('')
+    : `<div class="pick-empty">Không tìm thấy đồng nghiệp phù hợp.</div>`;
+}
+function reqAdd(p){
+  if(R.reviewers.length>=20){ stub('Giới hạn','Mỗi yêu cầu tối đa 20 người phản hồi.'); return; }
+  const seed = R.personalize ? (document.getElementById('reqQ').value||'') : '';
+  R.reviewers.push({name:p.name, dom:p.dom, ini:p.ini, org:p.org, q:seed});
+  document.getElementById('reqPickInput').value='';
+  document.getElementById('reqPickResults').innerHTML='';
+  renderChosen(); syncPersonalizeVis(); renderPersonalize(); syncReq();
+}
+function reqRemove(dom){
+  R.reviewers=R.reviewers.filter(r=>r.dom!==dom);
+  renderChosen(); syncPersonalizeVis(); renderPersonalize(); syncReq();
+}
+function renderChosen(){
+  document.getElementById('reqCount').textContent=`${R.reviewers.length}/20`;
+  document.getElementById('reqChosen').innerHTML = R.reviewers.map(r=>
+    `<span class="rv-chip"><span class="fb-av">${r.ini}</span><span class="rv-chip-name">${r.name}</span><button class="rv-chip-x" onclick="reqRemove('${r.dom}')" title="Bỏ">&#x2715;</button></span>`).join('');
+}
+function onCommonQInput(){ syncReq(); }
+/* cá nhân hóa chỉ có nghĩa khi ≥2 người phản hồi → dưới 2 thì ẩn hẳn */
+function syncPersonalizeVis(){
+  const multi = R.reviewers.length>=2;
+  document.getElementById('reqPersRow').style.display = multi ? '' : 'none';
+  if(multi || !R.personalize) return;
+  // vừa rút xuống còn ≤1 người → quay lại câu hỏi chung, giữ lại nội dung đã gõ
+  const common=document.getElementById('reqQ'), left=R.reviewers[0];
+  if(!common.value.trim() && left && left.q) common.value=left.q;
+  const cb=document.getElementById('reqPersonalize');
+  cb.checked=false; togglePersonalize(cb);
+}
+function togglePersonalize(cb){
+  R.personalize=cb.checked;
+  document.getElementById('reqQ').style.display = R.personalize?'none':'';
+  document.getElementById('reqPersonWrap').style.display = R.personalize?'':'none';
+  if(R.personalize){
+    const common=document.getElementById('reqQ').value;
+    R.reviewers.forEach(r=>{ if(!r.q) r.q=common; });
+    renderPersonalize();
+  }
+  syncReq();
+}
+function renderPersonalize(){
+  if(!R.personalize) return;
+  const el=document.getElementById('reqPersonList');
+  el.innerHTML = R.reviewers.length
+    ? R.reviewers.map((r,i)=>`
+      <div class="person-row">
+        <div class="fb-av">${r.ini}</div>
+        <div class="person-q">
+          <div class="person-name">${r.name} <span class="pi-dom">(${r.dom})</span></div>
+          <textarea class="person-ta" placeholder="Câu hỏi riêng cho ${r.name}…" oninput="R.reviewers[${i}].q=this.value;syncReq()">${r.q||''}</textarea>
+        </div>
+      </div>`).join('')
+    : `<div class="pick-empty">Chọn người phản hồi trước để đặt câu hỏi riêng.</div>`;
+}
+function syncReq(){
+  const due=document.getElementById('reqDue').value;
+  const hasReviewers=R.reviewers.length>=1;
+  const qOk = R.personalize
+    ? R.reviewers.every(r=>(r.q||'').trim())
+    : !!document.getElementById('reqQ').value.trim();
+  document.getElementById('reqSend').disabled = !(hasReviewers && due && qOk);
+}
+function fmtDMY(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+function todayDMY(){ const t=new Date(); const p=n=>String(n).padStart(2,'0'); return `${p(t.getDate())}/${p(t.getMonth()+1)}/${t.getFullYear()}`; }
+function tsFrom(dmy){ const [d,m,y]=dmy.split('/'); return +(y+m+d); }
+function submitRequest(){
+  const dueISO=document.getElementById('reqDue').value;
+  const due=fmtDMY(dueISO);
+  const today=todayDMY();
+  const reviewers=R.reviewers.map(r=>({
+    name:r.name, dom:r.dom, ini:r.ini, org:r.org, st:'pending',
+    ...(R.personalize ? {q:(r.q||'').trim()} : {})
+  }));
+  const req={
+    kind:'request', cycle:cy(), date:today, ts:tsFrom(today),
+    due, status:'open',
+    qMode: R.personalize ? 'individual' : 'shared',
+    ...(R.personalize ? {} : {question:document.getElementById('reqQ').value.trim()}),
+    reviewers
+  };
+  FEED.unshift(req);
+  // success
+  document.getElementById('reqForm').style.display='none';
+  document.getElementById('reqFoot').style.display='none';
+  const s=document.getElementById('reqSuccess'); s.style.display='';
+  s.innerHTML=`
+    <div class="give-ok">
+      <div class="give-ok-ic"><i class="bx bx-check"></i></div>
+      <div class="give-ok-t">Đã gửi yêu cầu tới ${reviewers.length} người</div>
+      <div class="give-ok-d">Mỗi người nhận một yêu cầu riêng và phản hồi độc lập. Bạn có thể theo dõi tiến độ trong mục “Yêu cầu của tôi”.</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+        <div class="give-ok-note"><i class="bx bx-calendar"></i>Hạn phản hồi ${due}</div>
+        <div class="give-ok-note"><i class="bx bx-${R.personalize?'user-check':'group'}"></i>${R.personalize?'Câu hỏi riêng từng người':'Cùng một câu hỏi'}</div>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-newreq')">Đóng</button>
+        <button class="btn btn-default btn-sm" onclick="openRequest()"><i class="bx bx-user-voice"></i> Tạo yêu cầu khác</button>
+      </div>
+    </div>`;
+  setFilter('request');
+  renderAll();
+}
+
+/* ═══════ TRẢ LỜI YÊU CẦU (UC-R) ═══════ */
+let RV={item:null, vis:null, ai:null, aiUsed:false, cvs:[], _stage:null};
+
+function openReply(id){
+  const item=QUEUE.find(x=>x.id===id); if(!item) return;
+  RV={item, vis:null, ai:null, aiUsed:false, cvs:[], _stage:null};
+  // header thống nhất: tiêu đề cố định + khối thông tin giống popup "Yêu cầu của tôi"
+  document.getElementById('replySub').innerHTML=`
+    <div class="dlg-meta">
+      <div class="mi"><span class="mi-l">Người yêu cầu</span><span class="mi-v">${item.from}</span></div>
+      ${item.about==='other'
+        ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${item.aboutName}</span></div>` : ''}
+      <div class="mi"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
+      <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">· ${item.due}</span></span></div>
+    </div>`;
+  // context chỉ hiện riêng khi người yêu cầu tự viết câu hỏi (câu hỏi mặc định đã chứa context)
+  const ctxLine = item.question ? `<div class="reply-ask-ctx"><i class="bx bx-folder-open"></i>${item.context}</div>` : '';
+  document.getElementById('replyAsk').innerHTML=`${ctxLine}<div class="reply-ask-lbl">Câu hỏi</div><div class="reply-ask-q">${itemQuestion(item)}</div>`;
+  document.getElementById('replyForm').style.display='';
+  document.getElementById('replySuccess').style.display='none';
+  document.getElementById('replyFoot').style.display='';
+  document.getElementById('replyTA').value='';
+  document.getElementById('replyAiPanel').style.display='none';
+  document.getElementById('replyAiPanel').innerHTML='';
+  renderReplyVis(item);
+  renderReplyCv();
+  syncReply();
+  closeOverlay('dlg-queue');
+  openOverlay('dlg-reply');
+  setTimeout(()=>document.getElementById('replyTA').focus(),50);
+}
+
+/* visibility theo ngữ cảnh */
+function renderReplyVis(item){
+  const el=document.getElementById('replyVisField');
+  if(item.about==='other'){   // UC3 — quản lý yêu cầu → mặc định shared, không đổi
+    RV.vis='shared';
+    el.innerHTML=`
+      <label class="field-label">Ai có thể xem phản hồi này?</label>
+      <div class="vis-locked">
+        <i class="bx bx-group"></i>
+        <div>
+          <div class="vc-t">Được chia sẻ theo yêu cầu của quản lý</div>
+          <div class="vc-d"><b>${item.from}</b> (người yêu cầu) và <b>${item.aboutName}</b> sẽ xem được phản hồi này. Đây là phản hồi phục vụ coaching, không dùng để chấm điểm.</div>
+        </div>
+      </div>`;
+  } else {   // UC1 — đồng nghiệp yêu cầu → tự chọn
+    el.innerHTML=`
+      <label class="field-label">Ai có thể xem phản hồi này? <span class="field-hint">(bắt buộc chọn)</span></label>
+      <div class="vis-opts">
+        <label class="vis-card" id="rvisR"><input type="radio" name="rvis" onchange="setReplyVis('receiver')"/><div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ ${item.from}</div><div class="vc-d">Chỉ người yêu cầu (${item.from}) xem được phản hồi của bạn.</div></div></label>
+        <label class="vis-card" id="rvisM"><input type="radio" name="rvis" onchange="setReplyVis('manager')"/><div><div class="vc-t"><i class="bx bx-group"></i>${item.from} + Quản lý của họ</div><div class="vc-d">${item.from} và quản lý trực tiếp của họ xem được phản hồi.</div></div></label>
+      </div>`;
+  }
+}
+function setReplyVis(v){
+  RV.vis=v;
+  document.getElementById('rvisR').classList.toggle('on',v==='receiver');
+  document.getElementById('rvisM').classList.toggle('on',v==='manager');
+  syncReply();
+}
+
+/* AI Coach (dùng lại buildFallback) */
+function replyDetect(text){
+  const t=text.trim().toLowerCase();
+  let intent='Ghi nhận';
+  if(/cảm ơn|trân trọng|biết ơn|thank/.test(t)) intent='Cảm ơn';
+  if(/nên |hơi |cần cải thiện|góp ý|chưa |thiếu |lần sau|cải thiện|khó theo dõi|quá /.test(t)) intent='Góp ý';
+  const framework = intent==='Góp ý' ? 'STAR-AR' : 'STAR';
+  return buildFallback(text, intent, framework);
+}
+function onReplyInput(){
+  if(RV.aiUsed && RV.ai && document.getElementById('replyTA').value.trim()!==RV.ai.improved.trim()) RV.aiUsed=false;
+  syncReply();
+}
+function runReplyAI(){
+  const text=document.getElementById('replyTA').value.trim(); if(!text) return;
+  const btn=document.getElementById('replyAiBtn');
+  btn.disabled=true; btn.innerHTML='<i class="bx bx-loader-alt bx-spin"></i> Đang phân tích…';
+  setTimeout(()=>{
+    RV.ai=replyDetect(text); RV._stage='compare';
+    renderReplyAI('compare');
+    btn.disabled=false; btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
+    syncReply();
+  },600);
+}
+function renderReplyAI(stage){
+  const a=RV.ai; if(!a) return;
+  const p=document.getElementById('replyAiPanel');
+  let main;
+  if(a.good){
+    main=`<div class="ai-good"><i class="bx bx-check-shield"></i><span>Nội dung của bạn đã khá rõ ràng. Bạn có thể gửi luôn, hoặc chỉnh thêm nếu muốn.</span></div>`;
+  } else if(stage==='compare'){
+    main=`
+      <div class="cmp-block sugg">
+        <div class="cmp-body">${a.improved}</div>
+        <div class="cmp-actions">
+          <button class="btn btn-default btn-xs" onclick="acceptReplyAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
+          <button class="btn btn-outline btn-xs" onclick="editReplyAI()"><i class="bx bx-edit-alt"></i> Chỉnh sửa</button>
+          <button class="btn btn-ghost btn-xs" onclick="dismissReplyAI()">Giữ bản gốc</button>
+          <button class="cmp-toggle" onclick="toggleReplyOrig(this)"><i class="bx bx-git-compare"></i> So sánh bản gốc</button>
+        </div>
+      </div>
+      <div class="cmp-block orig" id="replyOrig" style="display:none">
+        <div class="cmp-head">Bản của bạn</div>
+        <div class="cmp-body">${document.getElementById('replyTA').value.trim()}</div>
+      </div>`;
+  } else {
+    const msg = stage==='accepted' ? 'Đã dùng gợi ý của AI — bạn vẫn có thể sửa trong ô nội dung.'
+              : stage==='edited' ? 'Đã đưa gợi ý vào ô nội dung để bạn chỉnh sửa.'
+              : 'Giữ nguyên bản của bạn.';
+    main=`<div class="ai-done"><i class="bx bx-check-circle"></i>${msg}</div>`;
+  }
+  p.style.display=''; p.innerHTML=`<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>${main}`;
+}
+function acceptReplyAI(){ document.getElementById('replyTA').value=RV.ai.improved; RV.aiUsed=true; RV._stage='accepted'; renderReplyAI('accepted'); syncReply(); }
+function editReplyAI(){ document.getElementById('replyTA').value=RV.ai.improved; RV.aiUsed=true; RV._stage='edited'; renderReplyAI('edited'); syncReply(); document.getElementById('replyTA').focus(); }
+function dismissReplyAI(){ RV.aiUsed=false; RV._stage='dismissed'; renderReplyAI('dismissed'); syncReply(); }
+function toggleReplyOrig(btn){ const o=document.getElementById('replyOrig'); const s=o.style.display==='none'; o.style.display=s?'':'none'; btn.innerHTML=s?'<i class="bx bx-x"></i> Ẩn bản gốc':'<i class="bx bx-git-compare"></i> So sánh bản gốc'; }
+
+/* huy hiệu */
+function renderReplyCv(){
+  document.getElementById('replyCvPick').innerHTML=Object.keys(CV).map(name=>{
+    const on=RV.cvs.includes(name)?' on':'';
+    return `<button type="button" class="cvpick${on}" onclick="toggleReplyCv('${name}')"><img src="../Core value with BG/${CV[name]}" alt=""/><span class="fb-badge-tip">${name}</span></button>`;
+  }).join('');
+}
+function toggleReplyCv(name){ const i=RV.cvs.indexOf(name); if(i>=0)RV.cvs.splice(i,1);else RV.cvs.push(name); renderReplyCv(); }
+
+function syncReply(){
+  const text=document.getElementById('replyTA').value.trim();
+  document.getElementById('replyAiBtn').disabled=!text;
+  const visOk = RV.item.about==='other' ? true : !!RV.vis;
+  document.getElementById('replySend').disabled=!(text && visOk);
+}
+function submitReply(){
+  const item=RV.item;
+  const idx=QUEUE.findIndex(q=>q.id===item.id);
+  if(idx>=0) QUEUE.splice(idx,1);
+  const target = item.about==='other' ? item.aboutName : item.from;
+  const visTxt = item.about==='other'
+    ? `${item.from} và ${item.aboutName}`
+    : (RV.vis==='manager' ? `${item.from} và quản lý của họ` : `Chỉ ${item.from}`);
+  document.getElementById('replyForm').style.display='none';
+  document.getElementById('replyFoot').style.display='none';
+  const s=document.getElementById('replySuccess'); s.style.display='';
+  s.innerHTML=`
+    <div class="give-ok">
+      <div class="give-ok-ic"><i class="bx bx-check"></i></div>
+      <div class="give-ok-t">Đã gửi phản hồi</div>
+      <div class="give-ok-d">Cảm ơn bạn đã dành thời gian phản hồi cho ${target}. Sau khi gửi, phản hồi không thể chỉnh sửa.</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+        <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt} xem được</div>
+        ${RV.aiUsed?'<div class="give-ok-note"><i class="bx bx-magic"></i>Có hỗ trợ từ AI</div>':''}
+        ${RV.cvs.length?`<div class="give-ok-note"><i class="bx bx-medal"></i>${RV.cvs.join(', ')}</div>`:''}
+      </div>
+      <div style="margin-top:18px"><button class="btn btn-default btn-sm" onclick="closeOverlay('dlg-reply')"><i class="bx bx-check"></i> Xong</button></div>
+    </div>`;
+  renderQueue(); renderRail();
+}
+
+/* helpers */
+function openOverlay(id){document.getElementById(id).classList.add('open')}
+function closeOverlay(id){document.getElementById(id).classList.remove('open')}
+let toastT;
+function stub(title,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = title+' — '+msg;
+  t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3200);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));}});
+
+renderAll();
+</script>
+</body>
+</html>
