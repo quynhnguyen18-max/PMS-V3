@@ -174,7 +174,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 
 ## 14. FORM CONTROLS
 - Input/select/textarea `.fc`: viền z200, bo rsm, 13.5px z900, focus `border-color:var(--brand);outline:2px solid var(--brand-ring)`. Select mũi tên SVG `%23a1a1aa`.
-- Label `.flbl` 12.5px/500 z700, `.req` dấu * đỏ. Hint `.fhint` z600. Error `.fc.err` viền err + `.ferr`.
+- Label `.flbl` 12.5px/500 z700. **Mọi trường người dùng bắt buộc nhập/chọn phải có dấu `*` đỏ (`.req`) ngay sau tên field; không dùng hậu tố “(bắt buộc)” hoặc “(bắt buộc chọn)”.** Trường tùy chọn không có dấu sao. Hint `.fhint` z600. Error `.fc.err` viền err + `.ferr`.
 - **Type segment** `.type-seg`: 2 lựa chọn **Công việc / Phát triển**, chấm `.ts-dot` HỒNG cả 2 (tối giản, không màu khác nhau), active chữ hồng.
 - Toggle `.demo-toggle` (accent hồng). Checkbox `accent-color:var(--brand)`.
 - Date: input `mm/dd/yyyy` + icon `bx-calendar` bên phải (`.date-input`).

@@ -1,0 +1,57 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const FeedbackModel = require('./feedback-model.js');
+
+const feed = [
+  { id:'direct-1', kind:'received', cycle:'2026', date:'01/01/2026', ts:20260101,
+    who:{name:'Người gửi trực tiếp', dom:'direct.user'}, body:'Phản hồi trực tiếp', cv:['A'] },
+  { id:'req-1', kind:'request', cycle:'2026', date:'02/01/2026', ts:20260102,
+    question:'Câu hỏi chung', reviewers:[
+      { id:'reviewer-1', name:'Người hoàn tất', dom:'done.user', st:'done', repliedAt:'03/01/2026 · 10:30', fb:'Đã trả lời', cv:['B'], vis:'receiver' },
+      { id:'reviewer-2', name:'Người đang chờ', dom:'pending.user', st:'pending' }
+    ] }
+];
+
+test('projects completed request reviewers into received responses and excludes pending reviewers', () => {
+  const normalized = FeedbackModel.normalizeFeed(feed);
+  const projected = normalized.filter(item => item.requestId === 'req-1');
+
+  assert.equal(projected.length, 1);
+  assert.equal(projected[0].kind, 'received');
+  assert.equal(projected[0].who.dom, 'done.user');
+  assert.equal(projected[0].q, 'Câu hỏi chung');
+  assert.equal(projected[0].body, 'Đã trả lời');
+});
+
+test('received filter returns direct and request responses exactly once', () => {
+  const received = FeedbackModel.itemsForFilter(feed, 'received', '2026');
+
+  assert.deepEqual(received.map(item => item.id).sort(), ['direct-1', 'resp-req-1-done.user']);
+});
+
+test('creates canonical given response records for authored feedback', () => {
+  const response = FeedbackModel.createGivenResponse({
+    id:'given-1', cycle:'2026', date:'03/08/2026', recipient:{name:'Mai', dom:'mai.tran', ini:'MT', org:'ITC'},
+    body:'Cảm ơn bạn', vis:'receiver', cv:['A'], requestId:'queue-1'
+  });
+
+  assert.deepEqual(response, {
+    id:'given-1', kind:'given', cycle:'2026', date:'03/08/2026', ts:20260803,
+    who:{name:'Mai', dom:'mai.tran', ini:'MT', org:'ITC'}, body:'Cảm ơn bạn', vis:'receiver', cv:['A'], requestId:'queue-1', status:'submitted'
+  });
+});
+
+test('prototype 2026 data exposes all eight request responses in Received', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const match = html.match(/const FEED = (\[[\s\S]*?\n\]);/);
+  assert.ok(match, 'FEED fixture must be extractable from the prototype');
+  const prototypeFeed = vm.runInNewContext(`(${match[1]})`);
+  const received = FeedbackModel.itemsForFilter(prototypeFeed, 'received', '2026');
+  const fromRequests = received.filter(item => item.requestId);
+
+  assert.equal(fromRequests.length, 8);
+  assert.equal(received.length, 11);
+  assert.equal(new Set(received.map(item => item.id)).size, received.length);
+});

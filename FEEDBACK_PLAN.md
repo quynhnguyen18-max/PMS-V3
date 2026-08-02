@@ -201,7 +201,7 @@ Mỗi phase xong em gửi chị xem trước khi qua phase kế.
 - [x] Cách xử lý **chung/riêng ở 4a** (toggle cá nhân hóa) — chị đã OK.
 - [x] Màn Quản lý — **hiển thị theo người** (đợt 1 không cần lọc theo loại/CV).
 - [x] Chu kỳ & filter — chốt theo **6b** (cutover 30/4, feedback T1–4/2027 tính vào 2026).
-- [ ] **Nội dung AI mock:** em tự nháp vài kịch bản (1 recognition, 1 constructive, 1 mixed) để demo before/after — chị duyệt tone tiếng Việt sau.
+- [ ] **Nội dung AI mock:** đã dựng **4 kịch bản** before/after — Ghi nhận · Cảm ơn · Góp ý · Ghi nhận + Góp ý (mixed). Xem trực tiếp: popup **Cho phản hồi** → chọn loại → nút **"Thử với ví dụ"** → **Cải thiện với AI**. ⏳ *Chờ chị duyệt tone tiếng Việt.*
 
 ---
 

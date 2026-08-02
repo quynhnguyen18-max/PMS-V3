@@ -18,6 +18,7 @@
   --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
   --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
   --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --info-w:312px;   /* bề ngang dùng chung: ô thông tin nhân viên + cụm nút CTA */
   --sh-sm:0 1px 2px rgba(0,0,0,.04);
   --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
   --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
@@ -80,6 +81,7 @@ input,select,textarea{font-family:inherit}
 /* two-column layout: feed + rail */
 .fb-layout{display:flex;gap:22px;align-items:flex-start}
 .fb-main{flex:1;min-width:0;max-width:720px}
+/* rail đứng yên — chỉ cột feed ở giữa cuộn */
 .fb-rail{width:290px;flex-shrink:0;display:flex;flex-direction:column;gap:14px;position:sticky;top:72px}
 @media (max-width:960px){
   .fb-layout{flex-direction:column}
@@ -96,19 +98,29 @@ input,select,textarea{font-family:inherit}
 .stat-row:last-child{border-bottom:none}
 .stat-lbl{font-size:12.5px;color:var(--z600);display:flex;align-items:center;gap:8px}
 .stat-lbl i{font-size:15px;width:16px;text-align:center;color:var(--z400)}
-.stat-val{font-size:15px;font-weight:700;color:var(--z900)}
-.stat-val.hl{color:var(--brand)}
+.stat-val{font-size:12.5px;font-weight:500;color:var(--z500)}
 .cv-rank{display:flex;align-items:center;gap:10px;padding:6px 0}
 .cv-rank img{width:30px;height:30px;border-radius:50%;flex-shrink:0}
 .cv-rank-name{font-size:12px;color:var(--z700);flex:1;line-height:1.3}
 .cv-rank-cnt{font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-muted);border-radius:50px;padding:1px 8px}
+/* giá trị chưa được ghi nhận lần nào — vẫn liệt kê, để số 0 và làm mờ */
+.cv-rank.zero img{filter:grayscale(1);opacity:.4}
+.cv-rank.zero .cv-rank-name{color:var(--z400)}
+.cv-rank.zero .cv-rank-cnt{color:var(--z400);background:var(--z100)}
 .rail-empty{font-size:12px;color:var(--z400);font-style:italic;padding:4px 0}
 .breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
 .breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800)}.bc-sep{color:var(--z400)}
-.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
-.page-sub{font-size:12.5px;color:var(--z500);margin-top:6px;max-width:520px;line-height:1.5}
-.hd-actions{display:flex;gap:8px;flex-shrink:0}
+/* 2 nút hành động chính nằm cuối hàng chu kỳ — rộng bằng đúng ô thông tin phía trên */
+.hd-actions{display:flex;gap:8px;flex-shrink:0;margin-left:auto;width:var(--info-w);max-width:100%}
+.hd-actions .btn{flex:1;justify-content:center;white-space:nowrap}
+/* ô thông tin nhân viên ở góc phải đầu trang (dùng chung mẫu với E-01) */
+.emp-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);width:var(--info-w);max-width:100%}
+.ec-info{display:flex;flex-direction:column;gap:2px}
+.ec-line{font-size:12px;color:var(--z800);line-height:1.35}
+.ec-lbl{color:var(--z600);font-weight:500}
+.ec-dom{color:var(--z600);font-weight:400}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
@@ -126,20 +138,21 @@ input,select,textarea{font-family:inherit}
 .btn-xs{padding:2px 8px;font-size:11.5px}
 
 /* ── CYCLE ── */
-.cycle-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.cycle-row i{font-size:14px;color:var(--z500)}
+.cycle-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.cycle-row > i{font-size:14px;color:var(--z500)}   /* chỉ icon lịch, không đụng icon trong nút */
 .cycle-lbl{font-size:12.5px;color:var(--z600);font-weight:500}
 .cycle-sel{padding:5px 28px 5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;font-size:12.5px;color:var(--z800);font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none}
 .cycle-sel:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
 .cycle-open{font-size:11px;font-weight:600;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-bd);padding:1px 8px;border-radius:50px}
 
-/* ── ACTION QUEUE (Cần bạn phản hồi) ── */
-.queue{background:linear-gradient(180deg,rgba(165,0,100,.04),rgba(165,0,100,.012));border:1px solid var(--brand-ring);border-radius:var(--r);padding:11px 13px;margin-bottom:20px}
-.queue-hd{display:flex;align-items:center;gap:7px;margin-bottom:8px}
-.queue-ic{width:22px;height:22px;border-radius:var(--rsm);background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.queue-title{font-size:12.5px;font-weight:700;color:var(--z900)}
-.queue-cnt{height:17px;line-height:17px;padding:0 6px;border-radius:50px;font-size:10.5px;font-weight:700;background:var(--brand);color:#fff}
-.queue-list{display:flex;flex-direction:column;gap:6px}
+/* ── ACTION QUEUE (Cần bạn phản hồi) — nằm ở rail phải ── */
+.queue-cnt{margin-left:auto;height:17px;line-height:17px;padding:0 7px;border-radius:50px;font-size:10.5px;font-weight:600;background:var(--z100);color:var(--z600)}
+.queue-list{display:flex;flex-direction:column;gap:1px}
+/* dòng gọn trong rail: chỉ avatar + tên người yêu cầu, bấm cả dòng để trả lời */
+.qrow-mini{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.qrow-mini:hover{background:var(--z50)}
+.qm-name{font-size:12.5px;font-weight:500;color:var(--z800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qm-dom{font-weight:400;color:var(--z500)}
 .qrow{display:flex;align-items:center;gap:10px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 11px;transition:var(--t)}
 .qrow:hover{border-color:var(--z300);box-shadow:var(--sh-sm)}
 .qrow-main{flex:1;min-width:0}
@@ -151,18 +164,16 @@ input,select,textarea{font-family:inherit}
 .due{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--z500);flex-shrink:0;white-space:nowrap}
 .due i{font-size:12px}
 .due.soon{color:var(--warn)}.due.over{color:var(--err);font-weight:600}
-.queue-more{width:100%;margin-top:7px;padding:7px;background:none;border:1px dashed var(--brand-ring);border-radius:var(--rsm);color:var(--brand);font-size:12px;font-weight:600;cursor:pointer;transition:var(--t);display:flex;align-items:center;justify-content:center;gap:5px}
-.queue-more:hover{background:var(--z0)}
+.queue-more{width:100%;margin-top:6px;padding:6px;background:none;border:1px dashed var(--z300);border-radius:var(--rsm);color:var(--z600);font-size:12px;font-weight:500;cursor:pointer;transition:var(--t);display:flex;align-items:center;justify-content:center;gap:5px}
+.queue-more:hover{background:var(--z50);border-color:var(--z400);color:var(--z900)}
 .queue-more i{font-size:15px}
 
-/* ── FEED FILTER ── */
+/* ── FEED FILTER — pill có viền, không hiện số ── */
 .feed-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.seg{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px}
-.seg-btn{padding:5px 12px;border:none;background:transparent;border-radius:var(--rxs);font-size:12.5px;font-weight:500;color:var(--z600);transition:var(--t);display:inline-flex;align-items:center;gap:5px}
-.seg-btn:hover{color:var(--z900)}
-.seg-btn.on{background:var(--z0);color:var(--z900);font-weight:600;box-shadow:var(--sh-sm)}
-.seg-n{font-size:10.5px;font-weight:700;color:var(--z500);background:var(--z200);border-radius:50px;padding:0 6px;height:15px;line-height:15px}
-.seg-btn.on .seg-n{background:var(--brand-muted);color:var(--brand)}
+.seg{display:inline-flex;gap:7px;flex-wrap:wrap}
+.seg-btn{padding:6px 14px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:12.5px;font-weight:500;color:var(--z600);transition:var(--t)}
+.seg-btn:hover{background:var(--z50);border-color:var(--z400);color:var(--z900)}
+.seg-btn.on{background:var(--z600);border-color:var(--z600);color:var(--z0);font-weight:600}
 .feed-search{position:relative}
 .feed-search i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--z400)}
 .feed-search input{padding:6px 10px 6px 28px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;color:var(--z800);width:200px;background:var(--z0)}
@@ -172,7 +183,23 @@ input,select,textarea{font-family:inherit}
 .feed{display:flex;flex-direction:column;gap:10px}
 .fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;position:relative}
 .fb-card:hover{border-color:var(--z300)}
-.fb-card.kind-request{border-left:3px solid var(--brand)}
+/* "và n người khác" — kiểu Facebook, bấm được để mở chi tiết */
+.fb-more{position:relative;font-size:13px;font-weight:600;color:var(--z900);cursor:pointer}
+.fb-more:hover{text-decoration:underline;text-underline-offset:3px}
+.fb-more:hover .fb-badge-tip{opacity:1}
+.tip-list{white-space:normal;text-align:left;width:max-content;max-width:240px;line-height:1.6;font-weight:400}
+/* chip trạng thái ở góc trên bên phải card yêu cầu */
+.fb-chip-tr{position:absolute;top:12px;right:15px}
+.fb-card.has-chip .fb-head{padding-right:210px}
+.fb-card[data-kind="request"] .req-actions{margin-top:2px}
+/* card bản nháp — trung tính, không tranh màu với phản hồi thật */
+.fb-card.kind-draft{border-left:3px solid var(--z300);border-style:dashed;cursor:pointer}
+.fb-card.kind-draft:hover{border-color:var(--z400);border-left-color:var(--z400)}
+.cl-draft{color:var(--z600)}
+.draft-body{color:var(--z600);font-style:italic}
+.draft-empty{font-size:12.5px;color:var(--z400);font-style:italic;margin-top:2px}
+@keyframes flash{0%{box-shadow:0 0 0 0 var(--brand-ring)}30%{box-shadow:0 0 0 4px var(--brand-ring)}100%{box-shadow:0 0 0 0 rgba(165,0,100,0)}}
+.fb-card.flash{animation:flash 1.6s ease}
 .card-label{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;margin-bottom:9px}
 .card-label i{font-size:14px}
 .card-label .cl-date{margin-left:auto;font-weight:400;color:var(--z500)}
@@ -183,15 +210,37 @@ input,select,textarea{font-family:inherit}
 .fb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;letter-spacing:-.2px;background:rgba(165,0,100,.07);color:var(--brand);margin-top:1px}
 .fb-sender-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.35}
 .fb-sender-dom{color:var(--z600);font-weight:400}
-.fb-sender-org{font-size:11px;color:var(--z500);line-height:1.4}
+/* header card: [người cho] → [người nhận] */
+.fb-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}
+.fb-head-main{min-width:0}
+.has-react .fb-head{padding-right:88px}
+.fb-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.35;min-width:0}
+.fb-who{font-size:13px;font-weight:600;color:var(--z900)}
+/* hover vào tên → hiện phòng ban – team – vị trí */
+.who-tip{position:relative;cursor:default}
+.who-tip:hover{text-decoration:underline;text-underline-offset:3px}
+.who-tip:hover .fb-badge-tip{opacity:1}
+/* tam giác đặc kiểu Facebook, không phải mũi tên */
+.fb-arrow{width:0;height:0;border-left:6px solid var(--z600);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;flex-shrink:0;margin:0 2px}
+/* 1 hàng meta: phạm vi xem · ngày · giá trị cốt lõi */
+/* dòng 2 của header — thay chỗ dòng phòng ban cũ */
+.fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
+.fb-meta-date{font-size:11.5px;color:var(--z500)}
+/* huy hiệu giá trị cốt lõi — góc trên bên phải card */
+.fb-react{position:absolute;top:12px;right:15px;display:flex;align-items:center;gap:5px}
+.fb-react .fb-badge-img{width:24px;height:24px}
+/* huy hiệu sát mép trên–phải → tooltip lật xuống dưới và neo phải cho khỏi tràn card */
+.fb-react .fb-badge-tip{bottom:auto;top:calc(100% + 6px);left:auto;right:0;transform:none}
+.fb-react .fb-badge-tip::after{top:auto;bottom:100%;left:auto;right:8px;transform:none;border-top-color:transparent;border-bottom-color:var(--z900)}
+.vis-ic{color:var(--z500)}
+.vis-ic i{font-size:15px;display:block}
+.vis-ic:hover{color:var(--z700)}
 .fb-lead{font-size:11.5px;color:var(--z500);margin-bottom:1px}
 .fb-date{font-size:11.5px;color:var(--z600);flex-shrink:0}
 .fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
 .fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
 .fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
 .fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
-.fb-badges{border-top:1px solid var(--z100);padding-top:8px;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.fb-badge-lbl{font-size:11px;color:var(--z500);font-weight:500;margin-right:2px}
 .fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
 .fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
 .fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:11px;font-weight:500;padding:4px 8px;border-radius:var(--rxs);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
@@ -201,19 +250,9 @@ input,select,textarea{font-family:inherit}
 /* visibility tag */
 .vis{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--z500);font-weight:500}
 .vis i{font-size:12px}
-.card-foot{border-top:1px solid var(--z100);padding-top:8px;margin-top:10px;display:flex;align-items:center;gap:10px}
-.card-foot2{border-top:1px solid var(--z100);padding-top:9px;margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.cvline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
-.card-foot2 .vis{flex-shrink:0}
 
 /* ── REQUEST CARD ── */
 .req-title{font-size:13.5px;font-weight:600;color:var(--z900);line-height:1.4}
-.req-sub{font-size:11.5px;color:var(--z500);margin-top:2px}
-.req-prog{margin-top:11px}
-.prog-top{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--z600);margin-bottom:5px}
-.prog-top b{color:var(--z900);font-weight:600}
-.bar{height:6px;background:var(--z100);border-radius:50px;overflow:hidden}
-.bar-fill{height:100%;background:var(--brand);border-radius:50px;transition:width .3s ease}
 .req-actions{display:flex;gap:7px;margin-top:12px}
 
 /* status chips */
@@ -223,6 +262,7 @@ input,select,textarea{font-family:inherit}
 .ch-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
 .ch-expired{color:var(--z500);background:var(--z100);border-color:var(--z200)}
 .ch-overdue{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
+.ch-draft{color:var(--z600);background:var(--z100);border-color:var(--z300)}
 
 /* empty */
 .empty{text-align:center;padding:48px 20px;color:var(--z500)}
@@ -236,6 +276,8 @@ input,select,textarea{font-family:inherit}
 @keyframes dlg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
 .dialog.md{max-width:640px}
+.dialog.sm{max-width:420px}
+.ov-top{z-index:1100}
 .dlg-hd{padding:16px 20px 14px;flex-shrink:0;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .dlg-title{font-size:15px;font-weight:600;color:var(--z900);line-height:1.4}
 .dlg-sub{font-size:12px;color:var(--z500);margin-top:3px}
@@ -245,28 +287,28 @@ input,select,textarea{font-family:inherit}
 .dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:space-between;flex-shrink:0;align-items:center}
 
 /* reviewer status list in overlay */
-.rv-item{padding:11px 0;border-bottom:1px solid var(--z100)}
+.rv-item{position:relative;padding:14px 0;border-bottom:1px solid var(--z100)}
 .rv-item:last-child{border-bottom:none}
-.rv-row{display:flex;align-items:center;gap:10px}
-.rv-info{flex:1;min-width:0}
-.rv-name{font-size:12.5px;font-weight:500;color:var(--z900)}
-.rv-dom{color:var(--z500);font-weight:400}
-.rv-org{font-size:11px;color:var(--z500)}
-.rv-fb{margin:9px 0 1px 34px;padding:10px 12px;background:var(--z50);border:1px solid var(--z100);border-radius:var(--rsm)}
-.rv-fb .fb-body{font-size:12.5px}
-.rv-fb .fb-badges{margin-top:9px;padding-top:8px}
-.rv-pending{margin:7px 0 1px 34px;font-size:11.5px;color:var(--z400);font-style:italic}
+.rv-item .fb-body{font-size:12.5px}
+.rv-item .fb-react{top:14px;right:0}
+.rv-item .fb-qbox{margin-bottom:9px}
+.rv-qbox-pending{position:relative;padding-right:118px}
+.rv-question-status{position:absolute;top:7px;right:10px}
+.rv-item-status{position:absolute;top:14px;right:0}
+.rv-remind-note{margin:7px 0 0 37px;font-size:11.5px;color:var(--brand);font-weight:500}
+.rv-reminded{color:var(--brand);font-style:normal;font-weight:500}
+.rv-reminded i{font-size:12px;vertical-align:-1px}
 /* popup header meta (không dùng dấu chấm phân cách) */
 .dlg-meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:10px}
 .mi{display:flex;flex-direction:column;gap:2px}
 .mi-l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z400)}
 .mi-v{font-size:13px;font-weight:600;color:var(--z900)}
+.mi-dom{font-size:12px;font-weight:400;color:var(--z500)}
 .mi-due{font-size:11.5px;font-weight:600;color:var(--z500)}
 .mi-due.soon{color:var(--warn)}.mi-due.over{color:var(--err)}
 /* câu hỏi chung ở đầu popup */
 .qshared{border-left:3px solid var(--brand-ring);padding:9px 12px;background:rgba(165,0,100,.03);border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:14px}
 .rv-h{font-size:12px;font-weight:600;color:var(--z600);margin-bottom:2px}
-.rv-q{margin:9px 0 0 34px}
 /* origin tag cho card đã nhận từ yêu cầu */
 .origin-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rsm);padding:3px 9px;margin-bottom:10px;max-width:100%}
 .origin-tag i{font-size:13px;flex-shrink:0}
@@ -280,6 +322,7 @@ input,select,textarea{font-family:inherit}
 .dialog.lg{max-width:680px}
 .field{margin-bottom:16px}
 .field-label{display:block;font-size:12.5px;font-weight:600;color:var(--z800);margin-bottom:7px}
+.req-star{color:var(--err);font-weight:700;margin-left:2px}
 .field-hint{font-size:11.5px;color:var(--z500);font-weight:400}
 /* recipient picker */
 .pick-inputwrap{position:relative}
@@ -303,19 +346,25 @@ input,select,textarea{font-family:inherit}
 /* textarea */
 .compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:var(--z0)}
 .compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
-.ai-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
+.ai-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px;flex-wrap:wrap}
+.ai-bar>button{margin-left:auto}
+.ai-used-note{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;color:var(--z500)}
+.ai-used-note i{font-size:15px;color:var(--z500)}
+.ai-loading{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--z600);padding:2px 0}
 .quick-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .quick-chips>span{font-size:11px;color:var(--z500)}
 .qchip{padding:3px 10px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:11.5px;color:var(--z600);transition:var(--t)}
 .qchip:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
-.btn-ai{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;border:1px solid var(--brand);background:linear-gradient(135deg,var(--brand),#c21a7f);color:#fff;transition:var(--t);cursor:pointer}
-.btn-ai:hover{filter:brightness(1.06)}
+.btn-ai{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;border:1px solid var(--brand);background:transparent;color:var(--brand);transition:var(--t);cursor:pointer}
+.btn-ai:hover{background:var(--brand-muted)}
 .btn-ai:disabled{background:var(--z100);border-color:var(--z200);color:var(--z400);cursor:not-allowed}
 .btn-ai i{font-size:15px}
 /* AI panel */
-.ai-panel{border:1px solid var(--brand-ring);border-radius:var(--r);padding:14px;margin-bottom:16px;background:linear-gradient(180deg,rgba(165,0,100,.035),rgba(165,0,100,.008))}
-.ai-head{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--brand);margin-bottom:11px}
+.ai-panel{border:none;border-left:3px solid var(--brand-ring);border-radius:0 var(--rsm) var(--rsm) 0;padding:11px 13px;margin:10px 0 0;background:var(--brand-muted)}
+.ai-head{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--brand);margin-bottom:6px}
 .ai-head i{font-size:15px}
+.ai-suggestion{font-size:12.5px;line-height:1.65;color:var(--z700);white-space:pre-wrap}
+.ai-actions{display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap}
 .ai-insights{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
 .insight-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:50px;border:1px solid var(--z200);background:var(--z0);color:var(--z700)}
 .insight-chip i{font-size:13px}
@@ -372,39 +421,28 @@ input,select,textarea{font-family:inherit}
 .cvpick:hover{border-color:var(--brand-ring);transform:translateY(-1px)}
 .cvpick.on{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-muted)}
 .cvpick:hover .fb-badge-tip{opacity:1}
-/* AI panel actions + compare toggle + good state */
-.cmp-actions{align-items:center}
-.cmp-toggle{margin-left:auto;background:none;border:none;color:var(--z500);font-size:11.5px;font-weight:500;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:4px}
-.cmp-toggle:hover{color:var(--z800)}
-.cmp-block.orig{margin-top:10px}
+/* AI panel good state */
 .ai-good{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--ok);line-height:1.5;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:var(--rsm);padding:10px 12px}
 .ai-good i{font-size:16px;flex-shrink:0;margin-top:1px}
-/* compare */
-.compare{display:flex;flex-direction:column;gap:10px}
-.cmp-block{border:1px solid var(--z200);border-radius:var(--rsm);overflow:hidden;background:var(--z0)}
-.cmp-block.sugg{border-color:var(--brand-ring);box-shadow:0 0 0 3px var(--brand-muted)}
-.cmp-head{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:7px 12px;background:var(--z50);color:var(--z500);border-bottom:1px solid var(--z100)}
-.cmp-block.sugg .cmp-head{background:var(--brand-muted);color:var(--brand)}
-.cmp-head i{font-size:13px}
-.cmp-body{padding:11px 12px;font-size:12.5px;line-height:1.65;color:var(--z700);white-space:pre-wrap}
-.cmp-block.orig .cmp-body{color:var(--z500)}
-.cmp-actions{display:flex;gap:7px;padding:0 12px 12px;flex-wrap:wrap}
-.ai-done{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ok);font-weight:600;padding:2px}
+.ai-done{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--z600);font-weight:500;padding:2px}
 .ai-done i{font-size:15px}
 /* accepted tag on textarea */
 .ai-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:50px;padding:2px 9px}
 .ai-tag i{font-size:12px}
 /* visibility radio cards */
-.vis-opts{display:flex;flex-direction:column;gap:8px}
-.vis-card{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
-.vis-card:hover{border-color:var(--z300);background:var(--z50)}
-.vis-card.on{border-color:var(--brand);background:var(--brand-muted)}
+.vis-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.vis-card{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:none;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.vis-card>div{min-width:0}
+.vis-card:hover{background:var(--z50)}
+.vis-card.on{background:var(--brand-muted)}
 .vis-card input{margin-top:2px;accent-color:var(--brand);flex-shrink:0}
 .vc-t{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--z900)}
+.vis-card .vc-t{font-weight:400}
 .vc-t i{font-size:14px;color:var(--z500)}
 .vis-card.on .vc-t i{color:var(--brand)}
 .vc-d{font-size:11.5px;color:var(--z500);margin-top:3px;line-height:1.45}
 .vis-hint{font-size:11.5px;color:var(--z500)}
+@media (max-width:560px){.vis-opts{grid-template-columns:1fr}}
 /* success */
 .give-ok{text-align:center;padding:20px 16px}
 .give-ok-ic{width:52px;height:52px;border-radius:50%;background:var(--ok-bg);border:1px solid var(--ok-bd);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px}
@@ -450,6 +488,7 @@ input,select,textarea{font-family:inherit}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast i{font-size:16px;color:#fff}
 </style>
+  <script src="feedback-model.js"></script>
 </head>
 <body>
 <div class="app">
@@ -503,17 +542,18 @@ input,select,textarea{font-family:inherit}
     </div>
 
     <div class="page-hd">
-      <div>
-        <h1 class="page-title">Phản hồi</h1>
-        <p class="page-sub">Phản hồi là món quà giúp MoMoers cùng nhau phát triển.</p>
-      </div>
-      <div class="hd-actions">
-        <button class="btn btn-default" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi</button>
-        <button class="btn btn-cta-outline" onclick="openRequest()"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button>
+      <h1 class="page-title">Phản hồi</h1>
+      <div class="emp-chip">
+        <div class="av av-brand av-xs">NT</div>
+        <div class="ec-info">
+          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
+          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
+          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- Cycle -->
+    <!-- Cycle + hành động chính -->
     <div class="cycle-row">
       <i class="bx bx-calendar"></i>
       <span class="cycle-lbl">Chu kỳ</span>
@@ -522,28 +562,22 @@ input,select,textarea{font-family:inherit}
         <option value="2025">Năm 2025</option>
       </select>
       <span class="cycle-open" id="cycleOpen">Đang mở</span>
+      <div class="hd-actions">
+        <button class="btn btn-default" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi</button>
+        <button class="btn btn-cta-outline" onclick="openRequest()"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button>
+      </div>
     </div>
 
     <div class="fb-layout">
       <!-- MAIN COLUMN -->
       <div class="fb-main">
-        <!-- Action queue -->
-        <section class="queue" id="queueSec">
-          <div class="queue-hd">
-            <div class="queue-ic"><i class="bx bx-bell"></i></div>
-            <span class="queue-title">Cần bạn phản hồi</span>
-            <span class="queue-cnt" id="queueCnt">0</span>
-          </div>
-          <div class="queue-list" id="queueList"></div>
-        </section>
-
         <!-- Feed filter -->
         <div class="feed-bar">
           <div class="seg" id="seg">
-            <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả <span class="seg-n" id="n-all">0</span></button>
-            <button class="seg-btn" data-f="received" onclick="setFilter('received')">Đã nhận <span class="seg-n" id="n-received">0</span></button>
-            <button class="seg-btn" data-f="given" onclick="setFilter('given')">Đã cho <span class="seg-n" id="n-given">0</span></button>
-            <button class="seg-btn" data-f="request" onclick="setFilter('request')">Yêu cầu của tôi <span class="seg-n" id="n-request">0</span></button>
+            <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả</button>
+            <button class="seg-btn" data-f="received" onclick="setFilter('received')">Đã nhận</button>
+            <button class="seg-btn" data-f="given" onclick="setFilter('given')">Đã cho</button>
+            <button class="seg-btn" data-f="request" onclick="setFilter('request')">Yêu cầu của tôi</button>
           </div>
           <div class="feed-search">
             <i class="bx bx-search"></i>
@@ -555,15 +589,21 @@ input,select,textarea{font-family:inherit}
         <div class="feed" id="feed"></div>
       </div>
 
-      <!-- RIGHT RAIL -->
+      <!-- RIGHT RAIL — thứ tự: giá trị → việc cần làm → thống kê -->
       <aside class="fb-rail">
-        <div class="rail-card">
-          <div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Hoạt động chu kỳ <span id="railYear" style="color:var(--z500);font-weight:600">2026</span></div>
-          <div id="railStats"></div>
-        </div>
         <div class="rail-card">
           <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
           <div id="railCV"></div>
+        </div>
+
+        <section class="rail-card" id="queueSec">
+          <div class="rail-title"><i class="bx bx-bell"></i>Cần bạn phản hồi<span class="queue-cnt" id="queueCnt">0</span></div>
+          <div class="queue-list" id="queueList"></div>
+        </section>
+
+        <div class="rail-card">
+          <div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Hoạt động chu kỳ <span id="railYear" style="color:var(--z500);font-weight:600">2026</span></div>
+          <div id="railStats"></div>
         </div>
       </aside>
     </div>
@@ -586,7 +626,7 @@ input,select,textarea{font-family:inherit}
       <span style="font-size:11.5px;color:var(--z500)" id="reqRemindNote"></span>
       <div style="display:flex;gap:7px">
         <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-req')">Đóng</button>
-        <button class="btn btn-default btn-sm" id="reqRemindBtn" onclick="stub('Nhắc reviewer','Gửi nhắc thủ công sẽ hoạt động ở Phase C.')"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>
+        <span id="reqRemindSlot"></span>
       </div>
     </div>
   </div>
@@ -611,14 +651,11 @@ input,select,textarea{font-family:inherit}
 </div>
 
 <!-- Cho phản hồi (UC2) overlay -->
-<div class="overlay" id="dlg-give" onclick="if(event.target===this)closeOverlay('dlg-give')">
+<div class="overlay" id="dlg-give" onclick="if(event.target===this)requestClose('dlg-give')">
   <div class="dialog lg">
     <div class="dlg-hd">
-      <div>
-        <div class="dlg-title">Cho phản hồi</div>
-        <div class="dlg-sub">Phản hồi là món quà — viết tự nhiên, AI sẽ giúp bạn nói rõ ràng hơn.</div>
-      </div>
-      <button class="dlg-close" onclick="closeOverlay('dlg-give')">&#x2715;</button>
+      <div class="dlg-title">Cho phản hồi</div>
+      <button class="dlg-close" onclick="requestClose('dlg-give')">&#x2715;</button>
     </div>
 
     <div class="dlg-body" id="giveBody">
@@ -626,7 +663,7 @@ input,select,textarea{font-family:inherit}
       <div id="giveForm">
         <!-- recipient -->
         <div class="field">
-          <label class="field-label">Gửi đến</label>
+          <label class="field-label">Gửi đến<span class="req-star">*</span></label>
           <div id="pickChosen" style="display:none"></div>
           <div id="pickWrap">
             <div class="pick-inputwrap">
@@ -639,41 +676,33 @@ input,select,textarea{font-family:inherit}
 
         <!-- content -->
         <div class="field">
-          <label class="field-label">Nội dung phản hồi</label>
-          <div class="type-row">
-            <span class="type-lbl">Bạn muốn phản hồi điều gì? <span class="field-hint">(tùy chọn)</span></span>
-            <button class="type-chip" data-type="recognition" onclick="setType('recognition')"><i class="bx bx-medal"></i>Ghi nhận</button>
-            <button class="type-chip" data-type="appreciation" onclick="setType('appreciation')"><i class="bx bx-heart"></i>Cảm ơn</button>
-            <button class="type-chip" data-type="constructive" onclick="setType('constructive')"><i class="bx bx-bulb"></i>Góp ý</button>
-          </div>
+          <label class="field-label">Nội dung phản hồi<span class="req-star">*</span></label>
           <div class="type-guide" id="typeGuide" style="display:none"></div>
-          <textarea class="compose-ta" id="giveTA" placeholder="Viết tự nhiên những gì bạn muốn ghi nhận, cảm ơn hay góp ý cho đồng nghiệp…" oninput="onGiveInput()"></textarea>
-          <div class="ai-bar">
-            <span class="ai-note"><i class="bx bx-info-circle"></i> AI giúp bạn diễn đạt rõ ràng hơn — bạn luôn quyết định nội dung cuối.</span>
+          <textarea class="compose-ta" id="giveTA" placeholder="Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?" oninput="onGiveInput()"></textarea>
+          <div class="ai-panel" id="aiPanel" style="display:none"></div>
+          <div class="ai-bar" id="giveAiBar">
+            <span class="ai-used-note" id="giveAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</span>
             <button class="btn-ai" id="aiBtn" onclick="runAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
           </div>
         </div>
 
-        <!-- AI panel -->
-        <div class="ai-panel" id="aiPanel" style="display:none"></div>
-
         <!-- huy hiệu (core values): field riêng, tùy chọn -->
         <div class="field">
-          <label class="field-label">Huy hiệu <span class="field-hint">(tùy chọn — chọn giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
+          <label class="field-label">Huy hiệu <span class="field-hint">(Chọn một hoặc nhiều giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
           <div class="cvpick-row" id="cvPick"></div>
         </div>
 
         <!-- visibility -->
         <div class="field">
-          <label class="field-label">Ai có thể xem phản hồi này? <span class="field-hint">(bắt buộc chọn)</span></label>
+          <label class="field-label">Ai có thể xem phản hồi này?<span class="req-star">*</span></label>
           <div class="vis-opts">
             <label class="vis-card" id="visCardR">
               <input type="radio" name="gvis" value="receiver" onchange="setGVis('receiver')"/>
-              <div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ người nhận</div><div class="vc-d">Chỉ bạn và người nhận nhìn thấy phản hồi này.</div></div>
+              <div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ người nhận</div></div>
             </label>
             <label class="vis-card" id="visCardM">
               <input type="radio" name="gvis" value="manager" onchange="setGVis('manager')"/>
-              <div><div class="vc-t"><i class="bx bx-group"></i>Người nhận + Quản lý của họ</div><div class="vc-d">Người nhận và quản lý trực tiếp của họ nhìn thấy phản hồi này.</div></div>
+              <div><div class="vc-t"><i class="bx bx-group"></i>Người nhận + Quản lý của họ</div></div>
             </label>
           </div>
         </div>
@@ -684,9 +713,8 @@ input,select,textarea{font-family:inherit}
     </div>
 
     <div class="dlg-foot" id="giveFoot">
-      <span class="vis-hint" id="giveHint"><i class="bx bx-info-circle"></i> AI chỉ hỗ trợ — bạn luôn là người quyết định nội dung cuối.</span>
+      <span></span>
       <div style="display:flex;gap:7px">
-        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-give')">Hủy</button>
         <button class="btn btn-default btn-sm" id="giveSend" disabled onclick="sendGive()"><i class="bx bx-send"></i> Gửi phản hồi</button>
       </div>
     </div>
@@ -694,11 +722,11 @@ input,select,textarea{font-family:inherit}
 </div>
 
 <!-- Yêu cầu phản hồi (UC1) overlay -->
-<div class="overlay" id="dlg-newreq" onclick="if(event.target===this)closeOverlay('dlg-newreq')">
+<div class="overlay" id="dlg-newreq" onclick="if(event.target===this)requestClose('dlg-newreq')">
   <div class="dialog lg">
     <div class="dlg-hd">
       <div class="dlg-title">Yêu cầu phản hồi</div>
-      <button class="dlg-close" onclick="closeOverlay('dlg-newreq')">&#x2715;</button>
+      <button class="dlg-close" onclick="requestClose('dlg-newreq')">&#x2715;</button>
     </div>
 
     <div class="dlg-body" id="reqBodyForm">
@@ -706,7 +734,7 @@ input,select,textarea{font-family:inherit}
         <!-- reviewers -->
         <div class="field">
           <div class="field-row">
-            <label class="field-label" style="margin:0">Gửi yêu cầu phản hồi đến <span class="field-hint">(1–20 người)</span></label>
+            <label class="field-label" style="margin:0">Gửi yêu cầu phản hồi đến<span class="req-star">*</span> <span class="field-hint">(1–20 người)</span></label>
             <span class="rv-count" id="reqCount">0/20</span>
           </div>
           <div class="pick-inputwrap">
@@ -720,7 +748,7 @@ input,select,textarea{font-family:inherit}
         <!-- question -->
         <div class="field">
           <div class="field-row">
-            <label class="field-label" style="margin:0">Câu hỏi cho người phản hồi</label>
+            <label class="field-label" style="margin:0">Câu hỏi cho người phản hồi<span class="req-star">*</span></label>
             <label class="opt-toggle" id="reqPersRow" style="display:none"><input type="checkbox" id="reqPersonalize" onchange="togglePersonalize(this)"/> Cá nhân hóa cho từng người</label>
           </div>
           <textarea class="compose-ta" id="reqQ" style="min-height:64px" placeholder="Vd: Bạn thấy phần trình bày của mình rõ ràng chưa, có điểm nào nên cải thiện?" oninput="onCommonQInput()"></textarea>
@@ -732,7 +760,7 @@ input,select,textarea{font-family:inherit}
 
         <!-- due -->
         <div class="field">
-          <label class="field-label">Hạn phản hồi</label>
+          <label class="field-label">Hạn phản hồi<span class="req-star">*</span></label>
           <input type="date" class="date-input" id="reqDue" onchange="syncReq()"/>
           <div class="field-hint" style="margin-top:5px"><i class="bx bx-info-circle"></i> Hệ thống sẽ tự nhắc người phản hồi 3 ngày trước hạn.</div>
         </div>
@@ -744,7 +772,6 @@ input,select,textarea{font-family:inherit}
     <div class="dlg-foot" id="reqFoot">
       <span></span>
       <div style="display:flex;gap:7px">
-        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-newreq')">Hủy</button>
         <button class="btn btn-default btn-sm" id="reqSend" disabled onclick="submitRequest()"><i class="bx bx-send"></i> Gửi yêu cầu</button>
       </div>
     </div>
@@ -752,14 +779,14 @@ input,select,textarea{font-family:inherit}
 </div>
 
 <!-- Trả lời phản hồi (UC-R) overlay -->
-<div class="overlay" id="dlg-reply" onclick="if(event.target===this)closeOverlay('dlg-reply')">
+<div class="overlay" id="dlg-reply" onclick="if(event.target===this)requestClose('dlg-reply')">
   <div class="dialog lg">
     <div class="dlg-hd">
       <div>
         <div class="dlg-title" id="replyTitle">Trả lời Yêu cầu phản hồi</div>
         <div class="dlg-sub" id="replySub"></div>
       </div>
-      <button class="dlg-close" onclick="closeOverlay('dlg-reply')">&#x2715;</button>
+      <button class="dlg-close" onclick="requestClose('dlg-reply')">&#x2715;</button>
     </div>
 
     <div class="dlg-body">
@@ -767,18 +794,17 @@ input,select,textarea{font-family:inherit}
         <div class="reply-ask" id="replyAsk"></div>
 
         <div class="field">
-          <label class="field-label">Phản hồi của bạn</label>
+          <label class="field-label">Phản hồi của bạn<span class="req-star">*</span></label>
           <textarea class="compose-ta" id="replyTA" placeholder="Viết phản hồi của bạn cho câu hỏi trên…" oninput="onReplyInput()"></textarea>
-          <div class="ai-bar">
-            <span class="ai-note"><i class="bx bx-info-circle"></i> AI giúp bạn diễn đạt rõ ràng hơn — bạn luôn quyết định nội dung cuối.</span>
+          <div class="ai-panel" id="replyAiPanel" style="display:none"></div>
+          <div class="ai-bar" id="replyAiBar">
+            <span class="ai-used-note" id="replyAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</span>
             <button class="btn-ai" id="replyAiBtn" onclick="runReplyAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
           </div>
         </div>
 
-        <div class="ai-panel" id="replyAiPanel" style="display:none"></div>
-
         <div class="field">
-          <label class="field-label">Huy hiệu <span class="field-hint">(tùy chọn — chọn giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
+          <label class="field-label">Huy hiệu <span class="field-hint">(Chọn một hoặc nhiều giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
           <div class="cvpick-row" id="replyCvPick"></div>
         </div>
 
@@ -791,9 +817,25 @@ input,select,textarea{font-family:inherit}
     <div class="dlg-foot" id="replyFoot">
       <span class="vis-hint"><i class="bx bx-info-circle"></i> Gửi một lần — sau khi gửi không thể chỉnh sửa.</span>
       <div style="display:flex;gap:7px">
-        <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-reply')">Hủy</button>
         <button class="btn btn-default btn-sm" id="replySend" disabled onclick="submitReply()"><i class="bx bx-send"></i> Gửi phản hồi</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Xác nhận khi đóng popup đang viết dở -->
+<div class="overlay ov-top" id="dlg-confirm" onclick="if(event.target===this)cancelClose()">
+  <div class="dialog sm">
+    <div class="dlg-hd">
+      <div>
+        <div class="dlg-title">Bạn đang viết dở</div>
+        <div class="dlg-sub" id="confirmSub">Lưu bản nháp để quay lại viết tiếp, hoặc xóa nội dung đã nhập.</div>
+      </div>
+      <button class="dlg-close" onclick="cancelClose()">&#x2715;</button>
+    </div>
+    <div class="dlg-foot" style="justify-content:flex-end">
+      <button class="btn btn-outline btn-sm" onclick="discardDraft()"><i class="bx bx-trash"></i> Xóa nội dung</button>
+      <button class="btn btn-default btn-sm" onclick="saveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
     </div>
   </div>
 </div>
@@ -812,18 +854,28 @@ const CV = {
 function badgeImgs(list){
   return (list||[]).map(n=>`<span class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/${CV[n]}" alt=""/><span class="fb-badge-tip">${n}</span></span>`).join('');
 }
-/* full-width badge row — dùng trong popup */
-function badges(list){
-  if(!list||!list.length) return '';
-  return `<div class="fb-badges"><span class="fb-badge-lbl">Giá trị cốt lõi:</span>${badgeImgs(list)}</div>`;
-}
-/* 1 hàng gộp: giá trị cốt lõi (trái) + visibility (phải) */
-function cardFoot(cv, vis, persp){
-  const left = (cv&&cv.length)
-    ? `<div class="cvline"><span class="fb-badge-lbl">Giá trị cốt lõi:</span>${badgeImgs(cv)}</div>`
-    : `<span></span>`;
-  return `<div class="card-foot2">${left}${visTag(vis,persp)}</div>`;
-}
+
+/* người đang đăng nhập — không hiển thị domain/phòng ban của chính mình trên feed */
+const SELF={name:'Nguyễn Văn Tú', dom:'tu.nguyen', ini:'NT'};
+
+/* Hồ sơ đầy đủ dùng cho tooltip ở feed + popup chi tiết yêu cầu.
+   Request data chỉ cần giữ org ngắn; position được resolve thống nhất theo domain. */
+const ORG_BY_DOM={
+  'mai.tran':'ITC – Frontend – Software Engineer',
+  'nam.le':'ITC – Mobile – iOS Developer',
+  'lan.vu':'ITC – QA – QA Engineer',
+  'bao.nguyen':'ITC – Platform – Tech Lead',
+  'duc.truong':'ITC – Backend – Senior Engineer',
+  'lan.hoang':'MKT – Brand – Senior Designer',
+  'hung.le':'ITC – Backend – Senior Engineer',
+  'hang.mai':'ITC – DevOps – Platform Engineer',
+  'duc.pham':'ITC – Data – Data Engineer',
+  'hieu.pham':'FIN – Finance Control – Analyst',
+  'phuong.nguyen':'ITC – Data – Data Scientist',
+  'khoa.tran':'ITC – Mobile – iOS Engineer'
+};
+function fullOrg(p){ return ORG_BY_DOM[p.dom] || p.org || ''; }
+function initials(name){ return String(name||'').trim().split(/\s+/).slice(-2).map(part=>part.charAt(0)).join('').toUpperCase(); }
 
 /* ═══ MOCK DATA — feed của Nguyễn Văn Tú (tu.nguyen) ═══ */
 /* kind: received | given | request ; cycle theo mục 6b */
@@ -859,32 +911,32 @@ const FEED = [
     cv:['Khách hàng là trung tâm'], vis:'manager' },
 
   // ── REQUEST (UC1 - của Tú) ──
-  { kind:'request', cycle:'2026', date:'06/03/2026', ts:20260306,
+  { id:'req-roadmap-q1', kind:'request', cycle:'2026', date:'06/03/2026', ts:20260306,
     context:'Xin phản hồi sau buổi trình bày roadmap kỹ thuật Q1 với các stakeholder',
     due:'20/03/2026', status:'open',
     qMode:'shared', question:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     reviewers:[
-      {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile', st:'done', vis:'receiver',
+      {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile', st:'done', vis:'receiver', repliedAt:'10/03/2026 · 09:32',
         fb:'Phần trình bày của Tú rất mạch lạc, đi thẳng vào vấn đề. Slide kiến trúc dễ theo dõi và bạn trả lời câu hỏi kỹ thuật rất tự tin. Nếu có thể, lần sau thêm 1 slide tóm tắt impact về business ở đầu sẽ giúp stakeholder non-tech nắm nhanh hơn.',
         cv:['Thực thi xuất sắc']},
-      {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand', st:'done', vis:'receiver',
+      {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand', st:'done', vis:'receiver', repliedAt:'11/03/2026 · 14:18',
         fb:'Mình đánh giá cao cách Tú dùng ví dụ trực quan để giải thích lý do refactor. Business team hiểu được ngay. Điểm cần lưu ý là đôi lúc bạn nói hơi nhanh ở phần số liệu, có thể chậm lại một chút.',
         cv:['Khách hàng là trung tâm']},
-      {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend', st:'done', vis:'manager',
+      {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend', st:'done', vis:'manager', repliedAt:'13/03/2026 · 16:05',
         fb:'Nội dung kỹ thuật rất chắc. Cách Tú phân tích trade-off giữa các phương án migration cho thấy tư duy hệ thống tốt. Rất đáng để junior trong team học theo.',
         cv:['Không ngừng học hỏi','Thực thi xuất sắc']},
       {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN – Finance Control', st:'pending'},
       {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'pending'}
     ] },
-  { kind:'request', cycle:'2026', date:'10/07/2026', ts:20260710,
+  { id:'req-postgresql-migration', kind:'request', cycle:'2026', date:'10/07/2026', ts:20260710,
     context:'Xin phản hồi sau dự án migration hệ thống thanh toán sang PostgreSQL',
     due:'25/07/2026', status:'open', qMode:'individual',
     reviewers:[
-      {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps', st:'done', vis:'receiver',
+      {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps', st:'done', vis:'receiver', repliedAt:'15/07/2026 · 10:24',
         q:'Việc phối hợp giữa mình và team DevOps trong quá trình migration diễn ra thế nào?',
         fb:'Tú lên kế hoạch migration rất bài bản, chia nhỏ theo từng giai đoạn nên team DevOps chủ động được hạ tầng. Rollback plan rõ ràng giúp mình yên tâm khi go-live. Lần sau nếu thông báo lịch cutover sớm hơn 1–2 ngày thì sẽ càng mượt.',
         cv:['Tinh thần đồng đội']},
-      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver',
+      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver', repliedAt:'18/07/2026 · 16:40',
         q:'Chất lượng kỹ thuật của phần chuyển đổi schema và data như thế nào?',
         fb:'Phần chuyển đổi schema được xử lý cẩn thận, không mất mát dữ liệu và downtime gần như bằng 0. Cách Tú viết script migration idempotent rất chuyên nghiệp.',
         cv:['Thực thi xuất sắc']},
@@ -893,19 +945,19 @@ const FEED = [
       {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA', st:'pending',
         q:'Quá trình kiểm thử hồi quy sau migration có thuận lợi không?'}
     ] },
-  { kind:'request', cycle:'2026', date:'02/02/2026', ts:20260202,
+  { id:'req-senior-mentoring', kind:'request', cycle:'2026', date:'02/02/2026', ts:20260202,
     context:'Xin góp ý về khả năng mentor junior để chuẩn bị cho lộ trình lên Senior',
     due:'12/02/2026', status:'completed', qMode:'individual',
     reviewers:[
-      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'done', vis:'manager',
+      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'done', vis:'manager', repliedAt:'06/02/2026 · 09:15',
         q:'Theo bạn, mình cần phát triển thêm điều gì để sẵn sàng cho vai trò Senior?',
         fb:'Tú có tố chất mentor tốt: kiên nhẫn và giải thích rõ ràng. Để lên Senior, mình khuyến khích bạn chủ động nhận review code cho junior thường xuyên hơn và tham gia sâu vào các technical decision ở cấp team.',
         cv:['Tinh thần đồng đội']},
-      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver',
+      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver', repliedAt:'08/02/2026 · 14:30',
         q:'Trải nghiệm được mình hỗ trợ/mentor của bạn như thế nào?',
         fb:'Mình từng được Tú hỗ trợ debug một vấn đề khó và bạn hướng dẫn rất tận tình, chỉ cả cách tư duy chứ không chỉ đưa đáp án. Đây chính là chất của một mentor.',
         cv:['Không ngừng học hỏi']},
-      {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend', st:'done', vis:'receiver',
+      {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend', st:'done', vis:'receiver', repliedAt:'10/02/2026 · 11:05',
         q:'Bạn có gợi ý gì để mình dẫn dắt team hiệu quả hơn?',
         fb:'Tú luôn sẵn sàng chia sẻ kiến thức cross-team. Nếu muốn phát triển hơn ở vai trò dẫn dắt, bạn có thể chủ động đứng ra tổ chức vài buổi tech sharing ngắn cho team.',
         cv:['Tinh thần đồng đội']}
@@ -914,17 +966,17 @@ const FEED = [
 
 /* ═══ ACTION QUEUE — yêu cầu người khác gửi Tú (UC-R) ═══ */
 const QUEUE = [
-  { cycle:'2026', from:'Trần Thị Mai', ini:'TM', about:'self', context:'Dự án Design System', sent:'28/07/2026', dueDate:'04/08/2026', due:'còn 2 ngày', urgency:'soon' },
-  { cycle:'2026', from:'Lê Thị Thanh', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', context:'Chuẩn bị buổi 1:1 định kỳ', sent:'25/07/2026', dueDate:'01/08/2026', due:'quá hạn 1 ngày', urgency:'over' },
-  { cycle:'2026', from:'Nguyễn Quốc Bảo', ini:'NB', about:'self', context:'Buổi tech talk tháng 7', sent:'30/07/2026', dueDate:'07/08/2026', due:'còn 5 ngày', urgency:'normal' },
-  { cycle:'2026', from:'Cao Văn Sơn', ini:'CS', about:'self', context:'Dự án tối ưu chi phí hạ tầng', sent:'20/07/2026', dueDate:'30/07/2026', due:'quá hạn 3 ngày', urgency:'over' },
-  { cycle:'2026', from:'Phan Anh Tú', ini:'PT', about:'other', aboutName:'Trần Văn Khoa', context:'Chuẩn bị buổi coaching phát triển', sent:'27/07/2026', dueDate:'03/08/2026', due:'còn 1 ngày', urgency:'soon' },
-  { cycle:'2026', from:'Đỗ Minh Quân', ini:'ĐQ', about:'self', context:'Sprint retrospective Q3', sent:'30/07/2026', dueDate:'06/08/2026', due:'còn 4 ngày', urgency:'normal' },
-  { cycle:'2026', from:'Vương Gia Bảo', ini:'VB', about:'other', aboutName:'Nguyễn Thị Phương', context:'Coaching tháng 8', sent:'31/07/2026', dueDate:'08/08/2026', due:'còn 6 ngày', urgency:'normal' },
-  { cycle:'2026', from:'Lý Thu Hà', ini:'LH', about:'self', context:'Workshop onboarding nhân viên mới', sent:'31/07/2026', dueDate:'09/08/2026', due:'còn 7 ngày', urgency:'normal' },
-  { cycle:'2026', from:'Bùi Thị Ngọc', ini:'BN', about:'self', context:'Buổi demo sản phẩm với khách hàng', sent:'01/08/2026', dueDate:'10/08/2026', due:'còn 8 ngày', urgency:'normal' },
-  { cycle:'2026', from:'Đặng Thu Trang', ini:'ĐT', about:'self', context:'Khảo sát trải nghiệm nội bộ', sent:'01/08/2026', dueDate:'11/08/2026', due:'còn 9 ngày', urgency:'normal' },
-  { cycle:'2026', from:'Hồ Nhật Minh', ini:'HM', about:'self', context:'Hội thảo kỹ thuật nội bộ', sent:'02/08/2026', dueDate:'12/08/2026', due:'còn 10 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Trần Thị Mai', dom:'mai.tran', ini:'TM', about:'self', context:'Dự án Design System', sent:'28/07/2026', dueDate:'04/08/2026', due:'còn 2 ngày', urgency:'soon' },
+  { cycle:'2026', from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu', context:'Chuẩn bị buổi 1:1 định kỳ', sent:'25/07/2026', dueDate:'01/08/2026', due:'quá hạn 1 ngày', urgency:'over' },
+  { cycle:'2026', from:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', about:'self', context:'Buổi tech talk tháng 7', sent:'30/07/2026', dueDate:'07/08/2026', due:'còn 5 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Cao Văn Sơn', dom:'son.cao', ini:'CS', about:'self', context:'Dự án tối ưu chi phí hạ tầng', sent:'20/07/2026', dueDate:'30/07/2026', due:'quá hạn 3 ngày', urgency:'over' },
+  { cycle:'2026', from:'Phan Anh Tú', dom:'tu.phan', ini:'PT', about:'other', aboutName:'Trần Văn Khoa', aboutDom:'khoa.tran', context:'Chuẩn bị buổi coaching phát triển', sent:'27/07/2026', dueDate:'03/08/2026', due:'còn 1 ngày', urgency:'soon' },
+  { cycle:'2026', from:'Đỗ Minh Quân', dom:'quan.do', ini:'ĐQ', about:'self', context:'Sprint retrospective Q3', sent:'30/07/2026', dueDate:'06/08/2026', due:'còn 4 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Vương Gia Bảo', dom:'bao.vuong', ini:'VB', about:'other', aboutName:'Nguyễn Thị Phương', aboutDom:'phuong.nguyen', context:'Coaching tháng 8', sent:'31/07/2026', dueDate:'08/08/2026', due:'còn 6 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Lý Thu Hà', dom:'ha.ly', ini:'LH', about:'self', context:'Workshop onboarding nhân viên mới', sent:'31/07/2026', dueDate:'09/08/2026', due:'còn 7 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Bùi Thị Ngọc', dom:'ngoc.bui', ini:'BN', about:'self', context:'Buổi demo sản phẩm với khách hàng', sent:'01/08/2026', dueDate:'10/08/2026', due:'còn 8 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', about:'self', context:'Khảo sát trải nghiệm nội bộ', sent:'01/08/2026', dueDate:'11/08/2026', due:'còn 9 ngày', urgency:'normal' },
+  { cycle:'2026', from:'Hồ Nhật Minh', dom:'minh.ho', ini:'HM', about:'self', context:'Hội thảo kỹ thuật nội bộ', sent:'02/08/2026', dueDate:'12/08/2026', due:'còn 10 ngày', urgency:'normal' },
 ];
 QUEUE.forEach((q,i)=>q.id='q'+i);
 /* câu hỏi của người yêu cầu (fallback nếu item không có sẵn) */
@@ -960,6 +1012,16 @@ function queueRowHTML(q){
     <button class="btn btn-default btn-sm" onclick="openReply('${q.id}')">Trả lời</button>
   </div>`;
 }
+/* dòng gọn ở rail: chỉ tên người yêu cầu — chi tiết xem trong popup trả lời */
+function queueRailHTML(q){
+  const tip = q.about==='other'
+    ? `${q.from} yêu cầu phản hồi cho ${q.aboutName} — ${q.context}`
+    : `${q.from} yêu cầu phản hồi — ${q.context}`;
+  return `<div class="qrow-mini" onclick="openReply('${q.id}')" title="${tip}">
+    <div class="av av-brand av-sm">${q.ini}</div>
+    <span class="qm-name">${q.from} <span class="qm-dom">(${q.dom})</span></span>
+  </div>`;
+}
 function renderQueue(){
   const items = sortedQueue();
   document.getElementById('queueCnt').textContent = items.length;
@@ -967,7 +1029,7 @@ function renderQueue(){
   if(!items.length){ sec.style.display='none'; return; }
   sec.style.display='';
   const LIMIT=3;
-  let html = items.slice(0,LIMIT).map(queueRowHTML).join('');
+  let html = items.slice(0,LIMIT).map(queueRailHTML).join('');
   if(items.length>LIMIT){
     html += `<button class="queue-more" onclick="openQueueAll()"><i class="bx bx-list-ul"></i> Xem tất cả (${items.length})</button>`;
   }
@@ -982,96 +1044,141 @@ function openQueueAll(){
 
 function statusChip(st){
   const m={ done:['ch-done','bx-check','Đã trả lời'], pending:['ch-pending','bx-time','Chưa trả lời'],
-            expired:['ch-expired','bx-x','Hết hạn'], overdue:['ch-overdue','bx-error','Quá hạn'] };
+            expired:['ch-expired','bx-x','Hết hạn'], overdue:['ch-overdue','bx-error','Quá hạn'],
+            draft:['ch-draft','bx-edit-alt','Lưu nháp'] };
   const [c,i,t]=m[st]||m.pending;
   return `<span class="chip ${c}"><i class="bx ${i}"></i>${t}</span>`;
 }
-function visTag(v, persp){
-  const map={
-    sender:{ receiver:['bx-lock-alt','Chỉ người nhận'], manager:['bx-group','Người nhận + Quản lý của họ'] },
-    receiver:{ receiver:['bx-lock-alt','Chỉ mình bạn'], manager:['bx-group','Bạn + Quản lý của bạn'] }
-  };
-  const [ic,txt]=(map[persp]||map.sender)[v]||(map[persp]||map.sender).receiver;
-  return `<span class="vis"><i class="bx ${ic}"></i>${txt}</span>`;
+/* ── HEADER CARD kiểu Facebook: [người cho] → [người nhận] ──
+   Người đang đăng nhập không cần domain/phòng ban (đang ở màn hình của chính họ). */
+function cardHead(from, to, meta, suffix){
+  // phòng ban – team – vị trí ẩn đi, chỉ hiện khi hover vào tên
+  const nameHTML = p => p.dom===SELF.dom
+    ? `<span class="fb-who">${p.name}</span>`
+    : `<span class="fb-who who-tip">${p.name} <span class="fb-sender-dom">(${p.dom})</span>${fullOrg(p)?`<span class="fb-badge-tip">${fullOrg(p)}</span>`:''}</span>`;
+  return `<div class="fb-head">
+    <div class="fb-av">${from.ini}</div>
+    <div class="fb-head-main">
+      <div class="fb-line">${nameHTML(from)}<span class="fb-arrow" aria-label="cho phản hồi đến"></span>${nameHTML(to)}${suffix||''}</div>
+      ${meta}
+    </div>
+  </div>`;
+}
+/* hàng meta trên nội dung: ngày → phạm vi xem (icon), thứ tự như Facebook */
+function cardMeta(vis, date, persp){
+  return `<div class="fb-meta">
+    <span class="fb-meta-date">${date}</span>
+    ${visIcon(vis, persp)}
+  </div>`;
+}
+/* giá trị cốt lõi nằm ở góc trên bên phải của card */
+function cardCVs(cv){
+  return (cv&&cv.length) ? `<div class="fb-react">${badgeImgs(cv)}</div>` : '';
+}
+function hasCV(cv){ return (cv&&cv.length) ? ' has-react' : ''; }
+function visIcon(v, persp){
+  // persp='sender' (phản hồi mình cho đi) → nói theo người nhận; mặc định là góc nhìn người nhận
+  const [ic,txt] = v==='manager'
+    ? ['bx-group','Chia sẻ với các cấp quản lý']
+    : ['bx-lock-alt', persp==='sender' ? 'Chỉ người nhận' : 'Chỉ mình tôi'];
+  return `<span class="fb-badge-wrap vis-ic"><i class="bx ${ic}"></i><span class="fb-badge-tip">${txt}</span></span>`;
 }
 
 function cardReceived(f){
-  return `<div class="fb-card" data-kind="received">
-    <div class="card-label cl-received"><i class="bx bx-down-arrow-alt"></i>Đã nhận phản hồi từ<span class="cl-date">${f.date}</span></div>
-    <div class="fb-card-top">
-      <div style="display:flex;align-items:flex-start;gap:9px">
-        <div class="fb-av">${f.who.ini}</div>
-        <div>
-          <div class="fb-sender-name">${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span></div>
-          <div class="fb-sender-org">${f.who.org}</div>
-        </div>
-      </div>
-    </div>
+  return `<div class="fb-card${hasCV(f.cv)}" data-kind="received">
+    ${cardCVs(f.cv)}
+    ${cardHead(f.who, SELF, cardMeta(f.vis||'receiver', f.date))}
     ${f.q?`<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>`:''}
     <p class="fb-body">${f.body}</p>
-    ${cardFoot(f.cv, f.vis||'receiver', 'receiver')}
   </div>`;
 }
 function cardGiven(f){
-  return `<div class="fb-card" data-kind="given">
-    <div class="card-label cl-given"><i class="bx bx-up-arrow-alt"></i>Đã cho phản hồi đến<span class="cl-date">${f.date}</span></div>
-    <div class="fb-card-top">
-      <div style="display:flex;align-items:flex-start;gap:9px">
-        <div class="fb-av">${f.who.ini}</div>
-        <div>
-          <div class="fb-sender-name">${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span></div>
-          <div class="fb-sender-org">${f.who.org}</div>
-        </div>
-      </div>
-    </div>
+  return `<div class="fb-card${hasCV(f.cv)}" data-kind="given">
+    ${cardCVs(f.cv)}
+    ${cardHead(SELF, f.who, cardMeta(f.vis, f.date, 'sender'))}
     <p class="fb-body">${f.body}</p>
-    ${cardFoot(f.cv, f.vis, 'sender')}
   </div>`;
 }
+/* ── card BẢN NHÁP — hiện ngay trong feed, ở tab tương ứng ── */
+function snip(t,n=170){ t=(t||'').trim(); return t.length>n ? t.slice(0,n)+'…' : t; }
+function draftCardHTML(o){
+  return `<div class="fb-card kind-draft" data-draft="${o.key}" onclick="${o.open}">
+    <div class="card-label cl-draft"><i class="bx bx-edit-alt"></i>${o.label}<span class="cl-date" style="display:flex;align-items:center;gap:8px">${statusChip('draft')}${o.savedAt}</span></div>
+    <div class="req-title">${o.title}</div>
+    ${o.body ? `<p class="fb-body draft-body">${o.body}</p>` : `<div class="draft-empty">Chưa có nội dung.</div>`}
+    <div class="req-actions">
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();${o.open}"><i class="bx bx-edit-alt"></i> Viết tiếp</button>
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteDraft('${o.key}')"><i class="bx bx-trash"></i> Xóa nháp</button>
+    </div>
+  </div>`;
+}
+function draftCardsHTML(q){
+  const cards=[];
+  const match=o=>!q || (o.title+' '+(o.body||'')).toLowerCase().includes(q);
+  const inGiven   = curFilter==='all' || curFilter==='given';
+  const inRequest = curFilter==='all' || curFilter==='request';
+  const g=DRAFTS.give;
+  if(g && g.cycle===cy() && inGiven){
+    const o={key:'give', label:'Bản nháp · Cho phản hồi', savedAt:g.savedAt, open:'openGive()',
+      title: g.recipient ? `Phản hồi gửi ${g.recipient.name} (${g.recipient.dom})` : 'Chưa chọn người nhận',
+      body: snip(g.text)};
+    if(match(o)) cards.push(draftCardHTML(o));
+  }
+  Object.values(DRAFTS.reply).forEach(r=>{
+    if(r.cycle!==cy() || !inGiven) return;
+    const o={key:'reply-'+r.itemId, label:'Bản nháp · Trả lời yêu cầu', savedAt:r.savedAt, open:`openReply('${r.itemId}')`,
+      title:`Trả lời yêu cầu của ${r.from} (${r.dom})`, body:snip(r.text)};
+    if(match(o)) cards.push(draftCardHTML(o));
+  });
+  const rq=DRAFTS.req;
+  if(rq && rq.cycle===cy() && inRequest){
+    const o={key:'req', label:'Bản nháp · Yêu cầu phản hồi', savedAt:rq.savedAt, open:'openRequest()',
+      title: rq.reviewers.length ? `Yêu cầu gửi ${rq.reviewers.length} người` : 'Chưa chọn người phản hồi',
+      body: snip(rq.personalize ? (rq.reviewers.map(r=>r.q).filter(Boolean)[0]||'') : rq.q)};
+    if(match(o)) cards.push(draftCardHTML(o));
+  }
+  return cards.join('');
+}
+
 function cardRequest(f,idx){
   const done=f.reviewers.filter(r=>r.st==='done').length, tot=f.reviewers.length;
-  const pct=Math.round(done/tot*100);
+  // gộp trạng thái + tiến độ vào đúng 1 chỗ
   const st = f.status==='completed'
-    ? `<span class="chip ch-done"><i class="bx bx-check-circle"></i>Hoàn thành</span>`
-    : `<span class="chip ch-pending"><i class="bx bx-loader-alt"></i>Đang thu thập</span>`;
-  const title = f.context || (f.qMode==='individual' ? 'Câu hỏi riêng cho từng người' : (f.question || 'Yêu cầu phản hồi'));
-  return `<div class="fb-card kind-request" data-kind="request">
-    <div class="card-label cl-request"><i class="bx bx-user-voice"></i>Yêu cầu của tôi<span class="cl-date" style="display:flex;align-items:center;gap:8px">${st}${f.date}</span></div>
-    <div class="req-title">${title}</div>
-    <div class="req-sub">Hạn ${f.due}</div>
-    <div class="req-prog">
-      <div class="prog-top"><span>Tiến độ trả lời</span><span><b>${done}/${tot}</b> đã trả lời</span></div>
-      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-    </div>
+    ? `<span class="chip ch-done"><i class="bx bx-check-circle"></i>Hoàn thành: ${done}/${tot} đã trả lời</span>`
+    : `<span class="chip ch-pending"><i class="bx bx-loader-alt"></i>Đang thu thập: ${done}/${tot} đã trả lời</span>`;
+  const first=f.reviewers[0], more=tot-1;
+  // hover vào "và n người khác" → liệt kê đúng những ai
+  const others=f.reviewers.slice(1);
+  const list=others.slice(0,8).map(r=>`${r.name} (${r.dom})`).join('<br>')
+    + (others.length>8 ? `<br>… và ${others.length-8} người nữa` : '');
+  const suffix = more>0
+    ? `<span class="fb-more" onclick="openReq(${idx})">và ${more} người khác<span class="fb-badge-tip tip-list">${list}</span></span>` : '';
+  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} · Hạn ${f.due}</span></div>`;
+  return `<div class="fb-card has-chip" data-kind="request">
+    <div class="fb-chip-tr">${st}</div>
+    ${cardHead(SELF, first, meta, suffix)}
     <div class="req-actions">
       <button class="btn btn-outline btn-sm" onclick="openReq(${idx})"><i class="bx bx-list-ul"></i> Xem chi tiết</button>
-      ${f.status!=='completed'?`<button class="btn btn-ghost btn-sm" onclick="stub('Nhắc reviewer','Gửi nhắc thủ công sẽ hoạt động ở Phase C.')"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`:''}
+      ${f.status!=='completed' ? remindBtnHTML(f, idx, 'btn-outline') : ''}
     </div>
   </div>`;
 }
 
 function renderFeed(){
   const q=(document.getElementById('feedSearch').value||'').toLowerCase().trim();
-  let items = FEED.filter(f=>f.cycle===cy());
-  if(curFilter!=='all') items=items.filter(f=>f.kind===curFilter);
+  let items = FeedbackModel.itemsForFilter(FEED,curFilter,cy());
   if(q) items=items.filter(f=>JSON.stringify(f).toLowerCase().includes(q));
   // Tab "Tất cả": nhóm theo loại (đã nhận → đã cho → yêu cầu), trong mỗi loại xếp mới nhất trước.
   const kindOrder={received:0,given:1,request:2};
   items.sort((a,b)=> (curFilter==='all' ? kindOrder[a.kind]-kindOrder[b.kind] : 0) || b.ts-a.ts);
   const feed=document.getElementById('feed');
-  if(!items.length){ feed.innerHTML=`<div class="empty"><i class="bx bx-message-square-dots"></i><p>Chưa có phản hồi nào trong mục này.</p></div>`; return; }
-  feed.innerHTML = items.map(f=>{
+  const drafts=draftCardsHTML(q);   // bản nháp luôn nằm trên đầu
+  if(!items.length && !drafts){ feed.innerHTML=`<div class="empty"><i class="bx bx-message-square-dots"></i><p>Chưa có phản hồi nào trong mục này.</p></div>`; return; }
+  feed.innerHTML = drafts + items.map(f=>{
     if(f.kind==='received') return cardReceived(f);
     if(f.kind==='given') return cardGiven(f);
     return cardRequest(f, FEED.indexOf(f));
   }).join('');
-}
-
-function renderCounts(){
-  const inCy=FEED.filter(f=>f.cycle===cy());
-  const c={all:inCy.length,received:0,given:0,request:0};
-  inCy.forEach(f=>c[f.kind]++);
-  ['all','received','given','request'].forEach(k=>document.getElementById('n-'+k).textContent=c[k]);
 }
 
 function setFilter(f){
@@ -1081,7 +1188,7 @@ function setFilter(f){
 }
 
 function renderRail(){
-  const inCy=FEED.filter(f=>f.cycle===cy());
+  const inCy=FeedbackModel.itemsForFilter(FEED,'all',cy());
   const rec=inCy.filter(f=>f.kind==='received').length;
   const giv=inCy.filter(f=>f.kind==='given').length;
   const openReq=inCy.filter(f=>f.kind==='request'&&f.status!=='completed').length;
@@ -1091,23 +1198,21 @@ function renderRail(){
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-down-arrow-alt"></i>Phản hồi đã nhận</span><span class="stat-val">${rec}</span></div>
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-up-arrow-alt"></i>Phản hồi đã cho</span><span class="stat-val">${giv}</span></div>
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-user-voice"></i>Yêu cầu đang mở</span><span class="stat-val">${openReq}</span></div>
-    <div class="stat-row"><span class="stat-lbl"><i class="bx bx-bell"></i>Cần bạn phản hồi</span><span class="stat-val ${todo?'hl':''}">${todo}</span></div>`;
-  // tally core values from received feedback (incl. request responses)
+    <div class="stat-row"><span class="stat-lbl"><i class="bx bx-bell"></i>Cần bạn phản hồi</span><span class="stat-val">${todo}</span></div>`;
+  // tally core values from the same normalized received-response collection
   const tally={};
   inCy.forEach(f=>{
     if(f.kind==='received'&&f.cv) f.cv.forEach(c=>tally[c]=(tally[c]||0)+1);
-    if(f.kind==='request') f.reviewers.forEach(r=>{ if(r.st==='done'&&r.cv) r.cv.forEach(c=>tally[c]=(tally[c]||0)+1); });
   });
-  const ranked=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
-  const el=document.getElementById('railCV');
-  el.innerHTML = ranked.length
-    ? ranked.map(([c,n])=>`<div class="cv-rank"><img src="../Core value with BG/${CV[c]}" alt=""/><span class="cv-rank-name">${c}</span><span class="cv-rank-cnt">${n}</span></div>`).join('')
-    : `<div class="rail-empty">Chưa có ghi nhận trong chu kỳ này.</div>`;
+  // liệt kê đủ 5 giá trị — chưa có lần nào thì để 0 và làm mờ
+  const ranked=Object.keys(CV).map(c=>[c, tally[c]||0]).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('railCV').innerHTML = ranked.map(([c,n])=>
+    `<div class="cv-rank ${n?'':'zero'}"><img src="../Core value with BG/${CV[c]}" alt=""/><span class="cv-rank-name">${c}</span><span class="cv-rank-cnt">${n}</span></div>`).join('');
 }
 
 function renderAll(){
   document.getElementById('cycleOpen').style.display = cy()==='2026' ? '' : 'none';
-  renderQueue(); renderCounts(); renderFeed(); renderRail();
+  renderQueue(); renderFeed(); renderRail();
 }
 
 /* request detail overlay (read-only) */
@@ -1128,30 +1233,63 @@ function openReq(idx){
   if(f.qMode==='shared' && f.question){
     body += `<div class="qshared"><div class="fb-q-lbl">Câu hỏi chung cho tất cả người được yêu cầu</div><p class="fb-q-txt">${f.question}</p></div>`;
   }
-  body += f.reviewers.map(r=>`
-    <div class="rv-item">
-      <div class="rv-row">
-        <div class="av av-brand av-sm">${r.ini}</div>
-        <div class="rv-info">
-          <div class="rv-name">${r.name} <span class="rv-dom">(${r.dom})</span></div>
-          <div class="rv-org">${r.org}</div>
+  // mỗi người phản hồi dùng đúng layout của card ở tab Đã nhận / Đã cho
+  body += f.reviewers.map(r=>{
+    const answered = r.st==='done' && r.fb;
+    const meta = answered
+      ? `<div class="fb-meta"><span class="fb-meta-date">${r.repliedAt.split(' · ')[0]}</span>${visIcon(r.vis||'receiver','receiver')}</div>`
+      : '';
+    const pendingTag = !answered ? `<span class="chip ch-expired"><i class="bx bx-time-five"></i>Chưa trả lời</span>` : '';
+    const question = f.qMode==='individual' && r.q
+      ? `<div class="fb-qbox${!answered?' rv-qbox-pending':''}">${!answered?`<span class="rv-question-status">${pendingTag}</span>`:''}<div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${r.q}</p></div>`
+      : '';
+    return `
+    <div class="rv-item${answered?hasCV(r.cv):''}">
+      ${answered?cardCVs(r.cv):''}
+      ${!answered && !question?`<span class="rv-item-status">${pendingTag}</span>`:''}
+      <div class="fb-head">
+        <div class="fb-av">${r.ini}</div>
+        <div class="fb-head-main">
+          <div class="fb-line"><span class="fb-who who-tip">${r.name} <span class="fb-sender-dom">(${r.dom})</span>${fullOrg(r)?`<span class="fb-badge-tip">${fullOrg(r)}</span>`:''}</span></div>
+          ${meta}
         </div>
-        ${statusChip(r.st)}
       </div>
-      ${f.qMode==='individual' && r.q
-        ? `<div class="fb-qbox rv-q"><div class="fb-q-lbl">Câu hỏi riêng</div><p class="fb-q-txt">${r.q}</p></div>` : ''}
-      ${r.st==='done' && r.fb
-        ? `<div class="rv-fb"><p class="fb-body">${r.fb}</p>${cardFoot(r.cv, r.vis||'receiver', 'receiver')}</div>`
-        : `<div class="rv-pending">Chưa gửi phản hồi.</div>`}
-    </div>`).join('');
+      ${question}
+      ${answered
+        ? `<p class="fb-body">${r.fb}</p>`
+        : (r.reminded?`<div class="rv-remind-note"><i class="bx bx-bell"></i> Đã nhắc ${r.reminded}</div>`:'')}
+    </div>`;
+  }).join('');
   document.getElementById('reqBody').innerHTML = body;
 
-  // ẩn nút nhắc khi đã đủ câu trả lời
-  document.getElementById('reqRemindBtn').style.display = allDone ? 'none' : '';
+  // nút nhắc: ẩn khi đã đủ câu trả lời, khóa lại khi vừa nhắc hôm nay
+  curReqIdx=idx;
+  document.getElementById('reqRemindSlot').innerHTML = remindBtnHTML(f, idx, 'btn-default');
   document.getElementById('reqRemindNote').textContent = allDone
     ? 'Tất cả đã trả lời — yêu cầu hoàn thành.'
-    : 'Hệ thống tự nhắc 3 ngày trước hạn.';
+    : f.remindedOn
+      ? `Đã nhắc thủ công ngày ${f.remindedOn} · hệ thống vẫn tự nhắc 3 ngày trước hạn.`
+      : 'Hệ thống tự nhắc 3 ngày trước hạn.';
   openOverlay('dlg-req');
+}
+
+/* ── nhắc người chưa trả lời (UC1 · R-2) ── */
+let curReqIdx=null;
+function remindBtnHTML(f, idx, cls){
+  if(f.reviewers.every(r=>r.st==='done')) return '';
+  return f.remindedOn
+    ? `<button class="btn ${cls} btn-sm" disabled><i class="bx bx-check"></i> Đã nhắc ${f.remindedOn}</button>`
+    : `<button class="btn ${cls} btn-sm" onclick="remindPending(${idx})"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`;
+}
+function remindPending(idx){
+  const f=FEED[idx];
+  const pending=f.reviewers.filter(r=>r.st==='pending');
+  if(!pending.length || f.remindedOn) return;
+  f.remindedOn=todayDMY();
+  pending.forEach(r=>r.reminded=f.remindedOn);
+  toast(`Đã gửi nhắc tới ${pending.length} người chưa trả lời.`);
+  renderFeed();
+  if(curReqIdx===idx && document.getElementById('dlg-req').classList.contains('open')) openReq(idx);
 }
 
 /* ═══════ CHO PHẢN HỒI (UC2) + AI COACH ═══════ */
@@ -1186,6 +1324,11 @@ const AI_DEMOS={
     draft:'Phần trình bày roadmap của Nam hơi dài và nhiều chi tiết kỹ thuật, khiến người nghe khó nắm ý chính.',
     intent:'Góp ý', framework:'STAR-AR', cvs:['Khách hàng là trung tâm'],
     improved:'Trong buổi trình bày roadmap tuần trước, mục tiêu là giúp stakeholder non-tech nắm được định hướng quý tới. Mình thấy phần trình bày đi khá sâu vào chi tiết kỹ thuật và hơi dài, khiến một số người khó theo dõi ý chính. Gợi ý cho lần sau: mở đầu bằng 2–3 điểm chính ở mức business, để phần kỹ thuật ở phụ lục. Như vậy stakeholder sẽ nắm nhanh hơn và buổi họp hiệu quả hơn.'
+  },
+  mixed:{
+    draft:'Hùng làm việc nhiệt tình và trách nhiệm, nhưng hay ôm hết việc nên các bạn khác khó tham gia.',
+    intent:'Ghi nhận + Góp ý', framework:'STAR-AR', cvs:['Thực thi xuất sắc','Tinh thần đồng đội'],
+    improved:'Ở giai đoạn nước rút của dự án tích hợp cổng thanh toán, mình rất đánh giá cao việc Hùng luôn nhận phần khó và theo đến khi hệ thống chạy ổn định — nhờ vậy team kịp deadline mà không phát sinh sự cố trên production. Bên cạnh đó, mình để ý là Hùng thường tự làm hết thay vì chia việc, nên các bạn mới ít có cơ hội chạm vào phần lõi. Ở sprint tới, Hùng thử giao lại 1–2 module cho các bạn và nhận vai trò review giúp — như vậy team sẽ mạnh đều hơn và Hùng cũng có thêm thời gian cho phần kiến trúc.'
   }
 };
 const FW_DESC={
@@ -1233,6 +1376,10 @@ function openGive(){
   document.getElementById('giveTA').value='';
   document.getElementById('aiPanel').style.display='none';
   document.getElementById('aiPanel').innerHTML='';
+  document.getElementById('giveAiBar').style.display='flex';
+  document.getElementById('giveAiStatus').style.display='none';
+  document.getElementById('aiBtn').className='btn-ai';
+  document.getElementById('aiBtn').innerHTML='<i class="bx bx-magic"></i> Cải thiện với AI';
   document.querySelectorAll('input[name="gvis"]').forEach(r=>r.checked=false);
   document.getElementById('visCardR').classList.remove('on');
   document.getElementById('visCardM').classList.remove('on');
@@ -1241,6 +1388,7 @@ function openGive(){
   document.getElementById('typeGuide').innerHTML='';
   renderCVPick();
   syncGive();
+  restoreGiveDraft();
   openOverlay('dlg-give');
   setTimeout(()=>document.getElementById('pickInput').focus(),50);
 }
@@ -1344,6 +1492,7 @@ function renderTypeGuide(){
     <div class="tpl-bar">
       <span class="tpl-txt"><i class="bx bx-bulb"></i> Gợi ý khung <b>${F.name}</b>${mixed?' — bao quát cả ghi nhận &amp; góp ý':''}</span>
       <button class="btn btn-outline btn-xs" onclick="insertTemplate()"><i class="bx bx-edit-alt"></i> Dùng mẫu câu</button>
+      <button class="btn btn-ghost btn-xs" onclick="insertDemo()"><i class="bx bx-magic"></i> Thử với ví dụ</button>
       <button class="tg-toggle" onclick="toggleGuideSample(this)">Xem ví dụ</button>
     </div>
     ${mixed?'<div class="tpl-note"><i class="bx bx-magic"></i> Cứ viết tự nhiên rồi bấm “Cải thiện với AI” — AI sẽ giúp bạn sắp xếp rõ ràng.</div>':''}
@@ -1367,6 +1516,25 @@ function insertTemplate(){
   const a=ta.value.indexOf('['), b=ta.value.indexOf(']');
   if(a>=0&&b>a) ta.setSelectionRange(a,b+1);   // bôi sẵn chỗ trống đầu tiên để user gõ đè
 }
+/* điền sẵn 1 bản nháp mẫu để thử luồng AI before/after */
+function demoKey(){
+  if(!G.types.length) return null;
+  if(isMixedIntent()) return 'mixed';
+  if(G.types.includes('constructive')) return 'constructive';
+  if(G.types.includes('appreciation') && !G.types.includes('recognition')) return 'appreciation';
+  return 'recognition';
+}
+function insertDemo(){
+  const d=AI_DEMOS[demoKey()]; if(!d) return;
+  const ta=document.getElementById('giveTA');
+  ta.value=d.draft;
+  G.tplText=null; G.fromSample=true;
+  G.aiRun=false; G.aiUsed=false; G.ai=null; G._stage=null;
+  document.getElementById('aiPanel').style.display='none';
+  document.getElementById('aiPanel').innerHTML='';
+  syncGive();
+  ta.focus();
+}
 /* core value picker — icon-only, tự chọn */
 function renderCVPick(){
   const el=document.getElementById('cvPick'); if(!el) return;
@@ -1387,10 +1555,11 @@ function buildFallback(text, intent, framework){
 }
 function detectAI(text){
   const t=text.trim().toLowerCase();
+  // khớp câu mẫu → dùng bản biên tập sẵn (ưu tiên hơn khung, để demo before/after đúng kịch bản)
+  for(const k in AI_DEMOS){ if(AI_DEMOS[k].draft.toLowerCase()===t) return {...AI_DEMOS[k], good:false}; }
   const fw=activeFramework();
   if(fw) return buildFallback(text, intentLabel(), fw);   // đã chọn loại → dùng khung tương ứng
-  // chưa chọn loại → khớp câu mẫu, hoặc tự nhận diện theo keyword
-  for(const k in AI_DEMOS){ if(AI_DEMOS[k].draft.toLowerCase()===t) return {...AI_DEMOS[k], good:false}; }
+  // chưa chọn loại → tự nhận diện theo keyword
   let intent='Ghi nhận';
   if(/cảm ơn|trân trọng|biết ơn|thank/.test(t)) intent='Cảm ơn';
   if(/nên |hơi |cần cải thiện|góp ý|chưa |thiếu |lần sau|cải thiện|khó theo dõi|quá /.test(t)) intent='Góp ý';
@@ -1399,17 +1568,22 @@ function detectAI(text){
 }
 function lc(s){ return s ? s.charAt(0).toLowerCase()+s.slice(1) : s; }
 
-function runAI(){
+function runAI(trigger){
   const text=document.getElementById('giveTA').value.trim();
   if(!text) return;
-  const btn=document.getElementById('aiBtn');
+  const btn=trigger||document.getElementById('aiBtn');
   btn.disabled=true; btn.innerHTML='<i class="bx bx-loader-alt bx-spin"></i> Đang phân tích…';
+  document.getElementById('giveAiStatus').style.display='none';
+  document.getElementById('giveAiBar').style.display='none';
+  const panel=document.getElementById('aiPanel');
+  panel.style.display='';
+  panel.innerHTML='<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang cải thiện nội dung…</div>';
   setTimeout(()=>{
     G.ai=detectAI(text);
     G.aiRun=true;
     G._stage='compare';
+    document.getElementById('giveAiBar').style.display='none';
     renderAIPanel('compare');
-    btn.disabled=false; btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
     syncGive();
   }, 650);
 }
@@ -1420,44 +1594,38 @@ function renderAIPanel(stage){
   if(a.good){
     mainHTML=`<div class="ai-good"><i class="bx bx-check-shield"></i><span>Nội dung của bạn đã khá rõ ràng. Bạn có thể gửi luôn, hoặc chỉnh thêm nếu muốn.</span></div>`;
   } else if(stage==='compare'){
-    // nhấn mạnh bản gợi ý; bản gốc ẩn sau nút So sánh (pattern Notion/Grammarly)
     mainHTML=`
-      <div class="cmp-block sugg">
-        <div class="cmp-body">${a.improved}</div>
-        <div class="cmp-actions">
-          <button class="btn btn-default btn-xs" onclick="acceptAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
-          <button class="btn btn-outline btn-xs" onclick="editAI()"><i class="bx bx-edit-alt"></i> Chỉnh sửa</button>
-          <button class="btn btn-ghost btn-xs" onclick="dismissAI()">Giữ bản gốc</button>
-          <button class="cmp-toggle" onclick="toggleOrig(this)"><i class="bx bx-git-compare"></i> So sánh bản gốc</button>
-        </div>
-      </div>
-      <div class="cmp-block orig" id="cmpOrig" style="display:none">
-        <div class="cmp-head">Bản của bạn</div>
-        <div class="cmp-body">${document.getElementById('giveTA').value.trim()}</div>
+      <div class="ai-suggestion">${a.improved}</div>
+      <div class="ai-actions">
+        <button class="btn btn-outline btn-xs" onclick="acceptAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
+        <button class="btn btn-outline btn-xs" onclick="runAI(this)"><i class="bx bx-magic"></i> Cải thiện lại</button>
       </div>`;
   } else {
     const msg = stage==='accepted' ? 'Đã dùng gợi ý của AI — bạn vẫn có thể sửa trong ô nội dung.'
               : stage==='edited' ? 'Đã đưa gợi ý vào ô nội dung để bạn chỉnh sửa.'
-              : 'Giữ nguyên bản của bạn.';
+              : 'Đã cập nhật nội dung.';
     mainHTML=`<div class="ai-done"><i class="bx bx-check-circle"></i>${msg}</div>`;
   }
   p.style.display='';
   p.innerHTML=`<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>${mainHTML}`;
-}
-function toggleOrig(btn){
-  const o=document.getElementById('cmpOrig');
-  const show=o.style.display==='none';
-  o.style.display=show?'':'none';
-  btn.innerHTML = show ? '<i class="bx bx-x"></i> Ẩn bản gốc' : '<i class="bx bx-git-compare"></i> So sánh bản gốc';
 }
 function toggleCV(name){
   const i=G.cvs.indexOf(name);
   if(i>=0) G.cvs.splice(i,1); else G.cvs.push(name);
   renderCVPick();
 }
-function acceptAI(){ document.getElementById('giveTA').value=G.ai.improved; G.aiUsed=true; G._stage='accepted'; renderAIPanel('accepted'); syncGive(); }
-function editAI(){ document.getElementById('giveTA').value=G.ai.improved; G.aiUsed=true; G._stage='edited'; renderAIPanel('edited'); syncGive(); document.getElementById('giveTA').focus(); }
-function dismissAI(){ G.aiUsed=false; G._stage='dismissed'; renderAIPanel('dismissed'); syncGive(); }
+function acceptAI(){
+  document.getElementById('giveTA').value=G.ai.improved;
+  G.aiUsed=true; G._stage='accepted';
+  document.getElementById('aiPanel').style.display='none';
+  document.getElementById('giveAiStatus').style.display='flex';
+  document.getElementById('giveAiBar').style.display='flex';
+  const btn=document.getElementById('aiBtn');
+  btn.className='btn-ai';
+  btn.disabled=false;
+  btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
+  syncGive();
+}
 
 function setGVis(v){
   G.vis=v;
@@ -1474,7 +1642,12 @@ function syncGive(){
 }
 
 function sendGive(){
+  DRAFTS.give=null;   // đã gửi → bỏ nháp
   const p=G.recipient, text=document.getElementById('giveTA').value.trim();
+  FEED.unshift(FeedbackModel.createGivenResponse({
+    id:`given-${Date.now()}`, cycle:cy(), date:todayDMY(), recipient:p,
+    body:text, vis:G.vis, cv:G.cvs
+  }));
   const visTxt = G.vis==='manager' ? 'Người nhận và Quản lý trực tiếp của họ' : 'Chỉ người nhận';
   const cvHTML = G.cvs.length ? `<div class="give-ok-note"><i class="bx bx-medal"></i>Giá trị đính kèm: ${G.cvs.join(', ')}</div>` : '';
   document.getElementById('giveForm').style.display='none';
@@ -1496,11 +1669,12 @@ function sendGive(){
         <button class="btn btn-default btn-sm" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi khác</button>
       </div>
     </div>`;
+  renderAll();
 }
 
 /* ═══════ YÊU CẦU PHẢN HỒI (UC1) ═══════ */
 let R={reviewers:[], personalize:false};
-const SELF_DOM='tu.nguyen';
+const SELF_DOM=SELF.dom;
 
 function openRequest(){
   R={reviewers:[], personalize:false};
@@ -1515,6 +1689,7 @@ function openRequest(){
   document.getElementById('reqPersonalize').checked=false;
   document.getElementById('reqPersonWrap').style.display='none';
   renderChosen(); syncPersonalizeVis(); syncReq();
+  restoreReqDraft();
   openOverlay('dlg-newreq');
   setTimeout(()=>document.getElementById('reqPickInput').focus(),50);
 }
@@ -1597,6 +1772,7 @@ function fmtDMY(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `
 function todayDMY(){ const t=new Date(); const p=n=>String(n).padStart(2,'0'); return `${p(t.getDate())}/${p(t.getMonth()+1)}/${t.getFullYear()}`; }
 function tsFrom(dmy){ const [d,m,y]=dmy.split('/'); return +(y+m+d); }
 function submitRequest(){
+  DRAFTS.req=null;   // đã gửi → bỏ nháp
   const dueISO=document.getElementById('reqDue').value;
   const due=fmtDMY(dueISO);
   const today=todayDMY();
@@ -1605,7 +1781,7 @@ function submitRequest(){
     ...(R.personalize ? {q:(r.q||'').trim()} : {})
   }));
   const req={
-    kind:'request', cycle:cy(), date:today, ts:tsFrom(today),
+    id:`req-${Date.now()}`, kind:'request', cycle:cy(), date:today, ts:tsFrom(today),
     due, status:'open',
     qMode: R.personalize ? 'individual' : 'shared',
     ...(R.personalize ? {} : {question:document.getElementById('reqQ').value.trim()}),
@@ -1643,9 +1819,9 @@ function openReply(id){
   // header thống nhất: tiêu đề cố định + khối thông tin giống popup "Yêu cầu của tôi"
   document.getElementById('replySub').innerHTML=`
     <div class="dlg-meta">
-      <div class="mi"><span class="mi-l">Người yêu cầu</span><span class="mi-v">${item.from}</span></div>
+      <div class="mi"><span class="mi-l">Người yêu cầu</span><span class="mi-v">${item.from} <span class="mi-dom">(${item.dom})</span></span></div>
       ${item.about==='other'
-        ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${item.aboutName}</span></div>` : ''}
+        ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${item.aboutName} <span class="mi-dom">(${item.aboutDom})</span></span></div>` : ''}
       <div class="mi"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
       <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">· ${item.due}</span></span></div>
     </div>`;
@@ -1658,9 +1834,14 @@ function openReply(id){
   document.getElementById('replyTA').value='';
   document.getElementById('replyAiPanel').style.display='none';
   document.getElementById('replyAiPanel').innerHTML='';
+  document.getElementById('replyAiBar').style.display='flex';
+  document.getElementById('replyAiStatus').style.display='none';
+  document.getElementById('replyAiBtn').className='btn-ai';
+  document.getElementById('replyAiBtn').innerHTML='<i class="bx bx-magic"></i> Cải thiện với AI';
   renderReplyVis(item);
   renderReplyCv();
   syncReply();
+  restoreReplyDraft(item);
   closeOverlay('dlg-queue');
   openOverlay('dlg-reply');
   setTimeout(()=>document.getElementById('replyTA').focus(),50);
@@ -1682,7 +1863,7 @@ function renderReplyVis(item){
       </div>`;
   } else {   // UC1 — đồng nghiệp yêu cầu → tự chọn
     el.innerHTML=`
-      <label class="field-label">Ai có thể xem phản hồi này? <span class="field-hint">(bắt buộc chọn)</span></label>
+      <label class="field-label">Ai có thể xem phản hồi này?<span class="req-star">*</span></label>
       <div class="vis-opts">
         <label class="vis-card" id="rvisR"><input type="radio" name="rvis" onchange="setReplyVis('receiver')"/><div><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ ${item.from}</div><div class="vc-d">Chỉ người yêu cầu (${item.from}) xem được phản hồi của bạn.</div></div></label>
         <label class="vis-card" id="rvisM"><input type="radio" name="rvis" onchange="setReplyVis('manager')"/><div><div class="vc-t"><i class="bx bx-group"></i>${item.from} + Quản lý của họ</div><div class="vc-d">${item.from} và quản lý trực tiếp của họ xem được phản hồi.</div></div></label>
@@ -1709,14 +1890,19 @@ function onReplyInput(){
   if(RV.aiUsed && RV.ai && document.getElementById('replyTA').value.trim()!==RV.ai.improved.trim()) RV.aiUsed=false;
   syncReply();
 }
-function runReplyAI(){
+function runReplyAI(trigger){
   const text=document.getElementById('replyTA').value.trim(); if(!text) return;
-  const btn=document.getElementById('replyAiBtn');
+  const btn=trigger||document.getElementById('replyAiBtn');
   btn.disabled=true; btn.innerHTML='<i class="bx bx-loader-alt bx-spin"></i> Đang phân tích…';
+  document.getElementById('replyAiStatus').style.display='none';
+  document.getElementById('replyAiBar').style.display='none';
+  const panel=document.getElementById('replyAiPanel');
+  panel.style.display='';
+  panel.innerHTML='<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang cải thiện nội dung…</div>';
   setTimeout(()=>{
     RV.ai=replyDetect(text); RV._stage='compare';
+    document.getElementById('replyAiBar').style.display='none';
     renderReplyAI('compare');
-    btn.disabled=false; btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
     syncReply();
   },600);
 }
@@ -1728,31 +1914,31 @@ function renderReplyAI(stage){
     main=`<div class="ai-good"><i class="bx bx-check-shield"></i><span>Nội dung của bạn đã khá rõ ràng. Bạn có thể gửi luôn, hoặc chỉnh thêm nếu muốn.</span></div>`;
   } else if(stage==='compare'){
     main=`
-      <div class="cmp-block sugg">
-        <div class="cmp-body">${a.improved}</div>
-        <div class="cmp-actions">
-          <button class="btn btn-default btn-xs" onclick="acceptReplyAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
-          <button class="btn btn-outline btn-xs" onclick="editReplyAI()"><i class="bx bx-edit-alt"></i> Chỉnh sửa</button>
-          <button class="btn btn-ghost btn-xs" onclick="dismissReplyAI()">Giữ bản gốc</button>
-          <button class="cmp-toggle" onclick="toggleReplyOrig(this)"><i class="bx bx-git-compare"></i> So sánh bản gốc</button>
-        </div>
-      </div>
-      <div class="cmp-block orig" id="replyOrig" style="display:none">
-        <div class="cmp-head">Bản của bạn</div>
-        <div class="cmp-body">${document.getElementById('replyTA').value.trim()}</div>
+      <div class="ai-suggestion">${a.improved}</div>
+      <div class="ai-actions">
+        <button class="btn btn-outline btn-xs" onclick="acceptReplyAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
+        <button class="btn btn-outline btn-xs" onclick="runReplyAI(this)"><i class="bx bx-magic"></i> Cải thiện lại</button>
       </div>`;
   } else {
     const msg = stage==='accepted' ? 'Đã dùng gợi ý của AI — bạn vẫn có thể sửa trong ô nội dung.'
               : stage==='edited' ? 'Đã đưa gợi ý vào ô nội dung để bạn chỉnh sửa.'
-              : 'Giữ nguyên bản của bạn.';
+              : 'Đã cập nhật nội dung.';
     main=`<div class="ai-done"><i class="bx bx-check-circle"></i>${msg}</div>`;
   }
   p.style.display=''; p.innerHTML=`<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>${main}`;
 }
-function acceptReplyAI(){ document.getElementById('replyTA').value=RV.ai.improved; RV.aiUsed=true; RV._stage='accepted'; renderReplyAI('accepted'); syncReply(); }
-function editReplyAI(){ document.getElementById('replyTA').value=RV.ai.improved; RV.aiUsed=true; RV._stage='edited'; renderReplyAI('edited'); syncReply(); document.getElementById('replyTA').focus(); }
-function dismissReplyAI(){ RV.aiUsed=false; RV._stage='dismissed'; renderReplyAI('dismissed'); syncReply(); }
-function toggleReplyOrig(btn){ const o=document.getElementById('replyOrig'); const s=o.style.display==='none'; o.style.display=s?'':'none'; btn.innerHTML=s?'<i class="bx bx-x"></i> Ẩn bản gốc':'<i class="bx bx-git-compare"></i> So sánh bản gốc'; }
+function acceptReplyAI(){
+  document.getElementById('replyTA').value=RV.ai.improved;
+  RV.aiUsed=true; RV._stage='accepted';
+  document.getElementById('replyAiPanel').style.display='none';
+  document.getElementById('replyAiStatus').style.display='flex';
+  document.getElementById('replyAiBar').style.display='flex';
+  const btn=document.getElementById('replyAiBtn');
+  btn.className='btn-ai';
+  btn.disabled=false;
+  btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
+  syncReply();
+}
 
 /* huy hiệu */
 function renderReplyCv(){
@@ -1771,9 +1957,17 @@ function syncReply(){
 }
 function submitReply(){
   const item=RV.item;
+  delete DRAFTS.reply[item.id];   // đã gửi → bỏ nháp
   const idx=QUEUE.findIndex(q=>q.id===item.id);
   if(idx>=0) QUEUE.splice(idx,1);
   const target = item.about==='other' ? item.aboutName : item.from;
+  const targetDom = item.about==='other' ? item.aboutDom : item.dom;
+  FEED.unshift(FeedbackModel.createGivenResponse({
+    id:`given-${Date.now()}`, cycle:item.cycle, date:todayDMY(), requestId:item.id,
+    recipient:{name:target, dom:targetDom, ini:item.about==='other' ? initials(target) : item.ini, org:ORG_BY_DOM[targetDom] || ''},
+    body:document.getElementById('replyTA').value.trim(),
+    vis:item.about==='other' ? 'manager' : RV.vis, cv:RV.cvs
+  }));
   const visTxt = item.about==='other'
     ? `${item.from} và ${item.aboutName}`
     : (RV.vis==='manager' ? `${item.from} và quản lý của họ` : `Chỉ ${item.from}`);
@@ -1792,20 +1986,130 @@ function submitReply(){
       </div>
       <div style="margin-top:18px"><button class="btn btn-default btn-sm" onclick="closeOverlay('dlg-reply')"><i class="bx bx-check"></i> Xong</button></div>
     </div>`;
-  renderQueue(); renderRail();
+  renderAll();
+}
+
+/* ═══════ NHÁP & XÁC NHẬN KHI ĐÓNG POPUP ═══════ */
+const DRAFTS={give:null, req:null, reply:{}};
+let pendingClose=null;
+
+/* popup có nội dung viết dở không? (đã sang màn thành công thì không tính) */
+function isDirty(id){
+  if(id==='dlg-give')
+    return document.getElementById('giveForm').style.display!=='none'
+      && !!(G.recipient || document.getElementById('giveTA').value.trim() || G.cvs.length || G.vis);
+  if(id==='dlg-newreq')
+    return document.getElementById('reqForm').style.display!=='none'
+      && !!(R.reviewers.length || document.getElementById('reqQ').value.trim() || document.getElementById('reqDue').value);
+  if(id==='dlg-reply')
+    return document.getElementById('replyForm').style.display!=='none'
+      && !!(document.getElementById('replyTA').value.trim() || RV.cvs.length || RV.vis);
+  return false;   // popup chỉ đọc → đóng thẳng
+}
+function requestClose(id){
+  if(!isDirty(id)){ closeOverlay(id); return; }
+  pendingClose=id;
+  document.getElementById('confirmSub').textContent = id==='dlg-newreq'
+    ? 'Yêu cầu phản hồi chưa được gửi. Lưu bản nháp để quay lại, hoặc xóa nội dung đã nhập.'
+    : 'Phản hồi chưa được gửi. Lưu bản nháp để quay lại viết tiếp, hoặc xóa nội dung đã nhập.';
+  openOverlay('dlg-confirm');
+}
+function cancelClose(){ closeOverlay('dlg-confirm'); pendingClose=null; }
+function finishClose(id,msg){ closeOverlay('dlg-confirm'); closeOverlay(id); pendingClose=null; toast(msg); }
+function saveDraft(){
+  const id=pendingClose; if(!id) return;
+  const meta={cycle:cy(), savedAt:todayDMY()};
+  let key;
+  if(id==='dlg-give'){
+    DRAFTS.give={...meta, recipient:G.recipient, types:[...G.types], cvs:[...G.cvs], vis:G.vis, text:document.getElementById('giveTA').value};
+    key='give';
+  }
+  if(id==='dlg-newreq'){
+    DRAFTS.req={...meta, reviewers:R.reviewers.map(r=>({...r})), personalize:R.personalize, q:document.getElementById('reqQ').value, due:document.getElementById('reqDue').value};
+    key='req';
+  }
+  if(id==='dlg-reply'){
+    DRAFTS.reply[RV.item.id]={...meta, itemId:RV.item.id, from:RV.item.from, dom:RV.item.dom, text:document.getElementById('replyTA').value, cvs:[...RV.cvs], vis:RV.vis};
+    key='reply-'+RV.item.id;
+  }
+  finishClose(id,'Đã lưu nháp — xem trong danh sách bên dưới.');
+  gotoDraft(key);
+}
+/* chuyển sang tab chứa bản nháp rồi làm nổi card đó lên */
+function gotoDraft(key){
+  setFilter(key==='req' ? 'request' : 'given');
+  const el=document.querySelector(`[data-draft="${key}"]`);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'),1600);
+}
+function deleteDraft(key){
+  if(key==='give') DRAFTS.give=null;
+  else if(key==='req') DRAFTS.req=null;
+  else delete DRAFTS.reply[key.replace('reply-','')];
+  renderFeed(); toast('Đã xóa bản nháp.');
+}
+function discardDraft(){
+  const id=pendingClose; if(!id) return;
+  if(id==='dlg-give') DRAFTS.give=null;
+  if(id==='dlg-newreq') DRAFTS.req=null;
+  if(id==='dlg-reply' && RV.item) delete DRAFTS.reply[RV.item.id];
+  finishClose(id,'Đã xóa nội dung đang nhập.');
+}
+/* khôi phục nháp khi mở lại popup */
+function restoreGiveDraft(){
+  const d=DRAFTS.give; if(!d) return;
+  if(d.recipient) pickChoose(d.recipient);
+  d.types.forEach(t=>setType(t));
+  document.getElementById('giveTA').value=d.text||'';
+  G.cvs=[...d.cvs]; renderCVPick();
+  if(d.vis){
+    const input=document.querySelector(`input[name="gvis"][value="${d.vis}"]`); if(input) input.checked=true;
+    setGVis(d.vis);
+  }
+  syncGive(); toast('Đã khôi phục bản nháp.');
+}
+function restoreReqDraft(){
+  const d=DRAFTS.req; if(!d) return;
+  R.reviewers=d.reviewers.map(r=>({...r}));
+  document.getElementById('reqQ').value=d.q||'';
+  document.getElementById('reqDue').value=d.due||'';
+  renderChosen(); syncPersonalizeVis();
+  if(d.personalize && R.reviewers.length>=2){
+    const cb=document.getElementById('reqPersonalize'); cb.checked=true; togglePersonalize(cb);
+  }
+  renderPersonalize(); syncReq(); toast('Đã khôi phục bản nháp yêu cầu.');
+}
+function restoreReplyDraft(item){
+  const d=DRAFTS.reply[item.id]; if(!d) return;
+  document.getElementById('replyTA').value=d.text||'';
+  RV.cvs=[...d.cvs]; renderReplyCv();
+  if(d.vis && document.getElementById('rvisR')){
+    const card=document.getElementById(d.vis==='manager'?'rvisM':'rvisR');
+    const input=card.querySelector('input'); if(input) input.checked=true;
+    setReplyVis(d.vis);
+  }
+  syncReply(); toast('Đã khôi phục bản nháp.');
 }
 
 /* helpers */
 function openOverlay(id){document.getElementById(id).classList.add('open')}
 function closeOverlay(id){document.getElementById(id).classList.remove('open')}
 let toastT;
-function stub(title,msg){
+function toast(msg){
   const t=document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = title+' — '+msg;
+  document.getElementById('toastMsg').textContent = msg;
   t.classList.add('show');
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3200);
 }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));}});
+function stub(title,msg){ toast(title+' — '+msg); }
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  if(document.getElementById('dlg-confirm').classList.contains('open')){ cancelClose(); return; }
+  const open=[...document.querySelectorAll('.overlay.open')];
+  if(open.length) requestClose(open[open.length-1].id);   // chỉ đóng popup trên cùng
+});
 
 renderAll();
 </script>
