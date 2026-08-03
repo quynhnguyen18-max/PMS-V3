@@ -219,6 +219,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 - **Accordion** `.accordion`: item gập/mở, header chevron xoay + chữ hồng khi mở (`.acc-item.open`); body max-height transition. JS toggle class `.open` (`[data-acc]`).
 
 ## 19. QUY TẮC CHUNG (bắt buộc)
+**Metadata separator:** Không dùng ký tự `·` để phân cách metadata UI; dùng dấu gạch ngang ngắn ` - `.
 1. Chỉ dùng token đã định nghĩa; không hardcode hex (ngoại lệ: header hồng `#fbe4f0`/`#f3cfe1`).
 2. Bo góc: card/dialog `--r`(8) · control/badge `--rsm`(6)/`--rxs`(4) · pill/chip tròn 50px.
 3. Viền mặc định 1px z200; card nổi z300 + `--sh`.

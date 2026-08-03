@@ -2,7 +2,7 @@
 
 > **Phạm vi đợt này:** UC1 (Employee yêu cầu phản hồi) · UC2 (Cho phản hồi) · UC3 (Manager yêu cầu phản hồi cho cấp dưới) · **UC-R (Reviewer — trả lời yêu cầu phản hồi)**.
 > UC4 (Team) & UC5 (HR Programs) — để đợt sau.
-> **Trạng thái:** Bản nháp v2 để chị Quỳnh review & chốt. Chưa code.
+> **Trạng thái cập nhật 03/08/2026:** Phase A–C đã hoàn thành trên prototype `E-04` (Feedback Hub nhân viên, UC2, UC1 và UC-R). Phase D đang triển khai, bắt đầu với D1–D2 trên màn `M-04`.
 
 ---
 
@@ -183,10 +183,16 @@ Phản hồi gom theo **chu kỳ performance**, không theo năm dương lịch 
 
 ## 7. Thứ tự dựng đề xuất
 
-1. **Phase A — Nền:** menu "Phản hồi" (view Nhân viên) — one view: panel "Cần bạn phản hồi" + feed hợp nhất + filter, dựng card từ `popup_fb_preview`.
-2. **Phase B — UC2 Cho phản hồi + AI Coach** (flagship).
-3. **Phase C — UC1 + UC-R** Tạo/theo dõi yêu cầu (gồm chung/riêng ở 4a) + trả lời của reviewer.
-4. **Phase D — UC3 + view Quản lý** Yêu cầu cho team + monitoring + AI summary + màn Quản lý xem phản hồi cấp dưới (direct/indirect).
+1. ✅ **Phase A — Nền — Hoàn thành:** menu "Phản hồi" (view Nhân viên), panel việc cần phản hồi ở sidebar phải, feed hợp nhất, filter và feedback card.
+2. ✅ **Phase B — UC2 — Hoàn thành:** Cho phản hồi + AI Coach + visibility + lưu nháp + trạng thái sau gửi.
+3. ✅ **Phase C — UC1 + UC-R — Hoàn thành:** tạo/theo dõi yêu cầu, câu hỏi chung/riêng, trả lời của reviewer, lưu nháp và phân loại response thống nhất giữa các tab.
+4. 🚧 **Phase D — UC3 + view Quản lý — Đang triển khai:**
+   - ✅ **D1 — Hoàn thành:** dựng màn `M-04` với Direct reports / Indirect reports và danh sách nhân viên.
+   - ✅ **D2 — Hoàn thành:** quản lý xem phản hồi cấp dưới theo visibility, tái sử dụng feedback card/popup hiện có.
+   - **D3:** MR-1 — quản lý tạo yêu cầu phản hồi cho team.
+   - **D4:** MR-2 — monitoring tiến độ, pending và overdue.
+   - **D5:** MR-3 — AI Coaching Summary.
+   - **D6:** kiểm thử quyền và luồng xuyên vai trò.
 
 Mỗi phase xong em gửi chị xem trước khi qua phase kế.
 

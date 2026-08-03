@@ -1,7 +1,27 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 const vm = require('node:vm');
+
+test('employee feedback screen is named Phản hồi cá nhân', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  assert.match(html, /<title>E-04 – Phản hồi cá nhân \| MoMo HRM<\/title>/);
+  assert.match(html, /<span class="topbar-title">Phản hồi cá nhân<\/span>/);
+  assert.match(html, /<h1 class="page-title">Phản hồi cá nhân<\/h1>/);
+});
+
+test('employee feedback cycle selector follows the manager header pattern', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  assert.match(html, /<div class="cycle-action-row">[\s\S]*?<div class="cycle-row">[\s\S]*?<select class="cycle-sel" id="cycleSel"/);
+  assert.doesNotMatch(html, /class="page-hd-tools"/);
+  assert.match(html, /<option value="2026">2026<\/option>/);
+  assert.doesNotMatch(html, /<option value="2026">Năm 2026<\/option>/);
+  assert.match(html, /\.cycle-row\{display:flex;align-items:center;gap:8px;margin-bottom:0;white-space:nowrap\}/);
+  assert.doesNotMatch(html, /\.cycle-row\{[^}]*border:/);
+  assert.doesNotMatch(html, /id="cycleOpen"/);
+  assert.doesNotMatch(html, /getElementById\('cycleOpen'\)/);
+});
 const FeedbackModel = require('./feedback-model.js');
 
 const feed = [
