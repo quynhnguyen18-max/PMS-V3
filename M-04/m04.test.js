@@ -83,7 +83,7 @@ test('employee list follows the manager table-list pattern with role-dependent h
   assert.doesNotMatch(html, /phản hồi riêng tư không hiển thị/);
 });
 
-test('indirect scopes provide organizational filters and the unfinished D3 CTA is hidden', () => {
+test('indirect scopes provide organizational filters without inline scope guides', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   assert.match(html, /id="filterDivision"/);
   assert.match(html, /id="filterDepartment"/);
@@ -101,6 +101,169 @@ test('design system defines the short-hyphen metadata separator rule', () => {
   const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
   assert.match(designSystem, /Không dùng.*`·`.*metadata/);
   assert.match(designSystem, /dấu gạch ngang ngắn.*` - `/);
+});
+
+/* ── D3 / MR-1 — quản lý tạo yêu cầu phản hồi cho direct reports ── */
+
+test('D3 exposes the manager request CTA and the MR-1 dialog', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  assert.match(html, /id="requestCta"/);
+  assert.match(html, /id="requestDialog"/);
+  assert.match(html, /id="designeeInput"/);
+  assert.match(html, /id="designeeChips"/);
+  assert.match(html, /id="reviewerInput"/);
+  assert.match(html, /id="reviewerChips"/);
+  assert.match(html, /id="requestQuestion"/);
+  assert.match(html, /id="requestDue"/);
+  assert.match(html, /id="requestPreview"/);
+  assert.match(html, /id="requestSubmit"/);
+  assert.match(html, /manager-request-model\.js/);
+});
+
+test('MR-1 dialog follows the shared feedback popup rules', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const dialog = html.match(/<div class="overlay" id="requestDialog"[\s\S]*?<\/div>\s*<!-- \/requestDialog -->/)?.[0] || '';
+  assert.ok(dialog, 'request dialog markup must be present');
+  assert.doesNotMatch(dialog, />\s*Hủy\s*</, 'feedback popups must not offer a Hủy button');
+  assert.match(dialog, /class="req-star">\*<\/span>/, 'required fields use a red asterisk');
+  assert.doesNotMatch(dialog, /bắt buộc chọn/);
+  assert.doesNotMatch(dialog, /·/, 'metadata must use " - " instead of the middle dot');
+  assert.match(html, /function requestCloseAttempt\(/);
+  assert.match(html, /id="requestConfirm"/);
+  assert.match(html, /Lưu nháp/);
+  assert.match(html, /Xóa nội dung/);
+});
+
+test('MR-1 personalisation only appears with two or more reviewers', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  assert.match(html, /id="personalizeRow"/);
+  assert.match(html, /function syncPersonalizeVisibility\(/);
+  assert.match(html, /REQUEST_FORM\.reviewers\.length>=2/);
+});
+
+test('MR-1 designee picker offers direct reports only', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  assert.match(html, /ManagerRequestModel\.directReports\(/);
+  assert.match(html, /function designeeSearch\(/);
+});
+
+test('MR-1 model builds one assignment per designee and reviewer pair', () => {
+  const model = require('./manager-request-model.js');
+  const designees = [
+    {id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',lvl:'lm1'},
+    {id:'e2',name:'Trần Thị Mai',login:'mai.tran',lvl:'lm1'},
+    {id:'e4',name:'Vũ Thị Lan',login:'lan.vu',lvl:'lm1'}
+  ];
+  const reviewers = [
+    {name:'Lê Thành Nam',login:'nam.le',ini:'LN'},
+    {name:'Hoàng Thị Lan',login:'lan.hoang',ini:'HL'},
+    {name:'Trương Minh Đức',login:'duc.truong',ini:'TĐ'},
+    {name:'Nguyễn Quốc Bảo',login:'bao.nguyen',ini:'NB'},
+    {name:'Mai Thị Hằng',login:'hang.mai',ini:'MH'}
+  ];
+  const preview = model.previewCount({designees,reviewers});
+  assert.equal(preview.designees, 3);
+  assert.equal(preview.reviewers, 5);
+  assert.equal(preview.product, 15);
+  assert.equal(preview.total, 15);
+
+  const request = model.createRequest({
+    cycle:'2026', createdAt:'04/08/2026', due:'18/08/2026',
+    createdBy:{name:'Lê Thị Thanh',login:'thanh.le'},
+    designees, reviewers, sharedQuestion:'Bạn đánh giá thế nào về đóng góp của bạn ấy trong chu kỳ này?'
+  });
+  assert.equal(request.assignments.length, 15);
+  assert.equal(request.questionMode, 'shared');
+  assert.equal(new Set(request.assignments.map(item=>item.id)).size, 15, 'assignment ids must be unique');
+  assert.ok(request.assignments.every(item=>item.status==='pending'));
+  assert.ok(request.assignments.every(item=>item.question.startsWith('Bạn đánh giá thế nào')));
+});
+
+test('MR-1 keeps UC3 visibility shared and locked for reviewers', () => {
+  const model = require('./manager-request-model.js');
+  const request = model.createRequest({
+    cycle:'2026', due:'18/08/2026',
+    designees:[{id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',lvl:'lm1'}],
+    reviewers:[{name:'Lê Thành Nam',login:'nam.le',ini:'LN'}],
+    sharedQuestion:'Câu hỏi chung'
+  });
+  assert.equal(request.visibility, 'shared');
+  assert.equal(request.reviewerCanChangeVisibility, false);
+});
+
+test('MR-1 personalised questions attach per reviewer and skip self-review pairs', () => {
+  const model = require('./manager-request-model.js');
+  const designees = [
+    {id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',lvl:'lm1'},
+    {id:'e2',name:'Trần Thị Mai',login:'mai.tran',lvl:'lm1'}
+  ];
+  const reviewers = [
+    {name:'Nguyễn Văn Tú',login:'tu.nguyen',ini:'NT'},
+    {name:'Lê Thành Nam',login:'nam.le',ini:'LN'}
+  ];
+  const preview = model.previewCount({designees,reviewers});
+  assert.equal(preview.product, 4);
+  assert.equal(preview.total, 3, 'a person never reviews themselves');
+  assert.equal(preview.skipped, 1);
+
+  const request = model.createRequest({
+    cycle:'2026', due:'18/08/2026', personalize:true, designees, reviewers,
+    questions:{'tu.nguyen':'Câu hỏi cho Tú','nam.le':'Câu hỏi cho Nam'}
+  });
+  assert.equal(request.questionMode, 'individual');
+  assert.equal(request.assignments.length, 3);
+  assert.ok(!request.assignments.some(item=>item.employeeLogin===item.reviewer.login));
+  const forNam = request.assignments.filter(item=>item.reviewer.login==='nam.le');
+  assert.equal(forNam.length, 2);
+  assert.ok(forNam.every(item=>item.question==='Câu hỏi cho Nam'));
+});
+
+test('MR-1 only accepts direct reports as designees', () => {
+  const model = require('./manager-request-model.js');
+  const context = {window:{}};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'assets', 'employees-data.js'), 'utf8'), context);
+  const direct = model.directReports(context.window.PMS_EMPLOYEES);
+  assert.ok(direct.length > 0);
+  assert.ok(direct.every(emp=>emp.lvl==='lm1'));
+  assert.ok(context.window.PMS_EMPLOYEES.some(emp=>emp.lvl!=='lm1'), 'fixture must contain skip-level employees');
+  assert.equal(model.isEligibleDesignee(context.window.PMS_EMPLOYEES.find(emp=>emp.lvl!=='lm1')), false);
+});
+
+test('MR-1 output feeds D4 monitoring with pending and overdue counters', () => {
+  const model = require('./manager-request-model.js');
+  const request = model.createRequest({
+    cycle:'2026', due:'10/08/2026',
+    designees:[
+      {id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',lvl:'lm1'},
+      {id:'e2',name:'Trần Thị Mai',login:'mai.tran',lvl:'lm1'}
+    ],
+    reviewers:[
+      {name:'Lê Thành Nam',login:'nam.le',ini:'LN'},
+      {name:'Hoàng Thị Lan',login:'lan.hoang',ini:'HL'}
+    ],
+    sharedQuestion:'Câu hỏi chung'
+  });
+  request.assignments[0].status='done';
+  request.assignments[0].repliedAt='06/08/2026';
+
+  const before = model.summarize(request, '06/08/2026');
+  assert.deepEqual(
+    {total:before.total,done:before.done,pending:before.pending,overdue:before.overdue,rate:before.rate},
+    {total:4,done:1,pending:3,overdue:0,rate:25}
+  );
+
+  const after = model.summarize(request, '12/08/2026');
+  assert.equal(after.overdue, 3, 'pending assignments become overdue past the due date');
+
+  const rows = model.byEmployee(request, '12/08/2026');
+  assert.equal(rows.length, 2);
+  const tu = rows.find(row=>row.employeeId==='e1');
+  assert.deepEqual({total:tu.total,done:tu.done,pending:tu.pending,overdue:tu.overdue}, {total:2,done:1,pending:1,overdue:1});
+
+  const store = model.createStore();
+  store.add(request);
+  assert.equal(store.forCycle('2026').length, 1);
+  assert.deepEqual(store.summarizeAll('2026','12/08/2026'), {total:4,done:1,pending:3,overdue:3});
 });
 
 test('shared feedback data gives every employee three manager-visible scenarios', () => {

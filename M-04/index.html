@@ -27,6 +27,79 @@
 .dialog-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;vertical-align:2px}.dialog-actions{display:flex;gap:4px}.privacy-banner{display:none}.split-shell{display:none;grid-template-columns:310px minmax(0,1fr);min-height:560px;border:1px solid var(--z200);border-radius:8px;background:#fff;overflow:hidden}.split-shell.open{display:grid}.split-list{border-right:1px solid var(--z200);overflow:auto}.split-person{width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px}.split-person:hover,.split-person.on{background:var(--z50)}.split-person.on{box-shadow:inset 3px 0 var(--brand)}.split-pane{min-width:0;display:flex;flex-direction:column}.split-pane-head{padding:14px 16px;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;gap:10px}.split-pane-title{font-size:14px;font-weight:700;color:var(--z900)}.split-pane-meta{font-size:11.5px;color:var(--z600);margin-top:3px}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:9px;overflow:auto}.view-hidden{display:none}
 @media(max-width:900px){.filter-popover{width:min(520px,calc(100vw - 36px))}.split-shell{grid-template-columns:240px minmax(0,1fr)}}
 </style>
+<style>
+/* ── D3 / MR-1 — dùng lại đúng ngôn ngữ form của popup E-04 ── */
+:root{--err:#dc2626;--sh-sm:0 1px 2px rgba(0,0,0,.04)}
+.page-head-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+#requestDialog .dialog{width:min(680px,100%)}
+#requestDialog .dialog-title{font-weight:600}
+#requestDialog .dialog-head{padding:16px 20px 14px}
+#requestDialog .dialog-foot,#requestConfirm .dialog-foot{padding:10px 20px 14px}
+.dialog-form{padding:16px 20px 4px;overflow:auto}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:2px}
+.field-label{display:block;font-size:12.5px;font-weight:600;color:var(--z800);margin-bottom:7px}
+.req-star{color:var(--err);font-weight:700;margin-left:2px}
+.field-hint{font-size:11.5px;color:var(--z500);font-weight:400}
+.field-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.field-row .field-label{margin-bottom:0}
+.pick-inputwrap{position:relative}
+.pick-inputwrap>i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--z400)}
+.pick-input{width:100%;padding:8px 10px 8px 30px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);background:#fff;outline:none}
+.pick-input:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.pick-results{border:1px solid var(--z200);border-radius:var(--rsm);margin-top:5px;max-height:196px;overflow-y:auto;background:#fff;box-shadow:var(--sh-sm);display:none}
+.pick-results.open{display:block}
+.pick-item{width:100%;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px;padding:8px 11px;transition:var(--t)}
+.pick-item:last-child{border-bottom:0}
+.pick-item:hover{background:var(--z50)}
+.pick-item .avatar{width:28px;height:28px;font-size:9.5px}
+.pi-name{font-size:12.5px;font-weight:500;color:var(--z900)}
+.pi-dom{color:var(--z500);font-weight:400}
+.pi-org{font-size:11px;color:var(--z500)}
+.pick-empty{padding:12px;font-size:12px;color:var(--z400);text-align:center}
+.rv-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.rv-chip{display:inline-flex;align-items:center;gap:7px;padding:4px 6px 4px 5px;border:1px solid var(--brand-ring);background:var(--brand-muted);border-radius:50px}
+.rv-chip .avatar{width:22px;height:22px;font-size:9px;background:var(--brand);color:#fff}
+.rv-chip-name{font-size:12px;font-weight:500;color:var(--z800)}
+.rv-chip-x{width:18px;height:18px;border:0;background:transparent;color:var(--z500);font-size:13px;display:grid;place-items:center;border-radius:50%}
+.rv-chip-x:hover{background:#fff;color:var(--err)}
+.compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:#fff;outline:none}
+.compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.date-input{padding:8px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);font-family:inherit;background:#fff;outline:none}
+.date-input:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.opt-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:12px;color:var(--z700);font-weight:500}
+.opt-toggle input{appearance:none;-webkit-appearance:none;width:32px;height:18px;background:var(--z300);border-radius:50px;position:relative;transition:var(--t);flex:none;margin:0}
+.opt-toggle input:checked{background:var(--brand)}
+.opt-toggle input::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:var(--t)}
+.opt-toggle input:checked::after{left:16px}
+.person-row{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--z100)}
+.person-row:last-child{border-bottom:0}
+.person-row .avatar{width:28px;height:28px;font-size:9.5px}
+.person-q{flex:1;min-width:0}
+.person-name{font-size:12px;font-weight:600;color:var(--z900);margin-bottom:5px}
+.person-ta{width:100%;min-height:44px;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;color:var(--z800);line-height:1.5;resize:vertical;background:#fff;outline:none}
+.person-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+/* 2 cột đối xứng: nhãn - giá trị cùng chiều cao - dòng chú thích xám */
+.field-2col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.field-2col .date-input{width:100%}
+.field-2col .field-hint{display:block;margin-top:6px}
+.vis-value{display:flex;align-items:center;gap:7px;min-height:35px;font-size:13px;color:var(--z800);line-height:1.5}
+.vis-value>i{font-size:16px;color:var(--z500);flex:none}
+@media(max-width:580px){.field-2col{grid-template-columns:minmax(0,1fr);gap:16px}}
+.request-preview{font-size:11.5px;color:var(--z500);line-height:1.5;margin-bottom:2px}
+.request-preview:empty{display:none}
+.give-ok{text-align:center;padding:20px 16px}
+.give-ok-ic{width:52px;height:52px;border-radius:50%;background:rgba(22,128,58,.08);border:1px solid rgba(22,128,58,.24);color:var(--ok);display:grid;place-items:center;font-size:28px;margin:0 auto 14px}
+.give-ok-t{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.give-ok-d{font-size:12.5px;color:var(--z600);line-height:1.6;max-width:420px;margin:0 auto}
+.give-ok-notes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.give-ok-note{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--z500);background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);padding:7px 12px}
+.dialog-sm{width:min(430px,100%)}
+.overlay-top{z-index:120}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:var(--z900);color:#fff;padding:9px 15px;border-radius:8px;font-size:12.5px;display:flex;align-items:center;gap:8px;opacity:0;pointer-events:none;transition:var(--t);z-index:200}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:580px){.page-head-actions{width:100%;flex-wrap:wrap}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -43,7 +116,7 @@
     <header class="topbar"><div class="topbar-title">Không gian quản lý</div><div class="topbar-actions"><button class="icon-btn" title="Trợ giúp"><i class="bx bx-help-circle"></i></button><button class="icon-btn" title="Thông báo"><i class="bx bx-bell"></i></button></div></header>
     <section class="page">
       <div class="breadcrumb">Mục tiêu &amp; Đánh giá&nbsp; / &nbsp;Phản hồi</div>
-      <div class="page-head"><div><h1 class="page-title">Phản hồi của nhân viên</h1><p class="page-desc">Theo dõi phản hồi cấp dưới nhận được trong phạm vi quản lý và quyền được chia sẻ.</p></div><div class="manager-cycle"><i class="bx bx-calendar"></i><span>Chu kỳ</span><select id="cycle" aria-label="Chu kỳ" onchange="renderEmployees()"><option>2026</option><option>2025</option></select></div></div>
+      <div class="page-head"><div><h1 class="page-title">Phản hồi của nhân viên</h1><p class="page-desc">Theo dõi phản hồi cấp dưới nhận được trong phạm vi quản lý và quyền được chia sẻ.</p></div><div class="page-head-actions"><div class="manager-cycle"><i class="bx bx-calendar"></i><span>Chu kỳ</span><select id="cycle" aria-label="Chu kỳ" onchange="renderEmployees()"><option>2026</option><option>2025</option></select></div><button class="btn btn-primary" id="requestCta" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button></div></div>
 
       <section class="toolbar-card">
         <div class="scope-row">
@@ -67,8 +140,94 @@
   </section>
 </div>
 
+<!-- MR-1 — Quản lý yêu cầu phản hồi cho direct reports -->
+<div class="overlay" id="requestDialog" onclick="if(event.target===this)requestCloseAttempt()">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="requestDialogTitle">
+    <header class="dialog-head">
+      <div class="dialog-heading">
+        <div class="dialog-title" id="requestDialogTitle">Yêu cầu phản hồi cho nhân viên</div>
+      </div>
+      <button class="close" onclick="requestCloseAttempt()" aria-label="Đóng">×</button>
+    </header>
+
+    <div class="dialog-form" id="requestForm">
+      <div class="field">
+        <label class="field-label" for="designeeInput">Nhân viên được nhận phản hồi<span class="req-star">*</span> <span class="field-hint">(chỉ nhân viên báo cáo trực tiếp)</span></label>
+        <div class="pick-inputwrap">
+          <i class="bx bx-search"></i>
+          <input class="pick-input" id="designeeInput" autocomplete="off" placeholder="Tìm theo tên hoặc domain (vd: tu.nguyen)…" oninput="designeeSearch()" onfocus="designeeSearch()"/>
+        </div>
+        <div class="pick-results" id="designeeResults"></div>
+        <div class="rv-chips" id="designeeChips"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="reviewerInput">Người phản hồi<span class="req-star">*</span> <span class="field-hint">(1-20 người)</span></label>
+        <div class="pick-inputwrap">
+          <i class="bx bx-search"></i>
+          <input class="pick-input" id="reviewerInput" autocomplete="off" placeholder="Tìm theo tên hoặc domain (vd: nam.le)…" oninput="reviewerSearch()" onfocus="reviewerSearch()"/>
+        </div>
+        <div class="pick-results" id="reviewerResults"></div>
+        <div class="rv-chips" id="reviewerChips"></div>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label class="field-label" for="requestQuestion">Câu hỏi cho người phản hồi<span class="req-star">*</span></label>
+          <label class="opt-toggle" id="personalizeRow" style="display:none"><input type="checkbox" id="requestPersonalize" onchange="togglePersonalizeRequest(this)"/> Cá nhân hóa cho từng người</label>
+        </div>
+        <textarea class="compose-ta" id="requestQuestion" placeholder="Vd: Bạn đánh giá thế nào về cách bạn ấy phối hợp với team trong chu kỳ này?" oninput="syncRequestForm()"></textarea>
+        <div id="personalizeWrap" style="display:none">
+          <div class="field-hint" style="margin-bottom:2px">Mỗi người một câu hỏi riêng, đã điền sẵn theo câu hỏi chung và bạn có thể sửa lại.</div>
+          <div id="personalizeList"></div>
+        </div>
+      </div>
+
+      <div class="field field-2col">
+        <div>
+          <label class="field-label" for="requestDue">Hạn phản hồi<span class="req-star">*</span></label>
+          <input type="date" class="date-input" id="requestDue" onchange="syncRequestForm()"/>
+          <div class="field-hint">Hệ thống tự nhắc người phản hồi 3 ngày trước hạn.</div>
+        </div>
+        <div>
+          <label class="field-label">Chế độ chia sẻ</label>
+          <div class="vis-value"><i class="bx bx-group"></i><span>Quản lý và nhân viên đều xem được các phản hồi theo yêu cầu này</span></div>
+        </div>
+      </div>
+
+      <div class="request-preview" id="requestPreview"></div>
+    </div>
+
+    <div id="requestSuccess" style="display:none"></div>
+
+    <footer class="dialog-foot" id="requestFoot">
+      <button class="btn btn-primary" id="requestSubmit" disabled onclick="submitManagerRequest()"><i class="bx bx-send"></i> Gửi yêu cầu</button>
+    </footer>
+  </section>
+</div>
+<!-- /requestDialog -->
+
+<div class="overlay overlay-top" id="requestConfirm" onclick="if(event.target===this)requestConfirmCancel()">
+  <section class="dialog dialog-sm" role="dialog" aria-modal="true">
+    <header class="dialog-head">
+      <div class="dialog-heading">
+        <div class="dialog-title">Bạn đang tạo dở</div>
+        <div class="dialog-sub">Yêu cầu chưa được gửi. Lưu bản nháp để quay lại, hoặc xóa nội dung đã nhập.</div>
+      </div>
+      <button class="close" onclick="requestConfirmCancel()" aria-label="Tiếp tục nhập">×</button>
+    </header>
+    <footer class="dialog-foot" style="gap:8px">
+      <button class="btn btn-outline" onclick="requestConfirmDiscard()"><i class="bx bx-trash"></i> Xóa nội dung</button>
+      <button class="btn btn-primary" onclick="requestConfirmSave()"><i class="bx bx-save"></i> Lưu nháp</button>
+    </footer>
+  </section>
+</div>
+
+<div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
+
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
+<script src="manager-request-model.js"></script>
 <script>
 const EMPLOYEES=window.PMS_EMPLOYEES || [];
 const FEEDBACK_STORE=ManagerFeedbackData.createStore(EMPLOYEES);
@@ -177,7 +336,235 @@ function renderSplitView(items){
   document.getElementById('splitFeedbackPane').innerHTML=feedback.length?feedback.map(item=>feedbackCard(item,emp)).join(''):'<div class="empty">Chưa có phản hồi.</div>';
 }
 function closeFeedback(){document.getElementById('feedbackDialog').classList.remove('open')}
-document.addEventListener('keydown',event=>{if(event.key==='Escape')closeFeedback()});
+
+/* ═══════ D3 / MR-1 — quản lý tạo yêu cầu phản hồi cho direct reports ═══════ */
+const MANAGER={name:'Lê Thị Thanh',login:'thanh.le',ini:'LT'};
+const MAX_REVIEWERS=20;
+const REQUEST_STORE=ManagerRequestModel.createStore();
+const REQUEST_FORM={designees:[],reviewers:[],personalize:false,questions:{}};
+let REQUEST_DRAFT=null;   /* chỉ ở memory, giống DRAFTS của E-04 */
+
+function toast(message){const box=document.getElementById('toast');document.getElementById('toastText').textContent=message;box.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>box.classList.remove('show'),3000);}
+function todayDMY(){const now=new Date(),pad=value=>String(value).padStart(2,'0');return `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;}
+function personMeta(person){return [person.div,person.dept,person.team,person.pos].filter(Boolean).join(' - ');}
+function closePickers(){document.getElementById('designeeResults').classList.remove('open');document.getElementById('reviewerResults').classList.remove('open');}
+
+function openRequestDialog(){
+  REQUEST_FORM.designees=[];REQUEST_FORM.reviewers=[];REQUEST_FORM.personalize=false;REQUEST_FORM.questions={};
+  document.getElementById('requestForm').style.display='';
+  document.getElementById('requestFoot').style.display='';
+  document.getElementById('requestSuccess').style.display='none';
+  document.getElementById('designeeInput').value='';
+  document.getElementById('reviewerInput').value='';
+  document.getElementById('requestQuestion').value='';
+  document.getElementById('requestQuestion').style.display='';
+  document.getElementById('requestDue').value='';
+  document.getElementById('requestPersonalize').checked=false;
+  document.getElementById('personalizeWrap').style.display='none';
+  closePickers();
+  restoreRequestDraft();
+  renderDesignees();renderReviewers();syncPersonalizeVisibility();renderPersonQuestions();syncRequestForm();
+  document.getElementById('requestDialog').classList.add('open');
+  setTimeout(()=>document.getElementById('designeeInput').focus(),40);
+}
+function closeRequestDialog(){document.getElementById('requestDialog').classList.remove('open');closePickers();}
+
+/* ── người được nhận phản hồi: chỉ direct report, không skip-level ── */
+function designeePool(){return ManagerRequestModel.directReports(EMPLOYEES);}
+function designeeSearch(){
+  const query=document.getElementById('designeeInput').value.toLowerCase().trim();
+  if(!query){closePickers();return;}   // chỉ gợi ý khi người dùng đã gõ
+  const chosen=new Set(REQUEST_FORM.designees.map(item=>item.id));
+  const items=designeePool().filter(emp=>!chosen.has(emp.id)&&(!query||`${emp.name} ${emp.login}`.toLowerCase().includes(query))).slice(0,6);
+  const box=document.getElementById('designeeResults');
+  box.innerHTML=items.length
+    ? items.map(emp=>`<button type="button" class="pick-item" onclick="designeeAdd('${emp.id}')"><span class="avatar">${emp.ini}</span><span style="min-width:0"><span class="pi-name">${emp.name} <span class="pi-dom">(${emp.login})</span></span><span class="pi-org" style="display:block">${personMeta(emp)}</span></span></button>`).join('')
+    : '<div class="pick-empty">Không còn nhân viên báo cáo trực tiếp phù hợp.</div>';
+  box.classList.add('open');
+}
+function designeeAdd(employeeId){
+  const employee=designeePool().find(item=>item.id===employeeId);
+  if(!employee||!ManagerRequestModel.isEligibleDesignee(employee))return;
+  if(REQUEST_FORM.designees.some(item=>item.id===employeeId))return;
+  REQUEST_FORM.designees.push({id:employee.id,name:employee.name,login:employee.login,ini:employee.ini,lvl:employee.lvl});
+  document.getElementById('designeeInput').value='';
+  closePickers();renderDesignees();syncRequestForm();
+}
+function designeeRemove(employeeId){
+  REQUEST_FORM.designees=REQUEST_FORM.designees.filter(item=>item.id!==employeeId);
+  renderDesignees();syncRequestForm();
+}
+function renderDesignees(){
+  document.getElementById('designeeChips').innerHTML=REQUEST_FORM.designees
+    .map(emp=>`<span class="rv-chip"><span class="avatar">${emp.ini}</span><span class="rv-chip-name">${emp.name}</span><button class="rv-chip-x" onclick="designeeRemove('${emp.id}')" aria-label="Bỏ ${emp.name}" title="Bỏ">&#x2715;</button></span>`).join('');
+}
+
+/* ── người phản hồi ── */
+function reviewerPool(){return EMPLOYEES.filter(emp=>emp.login!==MANAGER.login);}
+function reviewerSearch(){
+  const query=document.getElementById('reviewerInput').value.toLowerCase().trim();
+  if(!query){closePickers();return;}   // chỉ gợi ý khi người dùng đã gõ
+  const chosen=new Set(REQUEST_FORM.reviewers.map(item=>item.login));
+  const items=reviewerPool().filter(emp=>!chosen.has(emp.login)&&(!query||`${emp.name} ${emp.login}`.toLowerCase().includes(query))).slice(0,6);
+  const box=document.getElementById('reviewerResults');
+  box.innerHTML=items.length
+    ? items.map(emp=>`<button type="button" class="pick-item" onclick="reviewerAdd('${emp.login}')"><span class="avatar">${emp.ini}</span><span style="min-width:0"><span class="pi-name">${emp.name} <span class="pi-dom">(${emp.login})</span></span><span class="pi-org" style="display:block">${personMeta(emp)}</span></span></button>`).join('')
+    : '<div class="pick-empty">Không còn người phù hợp.</div>';
+  box.classList.add('open');
+}
+function reviewerAdd(login){
+  if(REQUEST_FORM.reviewers.length>=MAX_REVIEWERS){toast(`Mỗi yêu cầu tối đa ${MAX_REVIEWERS} người phản hồi.`);return;}
+  const person=reviewerPool().find(item=>item.login===login);
+  if(!person||REQUEST_FORM.reviewers.some(item=>item.login===login))return;
+  REQUEST_FORM.reviewers.push({name:person.name,login:person.login,ini:person.ini});
+  if(REQUEST_FORM.personalize&&!REQUEST_FORM.questions[login])REQUEST_FORM.questions[login]=document.getElementById('requestQuestion').value||'';
+  document.getElementById('reviewerInput').value='';
+  closePickers();renderReviewers();syncPersonalizeVisibility();renderPersonQuestions();syncRequestForm();
+}
+function reviewerRemove(login){
+  REQUEST_FORM.reviewers=REQUEST_FORM.reviewers.filter(item=>item.login!==login);
+  delete REQUEST_FORM.questions[login];
+  renderReviewers();syncPersonalizeVisibility();renderPersonQuestions();syncRequestForm();
+}
+function renderReviewers(){
+  document.getElementById('reviewerChips').innerHTML=REQUEST_FORM.reviewers
+    .map(person=>`<span class="rv-chip"><span class="avatar">${person.ini}</span><span class="rv-chip-name">${person.name}</span><button class="rv-chip-x" onclick="reviewerRemove('${person.login}')" aria-label="Bỏ ${person.name}" title="Bỏ">&#x2715;</button></span>`).join('');
+}
+
+/* ── cá nhân hóa chỉ có nghĩa khi từ 2 người phản hồi trở lên ── */
+function syncPersonalizeVisibility(){
+  const multiple=REQUEST_FORM.reviewers.length>=2;
+  document.getElementById('personalizeRow').style.display=multiple?'':'none';
+  if(multiple||!REQUEST_FORM.personalize)return;
+  const shared=document.getElementById('requestQuestion');
+  const remaining=REQUEST_FORM.reviewers[0];
+  if(!shared.value.trim()&&remaining&&REQUEST_FORM.questions[remaining.login])shared.value=REQUEST_FORM.questions[remaining.login];
+  const box=document.getElementById('requestPersonalize');
+  box.checked=false;togglePersonalizeRequest(box);
+}
+function togglePersonalizeRequest(box){
+  REQUEST_FORM.personalize=box.checked;
+  document.getElementById('requestQuestion').style.display=REQUEST_FORM.personalize?'none':'';
+  document.getElementById('personalizeWrap').style.display=REQUEST_FORM.personalize?'':'none';
+  if(REQUEST_FORM.personalize){
+    const shared=document.getElementById('requestQuestion').value;
+    REQUEST_FORM.reviewers.forEach(person=>{if(!REQUEST_FORM.questions[person.login])REQUEST_FORM.questions[person.login]=shared;});
+    renderPersonQuestions();
+  }
+  syncRequestForm();
+}
+function renderPersonQuestions(){
+  if(!REQUEST_FORM.personalize)return;
+  document.getElementById('personalizeList').innerHTML=REQUEST_FORM.reviewers.map(person=>`<div class="person-row"><span class="avatar">${person.ini}</span><div class="person-q"><div class="person-name">${person.name} <span class="pi-dom">(${person.login})</span></div><textarea class="person-ta" placeholder="Câu hỏi riêng cho ${person.name}…" oninput="setPersonQuestion('${person.login}',this.value)">${REQUEST_FORM.questions[person.login]||''}</textarea></div></div>`).join('');
+}
+function setPersonQuestion(login,value){REQUEST_FORM.questions[login]=value;syncRequestForm();}
+
+/* ── preview số yêu cầu + trạng thái nút gửi ── */
+function updateRequestPreview(){
+  const preview=ManagerRequestModel.previewCount(REQUEST_FORM);
+  const box=document.getElementById('requestPreview');
+  if(!preview.designees||!preview.reviewers){
+    box.textContent='';   // chưa chọn đủ thì không hiện gì
+    return preview;
+  }
+  const skipped=preview.skipped?` - đã bỏ ${preview.skipped} cặp tự đánh giá chính mình`:'';
+  box.textContent=`${preview.designees} nhân viên × ${preview.reviewers} người phản hồi = ${preview.total} yêu cầu${skipped}`;
+  return preview;
+}
+function questionsReady(){
+  if(REQUEST_FORM.personalize)return REQUEST_FORM.reviewers.length>0&&REQUEST_FORM.reviewers.every(person=>(REQUEST_FORM.questions[person.login]||'').trim());
+  return !!document.getElementById('requestQuestion').value.trim();
+}
+function syncRequestForm(){
+  const preview=updateRequestPreview();
+  const ready=preview.total>0&&questionsReady()&&!!document.getElementById('requestDue').value;
+  document.getElementById('requestSubmit').disabled=!ready;
+}
+
+function submitManagerRequest(){
+  const preview=ManagerRequestModel.previewCount(REQUEST_FORM);
+  if(!preview.total)return;
+  const request=ManagerRequestModel.createRequest({
+    cycle:document.getElementById('cycle').value,
+    createdAt:todayDMY(),
+    createdBy:MANAGER,
+    due:ManagerRequestModel.fmtDMY(document.getElementById('requestDue').value),
+    designees:REQUEST_FORM.designees,
+    reviewers:REQUEST_FORM.reviewers,
+    personalize:REQUEST_FORM.personalize,
+    questions:REQUEST_FORM.questions,
+    sharedQuestion:document.getElementById('requestQuestion').value.trim()
+  });
+  REQUEST_STORE.add(request);
+  REQUEST_DRAFT=null;
+  const names=request.designees.map(item=>item.name).join(', ');
+  document.getElementById('requestForm').style.display='none';
+  document.getElementById('requestFoot').style.display='none';
+  const success=document.getElementById('requestSuccess');
+  success.style.display='';
+  success.innerHTML=`<div class="give-ok">
+    <div class="give-ok-ic"><i class="bx bx-check"></i></div>
+    <div class="give-ok-t">Đã tạo ${request.assignments.length} yêu cầu phản hồi</div>
+    <div class="give-ok-d">Mỗi người phản hồi nhận một yêu cầu riêng cho từng nhân viên: ${names}. Bạn theo dõi được tiến độ khi phần giám sát mở ở bước kế tiếp.</div>
+    <div class="give-ok-notes">
+      <span class="give-ok-note"><i class="bx bx-calendar"></i>Hạn ${request.due}</span>
+      <span class="give-ok-note"><i class="bx bx-group"></i>Chia sẻ với bạn và nhân viên</span>
+      <span class="give-ok-note"><i class="bx bx-${request.questionMode==='individual'?'user-voice':'message-square-dots'}"></i>${request.questionMode==='individual'?'Câu hỏi riêng từng người':'Cùng một câu hỏi'}</span>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-outline" onclick="closeRequestDialog()">Đóng</button>
+      <button class="btn btn-primary" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Tạo yêu cầu khác</button>
+    </div>
+  </div>`;
+  toast(`Đã tạo ${request.assignments.length} yêu cầu phản hồi.`);
+}
+
+/* ── đóng popup khi đang nhập dở: hỏi lưu nháp hay xóa ── */
+function requestFormDirty(){
+  if(document.getElementById('requestForm').style.display==='none')return false;
+  return !!(REQUEST_FORM.designees.length||REQUEST_FORM.reviewers.length
+    ||document.getElementById('requestQuestion').value.trim()||document.getElementById('requestDue').value);
+}
+function requestCloseAttempt(){
+  if(!requestFormDirty()){closeRequestDialog();return;}
+  document.getElementById('requestConfirm').classList.add('open');
+}
+function requestConfirmCancel(){document.getElementById('requestConfirm').classList.remove('open');}
+function requestConfirmSave(){
+  REQUEST_DRAFT={
+    designees:REQUEST_FORM.designees.map(item=>({...item})),
+    reviewers:REQUEST_FORM.reviewers.map(item=>({...item})),
+    personalize:REQUEST_FORM.personalize,
+    questions:{...REQUEST_FORM.questions},
+    question:document.getElementById('requestQuestion').value,
+    due:document.getElementById('requestDue').value
+  };
+  requestConfirmCancel();closeRequestDialog();toast('Đã lưu nháp yêu cầu, mở lại để viết tiếp.');
+}
+function requestConfirmDiscard(){REQUEST_DRAFT=null;requestConfirmCancel();closeRequestDialog();toast('Đã xóa nội dung đang nhập.');}
+function restoreRequestDraft(){
+  if(!REQUEST_DRAFT)return;
+  REQUEST_FORM.designees=REQUEST_DRAFT.designees.map(item=>({...item}));
+  REQUEST_FORM.reviewers=REQUEST_DRAFT.reviewers.map(item=>({...item}));
+  REQUEST_FORM.questions={...REQUEST_DRAFT.questions};
+  document.getElementById('requestQuestion').value=REQUEST_DRAFT.question||'';
+  document.getElementById('requestDue').value=REQUEST_DRAFT.due||'';
+  if(REQUEST_DRAFT.personalize&&REQUEST_FORM.reviewers.length>=2){
+    REQUEST_FORM.personalize=true;
+    document.getElementById('requestPersonalize').checked=true;
+    document.getElementById('requestQuestion').style.display='none';
+    document.getElementById('personalizeWrap').style.display='';
+  }
+  toast('Đã khôi phục bản nháp yêu cầu.');
+}
+
+document.addEventListener('click',event=>{if(!event.target.closest('.picker'))closePickers();});
+document.addEventListener('keydown',event=>{
+  if(event.key!=='Escape')return;
+  if(document.getElementById('requestConfirm').classList.contains('open')){requestConfirmCancel();return;}
+  if(document.getElementById('requestDialog').classList.contains('open')){requestCloseAttempt();return;}
+  closeFeedback();
+});
 renderFilters();
 renderEmployees();
 </script>
