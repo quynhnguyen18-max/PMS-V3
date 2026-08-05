@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  DEMO ONLY — KHÔNG GHÉP VÀO PROTOTYPE CHÍNH
+  File độc lập, chỉ để hình dung ý tưởng "delight" cho màn Phản hồi.
+  Shell / token / class bám theo bản E-04 mới nhất (pms-v3.vercel.app/E-04)
+  để khi chốt ý tưởng có thể bê thẳng phần hiệu ứng sang mà không lệch giao diện.
+  Cảnh: 1 lời chào · 2 phong bì niêm phong · 3 nút Cảm ơn · 4 gửi & bay đi · 5 chuỗi tim tiến độ
+  ============================================================================
+-->
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DEMO · Delight cho Phản hồi — MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══════════ TOKENS — copy nguyên từ E-04 ═══════════ */
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;
+  --z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#fff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
+  --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+  /* riêng demo: giấy phong bì */
+  --paper:#fbe4f0;--paper-bd:#f3cfe1;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+a{text-decoration:none}
+
+/* ═══════════ SHELL — theo E-04 ═══════════ */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t)}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none;width:calc(100% - 12px);text-align:left}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500)}
+.sb-item.on i{color:var(--brand)}
+.sb-cnt{margin-left:auto;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.sb-cnt.pulse{animation:pulseDot .9s ease 2}
+@keyframes pulseDot{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm)}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.notif-dot{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--err);border:1.5px solid var(--z0)}
+.page{padding:20px 24px 96px;flex:1;max-width:1080px}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
+.bc-sep{color:var(--z400)}
+.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.cycle-action-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.cycle-row{display:flex;align-items:center;gap:7px}
+.cycle-row>i{font-size:15px;color:var(--z500)}
+.cycle-lbl{font-size:13px;color:var(--z700);font-weight:500}
+.cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 6px center;font-size:13px;color:var(--z800);font-weight:500;appearance:none;-webkit-appearance:none}
+.hd-actions{margin-left:auto;display:flex;gap:7px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-sm{width:24px;height:24px;font-size:9.5px}
+.sb-user .av{width:28px;height:28px;font-size:9.5px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap}
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default:hover{background:var(--brand-h);border-color:var(--brand-h)}
+.btn-secondary{background:var(--z100);border-color:var(--z200);color:var(--z700)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{border-color:var(--z400)}
+.btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600}
+.btn-cta-outline:hover{background:var(--brand-muted)}
+.btn-sm{padding:4px 10px;font-size:12.5px}
+.chip{display:inline-flex;align-items:center;gap:3px;height:19px;padding:0 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.ch-pending{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
+.ch-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
+
+/* ═══════════ FEED — theo E-04 ═══════════ */
+.fb-layout{display:flex;gap:22px;align-items:flex-start}
+.fb-main{flex:1;min-width:0}
+.fb-rail{width:290px;flex-shrink:0;display:flex;flex-direction:column;gap:14px;position:sticky;top:72px}
+.feed-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.seg{display:inline-flex;gap:7px;flex-wrap:wrap}
+.seg-btn{padding:6px 14px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:12.5px;font-weight:500;color:var(--z600);transition:var(--t)}
+.seg-btn:hover{background:var(--z50);border-color:var(--z400);color:var(--z900)}
+.seg-btn.on{background:var(--z600);border-color:var(--z600);color:var(--z0);font-weight:600}
+.feed-search{position:relative}
+.feed-search i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--z400)}
+.feed-search input{padding:6px 10px 6px 28px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;color:var(--z800);width:200px;background:var(--z0);font-family:inherit}
+.feed{display:flex;flex-direction:column;gap:10px}
+.feed-grp{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--z500);margin:6px 0 -2px}
+.grp-note{color:var(--brand);text-transform:none;letter-spacing:0;font-weight:600}
+/* trái tim báo trên tab "Đã cho" — chỉ tồn tại tới khi user vào xem */
+.seg-heart{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:0 6px;height:17px;border-radius:9px;
+  background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;transition:opacity .35s ease,transform .35s ease}
+.seg-heart i{font-size:11px;animation:heartBeat 1.4s ease-in-out 3}
+@keyframes heartBeat{0%,100%{transform:scale(1)}18%{transform:scale(1.3)}36%{transform:scale(1)}54%{transform:scale(1.22)}}
+.seg-btn.on .seg-heart{background:var(--z0);color:var(--brand)}
+.seg-heart.fade{opacity:0;transform:scale(.4)}
+/* card vừa được cảm ơn kể từ lần đăng nhập trước */
+.fb-card.fresh{border-color:var(--brand-ring);background:linear-gradient(180deg,rgba(165,0,100,.022),transparent 46px)}
+.fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;position:relative}
+.fb-card:hover{border-color:var(--z300)}
+.fb-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px;padding-right:88px}
+.fb-card.has-chip .fb-head{padding-right:210px}
+.fb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;letter-spacing:-.2px;background:var(--brand-muted);color:var(--brand);margin-top:1px}
+.fb-head-main{min-width:0}
+.fb-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.35;min-width:0}
+.fb-who{font-size:13px;font-weight:600;color:var(--z900)}
+.fb-sender-dom{font-weight:400;color:var(--z500)}
+.fb-arrow{width:0;height:0;border-left:6px solid var(--z600);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;flex-shrink:0;margin:0 2px}
+.fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
+.fb-meta-date{font-size:11.5px;color:var(--z500)}
+.fb-body{font-size:13px;color:var(--z700);line-height:1.65}
+.fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
+.fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
+.fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
+.fb-react{position:absolute;top:14px;right:15px;display:flex;align-items:center;gap:5px}
+.fb-react .fb-badge-img{width:24px;height:24px}
+.fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-wrap:hover .fb-badge-tip{opacity:1}
+.vis-ic{color:var(--z500)}.vis-ic i{font-size:15px;display:block}
+.fb-chip-tr{position:absolute;top:12px;right:15px}
+.req-actions{display:flex;gap:7px;margin-top:12px}
+.rail-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 15px}
+.rail-title{font-size:12.5px;font-weight:700;color:var(--z900);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rail-title i{font-size:15px;color:var(--z500)}
+.queue-cnt{margin-left:auto;font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-muted);border-radius:9px;padding:1px 7px}
+.queue-list{display:flex;flex-direction:column;gap:1px}
+.qrow-mini{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.qrow-mini:hover{background:var(--z50)}
+.qm-name{font-size:12.5px;font-weight:500;color:var(--z800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qm-dom{font-weight:400;color:var(--z500)}
+.queue-more{width:100%;margin-top:6px;padding:6px;border:1px dashed var(--z300);border-radius:var(--rsm);color:var(--z600);font-size:12px;font-weight:500;transition:var(--t);display:flex;align-items:center;justify-content:center;gap:5px}
+.queue-more:hover{background:var(--z50);border-color:var(--z400);color:var(--z900)}
+.cv-rank{display:flex;align-items:center;gap:9px;padding:5px 0}
+.cv-rank img{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.cv-rank-name{font-size:12.5px;color:var(--z800)}
+.cv-rank-cnt{margin-left:auto;font-size:12px;font-weight:700;color:var(--z900)}
+.cv-rank.zero{opacity:.45}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--z100)}
+.stat-row:last-child{border-bottom:none}
+.stat-lbl{font-size:12.5px;color:var(--z600);display:flex;align-items:center;gap:8px}
+.stat-val{font-size:12.5px;font-weight:500;color:var(--z500)}
+.rail-note{font-size:12px;color:var(--z600);line-height:1.6}
+
+/* stagger khi vào màn */
+.stag{opacity:0;transform:translateY(8px)}
+.stag.in{opacity:1;transform:none;transition:opacity .42s ease,transform .42s cubic-bezier(.2,.7,.3,1)}
+
+/* ═══════════ CẢNH 2 — PHONG BÌ NIÊM PHONG ═══════════ */
+.env{position:relative;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);overflow:hidden}
+.env.sealed{cursor:pointer;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.env.sealed:hover{border-color:var(--paper-bd);box-shadow:var(--sh-md);transform:translateY(-1px)}
+.env-seal-view{position:relative;height:122px;perspective:1000px;background:linear-gradient(180deg,#fffdfe,#fdf6fa)}
+.env-flap{position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(175deg,var(--paper),#f6d6e7);
+  clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transform:rotateX(0);
+  transition:transform .55s cubic-bezier(.45,.05,.2,1);z-index:3;backface-visibility:hidden}
+.env-flap::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 60%)}
+.env-seal{position:absolute;top:43px;left:50%;transform:translate(-50%,0);z-index:4;width:28px;height:28px;border-radius:50%;
+  background:var(--brand);color:#fff;display:grid;place-items:center;font-size:14px;box-shadow:0 2px 6px rgba(165,0,100,.32);
+  transition:transform .22s cubic-bezier(.3,1.5,.5,1),opacity .22s ease}
+.env-front{position:absolute;left:0;right:0;bottom:0;height:72px;z-index:2;display:flex;align-items:center;gap:9px;
+  padding:0 16px;background:var(--z0);border-top:1px solid var(--z200);transition:transform .34s ease,opacity .3s ease}
+.env-txt{min-width:0;flex:1}
+.env-l1{font-size:13px;color:var(--z900)}
+.env-l1 b{font-weight:600}
+.env-l2{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--z500);margin-top:2px}
+.env-cta{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;
+  color:var(--brand);background:var(--z0);border:1px solid var(--brand);transition:var(--t)}
+.env.sealed:hover .env-cta{background:var(--brand);color:#fff}
+.env.opening{pointer-events:none}
+.env.opening .env-seal{transform:translate(-50%,-6px) scale(.2) rotate(-25deg);opacity:0}
+.env.opening .env-flap{transform:rotateX(-168deg)}
+.env.opening .env-front{transform:translateY(16px);opacity:0}
+.letter{display:none;padding:14px 16px;position:relative}
+.env.opened .env-seal-view{display:none}
+.env.opened .letter{display:block;animation:letterUp .5s cubic-bezier(.2,.75,.3,1) both}
+@keyframes letterUp{from{opacity:0;transform:translateY(20px) scale(.99)}to{opacity:1;transform:none}}
+.env.opened{animation:softGlow 1.2s ease .05s 1}
+@keyframes softGlow{0%{box-shadow:0 0 0 0 rgba(165,0,100,.2)}70%{box-shadow:0 0 0 8px rgba(165,0,100,0)}100%{box-shadow:none}}
+.lt-foot{margin-top:12px;padding-top:11px;border-top:1px dashed var(--z200);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ═══════════ CẢNH 3 — NÚT CẢM ƠN ═══════════ */
+.thx{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;font-size:12.5px;font-weight:600;
+  color:var(--brand);background:var(--z0);border:1px solid var(--brand-ring);transition:var(--t)}
+.thx:hover{background:var(--brand-muted);border-color:var(--brand)}
+.thx i{font-size:14px}
+.thx.pop{animation:thxPop .42s cubic-bezier(.3,1.6,.5,1)}
+@keyframes thxPop{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+.thx-hint{font-size:11.5px;color:var(--z500)}
+/* sau khi cảm ơn: footer thu lại hết, chỉ còn 1 trái tim nhỏ trên header */
+.lt-foot{overflow:hidden;transition:opacity .2s ease,margin-top .35s ease,padding-top .35s ease,height .35s ease}
+.lt-foot.gone{opacity:0;height:0;margin-top:0;padding-top:0;border-top-color:transparent}
+.thx-mark{color:var(--brand);font-size:14px;line-height:1;display:inline-flex;margin-left:1px}
+.thx-mark.pop{animation:markIn .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes markIn{0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.35) rotate(4deg);opacity:1}100%{transform:scale(1);opacity:1}}
+/* chiều ngược lại: người CHO phản hồi được cảm ơn */
+.thx-mark.got{position:relative}
+.thx-mark.got::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--brand);opacity:0}
+.thx-mark.got.ring::before{animation:markRing 1.1s ease-out 2}
+@keyframes markRing{0%{transform:scale(.5);opacity:.55}100%{transform:scale(1.5);opacity:0}}
+.fb-card.thanked{animation:cardGlow 1.4s ease 1}
+@keyframes cardGlow{0%{box-shadow:0 0 0 0 rgba(165,0,100,.18)}70%{box-shadow:0 0 0 7px rgba(165,0,100,0)}100%{box-shadow:none}}
+.notif-dot.live{animation:pulseDot .9s ease 3}
+.heart-fly{position:fixed;z-index:2000;pointer-events:none;color:var(--brand);animation:heartUp 1.05s ease-out forwards}
+@keyframes heartUp{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  18%{opacity:1;transform:translate(-50%,-70%) scale(1.15)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-260%) scale(.75)}}
+
+/* ═══════════ CẢNH 1 — LỜI CHÀO ═══════════ */
+.wel{position:fixed;inset:0;z-index:1500;display:grid;place-items:center;background:rgba(250,250,250,.88);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+.wel.show{opacity:1;pointer-events:auto}
+.wel-box{text-align:center;transform:translateY(10px) scale(.94);opacity:0}
+.wel.show .wel-box{animation:welIn .6s cubic-bezier(.2,.9,.3,1) both}
+@keyframes welIn{to{transform:none;opacity:1}}
+.wel-gift{width:88px;height:88px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(160deg,var(--paper),#f6d6e7);
+  border:1px solid var(--paper-bd);display:grid;place-items:center;color:var(--brand);font-size:42px;box-shadow:var(--sh-md)}
+.wel.show .wel-gift{animation:giftBounce 1.1s cubic-bezier(.3,1.2,.4,1) .12s both}
+@keyframes giftBounce{0%{transform:scale(.5) rotate(-10deg)}35%{transform:scale(1.1) rotate(4deg)}
+  55%{transform:scale(.97) rotate(-2deg)}75%{transform:scale(1.04)}100%{transform:scale(1)}}
+.wel-t{font-size:19px;font-weight:700;color:var(--z900);letter-spacing:-.3px}
+.wel-s{font-size:13.5px;color:var(--z600);margin-top:4px}
+.wel-skip{font-size:11.5px;color:var(--z500);margin-top:16px}
+#cfx{position:fixed;inset:0;z-index:1600;pointer-events:none}
+
+/* ═══════════ CẢNH 4 — DIALOG PHONG BÌ (E-04 overlay/dialog) ═══════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px);transition:background .5s ease,backdrop-filter .5s ease}
+.overlay.show{display:flex;animation:ovIn .18s ease}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.overlay.clearing{background:rgba(0,0,0,0);backdrop-filter:blur(0)}
+.dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);width:100%;max-width:560px;max-height:90vh;
+  display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:dlgIn .18s ease;position:relative;overflow:hidden}
+@keyframes dlgIn{from{opacity:0;transform:translateY(6px) scale(.99)}to{opacity:1;transform:none}}
+.dlg-hd{padding:16px 20px 14px;flex-shrink:0;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  background:linear-gradient(175deg,var(--paper),#f9e6f0);border-bottom-color:var(--paper-bd)}
+.dlg-title{font-size:15px;font-weight:600;color:var(--z900);line-height:1.4;display:flex;align-items:center;gap:7px}
+.dlg-title i{color:var(--brand);font-size:17px}
+.dlg-close{width:24px;height:24px;border-radius:var(--rxs);color:var(--z600);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dlg-close:hover{background:rgba(255,255,255,.6)}
+.dlg-body{padding:16px 20px;overflow-y:auto;flex:1;background:var(--z0);transform-origin:top center;
+  transition:transform .5s cubic-bezier(.5,0,.6,1),opacity .35s ease}
+.dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:space-between;align-items:center;flex-shrink:0}
+.field{margin-bottom:16px}
+.field-label{display:block;font-size:12.5px;font-weight:600;color:var(--z800);margin-bottom:7px}
+.req-star{color:var(--err);font-weight:700;margin-left:2px}
+.field-hint{font-size:11.5px;color:var(--z500);font-weight:400}
+.compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-family:inherit;font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:var(--z0)}
+.compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.pick-chosen{display:flex;align-items:center;gap:9px;border:1px solid var(--z200);border-radius:var(--rsm);padding:7px 11px;background:var(--z50)}
+.pc-name{font-size:13px;font-weight:600;color:var(--z900)}
+.pc-org{font-size:11.5px;color:var(--z500)}
+.cvpick-row{display:flex;gap:10px;flex-wrap:wrap}
+.cvpick{position:relative;width:44px;height:44px;border-radius:50%;border:2px solid var(--z200);background:var(--z0);padding:0;transition:var(--t)}
+.cvpick img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.cvpick.on{border-color:var(--brand)}
+.cvpick:not(.on){filter:grayscale(.7);opacity:.7}
+.vis-opts{display:flex;flex-direction:column;gap:2px}
+.vis-card{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.vis-card:hover{background:var(--z50)}
+.vis-card.on{background:var(--brand-muted)}
+.vc-t{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--z900)}
+.vis-card.on .vc-t{font-weight:600;color:var(--brand)}
+/* gấp thư + đóng nắp + đóng dấu */
+.dlg-flap{position:absolute;top:0;left:0;right:0;height:150px;z-index:6;background:linear-gradient(175deg,var(--paper),#f4d2e5);
+  clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transform:rotateX(-172deg);backface-visibility:hidden;opacity:0;
+  transition:transform .55s cubic-bezier(.4,.05,.25,1)}
+.dialog.sealing .dlg-flap{opacity:1;transform:rotateX(0)}
+.dialog.sealing .dlg-body{transform:scaleY(.06);opacity:0}
+.dlg-seal{position:absolute;top:124px;left:50%;transform:translate(-50%,0) scale(2.6);opacity:0;z-index:7;width:42px;height:42px;border-radius:50%;
+  background:var(--brand);color:#fff;display:grid;place-items:center;font-size:20px;box-shadow:0 3px 10px rgba(165,0,100,.4);
+  transition:transform .3s cubic-bezier(.2,1.4,.4,1),opacity .2s ease}
+.dialog.stamped .dlg-seal{opacity:1;transform:translate(-50%,0) scale(1)}
+/* màn thành công — nội dung giữ nguyên như E-04 */
+.give-ok{text-align:center;padding:20px 16px}
+.give-ok-ic{width:52px;height:52px;border-radius:50%;background:var(--ok-bg);border:1px solid var(--ok-bd);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px}
+.give-ok-t{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.give-ok-d{font-size:12.5px;color:var(--z600);line-height:1.6;max-width:400px;margin:0 auto}
+.give-ok-note{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11.5px;color:var(--z500);background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);padding:7px 12px}
+/* BAY ĐI: nhấc nhẹ → lướt lên và thu nhỏ tan về tâm màn hình */
+.dialog.flyoff{animation:flyOff 1.05s cubic-bezier(.55,.02,.72,.28) forwards;transform-origin:center center}
+@keyframes flyOff{
+  0%{transform:none;opacity:1;filter:blur(0)}
+  12%{transform:translateY(10px) scale(.985) rotate(-.6deg);opacity:1}
+  45%{transform:translateY(-46px) scale(.62) rotate(1.2deg);opacity:.95}
+  78%{transform:translateY(-90px) scale(.22) rotate(2.4deg);opacity:.55;filter:blur(.6px)}
+  100%{transform:translateY(-112px) scale(.02) rotate(3deg);opacity:0;filter:blur(1.6px)}
+}
+.spark{position:fixed;z-index:1900;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--brand);opacity:.85;
+  animation:sparkOut .8s ease-out forwards}
+@keyframes sparkOut{0%{transform:translate(-50%,-50%) scale(1);opacity:.85}
+  100%{transform:translate(calc(-50% + var(--sx,0px)),calc(-50% + var(--sy,0px))) scale(0);opacity:0}}
+
+/* ═══════════ TOAST + THANH DEMO ═══════════ */
+.toast{position:fixed;left:50%;bottom:74px;transform:translate(-50%,14px);z-index:1800;opacity:0;pointer-events:none;
+  background:var(--z900);color:#fff;font-size:12.5px;padding:8px 14px;border-radius:20px;display:flex;align-items:center;gap:7px;
+  transition:opacity .25s ease,transform .25s ease;box-shadow:var(--sh-lg)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast i{color:#f9a8d4;font-size:15px}
+.ctl{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--z900);color:#fff;padding:9px 20px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;box-shadow:0 -4px 16px rgba(0,0,0,.14)}
+.ctl-lbl{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f9a8d4;margin-right:2px}
+.ctl button{border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:5px 12px;font-size:12px;color:#fff;transition:var(--t)}
+.ctl button:hover{background:rgba(255,255,255,.12)}
+.ctl .sep{width:1px;height:18px;background:rgba(255,255,255,.18);margin:0 3px}
+.ctl label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#d4d4d8;cursor:pointer}
+.ctl .hint{margin-left:auto;font-size:11.5px;color:#a1a1aa}
+
+body.reduced *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.06s!important}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.06s!important}}
+@media(max-width:1100px){.fb-layout{flex-direction:column}.fb-rail{width:100%;position:static;flex-direction:row;flex-wrap:wrap}.fb-rail>*{flex:1;min-width:240px}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ══ SIDEBAR (E-04) ══ -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo"><span>M</span></div>
+      <div>
+        <div class="sb-name">MoMo <em>HRM</em></div>
+        <div class="sb-sub">Performance Management</div>
+      </div>
+    </div>
+    <div class="role-sw">
+      <button class="role-btn on">Nhân viên</button>
+      <button class="role-btn">Quản lý</button>
+    </div>
+    <nav class="sb-nav">
+      <span class="sb-grp">Tổng quan</span>
+      <button class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</button>
+      <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+      <button class="sb-item"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</button>
+      <button class="sb-item" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi</button>
+      <button class="sb-item on" onclick="enterFeedback()">
+        <i class="bx bx-gift"></i>New Demo Feedback
+        <span class="sb-cnt" id="sbCnt">2</span>
+      </button>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="av av-brand">NT</div>
+        <div>
+          <div class="sb-uname">Nguyễn Văn Tú</div>
+          <div class="sb-urole">Nhân viên, Backend Team</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ WORKSPACE ══ -->
+  <div class="workspace">
+    <header class="topbar">
+      <span style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);padding:4px 8px">
+        <i class="bx bx-chevron-left" style="font-size:16px"></i>Home</span>
+      <span class="topbar-title">Phản hồi cá nhân</span>
+      <div class="topbar-right">
+        <span class="chip ch-pending" style="margin-right:6px"><i class="bx bx-purchase-tag"></i> DEMO — file tách riêng</span>
+        <button class="ico-btn"><i class="bx bx-bell"></i><span class="notif-dot"></span></button>
+        <button class="ico-btn"><i class="bx bx-help-circle"></i></button>
+        <div class="av av-brand av-sm" style="margin-left:3px">NT</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="breadcrumb stag" data-s="1"><span>Trang chủ</span><span class="bc-sep">/</span><span>Phản hồi cá nhân</span></div>
+      <div class="page-hd stag" data-s="1"><h1 class="page-title">Phản hồi cá nhân</h1></div>
+
+      <div class="cycle-action-row stag" data-s="2">
+        <div class="cycle-row">
+          <i class="bx bx-calendar"></i><span class="cycle-lbl">Chu kỳ</span>
+          <select class="cycle-sel"><option>2026</option><option>2025</option><option>Tất cả</option></select>
+        </div>
+        <div class="hd-actions">
+          <button class="btn btn-default" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi</button>
+          <button class="btn btn-cta-outline"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button>
+        </div>
+      </div>
+
+      <div class="fb-layout">
+        <div class="fb-main">
+          <div class="feed-bar stag" data-s="3">
+            <div class="seg" id="seg">
+              <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả</button>
+              <button class="seg-btn" data-f="received" onclick="setFilter('received')">Đã nhận</button>
+              <button class="seg-btn" data-f="given" onclick="setFilter('given')">Đã cho<span class="seg-heart" id="segHeart"><i class="bx bxs-heart"></i>2</span></button>
+              <button class="seg-btn" data-f="request" onclick="setFilter('request')">Yêu cầu của tôi</button>
+            </div>
+            <div class="feed-search"><i class="bx bx-search"></i><input placeholder="Tìm theo tên, nội dung…"/></div>
+          </div>
+
+          <div class="feed stag" id="feed" data-s="4"></div>
+        </div>
+
+        <!-- ══ RAIL (E-04) ══ -->
+        <aside class="fb-rail stag" data-s="4">
+          <!-- thứ tự bám đúng E-04: Giá trị → Cần bạn phản hồi → Hoạt động chu kỳ -->
+          <div class="rail-card">
+            <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
+            <div class="cv-rank"><img src="../Core value with BG/Teamwork.png" alt=""/><span class="cv-rank-name">Tinh thần đồng đội</span><span class="cv-rank-cnt">5</span></div>
+            <div class="cv-rank"><img src="../Core value with BG/Excellence.png" alt=""/><span class="cv-rank-name">Thực thi xuất sắc</span><span class="cv-rank-cnt">5</span></div>
+            <div class="cv-rank"><img src="../Core value with BG/Constant_.png" alt=""/><span class="cv-rank-name">Không ngừng học hỏi</span><span class="cv-rank-cnt">3</span></div>
+            <div class="cv-rank"><img src="../Core value with BG/Customer_.png" alt=""/><span class="cv-rank-name">Khách hàng là trung tâm</span><span class="cv-rank-cnt">2</span></div>
+            <div class="cv-rank zero"><img src="../Core value with BG/Innovation.png" alt=""/><span class="cv-rank-name">Đổi mới</span><span class="cv-rank-cnt">0</span></div>
+          </div>
+
+          <section class="rail-card">
+            <div class="rail-title"><i class="bx bx-bell"></i>Cần bạn phản hồi<span class="queue-cnt">11</span></div>
+            <div class="queue-list">
+              <div class="qrow-mini"><div class="av av-brand av-sm">LT</div><span class="qm-name">Lê Thị Thanh <span class="qm-dom">(thanh.le)</span></span></div>
+              <div class="qrow-mini"><div class="av av-brand av-sm">CS</div><span class="qm-name">Cao Văn Sơn <span class="qm-dom">(son.cao)</span></span></div>
+              <div class="qrow-mini"><div class="av av-brand av-sm">TM</div><span class="qm-name">Trần Thị Mai <span class="qm-dom">(mai.tran)</span></span></div>
+              <button class="queue-more"><i class="bx bx-list-ul"></i> Xem tất cả (11)</button>
+            </div>
+          </section>
+
+          <div class="rail-card">
+            <div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Hoạt động chu kỳ <span style="color:var(--z500);font-weight:600">2026</span></div>
+            <div id="railStats">
+              <div class="stat-row"><span class="stat-lbl"><i class="bx bx-down-arrow-alt"></i>Phản hồi đã nhận</span><span class="stat-val" id="stRecv">11</span></div>
+              <div class="stat-row"><span class="stat-lbl"><i class="bx bx-up-arrow-alt"></i>Phản hồi đã cho</span><span class="stat-val" id="stGiven">2</span></div>
+              <div class="stat-row"><span class="stat-lbl"><i class="bx bx-user-voice"></i>Yêu cầu đang mở</span><span class="stat-val" id="stOpen">2</span></div>
+              <div class="stat-row"><span class="stat-lbl"><i class="bx bx-bell"></i>Cần bạn phản hồi</span><span class="stat-val">11</span></div>
+            </div>
+          </div>
+
+          <div class="rail-card">
+            <div class="rail-title"><i class="bx bx-info-circle"></i>Ghi chú demo</div>
+            <div class="rail-note">Hiệu ứng mở thư cố ý <b>trung tính</b> — không confetti, không phân loại khen/góp ý, vì hệ thống không biết trước nội dung. Confetti chỉ dùng ở lời chào đầu màn.</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CẢNH 1 ══ -->
+<div class="wel" id="wel" onclick="closeWel()">
+  <div class="wel-box">
+    <div class="wel-gift"><i class="bx bx-gift"></i></div>
+    <div class="wel-t">Chào mừng đến hộp quà của bạn 🎁</div>
+    <div class="wel-s">Bạn có <b>2 phản hồi</b> chưa mở đang chờ.</div>
+    <div class="wel-skip">Bấm bất kỳ đâu để bỏ qua</div>
+  </div>
+</div>
+<canvas id="cfx"></canvas>
+
+<!-- ══ CẢNH 4 — dialog Cho phản hồi (khung E-04 + vỏ phong bì) ══ -->
+<div class="overlay" id="ovGive">
+  <div class="dialog" id="dlgGive">
+    <div class="dlg-flap"></div>
+    <div class="dlg-seal"><i class="bx bxs-heart"></i></div>
+
+    <div class="dlg-hd">
+      <div class="dlg-title"><i class="bx bx-envelope"></i> Cho phản hồi</div>
+      <button class="dlg-close" onclick="closeGive()">✕</button>
+    </div>
+
+    <div class="dlg-body" id="giveBody">
+      <div id="giveForm">
+        <div class="field">
+          <label class="field-label">Gửi đến<span class="req-star">*</span></label>
+          <div class="pick-chosen">
+            <div class="fb-av">MH</div>
+            <div><div class="pc-name">Mai Thị Hằng <span class="fb-sender-dom">(hang.mai)</span></div>
+                 <div class="pc-org">ITC – DevOps – Platform Engineer</div></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Nội dung phản hồi<span class="req-star">*</span></label>
+          <textarea class="compose-ta" id="giveTA" placeholder="Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?">Tú lên kế hoạch migration rất bài bản, chia nhỏ theo từng giai đoạn nên team DevOps chủ động được hạ tầng. Rollback plan rõ ràng giúp mình yên tâm khi chạy thật.</textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Huy hiệu <span class="field-hint">(Chọn một hoặc nhiều giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
+          <div class="cvpick-row" id="cvPick"></div>
+        </div>
+
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">Ai có thể xem phản hồi này?<span class="req-star">*</span></label>
+          <div class="vis-opts">
+            <label class="vis-card on" id="visR" onclick="setVis('receiver')"><div class="vc-t"><i class="bx bx-lock-alt"></i>Chỉ người nhận</div></label>
+            <label class="vis-card" id="visM" onclick="setVis('manager')"><div class="vc-t"><i class="bx bx-group"></i>Người nhận + Quản lý của họ</div></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS — giữ nguyên nội dung như E-04 -->
+      <div id="giveSuccess" style="display:none"></div>
+    </div>
+
+    <div class="dlg-foot" id="giveFoot">
+      <span></span>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-default btn-sm" onclick="sendGive()"><i class="bx bx-send"></i> Gửi phản hồi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="bx bxs-heart"></i><span id="toastTxt"></span></div>
+
+<!-- ══ THANH ĐIỀU KHIỂN DEMO ══ -->
+<div class="ctl">
+  <span class="ctl-lbl">Demo</span>
+  <button onclick="enterFeedback()"><i class="bx bx-gift"></i> 1 · Lời chào</button>
+  <button onclick="resetFeed()"><i class="bx bx-envelope"></i> 2 · Thư niêm phong</button>
+  <button onclick="openGive()"><i class="bx bx-send"></i> 4 · Gửi &amp; bay đi</button>
+  <button onclick="setFilter('given')"><i class="bx bxs-heart"></i> 5 · Tab "Đã cho"</button>
+  <button onclick="receiveThanks()">Giả lập nhận thêm 1 cảm ơn</button>
+  <span class="sep"></span>
+  <label><input type="checkbox" onchange="document.body.classList.toggle('reduced',this.checked)"/> Tắt chuyển động</label>
+  <span class="hint">File độc lập · không ghép vào E-04 / M-04</span>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const reduced = () => document.body.classList.contains('reduced')
+  || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function toast(txt, icon){
+  const t = $('#toast');
+  t.querySelector('i').className = 'bx ' + (icon || 'bxs-heart');
+  $('#toastTxt').textContent = txt;
+  t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ═══════════ CONFETTI ═══════════ */
+const cvs = $('#cfx'), cx = cvs.getContext('2d');
+let parts = [], raf = null;
+function fitCanvas(){ cvs.width=innerWidth*devicePixelRatio; cvs.height=innerHeight*devicePixelRatio;
+  cvs.style.width=innerWidth+'px'; cvs.style.height=innerHeight+'px'; cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+fitCanvas(); addEventListener('resize', fitCanvas);
+const PALETTE=['#A50064','#d16fa4','#f3cfe1','#fbe4f0','#d4d4d8','#a1a1aa'];
+function confetti(x,y,n){
+  if(reduced()) return;
+  for(let i=0;i<(n||70);i++){
+    const a=Math.random()*Math.PI*2, sp=3.5+Math.random()*7;
+    parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-4,w:4+Math.random()*5,h:6+Math.random()*7,
+      r:Math.random()*Math.PI,vr:(Math.random()-.5)*.3,c:PALETTE[(Math.random()*PALETTE.length)|0],life:1});
+  }
+  if(!raf) raf=requestAnimationFrame(tick);
+}
+function tick(){
+  cx.clearRect(0,0,innerWidth,innerHeight);
+  parts=parts.filter(p=>p.life>0);
+  parts.forEach(p=>{
+    p.vy+=.19; p.vx*=.992; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+    if(p.y>innerHeight+40) p.life=0; else p.life-=.0035;
+    cx.save(); cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.6));
+    cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle=p.c;
+    cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore();
+  });
+  if(parts.length) raf=requestAnimationFrame(tick); else { raf=null; cx.clearRect(0,0,innerWidth,innerHeight); }
+}
+
+/* ═══════════ CẢNH 1 — LỜI CHÀO (3.5s) ═══════════ */
+function enterFeedback(){
+  $('#sbCnt').classList.add('pulse');
+  setTimeout(()=>$('#sbCnt').classList.remove('pulse'), 2000);
+  document.querySelectorAll('.stag').forEach(el=>el.classList.remove('in'));
+  $('#wel').classList.add('show');
+  if(!reduced()){
+    setTimeout(()=>confetti(innerWidth*.5, innerHeight*.42, 90), 260);
+    setTimeout(()=>{ confetti(innerWidth*.28, innerHeight*.36, 40); confetti(innerWidth*.72, innerHeight*.36, 40); }, 620);
+    setTimeout(()=>confetti(innerWidth*.5, innerHeight*.40, 45), 1500);
+  }
+  clearTimeout(enterFeedback._t);
+  enterFeedback._t = setTimeout(closeWel, reduced() ? 700 : 3500);
+}
+function closeWel(){
+  clearTimeout(enterFeedback._t);
+  $('#wel').classList.remove('show');
+  document.querySelectorAll('.stag').forEach((el,i)=>setTimeout(()=>el.classList.add('in'), reduced()?0:i*60));
+}
+
+/* ═══════════ CẢNH 2 + 3 — PHONG BÌ & CẢM ƠN ═══════════ */
+const CVIMG = {
+  'Tinh thần đồng đội':'Teamwork.png','Thực thi xuất sắc':'Excellence.png',
+  'Không ngừng học hỏi':'Constant_.png','Khách hàng là trung tâm':'Customer_.png','Đổi mới':'Innovation.png'
+};
+const FEED=[
+  { id:'f1', ini:'LH', from:'Lê Văn Hùng', dom:'hung.le', org:'ITC – Backend – Senior Engineer',
+    date:'04/08/2026', vis:'Chỉ mình tôi',
+    q:'Chất lượng kỹ thuật của phần chuyển đổi schema và data như thế nào?',
+    body:'Phần chuyển đổi schema được xử lý cẩn thận, không mất mát dữ liệu và downtime gần như bằng 0. Cách Tú viết script migration idempotent rất chuyên nghiệp.',
+    cv:['Thực thi xuất sắc'] },
+  { id:'f2', ini:'MH', from:'Mai Thị Hằng', dom:'hang.mai', org:'ITC – DevOps – Platform Engineer',
+    date:'03/08/2026', vis:'Người nhận và Quản lý trực tiếp',
+    q:'Việc phối hợp giữa mình và team DevOps trong sprint vừa rồi diễn ra thế nào?',
+    body:'Ở sprint vừa rồi phần bàn giao tài liệu còn hơi trễ so với lịch, team phải chờ gần 2 ngày mới bắt đầu được. Nếu lần sau Tú gửi bản nháp sớm dù chưa hoàn chỉnh thì hai bên có thể chạy song song, đỡ dồn việc cuối sprint.',
+    cv:[] }
+];
+
+function envHTML(f){
+  const react = f.cv.length
+    ? `<div class="fb-react">${f.cv.map(c=>`<span class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/${CVIMG[c]}" alt=""/><span class="fb-badge-tip">${c}</span></span>`).join('')}</div>` : '';
+  return `
+  <article class="env sealed" id="env-${f.id}" onclick="openEnv('${f.id}')" style="margin-bottom:10px">
+    <div class="env-seal-view">
+      <div class="env-flap"></div>
+      <div class="env-seal"><i class="bx bxs-heart"></i></div>
+      <div class="env-front">
+        <div class="fb-av">${f.ini}</div>
+        <div class="env-txt">
+          <div class="env-l1"><b>${f.from}</b> đã gửi bạn một phản hồi</div>
+          <div class="env-l2"><span>${f.date}</span><span>·</span><span><i class="bx bx-lock-alt"></i> ${f.vis}</span></div>
+        </div>
+        <span class="env-cta"><i class="bx bx-envelope-open"></i> Mở</span>
+      </div>
+    </div>
+    <div class="letter">
+      ${react}
+      <div class="fb-head">
+        <div class="fb-av">${f.ini}</div>
+        <div class="fb-head-main">
+          <div class="fb-line">
+            <span class="fb-who">${f.from} <span class="fb-sender-dom">(${f.dom})</span></span>
+            <span class="fb-arrow"></span><span class="fb-who">Nguyễn Văn Tú</span>
+            ${f.thanked?`<span class="fb-badge-wrap thx-mark"><i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.from}</span></span>`:''}
+          </div>
+          <div class="fb-meta">
+            <span class="fb-meta-date">${f.date}</span>
+            <span class="fb-badge-wrap vis-ic"><i class="bx bx-lock-alt"></i><span class="fb-badge-tip">${f.vis}</span></span>
+          </div>
+        </div>
+      </div>
+      ${f.q?`<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>`:''}
+      <p class="fb-body">${f.body}</p>
+      ${f.thanked?'':`<div class="lt-foot">
+        <button class="thx" onclick="event.stopPropagation();sayThanks(this,'${f.from}','${f.id}')"><i class="bx bx-heart"></i> Cảm ơn</button>
+        <span class="thx-hint">Gửi tim tim đến ${f.from} để cảm ơn nhé</span>
+      </div>`}
+    </div>
+  </article>`;
+}
+/* ── Phản hồi ĐÃ ĐỌC (nhận) ── */
+const READ=[
+  { ini:'LT', from:'Lê Thị Thanh', dom:'thanh.le', date:'18/07/2026', vis:'Chỉ mình tôi', cv:['Thực thi xuất sắc'],
+    thanked:true,
+    body:'Phần refactor module thanh toán em làm rất gọn, đọc code dễ hơn hẳn. Lần sau nhớ note lại quyết định kỹ thuật vào PR description để team sau đỡ mất thời gian nhé.' }
+];
+
+/* ── Phản hồi MÌNH ĐÃ CHO (5 cái, 2 cái được cảm ơn) ── */
+const GIVEN=[
+  { id:'g1', ini:'VL', to:'Vũ Thị Lan', dom:'lan.vu', date:'25/07/2026', vis:'Chỉ người nhận', cv:['Tinh thần đồng đội'],
+    thankedAt:'26/07/2026', isNew:true,
+    body:'Buổi present hôm qua Lan chuẩn bị slide rất rõ ràng, phần demo chạy mượt nên khách hiểu ngay giá trị sản phẩm. Nếu phần Q&A có thêm 1-2 số liệu cụ thể thì sẽ thuyết phục hơn nữa.' },
+  { id:'g2', ini:'TM', to:'Trần Thị Mai', dom:'mai.tran', date:'22/07/2026', vis:'Người nhận và Quản lý trực tiếp', cv:['Đổi mới'],
+    thankedAt:'24/07/2026', isNew:true,
+    body:'Ý tưởng gom 3 bước xác thực thành một luồng duy nhất trong Design System rất hay, giảm hẳn số màn người dùng phải đi qua. Mình đã mượn lại cách tiếp cận này cho luồng thanh toán.' },
+  { id:'g3', ini:'CS', to:'Cao Văn Sơn', dom:'son.cao', date:'18/07/2026', vis:'Chỉ người nhận', cv:[],
+    thankedAt:null, isNew:false,
+    body:'Phần tối ưu chi phí hạ tầng Sơn làm rất chắc số liệu, có before/after rõ ràng nên trình bày với sếp dễ thuyết phục. Lần sau nếu có thêm phần rủi ro khi giảm instance thì trọn vẹn hơn.' },
+  { id:'g4', ini:'PD', to:'Phạm Minh Đức', dom:'duc.pham', date:'12/07/2026', vis:'Chỉ người nhận', cv:['Không ngừng học hỏi'],
+    thankedAt:null, isNew:false,
+    body:'Đức chủ động tự học phần message queue rồi chia sẻ lại cho cả team trong buổi tech share, mình thấy rất hữu ích. Nếu viết lại thành tài liệu ngắn thì người mới vào sẽ đỡ mất thời gian.' },
+  { id:'g5', ini:'MH', to:'Mai Thị Hằng', dom:'hang.mai', date:'05/07/2026', vis:'Người nhận và Quản lý trực tiếp', cv:[],
+    thankedAt:null, isNew:false,
+    body:'Đợt migration vừa rồi Hằng phản hồi rất nhanh mỗi khi có sự cố hạ tầng, kể cả ngoài giờ. Nhờ vậy team không bị block. Cảm ơn Hằng nhiều.' }
+];
+
+let filter='all', openedIds=new Set(), unread=2;
+/* trái tim trên tab "Đã cho" = số phản hồi được cảm ơn KỂ TỪ LẦN ĐĂNG NHẬP TRƯỚC */
+let newThanks = GIVEN.filter(g=>g.isNew).length;
+
+function cvHTML(list){
+  return list.length ? `<div class="fb-react">${list.map(c=>`<span class="fb-badge-wrap"><img class="fb-badge-img" src="../Core value with BG/${CVIMG[c]}" alt=""/><span class="fb-badge-tip">${c}</span></span>`).join('')}</div>` : '';
+}
+function readHTML(f){
+  return `<div class="fb-card" data-kind="received">
+    ${cvHTML(f.cv)}
+    <div class="fb-head"><div class="fb-av">${f.ini}</div><div class="fb-head-main">
+      <div class="fb-line"><span class="fb-who">${f.from} <span class="fb-sender-dom">(${f.dom})</span></span><span class="fb-arrow"></span><span class="fb-who">Nguyễn Văn Tú</span>
+        ${f.thanked?`<span class="fb-badge-wrap thx-mark"><i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.from}</span></span>`:''}</div>
+      <div class="fb-meta"><span class="fb-meta-date">${f.date}</span><span class="fb-badge-wrap vis-ic"><i class="bx bx-lock-alt"></i><span class="fb-badge-tip">${f.vis}</span></span></div>
+    </div></div>
+    <p class="fb-body">${f.body}</p></div>`;
+}
+/* Card "Đã cho": được cảm ơn → 1 trái tim nhỏ cạnh tên người nhận (hover xem ai/khi nào) */
+function givenHTML(g){
+  const mark = g.thankedAt
+    ? `<span class="fb-badge-wrap thx-mark got ${g.isNew?'ring pop':''}"><i class="bx bxs-heart"></i><span class="fb-badge-tip">${g.to} đã cảm ơn phản hồi này · ${g.thankedAt}</span></span>` : '';
+  return `<div class="fb-card${g.isNew?' fresh':''}" data-kind="given" id="gc-${g.id}">
+    ${cvHTML(g.cv)}
+    <div class="fb-head"><div class="fb-av">NT</div><div class="fb-head-main">
+      <div class="fb-line"><span class="fb-who">Nguyễn Văn Tú</span><span class="fb-arrow"></span><span class="fb-who">${g.to} <span class="fb-sender-dom">(${g.dom})</span></span>${mark}</div>
+      <div class="fb-meta"><span class="fb-meta-date">${g.date}</span><span class="fb-badge-wrap vis-ic"><i class="bx bx-lock-alt"></i><span class="fb-badge-tip">${g.vis}</span></span></div>
+    </div></div>
+    <p class="fb-body">${g.body}</p></div>`;
+}
+function reqHTML(){
+  return `<div class="fb-card has-chip" data-kind="request">
+    <div class="fb-chip-tr"><span class="chip ch-pending"><i class="bx bx-loader-alt"></i>Đang thu thập: 3/5 đã trả lời</span></div>
+    <div class="fb-head"><div class="fb-av">NT</div><div class="fb-head-main">
+      <div class="fb-line"><span class="fb-who">Nguyễn Văn Tú</span><span class="fb-arrow"></span>
+        <span class="fb-who">Mai Thị Hằng <span class="fb-sender-dom">(hang.mai)</span></span>
+        <span class="fb-who" style="font-weight:500;color:var(--z600)">và 4 người khác</span></div>
+      <div class="fb-meta"><span class="fb-meta-date">28/07/2026 · Hạn 10/08/2026</span></div>
+    </div></div>
+    <div class="req-actions">
+      <button class="btn btn-outline btn-sm"><i class="bx bx-list-ul"></i> Xem chi tiết</button>
+      <button class="btn btn-outline btn-sm"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>
+    </div></div>`;
+}
+
+/* ĐÃ CHO: phản hồi được cảm ơn luôn nổi lên đầu (mới cảm ơn nhất trước) */
+function sortedGiven(){
+  return GIVEN.slice().sort((a,b)=>{
+    if(!!a.thankedAt !== !!b.thankedAt) return a.thankedAt ? -1 : 1;
+    if(a.isNew !== b.isNew) return a.isNew ? -1 : 1;
+    return 0;
+  });
+}
+function grp(t){ return `<div class="feed-grp">${t}</div>`; }
+
+function renderFeed(){
+  const envs = FEED.map(envHTML).join('');
+  const givenList = sortedGiven();
+  const thankedN = givenList.filter(g=>g.thankedAt).length;
+  /* tab "Đã cho": chỉ nói điều user cần biết — có bao nhiêu phản hồi được cảm ơn */
+  const givenGrp = thankedN ? grp(`<span class="grp-note">${thankedN} phản hồi đã được cảm ơn</span>`) : '';
+  let html='';
+  if(filter==='all')      html = grp(`Chưa mở · ${unread}`)+envs + grp('Yêu cầu của tôi')+reqHTML() + grp('Đã cho')+givenList.map(givenHTML).join('') + grp('Đã đọc')+READ.map(readHTML).join('');
+  else if(filter==='received') html = grp(`Chưa mở · ${unread}`)+envs + grp('Đã đọc')+READ.map(readHTML).join('');
+  else if(filter==='given')    html = givenGrp + givenList.map(givenHTML).join('');
+  else                         html = grp('Yêu cầu của tôi')+reqHTML();
+  $('#feed').innerHTML = html;
+  openedIds.forEach(id=>{ const el=$('#env-'+id); if(el){ el.classList.remove('sealed'); el.classList.add('opened'); } });
+  $('#stGiven').textContent = GIVEN.length;
+}
+
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on', b.dataset.f===f));
+  renderFeed();
+  /* RULE: vào tab "Đã cho" xem xong → trái tim trên tab biến mất (đã xem) */
+  if(f==='given' && newThanks>0){
+    clearTimeout(setFilter._t);
+    setFilter._t = setTimeout(()=>{
+      newThanks = 0;
+      GIVEN.forEach(g=>g.isNew=false);
+      const sh=$('#segHeart'); if(sh){ sh.classList.add('fade'); setTimeout(()=>sh.remove(), 400); }
+      document.querySelectorAll('.fb-card.fresh').forEach(c=>c.classList.remove('fresh'));
+    }, reduced()?200:1800);
+  }
+}
+function syncSegHeart(){
+  let sh=$('#segHeart');
+  const btn=document.querySelector('.seg-btn[data-f="given"]');
+  if(newThanks>0){
+    if(!sh){ sh=document.createElement('span'); sh.className='seg-heart'; sh.id='segHeart'; btn.appendChild(sh); }
+    sh.classList.remove('fade');
+    sh.innerHTML='<i class="bx bxs-heart"></i>'+newThanks;
+  } else if(sh){ sh.remove(); }
+}
+
+function openEnv(id){
+  const el = $('#env-'+id);
+  if(!el || !el.classList.contains('sealed')) return;
+  el.classList.remove('sealed'); el.classList.add('opening');
+  openedIds.add(id);
+  setTimeout(()=>{ el.classList.remove('opening'); el.classList.add('opened'); }, reduced()?60:620);
+  unread = Math.max(0, unread-1);
+  $('#sbCnt').textContent = unread;
+  if(!unread) $('#sbCnt').style.display='none';
+  const g=document.querySelector('.feed-grp'); if(g && filter!=='given') g.textContent='Chưa mở · '+unread;
+}
+
+function sayThanks(btn, who, id){
+  if(btn.disabled) return;
+  btn.disabled = true;
+  const item = FEED.find(x=>x.id===id); if(item) item.thanked = true;   // giữ trạng thái khi đổi tab
+  btn.classList.add('pop');
+  const r = btn.getBoundingClientRect();
+  const card = btn.closest('.env, .fb-card');
+
+  // footer thu lại → card chỉ còn nội dung phản hồi
+  const foot = btn.closest('.lt-foot');
+  setTimeout(()=>{
+    if(foot){ foot.style.height = foot.offsetHeight + 'px'; requestAnimationFrame(()=>foot.classList.add('gone')); }
+    // dấu đã cảm ơn: 1 trái tim nhỏ cạnh tên ở header
+    const line = card && card.querySelector('.fb-line');
+    if(line && !line.querySelector('.thx-mark')){
+      const m = document.createElement('span');
+      m.className = 'fb-badge-wrap thx-mark pop';
+      m.innerHTML = '<i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ' + who + '</span>';
+      line.appendChild(m);
+    }
+    setTimeout(()=>{ if(foot) foot.remove(); }, reduced()?0:400);
+  }, reduced()?0:420);
+  if(!reduced()){
+    for(let i=0;i<5;i++){
+      const h=document.createElement('div');
+      h.className='heart-fly'; h.innerHTML='<i class="bx bxs-heart"></i>';
+      h.style.left=(r.left+r.width/2)+'px'; h.style.top=r.top+'px';
+      h.style.setProperty('--dx', ((Math.random()-.5)*70).toFixed(0)+'px');
+      h.style.animationDelay=(i*70)+'ms';
+      h.style.fontSize=(13+Math.random()*10)+'px';
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(), 1400+i*70);
+    }
+  }
+  toast('Đã gửi lời cảm ơn tới '+who);
+}
+function resetFeed(){
+  openedIds.clear(); unread=2; FEED.forEach(f=>f.thanked=false);
+  GIVEN.forEach((g,i)=>{ g.isNew = i<2; g.thankedAt = i<2 ? (i===0?'26/07/2026':'24/07/2026') : null; });
+  newThanks = 2; syncSegHeart();
+  setFilter('all');
+  $('#sbCnt').style.display=''; $('#sbCnt').textContent='2';
+  document.querySelectorAll('.stag').forEach(el=>el.classList.add('in'));
+}
+
+/* ═══════════ CẢNH 4 — GỬI: niêm phong → thành công → bay tan về tâm ═══════════ */
+const CV_LIST = Object.keys(CVIMG);
+let chosenCV = ['Tinh thần đồng đội'], gvis = 'receiver';
+
+function renderCVPick(){
+  $('#cvPick').innerHTML = CV_LIST.map(c=>`
+    <button class="cvpick ${chosenCV.includes(c)?'on':''}" onclick="toggleCV('${c}')" title="${c}">
+      <img src="../Core value with BG/${CVIMG[c]}" alt="${c}"/>
+    </button>`).join('');
+}
+function toggleCV(c){
+  chosenCV = chosenCV.includes(c) ? chosenCV.filter(x=>x!==c) : chosenCV.concat(c);
+  renderCVPick();
+}
+function setVis(v){
+  gvis=v;
+  $('#visR').classList.toggle('on', v==='receiver');
+  $('#visM').classList.toggle('on', v==='manager');
+}
+
+function openGive(){
+  const d=$('#dlgGive');
+  d.className='dialog';
+  $('#giveForm').style.display='';
+  $('#giveSuccess').style.display='none';
+  $('#giveFoot').style.display='';
+  $('#ovGive').classList.remove('clearing');
+  $('#ovGive').classList.add('show');
+  renderCVPick(); setVis(gvis);
+}
+function closeGive(){ $('#ovGive').classList.remove('show','clearing'); }
+
+function sendGive(){
+  const d=$('#dlgGive');
+  const name='Mai Thị Hằng';
+  const visTxt = gvis==='manager' ? 'Người nhận và Quản lý trực tiếp của họ' : 'Chỉ người nhận';
+  const cvHTML = chosenCV.length ? `<div class="give-ok-note"><i class="bx bx-medal"></i>Giá trị đính kèm: ${chosenCV.join(', ')}</div>` : '';
+
+  d.classList.add('sealing');                                    // 1 · gấp thư + đóng nắp
+  setTimeout(()=>d.classList.add('stamped'), reduced()?40:430);  // 2 · đóng dấu sáp
+  setTimeout(()=>{                                               // 3 · nội dung thành công (giữ nguyên như E-04)
+    d.classList.remove('sealing','stamped');
+    $('#giveForm').style.display='none';
+    $('#giveFoot').style.display='none';
+    const s=$('#giveSuccess'); s.style.display='';
+    s.innerHTML=`
+      <div class="give-ok">
+        <div class="give-ok-ic"><i class="bx bx-check"></i></div>
+        <div class="give-ok-t">Đã gửi phản hồi tới ${name}</div>
+        <div class="give-ok-d">${name} sẽ nhận thông báo ngay.${gvis==='manager'?' Quản lý trực tiếp của họ cũng sẽ thấy phản hồi này.':''} Sau khi gửi, phản hồi không thể chỉnh sửa.</div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+          <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt}</div>
+        </div>
+        ${cvHTML}
+        <div style="margin-top:18px;display:flex;gap:8px;justify-content:center">
+          <button class="btn btn-outline btn-sm" onclick="flyOff()">Đóng</button>
+          <button class="btn btn-default btn-sm" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi khác</button>
+        </div>
+      </div>`;
+    $('#stGiven').textContent = (+$('#stGiven').textContent) + 1;   // số liệu rail cập nhật theo
+  }, reduced()?120:1150);
+}
+
+/* Bay đi: nhấc nhẹ lấy đà → lướt lên, thu nhỏ và tan dần về phía tâm màn hình */
+function flyOff(){
+  const d=$('#dlgGive'), ov=$('#ovGive');
+  const r=d.getBoundingClientRect();
+  ov.classList.add('clearing');
+  d.classList.add('flyoff');
+
+  if(!reduced()){
+    // vài đốm sáng nhỏ toả ra ở điểm tan biến — làm cú "mất hút" mềm hơn
+    setTimeout(()=>{
+      const cxp=r.left+r.width/2, cyp=r.top+r.height/2-112;
+      for(let i=0;i<10;i++){
+        const s=document.createElement('div');
+        s.className='spark';
+        s.style.left=cxp+'px'; s.style.top=cyp+'px';
+        const a=Math.random()*Math.PI*2, dlen=18+Math.random()*40;
+        s.style.setProperty('--sx',(Math.cos(a)*dlen).toFixed(0)+'px');
+        s.style.setProperty('--sy',(Math.sin(a)*dlen).toFixed(0)+'px');
+        s.style.animationDelay=(i*22)+'ms';
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(), 1100+i*22);
+      }
+    }, 780);
+  }
+  setTimeout(()=>{
+    closeGive(); d.classList.remove('flyoff');
+    toast('Đã gửi phản hồi tới Mai Thị Hằng','bx-send');
+  }, reduced()?150:1080);
+}
+
+/* ═══════════ CHIỀU NGƯỢC LẠI — NGƯỜI CHO PHẢN HỒI ĐƯỢC CẢM ƠN ═══════════
+   Nguyên tắc: KHÔNG đẻ card mới trong feed (lời cảm ơn không có nội dung để đọc).
+   Chỉ gắn 1 trái tim nhỏ vào đúng card phản hồi đã cho + 1 lần báo nhẹ. */
+function receiveThanks(){
+  const g = GIVEN.find(x=>!x.thankedAt);
+  if(!g){ toast('Cả 5 phản hồi đều đã được cảm ơn — bấm Reset','bx-info-circle'); return; }
+  g.thankedAt='05/08/2026'; g.isNew=true;
+  newThanks++; syncSegHeart();
+
+  $('.notif-dot').classList.add('live');                 // báo ở chuông: lúc này user có thể đang ở tab khác
+  setTimeout(()=>$('.notif-dot').classList.remove('live'), 3000);
+  toast(g.to + ' đã cảm ơn phản hồi của bạn');
+
+  if(filter==='given' || filter==='all'){                // đang mở đúng chỗ → thấy card nhảy lên đầu
+    renderFeed();
+    const card = $('#gc-'+g.id);
+    if(card){
+      card.classList.add('thanked');
+      setTimeout(()=>card.classList.remove('thanked'), 1600);
+      if(!reduced()){
+        const m = card.querySelector('.thx-mark');
+        const r = m.getBoundingClientRect();
+        for(let i=0;i<3;i++){
+          const h=document.createElement('div');
+          h.className='heart-fly'; h.innerHTML='<i class="bx bxs-heart"></i>';
+          h.style.left=(r.left+r.width/2)+'px'; h.style.top=r.top+'px';
+          h.style.setProperty('--dx', ((Math.random()-.5)*46).toFixed(0)+'px');
+          h.style.animationDelay=(i*90)+'ms'; h.style.fontSize=(11+Math.random()*7)+'px';
+          document.body.appendChild(h);
+          setTimeout(()=>h.remove(), 1400+i*90);
+        }
+      }
+    }
+  }
+}
+
+/* ═══════════ KHỞI ĐỘNG ═══════════ */
+renderFeed(); renderCVPick(); syncSegHeart();
+setTimeout(enterFeedback, 300);
+</script>
+</body>
+</html>
