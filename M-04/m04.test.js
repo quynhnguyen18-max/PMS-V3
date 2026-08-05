@@ -537,12 +537,16 @@ test('manager content tabs use explicit labels and no request count badge', () =
   assert.doesNotMatch(tabBlock,/requestModeBadge|content-count/);
 });
 
-test('Kanban lanes reuse the request progress semantic colors', () => {
+test('Kanban uses neutral lanes and cards with semantic color only in headers', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   assert.match(html, /kanban-lane \$\{status\}/);
-  assert.match(html, /\.kanban-lane\.collecting/);
-  assert.match(html, /\.kanban-lane\.overdue/);
-  assert.match(html, /\.kanban-lane\.complete/);
+  assert.match(html, /class="kanban-dot"/);
+  assert.match(html, /\.kanban-lane\{[^}]*border:1px solid var\(--z200\)[^}]*background:var\(--z50\)/);
+  assert.match(html, /\.kanban-title\{[^}]*background:var\(--lane-tint\)[^}]*color:var\(--lane-color\)/);
+  assert.match(html, /\.kanban-dot\{[^}]*background:var\(--lane-color\)/);
+  assert.match(html, /\.kanban-card\{[^}]*border:1px solid var\(--z200\)[^}]*background:#fff/);
+  assert.doesNotMatch(html, /\.kanban-lane\.(collecting|overdue|complete)\{[^}]*background:/);
+  assert.doesNotMatch(html, /border-left-(width|color)/);
 });
 
 test('list view renders a lean cycle overview and Kanban uses full width', () => {
@@ -579,6 +583,38 @@ test('request detail separates employee identity from received progress', () => 
   const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
   assert.match(html, /person-copy/);
   assert.match(html, /Đã nhận: \$\{match\[1\]\}\/\$\{match\[2\]\} phản hồi/);
+});
+
+test('request detail uses a scannable three-region layout and shared feedback components', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  assert.match(html, /class="shell request-detail-layout"/);
+  assert.match(html, /class="ticket-summary"/);
+  assert.match(html, /id="ticketSummary"/);
+  assert.match(html, /\.content-pane\{[^}]*min-height:0[^}]*display:flex[^}]*flex-direction:column/);
+  assert.match(html, /\.pane-body\{[^}]*overflow-y:auto/);
+  assert.match(html, /\.shared-question,\.question\{[^}]*background:var\(--brand-muted\)[^}]*border-left:3px solid var\(--brand-ring\)/);
+  assert.match(html, /\.pending\{[^}]*background:var\(--warning-muted\)[^}]*border:1px solid var\(--warning-border\)/);
+  assert.match(html, /ManagerFeedbackData\.coreValueIcon\(cv\)/);
+  assert.match(html, /<img src="\.\.\/Core value with BG\/\$\{icon\}"/);
+  assert.match(html, /renderTicketSummary\(stat,rows\)/);
+  assert.doesNotMatch(html, /requestProgress[^;]*stat\.pending/);
+});
+
+test('request detail keeps ticket metadata in the summary and core values in the employee header', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  assert.doesNotMatch(html, /id="requestMeta"/);
+  assert.doesNotMatch(html, /id="requestProgress"/);
+  assert.match(html, /id="employeeBadgeSummary"/);
+  assert.match(html, /function employeeBadgeSummary\(assignments\)/);
+  assert.match(html, /Phản hồi đã nhận của \$\{employee\?\.name\|\|''\}/);
+  assert.doesNotMatch(html, /id="employeeProgress"/);
+  assert.match(html, /Nhân viên nhận phản hồi/);
+  assert.match(html, /Nhân viên cho phản hồi/);
+  assert.match(html, /new Set\(request\.assignments\.map\(item=>item\.reviewer\.login\)\)\.size/);
+  assert.match(html, /\.btn-remind\{[^}]*font-size:11\.5px[^}]*font-weight:600[^}]*box-shadow:/);
+  assert.match(html, /\.btn-remind\{[^}]*height:30px[^}]*padding:0 10px[^}]*white-space:nowrap/);
+  assert.match(html, /\.btn-pending-remind\{[^}]*height:28px[^}]*padding:0 9px[^}]*font-size:11px/);
+  assert.match(html, /class="btn btn-pending-remind" onclick="remindOne/);
 });
 
 test('shared feedback data gives every employee three manager-visible scenarios', () => {
