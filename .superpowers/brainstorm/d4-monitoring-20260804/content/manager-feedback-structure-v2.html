@@ -1,0 +1,52 @@
+<style>
+#manager-feedback-v2{--mf-pink:light-dark(#a50064,#e154a7);--mf-soft:light-dark(rgba(165,0,100,.07),rgba(225,84,167,.12));--mf-line:light-dark(#e4e4e7,#3f3f46);--mf-panel:light-dark(#fff,#18181b);--mf-bg:light-dark(#fafafa,#09090b);--mf-text:light-dark(#27272a,#f4f4f5);--mf-muted:light-dark(#71717a,#a1a1aa);color:var(--mf-text)}
+#manager-feedback-v2 .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+#manager-feedback-v2 .window{background:var(--mf-bg);border:1px solid var(--mf-line);border-radius:10px;overflow:hidden;min-width:0}
+#manager-feedback-v2 .chrome{height:27px;background:var(--mf-panel);border-bottom:1px solid var(--mf-line);display:flex;align-items:center;padding:0 10px;gap:4px}
+#manager-feedback-v2 .dot{width:6px;height:6px;border-radius:50%;background:var(--mf-line)}
+#manager-feedback-v2 .page{padding:13px;font-size:10px}
+#manager-feedback-v2 .head{display:flex;align-items:flex-start;gap:8px;margin-bottom:11px}
+#manager-feedback-v2 .head-main{flex:1}#manager-feedback-v2 .title{font-size:14px;font-weight:600;margin-bottom:3px}#manager-feedback-v2 .desc{color:var(--mf-muted);font-size:9px}
+#manager-feedback-v2 .cycle{border:1px solid var(--mf-line);background:var(--mf-panel);padding:5px 8px;border-radius:5px;color:var(--mf-muted);white-space:nowrap}
+#manager-feedback-v2 .primary{border:0;background:var(--mf-pink);color:white;padding:6px 9px;border-radius:5px;white-space:nowrap}
+#manager-feedback-v2 .mode-tabs{display:flex;gap:17px;border-bottom:1px solid var(--mf-line);margin-bottom:11px}
+#manager-feedback-v2 .mode{padding:7px 1px;color:var(--mf-muted);white-space:nowrap}#manager-feedback-v2 .mode.on{color:var(--mf-pink);font-weight:600;border-bottom:2px solid var(--mf-pink)}
+#manager-feedback-v2 .badge{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 4px;margin-left:3px;border-radius:9px;background:var(--mf-soft);color:var(--mf-pink);font-size:8px}
+#manager-feedback-v2 .toolbar{display:flex;align-items:center;gap:5px;margin-bottom:7px}#manager-feedback-v2 .scope{padding:5px 7px;border:1px solid var(--mf-line);background:var(--mf-panel);border-radius:5px}#manager-feedback-v2 .scope.on{background:var(--mf-soft);color:var(--mf-pink)}#manager-feedback-v2 .search{margin-left:auto;width:105px;padding:5px 7px;border:1px solid var(--mf-line);background:var(--mf-panel);border-radius:5px;color:var(--mf-muted)}
+#manager-feedback-v2 .stats{display:flex;gap:14px;margin-bottom:9px;padding:0 1px;color:var(--mf-muted)}#manager-feedback-v2 .stat b{color:var(--mf-text);font-weight:600;margin-left:3px}
+#manager-feedback-v2 .table{background:var(--mf-panel);border:1px solid var(--mf-line);border-radius:6px;overflow:hidden}
+#manager-feedback-v2 .row{display:grid;grid-template-columns:1.4fr .7fr .7fr .6fr .25fr;gap:5px;padding:7px;border-bottom:1px solid var(--mf-line);align-items:center}#manager-feedback-v2 .row:last-child{border-bottom:0}#manager-feedback-v2 .row.header{background:var(--mf-soft);font-weight:600;color:var(--mf-muted)}
+#manager-feedback-v2 .name{font-weight:600}#manager-feedback-v2 .meta{color:var(--mf-muted);font-size:8px;margin-top:2px}#manager-feedback-v2 .progress{height:4px;background:var(--mf-line);border-radius:4px;margin-top:3px;overflow:hidden}#manager-feedback-v2 .progress span{display:block;height:100%;background:var(--mf-pink)}
+#manager-feedback-v2 .detail{margin-top:12px;border-top:1px dashed var(--mf-line);padding-top:10px;display:grid;grid-template-columns:.8fr 1.2fr;gap:8px}
+#manager-feedback-v2 .employee-list{border-right:1px solid var(--mf-line);padding-right:7px}#manager-feedback-v2 .employee{padding:6px;border-radius:4px;margin-bottom:3px}#manager-feedback-v2 .employee.on{background:var(--mf-soft);color:var(--mf-pink)}
+#manager-feedback-v2 .summary{border-left:3px solid var(--mf-pink);padding-left:7px}#manager-feedback-v2 .summary-title{font-weight:600;margin-bottom:5px}#manager-feedback-v2 .summary-line{color:var(--mf-muted);margin-bottom:4px}
+#manager-feedback-v2 .principles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+#manager-feedback-v2 .principle{padding:9px;border-top:2px solid var(--mf-line);color:var(--mf-muted);font-size:11px}#manager-feedback-v2 .principle b{display:block;color:var(--mf-text);margin-bottom:3px;font-weight:600}
+@media(max-width:850px){#manager-feedback-v2 .layout{grid-template-columns:1fr}#manager-feedback-v2 .principles{grid-template-columns:1fr 1fr}}
+</style>
+<div id="manager-feedback-v2">
+  <h2>Cấu trúc tổng thể màn Feedback của quản lý</h2>
+  <p class="subtitle">Một CTA tạo mới, hai chế độ nội dung. Monitoring và AI chỉ xuất hiện đúng ngữ cảnh, không cạnh tranh trên màn hình chính.</p>
+  <div class="layout">
+    <div class="window">
+      <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="page">
+        <div class="head"><div class="head-main"><div class="title">Phản hồi của nhân viên</div><div class="desc">Xem bằng chứng phản hồi và quản lý yêu cầu đã tạo.</div></div><span class="cycle">Chu kỳ 2026</span><button class="primary">+ Tạo yêu cầu</button></div>
+        <div class="mode-tabs"><span class="mode on">Phản hồi nhân viên</span><span class="mode">Yêu cầu đã tạo <span class="badge">3</span></span></div>
+        <div class="toolbar"><span class="scope on">Direct reports</span><span class="scope">Indirect reports</span><span class="search">Tìm nhân viên…</span></div>
+        <div class="table"><div class="row header"><span>Nhân viên</span><span>Quản lý</span><span>Phản hồi</span><span></span><span></span></div><div class="row"><span><span class="name">Nguyễn Văn Tú</span><div class="meta">tu.nguyen - ITC - Backend</div></span><span>Lê Thị Thanh</span><span>4</span><span></span><span>›</span></div><div class="row"><span><span class="name">Trần Thị Mai</span><div class="meta">mai.tran - ITC - Frontend</div></span><span>Lê Thị Thanh</span><span>6</span><span></span><span>›</span></div></div>
+      </div>
+    </div>
+    <div class="window">
+      <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="page">
+        <div class="head"><div class="head-main"><div class="title">Phản hồi của nhân viên</div><div class="desc">Xem bằng chứng phản hồi và quản lý yêu cầu đã tạo.</div></div><span class="cycle">Chu kỳ 2026</span><button class="primary">+ Tạo yêu cầu</button></div>
+        <div class="mode-tabs"><span class="mode">Phản hồi nhân viên</span><span class="mode on">Yêu cầu đã tạo <span class="badge">3</span></span></div>
+        <div class="stats"><span class="stat">Đã nhận <b>11/18</b></span><span class="stat">Chờ trả lời <b>7</b></span><span class="stat">Quá hạn <b>3</b></span></div>
+        <div class="table"><div class="row header"><span>Yêu cầu</span><span>Nhân viên</span><span>Hạn</span><span>Tiến độ</span><span></span></div><div class="row"><span><span class="name">Phản hồi sau dự án Migration</span><div class="meta">Tạo 28/07/2026</div></span><span>3 người</span><span>10/08</span><span>6/9<div class="progress"><span style="width:67%"></span></div></span><span>›</span></div><div class="row"><span><span class="name">Chuẩn bị coaching Q3</span><div class="meta">Tạo 01/08/2026</div></span><span>2 người</span><span>15/08</span><span>5/6<div class="progress"><span style="width:83%"></span></div></span><span>›</span></div></div>
+        <div class="detail"><div class="employee-list"><b>Trong request</b><div class="employee on">Nguyễn Văn Tú · 3/4</div><div class="employee">Trần Thị Mai · 2/3</div><div class="employee">Vũ Thị Lan · 1/2</div></div><div class="summary"><div class="summary-title">AI Coaching Summary — Nguyễn Văn Tú</div><div class="summary-line"><b>Điểm mạnh:</b> phối hợp tốt, chủ động xử lý rủi ro.</div><div class="summary-line"><b>Phát triển:</b> truyền đạt impact business rõ hơn.</div><div class="summary-line">Coaching evidence, không phải điểm đánh giá.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="principles"><div class="principle"><b>Không ngợp</b>Chỉ một CTA hồng; hai mode dùng tab chữ nhẹ.</div><div class="principle"><b>Dễ quay lại</b>Tab Yêu cầu đã tạo luôn hiện và có số đang theo dõi.</div><div class="principle"><b>Đúng cấp dữ liệu</b>Monitoring theo request; drill-down theo nhân viên.</div><div class="principle"><b>AI đúng ngữ cảnh</b>Summary nằm trong chi tiết request, theo từng nhân viên.</div></div>
+</div>

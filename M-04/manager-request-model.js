@@ -9,6 +9,7 @@
   if(typeof module==='object'&&module.exports) module.exports=api;
   root.ManagerRequestModel=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
+  let requestSequence=0;
   function tsFromDMY(value){
     const [d,m,y]=String(value||'').split('/');
     if(!d||!m||!y) return 0;
@@ -19,6 +20,17 @@
     return (y&&m&&d)?`${d}/${m}/${y}`:'';
   }
   function personKey(person){ return String(person&&(person.login||person.dom||person.id)||''); }
+  function normalizeGoal(input){
+    const goal=String(input&&input.goal||'').trim();
+    if(!goal)throw new Error('Mục tiêu là bắt buộc');
+    return goal;
+  }
+  function createRequestId(input){
+    const uuid=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'
+      ? globalThis.crypto.randomUUID()
+      : `${Date.now().toString(36)}-${(++requestSequence).toString(36)}`;
+    return `mrq-${input.cycle||'cycle'}-${uuid}`;
+  }
 
   /* Chỉ direct report mới được chọn làm người được nhận phản hồi (no skip-level) */
   function directReports(employees){
@@ -46,7 +58,9 @@
           reviewer:{name:reviewer.name,login:personKey(reviewer),ini:reviewer.ini},
           question:questions[personKey(reviewer)]||shared,
           status:'pending',
-          repliedAt:null
+          repliedAt:null,
+          remindedAt:null,
+          responseId:null
         });
       });
     });
@@ -63,10 +77,12 @@
   }
 
   function createRequest(input){
+    const goal=normalizeGoal(input);
     const assignments=buildAssignments(input);
     const due=input.due||'';
     return {
-      id:input.id||`mrq-${input.cycle||''}-${tsFromDMY(input.createdAt)}-${assignments.length}`,
+      id:input.id||createRequestId(input),
+      goal,
       kind:'manager-request',
       cycle:input.cycle,
       createdBy:input.createdBy||null,
@@ -113,11 +129,44 @@
     return [...rows.values()].map(row=>({...row,overdue:late?row.pending:0,rate:row.total?Math.round(row.done/row.total*100):0}));
   }
 
-  function createStore(){
-    const requests=[];
+  function dateFromDMY(value){
+    const [d,m,y]=String(value||'').split('/').map(Number);
+    return d&&m&&y?new Date(Date.UTC(y,m-1,d)):null;
+  }
+  function daysOverdue(request,todayDMY){
+    if(!isOverdue(request,todayDMY))return 0;
+    const due=dateFromDMY(request.due),today=dateFromDMY(todayDMY);
+    return due&&today?Math.floor((today-due)/86400000):0;
+  }
+  function requestStatus(request,todayDMY){
+    const stat=summarize(request,todayDMY);
+    if(stat.total>0&&stat.pending===0)return 'complete';
+    if(stat.overdue>0)return 'overdue';
+    return 'collecting';
+  }
+  function remindAssignment(request,assignmentId,todayDMY){
+    const assignment=((request&&request.assignments)||[]).find(item=>item.id===assignmentId);
+    if(!assignment||assignment.status==='done'||assignment.remindedAt===todayDMY)return false;
+    assignment.remindedAt=todayDMY;
+    return true;
+  }
+  function remindPending(request,todayDMY){
+    return ((request&&request.assignments)||[]).reduce((count,item)=>count+(remindAssignment(request,item.id,todayDMY)?1:0),0);
+  }
+
+  function createStore(initialRequests){
+    const requests=[...((initialRequests||[]))];
     return {
       requests,
       add(request){ requests.push(request); return request; },
+      get(id){ return requests.find(item=>item.id===id)||null; },
+      upsert(request){
+        const index=requests.findIndex(item=>item.id===request.id);
+        if(index>=0)requests[index]=request;else requests.push(request);
+        return request;
+      },
+      replace(next){ requests.splice(0,requests.length,...(next||[])); return requests; },
+      serialize(){ return JSON.stringify(requests); },
       forCycle(cycle){ return requests.filter(item=>item.cycle===cycle); },
       summarizeAll(cycle,todayDMY){
         return this.forCycle(cycle).reduce((acc,request)=>{
@@ -129,5 +178,5 @@
     };
   }
 
-  return {tsFromDMY,fmtDMY,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,createStore};
+  return {tsFromDMY,fmtDMY,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,daysOverdue,requestStatus,remindAssignment,remindPending,createStore};
 });

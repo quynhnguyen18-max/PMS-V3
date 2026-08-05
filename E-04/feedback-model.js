@@ -50,7 +50,7 @@
   }
 
   function itemsForFilter(feed,filter,cycle){
-    return normalizeFeed(feed).filter(item=>(!cycle || item.cycle===cycle) && (filter==='all' || item.kind===filter));
+    return normalizeFeed(feed).filter(item=>(!cycle || cycle==='all' || item.cycle===cycle) && (filter==='all' || item.kind===filter));
   }
 
   function createGivenResponse(input){

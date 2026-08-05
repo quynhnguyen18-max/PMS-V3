@@ -1,0 +1,59 @@
+<style>
+#d4-options{--pms-pink:light-dark(#a50064,#e154a7);--pms-soft:light-dark(rgba(165,0,100,.07),rgba(225,84,167,.12));--pms-line:light-dark(#e4e4e7,#3f3f46);--pms-panel:light-dark(#fff,#18181b);--pms-bg:light-dark(#fafafa,#09090b);--pms-text:light-dark(#27272a,#f4f4f5);--pms-muted:light-dark(#71717a,#a1a1aa);color:var(--pms-text)}
+#d4-options .comparison{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#d4-options .choice{border:1px solid var(--pms-line);border-radius:10px;background:var(--pms-panel);overflow:hidden;cursor:pointer;transition:.15s ease}
+#d4-options .choice:hover{transform:translateY(-2px);box-shadow:0 8px 22px color-mix(in srgb,var(--pms-text) 10%,transparent)}
+#d4-options .choice.is-selected{outline:2px solid var(--pms-pink);outline-offset:2px}
+#d4-options .choice-head{display:flex;gap:10px;padding:12px;border-bottom:1px solid var(--pms-line)}
+#d4-options .letter{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--pms-soft);color:var(--pms-pink);font-weight:600;flex:none}
+#d4-options .choice h3{margin:0 0 3px;font-size:14px;font-weight:600}#d4-options .choice p{margin:0;color:var(--pms-muted);font-size:12px;line-height:1.4}
+#d4-options .screen{background:var(--pms-bg);padding:10px;min-height:295px;font-size:10px}
+#d4-options .bar{height:22px;background:var(--pms-panel);border:1px solid var(--pms-line);border-radius:5px;margin-bottom:8px}
+#d4-options .page-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:600;font-size:12px}
+#d4-options .cycle{padding:4px 7px;background:var(--pms-panel);border:1px solid var(--pms-line);border-radius:5px;color:var(--pms-muted);font-size:9px}
+#d4-options .tabs{display:flex;gap:4px;border-bottom:1px solid var(--pms-line);margin-bottom:8px}
+#d4-options .tab{padding:6px 8px;color:var(--pms-muted)}#d4-options .tab.on{color:var(--pms-pink);font-weight:600;border-bottom:2px solid var(--pms-pink)}
+#d4-options .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:7px}
+#d4-options .metric{background:var(--pms-panel);border:1px solid var(--pms-line);padding:6px;border-radius:5px;color:var(--pms-muted)}#d4-options .metric b{display:block;color:var(--pms-text);font-size:13px;margin-top:2px}
+#d4-options .table{background:var(--pms-panel);border:1px solid var(--pms-line);border-radius:5px;overflow:hidden}
+#d4-options .row{display:grid;grid-template-columns:1.5fr .65fr .65fr .45fr;gap:4px;padding:6px;border-bottom:1px solid var(--pms-line)}#d4-options .row:last-child{border-bottom:0}#d4-options .row.head{background:var(--pms-soft);font-weight:600}
+#d4-options .muted-box{height:72px;background:var(--pms-panel);border:1px solid var(--pms-line);border-radius:5px;margin-bottom:8px;padding:8px;color:var(--pms-muted)}
+#d4-options .overlay-demo{position:relative}.overlay-demo:after{content:'Mở monitoring';position:absolute;right:8px;top:36px;padding:5px 8px;background:var(--pms-pink);color:white;border-radius:5px}.drawer{margin-left:25%;background:var(--pms-panel);border-left:1px solid var(--pms-line);padding:10px;height:225px;box-shadow:-6px 0 15px color-mix(in srgb,var(--pms-text) 10%,transparent)}
+#d4-options .recommend{display:inline-flex;margin-top:9px;color:var(--pms-pink);font-size:11px;font-weight:600}
+@media(max-width:800px){#d4-options .comparison{grid-template-columns:1fr}}
+</style>
+<div id="d4-options">
+  <h2>Chọn cấu trúc monitoring D4</h2>
+  <p class="subtitle">So sánh khả năng nhận biết điểm thao tác và mức độ làm rối màn hình M-04.</p>
+  <div class="comparison">
+    <div class="choice" data-choice="a" onclick="toggleSelect(this)">
+      <div class="choice-head"><div class="letter">A</div><div><h3>Hai chế độ nội dung</h3><p>“Phản hồi nhân viên” và “Yêu cầu đã tạo” cùng cấp, monitoring có trang thái riêng.</p></div></div>
+      <div class="screen">
+        <div class="bar"></div><div class="page-title"><span>Phản hồi của nhân viên</span><span class="cycle">Chu kỳ 2026</span></div>
+        <div class="tabs"><span class="tab">Phản hồi nhân viên</span><span class="tab on">Yêu cầu đã tạo</span></div>
+        <div class="metrics"><div class="metric">Đã trả lời<b>11/18</b></div><div class="metric">Chờ trả lời<b>7</b></div><div class="metric">Quá hạn<b>3</b></div></div>
+        <div class="table"><div class="row head"><span>Nhân viên</span><span>Tiến độ</span><span>Quá hạn</span><span></span></div><div class="row"><span>Nguyễn Văn Tú</span><span>3/5</span><span>1</span><span>›</span></div><div class="row"><span>Trần Thị Mai</span><span>4/5</span><span>0</span><span>›</span></div><div class="row"><span>Vũ Thị Lan</span><span>4/8</span><span>2</span><span>›</span></div></div>
+        <span class="recommend">Khuyến nghị</span>
+      </div>
+    </div>
+    <div class="choice" data-choice="b" onclick="toggleSelect(this)">
+      <div class="choice-head"><div class="letter">B</div><div><h3>Section dưới danh sách</h3><p>Monitoring nối tiếp ngay sau bảng phản hồi nhân viên trên cùng một trang.</p></div></div>
+      <div class="screen">
+        <div class="bar"></div><div class="page-title"><span>Phản hồi của nhân viên</span><span class="cycle">Chu kỳ 2026</span></div>
+        <div class="tabs"><span class="tab on">Direct reports</span><span class="tab">Indirect reports</span></div>
+        <div class="muted-box">Danh sách nhân viên và phản hồi đã nhận<br><br>… nhiều dòng cần cuộn …</div>
+        <div style="font-weight:600;margin:10px 0 6px">Yêu cầu phản hồi đã tạo</div>
+        <div class="metrics"><div class="metric">Đã trả lời<b>11</b></div><div class="metric">Pending<b>7</b></div><div class="metric">Overdue<b>3</b></div></div>
+        <div class="table"><div class="row"><span>Nguyễn Văn Tú</span><span>3/5</span><span>1</span><span>›</span></div><div class="row"><span>Trần Thị Mai</span><span>4/5</span><span>0</span><span>›</span></div></div>
+      </div>
+    </div>
+    <div class="choice" data-choice="c" onclick="toggleSelect(this)">
+      <div class="choice-head"><div class="letter">C</div><div><h3>Drawer / popup riêng</h3><p>Giữ màn chính tối giản, monitoring chỉ xuất hiện sau khi bấm một nút.</p></div></div>
+      <div class="screen overlay-demo">
+        <div class="bar"></div><div class="page-title"><span>Phản hồi của nhân viên</span><span class="cycle">Chu kỳ 2026</span></div>
+        <div class="muted-box">Danh sách nhân viên vẫn là nội dung chính</div>
+        <div class="drawer"><b>Yêu cầu đã tạo</b><div class="metrics" style="margin-top:8px"><div class="metric">Done<b>11</b></div><div class="metric">Pending<b>7</b></div><div class="metric">Late<b>3</b></div></div><div class="table"><div class="row"><span>Nguyễn Văn Tú</span><span>3/5</span><span>1</span><span>›</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>

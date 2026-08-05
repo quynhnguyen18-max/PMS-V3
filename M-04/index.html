@@ -24,16 +24,20 @@
 .scope-guide,.filters{display:none!important}.list-head{position:relative}.list-actions{margin-left:auto;display:flex;align-items:center;gap:8px}.search{margin-left:0}.filter-menu{position:relative}.filter-toggle{height:32px}.filter-count{min-width:17px;height:17px;padding:0 5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;display:none;place-items:center}.filter-count.show{display:grid}.filter-popover{position:absolute;right:0;top:38px;width:520px;padding:12px;background:#fff;border:1px solid var(--z200);border-radius:8px;box-shadow:var(--shadow);z-index:30;display:none}.filter-popover.open{display:block}.filter-popover-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.filter-select{width:100%;min-width:0}.filter-popover-foot{display:flex;justify-content:flex-end;margin-top:10px;padding-top:10px;border-top:1px solid var(--z100)}
 .manager-cycle{display:flex;align-items:center;gap:8px;padding:5px 10px;background:#fff;border:1px solid var(--z200);border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.04);flex-shrink:0}.manager-cycle>i{font-size:15px;color:var(--z500)}.manager-cycle>span{font-size:13px;font-weight:500;color:var(--z700)}.manager-cycle select{height:28px;padding:0 25px 0 9px;border:1px solid var(--z200);border-radius:6px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 7px center;color:var(--z800);font-size:13px;font-weight:500;appearance:none;outline:none}.manager-cycle select:focus{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}
 .cols-direct{grid-template-columns:minmax(280px,1fr) 130px 92px}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 92px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 92px}.employee-list-header>div{white-space:nowrap}.metric-cell{font-size:12px;color:var(--z700)}.emp-status{display:inline-flex;margin-left:6px;padding:1px 5px;border:1px solid var(--z200);border-radius:4px;color:var(--z600);font-size:10px;font-weight:500}
-.dialog-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;vertical-align:2px}.dialog-actions{display:flex;gap:4px}.privacy-banner{display:none}.split-shell{display:none;grid-template-columns:310px minmax(0,1fr);min-height:560px;border:1px solid var(--z200);border-radius:8px;background:#fff;overflow:hidden}.split-shell.open{display:grid}.split-list{border-right:1px solid var(--z200);overflow:auto}.split-person{width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px}.split-person:hover,.split-person.on{background:var(--z50)}.split-person.on{box-shadow:inset 3px 0 var(--brand)}.split-pane{min-width:0;display:flex;flex-direction:column}.split-pane-head{padding:14px 16px;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;gap:10px}.split-pane-title{font-size:14px;font-weight:700;color:var(--z900)}.split-pane-meta{font-size:11.5px;color:var(--z600);margin-top:3px}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:9px;overflow:auto}.view-hidden{display:none}
+.dialog-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;vertical-align:2px}.dialog-actions{display:flex;gap:4px}.privacy-banner{display:none}.split-shell{display:none;grid-template-columns:310px minmax(0,1fr);height:calc(100vh - 230px);min-height:480px;max-height:720px;border:1px solid var(--z200);border-radius:8px;background:#fff;overflow:hidden}.split-shell.open{display:grid}.split-list{border-right:1px solid var(--z200);overflow-y:auto}.split-person{width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px}.split-person:hover,.split-person.on{background:var(--z50)}.split-person.on{box-shadow:inset 3px 0 var(--brand)}.split-pane{min-width:0;min-height:0;max-height:720px;display:flex;flex-direction:column}.split-pane-head{padding:14px 16px;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;gap:10px;flex:0 0 auto}.split-pane-title{font-size:14px;font-weight:700;color:var(--z900)}.split-employee-name{cursor:help}.split-badge-summary{display:flex;align-items:center;gap:10px;min-height:25px;margin-top:8px}.split-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.split-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:9px;overflow-y:auto;min-height:0}.view-hidden{display:none}
+.split-badge-item{position:relative;cursor:help}.split-badge-tip{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:30;padding:4px 8px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease}.split-badge-tip::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.split-badge-item:hover .split-badge-tip{opacity:1}
+.pms-tooltip{position:relative;display:inline-flex;cursor:help}.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
+.pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
 @media(max-width:900px){.filter-popover{width:min(520px,calc(100vw - 36px))}.split-shell{grid-template-columns:240px minmax(0,1fr)}}
 </style>
 <style>
 /* ── D3 / MR-1 — dùng lại đúng ngôn ngữ form của popup E-04 ── */
 :root{--err:#dc2626;--sh-sm:0 1px 2px rgba(0,0,0,.04)}
 .page-head-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
-#requestDialog .dialog{width:min(680px,100%)}
+#requestDialog{font-size:14px}#requestDialog .dialog{width:min(680px,100%)}
 #requestDialog .dialog-title{font-weight:600}
 #requestDialog .dialog-head{padding:16px 20px 14px}
+.text-input{width:100%;height:38px;border:1px solid var(--z200);border-radius:6px;padding:0 11px;color:var(--z800);outline:none;font-family:inherit;font-size:13px}.text-input:focus{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}
 #requestDialog .dialog-foot,#requestConfirm .dialog-foot{padding:10px 20px 14px}
 .dialog-form{padding:16px 20px 4px;overflow:auto}
 .field{margin-bottom:16px}
@@ -83,9 +87,11 @@
 .field-2col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
 .field-2col .date-input{width:100%}
 .field-2col .field-hint{display:block;margin-top:6px}
+.request-guidance{display:flex;align-items:flex-start;gap:9px;margin-bottom:16px;padding:10px 12px;border:1px solid var(--z200);border-radius:6px;background:var(--z50);color:var(--z600);font-size:12px;line-height:1.55}.request-guidance i{flex:none;margin-top:2px;color:var(--z500);font-size:16px}.request-role-flow{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:start}.request-role-card{min-width:0}.request-flow-arrow{display:flex;align-items:center;justify-content:center;padding-top:35px;color:var(--z500)}.request-flow-arrow i{font-size:20px}.role-caption{display:block;margin-top:6px;color:var(--z500);font-size:11px;line-height:1.4}
 .vis-value{display:flex;align-items:center;gap:7px;min-height:35px;font-size:13px;color:var(--z800);line-height:1.5}
 .vis-value>i{font-size:16px;color:var(--z500);flex:none}
 @media(max-width:580px){.field-2col{grid-template-columns:minmax(0,1fr);gap:16px}}
+@media(max-width:700px){.request-role-flow{grid-template-columns:minmax(0,1fr);gap:10px}.request-flow-arrow{padding:0;min-height:22px}.request-flow-arrow i{transform:rotate(90deg)}}
 .request-preview{font-size:11.5px;color:var(--z500);line-height:1.5;margin-bottom:2px}
 .request-preview:empty{display:none}
 .give-ok{text-align:center;padding:20px 16px}
@@ -99,6 +105,21 @@
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:var(--z900);color:#fff;padding:9px 15px;border-radius:8px;font-size:12.5px;display:flex;align-items:center;gap:8px;opacity:0;pointer-events:none;transition:var(--t);z-index:200}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:580px){.page-head-actions{width:100%;flex-wrap:wrap}}
+
+/* ── D4 / MR-2 — quiet monitoring workspace ── */
+.content-tabs{display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--z200);margin:2px 0 16px}.content-tab{position:relative;border:0;background:transparent;padding:9px 1px 11px;color:var(--z500);font-size:13px;font-weight:500}.content-tab:hover{color:var(--z800)}.content-tab.on{color:var(--z900);font-weight:600}.content-tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--brand)}.content-count{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:5px;padding:0 5px;border-radius:12px;background:var(--z100);color:var(--z600);font-size:10px;font-weight:600}.mode-panel[hidden]{display:none!important}
+.request-monitor-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px}.request-monitor-title{font-size:13.5px;font-weight:700;color:var(--z900)}.request-summary{display:flex;align-items:center;gap:18px;color:var(--z500);font-size:11.5px}.request-summary span{display:flex;align-items:center;gap:5px;white-space:nowrap}.request-summary strong{color:var(--z700);font-size:11.5px;font-weight:600}
+.request-table{background:#fff;border:1px solid var(--z200);border-radius:var(--r);overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.04)}.request-table-head,.request-table-row{display:grid;grid-template-columns:minmax(260px,1.7fr) 95px 90px 105px 105px 105px 34px;gap:12px;align-items:center}.request-table-head{padding:8px 14px;background:var(--z50);border-bottom:1px solid var(--z200);font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--z500)}.request-table-row{width:100%;padding:12px 14px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;color:var(--z600);font-size:11.5px}.request-table-row:last-child{border-bottom:0}.request-table-row:hover,.request-table-row.on{background:var(--z50)}.request-name{min-width:0}.request-name strong{display:block;color:var(--z900);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.request-name span{display:block;margin-top:3px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.request-progress{display:flex;align-items:center;gap:7px}.request-progress-track{width:44px;height:4px;border-radius:8px;background:var(--z200);overflow:hidden}.request-progress-fill{height:100%;background:var(--z500)}.status{display:inline-flex;width:max-content;align-items:center;padding:3px 7px;border-radius:12px;background:var(--z100);color:var(--z600);font-size:10.5px;font-weight:500}.status.overdue{background:#fff3f3;color:#b42318}.status.complete{background:#eef8f1;color:var(--ok)}
+.request-detail-shell{display:none;grid-template-columns:270px minmax(0,1fr);margin-top:14px;background:#fff;border:1px solid var(--z200);border-radius:var(--r);min-height:360px;overflow:hidden}.request-detail-shell.open{display:grid}.request-rail{border-right:1px solid var(--z200);background:var(--z50)}.request-detail-head{padding:14px;border-bottom:1px solid var(--z200)}.request-detail-headline{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.request-detail-title{font-size:13px;font-weight:700;color:var(--z900)}.request-detail-meta{font-size:11px;color:var(--z500);margin-top:4px}.request-employee{width:100%;border:0;border-bottom:1px solid var(--z200);background:transparent;padding:11px 13px;text-align:left;display:flex;align-items:center;gap:9px}.request-employee:hover,.request-employee.on{background:#fff}.request-employee.on{box-shadow:inset 2px 0 var(--brand)}.request-employee-info{min-width:0;flex:1}.request-employee-name{display:block;font-size:12px;font-weight:600;color:var(--z800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.request-employee-progress{display:block;font-size:10.5px;color:var(--z500);margin-top:2px}.request-detail-pane{min-width:0}.request-pane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 16px;border-bottom:1px solid var(--z200)}.request-pane-name{font-size:14px;font-weight:700;color:var(--z900)}.request-pane-meta{font-size:11px;color:var(--z500);margin-top:3px}.request-pane-body{padding:14px 16px}.request-question{padding:10px 12px;border-left:3px solid var(--z300);background:var(--z50);font-size:12px;line-height:1.55;color:var(--z700);margin-bottom:14px}.assignment-list{border-top:1px solid var(--z200)}.assignment-row{display:grid;grid-template-columns:minmax(180px,1fr) 110px 120px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--z100)}.assignment-name{font-size:12px;font-weight:600;color:var(--z800)}.assignment-domain{font-weight:400;color:var(--z500)}.assignment-note{font-size:10.5px;color:var(--z500);margin-top:2px}.btn-sm{padding:5px 8px;font-size:11px}.ai-placeholder{display:flex;align-items:center;gap:9px;margin-top:14px;padding:10px 12px;background:var(--z50);color:var(--z500);font-size:11.5px;border-radius:6px}.ai-placeholder i{font-size:17px;color:var(--z400)}
+@media(max-width:980px){.request-table-wrap{overflow:auto}.request-table{min-width:900px}.request-detail-shell.open{grid-template-columns:220px minmax(520px,1fr);overflow:auto}}@media(max-width:680px){.content-tabs{gap:16px}.request-monitor-head{align-items:flex-start;flex-direction:column}.request-summary{gap:10px;flex-wrap:wrap}.request-detail-shell.open{display:block}.request-rail{border-right:0;border-bottom:1px solid var(--z200)}.assignment-row{grid-template-columns:1fr auto}.assignment-row>.assignment-date{display:none}}
+</style>
+<style>
+/* D4 redesign v5 */
+.content-tabs{display:flex;gap:26px;padding:0;border:0;border-bottom:1px solid var(--z200);border-radius:0;background:transparent;margin:0 0 18px}.content-tab{padding:10px 2px 11px;border-radius:0;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--z500);font-size:13px;font-weight:500}.content-tab:hover{color:var(--z800)}.content-tab.on{position:relative;background:transparent;color:var(--brand);box-shadow:none;font-weight:600}.content-tab.on:after{display:block;content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--brand)}
+.request-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:9px}.request-filter-menu{position:relative}.request-filter-popover{display:none;position:absolute;right:0;top:38px;z-index:20;width:170px;padding:6px;background:#fff;border:1px solid var(--z200);border-radius:7px;box-shadow:var(--shadow)}.request-filter-popover.open{display:grid}.request-filter-popover button{border:0;background:#fff;text-align:left;padding:7px 9px;border-radius:5px;color:var(--z600);font-size:11.5px}.request-filter-popover button:hover{background:var(--z100)}.request-view-switch{display:flex;border:1px solid var(--z200);border-radius:6px;overflow:hidden}.request-view-switch button{border:0;border-right:1px solid var(--z200);background:#fff;padding:7px 9px;color:var(--z500);font-size:11.5px}.request-view-switch button:last-child{border-right:0}.request-view-switch button.on{background:var(--z100);color:var(--z800)}
+.request-table-head,.request-table-row{grid-template-columns:minmax(300px,1.55fr) minmax(220px,1fr) minmax(210px,.95fr) 28px}.request-table-head{background:var(--z100)}.request-table-row,.request-table-row:hover,.request-table-row:focus,.kanban-card,.employee-list a{text-decoration:none}.request-table-row{color:var(--z600)}.request-table-row .request-goal{display:block;color:var(--z900);font-size:12.5px;font-weight:600;line-height:1.4}.request-table-row .request-people{font-size:12px;font-weight:600;color:var(--z700);line-height:1.45}.request-table-row .request-people .more{font-weight:400;color:var(--z500)}.request-table-row .request-meta{display:block;margin-top:5px;color:var(--z500);font-size:10.5px}.progress-chip{display:inline-flex;align-items:center;gap:4px;width:max-content;height:23px;padding:0 8px;border-radius:5px;border:1px solid;font-size:11px;font-weight:600;white-space:nowrap}.progress-chip i{font-size:13px}.progress-chip.collecting{color:#b86600;background:#fff9e8;border-color:#f3d47d}.progress-chip.complete{color:#16803a;background:#effbf3;border-color:#a7e9ba}.progress-chip.overdue{color:#b42318;background:#fff3f3;border-color:#f0b8b8}.request-deadline{display:block;margin-top:5px;font-size:10.5px;color:var(--z500)}.request-load-more{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:12px}.request-load-more span{font-size:10.5px;color:var(--z500)}
+.request-kanban{display:none;grid-template-columns:repeat(3,minmax(220px,1fr));gap:10px}.request-kanban.open{display:grid}.kanban-lane{border:1px solid;border-radius:8px;padding:8px}.kanban-lane.collecting{background:#fff9e8;border-color:#f3d47d}.kanban-lane.overdue{background:#fff3f3;border-color:#f0b8b8}.kanban-lane.complete{background:#effbf3;border-color:#a7e9ba}.kanban-title{padding:3px 4px 8px;font-size:10.5px;font-weight:600;text-transform:uppercase}.kanban-lane.collecting .kanban-title{color:#b86600}.kanban-lane.overdue .kanban-title{color:#b42318}.kanban-lane.complete .kanban-title{color:#16803a}.kanban-card{display:block;width:100%;border:1px solid var(--z200);border-left-width:3px;background:#fff;border-radius:7px;padding:10px;margin-bottom:7px;text-align:left;color:var(--z700)}.kanban-lane.collecting .kanban-card{border-left-color:#f3d47d}.kanban-lane.overdue .kanban-card{border-left-color:#f0b8b8}.kanban-lane.complete .kanban-card{border-left-color:#a7e9ba}.kanban-card strong{display:block;color:var(--z900);font-size:11.5px;line-height:1.4}.kanban-card span{display:block;color:var(--z500);font-size:10px;margin-top:5px}
+@media(max-width:800px){.request-table-head{display:none}.request-table-row{grid-template-columns:1fr}.request-kanban.open{grid-template-columns:1fr}.request-toolbar{flex-wrap:wrap}.content-tabs{width:100%}.content-tab{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -116,7 +137,14 @@
     <header class="topbar"><div class="topbar-title">Không gian quản lý</div><div class="topbar-actions"><button class="icon-btn" title="Trợ giúp"><i class="bx bx-help-circle"></i></button><button class="icon-btn" title="Thông báo"><i class="bx bx-bell"></i></button></div></header>
     <section class="page">
       <div class="breadcrumb">Mục tiêu &amp; Đánh giá&nbsp; / &nbsp;Phản hồi</div>
-      <div class="page-head"><div><h1 class="page-title">Phản hồi của nhân viên</h1><p class="page-desc">Theo dõi phản hồi cấp dưới nhận được trong phạm vi quản lý và quyền được chia sẻ.</p></div><div class="page-head-actions"><div class="manager-cycle"><i class="bx bx-calendar"></i><span>Chu kỳ</span><select id="cycle" aria-label="Chu kỳ" onchange="renderEmployees()"><option>2026</option><option>2025</option></select></div><button class="btn btn-primary" id="requestCta" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button></div></div>
+      <div class="page-head"><div><h1 class="page-title">Phản hồi của nhân viên</h1><p class="page-desc">Theo dõi phản hồi cấp dưới nhận được trong phạm vi quản lý và quyền được chia sẻ.</p></div><div class="page-head-actions"><div class="manager-cycle"><i class="bx bx-calendar"></i><span>Chu kỳ</span><select id="cycle" aria-label="Chu kỳ" onchange="renderAllManagerViews()"><option value="2026">2026</option><option value="2025">2025</option><option value="all">Tất cả</option></select></div><button class="btn btn-primary" id="requestCta" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Tạo yêu cầu phản hồi</button></div></div>
+
+      <div class="content-tabs" id="contentModeTabs" role="tablist" aria-label="Nội dung phản hồi quản lý">
+        <button class="content-tab on" id="feedbackModeTab" role="tab" aria-selected="true" aria-controls="feedbackModePanel" onclick="setContentMode('feedback')">Phản hồi nhân viên</button>
+        <button class="content-tab" id="requestsModeTab" role="tab" aria-selected="false" aria-controls="requestModePanel" onclick="setContentMode('requests')">Yêu cầu phản hồi đã tạo</button>
+      </div>
+
+      <section class="mode-panel" id="feedbackModePanel" role="tabpanel" aria-labelledby="feedbackModeTab">
 
       <section class="toolbar-card">
         <div class="scope-row">
@@ -127,7 +155,30 @@
 
       <div class="list-head"><div class="result-title" id="listTitle">Direct reports</div><span class="result-count" id="resultCount">0 nhân viên</span><div class="list-actions"><label class="search"><i class="bx bx-search"></i><input id="searchInput" placeholder="Tìm theo tên hoặc domain…" oninput="renderEmployees()"/></label><div class="filter-menu" id="filterMenu" style="display:none"><button class="btn btn-outline filter-toggle" id="filterToggle" onclick="toggleFilterPanel()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="filterCount">0</span></button><div class="filter-popover" id="filterPopover"><div class="filter-popover-grid"><select class="filter-select" id="filterDivision" onchange="renderEmployees()"></select><select class="filter-select" id="filterDepartment" onchange="renderEmployees()"></select><select class="filter-select" id="filterTeam" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager2" onchange="renderEmployees()"></select></div><div class="filter-popover-foot"><button class="btn btn-outline" onclick="clearFilters()">Xóa bộ lọc</button></div></div></div><button class="btn btn-outline" id="splitViewButton" aria-pressed="false" onclick="toggleSplitView()"><i class="bx bx-columns"></i> Split View</button></div></div>
       <div id="listView"><div class="employee-list" id="employeeList"></div></div>
-      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div style="flex:1"><div class="split-pane-title" id="splitPaneTitle">Phản hồi đã nhận</div><div class="split-pane-meta" id="splitPaneMeta"></div></div><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
+      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div style="flex:1"><div class="split-pane-title">Phản hồi đã nhận của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
+      </section>
+
+      <section class="mode-panel" id="requestModePanel" role="tabpanel" aria-labelledby="requestsModeTab" hidden>
+        <div class="request-toolbar"><div class="request-filter-menu"><button class="btn btn-outline" id="requestFilterToggle" onclick="toggleRequestFilter()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="requestFilterCount">0</span></button><div class="request-filter-popover" id="requestFilterPopover"><button onclick="setRequestStatusFilter('all')">Tất cả trạng thái</button><button onclick="setRequestStatusFilter('collecting')">Đang thu thập</button><button onclick="setRequestStatusFilter('overdue')">Quá hạn</button><button onclick="setRequestStatusFilter('complete')">Hoàn tất</button></div></div><div class="request-view-switch"><button class="on" id="requestListView" onclick="setRequestView('list')"><i class="bx bx-list-ul"></i> Danh sách</button><button id="requestKanbanView" onclick="setRequestView('kanban')"><i class="bx bx-columns"></i> Kanban</button></div></div>
+        <div class="request-list-layout" id="requestListLayout">
+          <div class="request-list-column">
+            <div class="request-table-wrap"><div class="request-table" id="requestList"></div></div>
+            <div class="request-load-more"><button class="btn btn-outline" id="requestLoadMore" onclick="loadMoreRequests()"><i class="bx bx-chevron-down"></i> Xem thêm 10 yêu cầu</button><span id="requestLoadMeta"></span></div>
+          </div>
+          <aside class="request-overview" id="requestOverview" aria-label="Tổng quan chu kỳ">
+            <div class="request-overview-title">Tổng quan chu kỳ <span id="overviewCycle">2026</span></div>
+            <div class="request-overview-total"><strong id="overviewTotal">0</strong><span>yêu cầu đã tạo</span></div>
+            <div class="request-overview-bar" aria-hidden="true"><span id="overviewCollectingBar"></span><span id="overviewOverdueBar"></span><span id="overviewCompleteBar"></span></div>
+            <div class="request-overview-list">
+              <button onclick="setRequestStatusFilter('collecting')"><span><i class="overview-dot collecting"></i>Đang thu thập</span><strong id="overviewCollecting">0</strong></button>
+              <button onclick="setRequestStatusFilter('overdue')"><span><i class="overview-dot overdue"></i>Quá hạn</span><strong id="overviewOverdue">0</strong></button>
+              <button onclick="setRequestStatusFilter('complete')"><span><i class="overview-dot complete"></i>Hoàn thành</span><strong id="overviewComplete">0</strong></button>
+            </div>
+            <button class="request-overview-ai" id="overviewAiReady" onclick="setRequestStatusFilter('complete')"><i class="bx bx-sparkles"></i><span><strong>0 yêu cầu</strong><small>Sẵn sàng tóm tắt AI</small></span><i class="bx bx-chevron-right"></i></button>
+          </aside>
+        </div>
+        <div class="request-kanban" id="requestKanban"></div>
+      </section>
     </section>
   </main>
 </div>
@@ -151,29 +202,30 @@
     </header>
 
     <div class="dialog-form" id="requestForm">
+      <div class="request-guidance" role="note"><i class="bx bx-info-circle"></i><span>Chỉ tạo yêu cầu khi bạn cần thêm góc nhìn cụ thể để coaching, hoặc hỗ trợ nhân viên phát triển. Việc yêu cầu phản hồi quá thường xuyên hoặc không có mục tiêu rõ ràng có thể khiến nhân viên cảm thấy áp lực và thiếu an toàn. Trước khi gửi, hãy bảo đảm nhân viên hiểu mục đích.</span></div>
       <div class="field">
-        <label class="field-label" for="designeeInput">Nhân viên được nhận phản hồi<span class="req-star">*</span> <span class="field-hint">(chỉ nhân viên báo cáo trực tiếp)</span></label>
-        <div class="pick-inputwrap">
-          <i class="bx bx-search"></i>
-          <input class="pick-input" id="designeeInput" autocomplete="off" placeholder="Tìm theo tên hoặc domain (vd: tu.nguyen)…" oninput="designeeSearch()" onfocus="designeeSearch()"/>
-        </div>
-        <div class="pick-results" id="designeeResults"></div>
-        <div class="rv-chips" id="designeeChips"></div>
+        <label class="field-label" for="requestGoal">Mục tiêu<span class="req-star">*</span></label>
+        <input class="text-input" id="requestGoal" placeholder="Vd: Thu thập góc nhìn về khả năng phối hợp trong dự án Migration" oninput="syncRequestForm()"/>
       </div>
-
-      <div class="field">
-        <label class="field-label" for="reviewerInput">Người phản hồi<span class="req-star">*</span> <span class="field-hint">(1-20 người)</span></label>
-        <div class="pick-inputwrap">
-          <i class="bx bx-search"></i>
-          <input class="pick-input" id="reviewerInput" autocomplete="off" placeholder="Tìm theo tên hoặc domain (vd: nam.le)…" oninput="reviewerSearch()" onfocus="reviewerSearch()"/>
+      <div class="field request-role-flow">
+        <div class="request-role-card" id="requestGiverRole">
+          <label class="field-label" for="reviewerInput">Người cho phản hồi<span class="req-star">*</span></label>
+          <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="reviewerInput" autocomplete="off" placeholder="Tìm tên hoặc domain…" oninput="reviewerSearch()" onfocus="reviewerSearch()"/></div>
+          <div class="pick-results" id="reviewerResults"></div><div class="rv-chips" id="reviewerChips"></div>
+          <span class="role-caption">Chọn từ 1 đến 20 người</span>
         </div>
-        <div class="pick-results" id="reviewerResults"></div>
-        <div class="rv-chips" id="reviewerChips"></div>
+        <div class="request-flow-arrow" aria-hidden="true"><i class="bx bxs-right-arrow"></i></div>
+        <div class="request-role-card" id="requestReceiverRole">
+          <label class="field-label" for="designeeInput">Nhân viên nhận phản hồi<span class="req-star">*</span></label>
+          <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="designeeInput" autocomplete="off" placeholder="Tìm tên hoặc domain…" oninput="designeeSearch()" onfocus="designeeSearch()"/></div>
+          <div class="pick-results" id="designeeResults"></div><div class="rv-chips" id="designeeChips"></div>
+          <span class="role-caption">Chỉ nhân viên báo cáo trực tiếp</span>
+        </div>
       </div>
 
       <div class="field">
         <div class="field-row">
-          <label class="field-label" for="requestQuestion">Câu hỏi cho người phản hồi<span class="req-star">*</span></label>
+          <label class="field-label" for="requestQuestion">Câu hỏi cho người cho phản hồi<span class="req-star">*</span></label>
           <label class="opt-toggle" id="personalizeRow" style="display:none"><input type="checkbox" id="requestPersonalize" onchange="togglePersonalizeRequest(this)"/> Cá nhân hóa cho từng người</label>
         </div>
         <textarea class="compose-ta" id="requestQuestion" placeholder="Vd: Bạn đánh giá thế nào về cách bạn ấy phối hợp với team trong chu kỳ này?" oninput="syncRequestForm()"></textarea>
@@ -211,14 +263,14 @@
   <section class="dialog dialog-sm" role="dialog" aria-modal="true">
     <header class="dialog-head">
       <div class="dialog-heading">
-        <div class="dialog-title">Bạn đang tạo dở</div>
-        <div class="dialog-sub">Yêu cầu chưa được gửi. Lưu bản nháp để quay lại, hoặc xóa nội dung đã nhập.</div>
+        <div class="dialog-title">Nội dung chưa được gửi</div>
+        <div class="dialog-sub">Nội dung bạn đang nhập chưa được gửi. Nếu thoát, toàn bộ nội dung sẽ bị xóa.</div>
       </div>
       <button class="close" onclick="requestConfirmCancel()" aria-label="Tiếp tục nhập">×</button>
     </header>
     <footer class="dialog-foot" style="gap:8px">
       <button class="btn btn-outline" onclick="requestConfirmDiscard()"><i class="bx bx-trash"></i> Xóa nội dung</button>
-      <button class="btn btn-primary" onclick="requestConfirmSave()"><i class="bx bx-save"></i> Lưu nháp</button>
+      <button class="btn btn-primary" onclick="requestConfirmCancel()">Tiếp tục chỉnh sửa</button>
     </footer>
   </section>
 </div>
@@ -228,10 +280,16 @@
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
 <script src="manager-request-model.js"></script>
+<script src="manager-request-seed.js"></script>
+<script src="manager-request-storage.js"></script>
 <script>
 const EMPLOYEES=window.PMS_EMPLOYEES || [];
 const FEEDBACK_STORE=ManagerFeedbackData.createStore(EMPLOYEES);
-const STATE={scope:'lm1',selectedId:null,splitView:false,filterOpen:false};
+const REQUEST_STORAGE_KEY='pms.managerFeedbackRequests.v1';
+function requestStorage(){try{return window.localStorage;}catch(error){return {getItem(){return null;},setItem(){}};}}
+function loadRequestStore(){const storage=requestStorage(),seeded=ManagerRequestSeed.create(EMPLOYEES),loaded=ManagerRequestStorage.load(storage,REQUEST_STORAGE_KEY,()=>seeded),seedById=new Map(seeded.map(request=>[request.id,request])),merged=loaded.map(request=>seedById.get(request.id)||request),known=new Set(merged.map(request=>request.id));seeded.forEach(request=>{if(!known.has(request.id))merged.push(request);});ManagerRequestStorage.save(storage,REQUEST_STORAGE_KEY,merged);return ManagerRequestModel.createStore(merged);}
+function persistRequestStore(){return ManagerRequestStorage.save(requestStorage(),REQUEST_STORAGE_KEY,REQUEST_STORE.requests);}
+const STATE={scope:'lm1',selectedId:null,splitView:false,filterOpen:false,contentMode:'feedback',requestView:'list',requestLimit:10,requestStatusFilter:'all',requestFilterOpen:false};
 
 function employeesInScope(){ return EMPLOYEES.filter(emp=>emp.lvl===STATE.scope); }
 function visibleFeedbackForManager(employeeId){
@@ -310,8 +368,8 @@ function renderEmployees(){
   }).join('');
   renderSplitView(items);
 }
-function feedbackCard(item,emp){
-  return ManagerFeedbackData.feedbackCard(item,emp);
+function feedbackCard(item,emp,options){
+  return ManagerFeedbackData.feedbackCard(item,emp,options);
 }
 function openFeedback(employeeId){
   const emp=EMPLOYEES.find(item=>item.id===employeeId); if(!emp)return;
@@ -325,27 +383,69 @@ function openFeedback(employeeId){
 function openFeedbackTab(employeeId=STATE.selectedId){if(!employeeId)return;const cycle=document.getElementById('cycle').value;window.open(`feedback-detail.html?employee=${encodeURIComponent(employeeId)}&cycle=${encodeURIComponent(cycle)}`,'_blank','noopener');}
 function toggleSplitView(){STATE.splitView=!STATE.splitView;document.getElementById('listView').classList.toggle('view-hidden',STATE.splitView);document.getElementById('splitShell').classList.toggle('open',STATE.splitView);document.getElementById('splitViewButton').setAttribute('aria-pressed',String(STATE.splitView));renderEmployees();}
 function selectSplitEmployee(employeeId){STATE.selectedId=employeeId;renderEmployees();}
+function splitBadgeSummaryHTML(feedback){
+  const counts={};
+  feedback.forEach(item=>(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;}));
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([value,count])=>{
+    const icon=ManagerFeedbackData.coreValueIcon(value);
+    return `<span class="split-badge-item">${icon?`<img src="../Core value with BG/${icon}" alt="">`:''}<span>${count}</span><span class="split-badge-tip">${value}</span></span>`;
+  }).join('');
+}
 function renderSplitView(items){
   if(!STATE.splitView)return;
   if(!items.length){document.getElementById('splitEmployeeList').innerHTML='<div class="empty">Không có nhân viên.</div>';document.getElementById('splitFeedbackPane').innerHTML='';return;}
   if(!items.some(emp=>emp.id===STATE.selectedId))STATE.selectedId=(items.find(emp=>visibleFeedbackForManager(emp.id).length)||items[0]).id;
   document.getElementById('splitEmployeeList').innerHTML=items.map(emp=>`<button class="split-person ${emp.id===STATE.selectedId?'on':''}" onclick="selectSplitEmployee('${emp.id}')"><span class="avatar">${emp.ini}</span><span style="min-width:0"><span class="emp-name" style="display:block">${emp.name} <span class="emp-domain">(${emp.login})</span></span><span class="emp-meta" style="display:block">${visibleFeedbackForManager(emp.id).length} phản hồi đã nhận</span></span></button>`).join('');
   const emp=items.find(item=>item.id===STATE.selectedId),feedback=visibleFeedbackForManager(emp.id);
-  document.getElementById('splitPaneTitle').textContent=`Phản hồi đã nhận (${feedback.length})`;
-  document.getElementById('splitPaneMeta').textContent=FEEDBACK_STORE.employeeMeta(emp);
-  document.getElementById('splitFeedbackPane').innerHTML=feedback.length?feedback.map(item=>feedbackCard(item,emp)).join(''):'<div class="empty">Chưa có phản hồi.</div>';
+  document.getElementById('splitEmployeeLabel').textContent=emp.name;
+  const employeeTooltip=document.getElementById('splitEmployeeTooltip');
+  employeeTooltip.textContent=[emp.dept,emp.pos].filter(Boolean).join(' - ');
+  document.getElementById('splitBadgeSummary').innerHTML=splitBadgeSummaryHTML(feedback);
+  document.getElementById('splitFeedbackPane').innerHTML=feedback.length?feedback.map((item,index)=>feedbackCard(item,emp,{compactRecipient:true,senderTooltipPlacement:index===0?'bottom':'top'})).join(''):'<div class="empty">Chưa có phản hồi.</div>';
 }
 function closeFeedback(){document.getElementById('feedbackDialog').classList.remove('open')}
+
+/* ═══════ D4 / MR-2 — theo dõi yêu cầu đã tạo ═══════ */
+function setContentMode(mode){
+  STATE.contentMode=mode;
+  const feedback=mode==='feedback';
+  document.getElementById('feedbackModePanel').hidden=!feedback;
+  document.getElementById('requestModePanel').hidden=feedback;
+  document.getElementById('feedbackModeTab').classList.toggle('on',feedback);
+  document.getElementById('requestsModeTab').classList.toggle('on',!feedback);
+  document.getElementById('feedbackModeTab').setAttribute('aria-selected',String(feedback));
+  document.getElementById('requestsModeTab').setAttribute('aria-selected',String(!feedback));
+  if(!feedback)renderRequestMonitoring();
+}
+function renderAllManagerViews(){renderEmployees();renderRequestMonitoring();}
+function statusText(status){return status==='complete'?'Hoàn tất':status==='overdue'?'Quá hạn':'Đang thu thập';}
+function requestDeadline(request,status){if(status==='complete')return 'Hoàn tất';const days=ManagerRequestModel.daysOverdue(request,todayDMY());if(days)return `Quá hạn ${days} ngày`;return `Hạn ${request.due}`;}
+function requestPeople(request){const people=request.designees||[],shown=people.slice(0,2).map(item=>item.name).join(', '),more=people.length-2;return `${shown}${more>0?` <span class="more">và ${more} người khác</span>`:''}`;}
+function requestDetailUrl(request){const cycle=document.getElementById('cycle').value;return `request-detail.html?request=${encodeURIComponent(request.id)}&cycle=${encodeURIComponent(cycle)}`;}
+function requestProgressChip(stat,status){if(status==='complete')return `<span class="progress-chip complete"><i class="bx bx-check-circle"></i>Hoàn thành: ${stat.done}/${stat.total} đã trả lời</span>`;if(status==='overdue')return `<span class="progress-chip overdue"><i class="bx bx-error-circle"></i>Quá hạn: ${stat.done}/${stat.total} đã trả lời</span>`;return `<span class="progress-chip collecting"><i class="bx bx-loader-alt"></i>Đang thu thập: ${stat.done}/${stat.total} đã trả lời</span>`;}
+function requestRowHTML(request){const stat=ManagerRequestModel.summarize(request,todayDMY()),status=ManagerRequestModel.requestStatus(request,todayDMY());return `<a class="request-table-row" href="${requestDetailUrl(request)}" onclick="saveRequestListState()"><span><span class="request-goal">${request.goal}</span><span class="request-meta">Tạo ${request.createdAt}</span></span><span class="request-people">${requestPeople(request)}</span><span>${requestProgressChip(stat,status)}${status==='complete'?'':`<span class="request-deadline">${requestDeadline(request,status)}</span>`}</span><i class="bx bx-chevron-right"></i></a>`;}
+function requestsForSelectedCycle(){const cycle=document.getElementById('cycle').value;return (cycle==='all'?REQUEST_STORE.requests:REQUEST_STORE.forCycle(cycle)).slice();}
+function filteredRequests(){return requestsForSelectedCycle().sort((a,b)=>ManagerRequestModel.tsFromDMY(b.createdAt)-ManagerRequestModel.tsFromDMY(a.createdAt)).filter(request=>STATE.requestStatusFilter==='all'||ManagerRequestModel.requestStatus(request,todayDMY())===STATE.requestStatusFilter);}
+function renderRequestList(requests){const shown=requests.slice(0,STATE.requestLimit),list=document.getElementById('requestList');list.innerHTML=shown.length?`<div class="request-table-head"><span>Mục tiêu</span><span>Nhân viên nhận feedback</span><span>Tiến độ &amp; thời hạn</span><span></span></div>${shown.map(requestRowHTML).join('')}`:'<div class="empty">Chưa có yêu cầu phù hợp.</div>';const button=document.getElementById('requestLoadMore');button.style.display=shown.length<requests.length?'':'none';document.getElementById('requestLoadMeta').textContent=`Đang hiển thị ${shown.length} trong ${requests.length} yêu cầu`;}
+function renderRequestKanban(requests){const lanes=[['collecting','Đang thu thập'],['overdue','Quá hạn'],['complete','Hoàn thành']];document.getElementById('requestKanban').innerHTML=lanes.map(([status,label])=>`<section class="kanban-lane ${status}"><div class="kanban-title">${label}</div>${requests.filter(request=>ManagerRequestModel.requestStatus(request,todayDMY())===status).map(request=>{const stat=ManagerRequestModel.summarize(request,todayDMY());return `<a class="kanban-card" href="${requestDetailUrl(request)}" onclick="saveRequestListState()"><strong>${request.goal}</strong><span>${request.designees.slice(0,2).map(item=>item.name).join(', ')}${request.designees.length>2?` và ${request.designees.length-2} người khác`:''}</span><span>${stat.done}/${stat.total} đã trả lời - ${requestDeadline(request,status)}</span></a>`;}).join('')||'<div class="empty" style="padding:16px">Không có yêu cầu</div>'}</section>`).join('');}
+function renderRequestMonitoring(){const requests=filteredRequests();document.getElementById('requestListView').classList.toggle('on',STATE.requestView==='list');document.getElementById('requestKanbanView').classList.toggle('on',STATE.requestView==='kanban');document.querySelector('.request-table-wrap').style.display=STATE.requestView==='list'?'':'none';document.getElementById('requestKanban').classList.toggle('open',STATE.requestView==='kanban');document.querySelector('.request-load-more').style.display=STATE.requestView==='list'?'':'none';renderRequestList(requests);renderRequestKanban(requests);}
+function loadMoreRequests(){STATE.requestLimit+=10;renderRequestMonitoring();}
+function setRequestView(view){STATE.requestView=view;renderRequestMonitoring();}
+function toggleRequestFilter(){STATE.requestFilterOpen=!STATE.requestFilterOpen;document.getElementById('requestFilterPopover').classList.toggle('open',STATE.requestFilterOpen);}
+function setRequestStatusFilter(status){STATE.requestStatusFilter=status;STATE.requestLimit=10;STATE.requestFilterOpen=false;document.getElementById('requestFilterPopover').classList.remove('open');const count=status==='all'?0:1;document.getElementById('requestFilterCount').textContent=count;document.getElementById('requestFilterCount').classList.toggle('show',!!count);renderRequestMonitoring();}
+function saveRequestListState(){sessionStorage.setItem('pms.managerRequestListState',JSON.stringify({contentMode:'requests',requestView:STATE.requestView,requestLimit:STATE.requestLimit,requestStatusFilter:STATE.requestStatusFilter,cycle:document.getElementById('cycle').value,scrollY:window.scrollY}));}
+function restoreRequestListState(){try{const saved=JSON.parse(sessionStorage.getItem('pms.managerRequestListState')||'null');if(!saved)return;STATE.requestView=saved.requestView||'list';STATE.requestLimit=saved.requestLimit||10;STATE.requestStatusFilter=saved.requestStatusFilter||'all';if(saved.cycle)document.getElementById('cycle').value=saved.cycle;if(new URLSearchParams(location.search).get('mode')==='requests'){setContentMode('requests');setTimeout(()=>scrollTo(0,saved.scrollY||0),0);}}catch(error){}}
+function openCreatedRequest(requestId){closeRequestDialog();location.href=`request-detail.html?request=${encodeURIComponent(requestId)}&cycle=${encodeURIComponent(document.getElementById('cycle').value)}`;}
 
 /* ═══════ D3 / MR-1 — quản lý tạo yêu cầu phản hồi cho direct reports ═══════ */
 const MANAGER={name:'Lê Thị Thanh',login:'thanh.le',ini:'LT'};
 const MAX_REVIEWERS=20;
-const REQUEST_STORE=ManagerRequestModel.createStore();
+const REQUEST_STORE=loadRequestStore();
 const REQUEST_FORM={designees:[],reviewers:[],personalize:false,questions:{}};
-let REQUEST_DRAFT=null;   /* chỉ ở memory, giống DRAFTS của E-04 */
 
 function toast(message){const box=document.getElementById('toast');document.getElementById('toastText').textContent=message;box.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>box.classList.remove('show'),3000);}
 function todayDMY(){const now=new Date(),pad=value=>String(value).padStart(2,'0');return `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;}
+function activeManagerCycle(){const cycle=document.getElementById('cycle').value;return cycle==='all'?String(new Date().getFullYear()):cycle;}
 function personMeta(person){return [person.div,person.dept,person.team,person.pos].filter(Boolean).join(' - ');}
 function closePickers(){document.getElementById('designeeResults').classList.remove('open');document.getElementById('reviewerResults').classList.remove('open');}
 
@@ -354,6 +454,7 @@ function openRequestDialog(){
   document.getElementById('requestForm').style.display='';
   document.getElementById('requestFoot').style.display='';
   document.getElementById('requestSuccess').style.display='none';
+  document.getElementById('requestGoal').value='';
   document.getElementById('designeeInput').value='';
   document.getElementById('reviewerInput').value='';
   document.getElementById('requestQuestion').value='';
@@ -362,7 +463,6 @@ function openRequestDialog(){
   document.getElementById('requestPersonalize').checked=false;
   document.getElementById('personalizeWrap').style.display='none';
   closePickers();
-  restoreRequestDraft();
   renderDesignees();renderReviewers();syncPersonalizeVisibility();renderPersonQuestions();syncRequestForm();
   document.getElementById('requestDialog').classList.add('open');
   setTimeout(()=>document.getElementById('designeeInput').focus(),40);
@@ -477,7 +577,7 @@ function questionsReady(){
 }
 function syncRequestForm(){
   const preview=updateRequestPreview();
-  const ready=preview.total>0&&questionsReady()&&!!document.getElementById('requestDue').value;
+  const ready=preview.total>0&&!!document.getElementById('requestGoal').value.trim()&&questionsReady()&&!!document.getElementById('requestDue').value;
   document.getElementById('requestSubmit').disabled=!ready;
 }
 
@@ -485,7 +585,8 @@ function submitManagerRequest(){
   const preview=ManagerRequestModel.previewCount(REQUEST_FORM);
   if(!preview.total)return;
   const request=ManagerRequestModel.createRequest({
-    cycle:document.getElementById('cycle').value,
+    goal:document.getElementById('requestGoal').value.trim(),
+    cycle:activeManagerCycle(),
     createdAt:todayDMY(),
     createdBy:MANAGER,
     due:ManagerRequestModel.fmtDMY(document.getElementById('requestDue').value),
@@ -496,7 +597,7 @@ function submitManagerRequest(){
     sharedQuestion:document.getElementById('requestQuestion').value.trim()
   });
   REQUEST_STORE.add(request);
-  REQUEST_DRAFT=null;
+  persistRequestStore();
   const names=request.designees.map(item=>item.name).join(', ');
   document.getElementById('requestForm').style.display='none';
   document.getElementById('requestFoot').style.display='none';
@@ -505,15 +606,15 @@ function submitManagerRequest(){
   success.innerHTML=`<div class="give-ok">
     <div class="give-ok-ic"><i class="bx bx-check"></i></div>
     <div class="give-ok-t">Đã tạo ${request.assignments.length} yêu cầu phản hồi</div>
-    <div class="give-ok-d">Mỗi người phản hồi nhận một yêu cầu riêng cho từng nhân viên: ${names}. Bạn theo dõi được tiến độ khi phần giám sát mở ở bước kế tiếp.</div>
+    <div class="give-ok-d">Mỗi người phản hồi nhận một yêu cầu riêng cho từng nhân viên: ${names}. Bạn có thể theo dõi tiến độ ngay trong màn hình này.</div>
     <div class="give-ok-notes">
       <span class="give-ok-note"><i class="bx bx-calendar"></i>Hạn ${request.due}</span>
       <span class="give-ok-note"><i class="bx bx-group"></i>Chia sẻ với bạn và nhân viên</span>
       <span class="give-ok-note"><i class="bx bx-${request.questionMode==='individual'?'user-voice':'message-square-dots'}"></i>${request.questionMode==='individual'?'Câu hỏi riêng từng người':'Cùng một câu hỏi'}</span>
     </div>
     <div style="margin-top:18px;display:flex;gap:8px;justify-content:center">
-      <button class="btn btn-outline" onclick="closeRequestDialog()">Đóng</button>
-      <button class="btn btn-primary" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Tạo yêu cầu khác</button>
+      <button class="btn btn-outline" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Tạo yêu cầu khác</button>
+      <button class="btn btn-primary" onclick="openCreatedRequest('${request.id}')"><i class="bx bx-line-chart"></i> Xem tiến độ yêu cầu</button>
     </div>
   </div>`;
   toast(`Đã tạo ${request.assignments.length} yêu cầu phản hồi.`);
@@ -523,40 +624,14 @@ function submitManagerRequest(){
 function requestFormDirty(){
   if(document.getElementById('requestForm').style.display==='none')return false;
   return !!(REQUEST_FORM.designees.length||REQUEST_FORM.reviewers.length
-    ||document.getElementById('requestQuestion').value.trim()||document.getElementById('requestDue').value);
+    ||document.getElementById('requestGoal').value.trim()||document.getElementById('requestQuestion').value.trim()||document.getElementById('requestDue').value);
 }
 function requestCloseAttempt(){
   if(!requestFormDirty()){closeRequestDialog();return;}
   document.getElementById('requestConfirm').classList.add('open');
 }
 function requestConfirmCancel(){document.getElementById('requestConfirm').classList.remove('open');}
-function requestConfirmSave(){
-  REQUEST_DRAFT={
-    designees:REQUEST_FORM.designees.map(item=>({...item})),
-    reviewers:REQUEST_FORM.reviewers.map(item=>({...item})),
-    personalize:REQUEST_FORM.personalize,
-    questions:{...REQUEST_FORM.questions},
-    question:document.getElementById('requestQuestion').value,
-    due:document.getElementById('requestDue').value
-  };
-  requestConfirmCancel();closeRequestDialog();toast('Đã lưu nháp yêu cầu, mở lại để viết tiếp.');
-}
-function requestConfirmDiscard(){REQUEST_DRAFT=null;requestConfirmCancel();closeRequestDialog();toast('Đã xóa nội dung đang nhập.');}
-function restoreRequestDraft(){
-  if(!REQUEST_DRAFT)return;
-  REQUEST_FORM.designees=REQUEST_DRAFT.designees.map(item=>({...item}));
-  REQUEST_FORM.reviewers=REQUEST_DRAFT.reviewers.map(item=>({...item}));
-  REQUEST_FORM.questions={...REQUEST_DRAFT.questions};
-  document.getElementById('requestQuestion').value=REQUEST_DRAFT.question||'';
-  document.getElementById('requestDue').value=REQUEST_DRAFT.due||'';
-  if(REQUEST_DRAFT.personalize&&REQUEST_FORM.reviewers.length>=2){
-    REQUEST_FORM.personalize=true;
-    document.getElementById('requestPersonalize').checked=true;
-    document.getElementById('requestQuestion').style.display='none';
-    document.getElementById('personalizeWrap').style.display='';
-  }
-  toast('Đã khôi phục bản nháp yêu cầu.');
-}
+function requestConfirmDiscard(){requestConfirmCancel();closeRequestDialog();toast('Đã xóa nội dung đang nhập.');}
 
 document.addEventListener('click',event=>{if(!event.target.closest('.picker'))closePickers();});
 document.addEventListener('keydown',event=>{
@@ -566,7 +641,21 @@ document.addEventListener('keydown',event=>{
   closeFeedback();
 });
 renderFilters();
-renderEmployees();
+renderAllManagerViews();
+restoreRequestListState();
+</script>
+<style>
+.request-table-row{align-items:flex-start;min-height:84px}.request-table-row>span{min-width:0}.request-table-row>i{align-self:center}
+.request-list-layout{display:grid;grid-template-columns:minmax(0,7fr) minmax(250px,3fr);gap:14px;align-items:start}.request-list-column{min-width:0}.request-overview{border:1px solid var(--z200);border-radius:8px;background:#fff;padding:13px;box-shadow:0 4px 12px rgba(0,0,0,.04)}.request-overview-title{font-size:12.5px;font-weight:600;color:var(--z900);margin-bottom:11px}.request-overview-total{display:flex;align-items:baseline;gap:5px;margin-bottom:11px;color:var(--z500);font-size:11px}.request-overview-total strong{font-size:18px;font-weight:600;color:var(--z900)}.request-overview-bar{display:flex;height:6px;border-radius:99px;overflow:hidden;background:var(--z100);margin-bottom:12px}.request-overview-bar span{min-width:0}.request-overview-bar span:nth-child(1){background:#d99a27}.request-overview-bar span:nth-child(2){background:#d92d20}.request-overview-bar span:nth-child(3){background:#22a552}.request-overview-list{display:grid;gap:8px}.request-overview-list button{display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;padding:0;color:var(--z600);font-size:11.5px;text-align:left}.request-overview-list button:hover{color:var(--z900)}.request-overview-list button span{display:flex;align-items:center;gap:7px}.request-overview-list button strong{font-size:11.5px;color:var(--z800);font-weight:600}.overview-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.overview-dot.collecting{background:#d99a27}.overview-dot.overdue{background:#d92d20}.overview-dot.complete{background:#22a552}.request-overview-ai{width:100%;display:grid;grid-template-columns:18px 1fr 16px;gap:7px;align-items:center;margin-top:13px;padding:11px 0 0;border:0;border-top:1px solid var(--z200);background:transparent;color:var(--z600);text-align:left}.request-overview-ai>i:first-child{color:var(--brand);font-size:16px}.request-overview-ai span{display:grid;gap:2px}.request-overview-ai strong{font-size:11.5px;color:var(--z800);font-weight:600}.request-overview-ai small{font-size:10.5px;color:var(--z500)}.request-overview-ai:hover strong{color:var(--brand)}
+@media(max-width:1050px){.request-list-layout{grid-template-columns:minmax(0,1fr) 250px}.request-table-head,.request-table-row{grid-template-columns:minmax(260px,1.3fr) minmax(190px,.9fr) minmax(190px,.8fr) 24px}}@media(max-width:850px){.request-list-layout{grid-template-columns:1fr}.request-overview{order:-1}.request-overview-list{grid-template-columns:repeat(3,1fr)}.request-overview-ai{grid-template-columns:18px 1fr 16px}}
+.request-list-layout .request-table-head,.request-list-layout .request-table-row{grid-template-columns:minmax(280px,1.2fr) minmax(170px,.72fr) minmax(250px,.92fr) 20px}.request-list-layout .progress-chip{max-width:100%;box-sizing:border-box}.request-list-layout .request-table-row{gap:12px}
+@media(max-width:800px){.request-list-layout .request-table-head{display:none}.request-list-layout .request-table-row{grid-template-columns:1fr}.request-list-layout .progress-chip{max-width:none}}
+</style>
+<script>
+function renderRequestList(requests){const shown=requests.slice(0,STATE.requestLimit),list=document.getElementById('requestList');list.innerHTML=shown.length?`<div class="request-table-head"><span>Yêu cầu</span><span>Nhân viên nhận feedback</span><span>Tiến độ &amp; thời hạn</span><span></span></div>${shown.map(requestRowHTML).join('')}`:'<div class="empty">Chưa có yêu cầu phù hợp.</div>';const button=document.getElementById('requestLoadMore');button.style.display=shown.length<requests.length?'':'none';document.getElementById('requestLoadMeta').textContent=`Đang hiển thị ${shown.length} trong ${requests.length} yêu cầu`;}
+function renderRequestOverview(requests){const cycle=document.getElementById('cycle').value,counts={collecting:0,overdue:0,complete:0};requests.forEach(request=>{const status=ManagerRequestModel.requestStatus(request,todayDMY());if(counts[status]!==undefined)counts[status]++;});const total=requests.length||1;document.getElementById('overviewCycle').textContent=cycle;document.getElementById('overviewTotal').textContent=requests.length;document.getElementById('overviewCollecting').textContent=counts.collecting;document.getElementById('overviewOverdue').textContent=counts.overdue;document.getElementById('overviewComplete').textContent=counts.complete;document.getElementById('overviewCollectingBar').style.width=`${counts.collecting/total*100}%`;document.getElementById('overviewOverdueBar').style.width=`${counts.overdue/total*100}%`;document.getElementById('overviewCompleteBar').style.width=`${counts.complete/total*100}%`;document.querySelector('#overviewAiReady strong').textContent=`${counts.complete} yêu cầu`;}
+function renderRequestMonitoring(){const all=requestsForSelectedCycle(),requests=filteredRequests(),isList=STATE.requestView==='list';document.getElementById('requestListView').classList.toggle('on',isList);document.getElementById('requestKanbanView').classList.toggle('on',!isList);document.getElementById('requestListLayout').style.display=isList?'':'none';document.getElementById('requestKanban').classList.toggle('open',!isList);renderRequestList(requests);renderRequestKanban(requests);renderRequestOverview(all);document.querySelector('.request-load-more').style.display=isList?'':'none';}
+renderRequestMonitoring();
 </script>
 </body>
 </html>

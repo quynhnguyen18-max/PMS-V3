@@ -1,0 +1,71 @@
+<style>
+  .cards{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}.card{display:flex;flex-direction:column}.card-image{padding:14px;background:#f7f7f8;min-height:430px}.card-body{margin-top:auto}.mini-page{font-family:Arial,sans-serif;color:#27272a;font-size:10px}.mode-switch{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid #dedee3;border-radius:10px;padding:4px;gap:4px;margin-bottom:12px}.mode{padding:9px 10px;border-radius:7px;color:#71717a}.mode.active{background:#f8eaf2;color:#9d075f;box-shadow:0 1px 2px rgba(0,0,0,.05)}.mode b{display:block;font-size:11px}.mode small{display:block;margin-top:2px;color:#777;font-size:8px}.feed-card{background:#fff;border:1px solid #e4e4e7;border-radius:9px;padding:12px;margin-bottom:9px}.post-head{display:flex;gap:7px;align-items:center}.av{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#f5e5ef;color:#a50064;font-weight:700}.grow{flex:1}.name{font-weight:700;font-size:10px}.meta{color:#777;font-size:8px;margin-top:2px}.title{font-size:11px;font-weight:700;margin:10px 0 4px}.people{font-size:9px;color:#5f6068}.progress-line{display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid #eee;color:#666}.progress-line b{color:#333}.bar{height:4px;background:#e5e5e8;border-radius:9px;margin-top:6px;overflow:hidden}.bar span{display:block;height:100%;background:#a50064}.row-table{display:grid;grid-template-columns:1.5fr .55fr .55fr .55fr;gap:5px;padding:9px 7px;border-bottom:1px solid #eee;background:#fff}.row-table.head{background:#f4f4f5;text-transform:uppercase;font-size:7px;color:#777}.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.lane{background:#efeff1;border-radius:7px;padding:6px}.lane h5{font-size:8px;margin:2px 2px 6px;color:#666}.ticket{background:#fff;border-radius:6px;padding:7px;margin-bottom:6px;box-shadow:0 1px 2px rgba(0,0,0,.06)}.ticket b{font-size:8px}.ticket div{font-size:7px;color:#777;margin-top:4px}.recommend{display:inline-block;background:#f8eaf2;color:#a50064;border-radius:20px;padding:3px 7px;font-size:10px;font-weight:700;margin-bottom:8px}@media(max-width:900px){.cards{grid-template-columns:1fr}.card-image{min-height:auto}}
+</style>
+
+<h2>“Yêu cầu đã tạo” nên được đọc như thế nào?</h2>
+<p class="subtitle">So sánh 3 cấu trúc. Hãy chọn phương án giúp quản lý nhận ra việc cần làm nhanh nhất, không phải đọc từng cột.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mini-page">
+        <div class="mode-switch"><div class="mode">Phản hồi nhân viên</div><div class="mode active"><b>Yêu cầu đã tạo&nbsp; 4</b></div></div>
+        <div class="row-table head"><span>Yêu cầu</span><span>Người</span><span>Hạn</span><span>Tiến độ</span></div>
+        <div class="row-table"><span><b>Feedback Migration</b><br><small>Tú, Hằng + 1</small></span><span>3 NV</span><span>15/08</span><span>4/9</span></div>
+        <div class="row-table"><span><b>Coaching Q3</b><br><small>Hằng, Sơn</small></span><span>2 NV</span><span>01/08</span><span>2/6</span></div>
+        <div class="row-table"><span><b>Roadmap</b><br><small>Tú, Hùng</small></span><span>2 NV</span><span>25/07</span><span>4/4</span></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A. Bảng tinh gọn</h3><p>Ít thay đổi nhất, quét số nhanh nhưng vẫn mang cảm giác báo cáo và khó đọc nội dung theo ngữ cảnh.</p></div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mini-page">
+        <span class="recommend">Đề xuất</span>
+        <div class="mode-switch">
+          <div class="mode"><b>Phản hồi nhân viên</b><small>Xem feedback nhân viên đã nhận</small></div>
+          <div class="mode active"><b>Yêu cầu đã tạo&nbsp; 4</b><small>Theo dõi tiến độ và nhắc trả lời</small></div>
+        </div>
+        <div class="feed-card">
+          <div class="post-head"><span class="av">LT</span><span class="grow"><span class="name">Lê Thị Thanh</span><span class="meta">28/07/2026 · Hạn 15/08/2026</span></span><span>•••</span></div>
+          <div class="title">Feedback dự án Migration Q3</div>
+          <div class="people">Dành cho <b>Nguyễn Văn Tú, Mai Thị Hằng</b> và 1 người khác</div>
+          <div class="progress-line"><span><b>4/9 đã trả lời</b> · 5 đang chờ</span><span>Đang thu thập</span></div><div class="bar"><span style="width:44%"></span></div>
+        </div>
+        <div class="feed-card">
+          <div class="post-head"><span class="av">LT</span><span class="grow"><span class="name">Lê Thị Thanh</span><span class="meta">18/07/2026 · Hạn 01/08/2026</span></span><span>•••</span></div>
+          <div class="title">Coaching năng lực phối hợp Q3</div>
+          <div class="people">Dành cho <b>Mai Thị Hằng, Cao Văn Sơn</b></div>
+          <div class="progress-line"><span><b>2/6 đã trả lời</b> · 4 quá hạn</span><span style="color:#a03b3b">Quá hạn 3 ngày</span></div><div class="bar"><span style="width:33%;background:#777"></span></div>
+        </div>
+        <div class="feed-card">
+          <div class="post-head"><span class="av">LT</span><span class="grow"><span class="name">Lê Thị Thanh</span><span class="meta">05/07/2026 · Hoàn tất 22/07/2026</span></span></div>
+          <div class="title">Góp ý sau buổi trình bày Roadmap</div>
+          <div class="people">Dành cho <b>Nguyễn Văn Tú, Lê Văn Hùng</b></div>
+          <div class="progress-line"><span><b>4/4 đã trả lời</b></span><span>Hoàn tất</span></div><div class="bar"><span style="width:100%;background:#777"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B. Request feed kiểu Facebook</h3><p>Mỗi request là một “bài đăng”: ai tạo, khi nào, dành cho ai và đang ở đâu. Click card mở chi tiết có phản hồi thật.</p></div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mini-page">
+        <div class="mode-switch"><div class="mode">Phản hồi nhân viên</div><div class="mode active"><b>Yêu cầu đã tạo&nbsp; 4</b></div></div>
+        <div class="kanban">
+          <div class="lane"><h5>ĐANG THU THẬP</h5><div class="ticket"><b>Migration Q3</b><div>4/9 · Hạn 15/08</div></div></div>
+          <div class="lane"><h5>QUÁ HẠN</h5><div class="ticket"><b>Coaching Q3</b><div>2/6 · Trễ 3 ngày</div></div></div>
+          <div class="lane"><h5>HOÀN TẤT</h5><div class="ticket"><b>Roadmap</b><div>4/4 · 22/07</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>C. Kanban theo trạng thái</h3><p>Rõ trạng thái nhưng phân mảnh lịch sử, tốn chiều ngang và không phù hợp khi số request tăng.</p></div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:22px">
+  <h3>Điểm thay đổi cốt lõi ở phương án B</h3>
+  <p class="subtitle">Thêm “Tên yêu cầu” để định danh; không dùng câu hỏi làm tên. Gộp trạng thái + tiến độ thành một dòng. Danh sách chỉ nêu người nhận feedback; reviewer và nội dung phản hồi nằm trong chi tiết.</p>
+</div>

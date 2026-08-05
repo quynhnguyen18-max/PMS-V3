@@ -119,6 +119,19 @@ Eval pair NV·QL (điểm nhân viên · quản lý): pill xám `.eval-pair` (bg
 ```
 Khi đính kèm vào phản hồi (fb-badges): huy hiệu tròn 34px + hover tên.
 
+## 8.1 TOOLTIP — component dùng chung toàn PMS
+- Tooltip chứa thông tin nghiệp vụ phải do prototype tự render; **không dùng tooltip mặc định của trình duyệt** (`title`) cho tên nhân viên, cơ cấu tổ chức, huy hiệu, quyền xem hoặc trạng thái nghiệp vụ.
+- Visual: nền `--z900`, chữ trắng, font `12px/1.4`, weight `500`, padding `5px 9px`, bo góc `6px`.
+- Hiển thị khi hover và khi focus bằng bàn phím. Trigger dùng `tabindex="0"`; nội dung dùng `role="tooltip"`.
+- Nội dung ngắn, không lặp thông tin đang nhìn thấy. Với tên nhân viên trong header Split View: `Phòng ban - Vị trí`.
+- Tooltip mặc định/`title` chỉ được giữ cho icon tiện ích đơn giản khi đã có `aria-label` tương ứng; không dùng để chứa dữ liệu nhân sự.
+```html
+<span class="pms-tooltip" tabindex="0">
+  Nguyễn Văn Tú
+  <span class="pms-tooltip-content" role="tooltip">ITC - Senior Engineer</span>
+</span>
+```
+
 ## 9. BUTTONS (shadcn variants)
 ```css
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;line-height:1.4;white-space:nowrap;transition:var(--t)}

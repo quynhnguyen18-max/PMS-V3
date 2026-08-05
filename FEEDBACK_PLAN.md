@@ -1,8 +1,10 @@
 # PMS · Continuous Feedback — Plan UI/UX (Đợt 1)
 
+> **Nguyên tắc sản phẩm:** Feedback không phải là công cụ đánh giá. Module này phục vụ việc ghi nhận, coaching và hỗ trợ nhân viên phát triển; không thiết kế các luồng khuyến khích quản lý thu thập phản hồi tràn lan hoặc dùng phản hồi để tạo cảm giác giám sát.
+
 > **Phạm vi đợt này:** UC1 (Employee yêu cầu phản hồi) · UC2 (Cho phản hồi) · UC3 (Manager yêu cầu phản hồi cho cấp dưới) · **UC-R (Reviewer — trả lời yêu cầu phản hồi)**.
 > UC4 (Team) & UC5 (HR Programs) — để đợt sau.
-> **Trạng thái cập nhật 03/08/2026:** Phase A–C đã hoàn thành trên prototype `E-04` (Feedback Hub nhân viên, UC2, UC1 và UC-R). Phase D đang triển khai, bắt đầu với D1–D2 trên màn `M-04`.
+> **Trạng thái cập nhật 04/08/2026:** Phase A–C đã hoàn thành trên prototype `E-04`. Phase D đã hoàn thành D1–D4 trên `M-04`: quản lý xem feedback, tạo yêu cầu và theo dõi tiến độ. Bước tiếp theo là D5 — AI Coaching Summary.
 
 ---
 
@@ -189,9 +191,9 @@ Phản hồi gom theo **chu kỳ performance**, không theo năm dương lịch 
 4. 🚧 **Phase D — UC3 + view Quản lý — Đang triển khai:**
    - ✅ **D1 — Hoàn thành:** dựng màn `M-04` với Direct reports / Indirect reports và danh sách nhân viên.
    - ✅ **D2 — Hoàn thành:** quản lý xem phản hồi cấp dưới theo visibility, tái sử dụng feedback card/popup hiện có.
-   - **D3:** MR-1 — quản lý tạo yêu cầu phản hồi cho team.
-   - **D4:** MR-2 — monitoring tiến độ, pending và overdue.
-   - **D5:** MR-3 — AI Coaching Summary.
+   - ✅ **D3 — Hoàn thành:** MR-1 — quản lý tạo yêu cầu phản hồi cho direct reports, hỗ trợ nhiều nhân viên và nhiều người phản hồi.
+   - ✅ **D4 — Hoàn thành:** MR-2 — tab “Yêu cầu” quản lý theo Mục tiêu, List/Kanban, Xem thêm theo batch 10, detail route riêng theo request → nhân viên → người phản hồi, pending, overdue, nhắc phản hồi và localStorage migration.
+   - ⏭️ **D5 — Tiếp theo:** MR-3 — AI Coaching Summary theo từng nhân viên trong từng request.
    - **D6:** kiểm thử quyền và luồng xuyên vai trò.
 
 Mỗi phase xong em gửi chị xem trước khi qua phase kế.

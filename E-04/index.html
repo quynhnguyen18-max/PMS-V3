@@ -243,7 +243,7 @@ input,select,textarea{font-family:inherit}
 .fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
 .fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
 .fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
-.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:11px;font-weight:500;padding:4px 8px;border-radius:var(--rxs);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
 .fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
 .fb-badge-wrap:hover .fb-badge-tip{opacity:1}
 
@@ -541,17 +541,7 @@ input,select,textarea{font-family:inherit}
       <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Phản hồi cá nhân</span>
     </div>
 
-    <div class="page-hd">
-      <h1 class="page-title">Phản hồi cá nhân</h1>
-      <div class="emp-chip">
-        <div class="av av-brand av-xs">NT</div>
-        <div class="ec-info">
-          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
-          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
-          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
-        </div>
-      </div>
-    </div>
+    <div class="page-hd"><h1 class="page-title">Phản hồi cá nhân</h1></div>
 
     <div class="cycle-action-row">
       <div class="cycle-row">
@@ -560,6 +550,7 @@ input,select,textarea{font-family:inherit}
         <select class="cycle-sel" id="cycleSel" onchange="renderAll()">
           <option value="2026">2026</option>
           <option value="2025">2025</option>
+          <option value="all">Tất cả</option>
         </select>
       </div>
       <div class="hd-actions">
@@ -827,14 +818,14 @@ input,select,textarea{font-family:inherit}
   <div class="dialog sm">
     <div class="dlg-hd">
       <div>
-        <div class="dlg-title">Bạn đang viết dở</div>
-        <div class="dlg-sub" id="confirmSub">Lưu bản nháp để quay lại viết tiếp, hoặc xóa nội dung đã nhập.</div>
+        <div class="dlg-title">Nội dung chưa được gửi</div>
+        <div class="dlg-sub" id="confirmSub">Nội dung bạn đang nhập chưa được gửi. Nếu thoát, toàn bộ nội dung sẽ bị xóa.</div>
       </div>
-      <button class="dlg-close" onclick="cancelClose()">&#x2715;</button>
+      <button class="dlg-close" onclick="cancelClose()" aria-label="Tiếp tục chỉnh sửa">&#x2715;</button>
     </div>
     <div class="dlg-foot" style="justify-content:flex-end">
       <button class="btn btn-outline btn-sm" onclick="discardDraft()"><i class="bx bx-trash"></i> Xóa nội dung</button>
-      <button class="btn btn-default btn-sm" onclick="saveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
+      <button class="btn btn-default btn-sm" onclick="cancelClose()">Tiếp tục chỉnh sửa</button>
     </div>
   </div>
 </div>
@@ -991,10 +982,12 @@ let queueExpanded=false;
 
 /* ═══ RENDER ═══ */
 function cy(){ return document.getElementById('cycleSel').value; }
+function cycleMatches(value){ return cy()==='all' || value===cy(); }
+function activeCycle(){ return cy()==='all' ? String(new Date().getFullYear()) : cy(); }
 
 function sortedQueue(){
   const rank={over:0,soon:1,normal:2};
-  return QUEUE.filter(q=>q.cycle===cy()).sort((a,b)=>(rank[a.urgency]??2)-(rank[b.urgency]??2));  // gấp nhất lên đầu
+  return QUEUE.filter(q=>cycleMatches(q.cycle)).sort((a,b)=>(rank[a.urgency]??2)-(rank[b.urgency]??2));  // gấp nhất lên đầu
 }
 function queueRowHTML(q){
   const headline = q.about==='self'
@@ -1171,7 +1164,7 @@ function renderFeed(){
   const kindOrder={received:0,given:1,request:2};
   items.sort((a,b)=> (curFilter==='all' ? kindOrder[a.kind]-kindOrder[b.kind] : 0) || b.ts-a.ts);
   const feed=document.getElementById('feed');
-  const drafts=draftCardsHTML(q);   // bản nháp luôn nằm trên đầu
+  const drafts='';
   if(!items.length && !drafts){ feed.innerHTML=`<div class="empty"><i class="bx bx-message-square-dots"></i><p>Chưa có phản hồi nào trong mục này.</p></div>`; return; }
   feed.innerHTML = drafts + items.map(f=>{
     if(f.kind==='received') return cardReceived(f);
@@ -1191,8 +1184,8 @@ function renderRail(){
   const rec=inCy.filter(f=>f.kind==='received').length;
   const giv=inCy.filter(f=>f.kind==='given').length;
   const openReq=inCy.filter(f=>f.kind==='request'&&f.status!=='completed').length;
-  const todo=QUEUE.filter(q=>q.cycle===cy()).length;
-  document.getElementById('railYear').textContent=cy();
+  const todo=QUEUE.filter(q=>cycleMatches(q.cycle)).length;
+  document.getElementById('railYear').textContent=cy()==='all'?'Tất cả':cy();
   document.getElementById('railStats').innerHTML=`
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-down-arrow-alt"></i>Phản hồi đã nhận</span><span class="stat-val">${rec}</span></div>
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-up-arrow-alt"></i>Phản hồi đã cho</span><span class="stat-val">${giv}</span></div>
@@ -1643,7 +1636,7 @@ function sendGive(){
   DRAFTS.give=null;   // đã gửi → bỏ nháp
   const p=G.recipient, text=document.getElementById('giveTA').value.trim();
   FEED.unshift(FeedbackModel.createGivenResponse({
-    id:`given-${Date.now()}`, cycle:cy(), date:todayDMY(), recipient:p,
+    id:`given-${Date.now()}`, cycle:activeCycle(), date:todayDMY(), recipient:p,
     body:text, vis:G.vis, cv:G.cvs
   }));
   const visTxt = G.vis==='manager' ? 'Người nhận và Quản lý trực tiếp của họ' : 'Chỉ người nhận';
@@ -1779,7 +1772,7 @@ function submitRequest(){
     ...(R.personalize ? {q:(r.q||'').trim()} : {})
   }));
   const req={
-    id:`req-${Date.now()}`, kind:'request', cycle:cy(), date:today, ts:tsFrom(today),
+    id:`req-${Date.now()}`, kind:'request', cycle:activeCycle(), date:today, ts:tsFrom(today),
     due, status:'open',
     qMode: R.personalize ? 'individual' : 'shared',
     ...(R.personalize ? {} : {question:document.getElementById('reqQ').value.trim()}),
@@ -2007,9 +2000,7 @@ function isDirty(id){
 function requestClose(id){
   if(!isDirty(id)){ closeOverlay(id); return; }
   pendingClose=id;
-  document.getElementById('confirmSub').textContent = id==='dlg-newreq'
-    ? 'Yêu cầu phản hồi chưa được gửi. Lưu bản nháp để quay lại, hoặc xóa nội dung đã nhập.'
-    : 'Phản hồi chưa được gửi. Lưu bản nháp để quay lại viết tiếp, hoặc xóa nội dung đã nhập.';
+  document.getElementById('confirmSub').textContent='Nội dung bạn đang nhập chưa được gửi. Nếu thoát, toàn bộ nội dung sẽ bị xóa.';
   openOverlay('dlg-confirm');
 }
 function cancelClose(){ closeOverlay('dlg-confirm'); pendingClose=null; }

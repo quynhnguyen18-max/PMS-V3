@@ -22,6 +22,23 @@ test('employee feedback cycle selector follows the manager header pattern', () =
   assert.doesNotMatch(html, /id="cycleOpen"/);
   assert.doesNotMatch(html, /getElementById\('cycleOpen'\)/);
 });
+
+test('employee feedback supports all cycles and removes the employee info box', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  assert.match(html, /<option value="all">Tất cả<\/option>/);
+  assert.doesNotMatch(html, /class="emp-chip"/);
+  assert.doesNotMatch(html, /<span class="ec-lbl">Nhân viên:/);
+});
+
+test('employee feedback warns before discarding instead of offering draft saving', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  const confirm = html.match(/id="dlg-confirm"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/)?.[0] || '';
+  assert.match(confirm, /Nội dung bạn đang nhập chưa được gửi/);
+  assert.match(confirm, /Tiếp tục chỉnh sửa/);
+  assert.match(confirm, /Xóa nội dung/);
+  assert.doesNotMatch(confirm, /Lưu nháp/);
+  assert.doesNotMatch(html, /onclick="saveDraft\(\)"/);
+});
 const FeedbackModel = require('./feedback-model.js');
 
 const feed = [
@@ -49,6 +66,12 @@ test('received filter returns direct and request responses exactly once', () => 
   const received = FeedbackModel.itemsForFilter(feed, 'received', '2026');
 
   assert.deepEqual(received.map(item => item.id).sort(), ['direct-1', 'resp-req-1-done.user']);
+});
+
+test('all-cycle filter returns feedback across years', () => {
+  const acrossYears = feed.concat({ id:'old', kind:'received', cycle:'2025', date:'01/01/2025', ts:20250101, who:{name:'Old',dom:'old'}, body:'Old' });
+  const received = FeedbackModel.itemsForFilter(acrossYears, 'received', 'all');
+  assert.deepEqual(received.map(item=>item.id).sort(), ['direct-1','old','resp-req-1-done.user']);
 });
 
 test('creates canonical given response records for authored feedback', () => {
