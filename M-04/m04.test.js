@@ -617,6 +617,55 @@ test('request detail keeps ticket metadata in the summary and core values in the
   assert.match(html, /class="btn btn-pending-remind" onclick="remindOne/);
 });
 
+test('AI coaching summary requires two responses and refreshes from the latest response set', () => {
+  const modelPath = path.join(__dirname, 'manager-ai-summary.js');
+  assert.ok(fs.existsSync(modelPath), 'manager AI summary model must exist');
+  const ManagerAiSummary = require(modelPath);
+  const employee = {id:'e1',name:'Nguyễn Văn Tú'};
+  const one = ManagerAiSummary.create(employee,[{date:'01/08/2026',body:'Phối hợp tốt.',cv:['Tinh thần đồng đội']}]);
+  const two = ManagerAiSummary.create(employee,[
+    {date:'01/08/2026',body:'Phối hợp tốt.',cv:['Tinh thần đồng đội']},
+    {date:'03/08/2026',body:'Chủ động và rõ ràng.',cv:['Thực thi xuất sắc']}
+  ]);
+  const three = ManagerAiSummary.create(employee,[
+    {date:'01/08/2026',body:'Phối hợp tốt.',cv:['Tinh thần đồng đội']},
+    {date:'03/08/2026',body:'Chủ động và rõ ràng.',cv:['Thực thi xuất sắc']},
+    {date:'05/08/2026',body:'Có thể chia sẻ context sớm hơn.',cv:[]}
+  ]);
+  assert.equal(one.available,false);
+  assert.equal(two.available,true);
+  assert.equal(two.responseCount,2);
+  assert.equal(three.responseCount,3);
+  assert.equal(three.updatedAt,'05/08/2026');
+  assert.notDeepEqual(three.opportunities,two.opportunities);
+});
+
+test('request detail renders a read-only AI summary before original feedback evidence', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  assert.match(html, /manager-ai-summary\.js/);
+  assert.match(html, /id="employeeAiSummary"/);
+  assert.match(html, /employeeAiSummary[\s\S]*sharedQuestion/);
+  assert.match(html, /Điểm mạnh/);
+  assert.match(html, /Cơ hội phát triển/);
+  assert.match(html, /Chỉ đọc/);
+  assert.match(html, /ai-summary-brand[^`]*AI Summary<\/span><span class="ai-readonly">Chỉ đọc/);
+  assert.match(html, /Cập nhật: \$\{summary\.updatedAt\}/);
+  assert.match(html, /Cần ít nhất 2 phản hồi để tạo AI Summary/);
+  assert.doesNotMatch(html, /Tự động cập nhật khi có phản hồi mới|Chủ đề lặp lại|Tổng hợp từ \$\{summary\.responseCount\}/);
+  assert.doesNotMatch(html, /Sửa AI Summary|Chỉnh sửa summary|Regenerate|Tạo lại/);
+  assert.match(html, /function renderEmployeeAiSummary\(employee,done\)/);
+  assert.match(html, /\.ai-summary\{[^}]*border-color:var\(--z200\)[^}]*box-shadow:/);
+  assert.match(html, /\.ai-summary-head\{[^}]*background:#fff/);
+  assert.match(html, /\.shared-question,\.question\{[^}]*background:var\(--brand-muted\)[^}]*border-left:3px solid var\(--brand-ring\)/);
+  assert.match(html, /\.ai-summary-head-meta\{[^}]*flex-direction:row/);
+  assert.match(html, /const collapsedAiEmployees=new Set\(\)/);
+  assert.match(html, /function toggleEmployeeAiSummary\(employeeId\)/);
+  assert.match(html, /aria-expanded="\$\{!collapsed\}"/);
+  assert.match(html, /aria-label="\$\{collapsed\?'Mở AI Summary':'Thu gọn AI Summary'\}"/);
+  assert.match(html, /class="ai-summary-toggle"/);
+  assert.match(html, /\.ai-summary\.collapsed \.ai-summary-content\{display:none\}/);
+});
+
 test('shared feedback data gives every employee three manager-visible scenarios', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'employees-data.js'), 'utf8');
   const context = {window:{}};
