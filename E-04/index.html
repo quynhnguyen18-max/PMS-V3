@@ -482,6 +482,7 @@ input,select,textarea{font-family:inherit}
 .reply-ask-q{font-size:13px;color:var(--z800);line-height:1.55}
 .vis-locked{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}
 .vis-locked>i{font-size:16px;color:var(--z500);margin-top:1px;flex-shrink:0}
+.vis-locked .vc-note{margin-top:7px;color:var(--z500);font-size:11.5px;font-style:italic;line-height:1.45}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
@@ -1849,8 +1850,9 @@ function renderReplyVis(item){
       <div class="vis-locked">
         <i class="bx bx-group"></i>
         <div>
-          <div class="vc-t">Được chia sẻ theo yêu cầu của quản lý</div>
-          <div class="vc-d"><b>${item.from}</b> (người yêu cầu) và <b>${item.aboutName}</b> sẽ xem được phản hồi này. Đây là phản hồi phục vụ coaching, không dùng để chấm điểm.</div>
+          <div class="vc-t">Phản hồi này được chia sẻ minh bạch với các bên liên quan</div>
+          <div class="vc-d">${item.from} yêu cầu phản hồi về ${item.aboutName}. <b>Nội dung bạn chia sẻ sẽ được cả ${item.from} và ${item.aboutName} xem</b>, để cùng ghi nhận những điều đang làm tốt và những điều có thể phát triển.</div>
+          <div class="vc-note">Phản hồi không dùng để chấm điểm hoặc xếp hạng.</div>
         </div>
       </div>`;
   } else {   // UC1 — đồng nghiệp yêu cầu → tự chọn

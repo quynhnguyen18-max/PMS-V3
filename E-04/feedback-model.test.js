@@ -106,3 +106,10 @@ test('reply popup reuses the concise visibility labels and omits the one-time-se
   assert.match(html, /id="rvisM"[\s\S]*?Người nhận \+ Quản lý của họ/);
   assert.doesNotMatch(html, /Gửi một lần — sau khi gửi không thể chỉnh sửa/);
 });
+
+test('manager-requested reply explains transparent sharing without evaluation language', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  assert.match(html, /Phản hồi này được chia sẻ minh bạch với các bên liên quan/);
+  assert.match(html, /Nội dung bạn chia sẻ sẽ được cả \$\{item\.from\} và \$\{item\.aboutName\} xem/);
+  assert.match(html, /Phản hồi không dùng để chấm điểm hoặc xếp hạng/);
+});
