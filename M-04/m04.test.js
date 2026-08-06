@@ -70,15 +70,14 @@ test('manager split view uses a compact employee header, badge tally and interna
   assert.doesNotMatch(html, /id="splitPaneMeta"/);
 });
 
-test('manager split view matches employee badge tooltips and omits repeated recipient identity', () => {
+test('manager feedback cards show only the sender and omit redundant sharing metadata', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   const data = fs.readFileSync(path.join(__dirname, 'manager-feedback-data.js'), 'utf8');
   assert.match(html, /class="split-badge-tip"/);
   assert.match(html, /\.split-badge-tip\{[^}]*background:var\(--z900\)[^}]*color:#fff[^}]*border-radius:6px/);
-  assert.match(html, /feedbackCard\(item,emp,\{compactRecipient:true,[^}]*senderTooltipPlacement:/);
+  assert.match(html, /feedbackCard\(item,emp,\{senderTooltipPlacement:/);
   assert.match(html, /function feedbackCard\(item,emp,options\)\{\s*return ManagerFeedbackData\.feedbackCard\(item,emp,options\);\s*\}/);
-  assert.match(data, /options\.compactRecipient/);
-  assert.match(data, /compactRecipient\?'':/);
+  assert.doesNotMatch(data, /compactRecipient|fb-arrow|share-icon|bx-group/);
 });
 
 test('manager split header uses the shared custom tooltip for department and position', () => {
@@ -116,6 +115,39 @@ test('split feedback sender name exposes organization in the shared custom toolt
   assert.match(card, /class="fb-sender pms-tooltip"/);
   assert.match(card, /Trương Minh Đức <span class="fb-domain">\(duc\.truong\)<\/span>/);
   assert.match(card, /Platform - SRE - Tech Lead/);
+  assert.doesNotMatch(card, /Nguyễn Văn Tú|fb-arrow|share-icon|bx-group/);
+});
+
+test('manager feedback sender keeps a consistent gap before the domain', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const detail = fs.readFileSync(path.join(__dirname, 'feedback-detail.html'), 'utf8');
+  assert.match(html, /\.fb-sender\{[^}]*gap:4px/);
+  assert.match(detail, /\.fb-sender\{[^}]*gap:4px/);
+});
+
+test('employee feedback popup prepends the shared AI summary when enough feedback exists', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const renderer = html.match(/function employeeAiSummaryHTML\(employee,feedback\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const opener = html.match(/function openFeedback\(employeeId\)\{[\s\S]*?\n\}/)?.[0] || '';
+  assert.match(html, /<script src="manager-ai-summary\.js"><\/script>/);
+  assert.match(renderer, /ManagerAiSummary\.create\(employee,feedback\)/);
+  assert.match(renderer, /if\(!summary\.available\)return ''/);
+  assert.match(renderer, /Điểm mạnh/);
+  assert.match(renderer, /Cơ hội phát triển/);
+  assert.match(renderer, /Cập nhật: \$\{summary\.updatedAt\}/);
+  assert.match(opener, /employeeAiSummaryHTML\(emp,items\)/);
+  assert.ok(opener.indexOf('employeeAiSummaryHTML(emp,items)') < opener.indexOf('feedbackCard(item,emp)'));
+});
+
+test('employee popup AI summary is collapsible and the table keeps only the eye action', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const renderer = html.match(/function employeeAiSummaryHTML\(employee,feedback\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const employeeRenderer = html.match(/function renderEmployees\(\)\{[\s\S]*?\n\}/)?.[0] || '';
+  assert.match(renderer, /aria-expanded="\$\{!STATE\.dialogAiCollapsed\}"/);
+  assert.match(renderer, /toggleDialogAiSummary\(\)/);
+  assert.match(html, /function toggleDialogAiSummary\(\)/);
+  assert.doesNotMatch(employeeRenderer, /bx-sparkles|AI Summary/);
+  assert.match(employeeRenderer, /bx-show/);
 });
 
 test('every manager feedback sender has a tooltip and split view chooses placement by context', () => {
@@ -213,11 +245,18 @@ test('MR-1 dialog follows the shared feedback popup rules', () => {
   assert.match(html, /Nội dung bạn đang nhập chưa được gửi/);
 });
 
+test('manager feedback textareas inherit the design-system typography', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  assert.match(html, /button,input,select,textarea\{font:inherit\}/);
+});
+
 test('MR-1 explains responsible use and presents a clear giver-to-receiver flow', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   const plan = fs.readFileSync(path.join(__dirname, '..', 'FEEDBACK_PLAN.md'), 'utf8');
-  const guidance = 'Chỉ tạo yêu cầu khi bạn cần thêm góc nhìn cụ thể để coaching, hoặc hỗ trợ nhân viên phát triển. Việc yêu cầu phản hồi quá thường xuyên hoặc không có mục tiêu rõ ràng có thể khiến nhân viên cảm thấy áp lực và thiếu an toàn. Trước khi gửi, hãy bảo đảm nhân viên hiểu mục đích.';
-  assert.match(html, new RegExp(guidance.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(html, /Hãy sử dụng tính năng này khi cần thêm góc nhìn từ những người đã trực tiếp làm việc với nhân viên/);
+  assert.match(html, /Phản hồi nên phục vụ cho việc hiểu rõ hơn và hỗ trợ nhân viên phát triển, không thay thế cho trao đổi và đánh giá của Quản lý/);
+  assert.match(html, /<em>Nội dung yêu cầu và phản hồi có thể được các bên liên quan nhìn thấy\.<\/em>/);
+  assert.doesNotMatch(html, /Chỉ tạo yêu cầu khi bạn cần thêm góc nhìn cụ thể để coaching/);
   assert.match(html, /class="field request-role-flow"/);
   assert.ok(html.indexOf('id="requestGiverRole"') < html.indexOf('id="requestReceiverRole"'));
   assert.match(html, /Người cho phản hồi<span class="req-star">\*<\/span>/);
@@ -505,7 +544,7 @@ test('D4 request monitoring follows approved v5 list and Kanban structure', () =
   for (const id of ['contentModeTabs','feedbackModeTab','requestsModeTab','feedbackModePanel','requestModePanel','requestList','requestFilterToggle','requestListView','requestKanbanView','requestLoadMore']) {
     assert.match(html, new RegExp(`id="${id}"`), `${id} is required`);
   }
-  assert.match(html,/Phản hồi nhân viên<\/button>/);
+  assert.match(html,/Phản hồi nhân viên đã nhận<\/button>/);
   assert.match(html,/Yêu cầu phản hồi đã tạo<\/button>/);
   assert.match(html, /function setContentMode\(/);
   assert.match(html, /function renderRequestMonitoring\(/);
@@ -529,10 +568,14 @@ test('manager request UI follows shared typography, table-link and progress-chip
   assert.match(html,/\.request-table-row\{[^}]*align-items:flex-start/);
 });
 
-test('manager content tabs use explicit labels and no request count badge', () => {
+test('manager content tabs are primary navigation while report scope remains secondary', () => {
   const html=fs.readFileSync(pagePath,'utf8');
-  assert.match(html,/Phản hồi nhân viên<\/button>/);
+  assert.match(html,/Phản hồi nhân viên đã nhận<\/button>/);
   assert.match(html,/Yêu cầu phản hồi đã tạo<\/button>/);
+  assert.match(html,/\.content-tabs\{[^}]*display:flex[^}]*border-bottom:1px solid var\(--z200\)[^}]*background:transparent/);
+  assert.match(html,/\.content-tab\.on\{[^}]*background:transparent[^}]*color:var\(--brand\)[^}]*box-shadow:none/);
+  assert.match(html,/\.content-tab\.on:after\{[^}]*height:3px[^}]*background:var\(--brand\)/);
+  assert.match(html,/\.scope-tabs\{[^}]*background:var\(--z100\)[^}]*border:1px solid var\(--z200\)[^}]*border-radius:8px/);
   const tabBlock=html.match(/id="contentModeTabs"[\s\S]*?<\/div>/)?.[0]||'';
   assert.doesNotMatch(tabBlock,/requestModeBadge|content-count/);
 });
@@ -640,15 +683,14 @@ test('AI coaching summary requires two responses and refreshes from the latest r
   assert.notDeepEqual(three.opportunities,two.opportunities);
 });
 
-test('request detail renders a read-only AI summary before original feedback evidence', () => {
+test('request detail renders a non-editable AI summary before original feedback evidence', () => {
   const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
   assert.match(html, /manager-ai-summary\.js/);
   assert.match(html, /id="employeeAiSummary"/);
   assert.match(html, /employeeAiSummary[\s\S]*sharedQuestion/);
   assert.match(html, /Điểm mạnh/);
   assert.match(html, /Cơ hội phát triển/);
-  assert.match(html, /Chỉ đọc/);
-  assert.match(html, /ai-summary-brand[^`]*AI Summary<\/span><span class="ai-readonly">Chỉ đọc/);
+  assert.doesNotMatch(html, /Chỉ đọc|ai-readonly/);
   assert.match(html, /Cập nhật: \$\{summary\.updatedAt\}/);
   assert.match(html, /Cần ít nhất 2 phản hồi để tạo AI Summary/);
   assert.doesNotMatch(html, /Tự động cập nhật khi có phản hồi mới|Chủ đề lặp lại|Tổng hợp từ \$\{summary\.responseCount\}/);

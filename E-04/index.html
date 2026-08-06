@@ -267,13 +267,6 @@ input,select,textarea{font-family:inherit}
 .env-cta{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;
   color:var(--brand);background:var(--z0);border:1px solid var(--brand);transition:var(--t)}
 .fb-env.sealed:hover .env-cta{background:var(--brand);color:#fff}
-.fb-env.opening{pointer-events:none}
-.fb-env.opening .env-seal{transform:translate(-50%,-6px) scale(.2) rotate(-25deg);opacity:0}
-.fb-env.opening .env-flap{transform:rotateX(-168deg)}
-.fb-env.opening .env-front{transform:translateY(16px);opacity:0}
-@keyframes env-letter-up{from{opacity:0;transform:translateY(20px) scale(.99)}to{opacity:1;transform:none}}
-@keyframes env-glow{0%{box-shadow:0 0 0 0 rgba(165,0,100,.2)}70%{box-shadow:0 0 0 8px rgba(165,0,100,0)}100%{box-shadow:none}}
-.fb-card.just-opened{animation:env-letter-up .5s cubic-bezier(.2,.75,.3,1) both, env-glow 1.2s ease .05s 1}
 
 /* ══ CẢM ƠN ══ */
 .fb-thx-bar{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--z200);
@@ -296,7 +289,7 @@ input,select,textarea{font-family:inherit}
 @media(prefers-reduced-motion:reduce){
   .env-flap,.env-seal,.env-front{transition:opacity .12s ease!important;transform:none!important}
   .fb-env.opening{opacity:.4}
-  .fb-card.just-opened,.fb-thx.pop,.thx-mark.pop{animation:none!important}
+  .fb-thx.pop,.thx-mark.pop{animation:none!important}
   .thx-fly{display:none}
 }
 .fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;position:relative}
@@ -492,6 +485,21 @@ input,select,textarea{font-family:inherit}
 .compose-ta.has-bg.ta-dark{text-shadow:0 1px 3px rgba(0,0,0,.35)}
 .compose-ta.has-bg::placeholder{color:var(--ta-fg,#fff);opacity:.75;font-weight:500}
 .compose-ta.has-bg:focus{outline:2px solid var(--brand-ring);outline-offset:2px;border-color:transparent}
+/* ── Popup đọc phản hồi có nền: chrome trung tính, nền chỉ nằm ở nội dung ── */
+.reader-dialog{max-width:620px}
+.reader-body{padding:0;overflow-y:auto}
+.reader-profile{display:flex;align-items:flex-start;gap:9px;padding:13px 16px;border-bottom:1px solid var(--z100)}
+.reader-profile-main{min-width:0;flex:1}
+.reader-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.35}
+.reader-domain{font-weight:400;color:var(--z600)}
+.reader-meta{display:flex;align-items:center;gap:7px;margin-top:2px;font-size:11.5px;color:var(--z500)}
+.reader-badges{display:flex;align-items:center;gap:4px;padding-right:2px}
+.reader-badges .fb-badge-img{width:28px;height:28px}
+.reader-detail{padding:14px 16px 16px}
+.reader-detail .fb-qbox{margin-bottom:10px}
+.reader-content-canvas{min-height:180px;display:flex;align-items:center;justify-content:center;padding:30px 24px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);color:var(--z700);font-size:16px;font-weight:600;line-height:1.6;text-align:center;white-space:pre-wrap}
+.reader-content-canvas.reader-dark{text-shadow:0 1px 3px rgba(0,0,0,.35)}
+@media(prefers-reduced-motion:reduce){#dlg-received-reader .dialog{animation:none}}
 .ai-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px;flex-wrap:wrap}
 .ai-bar>button{margin-left:auto}
 .ai-used-note{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;color:var(--z500)}
@@ -636,6 +644,7 @@ input,select,textarea{font-family:inherit}
 .toast i{font-size:16px;color:#fff}
 </style>
   <script src="feedback-model.js"></script>
+  <script src="request-question-ai.js"></script>
 </head>
 <body>
 <div class="app">
@@ -791,6 +800,23 @@ input,select,textarea{font-family:inherit}
 </div>
 
 <!-- Cho phản hồi (UC2) overlay -->
+<!-- Đọc phản hồi chưa mở — background chỉ nằm trong nội dung -->
+<div class="overlay" id="dlg-received-reader" onclick="if(event.target===this)closeReceivedReader()">
+  <div class="dialog reader-dialog" role="dialog" aria-modal="true" aria-labelledby="receivedReaderTitle">
+    <div class="dlg-hd">
+      <div class="dlg-title" id="receivedReaderTitle">Phản hồi từ đồng nghiệp</div>
+      <button class="dlg-close" id="receivedReaderClose" onclick="closeReceivedReader()" aria-label="Đóng phản hồi">&#x2715;</button>
+    </div>
+    <div class="dlg-body reader-body">
+      <div class="reader-profile" id="receivedReaderProfile"></div>
+      <div class="reader-detail">
+        <div id="receivedReaderQuestion"></div>
+        <div class="reader-content-canvas" id="receivedReaderContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Lời chào khi vào màn Phản hồi — chỉ chạy 1 lần mỗi phiên -->
 <div class="welcome" id="welcome" onclick="closeWelcome()">
   <div class="wel-box">
@@ -909,6 +935,11 @@ input,select,textarea{font-family:inherit}
             <label class="opt-toggle" id="reqPersRow" style="display:none"><input type="checkbox" id="reqPersonalize" onchange="togglePersonalize(this)"/> Cá nhân hóa cho từng người</label>
           </div>
           <textarea class="compose-ta" id="reqQ" style="min-height:64px" placeholder="Vd: Bạn thấy phần trình bày của mình rõ ràng chưa, có điểm nào nên cải thiện?" oninput="onCommonQInput()"></textarea>
+          <div class="ai-panel" id="reqCommonAiPanel" style="display:none"></div>
+          <div class="ai-bar" id="reqCommonAiBar">
+            <div class="ai-used-note" id="reqCommonAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</div>
+            <button class="btn-ai" id="reqCommonAiBtn" onclick="runReqQuestionAI('common')" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
+          </div>
           <div id="reqPersonWrap" style="display:none">
             <div class="field-hint" style="margin-bottom:2px">Mỗi người một câu hỏi riêng (đã điền sẵn theo câu hỏi chung, bạn có thể sửa):</div>
             <div id="reqPersonList"></div>
@@ -1041,13 +1072,13 @@ const FEED = [
     who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
     body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi'] },
-  { kind:'received', id:'rcv-2', opened:false, thanked:false, cycle:'2026', date:'22/04/2026', ts:20260422, vis:'receiver',
+  { kind:'received', id:'rcv-2', opened:false, thanked:false, cycle:'2026', date:'22/04/2026', ts:20260422, vis:'receiver', backgroundId:'postcard',
     fromReq:'Xin phản hồi sau buổi trình bày roadmap kỹ thuật Q1',
     who:{name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand – Senior Designer'},
     q:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.',
     cv:['Khách hàng là trung tâm'] },
-  { kind:'received', id:'rcv-3', opened:false, thanked:false, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager',
+  { kind:'received', id:'rcv-3', opened:false, thanked:false, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager', backgroundId:'letter',
     who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
     body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội'] },
@@ -1286,8 +1317,8 @@ function thxBar(f){
 }
 /* Phản hồi chưa mở: giấu nội dung, chỉ cho biết ai gửi và khi nào */
 function cardSealed(f){
-  return `<article class="fb-env sealed" data-fb="${f.id}" onclick="openFb('${f.id}')"
-      tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFb('${f.id}')}"
+  return `<article class="fb-env sealed" data-fb="${f.id}" onclick="openReceivedReader('${f.id}')"
+      tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openReceivedReader('${f.id}')}"
       role="button" aria-label="Mở phản hồi từ ${f.who.name}">
     <div class="env-view">
       <div class="env-flap"></div>
@@ -1304,21 +1335,47 @@ function cardSealed(f){
   </article>`;
 }
 
-/* Mở phong bì: ghi vào DATA trước, animate sau — KHÔNG gọi renderFeed()
-   để hiệu ứng không bị giật. Trạng thái nằm ở FEED nên đổi tab/tìm kiếm vẫn giữ. */
-function openFb(id){
+/* Reader chỉ ghi nhận đã đọc khi đóng; mở popup không đổi state. */
+let activeReceivedReaderId=null;
+function renderReceivedReader(f){
+  const bg=GIVE_BGS.find(item=>item.id===f.backgroundId);
+  document.getElementById('receivedReaderTitle').textContent='Phản hồi từ đồng nghiệp';
+  document.getElementById('receivedReaderProfile').innerHTML=`
+    <div class="fb-av">${f.who.ini||initials(f.who.name)}</div>
+    <div class="reader-profile-main">
+      <div class="reader-name who-tip">${f.who.name} <span class="reader-domain">(${f.who.dom})</span>${fullOrg(f.who)?`<span class="fb-badge-tip">${fullOrg(f.who)}</span>`:''}</div>
+      <div class="reader-meta"><span>${f.date}</span>${visIcon(f.vis||'receiver')}</div>
+    </div>
+    <div class="reader-badges">${badgeImgs(f.cv)}</div>`;
+  document.getElementById('receivedReaderQuestion').innerHTML=f.q
+    ? `<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>` : '';
+  const canvas=document.getElementById('receivedReaderContent');
+  canvas.textContent=f.body;
+  canvas.classList.toggle('reader-dark',!!bg?.dark);
+  canvas.style.background=bg?.css||'';
+  canvas.style.backgroundSize=bg?.size||'auto';
+  canvas.style.color=bg?.fg||'';
+  canvas.style.textAlign=bg?.align||'center';
+  canvas.style.padding=bg?.pad||'30px 24px';
+  canvas.style.lineHeight=bg?.lh||'1.6';
+  canvas.style.justifyContent=bg?.align==='left'?'flex-start':'center';
+}
+function openReceivedReader(id){
   const f=findFb(id);
-  const el=document.querySelector(`.fb-env[data-fb="${id}"]`);
-  if(!f || fbState(f).opened || !el || el.classList.contains('opening')) return;
-  fbState(f).opened=true;
-  const slow=!matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.classList.remove('sealed'); el.classList.add('opening');
-  setTimeout(()=>{
-    el.outerHTML = cardReceived(f).replace('class="fb-card', 'class="fb-card just-opened');
-    applyClamps(document.getElementById('feed'));
-    renderRail();
-    updateUnreadLabel();
-  }, slow?620:60);
+  if(!f || fbState(f).opened) return;
+  activeReceivedReaderId=id;
+  renderReceivedReader(f);
+  openOverlay('dlg-received-reader');
+  setTimeout(()=>document.getElementById('receivedReaderClose').focus(),0);
+}
+function closeReceivedReader(){
+  const f=activeReceivedReaderId&&findFb(activeReceivedReaderId);
+  if(f) fbState(f).opened=true;
+  closeOverlay('dlg-received-reader');
+  activeReceivedReaderId=null;
+  renderFeed();
+  renderRail();
+  updateUnreadLabel();
 }
 /* Cảm ơn: thanh cảm ơn thu lại và biến mất, chỉ còn trái tim trên header */
 function thankFb(id, btn){
@@ -2087,7 +2144,7 @@ function sendGive(){
   const p=G.recipient, text=document.getElementById('giveTA').value.trim();
   FEED.unshift(FeedbackModel.createGivenResponse({
     id:`given-${Date.now()}`, cycle:activeCycle(), date:todayDMY(), recipient:p,
-    body:text, vis:G.vis, cv:G.cvs
+    body:text, vis:G.vis, cv:G.cvs, backgroundId:G.bg
   }));
   const visTxt = G.vis==='manager' ? 'Người nhận và Quản lý trực tiếp của họ' : 'Chỉ người nhận';
   const cvHTML = G.cvs.length ? `<div class="give-ok-note"><i class="bx bx-medal"></i>Giá trị đính kèm: ${G.cvs.join(', ')}</div>` : '';
@@ -2118,11 +2175,12 @@ function showGiveSuccess(p, visTxt, cvHTML){
 }
 
 /* ═══════ YÊU CẦU PHẢN HỒI (UC1) ═══════ */
-let R={reviewers:[], personalize:false};
+function emptyReqAiState(){ return {source:'',suggestion:'',used:false,runCount:0,loading:false}; }
+let R={reviewers:[], personalize:false, activeQuestionKey:'common', ai:{common:emptyReqAiState(),byReviewer:{}}};
 const SELF_DOM=SELF.dom;
 
 function openRequest(){
-  R={reviewers:[], personalize:false};
+  R={reviewers:[], personalize:false, activeQuestionKey:'common', ai:{common:emptyReqAiState(),byReviewer:{}}};
   document.getElementById('reqForm').style.display='';
   document.getElementById('reqSuccess').style.display='none';
   document.getElementById('reqFoot').style.display='';
@@ -2130,11 +2188,15 @@ function openRequest(){
   document.getElementById('reqPickResults').innerHTML='';
   document.getElementById('reqQ').value='';
   document.getElementById('reqQ').style.display='';
+  document.getElementById('reqCommonAiPanel').style.display='none';
+  document.getElementById('reqCommonAiStatus').style.display='none';
+  document.getElementById('reqCommonAiBar').style.display='flex';
   document.getElementById('reqDue').value='';
   document.getElementById('reqPersonalize').checked=false;
   document.getElementById('reqPersonWrap').style.display='none';
   renderChosen(); syncPersonalizeVis(); syncReq();
   restoreReqDraft();
+  renderReqCommonAi();
   openOverlay('dlg-newreq');
   setTimeout(()=>document.getElementById('reqPickInput').focus(),50);
 }
@@ -2161,6 +2223,8 @@ function reqAdd(p){
 }
 function reqRemove(dom){
   R.reviewers=R.reviewers.filter(r=>r.dom!==dom);
+  delete R.ai.byReviewer[dom];
+  if(R.activeQuestionKey===dom) R.activeQuestionKey=R.reviewers[0]?.dom||'common';
   renderChosen(); syncPersonalizeVis(); renderPersonalize(); syncReq();
 }
 function renderChosen(){
@@ -2168,7 +2232,13 @@ function renderChosen(){
   document.getElementById('reqChosen').innerHTML = R.reviewers.map(r=>
     `<span class="rv-chip"><span class="fb-av">${r.ini}</span><span class="rv-chip-name">${r.name}</span><button class="rv-chip-x" onclick="reqRemove('${r.dom}')" title="Bỏ">&#x2715;</button></span>`).join('');
 }
-function onCommonQInput(){ syncReq(); }
+function onCommonQInput(){
+  const value=document.getElementById('reqQ').value;
+  const state=R.ai.common;
+  if(state.used && value.trim()!==state.suggestion.trim()) state.used=false;
+  renderReqCommonAi();
+  syncReq();
+}
 /* cá nhân hóa chỉ có nghĩa khi ≥2 người phản hồi → dưới 2 thì ẩn hẳn */
 function syncPersonalizeVis(){
   const multi = R.reviewers.length>=2;
@@ -2182,11 +2252,90 @@ function syncPersonalizeVis(){
 }
 function togglePersonalize(cb){
   R.personalize=cb.checked;
+  R.activeQuestionKey=R.personalize ? (R.reviewers[0]?.dom||'common') : 'common';
   document.getElementById('reqQ').style.display = R.personalize?'none':'';
+  document.getElementById('reqCommonAiPanel').style.display='none';
+  document.getElementById('reqCommonAiBar').style.display = R.personalize?'none':'flex';
   document.getElementById('reqPersonWrap').style.display = R.personalize?'':'none';
   if(R.personalize){
     const common=document.getElementById('reqQ').value;
     R.reviewers.forEach(r=>{ if(!r.q) r.q=common; });
+    renderPersonalize();
+  } else {
+    renderReqCommonAi();
+  }
+  syncReq();
+}
+function reqAiState(key){
+  if(key==='common') return R.ai.common;
+  if(!R.ai.byReviewer[key]) R.ai.byReviewer[key]=emptyReqAiState();
+  return R.ai.byReviewer[key];
+}
+function reqQuestionValue(key){
+  if(key==='common') return document.getElementById('reqQ').value;
+  return R.reviewers.find(r=>r.dom===key)?.q||'';
+}
+function escapeReqAiText(value){
+  return String(value||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function reqAiPanelMarkup(key){
+  const state=reqAiState(key);
+  if(state.loading) return '<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang làm rõ câu hỏi…</div>';
+  if(state.used) return '';
+  if(!state.suggestion) return '';
+  return `<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>
+    <div class="ai-suggestion">${escapeReqAiText(state.suggestion)}</div>
+    <div class="ai-actions">
+      ${state.used?'':`<button class="btn btn-outline btn-xs" onclick="acceptReqQuestionAI('${key}')"><i class="bx bx-check"></i> Dùng gợi ý này</button>`}
+      <button class="btn btn-outline btn-xs" onclick="runReqQuestionAI('${key}')"><i class="bx bx-magic"></i> Cải thiện lại</button>
+    </div>`;
+}
+function renderReqCommonAi(){
+  if(R.personalize) return;
+  const state=reqAiState('common'), panel=document.getElementById('reqCommonAiPanel');
+  panel.innerHTML=reqAiPanelMarkup('common');
+  panel.style.display=(!state.used&&state.suggestion)||state.loading?'':'none';
+  document.getElementById('reqCommonAiStatus').style.display=state.used?'flex':'none';
+  const btn=document.getElementById('reqCommonAiBtn');
+  btn.style.display=state.suggestion&&!state.used?'none':'';
+  btn.disabled=!reqQuestionValue('common').trim()||state.loading;
+  btn.innerHTML=state.loading?'<i class="bx bx-loader-alt bx-spin"></i> Đang cải thiện…':`<i class="bx bx-magic"></i> ${state.used?'Cải thiện lại':'Cải thiện với AI'}`;
+}
+function activateReqQuestion(key){
+  if(!R.personalize || R.activeQuestionKey===key) return;
+  R.activeQuestionKey=key;
+  renderPersonalize();
+  setTimeout(()=>document.querySelector(`.person-ta[data-question-key="${key}"]`)?.focus(),0);
+}
+function onReqQuestionInput(key,value){
+  const reviewer=R.reviewers.find(r=>r.dom===key); if(!reviewer) return;
+  reviewer.q=value;
+  const state=reqAiState(key);
+  if(state.used && value.trim()!==state.suggestion.trim()) state.used=false;
+  const btn=document.querySelector(`[data-req-ai-btn="${key}"]`);
+  if(btn) btn.disabled=!value.trim()||state.loading;
+  syncReq();
+}
+function runReqQuestionAI(key){
+  const source=reqQuestionValue(key).trim(); if(!source) return;
+  const state=reqAiState(key);
+  state.loading=true; state.used=false; state.source=source;
+  key==='common'?renderReqCommonAi():renderPersonalize();
+  setTimeout(()=>{
+    state.suggestion=RequestQuestionAI.improve(source,state.runCount);
+    state.runCount+=1; state.loading=false;
+    key==='common'?renderReqCommonAi():renderPersonalize();
+  },650);
+}
+function acceptReqQuestionAI(key){
+  const state=reqAiState(key); if(!state.suggestion) return;
+  state.used=true;
+  if(key==='common'){
+    document.getElementById('reqQ').value=state.suggestion;
+    renderReqCommonAi();
+  }else{
+    const reviewer=R.reviewers.find(r=>r.dom===key);
+    if(reviewer) reviewer.q=state.suggestion;
     renderPersonalize();
   }
   syncReq();
@@ -2195,12 +2344,19 @@ function renderPersonalize(){
   if(!R.personalize) return;
   const el=document.getElementById('reqPersonList');
   el.innerHTML = R.reviewers.length
-    ? R.reviewers.map((r,i)=>`
+    ? R.reviewers.map(r=>`
       <div class="person-row">
         <div class="fb-av">${r.ini}</div>
         <div class="person-q">
           <div class="person-name">${r.name} <span class="pi-dom">(${r.dom})</span></div>
-          <textarea class="person-ta" placeholder="Câu hỏi riêng cho ${r.name}…" oninput="R.reviewers[${i}].q=this.value;syncReq()">${r.q||''}</textarea>
+          <textarea class="person-ta" data-question-key="${r.dom}" placeholder="Câu hỏi riêng cho ${r.name}…" onfocus="activateReqQuestion('${r.dom}')" oninput="onReqQuestionInput('${r.dom}',this.value)">${r.q||''}</textarea>
+          ${R.activeQuestionKey===r.dom?`
+            <div class="ai-panel" style="display:${(!reqAiState(r.dom).used&&reqAiState(r.dom).suggestion)||reqAiState(r.dom).loading?'':'none'}">${reqAiPanelMarkup(r.dom)}</div>
+            <div class="ai-bar">
+              <div class="ai-used-note" style="display:${reqAiState(r.dom).used?'flex':'none'}"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</div>
+              ${reqAiState(r.dom).used?'':`<span class="field-hint">Đang chỉnh câu hỏi cho ${r.name}</span>`}
+              ${reqAiState(r.dom).suggestion&&!reqAiState(r.dom).used?'':`<button class="btn-ai" data-req-ai-btn="${r.dom}" onclick="runReqQuestionAI('${r.dom}')" ${!(r.q||'').trim()||reqAiState(r.dom).loading?'disabled':''}><i class="bx ${reqAiState(r.dom).loading?'bx-loader-alt bx-spin':'bx-magic'}"></i> ${reqAiState(r.dom).loading?'Đang cải thiện…':(reqAiState(r.dom).used?'Cải thiện lại':'Cải thiện với AI')}</button>`}
+            </div>`:''}
         </div>
       </div>`).join('')
     : `<div class="pick-empty">Chọn người phản hồi trước để đặt câu hỏi riêng.</div>`;

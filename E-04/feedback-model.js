@@ -57,7 +57,8 @@
     return {
       id:input.id, kind:'given', cycle:input.cycle, date:input.date, ts:tsFromDate(input.date),
       who:{...input.recipient}, body:input.body, vis:input.vis,
-      cv:[...(input.cv || [])], ...(input.requestId ? {requestId:input.requestId} : {}), status:'submitted'
+      cv:[...(input.cv || [])], backgroundId:input.backgroundId || null,
+      ...(input.requestId ? {requestId:input.requestId} : {}), status:'submitted'
     };
   }
 

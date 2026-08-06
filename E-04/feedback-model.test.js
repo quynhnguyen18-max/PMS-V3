@@ -41,6 +41,59 @@ test('employee feedback warns before discarding instead of offering draft saving
 });
 const FeedbackModel = require('./feedback-model.js');
 
+test('question AI makes vague prompts more concrete without inventing project context', () => {
+  const QuestionAI = require('./request-question-ai.js');
+  const suggestion = QuestionAI.improve('Bạn thấy tôi làm việc thế nào?', 0);
+
+  assert.match(suggestion, /ví dụ cụ thể/i);
+  assert.match(suggestion, /đang làm tốt/i);
+  assert.match(suggestion, /cải thiện/i);
+  assert.doesNotMatch(suggestion, /Migration|Roadmap|DevOps/i);
+});
+
+test('question AI returns a distinct second variant and handles empty input', () => {
+  const QuestionAI = require('./request-question-ai.js');
+  const source = 'Bạn nhận xét gì về cách phối hợp của tôi?';
+
+  assert.equal(QuestionAI.improve('   ', 0), '');
+  assert.notEqual(QuestionAI.improve(source, 0), QuestionAI.improve(source, 1));
+});
+
+test('request popup exposes AI controls for the common question', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  assert.match(html, /<script src="request-question-ai\.js"><\/script>/);
+  assert.match(html, /id="reqCommonAiPanel"/);
+  assert.match(html, /id="reqCommonAiStatus"/);
+  assert.match(html, /id="reqCommonAiBtn"[^>]*onclick="runReqQuestionAI\('common'\)"/);
+  assert.match(html, /function acceptReqQuestionAI\(key\)/);
+});
+
+test('personalized request AI is focus-aware and reviewer state is removed with reviewer', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  assert.match(html, /activeQuestionKey:'common'/);
+  assert.match(html, /byReviewer:\{\}/);
+  assert.match(html, /onfocus="activateReqQuestion\('\$\{r\.dom\}'\)"/);
+  assert.match(html, /Đang chỉnh câu hỏi cho \$\{r\.name\}/);
+  assert.match(html, /delete R\.ai\.byReviewer\[dom\]/);
+  assert.doesNotMatch(html, /improveAll|cải thiện tất cả/i);
+});
+
+test('reopening the request popup restores the common AI button state', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const openRequest = html.match(/function openRequest\(\)\{[\s\S]*?\n\}/)?.[0] || '';
+  assert.match(openRequest, /restoreReqDraft\(\);\s*renderReqCommonAi\(\);/);
+});
+
+test('accepted request AI collapses the suggestion panel and keeps improve again available', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const panelMarkup = html.match(/function reqAiPanelMarkup\(key\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const commonRenderer = html.match(/function renderReqCommonAi\(\)\{[\s\S]*?\n\}/)?.[0] || '';
+
+  assert.match(panelMarkup, /if\(state\.used\) return '';/);
+  assert.match(commonRenderer, /state\.used\?'Cải thiện lại':'Cải thiện với AI'/);
+  assert.match(html, /reqAiState\(r\.dom\)\.used\?'Cải thiện lại':'Cải thiện với AI'/);
+});
+
 const feed = [
   { id:'direct-1', kind:'received', cycle:'2026', date:'01/01/2026', ts:20260101,
     who:{name:'Người gửi trực tiếp', dom:'direct.user'}, body:'Phản hồi trực tiếp', cv:['A'] },
@@ -82,8 +135,17 @@ test('creates canonical given response records for authored feedback', () => {
 
   assert.deepEqual(response, {
     id:'given-1', kind:'given', cycle:'2026', date:'03/08/2026', ts:20260803,
-    who:{name:'Mai', dom:'mai.tran', ini:'MT', org:'ITC'}, body:'Cảm ơn bạn', vis:'receiver', cv:['A'], requestId:'queue-1', status:'submitted'
+    who:{name:'Mai', dom:'mai.tran', ini:'MT', org:'ITC'}, body:'Cảm ơn bạn', vis:'receiver', cv:['A'], backgroundId:null, requestId:'queue-1', status:'submitted'
   });
+});
+
+test('preserves the selected background on authored feedback', () => {
+  const response = FeedbackModel.createGivenResponse({
+    id:'given-bg', cycle:'2026', date:'03/08/2026', recipient:{name:'Mai', dom:'mai.tran'},
+    body:'Cảm ơn bạn', vis:'receiver', backgroundId:'hearts'
+  });
+
+  assert.equal(response.backgroundId, 'hearts');
 });
 
 test('prototype 2026 data exposes all eight request responses in Received', () => {
@@ -99,6 +161,14 @@ test('prototype 2026 data exposes all eight request responses in Received', () =
   assert.equal(new Set(received.map(item => item.id)).size, received.length);
 });
 
+test('unread seed feedback demonstrates postcard and handwritten-letter backgrounds', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const match = html.match(/const FEED = (\[[\s\S]*?\n\]);/);
+  const prototypeFeed = vm.runInNewContext(`(${match[1]})`);
+  assert.equal(prototypeFeed.find(item=>item.id==='rcv-2').backgroundId, 'postcard');
+  assert.equal(prototypeFeed.find(item=>item.id==='rcv-3').backgroundId, 'letter');
+});
+
 test('reply popup reuses the concise visibility labels and omits the one-time-send footer note', () => {
   const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
 
@@ -112,4 +182,27 @@ test('manager-requested reply explains transparent sharing without evaluation la
   assert.match(html, /Phản hồi này được chia sẻ minh bạch với các bên liên quan/);
   assert.match(html, /Nội dung bạn chia sẻ sẽ được cả \$\{item\.from\} và \$\{item\.aboutName\} xem/);
   assert.match(html, /Phản hồi không dùng để chấm điểm hoặc xếp hạng/);
+});
+
+test('unread received feedback opens in a dedicated background reader', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  assert.match(html, /id="dlg-received-reader"[^>]*onclick="if\(event\.target===this\)closeReceivedReader\(\)"/);
+  assert.match(html, /id="receivedReaderClose"[^>]*onclick="closeReceivedReader\(\)"/);
+  assert.match(html, /function openReceivedReader\(id\)/);
+  assert.match(html, /function closeReceivedReader\(\)/);
+  assert.match(html, /onclick="openReceivedReader\('\$\{f\.id\}'\)"/);
+  assert.match(html, /class="reader-content-canvas"/);
+  assert.match(html, /GIVE_BGS\.find\(item=>item\.id===f\.backgroundId\)/);
+});
+
+test('reader marks feedback read only on close and keeps the feed card neutral', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const openFn = html.match(/function openReceivedReader\(id\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const closeFn = html.match(/function closeReceivedReader\(\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const cardFn = html.match(/function cardReceived\(f\)\{[\s\S]*?\n\}/)?.[0] || '';
+  assert.doesNotMatch(openFn, /opened\s*=\s*true/);
+  assert.match(closeFn, /fbState\(f\)\.opened=true/);
+  assert.match(closeFn, /renderFeed\(\)/);
+  assert.doesNotMatch(cardFn, /backgroundId|GIVE_BGS|reader-content-canvas/);
+  assert.doesNotMatch(html, /localStorage[^\n]*(opened|FB_STATE)|(opened|FB_STATE)[^\n]*localStorage/);
 });
