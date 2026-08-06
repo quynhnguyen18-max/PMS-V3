@@ -475,6 +475,23 @@ input,select,textarea{font-family:inherit}
 /* textarea */
 .compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:var(--z0)}
 .compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+/* ── Chọn nền cho ô nội dung (kiểu status Facebook) ── */
+.bg-row{display:flex;align-items:center;gap:9px;margin-top:8px}
+.bg-row-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);flex-shrink:0}
+.bg-list{display:flex;gap:6px;flex-wrap:wrap}
+.bg-sw{width:26px;height:26px;border-radius:var(--rsm);border:1px solid var(--z200);padding:0;cursor:pointer;
+  position:relative;transition:var(--t);background-size:cover}
+.bg-sw:hover{transform:translateY(-1px)}
+.bg-sw.on{box-shadow:0 0 0 2px var(--z0),0 0 0 4px var(--brand);border-color:transparent}
+.bg-sw-none{background:var(--z0);display:flex;align-items:center;justify-content:center;color:var(--z400);font-size:15px}
+.bg-sw-none.on{color:var(--brand)}
+/* khi đã chọn nền: chữ to hơn, canh giữa, giống lúc viết status */
+.compose-ta.has-bg{color:var(--ta-fg,#fff);border-color:transparent;caret-color:var(--ta-fg,#fff);
+  min-height:170px;text-align:var(--ta-align,center);font-size:16px;font-weight:600;
+  line-height:var(--ta-lh,1.6);padding:var(--ta-pad,30px 22px);resize:none;text-shadow:none}
+.compose-ta.has-bg.ta-dark{text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.compose-ta.has-bg::placeholder{color:var(--ta-fg,#fff);opacity:.75;font-weight:500}
+.compose-ta.has-bg:focus{outline:2px solid var(--brand-ring);outline-offset:2px;border-color:transparent}
 .ai-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px;flex-wrap:wrap}
 .ai-bar>button{margin-left:auto}
 .ai-used-note{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;color:var(--z500)}
@@ -815,6 +832,10 @@ input,select,textarea{font-family:inherit}
           <label class="field-label">Nội dung phản hồi<span class="req-star">*</span></label>
           <div class="type-guide" id="typeGuide" style="display:none"></div>
           <textarea class="compose-ta" id="giveTA" placeholder="Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?" oninput="onGiveInput()"></textarea>
+          <div class="bg-row">
+            <span class="bg-row-lbl">Chọn nền</span>
+            <div class="bg-list" id="bgList"></div>
+          </div>
           <div class="ai-panel" id="aiPanel" style="display:none"></div>
           <div class="ai-bar" id="giveAiBar">
             <span class="ai-used-note" id="giveAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</span>
@@ -1696,10 +1717,94 @@ const FRAMEWORKS={
   }
 };
 
-let G={recipient:null, vis:null, types:[], aiRun:false, aiUsed:false, ai:null, cvs:[], fromSample:false, tplText:null, _stage:null};
+let G={recipient:null, vis:null, types:[], aiRun:false, aiUsed:false, ai:null, cvs:[], fromSample:false, tplText:null, _stage:null, bg:null};
+
+/* ── Nền cho ô nội dung (kiểu status Facebook) ──────────────────────────
+   Chỉ áp cho ô soạn thảo trong popup. Nền tối dùng chữ trắng, nền nhạt
+   dùng chữ đậm cùng tông để giữ tương phản đọc được. */
+const HEART_TILE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath fill='%23f2a6c8' fill-opacity='.75' d='M11 17.5s-4.6-3.1-4.6-6.1c0-1.5 1.2-2.7 2.7-2.7.9 0 1.6.4 1.9 1 .3-.6 1-1 1.9-1 1.5 0 2.7 1.2 2.7 2.7 0 3-4.6 6.1-4.6 6.1z'/%3E%3Cpath fill='%23e888b4' fill-opacity='.6' d='M33 37.5s-3.4-2.3-3.4-4.5c0-1.1.9-2 2-2 .7 0 1.2.3 1.4.7.2-.4.7-.7 1.4-.7 1.1 0 2 .9 2 2 0 2.2-3.4 4.5-3.4 4.5z'/%3E%3C/svg%3E\")";
+const FIREWORK_TILE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cg stroke='%23ffc9e2' stroke-width='1.3' opacity='.9'%3E%3Cpath d='M45 45 45 26M45 45 45 64M45 45 26 45M45 45 64 45M45 45 32 32M45 45 58 58M45 45 58 32M45 45 32 58'/%3E%3C/g%3E%3Cg fill='%23ffe3a3'%3E%3Ccircle cx='45' cy='24' r='1.7'/%3E%3Ccircle cx='45' cy='66' r='1.7'/%3E%3Ccircle cx='24' cy='45' r='1.7'/%3E%3Ccircle cx='66' cy='45' r='1.7'/%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3Ccircle cx='60' cy='60' r='1.5'/%3E%3Ccircle cx='60' cy='30' r='1.5'/%3E%3Ccircle cx='30' cy='60' r='1.5'/%3E%3C/g%3E%3Cg stroke='%23a5e8ff' stroke-width='1.1' opacity='.85'%3E%3Cpath d='M112 108 112 94M112 108 112 122M112 108 98 108M112 108 126 108M112 108 102 98M112 108 122 118M112 108 122 98M112 108 102 118'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='112' cy='92' r='1.4'/%3E%3Ccircle cx='112' cy='124' r='1.4'/%3E%3Ccircle cx='96' cy='108' r='1.4'/%3E%3Ccircle cx='128' cy='108' r='1.4'/%3E%3C/g%3E%3Cg fill='%23ffd6ea' opacity='.9'%3E%3Ccircle cx='20' cy='120' r='1.3'/%3E%3Ccircle cx='132' cy='30' r='1.3'/%3E%3Ccircle cx='75' cy='130' r='1.1'/%3E%3Ccircle cx='90' cy='18' r='1.1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
+const STAMP="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='52'%3E%3Crect x='2' y='2' width='40' height='48' rx='3' fill='%23fff' stroke='%23d9c3a5' stroke-width='2' stroke-dasharray='3 3'/%3E%3Cpath fill='%23f0b9cf' d='M22 34s-8-5.4-8-10.4c0-2.5 2-4.5 4.5-4.5 1.5 0 2.8.8 3.5 1.9.7-1.1 2-1.9 3.5-1.9 2.5 0 4.5 2 4.5 4.5C30 28.6 22 34 22 34z'/%3E%3C/svg%3E\")";
+
+/* 6 mẫu nền cho ô nội dung — dựng bằng gradient + SVG nội tuyến, không tải ảnh ngoài */
+const GIVE_BGS=[
+  { id:'pastel', name:'Hồng pastel', fg:'#7a0049',
+    css:'linear-gradient(135deg,#fde7f2 0%,#f9d6e8 45%,#f4c4dd 100%)' },
+
+  { id:'hearts', name:'Hồng pastel · tim nhỏ', fg:'#7a0049',
+    css:HEART_TILE+' repeat, linear-gradient(135deg,#fde7f2,#f7d2e6)',
+    sw:HEART_TILE+' repeat, linear-gradient(135deg,#fde7f2,#f7d2e6)', swSize:'22px 22px, cover' },
+
+  { id:'firework', name:'Pháo bông', fg:'#fff', dark:true,
+    css:FIREWORK_TILE+' repeat, linear-gradient(160deg,#2a1040 0%,#3b1350 55%,#12061f 100%)',
+    swSize:'34px 34px, cover' },
+
+  { id:'postcard', name:'Bưu thiếp', fg:'#5b4636', align:'left',
+    css:STAMP+' no-repeat right 12px top 12px, '
+      + 'repeating-linear-gradient(45deg,#d9536a 0 7px,#fdfaf4 7px 14px,#2f5fa8 14px 21px,#fdfaf4 21px 28px) no-repeat left top, '
+      + 'repeating-linear-gradient(45deg,#d9536a 0 7px,#fdfaf4 7px 14px,#2f5fa8 14px 21px,#fdfaf4 21px 28px) no-repeat left bottom, '
+      + 'linear-gradient(#fdfaf4,#fdfaf4)',
+    size:'34px 40px, 100% 7px, 100% 7px, auto',
+    swSize:'0 0, 100% 5px, 100% 5px, auto',
+    pad:'26px 60px 26px 24px' },
+
+  { id:'letter', name:'Thư tay', fg:'#33302c', align:'left',
+    css:'linear-gradient(90deg,transparent 0 33px,#f0b6c6 33px 34px,transparent 34px) no-repeat, '
+      + 'repeating-linear-gradient(#fffdf7 0 25px,#dde6f2 25px 26px)',
+    size:'auto, auto', swSize:'auto, auto',
+    pad:'21px 22px 26px 46px', lh:'26px' },
+
+  { id:'sticky', name:'Giấy nhớ', fg:'#6b4a12', align:'left',
+    css:'linear-gradient(315deg,rgba(0,0,0,.10) 0 20px,transparent 20px) no-repeat right bottom, '
+      + 'linear-gradient(160deg,#fff8bf 0%,#fdeb9a 100%)',
+    size:'40px 40px, auto', swSize:'14px 14px, auto',
+    pad:'26px 26px 34px 26px' }
+];
+/* Gán background bằng JS thay vì inline style: chuỗi CSS có chứa cả nháy đơn
+   lẫn nháy kép (SVG data URI) nên nhét vào thuộc tính style trong HTML sẽ vỡ. */
+function renderBgPick(){
+  const list=document.getElementById('bgList');
+  list.innerHTML='';
+  const none=document.createElement('button');
+  none.className='bg-sw bg-sw-none'+(G.bg?'':' on');
+  none.innerHTML='<i class="bx bx-ban"></i>';
+  none.setAttribute('aria-label','Không dùng nền'); none.title='Không dùng nền';
+  none.onclick=()=>pickBg(null);
+  list.appendChild(none);
+  GIVE_BGS.forEach(b=>{
+    const el=document.createElement('button');
+    el.className='bg-sw'+(G.bg===b.id?' on':'');
+    el.style.background=b.sw||b.css;
+    if(b.swSize||b.size) el.style.backgroundSize=b.swSize||b.size;
+    el.setAttribute('aria-label','Nền '+b.name); el.title=b.name;
+    el.onclick=()=>pickBg(b.id);
+    list.appendChild(el);
+  });
+}
+function pickBg(id){
+  G.bg = (G.bg===id) ? null : id;                 // bấm lại ô đang chọn → bỏ nền
+  const ta=document.getElementById('giveTA');
+  const b=GIVE_BGS.find(x=>x.id===G.bg);
+  if(b){
+    ta.classList.add('has-bg');
+    ta.classList.toggle('ta-dark', !!b.dark);      // chỉ nền tối mới cần đổ bóng chữ
+    ta.style.background=b.css;
+    ta.style.backgroundSize=b.size||'auto';
+    ta.style.setProperty('--ta-fg', b.fg||'#fff');
+    ta.style.setProperty('--ta-align', b.align||'center');
+    ta.style.setProperty('--ta-pad', b.pad||'30px 22px');
+    ta.style.setProperty('--ta-lh', b.lh||'1.6');
+  } else {
+    ta.classList.remove('has-bg','ta-dark');
+    ta.style.background=''; ta.style.backgroundSize='';
+    ['--ta-fg','--ta-align','--ta-pad','--ta-lh'].forEach(p=>ta.style.removeProperty(p));
+  }
+  renderBgPick();
+}
 
 function openGive(){
-  G={recipient:null, vis:null, types:[], aiRun:false, aiUsed:false, ai:null, cvs:[], fromSample:false, tplText:null, _stage:null};
+  G={recipient:null, vis:null, types:[], aiRun:false, aiUsed:false, ai:null, cvs:[], fromSample:false, tplText:null, _stage:null, bg:null};
+  pickBg(null);            // mở popup là về nền trắng mặc định
   document.getElementById('giveForm').style.display='';
   document.getElementById('giveSuccess').style.display='none';
   document.getElementById('giveFoot').style.display='';
