@@ -713,15 +713,16 @@ input,select,textarea{font-family:inherit}
 
       <!-- RIGHT RAIL — thứ tự: giá trị → việc cần làm → thống kê -->
       <aside class="fb-rail">
-        <div class="rail-card">
-          <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
-          <div id="railCV"></div>
-        </div>
-
+        <!-- việc cần làm đứng trước, rồi mới tới thông tin để xem -->
         <section class="rail-card" id="queueSec">
           <div class="rail-title"><i class="bx bx-bell"></i>Cần bạn phản hồi<span class="queue-cnt" id="queueCnt">0</span></div>
           <div class="queue-list" id="queueList"></div>
         </section>
+
+        <div class="rail-card">
+          <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
+          <div id="railCV"></div>
+        </div>
 
         <div class="rail-card">
           <div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Hoạt động chu kỳ <span id="railYear" style="color:var(--z500);font-weight:600">2026</span></div>
