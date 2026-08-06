@@ -181,6 +181,64 @@ input,select,textarea{font-family:inherit}
 
 /* ── FEED ── */
 .feed{display:flex;flex-direction:column;gap:10px}
+/* nhãn nhóm trong feed (chỉ hiện khi không tìm kiếm) */
+.feed-grp{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--z500);margin:4px 0 -2px}
+.feed-grp:not(:first-child){margin-top:10px}
+
+/* ══ PHẢN HỒI CHƯA MỞ — dạng phong bì niêm phong ══
+   Chỉ áp cho card đã nhận (received). Mở ra là markup fb-card bình thường. */
+.fb-env{position:relative;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);overflow:hidden}
+.fb-env.sealed{cursor:pointer;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.fb-env.sealed:hover{border-color:#f3cfe1;box-shadow:var(--sh-md);transform:translateY(-1px)}
+.env-view{position:relative;height:122px;perspective:1000px;background:linear-gradient(180deg,#fffdfe,#fdf6fa)}
+.env-flap{position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(175deg,#fbe4f0,#f6d6e7);
+  clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transform:rotateX(0);
+  transition:transform .55s cubic-bezier(.45,.05,.2,1);z-index:3;backface-visibility:hidden}
+.env-flap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 60%)}
+.env-seal{position:absolute;top:43px;left:50%;transform:translate(-50%,0);z-index:4;width:28px;height:28px;border-radius:50%;
+  background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
+  box-shadow:0 2px 6px rgba(165,0,100,.32);transition:transform .22s cubic-bezier(.3,1.5,.5,1),opacity .22s ease}
+.env-front{position:absolute;left:0;right:0;bottom:0;height:72px;z-index:2;display:flex;align-items:center;gap:9px;
+  padding:0 16px;background:var(--z0);border-top:1px solid var(--z200);transition:transform .34s ease,opacity .3s ease}
+.env-txt{min-width:0;flex:1}
+.env-l1{font-size:13px;color:var(--z900)}
+.env-l1 b{font-weight:600}
+.env-l2{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--z500);margin-top:2px}
+.env-cta{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;
+  color:var(--brand);background:var(--z0);border:1px solid var(--brand);transition:var(--t)}
+.fb-env.sealed:hover .env-cta{background:var(--brand);color:#fff}
+.fb-env.opening{pointer-events:none}
+.fb-env.opening .env-seal{transform:translate(-50%,-6px) scale(.2) rotate(-25deg);opacity:0}
+.fb-env.opening .env-flap{transform:rotateX(-168deg)}
+.fb-env.opening .env-front{transform:translateY(16px);opacity:0}
+@keyframes env-letter-up{from{opacity:0;transform:translateY(20px) scale(.99)}to{opacity:1;transform:none}}
+@keyframes env-glow{0%{box-shadow:0 0 0 0 rgba(165,0,100,.2)}70%{box-shadow:0 0 0 8px rgba(165,0,100,0)}100%{box-shadow:none}}
+.fb-card.just-opened{animation:env-letter-up .5s cubic-bezier(.2,.75,.3,1) both, env-glow 1.2s ease .05s 1}
+
+/* ══ CẢM ƠN ══ */
+.fb-thx-bar{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--z200);
+  overflow:hidden;transition:opacity .2s ease,margin-top .35s ease,padding-top .35s ease,height .35s ease}
+.fb-thx-bar.gone{opacity:0;height:0;margin-top:0;padding-top:0;border-top-color:transparent}
+.fb-thx{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;font-size:12.5px;font-weight:600;
+  color:var(--brand);background:var(--z0);border:1px solid var(--brand-ring);transition:var(--t);cursor:pointer}
+.fb-thx:hover{background:var(--brand-muted);border-color:var(--brand)}
+.fb-thx i{font-size:14px}
+.fb-thx-hint{font-size:11.5px;color:var(--z500)}
+@keyframes thx-pop{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+.fb-thx.pop{animation:thx-pop .42s cubic-bezier(.3,1.6,.5,1)}
+.thx-mark{color:var(--brand);font-size:14px;line-height:1;display:inline-flex;margin-left:1px}
+@keyframes thx-mark-in{0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.35) rotate(4deg);opacity:1}100%{transform:scale(1);opacity:1}}
+.thx-mark.pop{animation:thx-mark-in .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes thx-heart-up{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  18%{opacity:1;transform:translate(-50%,-70%) scale(1.15)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-260%) scale(.75)}}
+.thx-fly{position:fixed;z-index:2000;pointer-events:none;color:var(--brand);animation:thx-heart-up 1.05s ease-out forwards}
+@media(prefers-reduced-motion:reduce){
+  .env-flap,.env-seal,.env-front{transition:opacity .12s ease!important;transform:none!important}
+  .fb-env.opening{opacity:.4}
+  .fb-card.just-opened,.fb-thx.pop,.thx-mark.pop{animation:none!important}
+  .thx-fly{display:none}
+}
 .fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;position:relative}
 .fb-card:hover{border-color:var(--z300)}
 /* "và n người khác" — kiểu Facebook, bấm được để mở chi tiết */
@@ -873,21 +931,21 @@ function initials(name){ return String(name||'').trim().split(/\s+/).slice(-2).m
 /* kind: received | given | request ; cycle theo mục 6b */
 const FEED = [
   // ── RECEIVED ──
-  { kind:'received', cycle:'2026', date:'14/03/2026', ts:20260314, vis:'receiver',
+  { kind:'received', id:'rcv-1', opened:true, thanked:false, cycle:'2026', date:'14/03/2026', ts:20260314, vis:'receiver',
     who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
     body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi'] },
-  { kind:'received', cycle:'2026', date:'22/04/2026', ts:20260422, vis:'receiver',
+  { kind:'received', id:'rcv-2', opened:false, thanked:false, cycle:'2026', date:'22/04/2026', ts:20260422, vis:'receiver',
     fromReq:'Xin phản hồi sau buổi trình bày roadmap kỹ thuật Q1',
     who:{name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand – Senior Designer'},
     q:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.',
     cv:['Khách hàng là trung tâm'] },
-  { kind:'received', cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager',
+  { kind:'received', id:'rcv-3', opened:false, thanked:false, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager',
     who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
     body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội'] },
-  { kind:'received', cycle:'2025', date:'18/09/2025', ts:20250918, vis:'receiver',
+  { kind:'received', id:'rcv-4', opened:true, thanked:true, cycle:'2025', date:'18/09/2025', ts:20250918, vis:'receiver',
     who:{name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform – Tech Lead'},
     body:'Năm nay Tú tiến bộ rõ về tư duy hệ thống. Các đề xuất kiến trúc của bạn ngày càng chững chạc và có tính đến vận hành lâu dài.',
     cv:['Không ngừng học hỏi'] },
@@ -1078,14 +1136,116 @@ function visIcon(v, persp){
   return `<span class="fb-badge-wrap vis-ic"><i class="bx ${ic}"></i><span class="fb-badge-tip">${txt}</span></span>`;
 }
 
+/* ── Trạng thái đọc / cảm ơn ──────────────────────────────────────────────
+   FeedbackModel.normalizeFeed() TẠO OBJECT MỚI mỗi lần render, và còn sinh thêm
+   card nhận từ câu trả lời yêu cầu (resp-*) vốn không nằm trong FEED.
+   Vì vậy trạng thái phải nằm ở map riêng theo id — không gắn vào object item,
+   cũng không gắn vào DOM (feed re-render mỗi lần đổi filter / gõ tìm kiếm).
+   FEED chỉ đóng vai trò giá trị khởi tạo. */
+const FB_STATE={};
+function fbState(f){
+  if(!FB_STATE[f.id]) FB_STATE[f.id]={opened:f.opened!==false, thanked:!!f.thanked};
+  return FB_STATE[f.id];
+}
+function findFb(id){ return FeedbackModel.normalizeFeed(FEED).find(x=>x.id===id); }
+
 function cardReceived(f){
-  return `<div class="fb-card${hasCV(f.cv)}" data-kind="received">
+  const st=fbState(f);
+  if(!st.opened) return cardSealed(f);                // chưa mở → phong bì niêm phong
+  // dấu đã cảm ơn: 1 trái tim nhỏ cạnh tên trên header, không chiếm dòng riêng
+  const mark = st.thanked
+    ? `<span class="fb-badge-wrap thx-mark"><i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.who.name}</span></span>` : '';
+  return `<div class="fb-card${hasCV(f.cv)}" data-kind="received" data-fb="${f.id}">
     ${cardCVs(f.cv)}
-    ${cardHead(f.who, SELF, cardMeta(f.vis||'receiver', f.date))}
+    ${cardHead(f.who, SELF, cardMeta(f.vis||'receiver', f.date), mark)}
     ${f.q?`<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>`:''}
     <p class="fb-body">${f.body}</p>
+    ${st.thanked?'':thxBar(f)}
   </div>`;
 }
+/* Thanh cảm ơn — biến mất hoàn toàn sau khi bấm, chỉ để lại trái tim trên header */
+function thxBar(f){
+  return `<div class="fb-thx-bar">
+    <button class="fb-thx" onclick="thankFb('${f.id}',this)"><i class="bx bx-heart"></i> Cảm ơn</button>
+    <span class="fb-thx-hint">Gửi tim tim đến ${f.who.name} để cảm ơn nhé</span>
+  </div>`;
+}
+/* Phản hồi chưa mở: giấu nội dung, chỉ cho biết ai gửi và khi nào */
+function cardSealed(f){
+  return `<article class="fb-env sealed" data-fb="${f.id}" onclick="openFb('${f.id}')"
+      tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFb('${f.id}')}"
+      role="button" aria-label="Mở phản hồi từ ${f.who.name}">
+    <div class="env-view">
+      <div class="env-flap"></div>
+      <div class="env-seal"><i class="bx bxs-heart"></i></div>
+      <div class="env-front">
+        <div class="fb-av">${f.who.ini}</div>
+        <div class="env-txt">
+          <div class="env-l1"><b>${f.who.name}</b> đã gửi bạn một phản hồi</div>
+          <div class="env-l2"><span>${f.date}</span><span>·</span>${visIcon(f.vis||'receiver')}</div>
+        </div>
+        <span class="env-cta"><i class="bx bx-envelope-open"></i> Mở</span>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* Mở phong bì: ghi vào DATA trước, animate sau — KHÔNG gọi renderFeed()
+   để hiệu ứng không bị giật. Trạng thái nằm ở FEED nên đổi tab/tìm kiếm vẫn giữ. */
+function openFb(id){
+  const f=findFb(id);
+  const el=document.querySelector(`.fb-env[data-fb="${id}"]`);
+  if(!f || fbState(f).opened || !el || el.classList.contains('opening')) return;
+  fbState(f).opened=true;
+  const slow=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.classList.remove('sealed'); el.classList.add('opening');
+  setTimeout(()=>{
+    el.outerHTML = cardReceived(f).replace('class="fb-card', 'class="fb-card just-opened');
+    renderRail();
+    updateUnreadLabel();
+  }, slow?620:60);
+}
+/* Cảm ơn: thanh cảm ơn thu lại và biến mất, chỉ còn trái tim trên header */
+function thankFb(id, btn){
+  const f=findFb(id);
+  if(!f || fbState(f).thanked) return;
+  fbState(f).thanked=true;
+  btn.disabled=true; btn.classList.add('pop');
+  const slow=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const card=btn.closest('.fb-card'), bar=btn.closest('.fb-thx-bar');
+  if(slow){
+    const r=btn.getBoundingClientRect();
+    for(let i=0;i<5;i++){
+      const h=document.createElement('div');
+      h.className='thx-fly'; h.innerHTML='<i class="bx bxs-heart"></i>';
+      h.style.left=(r.left+r.width/2)+'px'; h.style.top=r.top+'px';
+      h.style.setProperty('--dx',((Math.random()-.5)*70).toFixed(0)+'px');
+      h.style.animationDelay=(i*70)+'ms'; h.style.fontSize=(13+Math.random()*10)+'px';
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(),1400+i*70);
+    }
+  }
+  setTimeout(()=>{
+    if(bar){ bar.style.height=bar.offsetHeight+'px'; requestAnimationFrame(()=>bar.classList.add('gone')); }
+    const line=card&&card.querySelector('.fb-line');
+    if(line && !line.querySelector('.thx-mark')){
+      const m=document.createElement('span');
+      m.className='fb-badge-wrap thx-mark pop';
+      m.innerHTML=`<i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.who.name}</span>`;
+      line.appendChild(m);
+    }
+    setTimeout(()=>{ if(bar) bar.remove(); }, slow?400:0);
+  }, slow?420:0);
+  toast(`Đã gửi lời cảm ơn tới ${f.who.name}`);
+}
+/* cập nhật lại số trong nhãn "Chưa mở · N" sau khi mở 1 thư */
+function updateUnreadLabel(){
+  const lbl=document.getElementById('grpUnread');
+  if(!lbl) return;
+  const n=unreadItems(FeedbackModel.itemsForFilter(FEED,curFilter,cy())).length;
+  if(!n) lbl.remove(); else lbl.textContent=`Chưa mở · ${n}`;
+}
+function unreadItems(items){ return items.filter(f=>f.kind==='received' && !fbState(f).opened); }
 function cardGiven(f){
   return `<div class="fb-card${hasCV(f.cv)}" data-kind="given">
     ${cardCVs(f.cv)}
@@ -1161,18 +1321,32 @@ function cardRequest(f,idx){
 function renderFeed(){
   const q=(document.getElementById('feedSearch').value||'').toLowerCase().trim();
   let items = FeedbackModel.itemsForFilter(FEED,curFilter,cy());
-  if(q) items=items.filter(f=>JSON.stringify(f).toLowerCase().includes(q));
+  // Thư chưa mở không tìm được: nội dung đang được giấu nên không đưa vào phạm vi tìm kiếm.
+  if(q) items=items.filter(f=> (f.kind==='received' && !fbState(f).opened)
+    ? false : JSON.stringify(f).toLowerCase().includes(q));
   // Tab "Tất cả": nhóm theo loại (đã nhận → đã cho → yêu cầu), trong mỗi loại xếp mới nhất trước.
   const kindOrder={received:0,given:1,request:2};
   items.sort((a,b)=> (curFilter==='all' ? kindOrder[a.kind]-kindOrder[b.kind] : 0) || b.ts-a.ts);
   const feed=document.getElementById('feed');
   const drafts='';
   if(!items.length && !drafts){ feed.innerHTML=`<div class="empty"><i class="bx bx-message-square-dots"></i><p>Chưa có phản hồi nào trong mục này.</p></div>`; return; }
-  feed.innerHTML = drafts + items.map(f=>{
-    if(f.kind==='received') return cardReceived(f);
-    if(f.kind==='given') return cardGiven(f);
-    return cardRequest(f, FEED.indexOf(f));
-  }).join('');
+  const card = f => f.kind==='received' ? cardReceived(f)
+              : f.kind==='given' ? cardGiven(f)
+              : cardRequest(f, FEED.indexOf(f));
+  // Không tìm kiếm + đang ở "Tất cả"/"Đã nhận" → tách thư chưa mở lên đầu.
+  // Có từ khoá thì về danh sách phẳng như cũ (thư chưa mở đã bị lọc ra ở trên).
+  const grouped = !q && (curFilter==='all' || curFilter==='received');
+  const unread = grouped ? unreadItems(items) : [];
+  if(unread.length){
+    const rest = items.filter(f=>!unread.includes(f));
+    feed.innerHTML = drafts
+      + `<div class="feed-grp" id="grpUnread">Chưa mở · ${unread.length}</div>`
+      + unread.map(card).join('')
+      // tab "Đã nhận" mới gắn nhãn "Đã đọc"; tab "Tất cả" phần còn lại có cả đã cho / yêu cầu
+      + (rest.length ? (curFilter==='received' ? `<div class="feed-grp">Đã đọc</div>` : '') + rest.map(card).join('') : '');
+    return;
+  }
+  feed.innerHTML = drafts + items.map(card).join('');
 }
 
 function setFilter(f){
