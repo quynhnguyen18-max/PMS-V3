@@ -110,11 +110,11 @@ input,select,textarea{font-family:inherit}
 .rail-empty{font-size:12px;color:var(--z400);font-style:italic;padding:4px 0}
 .breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
 .breadcrumb a{color:var(--z500)}.breadcrumb a:hover{color:var(--z800)}.bc-sep{color:var(--z400)}
-.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.page-hd{display:flex;align-items:center;justify-content:flex-start;gap:10px;margin-bottom:14px}
 .page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
 /* 2 nút hành động chính nằm cuối hàng chu kỳ — rộng bằng đúng ô thông tin phía trên */
-.hd-actions{display:flex;gap:8px;flex-shrink:0;margin-left:auto;width:var(--info-w);max-width:100%}
-.hd-actions .btn{flex:1;justify-content:center;white-space:nowrap}
+.hd-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto;width:auto;max-width:100%}
+.hd-actions .btn{flex:none;justify-content:center;white-space:nowrap}
 /* ô thông tin nhân viên ở góc phải đầu trang (dùng chung mẫu với E-01) */
 .emp-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);width:var(--info-w);max-width:100%}
 .ec-info{display:flex;flex-direction:column;gap:2px}
@@ -647,6 +647,13 @@ input,select,textarea{font-family:inherit}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast i{font-size:16px;color:#fff}
+/* ── MEDIA SUMMARY CAMPAIGN ── */
+.media-summary-entry{position:relative;z-index:1;border:0;border-radius:999px;background:var(--brand);color:#fff;box-shadow:var(--sh-sm);height:30px;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;transition:var(--t)}
+.media-summary-entry:hover{background:var(--brand-h)}.media-summary-entry.compact:hover .fb-badge-tip{opacity:1}.media-summary-entry[hidden]{display:none}.media-summary-entry.compact{width:30px;padding:0;justify-content:center}.media-summary-entry.compact .media-entry-label{display:none}.media-entry-star{font-size:15px;line-height:1;animation:media-entry-blink 1.35s ease-in-out infinite}@keyframes media-entry-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}@media(prefers-reduced-motion:reduce){.media-entry-star{animation:none}}
+.media-summary-dialog{width:min(840px,96vw);max-height:90vh;background:var(--z0);border-radius:12px;overflow:hidden;box-shadow:var(--sh-lg);display:flex;flex-direction:column}.media-summary-head{height:50px;padding:0 16px;border-bottom:1px solid var(--z200);display:flex;align-items:center}.media-summary-title{font-size:14px;font-weight:700;color:var(--z900);flex:1}.media-summary-note{font-size:10.5px;color:var(--z500);margin-right:10px}
+.media-story{display:grid;grid-template-columns:minmax(0,1fr) 240px;min-height:490px}.media-poster-stage{background:var(--z100);display:flex;align-items:center;justify-content:center;padding:22px}.media-poster{width:min(310px,100%);aspect-ratio:4/5;border-radius:16px;padding:28px;color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 16px 34px rgba(88,0,53,.2)}.media-template-impact{background:linear-gradient(155deg,#7d004c,#b0006b 58%,#e65b9c)}.media-template-growth{background:linear-gradient(155deg,#233047,#48566e 58%,#7b8da9)}.media-template-values{background:linear-gradient(155deg,#6c3d1f,#9a6234 58%,#d2a36c)}
+.media-poster-kicker{font-size:10px;letter-spacing:.8px;text-transform:uppercase;opacity:.82}.media-poster h3{font-size:23px;line-height:1.2;margin:58px 0 15px;color:#fff}.media-poster p{font-size:13.5px;line-height:1.58}.media-poster-foot{font-size:9.5px;opacity:.75;margin-top:auto}.media-story-side{border-left:1px solid var(--z200);padding:18px;display:flex;flex-direction:column}.media-story-side h4{font-size:13px;color:var(--z900)}.media-story-side>p{font-size:10.5px;color:var(--z500);margin-top:4px}.media-progress{display:flex;gap:5px;margin:18px 0}.media-progress span{height:4px;flex:1;border-radius:4px;background:var(--z200)}.media-progress span.on{background:var(--brand)}.media-story-nav{display:flex;gap:8px}.media-story-actions{display:grid;gap:8px;margin-top:auto}.media-story-actions .btn{justify-content:center}
+@media(max-width:720px){.media-story{grid-template-columns:1fr}.media-story-side{border-left:0;border-top:1px solid var(--z200)}.media-poster-stage{padding:16px}.media-poster{width:min(280px,100%)}}
 </style>
   <script src="feedback-model.js"></script>
   <script src="request-question-ai.js"></script>
@@ -716,6 +723,10 @@ input,select,textarea{font-family:inherit}
         </select>
       </div>
       <div class="hd-actions">
+        <button class="media-summary-entry" id="mediaSummaryEntry" hidden onclick="openMediaSummary()" aria-label="Dấu ấn của bạn">
+          <span class="media-entry-star">✦</span><span class="media-entry-label">Dấu ấn của bạn</span>
+          <span class="fb-badge-tip">Xem lại Dấu ấn của bạn</span>
+        </button>
         <button class="btn btn-default" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi</button>
         <button class="btn btn-cta-outline" onclick="openRequest()"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button>
       </div>
@@ -765,6 +776,31 @@ input,select,textarea{font-family:inherit}
 </div>
 </div>
 
+<div class="overlay" id="mediaSummaryOverlay" onclick="if(event.target===this)closeMediaSummary()">
+  <div class="media-summary-dialog">
+    <div class="media-summary-head">
+      <div class="media-summary-title">Dấu ấn của bạn</div>
+      <button class="dlg-x" onclick="closeMediaSummary()" aria-label="Đóng"><i class="bx bx-x"></i></button>
+    </div>
+    <div class="media-story">
+      <div class="media-poster-stage" id="mediaPosterStage"></div>
+      <aside class="media-story-side">
+        <h4 id="mediaStoryLabel">Dấu ấn nổi bật</h4>
+        <p>Insight được AI diễn giải từ feedback và không hiển thị danh tính người gửi.</p>
+        <div class="media-progress" id="mediaProgress"></div>
+        <div class="media-story-nav">
+          <button class="btn btn-outline btn-sm" id="mediaPrev" onclick="moveMediaPoster(-1)"><i class="bx bx-chevron-left"></i> Trước</button>
+          <button class="btn btn-outline btn-sm" id="mediaNext" onclick="moveMediaPoster(1)">Tiếp <i class="bx bx-chevron-right"></i></button>
+        </div>
+        <div class="media-story-actions">
+          <button class="btn btn-default" onclick="downloadCurrentMediaPoster()"><i class="bx bx-download"></i> Tải poster này</button>
+          <button class="btn btn-outline" onclick="downloadAllMediaPosters()"><i class="bx bx-download"></i> Tải tất cả</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
 <!-- Request detail overlay -->
 <div class="overlay" id="dlg-req" onclick="if(event.target===this)closeOverlay('dlg-req')">
   <div class="dialog md">
@@ -798,7 +834,6 @@ input,select,textarea{font-family:inherit}
     </div>
     <div class="dlg-body" id="queueAllList" style="display:flex;flex-direction:column;gap:8px"></div>
     <div class="dlg-foot">
-      <span style="font-size:11.5px;color:var(--z500)"><i class="bx bx-sort-down"></i> Sắp theo độ khẩn — quá hạn lên đầu</span>
       <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-queue')">Đóng</button>
     </div>
   </div>
@@ -1173,6 +1208,19 @@ const FEED = [
 ];
 
 /* ═══ ACTION QUEUE — yêu cầu người khác gửi Tú (UC-R) ═══ */
+const MEDIA_NOW='2026-08-10T10:00:00+07:00';
+const MEDIA_CAMPAIGNS = [
+  {id:'dau-an-2026-08',name:'Dấu ấn của bạn',startAt:'2026-08-01T00:00:00+07:00',endAt:'2026-08-31T23:59:59+07:00',cycleYear:'2026',snapshotAt:'10/08/2026',status:'active',
+    templates:[{id:'impact',className:'media-template-impact'},{id:'growth',className:'media-template-growth'},{id:'values',className:'media-template-values'}],
+    insights:[
+      {templateId:'impact',label:'Điểm mạnh nổi bật',kicker:'Điều mọi người trân trọng',title:'Bạn biến phức tạp thành rõ ràng',body:'Đồng nghiệp ghi nhận khả năng phân tích chắc chắn, giao tiếp dễ hiểu và giúp cả nhóm nhìn thấy hướng đi quan trọng.'},
+      {templateId:'growth',label:'Cơ hội phát triển',kicker:'Bước tiến tiếp theo',title:'Trao quyền nhiều hơn để ảnh hưởng xa hơn',body:'Những góc nhìn bạn nhận được gợi mở cơ hội chia sẻ quyết định sớm hơn và giúp đồng đội cùng làm chủ kết quả.'},
+      {templateId:'values',label:'Giá trị được ghi nhận',kicker:'Dấu ấn bạn để lại',title:'Tinh thần đồng đội là dấu ấn rõ nhất',body:'Sự chủ động hỗ trợ, bình tĩnh trong tình huống khó và tinh thần học hỏi là những điều xuất hiện xuyên suốt trong feedback.'}
+    ]},
+  {id:'dau-an-2026-03',name:'Dấu ấn của bạn',startAt:'2026-03-01T00:00:00+07:00',endAt:'2026-03-31T23:59:59+07:00',cycleYear:'2026',snapshotAt:'15/03/2026',status:'ended',templates:[],insights:[]}
+];
+const MEDIA_STATE={campaign:null,posterIndex:0,insights:[],viewedCampaignIds:new Set()};
+
 const QUEUE = [
   { cycle:'2026', from:'Trần Thị Mai', dom:'mai.tran', ini:'TM', about:'self', context:'Dự án Design System', sent:'28/07/2026', dueDate:'04/08/2026', due:'còn 2 ngày', urgency:'soon' },
   { cycle:'2026', from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu', context:'Chuẩn bị buổi 1:1 định kỳ', sent:'25/07/2026', dueDate:'01/08/2026', due:'quá hạn 1 ngày', urgency:'over' },
@@ -1582,7 +1630,7 @@ function renderFeedItems(){
   const kindOrder={received:0,given:1,request:2};
   // tab "Đã cho": phản hồi đã được cảm ơn nổi lên đầu
   const thx = f => (curFilter==='given' && f.thankedAt) ? 0 : 1;
-  items.sort((a,b)=> (curFilter==='all' ? kindOrder[a.kind]-kindOrder[b.kind] : thx(a)-thx(b)) || b.ts-a.ts);
+  items.sort((a,b)=> (curFilter==='all' ? kindOrder[a.kind]-kindOrder[b.kind] : thx(a)-thx(b)) || (a.kind==='request'&&b.kind==='request' ? FeedbackModel.compareRequestsForAction(a,b,todayDMY()) : b.ts-a.ts));
   const feed=document.getElementById('feed');
   const drafts='';
   if(!items.length && !drafts){ feed.innerHTML=`<div class="empty"><i class="bx bx-message-square-dots"></i><p>Chưa có phản hồi nào trong mục này.</p></div>`; return; }
@@ -1645,8 +1693,70 @@ function renderRail(){
     `<div class="cv-rank ${n?'':'zero'}"><img src="../Core value with BG/${CV[c]}" alt=""/><span class="cv-rank-name">${c}</span><span class="cv-rank-cnt">${n}</span></div>`).join('');
 }
 
+function renderMediaSummaryEntry(){
+  MEDIA_STATE.campaign=FeedbackModel.activeMediaCampaign(MEDIA_CAMPAIGNS,MEDIA_NOW);
+  const entry=document.getElementById('mediaSummaryEntry');
+  if(!MEDIA_STATE.campaign){entry.hidden=true;return;}
+  entry.hidden=false;
+  entry.classList.toggle('compact',MEDIA_STATE.viewedCampaignIds.has(MEDIA_STATE.campaign.id));
+}
+
+function openMediaSummary(){
+  MEDIA_STATE.campaign=FeedbackModel.activeMediaCampaign(MEDIA_CAMPAIGNS,MEDIA_NOW);
+  if(!MEDIA_STATE.campaign)return;
+  MEDIA_STATE.posterIndex=0;
+  MEDIA_STATE.insights=buildMediaInsights(MEDIA_STATE.campaign);
+  renderMediaPoster();
+  openOverlay('mediaSummaryOverlay');
+}
+
+function closeMediaSummary(){
+  if(MEDIA_STATE.campaign)MEDIA_STATE.viewedCampaignIds.add(MEDIA_STATE.campaign.id);
+  closeOverlay('mediaSummaryOverlay');
+  renderMediaSummaryEntry();
+}
+
+function moveMediaPoster(direction){
+  const max=MEDIA_STATE.insights.length-1;
+  MEDIA_STATE.posterIndex=Math.max(0,Math.min(max,MEDIA_STATE.posterIndex+direction));
+  renderMediaPoster();
+}
+
+function buildMediaInsights(campaign){
+  const snapshot=FeedbackModel.snapshotReceivedFeedback(FEED,campaign);
+  const giver=FeedbackModel.mostFrequentFeedbackGiver(snapshot);
+  const topGiver={templateId:'impact',label:'Người đồng hành nổi bật',kicker:'Kết nối đáng nhớ',title:`Bạn nhận được phản hồi nhiều nhất từ ${giver?giver.name:'đồng nghiệp'}`,body:giver?`${giver.name} đã dành thời gian chia sẻ ${giver.count} phản hồi trong giai đoạn này.`:'Mỗi phản hồi bạn nhận được đều góp thêm một góc nhìn cho hành trình phát triển.'};
+  return [topGiver,...campaign.insights];
+}
+
+function formatMediaCurrentDate(){const date=MEDIA_NOW.slice(0,10).split('-');return `${Number(date[2])}/${Number(date[1])}/${date[0]}`;}
+
+function renderMediaPoster(){
+  const campaign=MEDIA_STATE.campaign,insight=MEDIA_STATE.insights[MEDIA_STATE.posterIndex];
+  const template=campaign.templates.find(item=>item.id===insight.templateId)||campaign.templates[0];
+  document.getElementById('mediaPosterStage').innerHTML=`<article class="media-poster ${template.className}"><div class="media-poster-kicker">${insight.kicker}</div><h3>${insight.title}</h3><p>${insight.body}</p><div class="media-poster-foot">Tổng hợp phản hồi đã nhận từ 1/1/${campaign.cycleYear} đến ${formatMediaCurrentDate()}</div></article>`;
+  document.getElementById('mediaStoryLabel').textContent=insight.label;
+  document.getElementById('mediaProgress').innerHTML=MEDIA_STATE.insights.map((_,index)=>`<span class="${index<=MEDIA_STATE.posterIndex?'on':''}"></span>`).join('');
+  document.getElementById('mediaPrev').disabled=MEDIA_STATE.posterIndex===0;
+  document.getElementById('mediaNext').disabled=MEDIA_STATE.posterIndex===MEDIA_STATE.insights.length-1;
+}
+
+function escapeMediaXml(value){return String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[char]));}
+function wrapMediaText(value,max=34){const words=String(value||'').split(/\s+/),lines=[];let line='';words.forEach(word=>{const next=(line+' '+word).trim();if(next.length>max&&line){lines.push(line);line=word;}else line=next;});if(line)lines.push(line);return lines;}
+function mediaPosterSvg(index){
+  const campaign=MEDIA_STATE.campaign,insight=MEDIA_STATE.insights[index],template=insight.templateId;
+  const colors=template==='growth'?['#233047','#7b8da9']:template==='values'?['#6c3d1f','#d2a36c']:['#7d004c','#e65b9c'];
+  const title=wrapMediaText(insight.title,25).slice(0,3),body=wrapMediaText(insight.body,39).slice(0,6);
+  const titleSvg=title.map((line,i)=>`<text x="64" y="${225+i*48}" fill="white" font-family="Public Sans,Arial" font-size="38" font-weight="600">${escapeMediaXml(line)}</text>`).join('');
+  const bodyStart=250+title.length*48,bodySvg=body.map((line,i)=>`<text x="64" y="${bodyStart+i*29}" fill="white" font-family="Public Sans,Arial" font-size="22">${escapeMediaXml(line)}</text>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${colors[0]}"/><stop offset="1" stop-color="${colors[1]}"/></linearGradient></defs><rect width="800" height="1000" rx="36" fill="url(#g)"/><text x="64" y="90" fill="white" opacity=".82" font-family="Public Sans,Arial" font-size="18" letter-spacing="2">${escapeMediaXml(insight.kicker.toUpperCase())}</text>${titleSvg}${bodySvg}<text x="64" y="930" fill="white" opacity=".72" font-family="Public Sans,Arial" font-size="16">${escapeMediaXml(`Tổng hợp phản hồi đã nhận từ 1/1/${campaign.cycleYear} đến ${formatMediaCurrentDate()}`)}</text></svg>`;
+}
+function triggerMediaDownload(svg,name){const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));const link=Object.assign(document.createElement('a'),{href:url,download:name});link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}
+function downloadCurrentMediaPoster(){if(FeedbackModel.campaignStatus(MEDIA_STATE.campaign,MEDIA_NOW)!=='active')return;const index=MEDIA_STATE.posterIndex;triggerMediaDownload(mediaPosterSvg(index),`dau-an-cua-ban-${index+1}.svg`);}
+function downloadAllMediaPosters(){if(FeedbackModel.campaignStatus(MEDIA_STATE.campaign,MEDIA_NOW)!=='active')return;MEDIA_STATE.insights.forEach((_,index)=>setTimeout(()=>triggerMediaDownload(mediaPosterSvg(index),`dau-an-cua-ban-${index+1}.svg`),index*120));}
+
 function renderAll(){
-  renderQueue(); renderFeed(); renderRail(); syncThanksBadge();
+  renderQueue(); renderFeed(); renderRail(); syncThanksBadge(); renderMediaSummaryEntry();
 }
 
 /* request detail overlay (read-only) */

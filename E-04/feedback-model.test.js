@@ -75,6 +75,11 @@ test('employee feedback warns before discarding instead of offering draft saving
   assert.doesNotMatch(confirm, /Lưu nháp/);
   assert.doesNotMatch(html, /onclick="saveDraft\(\)"/);
 });
+
+test('response queue popup omits the urgency sorting helper text', () => {
+  const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
+  assert.doesNotMatch(html,/Sắp theo độ khẩn — quá hạn lên đầu/);
+});
 const FeedbackModel = require('./feedback-model.js');
 
 test('question AI makes vague prompts more concrete without inventing project context', () => {
@@ -163,6 +168,28 @@ test('all-cycle filter returns feedback across years', () => {
   assert.deepEqual(received.map(item=>item.id).sort(), ['direct-1','old','resp-req-1-done.user']);
 });
 
+test('employee requests sort by action priority with the approved tie breakers', () => {
+  const reviewer=(st,repliedAt=null)=>({st,repliedAt});
+  const requests=[
+    {id:'closed-old',kind:'request',date:'01/04/2026',due:'20/04/2026',reviewers:[reviewer('pending')]},
+    {id:'complete-old',kind:'request',date:'01/07/2026',due:'20/07/2026',reviewers:[reviewer('done','08/08/2026 · 09:00')]},
+    {id:'collect-later',kind:'request',date:'01/08/2026',due:'20/08/2026',reviewers:[reviewer('pending')]},
+    {id:'overdue-newer',kind:'request',date:'01/07/2026',due:'01/08/2026',reviewers:[reviewer('pending')]},
+    {id:'collect-low-rate',kind:'request',date:'02/08/2026',due:'15/08/2026',reviewers:[reviewer('pending'),reviewer('pending')]},
+    {id:'complete-new',kind:'request',date:'02/07/2026',due:'22/07/2026',reviewers:[reviewer('done','09/08/2026 · 09:00')]},
+    {id:'closed-recent',kind:'request',date:'01/05/2026',due:'20/05/2026',reviewers:[reviewer('pending')]},
+    {id:'collect-high-rate',kind:'request',date:'01/08/2026',due:'15/08/2026',reviewers:[reviewer('done','08/08/2026 · 09:00'),reviewer('pending')]},
+    {id:'collect-soon',kind:'request',date:'03/08/2026',due:'12/08/2026',reviewers:[reviewer('pending')]},
+    {id:'overdue-older',kind:'request',date:'01/07/2026',due:'25/07/2026',reviewers:[reviewer('pending')]}
+  ];
+  assert.deepEqual(FeedbackModel.sortRequestsForAction(requests,'10/08/2026').map(item=>item.id),[
+    'overdue-older','overdue-newer',
+    'collect-soon','collect-low-rate','collect-high-rate','collect-later',
+    'complete-new','complete-old',
+    'closed-recent','closed-old'
+  ]);
+});
+
 test('creates canonical given response records for authored feedback', () => {
   const response = FeedbackModel.createGivenResponse({
     id:'given-1', cycle:'2026', date:'03/08/2026', recipient:{name:'Mai', dom:'mai.tran', ini:'MT', org:'ITC'},
@@ -241,4 +268,100 @@ test('reader marks feedback read only on close and keeps the feed card neutral',
   assert.match(closeFn, /renderFeed\(\)/);
   assert.doesNotMatch(cardFn, /backgroundId|GIVE_BGS|reader-content-canvas/);
   assert.doesNotMatch(html, /localStorage[^\n]*(opened|FB_STATE)|(opened|FB_STATE)[^\n]*localStorage/);
+});
+
+test('media campaign is active only inside its configured window', () => {
+  const campaign={id:'imprint-aug',startAt:'2026-08-01T00:00:00+07:00',endAt:'2026-08-31T23:59:59+07:00'};
+  assert.equal(FeedbackModel.campaignStatus(campaign,'2026-08-10T10:00:00+07:00'),'active');
+  assert.equal(FeedbackModel.campaignStatus(campaign,'2026-07-31T23:59:59+07:00'),'scheduled');
+  assert.equal(FeedbackModel.campaignStatus(campaign,'2026-09-01T00:00:00+07:00'),'ended');
+});
+
+test('media snapshot includes received feedback in the campaign cycle up to snapshot time', () => {
+  const feed=[
+    {id:'a',kind:'received',cycle:'2026',date:'01/08/2026',ts:20260801},
+    {id:'b',kind:'received',cycle:'2026',date:'20/08/2026',ts:20260820},
+    {id:'c',kind:'received',cycle:'2025',date:'01/08/2025',ts:20250801}
+  ];
+  assert.deepEqual(FeedbackModel.snapshotReceivedFeedback(feed,{cycleYear:'2026',snapshotAt:'10/08/2026'}).map(item=>item.id),['a']);
+});
+
+test('the latest active media campaign is selected independently within one year', () => {
+  const campaigns=[
+    {id:'first',startAt:'2026-03-01T00:00:00+07:00',endAt:'2026-03-31T23:59:59+07:00'},
+    {id:'second',startAt:'2026-08-01T00:00:00+07:00',endAt:'2026-08-31T23:59:59+07:00'}
+  ];
+  assert.equal(FeedbackModel.activeMediaCampaign(campaigns,'2026-08-10T10:00:00+07:00').id,'second');
+});
+
+test('employee media summary renders only for an active campaign and keeps viewed state in session memory', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/const MEDIA_CAMPAIGNS = \[/);
+  assert.match(html,/id="mediaSummaryEntry"/);
+  assert.match(html,/function renderMediaSummaryEntry\(\)/);
+  assert.match(html,/FeedbackModel\.activeMediaCampaign/);
+  assert.match(html,/Dấu ấn của bạn/);
+  assert.match(html,/viewedCampaignIds:new Set\(\)/);
+  assert.doesNotMatch(html,/localStorage[^\n]*viewedCampaignIds|viewedCampaignIds[^\n]*localStorage/);
+});
+
+test('media summary collapses after close by button or backdrop', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/id="mediaSummaryOverlay"[^>]*onclick="if\(event\.target===this\)closeMediaSummary\(\)"/);
+  assert.match(html,/onclick="closeMediaSummary\(\)"/);
+  assert.match(html,/MEDIA_STATE\.viewedCampaignIds\.add\(MEDIA_STATE\.campaign\.id\)/);
+  assert.match(html,/Xem lại Dấu ấn của bạn/);
+});
+
+test('media summary viewer renders an admin template story with anonymous AI insights', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/id="mediaSummaryOverlay"/);
+  assert.match(html,/id="mediaPosterStage"/);
+  assert.match(html,/function renderMediaPoster\(\)/);
+  assert.match(html,/function moveMediaPoster\(direction\)/);
+  assert.match(html,/Insight được AI diễn giải từ feedback và không hiển thị danh tính người gửi/);
+  assert.doesNotMatch(html,/Thiết kế poster được quản trị bởi System Admin/);
+  assert.doesNotMatch(html,/insights:\s*\[[\s\S]*?who:/);
+});
+
+test('active media campaigns expose current and all-poster downloads only inside the viewer', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/function downloadCurrentMediaPoster\(\)/);
+  assert.match(html,/function downloadAllMediaPosters\(\)/);
+  assert.match(html,/Tải poster này/);
+  assert.match(html,/Tải tất cả/);
+  assert.match(html,/FeedbackModel\.campaignStatus\(MEDIA_STATE\.campaign,MEDIA_NOW\)!=='active'/);
+});
+
+test('media summary identifies the colleague who gave the most feedback', () => {
+  const feedback=[
+    {kind:'received',who:{name:'Mai Thị Hằng',dom:'hang.mai'}},
+    {kind:'received',who:{name:'Lê Thành Nam',dom:'nam.le'}},
+    {kind:'received',who:{name:'Mai Thị Hằng',dom:'hang.mai'}},
+    {kind:'given',who:{name:'Mai Thị Hằng',dom:'hang.mai'}}
+  ];
+  assert.deepEqual(FeedbackModel.mostFrequentFeedbackGiver(feedback),{name:'Mai Thị Hằng',dom:'hang.mai',count:2});
+});
+
+test('media story starts with the top giver and uses the current campaign date range', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/function buildMediaInsights\(campaign\)/);
+  assert.match(html,/Bạn nhận được phản hồi nhiều nhất từ/);
+  assert.match(html,/Tổng hợp phản hồi đã nhận từ 1\/1\/\$\{campaign\.cycleYear\} đến \$\{formatMediaCurrentDate\(\)\}/);
+  assert.doesNotMatch(html,/AI chỉ tạo nội dung · Template do System Admin cung cấp/);
+  assert.doesNotMatch(html,/Tổng hợp từ feedback đã nhận trong chu kỳ/);
+});
+
+test('media summary entry sits left of the feedback CTAs and always blinks', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/class="hd-actions"[\s\S]*?id="mediaSummaryEntry"[\s\S]*?<span class="media-entry-star">✦<\/span>[\s\S]*?onclick="openGive\(\)"[\s\S]*?onclick="openRequest\(\)"/);
+  assert.doesNotMatch(html,/class="request-action-stack"/);
+  assert.match(html,/\.media-summary-entry\{position:relative/);
+  assert.doesNotMatch(html,/\.media-summary-entry\{position:fixed/);
+  assert.match(html,/@keyframes media-entry-blink/);
+  assert.match(html,/\.media-entry-star\{[^}]*animation:media-entry-blink/);
+  assert.doesNotMatch(html,/\.media-summary-entry\.compact \.media-entry-star\{animation:none/);
+  assert.match(html,/Xem lại Dấu ấn của bạn/);
+  assert.match(html,/\.media-summary-entry\.compact:hover \.fb-badge-tip\{opacity:1\}/);
+  assert.doesNotMatch(html,/\.media-summary-entry:hover \.fb-badge-tip\{opacity:1\}/);
 });

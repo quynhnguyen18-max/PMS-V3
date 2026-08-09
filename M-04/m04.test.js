@@ -510,6 +510,31 @@ test('D4 model derives request status and locks reminders within the same day', 
   assert.equal(model.requestStatus(request,'13/08/2026'),'complete');
 });
 
+test('manager requests sort by action priority with status-specific tie breakers', () => {
+  const model=require('./manager-request-model.js');
+  const assignment=(status,repliedAt=null)=>({status,repliedAt});
+  const requests=[
+    {id:'closed-old',createdAt:'01/04/2026',due:'20/04/2026',assignments:[assignment('pending')]},
+    {id:'complete-old',createdAt:'01/07/2026',due:'20/07/2026',assignments:[assignment('done','08/08/2026 · 09:00')]},
+    {id:'collect-later',createdAt:'01/08/2026',due:'20/08/2026',assignments:[assignment('pending')]},
+    {id:'overdue-newer',createdAt:'01/07/2026',due:'01/08/2026',assignments:[assignment('pending')]},
+    {id:'collect-low-rate',createdAt:'02/08/2026',due:'15/08/2026',assignments:[assignment('pending'),assignment('pending')]},
+    {id:'complete-new',createdAt:'02/07/2026',due:'22/07/2026',assignments:[assignment('done','09/08/2026 · 09:00')]},
+    {id:'closed-recent',createdAt:'01/05/2026',due:'20/05/2026',assignments:[assignment('pending')]},
+    {id:'collect-high-rate',createdAt:'01/08/2026',due:'15/08/2026',assignments:[assignment('done','08/08/2026 · 09:00'),assignment('pending')]},
+    {id:'collect-soon',createdAt:'03/08/2026',due:'12/08/2026',assignments:[assignment('pending')]},
+    {id:'overdue-older',createdAt:'01/07/2026',due:'25/07/2026',assignments:[assignment('pending')]}
+  ];
+  const sorted=model.sortRequestsForAction(requests,'10/08/2026');
+  assert.deepEqual(sorted.map(item=>item.id),[
+    'overdue-older','overdue-newer',
+    'collect-soon','collect-low-rate','collect-high-rate','collect-later',
+    'complete-new','complete-old',
+    'closed-recent','closed-old'
+  ]);
+  assert.equal(requests[0].id,'closed-old');
+});
+
 test('manual reminders use a rolling 24-hour cooldown per recipient until the deadline', () => {
   const model=require('./manager-request-model.js');
   const request=model.createRequest({goal:'Reminder cooldown',cycle:'2026',createdAt:'01/08/2026',due:'15/08/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'});
@@ -742,6 +767,8 @@ test('Kanban uses neutral lanes and cards with semantic color only in headers', 
   assert.match(html, /\.kanban-title\{[^}]*background:var\(--lane-tint\)[^}]*color:var\(--lane-color\)/);
   assert.match(html, /\.kanban-dot\{[^}]*background:var\(--lane-color\)/);
   assert.match(html, /\.kanban-card\{[^}]*border:1px solid var\(--z200\)[^}]*background:#fff/);
+  assert.match(html, /class="kanban-empty"/);
+  assert.match(html, /\.kanban-empty\{[^}]*font-size:10\.5px/);
   assert.doesNotMatch(html, /\.kanban-lane\.(collecting|overdue|complete)\{[^}]*background:/);
   assert.doesNotMatch(html, /border-left-(width|color)/);
 });

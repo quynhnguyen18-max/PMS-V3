@@ -62,5 +62,68 @@
     };
   }
 
-  return {tsFromDate,normalizeFeed,itemsForFilter,createGivenResponse};
+  function dateFromDMY(value){
+    const [d,m,y]=String(value||'').split('/').map(Number);
+    return d&&m&&y?new Date(Date.UTC(y,m-1,d)):null;
+  }
+
+  function requestStatus(request,todayDMY){
+    const reviewers=(request&&request.reviewers)||[];
+    if(request&&request.status==='completed'||(reviewers.length&&reviewers.every(item=>item.st==='done')))return 'complete';
+    const created=dateFromDMY(request&&request.date),today=dateFromDMY(todayDMY);
+    if(created&&today){const expires=new Date(created);expires.setUTCDate(expires.getUTCDate()+90);if(today>expires)return 'no_response';}
+    return today&&dateFromDMY(request&&request.due)&&today>dateFromDMY(request.due)?'overdue':'collecting';
+  }
+
+  function latestResponseTime(request){
+    return ((request&&request.reviewers)||[]).reduce((latest,item)=>Math.max(latest,tsFromDate(String(item.repliedAt||'').split('·')[0].trim())),0);
+  }
+
+  function compareRequestsForAction(a,b,todayDMY){
+    const rank={overdue:0,collecting:1,complete:2,no_response:3};
+    const statusA=requestStatus(a,todayDMY),statusB=requestStatus(b,todayDMY);
+    const group=(rank[statusA]??4)-(rank[statusB]??4);
+    if(group)return group;
+    if(statusA==='overdue')return tsFromDate(a.due)-tsFromDate(b.due)||tsFromDate(a.date)-tsFromDate(b.date);
+    if(statusA==='collecting'){
+      const reviewersA=a.reviewers||[],reviewersB=b.reviewers||[];
+      const rateA=reviewersA.length?reviewersA.filter(item=>item.st==='done').length/reviewersA.length:0;
+      const rateB=reviewersB.length?reviewersB.filter(item=>item.st==='done').length/reviewersB.length:0;
+      return tsFromDate(a.due)-tsFromDate(b.due)||rateA-rateB||tsFromDate(a.date)-tsFromDate(b.date);
+    }
+    if(statusA==='complete')return latestResponseTime(b)-latestResponseTime(a)||tsFromDate(b.date)-tsFromDate(a.date);
+    return tsFromDate(b.date)-tsFromDate(a.date);
+  }
+
+  function sortRequestsForAction(requests,todayDMY){
+    return [...(requests||[])].sort((a,b)=>compareRequestsForAction(a,b,todayDMY));
+  }
+
+  function campaignStatus(campaign,nowISO){
+    const now=Date.parse(nowISO),start=Date.parse(campaign&&campaign.startAt),end=Date.parse(campaign&&campaign.endAt);
+    if(!Number.isFinite(now)||!Number.isFinite(start)||!Number.isFinite(end))return 'invalid';
+    if(now<start)return 'scheduled';
+    return now>end?'ended':'active';
+  }
+
+  function activeMediaCampaign(campaigns,nowISO){
+    return [...(campaigns||[])].filter(item=>campaignStatus(item,nowISO)==='active').sort((a,b)=>Date.parse(b.startAt)-Date.parse(a.startAt))[0]||null;
+  }
+
+  function snapshotReceivedFeedback(feed,campaign){
+    const cutoff=tsFromDate(campaign&&campaign.snapshotAt);
+    return normalizeFeed(feed).filter(item=>item.kind==='received'&&item.cycle===String(campaign&&campaign.cycleYear)&&item.ts<=cutoff);
+  }
+
+  function mostFrequentFeedbackGiver(feedback){
+    const counts=new Map();
+    (feedback||[]).filter(item=>item.kind==='received'&&item.who).forEach(item=>{
+      const key=item.who.dom||item.who.name;
+      const current=counts.get(key)||{name:item.who.name,dom:item.who.dom,count:0};
+      current.count+=1;counts.set(key,current);
+    });
+    return [...counts.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'vi'))[0]||null;
+  }
+
+  return {tsFromDate,normalizeFeed,itemsForFilter,createGivenResponse,requestStatus,compareRequestsForAction,sortRequestsForAction,campaignStatus,activeMediaCampaign,snapshotReceivedFeedback,mostFrequentFeedbackGiver};
 });

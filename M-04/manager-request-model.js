@@ -192,6 +192,28 @@
     if(stat.overdue>0)return 'overdue';
     return 'collecting';
   }
+  function latestResponseTime(request){
+    return ((request&&request.assignments)||[]).reduce((latest,item)=>{
+      const value=dateTimeFromDMY(item.repliedAt);
+      return value?Math.max(latest,+value):latest;
+    },0);
+  }
+  function compareRequestsForAction(a,b,todayDMY){
+    const rank={overdue:0,collecting:1,complete:2,no_response:3};
+    const statusA=requestStatus(a,todayDMY),statusB=requestStatus(b,todayDMY);
+    const group=(rank[statusA]??4)-(rank[statusB]??4);
+    if(group)return group;
+    if(statusA==='overdue')return tsFromDMY(a.due)-tsFromDMY(b.due)||tsFromDMY(a.createdAt)-tsFromDMY(b.createdAt);
+    if(statusA==='collecting'){
+      const statA=summarize(a,todayDMY),statB=summarize(b,todayDMY);
+      return tsFromDMY(a.due)-tsFromDMY(b.due)||statA.rate-statB.rate||tsFromDMY(a.createdAt)-tsFromDMY(b.createdAt);
+    }
+    if(statusA==='complete')return latestResponseTime(b)-latestResponseTime(a)||tsFromDMY(b.createdAt)-tsFromDMY(a.createdAt);
+    return tsFromDMY(b.createdAt)-tsFromDMY(a.createdAt);
+  }
+  function sortRequestsForAction(requests,todayDMY){
+    return [...(requests||[])].sort((a,b)=>compareRequestsForAction(a,b,todayDMY));
+  }
   function canRemindAssignment(request,assignment,nowDMY){
     if(!assignment||assignment.status==='done'||requestStatus(request,String(nowDMY||'').slice(0,10))==='no_response')return false;
     const now=dateTimeFromDMY(nowDMY),due=dateFromDMY(request&&request.due);
@@ -236,5 +258,5 @@
     };
   }
 
-  return {tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isNoResponse,daysOverdue,requestStatus,canRemindAssignment,remindAssignment,remindPending,createStore};
+  return {tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isNoResponse,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
 });
