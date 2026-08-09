@@ -348,9 +348,10 @@ input,select,textarea{font-family:inherit}
 .vis-ic:hover{color:var(--z700)}
 .fb-lead{font-size:11.5px;color:var(--z500);margin-bottom:1px}
 .fb-date{font-size:11.5px;color:var(--z600);flex-shrink:0}
-.fb-qbox{border-left:3px solid var(--brand-ring);padding:7px 11px;background:rgba(165,0,100,.025);margin-bottom:10px}
+.fb-qbox{width:100%;border:0;border-radius:10px;padding:7px 11px 8px;background:var(--brand-muted);margin-bottom:10px}
 .fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
 .fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
+.qa{margin:9px 0 0}.qa-q{display:block;width:100%;background:var(--brand-muted);color:var(--z700);font-size:12.5px;line-height:1.5;padding:7px 12px 8px;border-radius:10px 10px 10px 4px}.qa-label{display:block;font-size:10px;font-weight:600;line-height:1.3;text-transform:uppercase;letter-spacing:.35px;color:var(--z500);margin-bottom:2px}.qa-text{display:block}.qa-a{position:relative;margin:0 0 0 8px;padding-left:10px}.qa-a::before{content:'';position:absolute;left:0;top:-2px;width:10px;height:13px;border-left:2px solid var(--z200);border-bottom:2px solid var(--z200);border-bottom-left-radius:7px}.qa-a .fb-body{display:block;width:100%;margin:0;font-size:12.5px;background:transparent;border-radius:0;padding:4px 8px 1px}.qa-a .fb-body-wrap{margin:0}
 .fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
 /* ── Rút gọn nội dung dài: câu hỏi 1 dòng, nội dung 2 dòng, có nút mở rộng ── */
 .fb-card:not(.fb-expanded) .fb-q-txt{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -429,7 +430,7 @@ input,select,textarea{font-family:inherit}
 .mi-due{font-size:11.5px;font-weight:600;color:var(--z500)}
 .mi-due.soon{color:var(--warn)}.mi-due.over{color:var(--err)}
 /* câu hỏi chung ở đầu popup */
-.qshared{border-left:3px solid var(--brand-ring);padding:9px 12px;background:rgba(165,0,100,.03);border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:14px}
+.qshared{width:100%;border:0;padding:7px 12px 8px;background:var(--brand-muted);border-radius:10px;margin-bottom:14px}
 .rv-h{font-size:12px;font-weight:600;color:var(--z600);margin-bottom:2px}
 /* origin tag cho card đã nhận từ yêu cầu */
 .origin-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rsm);padding:3px 9px;margin-bottom:10px;max-width:100%}
@@ -497,6 +498,7 @@ input,select,textarea{font-family:inherit}
 .reader-badges .fb-badge-img{width:28px;height:28px}
 .reader-detail{padding:14px 16px 16px}
 .reader-detail .fb-qbox{margin-bottom:10px}
+.reader-detail.has-question #receivedReaderQuestion{position:relative;margin-bottom:4px}.reader-detail.has-question #receivedReaderQuestion::after{content:'';position:absolute;left:8px;bottom:-11px;width:10px;height:13px;border-left:2px solid var(--z200);border-bottom:2px solid var(--z200);border-bottom-left-radius:7px;z-index:1}
 .reader-content-canvas{min-height:180px;display:flex;align-items:center;justify-content:center;padding:30px 24px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);color:var(--z700);font-size:16px;font-weight:600;line-height:1.6;text-align:center;white-space:pre-wrap}
 .reader-content-canvas.reader-dark{text-shadow:0 1px 3px rgba(0,0,0,.35)}
 @media(prefers-reduced-motion:reduce){#dlg-received-reader .dialog{animation:none}}
@@ -1294,6 +1296,11 @@ function fbState(f){
 }
 function findFb(id){ return FeedbackModel.normalizeFeed(FEED).find(x=>x.id===id); }
 
+function feedbackPair(question,body,tail=''){
+  if(!question)return `<div class="fb-body-wrap"><p class="fb-body">${body}</p>${tail}</div>`;
+  return `<div class="qa"><div class="qa-q"><span class="qa-label">Câu hỏi</span><span class="qa-text">${question}</span></div><div class="qa-a"><div class="fb-body-wrap"><p class="fb-body">${body}</p>${tail}</div></div></div>`;
+}
+
 function cardReceived(f){
   const st=fbState(f);
   if(!st.opened) return cardSealed(f);                // chưa mở → phong bì niêm phong
@@ -1303,8 +1310,7 @@ function cardReceived(f){
   return `<div class="fb-card${hasCV(f.cv)}" data-kind="received" data-fb="${f.id}">
     ${cardCVs(f.cv)}
     ${cardHead(f.who, SELF, cardMeta(f.vis||'receiver', f.date), mark)}
-    ${f.q?`<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>`:''}
-    <div class="fb-body-wrap"><p class="fb-body">${f.body}</p>${expandBtn()}</div>
+    ${feedbackPair(f.q,f.body,expandBtn())}
     ${st.thanked?'':thxBar(f)}
   </div>`;
 }
@@ -1348,7 +1354,8 @@ function renderReceivedReader(f){
     </div>
     <div class="reader-badges">${badgeImgs(f.cv)}</div>`;
   document.getElementById('receivedReaderQuestion').innerHTML=f.q
-    ? `<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>` : '';
+    ? `<div class="qa-q"><span class="qa-label">Câu hỏi</span><span class="qa-text">${f.q}</span></div>` : '';
+  document.querySelector('#dlg-received-reader .reader-detail').classList.toggle('has-question',!!f.q);
   const canvas=document.getElementById('receivedReaderContent');
   canvas.textContent=f.body;
   canvas.classList.toggle('reader-dark',!!bg?.dark);
@@ -1426,8 +1433,7 @@ function cardGiven(f){
   return `<div class="fb-card${hasCV(f.cv)}${fresh?' fb-fresh':''}" data-kind="given" data-fb="${f.id||''}">
     ${cardCVs(f.cv)}
     ${cardHead(SELF, f.who, cardMeta(f.vis, f.date, 'sender'), mark)}
-    ${f.q?`<div class="fb-qbox"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.q}</p></div>`:''}
-    <div class="fb-body-wrap"><p class="fb-body">${f.body}</p>${expandBtn()}</div>
+    ${feedbackPair(f.q,f.body,expandBtn())}
   </div>`;
 }
 
@@ -1643,7 +1649,7 @@ function openReq(idx){
   let body='';
   // câu hỏi CHUNG → hiển thị 1 ô ở đầu
   if(f.qMode==='shared' && f.question){
-    body += `<div class="qshared"><div class="fb-q-lbl">Câu hỏi chung cho tất cả người được yêu cầu</div><p class="fb-q-txt">${f.question}</p></div>`;
+    body += `<div class="qshared"><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${f.question}</p></div>`;
   }
   // mỗi người phản hồi dùng đúng layout của card ở tab Đã nhận / Đã cho
   body += f.reviewers.map(r=>{
@@ -1652,8 +1658,8 @@ function openReq(idx){
       ? `<div class="fb-meta"><span class="fb-meta-date">${r.repliedAt.split(' · ')[0]}</span>${visIcon(r.vis||'receiver','receiver')}</div>`
       : '';
     const pendingTag = !answered ? `<span class="chip ch-expired"><i class="bx bx-time-five"></i>Chưa trả lời</span>` : '';
-    const question = f.qMode==='individual' && r.q
-      ? `<div class="fb-qbox${!answered?' rv-qbox-pending':''}">${!answered?`<span class="rv-question-status">${pendingTag}</span>`:''}<div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${r.q}</p></div>`
+    const question = !answered && f.qMode==='individual' && r.q
+      ? `<div class="fb-qbox rv-qbox-pending"><span class="rv-question-status">${pendingTag}</span><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${r.q}</p></div>`
       : '';
     return `
     <div class="rv-item${answered?hasCV(r.cv):''}">
@@ -1668,7 +1674,7 @@ function openReq(idx){
       </div>
       ${question}
       ${answered
-        ? `<p class="fb-body">${r.fb}</p>`
+        ? (f.qMode==='individual'&&r.q?feedbackPair(r.q,r.fb):`<p class="fb-body">${r.fb}</p>`)
         : (r.reminded?`<div class="rv-remind-note"><i class="bx bx-bell"></i> Đã nhắc ${r.reminded}</div>`:'')}
     </div>`;
   }).join('');

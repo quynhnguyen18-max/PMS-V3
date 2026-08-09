@@ -30,6 +30,18 @@ test('employee feedback supports all cycles and removes the employee info box', 
   assert.doesNotMatch(html, /<span class="ec-lbl">Nhân viên:/);
 });
 
+test('employee answered feedback uses the shared compact question and answer pattern', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  assert.match(html, /function feedbackPair\(question,body,tail=''\)/);
+  assert.match(html, /class="qa-q"><span class="qa-label">Câu hỏi<\/span><span class="qa-text">\$\{question\}<\/span>/);
+  assert.match(html, /class="qa-a">[\s\S]*?<p class="fb-body">\$\{body\}<\/p>/);
+  assert.match(html, /\.qa-q\{[^}]*width:100%[^}]*background:var\(--brand-muted\)/);
+  assert.match(html, /\.qa-a::before\{[^}]*top:-2px[^}]*border-bottom/);
+  assert.match(html, /\.qa-a \.fb-body\{[^}]*font-size:12\.5px[^}]*background:transparent/);
+  assert.match(html, /cardReceived\(f\)[\s\S]*feedbackPair\(f\.q,f\.body,expandBtn\(\)\)/);
+  assert.match(html, /cardGiven\(f\)[\s\S]*feedbackPair\(f\.q,f\.body,expandBtn\(\)\)/);
+});
+
 test('employee feedback warns before discarding instead of offering draft saving', () => {
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const confirm = html.match(/id="dlg-confirm"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/)?.[0] || '';

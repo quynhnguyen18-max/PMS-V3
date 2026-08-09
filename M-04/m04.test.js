@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const pagePath = path.join(__dirname, 'index.html');
+const detailPath = path.join(__dirname, 'feedback-detail.html');
 
 test('M-04 provides D1 direct and indirect report navigation', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
@@ -148,6 +149,83 @@ test('employee popup AI summary is collapsible and the table keeps only the eye 
   assert.match(html, /function toggleDialogAiSummary\(\)/);
   assert.doesNotMatch(employeeRenderer, /bx-sparkles|AI Summary/);
   assert.match(employeeRenderer, /bx-show/);
+});
+
+test('split view prepends the same AI summary as the popup, with its own collapse state', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const renderer = html.match(/function splitAiSummaryHTML\(employee,feedback\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const splitRenderer = html.match(/function renderSplitView\(items\)\{[\s\S]*?\n\}/)?.[0] || '';
+  assert.match(renderer, /ManagerAiSummary\.create\(employee,feedback\)/);
+  assert.match(renderer, /if\(!summary\.available\)return ''/);
+  assert.match(renderer, /id="splitAiSummary"/);
+  assert.match(renderer, /Điểm mạnh/);
+  assert.match(renderer, /Cơ hội phát triển/);
+  assert.match(renderer, /aria-expanded="\$\{!STATE\.splitAiCollapsed\}"/);
+  assert.match(renderer, /toggleSplitAiSummary\(\)/);
+  assert.match(html, /function toggleSplitAiSummary\(\)/);
+  assert.match(html, /splitAiCollapsed:false/);
+  // summary phải đứng trước feedback card trong pane
+  assert.match(splitRenderer, /splitAiSummaryHTML\(emp,feedback\)\+feedback\.map/);
+});
+
+test('answered feedback uses a compact conversational pair with only a question label', () => {
+  const data = require('./manager-feedback-data.js');
+  const emp = {name:'Tú', ini:'NT', login:'tu.nguyen'};
+  const base = {sender:{name:'An', dom:'an.le', ini:'AL'}, date:'01/08/2026', cv:[]};
+  const withQ = data.feedbackCard({...base, question:'Câu hỏi?', body:'Đây là trả lời.'}, emp);
+  const noQ = data.feedbackCard({...base, body:'Nội dung trực tiếp.'}, emp);
+  // Có câu hỏi → hai bubble và đường nối tự giải thích quan hệ, không cần nhãn Câu hỏi/Trả lời.
+  assert.match(withQ, /<div class="qa"><div class="qa-q"><span class="qa-label">Câu hỏi<\/span><span class="qa-text">Câu hỏi\?<\/span><\/div><div class="qa-a"><p class="fb-body">Đây là trả lời\.<\/p>/);
+  assert.doesNotMatch(withQ, /answer-label|>Trả lời</);
+  // Không có câu hỏi → body trơn, không tạo cấu trúc hội thoại giả.
+  assert.doesNotMatch(noQ, /class="qa"/);
+  // Bubble và connector phải đồng bộ ở popup/split lẫn trang chi tiết.
+  for (const html of [fs.readFileSync(pagePath,'utf8'), fs.readFileSync(detailPath,'utf8')]) {
+    assert.match(html, /\.qa-q\{[^}]*display:block[^}]*width:100%[^}]*border-radius/);
+    assert.match(html, /\.qa-label\{[^}]*text-transform:uppercase[^}]*color:var\(--z500\)/);
+    assert.match(html, /\.qa-a\{[^}]*margin:0 0 0 8px[^}]*padding-left:10px/);
+    assert.match(html, /\.qa-a::before\{[^}]*top:-2px[^}]*width:10px[^}]*height:13px[^}]*border-bottom/);
+    assert.match(html, /\.qa-a \.fb-body\{[^}]*margin:0[^}]*font-size:12\.5px[^}]*background:transparent[^}]*padding:4px 8px 1px/);
+  }
+});
+
+test('feedback detail tab mirrors the personal feedback screen: feedback, core-value stats, AI summary', () => {
+  const html = fs.readFileSync(detailPath, 'utf8');
+  // load đủ 3 nguồn dữ liệu
+  assert.match(html, /manager-feedback-data\.js/);
+  assert.match(html, /manager-ai-summary\.js/);
+  // dùng renderer module-level, KHÔNG gọi store.feedbackCard (store không có hàm này)
+  assert.match(html, /ManagerFeedbackData\.feedbackCard\(/);
+  assert.doesNotMatch(html, /store\.feedbackCard\(/);
+  // AI Summary tái dùng đúng visual popup, đứng trước danh sách phản hồi
+  assert.match(html, /function aiSummaryHTML\(employee,feedback\)/);
+  assert.match(html, /ManagerAiSummary\.create\(employee,feedback\)/);
+  assert.match(html, /if\(!summary\.available\)return ''/);
+  assert.match(html, /id="aiSummary"/);
+  assert.match(html, /class="dialog-ai-summary/);
+  assert.match(html, /id="aiMount"[\s\S]*id="cards"/);
+  assert.match(html, /function toggleAiSummary\(\)/);
+  // thống kê Giá trị được ghi nhận: đủ 5 giá trị, xếp hạng theo số lần
+  assert.match(html, /Giá trị được ghi nhận/);
+  assert.match(html, /function railCVHTML\(feedback\)/);
+  assert.match(html, /CV_ORDER=\['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'\]/);
+  assert.match(html, /ManagerFeedbackData\.coreValueIcon\(value\)/);
+  // bố cục 3 panel: nhân viên · phản hồi · giá trị
+  assert.match(html, /grid-template-columns:260px minmax\(0,1fr\) 300px/);
+  assert.match(html, /class="side-left"[\s\S]*id="personCard"[\s\S]*class="main-col"[\s\S]*class="rail"/);
+  assert.match(html, /function personCardHTML\(employee\)/);
+  // panel trái chứa domain, phòng ban, team, vị trí
+  assert.match(html, /\['Phòng ban',employee\.dept\],\['Team',employee\.team\],\['Vị trí',employee\.pos\]/);
+  // domain chỉ xuất hiện dưới tên, không lặp thành một dòng riêng
+  assert.doesNotMatch(html, /\['Domain',employee\.login\]/);
+  assert.match(html, /class="person-domain">\$\{employee\.login\}/);
+  // header không còn dòng metadata
+  assert.doesNotMatch(html, /id="meta"/);
+  // header + 2 panel bên freeze khi cuộn; cột giữa cuộn nội dung
+  assert.match(html, /\.top\{[^}]*position:sticky;top:0/);
+  assert.match(html, /\.head\{position:sticky;top:52px/);
+  assert.match(html, /\.side-left\{position:sticky;top:108px\}/);
+  assert.match(html, /\.rail\{[^}]*position:sticky;top:108px\}/);
 });
 
 test('every manager feedback sender has a tooltip and split view chooses placement by context', () => {
@@ -706,6 +784,16 @@ test('request detail renders a non-editable AI summary before original feedback 
   assert.match(html, /aria-label="\$\{collapsed\?'Mở AI Summary':'Thu gọn AI Summary'\}"/);
   assert.match(html, /class="ai-summary-toggle"/);
   assert.match(html, /\.ai-summary\.collapsed \.ai-summary-content\{display:none\}/);
+});
+
+test('request detail uses the shared compact question and answer pattern for individual questions', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  assert.match(html, /function responsePair\(question,body\)/);
+  assert.match(html, /class="qa-q"><span class="qa-label">Câu hỏi<\/span><span class="qa-text">\$\{question\}<\/span>/);
+  assert.match(html, /request\.questionMode==='individual'\?responsePair\(assignment\.question/);
+  assert.match(html, /\.qa-q\{[^}]*width:100%[^}]*background:var\(--brand-muted\)/);
+  assert.match(html, /\.qa-a::before\{[^}]*top:-2px[^}]*border-bottom/);
+  assert.match(html, /\.shared-question \.label\{[^}]*color:var\(--z500\)/);
 });
 
 test('shared feedback data gives every employee three manager-visible scenarios', () => {

@@ -5,13 +5,158 @@
 <title>Phản hồi đã nhận | MoMo HRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
-:root{--z0:#fff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z900:#18181b;--brand:#a50064;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2)}*{box-sizing:border-box}body{margin:0;background:var(--z50);font:14px 'Public Sans',sans-serif;color:var(--z700)}.top{height:52px;background:#fff;border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 24px;color:var(--z600)}main{max-width:980px;margin:auto;padding:24px}.head{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--brand-muted);color:var(--brand);font-weight:700}.title{font-size:18px;color:var(--z900);font-weight:700}.count{display:inline-flex;min-width:20px;height:20px;align-items:center;justify-content:center;padding:0 6px;border-radius:20px;background:var(--z100);font-size:10px;color:var(--z600);vertical-align:2px}.meta{font-size:12px;color:var(--z600);margin-top:4px}.cards{display:flex;flex-direction:column;gap:10px}.feedback-card{position:relative;border:1px solid var(--z200);border-radius:8px;padding:14px;background:#fff}.fb-head{display:flex;align-items:flex-start;gap:9px;padding-right:55px}.fb-head .avatar{width:30px;height:30px}.fb-line{font-size:12.5px;font-weight:600;color:var(--z900)}.fb-domain{color:var(--z500);font-weight:400}.fb-arrow{display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--z600);margin:0 8px}.fb-date{font-size:11px;color:var(--z500);margin-top:2px;display:flex;align-items:center;gap:5px}.cv-icons{position:absolute;right:12px;top:12px;display:flex}.cv-icon{width:26px;height:26px;border-radius:50%;margin-left:-6px;border:2px solid #fff}.question{margin:11px 0 8px;border-left:3px solid var(--brand-ring);background:rgba(165,0,100,.025);padding:7px 10px}.question-label{font-size:10px;text-transform:uppercase;color:var(--z500);font-weight:600}.question-text{font-size:12px;margin-top:3px;line-height:1.5}.fb-body{font-size:12.5px;line-height:1.65}.empty{padding:40px;text-align:center;color:var(--z500);background:#fff;border:1px solid var(--z200);border-radius:8px}
-.pms-tooltip{position:relative;display:inline-flex;align-items:center;cursor:help}.fb-sender{gap:4px;align-items:baseline}.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
+:root{--z0:#fff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z900:#18181b;--brand:#a50064;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--z50);font:14px 'Public Sans',sans-serif;color:var(--z700)}
+.top{height:52px;background:#fff;border-bottom:1px solid var(--z200);display:flex;align-items:center;gap:8px;padding:0 24px;color:var(--z600);font-size:13px;position:sticky;top:0;z-index:30}
+.top .brand-dot{width:20px;height:20px;border-radius:5px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11px}
+main{max-width:1400px;margin:auto;padding:0 24px 24px}
+/* header freeze ngay dưới thanh trên khi cuộn */
+.head{position:sticky;top:52px;z-index:20;background:var(--z50);display:flex;align-items:center;padding:18px 0 13px;margin:0}
+.title{font-size:18px;color:var(--z900);font-weight:700}
+.count{display:inline-flex;min-width:20px;height:20px;align-items:center;justify-content:center;padding:0 6px;border-radius:20px;background:var(--z100);font-size:10px;color:var(--z600);vertical-align:2px}
+/* layout 3 cột: nhân viên · phản hồi · giá trị */
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr) 300px;gap:20px;align-items:start}
+@media(max-width:1080px){.layout{grid-template-columns:1fr}}
+.main-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.cards{display:flex;flex-direction:column;gap:10px}
+.feedback-card{position:relative;border:1px solid var(--z200);border-radius:8px;padding:14px;background:#fff}
+.fb-head{display:flex;align-items:flex-start;gap:9px;padding-right:55px}
+.fb-head .avatar{width:30px;height:30px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--brand-muted);color:var(--brand);font-weight:700}
+.fb-line{font-size:12.5px;font-weight:600;color:var(--z900)}
+.fb-domain{color:var(--z500);font-weight:400}
+.fb-arrow{display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--z600);margin:0 8px}
+.fb-date{font-size:11px;color:var(--z500);margin-top:2px;display:flex;align-items:center;gap:5px}
+.cv-icons{position:absolute;right:12px;top:12px;display:flex}
+.cv-icon{width:26px;height:26px;border-radius:50%;margin-left:-6px;border:2px solid #fff}
+/* Cặp hỏi–đáp kiểu bình luận Facebook: câu hỏi là bong bóng nhạt,
+   nội dung là bong bóng trả lời thụt vào, nối bằng đường móc — không cần chữ. */
+.qa{margin:9px 0 0}
+.qa-q{display:block;width:100%;background:var(--brand-muted);color:var(--z700);font-size:12.5px;line-height:1.5;padding:7px 12px 8px;border-radius:10px 10px 10px 4px}
+.qa-label{display:block;font-size:10px;font-weight:600;line-height:1.3;text-transform:uppercase;letter-spacing:.35px;color:var(--z500);margin-bottom:2px}
+.qa-text{display:block}
+.qa-a{position:relative;margin:0 0 0 8px;padding-left:10px}
+.qa-a::before{content:'';position:absolute;left:0;top:-2px;width:10px;height:13px;border-left:2px solid var(--z200);border-bottom:2px solid var(--z200);border-bottom-left-radius:7px}
+.qa-a .fb-body{display:block;width:100%;margin:0;font-size:12.5px;background:transparent;border-radius:0;padding:4px 8px 1px}
+.fb-body{font-size:12.5px;line-height:1.65}
+.empty{padding:40px;text-align:center;color:var(--z500);background:#fff;border:1px solid var(--z200);border-radius:8px}
+/* panel trái: thông tin nhân viên */
+.side-left{position:sticky;top:108px}
+.person-card{background:#fff;border:1px solid var(--z200);border-radius:8px;padding:18px 16px}
+.person-top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding-bottom:14px;border-bottom:1px solid var(--z100)}
+.person-avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--brand-muted);color:var(--brand);font-weight:700;font-size:19px}
+.person-name{font-size:14px;font-weight:700;color:var(--z900);line-height:1.3;margin-top:2px}
+.person-domain{font-size:12px;color:var(--z500)}
+.person-info{display:flex;flex-direction:column;gap:10px;padding-top:14px}
+.person-row{display:flex;align-items:baseline;gap:8px}
+.person-label{flex:0 0 74px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;color:var(--z500)}
+.person-value{flex:1;min-width:0;font-size:12.5px;color:var(--z900);font-weight:500;line-height:1.4}
+/* rail phải */
+.rail{display:flex;flex-direction:column;gap:14px;position:sticky;top:108px}
+.rail-card{background:#fff;border:1px solid var(--z200);border-radius:8px;padding:14px 15px}
+.rail-title{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--z900);margin-bottom:8px}
+.rail-title i{color:var(--z500);font-size:15px}
+.cv-rank{display:flex;align-items:center;gap:10px;padding:6px 0}
+.cv-rank img{width:30px;height:30px;border-radius:50%;flex-shrink:0}
+.cv-rank-name{font-size:12px;color:var(--z700);flex:1;line-height:1.3}
+.cv-rank-cnt{font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-muted);border-radius:50px;padding:1px 8px}
+.cv-rank.zero img{filter:grayscale(1);opacity:.4}
+.cv-rank.zero .cv-rank-name{color:var(--z400)}
+.cv-rank.zero .cv-rank-cnt{color:var(--z400);background:var(--z100)}
+/* AI Summary — dùng lại đúng visual của popup/split */
+.dialog-ai-summary{border:1px solid var(--brand-ring);border-radius:8px;background:#fff;box-shadow:0 3px 10px rgba(24,24,27,.06);overflow:hidden}
+.dialog-ai-summary-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border-bottom:1px solid var(--z100)}
+.dialog-ai-summary-brand{display:flex;align-items:center;gap:6px;color:var(--brand);font-size:13px;font-weight:700}
+.dialog-ai-summary-brand i{font-size:16px}
+.dialog-ai-summary-actions{display:flex;align-items:center;gap:9px}
+.dialog-ai-summary-updated{font-size:10.5px;color:var(--z500)}
+.dialog-ai-summary-toggle{width:28px;height:28px;border:1px solid var(--z200);border-radius:6px;background:#fff;color:var(--z600);display:grid;place-items:center;cursor:pointer}
+.dialog-ai-summary-toggle:hover{background:var(--z50);border-color:var(--z300)}
+.dialog-ai-summary-content{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:12px 13px 10px}
+.dialog-ai-summary-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;color:var(--z600);margin-bottom:6px}
+.dialog-ai-summary-list{margin:0;padding-left:17px;color:var(--z700);font-size:12px;line-height:1.55}
+.dialog-ai-summary-list li+li{margin-top:4px}
+.dialog-ai-summary.collapsed .dialog-ai-summary-head{border-bottom:0}
+.dialog-ai-summary.collapsed .dialog-ai-summary-content{display:none}
+@media(max-width:620px){.dialog-ai-summary-content{grid-template-columns:1fr;gap:12px}}
+.pms-tooltip{position:relative;display:inline-flex;align-items:center;cursor:help}
+.fb-sender{gap:4px;align-items:baseline}
+.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}
+.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}
+.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
 .pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
 </style>
-</head><body><header class="top">MoMo Performance - Phản hồi</header><main><div class="head"><div class="avatar" id="avatar"></div><div><div class="title">Phản hồi đã nhận <span class="count" id="count">0</span></div><div class="meta" id="meta"></div></div></div><div class="cards" id="cards"></div></main>
-<script src="../assets/employees-data.js"></script><script src="manager-feedback-data.js"></script><script>
+</head>
+<body>
+<header class="top"><span class="brand-dot">M</span>MoMo Performance · Phản hồi đã nhận</header>
+<main>
+  <div class="head">
+    <div class="title" id="title">Phản hồi đã nhận <span class="count" id="count">0</span></div>
+  </div>
+  <div class="layout">
+    <aside class="side-left">
+      <div class="person-card" id="personCard"></div>
+    </aside>
+    <div class="main-col">
+      <div id="aiMount"></div>
+      <div class="cards" id="cards"></div>
+    </div>
+    <aside class="rail">
+      <div class="rail-card">
+        <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
+        <div id="railCV"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script src="../assets/employees-data.js"></script>
+<script src="manager-feedback-data.js"></script>
+<script src="manager-ai-summary.js"></script>
+<script>
+const CV_ORDER=['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'];
+let AI_COLLAPSED=false;
+
+function personCardHTML(employee){
+  const rows=[['Khối',employee.div],['Phòng ban',employee.dept],['Team',employee.team],['Vị trí',employee.pos]].filter(([,value])=>value);
+  return `<div class="person-top"><div class="person-avatar">${employee.ini}</div><div class="person-name">${employee.name}</div><div class="person-domain">${employee.login}</div></div><div class="person-info">${rows.map(([label,value])=>`<div class="person-row"><span class="person-label">${label}</span><span class="person-value">${value}</span></div>`).join('')}</div>`;
+}
+function aiSummaryHTML(employee,feedback){
+  const summary=ManagerAiSummary.create(employee,feedback);
+  if(!summary.available)return '';
+  const list=items=>`<ul class="dialog-ai-summary-list">${items.map(item=>`<li>${item}</li>`).join('')}</ul>`;
+  return `<section class="dialog-ai-summary ${AI_COLLAPSED?'collapsed':''}" id="aiSummary"><header class="dialog-ai-summary-head"><div class="dialog-ai-summary-brand"><i class="bx bx-sparkles"></i><span>AI Summary</span></div><div class="dialog-ai-summary-actions"><span class="dialog-ai-summary-updated">Cập nhật: ${summary.updatedAt}</span><button type="button" class="dialog-ai-summary-toggle" onclick="toggleAiSummary()" aria-expanded="${!AI_COLLAPSED}" aria-label="${AI_COLLAPSED?'Mở AI Summary':'Thu gọn AI Summary'}"><i class="bx ${AI_COLLAPSED?'bx-chevron-down':'bx-chevron-up'}"></i></button></div></header><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(summary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(summary.opportunities)}</section></div></section>`;
+}
+function toggleAiSummary(){
+  AI_COLLAPSED=!AI_COLLAPSED;
+  const summary=document.getElementById('aiSummary'); if(!summary)return;
+  summary.classList.toggle('collapsed',AI_COLLAPSED);
+  const button=summary.querySelector('.dialog-ai-summary-toggle');
+  button.setAttribute('aria-expanded',String(!AI_COLLAPSED));
+  button.setAttribute('aria-label',AI_COLLAPSED?'Mở AI Summary':'Thu gọn AI Summary');
+  button.innerHTML=`<i class="bx ${AI_COLLAPSED?'bx-chevron-down':'bx-chevron-up'}"></i>`;
+}
+function railCVHTML(feedback){
+  const counts={};
+  feedback.forEach(item=>(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;}));
+  const ranked=CV_ORDER.map(value=>[value,counts[value]||0]).sort((a,b)=>b[1]-a[1]);
+  return ranked.map(([value,count])=>`<div class="cv-rank ${count?'':'zero'}"><img src="../Core value with BG/${ManagerFeedbackData.coreValueIcon(value)}" alt=""><span class="cv-rank-name">${value}</span><span class="cv-rank-cnt">${count}</span></div>`).join('');
+}
+
 const params=new URLSearchParams(location.search),employeeId=params.get('employee'),cycle=params.get('cycle')||'2026';
 const employees=window.PMS_EMPLOYEES||[],store=ManagerFeedbackData.createStore(employees),employee=employees.find(item=>item.id===employeeId),items=employee?store.feedbackFor(employee.id,cycle):[];
-if(employee){document.title=`Phản hồi đã nhận - ${employee.name}`;document.getElementById('avatar').textContent=employee.ini;document.getElementById('meta').textContent=store.employeeMeta(employee);document.getElementById('count').textContent=items.length;document.getElementById('cards').innerHTML=items.length?items.map(item=>store.feedbackCard(item,employee)).join(''):'<div class="empty">Chưa có phản hồi trong chu kỳ này.</div>';}else{document.getElementById('cards').innerHTML='<div class="empty">Không tìm thấy nhân viên.</div>';}
-</script></body></html>
+
+if(employee){
+  document.title=`Phản hồi đã nhận - ${employee.name}`;
+  document.getElementById('title').innerHTML=`Phản hồi đã nhận của ${employee.name} <span class="count">${items.length}</span>`;
+  document.getElementById('personCard').innerHTML=personCardHTML(employee);
+  document.getElementById('aiMount').innerHTML=items.length?aiSummaryHTML(employee,items):'';
+  document.getElementById('cards').innerHTML=items.length?items.map((item,index)=>ManagerFeedbackData.feedbackCard(item,employee,{senderTooltipPlacement:index===0?'bottom':'top'})).join(''):'<div class="empty">Chưa có phản hồi trong chu kỳ này.</div>';
+  document.getElementById('railCV').innerHTML=railCVHTML(items);
+}else{
+  document.getElementById('cards').innerHTML='<div class="empty">Không tìm thấy nhân viên.</div>';
+}
+</script>
+</body>
+</html>
