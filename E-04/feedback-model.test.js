@@ -42,6 +42,30 @@ test('employee answered feedback uses the shared compact question and answer pat
   assert.match(html, /cardGiven\(f\)[\s\S]*feedbackPair\(f\.q,f\.body,expandBtn\(\)\)/);
 });
 
+test('employee request due field is limited to 90 days and expired requests are locked', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  assert.match(html,/Yêu cầu có hiệu lực tối đa 90 ngày kể từ ngày tạo\./);
+  assert.match(html,/function configureReqDueRange\(\)/);
+  assert.match(html,/due\.min=range\.min;due\.max=range\.max/);
+  assert.match(html,/function requestLifecycleStatus\(request,today=todayDMY\(\)\)/);
+  assert.match(html,/return 'no_response'/);
+  assert.match(html,/Không phản hồi/);
+});
+
+test('employee request reminders show automatic timing and enforce a rolling 24-hour cooldown', () => {
+  const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
+  assert.match(html,/id:'req-active-collaboration'/);
+  assert.match(html,/due:'28\/08\/2026', status:'open'/);
+  assert.match(html,/lifecycle==='overdue'[\s\S]*?chip ch-overdue/);
+  assert.match(html,/class="rv-pending-tag \$\{locked\?'is-locked':''\}"/);
+  assert.match(html,/\.rv-pending-tag\{[^}]*border:0[^}]*background:transparent[^}]*color:var\(--warn\)/);
+  assert.match(html,/function canRemindReviewer\(request,reviewer,now=nowDMYTime\(\)\)/);
+  assert.match(html,/Hệ thống sẽ tự động nhắc ngày/);
+  assert.match(html,/Lần nhắc tiếp theo/);
+  assert.match(html,/Đã nhắc: \$\{history\.length\} lần/);
+  assert.doesNotMatch(html,/event\.type==='automatic'\?'Tự động':'Thủ công'/);
+});
+
 test('employee feedback warns before discarding instead of offering draft saving', () => {
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const confirm = html.match(/id="dlg-confirm"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/)?.[0] || '';

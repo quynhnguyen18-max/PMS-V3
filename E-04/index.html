@@ -384,6 +384,7 @@ input,select,textarea{font-family:inherit}
 .ch-pending{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
 .ch-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
 .ch-expired{color:var(--z500);background:var(--z100);border-color:var(--z200)}
+.ch-no-response{color:var(--z600);background:var(--z100);border-color:var(--z300)}
 .ch-overdue{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
 .ch-draft{color:var(--z600);background:var(--z100);border-color:var(--z300)}
 
@@ -418,7 +419,9 @@ input,select,textarea{font-family:inherit}
 .rv-qbox-pending{position:relative;padding-right:118px}
 .rv-question-status{position:absolute;top:7px;right:10px}
 .rv-item-status{position:absolute;top:14px;right:0}
+.rv-pending-tag{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;padding:0;color:var(--warn);font-size:11px;font-weight:600;white-space:nowrap}.rv-pending-tag i{font-size:12px}.rv-pending-tag.is-locked{color:var(--z600)}
 .rv-remind-note{margin:7px 0 0 37px;font-size:11.5px;color:var(--brand);font-weight:500}
+.reminder-meta{display:flex;align-items:center;min-height:20px;margin-top:5px;color:var(--z500);font-size:10.5px;line-height:1.45}.reminder-meta i{font-size:12px}.reminder-summary{display:inline-flex;align-items:center;gap:4px}.reminder-history-tip{left:0;transform:none;min-width:230px;white-space:normal;text-align:left}.reminder-history-tip::after{left:14px;transform:none}
 .rv-reminded{color:var(--brand);font-style:normal;font-weight:500}
 .rv-reminded i{font-size:12px;vertical-align:-1px}
 /* popup header meta (không dùng dấu chấm phân cách) */
@@ -952,7 +955,7 @@ input,select,textarea{font-family:inherit}
         <div class="field">
           <label class="field-label">Hạn phản hồi<span class="req-star">*</span></label>
           <input type="date" class="date-input" id="reqDue" onchange="syncReq()"/>
-          <div class="field-hint" style="margin-top:5px"><i class="bx bx-info-circle"></i> Hệ thống sẽ tự nhắc người phản hồi 3 ngày trước hạn.</div>
+          <div class="field-hint" style="margin-top:5px"><i class="bx bx-info-circle"></i> Yêu cầu có hiệu lực tối đa 90 ngày kể từ ngày tạo.</div>
         </div>
       </div>
 
@@ -1141,6 +1144,14 @@ const FEED = [
         q:'Sau migration, hiệu năng truy vấn trên các báo cáo dữ liệu có cải thiện không?'},
       {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA', st:'pending',
         q:'Quá trình kiểm thử hồi quy sau migration có thuận lợi không?'}
+    ] },
+  { id:'req-active-collaboration', kind:'request', cycle:'2026', date:'05/08/2026', ts:20260805,
+    context:'Thu thập góc nhìn về khả năng phối hợp trong giai đoạn hoàn thiện tính năng mới',
+    due:'28/08/2026', status:'open', qMode:'shared',
+    question:'Trong quá trình phối hợp gần đây, bạn ghi nhận điều gì Tú đang làm tốt và điều gì Tú có thể cải thiện thêm?',
+    reviewers:[
+      {name:'Nguyễn Hoài An', dom:'an.nguyen', ini:'NA', org:'ITC – Product', st:'pending'},
+      {name:'Đỗ Minh Khang', dom:'khang.do', ini:'DK', org:'ITC – Mobile', st:'pending'}
     ] },
   { id:'req-senior-mentoring', kind:'request', cycle:'2026', date:'02/02/2026', ts:20260202,
     context:'Xin góp ý về khả năng mentor junior để chuẩn bị cho lộ trình lên Senior',
@@ -1530,10 +1541,15 @@ function draftCardsHTML(q){
 
 function cardRequest(f,idx){
   const done=f.reviewers.filter(r=>r.st==='done').length, tot=f.reviewers.length;
+  const lifecycle=requestLifecycleStatus(f);
   // gộp trạng thái + tiến độ vào đúng 1 chỗ
-  const st = f.status==='completed'
+  const st = lifecycle==='complete'
     ? `<span class="chip ch-done"><i class="bx bx-check-circle"></i>Hoàn thành: ${done}/${tot} đã trả lời</span>`
-    : `<span class="chip ch-pending"><i class="bx bx-loader-alt"></i>Đang thu thập: ${done}/${tot} đã trả lời</span>`;
+    : lifecycle==='no_response'
+      ? `<span class="chip ch-no-response"><i class="bx bx-lock-alt"></i>Không phản hồi</span>`
+      : lifecycle==='overdue'
+        ? `<span class="chip ch-overdue"><i class="bx bx-error-circle"></i>Quá hạn: ${done}/${tot} đã trả lời</span>`
+        : `<span class="chip ch-pending"><i class="bx bx-loader-alt"></i>Đang thu thập: ${done}/${tot} đã trả lời</span>`;
   const first=f.reviewers[0], more=tot-1;
   // hover vào "và n người khác" → liệt kê đúng những ai
   const others=f.reviewers.slice(1);
@@ -1541,13 +1557,13 @@ function cardRequest(f,idx){
     + (others.length>8 ? `<br>… và ${others.length-8} người nữa` : '');
   const suffix = more>0
     ? `<span class="fb-more" onclick="openReq(${idx})">và ${more} người khác<span class="fb-badge-tip tip-list">${list}</span></span>` : '';
-  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} · Hạn ${f.due}</span></div>`;
+  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} · Hạn ${f.due}</span></div>${requestReminderSummary(f)}`;
   return `<div class="fb-card has-chip" data-kind="request">
     <div class="fb-chip-tr">${st}</div>
     ${cardHead(SELF, first, meta, suffix)}
     <div class="req-actions">
       <button class="btn btn-outline btn-sm" onclick="openReq(${idx})"><i class="bx bx-list-ul"></i> Xem chi tiết</button>
-      ${f.status!=='completed' ? remindBtnHTML(f, idx, 'btn-outline') : ''}
+      ${lifecycle==='collecting'||lifecycle==='overdue' ? remindBtnHTML(f, idx, 'btn-outline') : ''}
     </div>
   </div>`;
 }
@@ -1638,6 +1654,7 @@ function openReq(idx){
   const f=FEED[idx];
   const done=f.reviewers.filter(r=>r.st==='done').length, tot=f.reviewers.length;
   const allDone = done===tot;
+  const locked=requestLifecycleStatus(f)==='no_response';
   document.getElementById('reqTitle').textContent='Yêu cầu phản hồi của tôi';
   document.getElementById('reqSub').innerHTML=`
     <div class="dlg-meta">
@@ -1657,7 +1674,7 @@ function openReq(idx){
     const meta = answered
       ? `<div class="fb-meta"><span class="fb-meta-date">${r.repliedAt.split(' · ')[0]}</span>${visIcon(r.vis||'receiver','receiver')}</div>`
       : '';
-    const pendingTag = !answered ? `<span class="chip ch-expired"><i class="bx bx-time-five"></i>Chưa trả lời</span>` : '';
+    const pendingTag = !answered ? `<span class="rv-pending-tag ${locked?'is-locked':''}"><i class="bx ${locked?'bx-lock-alt':'bx-time-five'}"></i>${locked?'Không phản hồi':'Chưa trả lời'}</span>` : '';
     const question = !answered && f.qMode==='individual' && r.q
       ? `<div class="fb-qbox rv-qbox-pending"><span class="rv-question-status">${pendingTag}</span><div class="fb-q-lbl">Câu hỏi</div><p class="fb-q-txt">${r.q}</p></div>`
       : '';
@@ -1675,16 +1692,18 @@ function openReq(idx){
       ${question}
       ${answered
         ? (f.qMode==='individual'&&r.q?feedbackPair(r.q,r.fb):`<p class="fb-body">${r.fb}</p>`)
-        : (r.reminded?`<div class="rv-remind-note"><i class="bx bx-bell"></i> Đã nhắc ${r.reminded}</div>`:'')}
+        : reminderReviewerMeta(f,r)}
     </div>`;
   }).join('');
   document.getElementById('reqBody').innerHTML = body;
 
   // nút nhắc: ẩn khi đã đủ câu trả lời, khóa lại khi vừa nhắc hôm nay
   curReqIdx=idx;
-  document.getElementById('reqRemindSlot').innerHTML = remindBtnHTML(f, idx, 'btn-default');
+  document.getElementById('reqRemindSlot').innerHTML = locked?'':remindBtnHTML(f, idx, 'btn-default');
   document.getElementById('reqRemindNote').textContent = allDone
     ? 'Tất cả đã trả lời — yêu cầu hoàn thành.'
+    : locked
+      ? 'Yêu cầu đã đóng sau 90 ngày và không thể nhận thêm phản hồi.'
     : f.remindedOn
       ? `Đã nhắc thủ công ngày ${f.remindedOn} · hệ thống vẫn tự nhắc 3 ngày trước hạn.`
       : 'Hệ thống tự nhắc 3 ngày trước hạn.';
@@ -1693,18 +1712,19 @@ function openReq(idx){
 
 /* ── nhắc người chưa trả lời (UC1 · R-2) ── */
 let curReqIdx=null;
+const justRemindedReviewers=new Set();
 function remindBtnHTML(f, idx, cls){
-  if(f.reviewers.every(r=>r.st==='done')) return '';
-  return f.remindedOn
-    ? `<button class="btn ${cls} btn-sm" disabled><i class="bx bx-check"></i> Đã nhắc ${f.remindedOn}</button>`
-    : `<button class="btn ${cls} btn-sm" onclick="remindPending(${idx})"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`;
+  if(f.reviewers.every(r=>r.st==='done')||requestLifecycleStatus(f)==='no_response') return '';
+  const eligible=f.reviewers.some(r=>canRemindReviewer(f,r));
+  return `<button class="btn ${cls} btn-sm" onclick="remindPending(${idx})" ${eligible?'':'disabled'} title="${eligible?'Gửi lời nhắc thủ công':'Mỗi người chỉ được nhắc thủ công một lần trong 24 giờ'}"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`;
 }
 function remindPending(idx){
   const f=FEED[idx];
-  const pending=f.reviewers.filter(r=>r.st==='pending');
-  if(!pending.length || f.remindedOn) return;
-  f.remindedOn=todayDMY();
-  pending.forEach(r=>r.reminded=f.remindedOn);
+  if(requestLifecycleStatus(f)==='no_response')return;
+  const now=nowDMYTime(),pending=f.reviewers.filter(r=>canRemindReviewer(f,r,now));
+  if(!pending.length){toast('Mỗi người chỉ được nhắc thủ công một lần trong 24 giờ.');return;}
+  f.remindedOn=now;
+  pending.forEach(r=>{r.reminded=now;r.manualReminderHistory=[...(r.manualReminderHistory||[]),now];justRemindedReviewers.add(reminderReviewerKey(f,r));});
   toast(`Đã gửi nhắc tới ${pending.length} người chưa trả lời.`);
   renderFeed();
   if(curReqIdx===idx && document.getElementById('dlg-req').classList.contains('open')) openReq(idx);
@@ -2198,6 +2218,7 @@ function openRequest(){
   document.getElementById('reqCommonAiStatus').style.display='none';
   document.getElementById('reqCommonAiBar').style.display='flex';
   document.getElementById('reqDue').value='';
+  configureReqDueRange();
   document.getElementById('reqPersonalize').checked=false;
   document.getElementById('reqPersonWrap').style.display='none';
   renderChosen(); syncPersonalizeVis(); syncReq();
@@ -2368,19 +2389,35 @@ function renderPersonalize(){
     : `<div class="pick-empty">Chọn người phản hồi trước để đặt câu hỏi riêng.</div>`;
 }
 function syncReq(){
-  const due=document.getElementById('reqDue').value;
+  const dueInput=document.getElementById('reqDue'),due=dueInput.value;
   const hasReviewers=R.reviewers.length>=1;
   const qOk = R.personalize
     ? R.reviewers.every(r=>(r.q||'').trim())
     : !!document.getElementById('reqQ').value.trim();
-  document.getElementById('reqSend').disabled = !(hasReviewers && due && qOk);
+  document.getElementById('reqSend').disabled = !(hasReviewers && due && dueInput.checkValidity() && qOk);
 }
 function fmtDMY(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 function todayDMY(){ const t=new Date(); const p=n=>String(n).padStart(2,'0'); return `${p(t.getDate())}/${p(t.getMonth()+1)}/${t.getFullYear()}`; }
+function nowDMYTime(){const t=new Date(),p=n=>String(n).padStart(2,'0');return `${p(t.getDate())}/${p(t.getMonth()+1)}/${t.getFullYear()} ${p(t.getHours())}:${p(t.getMinutes())}`;}
 function tsFrom(dmy){ const [d,m,y]=dmy.split('/'); return +(y+m+d); }
+function dateFromDMY(dmy){const [d,m,y]=String(dmy||'').split('/').map(Number);return d&&m&&y?new Date(Date.UTC(y,m-1,d)):null;}
+function dateTimeFromDMY(value){const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[· ]\s*(\d{2}):(\d{2}))?$/);return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;}
+function automaticReminderDate(request){const due=dateFromDMY(request.due);if(!due)return '';due.setUTCDate(due.getUTCDate()-3);const p=n=>String(n).padStart(2,'0');return `${p(due.getUTCDate())}/${p(due.getUTCMonth()+1)}/${due.getUTCFullYear()}`;}
+function canRemindReviewer(request,reviewer,now=nowDMYTime()){if(!reviewer||reviewer.st==='done'||requestLifecycleStatus(request,String(now).slice(0,10))==='no_response')return false;const current=dateTimeFromDMY(now),due=dateFromDMY(request.due);if(!current||!due)return false;due.setUTCHours(23,59,59,999);if(current>due)return false;const last=dateTimeFromDMY(reviewer.reminded);return !last||current-last>=86400000;}
+function reminderReviewerKey(request,reviewer){return `${request.date}|${reviewer.dom}`;}
+function reminderReviewerHistory(request,reviewer,today=todayDMY()){const recorded=reviewer.manualReminderHistory||[],manual=(recorded.length?recorded:(reviewer.reminded?[reviewer.reminded]:[])).map(at=>({at,type:'manual'})),auto=reviewer.automaticRemindedAt||automaticReminderDate(request),automatic=dateTimeFromDMY(auto)<=dateTimeFromDMY(today)?[{at:auto,type:'automatic'}]:[];return [...manual,...automatic].sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));}
+function reminderHistoryTooltip(history){return history.map((event,index)=>`Lần ${index+1}: ${event.at}`).join('<br>');}
+function reminderReviewerMeta(request,reviewer){const auto=reviewer.automaticRemindedAt||automaticReminderDate(request),history=reminderReviewerHistory(request,reviewer),manual=reviewer.reminded,autoPending=dateTimeFromDMY(auto)>dateTimeFromDMY(todayDMY());if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${auto}</span></div>`;if(justRemindedReviewers.has(reminderReviewerKey(request,reviewer))&&manual&&autoPending)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-bell"></i>Đã nhắc: ${manual} · Lần nhắc tiếp theo: ${auto}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
+function requestReminderSummary(request){const history=request.reviewers.flatMap(reviewer=>reminderReviewerHistory(request,reviewer)).sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${automaticReminderDate(request)}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
+function isoFromDate(date){const p=n=>String(n).padStart(2,'0');return date?`${date.getUTCFullYear()}-${p(date.getUTCMonth()+1)}-${p(date.getUTCDate())}`:'';}
+function requestDueRange(createdAt=todayDMY()){const created=dateFromDMY(createdAt),max=new Date(created);max.setUTCDate(max.getUTCDate()+90);return {min:isoFromDate(created),max:isoFromDate(max)};}
+function configureReqDueRange(){const due=document.getElementById('reqDue');const range=requestDueRange();due.min=range.min;due.max=range.max;}
+function requestLifecycleStatus(request,today=todayDMY()){const done=request.status==='completed'||request.reviewers.every(item=>item.st==='done');if(done)return 'complete';const created=dateFromDMY(request.date),expires=created&&new Date(created);if(expires)expires.setUTCDate(expires.getUTCDate()+90);const now=dateFromDMY(today);if(now&&expires&&now>expires)return 'no_response';if(request.due&&tsFrom(today)>tsFrom(request.due))return 'overdue';return 'collecting';}
 function submitRequest(){
   DRAFTS.req=null;   // đã gửi → bỏ nháp
   const dueISO=document.getElementById('reqDue').value;
+  const range=requestDueRange();
+  if(!dueISO||dueISO<range.min||dueISO>range.max){toast('Hạn phản hồi phải nằm trong 90 ngày kể từ ngày tạo.');return;}
   const due=fmtDMY(dueISO);
   const today=todayDMY();
   const reviewers=R.reviewers.map(r=>({

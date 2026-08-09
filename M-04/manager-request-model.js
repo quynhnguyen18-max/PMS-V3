@@ -19,6 +19,50 @@
     const [y,m,d]=String(iso||'').split('-');
     return (y&&m&&d)?`${d}/${m}/${y}`:'';
   }
+  function dateFromDMY(value){
+    const [d,m,y]=String(value||'').split('/').map(Number);
+    return d&&m&&y?new Date(Date.UTC(y,m-1,d)):null;
+  }
+  function fmtISOFromDate(date){
+    if(!date)return '';
+    const pad=value=>String(value).padStart(2,'0');
+    return `${date.getUTCFullYear()}-${pad(date.getUTCMonth()+1)}-${pad(date.getUTCDate())}`;
+  }
+  function fmtDMYFromDate(date){
+    if(!date)return '';
+    const pad=value=>String(value).padStart(2,'0');
+    return `${pad(date.getUTCDate())}/${pad(date.getUTCMonth()+1)}/${date.getUTCFullYear()}`;
+  }
+  function maxDueDate(createdAt){
+    const date=dateFromDMY(createdAt);if(!date)return '';
+    date.setUTCDate(date.getUTCDate()+90);
+    return fmtDMYFromDate(date);
+  }
+  function addDaysDMY(value,days){const date=dateFromDMY(value);if(!date)return '';date.setUTCDate(date.getUTCDate()+days);return fmtDMYFromDate(date);}
+  function automaticReminderDate(request){return addDaysDMY(request&&request.due,-3);}
+  function dateTimeFromDMY(value){
+    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[· ]\s*(\d{2}):(\d{2}))?$/);
+    return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;
+  }
+  function reminderHistory(request,assignment,todayDMY){
+    const recorded=(assignment&&assignment.manualReminderHistory)||[];
+    const manual=(recorded.length?recorded:(assignment&&assignment.remindedAt?[assignment.remindedAt]:[])).map(at=>({at,type:'manual'}));
+    const automaticAt=(assignment&&assignment.automaticRemindedAt)||automaticReminderDate(request);
+    const automaticDate=dateTimeFromDMY(automaticAt),today=dateTimeFromDMY(todayDMY);
+    const automatic=automaticDate&&today&&automaticDate<=today?[{at:automaticAt,type:'automatic'}]:[];
+    return [...manual,...automatic].sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));
+  }
+  function dueRange(createdAt){
+    const created=dateFromDMY(createdAt),max=dateFromDMY(maxDueDate(createdAt));
+    return {min:fmtISOFromDate(created),max:fmtISOFromDate(max)};
+  }
+  function validateDueDate(createdAt,due){
+    const created=dateFromDMY(createdAt),selected=dateFromDMY(due),max=dateFromDMY(maxDueDate(createdAt));
+    if(!created||!selected)throw new Error('Hạn phản hồi là bắt buộc');
+    if(selected<created)throw new Error('Hạn phản hồi không được trước ngày tạo');
+    if(selected>max)throw new Error('Yêu cầu chỉ có hiệu lực tối đa 90 ngày kể từ ngày tạo');
+    return due;
+  }
   function personKey(person){ return String(person&&(person.login||person.dom||person.id)||''); }
   function normalizeGoal(input){
     const goal=String(input&&input.goal||'').trim();
@@ -60,6 +104,7 @@
           status:'pending',
           repliedAt:null,
           remindedAt:null,
+          manualReminderHistory:[],
           responseId:null
         });
       });
@@ -79,7 +124,7 @@
   function createRequest(input){
     const goal=normalizeGoal(input);
     const assignments=buildAssignments(input);
-    const due=input.due||'';
+    const due=validateDueDate(input.createdAt||'',input.due||'');
     return {
       id:input.id||createRequestId(input),
       goal,
@@ -102,7 +147,13 @@
   /* ── Dữ liệu cho D4 monitoring ── */
   function isOverdue(request,todayDMY){
     const today=tsFromDMY(todayDMY);
-    return !!(today&&request.dueTs&&today>request.dueTs);
+    const dueTs=request&&(request.dueTs||tsFromDMY(request.due));
+    return !!(today&&dueTs&&today>dueTs);
+  }
+  function isNoResponse(request,todayDMY){
+    const today=dateFromDMY(todayDMY),expires=dateFromDMY(maxDueDate(request&&request.createdAt));
+    const pending=((request&&request.assignments)||[]).some(item=>item.status!=='done');
+    return !!(pending&&today&&expires&&today>expires);
   }
   function summarize(request,todayDMY){
     const assignments=(request&&request.assignments)||[];
@@ -129,10 +180,6 @@
     return [...rows.values()].map(row=>({...row,overdue:late?row.pending:0,rate:row.total?Math.round(row.done/row.total*100):0}));
   }
 
-  function dateFromDMY(value){
-    const [d,m,y]=String(value||'').split('/').map(Number);
-    return d&&m&&y?new Date(Date.UTC(y,m-1,d)):null;
-  }
   function daysOverdue(request,todayDMY){
     if(!isOverdue(request,todayDMY))return 0;
     const due=dateFromDMY(request.due),today=dateFromDMY(todayDMY);
@@ -141,13 +188,24 @@
   function requestStatus(request,todayDMY){
     const stat=summarize(request,todayDMY);
     if(stat.total>0&&stat.pending===0)return 'complete';
+    if(isNoResponse(request,todayDMY))return 'no_response';
     if(stat.overdue>0)return 'overdue';
     return 'collecting';
   }
+  function canRemindAssignment(request,assignment,nowDMY){
+    if(!assignment||assignment.status==='done'||requestStatus(request,String(nowDMY||'').slice(0,10))==='no_response')return false;
+    const now=dateTimeFromDMY(nowDMY),due=dateFromDMY(request&&request.due);
+    if(!now||!due)return false;
+    due.setUTCHours(23,59,59,999);
+    if(now>due)return false;
+    const last=dateTimeFromDMY(assignment.remindedAt);
+    return !last||now-last>=86400000;
+  }
   function remindAssignment(request,assignmentId,todayDMY){
     const assignment=((request&&request.assignments)||[]).find(item=>item.id===assignmentId);
-    if(!assignment||assignment.status==='done'||assignment.remindedAt===todayDMY)return false;
+    if(!canRemindAssignment(request,assignment,todayDMY))return false;
     assignment.remindedAt=todayDMY;
+    assignment.manualReminderHistory=[...((assignment.manualReminderHistory)||[]),todayDMY];
     return true;
   }
   function remindPending(request,todayDMY){
@@ -178,5 +236,5 @@
     };
   }
 
-  return {tsFromDMY,fmtDMY,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,daysOverdue,requestStatus,remindAssignment,remindPending,createStore};
+  return {tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isNoResponse,daysOverdue,requestStatus,canRemindAssignment,remindAssignment,remindPending,createStore};
 });

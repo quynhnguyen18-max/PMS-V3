@@ -393,7 +393,7 @@ test('MR-1 keeps UC3 visibility shared and locked for reviewers', () => {
   const model = require('./manager-request-model.js');
   const request = model.createRequest({
     goal:'Test request',
-    cycle:'2026', due:'18/08/2026',
+    cycle:'2026', createdAt:'01/08/2026', due:'18/08/2026',
     designees:[{id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',lvl:'lm1'}],
     reviewers:[{name:'Lê Thành Nam',login:'nam.le',ini:'LN'}],
     sharedQuestion:'Câu hỏi chung'
@@ -419,7 +419,7 @@ test('MR-1 personalised questions attach per reviewer and skip self-review pairs
 
   const request = model.createRequest({
     goal:'Test request',
-    cycle:'2026', due:'18/08/2026', personalize:true, designees, reviewers,
+    cycle:'2026', createdAt:'01/08/2026', due:'18/08/2026', personalize:true, designees, reviewers,
     questions:{'tu.nguyen':'Câu hỏi cho Tú','nam.le':'Câu hỏi cho Nam'}
   });
   assert.equal(request.questionMode, 'individual');
@@ -445,7 +445,7 @@ test('MR-1 output feeds D4 monitoring with pending and overdue counters', () => 
   const model = require('./manager-request-model.js');
   const request = model.createRequest({
     goal:'Test request',
-    cycle:'2026', due:'10/08/2026',
+    cycle:'2026', createdAt:'01/08/2026', due:'10/08/2026',
     designees:[
       {id:'e1',name:'Nguyễn Văn Tú',login:'tu.nguyen',lvl:'lm1'},
       {id:'e2',name:'Trần Thị Mai',login:'mai.tran',lvl:'lm1'}
@@ -499,14 +499,90 @@ test('D4 model derives request status and locks reminders within the same day', 
   assert.equal(model.requestStatus(request,'06/08/2026'),'collecting');
   assert.equal(model.requestStatus(request,'12/08/2026'),'overdue');
   assert.equal(model.daysOverdue(request,'12/08/2026'),2);
-  assert.equal(model.remindAssignment(request,request.assignments[1].id,'12/08/2026'),true);
-  assert.equal(request.assignments[1].remindedAt,'12/08/2026');
-  assert.equal(model.remindAssignment(request,request.assignments[1].id,'12/08/2026'),false,'same-day reminder must be locked');
-  assert.equal(model.remindAssignment(request,request.assignments[0].id,'12/08/2026'),false,'done assignment cannot be reminded');
-  assert.equal(model.remindPending(request,'13/08/2026'),3,'all pending assignments can be reminded on a new day');
+  assert.equal(model.remindAssignment(request,request.assignments[1].id,'06/08/2026'),true);
+  assert.equal(request.assignments[1].remindedAt,'06/08/2026');
+  assert.equal(model.remindAssignment(request,request.assignments[1].id,'06/08/2026'),false,'same-day reminder must be locked');
+  assert.equal(model.remindAssignment(request,request.assignments[0].id,'06/08/2026'),false,'done assignment cannot be reminded');
+  assert.equal(model.remindPending(request,'07/08/2026'),3,'all pending assignments can be reminded after 24 hours');
+  assert.equal(model.remindPending(request,'12/08/2026'),0,'manual reminders stop after the deadline');
 
   request.assignments.slice(1).forEach(item=>{item.status='done';item.repliedAt='13/08/2026';});
   assert.equal(model.requestStatus(request,'13/08/2026'),'complete');
+});
+
+test('manual reminders use a rolling 24-hour cooldown per recipient until the deadline', () => {
+  const model=require('./manager-request-model.js');
+  const request=model.createRequest({goal:'Reminder cooldown',cycle:'2026',createdAt:'01/08/2026',due:'15/08/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'});
+  const assignment=request.assignments[0];
+  assert.equal(model.remindAssignment(request,assignment.id,'12/08/2026 10:00'),true);
+  assert.equal(assignment.remindedAt,'12/08/2026 10:00');
+  assert.deepEqual(assignment.manualReminderHistory,['12/08/2026 10:00']);
+  assert.equal(model.canRemindAssignment(request,assignment,'13/08/2026 09:59'),false);
+  assert.equal(model.canRemindAssignment(request,assignment,'13/08/2026 10:00'),true);
+  assert.equal(model.remindAssignment(request,assignment.id,'13/08/2026 10:00'),true);
+  assert.equal(assignment.manualReminderHistory.length,2,'manual reminders are unlimited after each cooldown');
+  assert.equal(model.canRemindAssignment(request,assignment,'16/08/2026 10:00'),false,'manual reminders stop after the deadline');
+});
+
+test('automatic reminder timing is visible but does not block a manual reminder', () => {
+  const model=require('./manager-request-model.js');
+  const request=model.createRequest({goal:'Automatic reminder',cycle:'2026',createdAt:'01/08/2026',due:'15/08/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'});
+  const assignment=request.assignments[0];
+  assignment.automaticRemindedAt='12/08/2026 09:00';
+  assert.equal(model.automaticReminderDate(request),'12/08/2026');
+  assert.equal(model.canRemindAssignment(request,assignment,'12/08/2026 10:00'),true);
+});
+
+test('reminder history merges manual and automatic events in chronological order', () => {
+  const model=require('./manager-request-model.js');
+  const request=model.createRequest({goal:'Reminder history',cycle:'2026',createdAt:'01/08/2026',due:'15/08/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'});
+  const assignment=request.assignments[0];
+  model.remindAssignment(request,assignment.id,'10/08/2026 10:00');
+  assert.deepEqual(model.reminderHistory(request,assignment,'11/08/2026'),[{at:'10/08/2026 10:00',type:'manual'}]);
+  assert.deepEqual(model.reminderHistory(request,assignment,'12/08/2026'),[
+    {at:'10/08/2026 10:00',type:'manual'},
+    {at:'12/08/2026',type:'automatic'}
+  ]);
+});
+
+test('request detail explains automatic and latest manual reminder timing', () => {
+  const html=fs.readFileSync(path.join(__dirname,'request-detail.html'),'utf8');
+  assert.match(html,/Hệ thống sẽ tự động nhắc ngày/);
+  assert.match(html,/Lần nhắc tiếp theo/);
+  assert.match(html,/Đã nhắc: \$\{history\.length\} lần/);
+  assert.match(html,/Lần \$\{index\+1\}/);
+  assert.match(html,/pending-tag/);
+  assert.match(html,/question pending-question/);
+  assert.match(html,/\.pending-actions\{[^}]*display:flex[^}]*align-items:center/);
+  assert.match(html,/\.pending-tag\{[^}]*border:0[^}]*background:transparent/);
+  assert.match(html,/\.question\.pending-question\{[^}]*background:#fff[^}]*border:1px solid var\(--warning-border\)[^}]*border-radius:7px/);
+  assert.match(html,/\.question\.pending-question \.label\{[^}]*color:var\(--z500\)/);
+  assert.match(html,/\.reminder-history-tip\{[^}]*font-size:10px/);
+  assert.match(html,/bx-info-circle/);
+  assert.doesNotMatch(html,/event\.type==='automatic'\?'Tự động':'Thủ công'/);
+});
+
+test('feedback requests expire after 90 days and reject due dates outside the allowed range', () => {
+  const model = require('./manager-request-model.js');
+  assert.equal(model.maxDueDate('01/08/2026'),'30/10/2026');
+  assert.deepEqual(model.dueRange('01/08/2026'),{min:'2026-08-01',max:'2026-10-30'});
+  const input={goal:'Test 90-day rule',cycle:'2026',createdAt:'01/08/2026',due:'30/10/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'};
+  const request=model.createRequest(input);
+  assert.equal(model.requestStatus(request,'30/10/2026'),'collecting');
+  assert.equal(model.requestStatus(request,'31/10/2026'),'no_response');
+  assert.equal(model.remindPending(request,'31/10/2026'),0,'closed requests cannot be reminded');
+  assert.throws(()=>model.createRequest({...input,due:'31/10/2026'}),/90 ngày/);
+  assert.throws(()=>model.createRequest({...input,due:'31/07/2026'}),/ngày tạo/);
+  request.assignments[0].status='done';
+  assert.equal(model.requestStatus(request,'31/10/2026'),'complete','completed requests stay complete after 90 days');
+});
+
+test('manager request due field exposes the 90-day limit and no-response status', () => {
+  const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
+  assert.match(html,/Yêu cầu có hiệu lực tối đa 90 ngày kể từ ngày tạo\./);
+  assert.match(html,/function configureRequestDueRange\(\)/);
+  assert.match(html,/due\.min=range\.min;due\.max=range\.max/);
+  assert.match(html,/status==='no_response'\?'Không phản hồi'/);
 });
 
 test('D4 request store initializes, upserts and serializes without duplicate ids', () => {
@@ -714,7 +790,7 @@ test('request detail uses a scannable three-region layout and shared feedback co
   assert.match(html, /\.content-pane\{[^}]*min-height:0[^}]*display:flex[^}]*flex-direction:column/);
   assert.match(html, /\.pane-body\{[^}]*overflow-y:auto/);
   assert.match(html, /\.shared-question,\.question\{[^}]*background:var\(--brand-muted\)[^}]*border-left:3px solid var\(--brand-ring\)/);
-  assert.match(html, /\.pending\{[^}]*background:var\(--warning-muted\)[^}]*border:1px solid var\(--warning-border\)/);
+  assert.match(html, /\.pending\.pending\{[^}]*background:var\(--warning-muted\)[^}]*border:1px solid var\(--warning-border\)/);
   assert.match(html, /ManagerFeedbackData\.coreValueIcon\(cv\)/);
   assert.match(html, /<img src="\.\.\/Core value with BG\/\$\{icon\}"/);
   assert.match(html, /renderTicketSummary\(stat,rows\)/);
@@ -723,6 +799,8 @@ test('request detail uses a scannable three-region layout and shared feedback co
 
 test('request detail keeps ticket metadata in the summary and core values in the employee header', () => {
   const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  assert.match(html,/summary-status summary-status-\$\{lifecycle\}/);
+  assert.match(html,/\.summary-status-overdue\{[^}]*color:var\(--error\)[^}]*background:var\(--error-muted\)[^}]*border-color:var\(--error-border\)/);
   assert.doesNotMatch(html, /id="requestMeta"/);
   assert.doesNotMatch(html, /id="requestProgress"/);
   assert.match(html, /id="employeeBadgeSummary"/);

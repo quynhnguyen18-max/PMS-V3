@@ -132,6 +132,15 @@ Khi đính kèm vào phản hồi (fb-badges): huy hiệu tròn 34px + hover tê
 </span>
 ```
 
+## 8.2 FEEDBACK STATUS — semantic mapping bắt buộc
+- Áp dụng cùng một mapping trên toàn bộ module Feedback: màn hình nhân viên, màn hình quản lý, feed, popup, bảng, Kanban và panel chi tiết. Không tự đổi màu hoặc kiểu hiển thị theo từng màn hình.
+- **Đang thu thập / Chưa trả lời:** vàng cảnh báo (`#d97706`, nền `#fffbeb`, viền `#fde68a`). Trong danh sách người cần trả lời, card dùng nền + viền vàng; trạng thái cạnh tên chỉ là icon + text vàng, không thêm nền/viền lần hai.
+- **Quá hạn:** đỏ (`#dc2626`, nền `#fef2f2`, viền `#fecaca`). Không dùng vàng hoặc xám cho trạng thái quá hạn.
+- **Hoàn thành / Đã trả lời:** xanh lá (`--ok`, `--ok-bg`, `--ok-bd`).
+- **Không phản hồi:** xám trung tính (`--z600`, `--z100`, `--z300`) vì ticket đã khóa và không còn hành động.
+- **Câu hỏi của người chưa trả lời:** nền trắng, viền vàng cảnh báo, label “Câu hỏi” màu `--z500`. Câu hỏi đã có phản hồi tiếp tục dùng nền hồng theo pattern feedback hiện hành.
+- Status trong popup chi tiết người trả lời dùng icon + text, không dùng chip có nền/viền. Status tổng quan ticket, bảng và Kanban có thể dùng chip nhưng phải giữ đúng semantic mapping trên.
+
 ## 9. BUTTONS (shadcn variants)
 ```css
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;line-height:1.4;white-space:nowrap;transition:var(--t)}
