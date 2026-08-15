@@ -365,3 +365,14 @@ test('media summary entry sits left of the feedback CTAs and always blinks', () 
   assert.match(html,/\.media-summary-entry\.compact:hover \.fb-badge-tip\{opacity:1\}/);
   assert.doesNotMatch(html,/\.media-summary-entry:hover \.fb-badge-tip\{opacity:1\}/);
 });
+
+test('personal feedback keeps a balanced two-column layout on laptop and large monitors', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  assert.match(html,/@media \(min-width:961px\) and \(max-width:1279px\)\{[\s\S]*?\.page\{[^}]*max-width:none[^}]*padding:20px 20px/);
+  assert.match(html,/@media \(min-width:961px\) and \(max-width:1279px\)\{[\s\S]*?\.fb-rail\{width:260px/);
+  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.page\{[^}]*max-width:1360px[^}]*width:100%/);
+  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-main\{max-width:820px/);
+  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-rail\{width:300px/);
+  assert.doesNotMatch(html,/@media \(max-width:768px\)|@media \(max-width:767px\)/);
+});

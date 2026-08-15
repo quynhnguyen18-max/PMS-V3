@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tạo chương trình phản hồi | Feedback Programs (UC5)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+
+/* Shell */
+.topbar{height:52px;background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 26px;gap:12px;position:sticky;top:0;z-index:100}
+.tb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0}
+.tb-name{font-size:13.5px;font-weight:700;color:var(--z900)}
+.tb-sub{font-size:11px;color:var(--z500)}
+.tb-role{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tb-role .rl-lbl{font-size:12px;color:var(--z500)}
+.role-sel{padding:5px 26px 5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:12.5px;font-weight:600;color:var(--brand);background:var(--brand-muted);outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23A50064' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer}
+
+.wrap{max-width:1000px;margin:0 auto;padding:22px 24px 90px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--z600);margin-bottom:12px}
+.breadcrumb .bc-sep{color:var(--z400)}
+.breadcrumb .bc-cur{color:var(--z900);font-weight:600}
+.page-h{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;margin-bottom:4px;line-height:1.2}
+.page-sub{font-size:12.5px;color:var(--z500);margin-bottom:20px}
+
+/* Stepper */
+.stepper{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:16px 20px;margin-bottom:18px;box-shadow:var(--sh-sm)}
+.stepper-track{display:flex;align-items:flex-start;position:relative}
+.stepper-track::before{content:'';position:absolute;top:14px;left:24px;right:24px;height:2px;background:var(--z200);z-index:0}
+.step-item{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;text-align:center;padding:0 4px;cursor:pointer}
+.step-circle{width:30px;height:30px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:var(--t);border:2px solid var(--z0)}
+.step-item.done .step-circle{background:var(--brand-muted);color:var(--brand);border-color:var(--brand-ring)}
+.step-item.active .step-circle{background:var(--brand);color:#fff}
+.step-label{font-size:12px;font-weight:600;color:var(--z500);line-height:1.35;margin-top:8px}
+.step-item.active .step-label{color:var(--z900)}
+.step-item.done .step-label{color:var(--z700)}
+.step-item.done .step-circle i{font-size:15px}
+
+/* Card / panels */
+.card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden}
+.card-hd{padding:16px 22px;border-bottom:1px solid var(--z100)}
+.card-hd h3{font-size:15px;font-weight:700;color:var(--z900);display:flex;align-items:center;gap:8px}
+.card-hd h3 i{color:var(--brand);font-size:18px}
+.card-hd p{font-size:12.5px;color:var(--z500);margin-top:3px}
+.card-bd{padding:22px}
+.panel{display:none}
+.panel.on{display:block}
+
+/* Form */
+.fg{margin-bottom:18px}
+.fg:last-child{margin-bottom:0}
+.field-label{display:block;font-size:12.5px;font-weight:600;color:var(--z800);margin-bottom:7px}
+.req-star{color:var(--err);font-weight:700;margin-left:2px}
+.fc{width:100%;padding:8px 11px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z900);background:var(--z0);outline:none;transition:var(--t);line-height:1.5}
+.fc:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.fc::placeholder{color:var(--z400)}
+select.fc{appearance:none;-webkit-appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer}
+textarea.fc{resize:vertical}
+.fhint{font-size:11.5px;color:var(--z600);margin-top:5px;line-height:1.5}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Info boxes */
+.info-note{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--z700);line-height:1.55;background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:11px 13px}
+.info-note>i{color:var(--brand);font-size:16px;flex-shrink:0;margin-top:1px}
+.info-note strong{color:var(--z800);font-weight:600}
+.scope-note{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rsm);padding:10px 13px;margin-bottom:16px}
+.scope-note>i{color:var(--brand);font-size:16px;flex-shrink:0;margin-top:1px}
+.scope-note b{color:var(--brand)}
+
+/* Picker (from M-04) */
+.pick-inputwrap{position:relative}
+.pick-inputwrap>i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--z400)}
+.pick-input{width:100%;padding:9px 11px 9px 32px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);background:#fff;outline:none}
+.pick-input:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+.pick-results{border:1px solid var(--z200);border-radius:var(--rsm);margin-top:5px;max-height:220px;overflow-y:auto;background:#fff;box-shadow:var(--sh-sm);display:none}
+.pick-results.open{display:block}
+.pick-item{width:100%;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:10px;padding:9px 12px;transition:var(--t)}
+.pick-item:last-child{border-bottom:0}
+.pick-item:hover{background:var(--z50)}
+.pick-empty{padding:14px;text-align:center;font-size:12.5px;color:var(--z500)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.pi-name{font-size:13px;color:var(--z900);font-weight:500}
+.pi-dom{color:var(--z500);font-weight:400}
+.pi-org{display:block;font-size:11px;color:var(--z600);margin-top:1px}
+.rv-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.rv-chip{display:inline-flex;align-items:center;gap:8px;padding:4px 8px 4px 5px;border:1px solid var(--brand-ring);background:var(--brand-muted);border-radius:50px}
+.rv-chip .avatar{width:22px;height:22px;font-size:9px;background:var(--brand);color:#fff}
+.rv-chip-name{font-size:12px;font-weight:500;color:var(--z800)}
+.rv-chip-x{width:18px;height:18px;border:0;background:transparent;color:var(--z500);font-size:13px;display:grid;place-items:center;border-radius:50%}
+.rv-chip-x:hover{background:#fff;color:var(--err)}
+.pick-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.pick-count{font-size:12px;color:var(--z600);font-weight:500}
+.pick-count b{color:var(--brand)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
+.btn i{font-size:16px}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-h)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}
+.btn-ghost:hover{background:var(--z100);color:var(--z900)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn:disabled{background:var(--z100);border-color:var(--z200);color:var(--z400);cursor:not-allowed}
+
+/* Toggle */
+.opt-toggle{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-size:13px;color:var(--z800);font-weight:500}
+.opt-toggle input{appearance:none;-webkit-appearance:none;width:34px;height:19px;background:var(--z300);border-radius:50px;position:relative;transition:var(--t);flex:none;margin:0}
+.opt-toggle input:checked{background:var(--brand)}
+.opt-toggle input::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:var(--t)}
+.opt-toggle input:checked::after{left:17px}
+.toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid var(--z200);border-radius:var(--rsm)}
+.toggle-row .tr-desc{font-size:11.5px;color:var(--z600);margin-top:3px;line-height:1.5;max-width:520px}
+
+/* Radio cards */
+.radio-card{display:flex;gap:11px;padding:13px 15px;border:1px solid var(--z200);border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.radio-card:hover{border-color:var(--z400)}
+.radio-card.on{border-color:var(--brand);background:var(--brand-muted)}
+.radio-card input{accent-color:var(--brand);width:16px;height:16px;margin-top:2px;flex-shrink:0}
+.radio-card b{font-size:13px;color:var(--z900);font-weight:600}
+.radio-card p{font-size:11.5px;color:var(--z600);margin-top:2px;line-height:1.5}
+
+/* Question builder */
+.q-item{border:1px solid var(--z200);border-radius:var(--r);padding:14px 15px;margin-bottom:12px;background:var(--z0)}
+.q-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.q-num{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--z700)}
+.q-num .n{width:22px;height:22px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px}
+.type-seg{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px;gap:2px}
+.ts-btn{padding:4px 11px;border:1px solid transparent;border-radius:var(--rxs);background:transparent;font-size:12px;font-weight:600;color:var(--z500);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:var(--t)}
+.ts-btn.on{background:var(--z0);border-color:var(--z200);color:var(--brand);box-shadow:var(--sh-sm)}
+.ts-btn:disabled{color:var(--z400);cursor:not-allowed}
+.ts-soon{font-size:9px;font-weight:700;letter-spacing:.3px;background:var(--z200);color:var(--z500);border-radius:3px;padding:1px 4px;text-transform:uppercase}
+.q-del{width:28px;height:28px;border:none;background:transparent;color:var(--z400);border-radius:var(--rxs);display:flex;align-items:center;justify-content:center;font-size:16px}
+.q-del:hover{background:var(--err-bg);color:var(--err)}
+.q-add{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:11px;border:1px dashed var(--z300);border-radius:var(--r);background:var(--z50);color:var(--z600);font-size:13px;font-weight:600;font-family:inherit;transition:var(--t)}
+.q-add:hover{border-color:var(--brand-ring);color:var(--brand);background:var(--brand-muted)}
+
+/* Review summary */
+.rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--z200);border:1px solid var(--z200);border-radius:var(--r);overflow:hidden}
+.rev-cell{background:var(--z0);padding:12px 15px}
+.rev-cell .rc-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
+.rev-cell .rc-val{font-size:13px;color:var(--z900);font-weight:600}
+.rev-cell.wide{grid-column:1/-1}
+
+/* Preview count banner */
+.count-banner{display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(0deg,var(--brand-muted),var(--brand-muted));border:1px solid var(--brand-ring);border-radius:var(--r);margin-top:16px}
+.count-banner .cb-num{font-size:18px;font-weight:700;color:var(--brand);line-height:1}
+.count-banner .cb-txt{font-size:12.5px;color:var(--z700);line-height:1.5}
+.count-banner .cb-txt b{color:var(--z900)}
+
+/* Footer nav */
+.foot-nav{position:fixed;bottom:0;left:0;right:0;background:var(--z0);border-top:1px solid var(--z200);box-shadow:0 -2px 10px rgba(0,0,0,.04);z-index:90}
+.foot-inner{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px}
+.foot-step{font-size:12.5px;color:var(--z500);font-weight:500}
+.foot-step b{color:var(--z900)}
+.foot-spacer{flex:1}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:var(--z0);padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:9px;box-shadow:var(--sh-lg);opacity:0;pointer-events:none;transition:all .25s ease;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast i{color:#4ade80;font-size:18px}
+
+.badge-soon{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--z600);background:var(--z100);border:1px solid var(--z200);border-radius:50px;padding:2px 9px}
+
+@media(max-width:720px){
+  .two-col,.rev-grid{grid-template-columns:1fr}
+  .step-label{display:none}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo">M</div>
+  <div>
+    <div class="tb-name">MoMo HRM</div>
+    <div class="tb-sub">Feedback Programs</div>
+  </div>
+  <div class="tb-role">
+    <span class="rl-lbl">Đang tạo với vai trò</span>
+    <select class="role-sel" id="roleSel" onchange="onRoleChange()">
+      <option value="hrbp">HRBP — phụ trách Kinh doanh</option>
+      <option value="lod">L&amp;OD — toàn công ty</option>
+    </select>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="breadcrumb">
+    <span>Feedback Programs</span><i class="bx bx-chevron-right bc-sep"></i>
+    <span>Chương trình</span><i class="bx bx-chevron-right bc-sep"></i>
+    <span class="bc-cur">Tạo chương trình</span>
+  </div>
+  <div class="page-h">Tạo chương trình phản hồi</div>
+  <div class="page-sub">Thiết lập một đợt thu thập phản hồi có cấu trúc cho nhiều người nhận. Câu hỏi tự luận · báo cáo tổng hợp bằng AI.</div>
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="stepper-track" id="stepperTrack">
+      <div class="step-item active" data-step="0" onclick="gotoStep(0)"><div class="step-circle">1</div><div class="step-label">Thông tin</div></div>
+      <div class="step-item" data-step="1" onclick="gotoStep(1)"><div class="step-circle">2</div><div class="step-label">Người nhận</div></div>
+      <div class="step-item" data-step="2" onclick="gotoStep(2)"><div class="step-circle">3</div><div class="step-label">Người phản hồi</div></div>
+      <div class="step-item" data-step="3" onclick="gotoStep(3)"><div class="step-circle">4</div><div class="step-label">Bộ câu hỏi</div></div>
+      <div class="step-item" data-step="4" onclick="gotoStep(4)"><div class="step-circle">5</div><div class="step-label">Thiết lập &amp; Xem lại</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <!-- STEP 1 — Thông tin -->
+    <div class="panel on" data-panel="0">
+      <div class="card-hd"><h3><i class="bx bx-info-circle"></i> Thông tin chương trình</h3><p>Đặt mục tiêu, hạn phản hồi và tùy chọn sử dụng một bộ câu hỏi có sẵn.</p></div>
+      <div class="card-bd">
+        <div class="fg">
+          <label class="field-label">Mục tiêu<span class="req-star">*</span></label>
+          <input class="fc" id="progName" placeholder="Ví dụ: Đánh giá năng lực giữa kỳ Q3/2026" oninput="renderReview()"/>
+          <div class="fhint">Mục tiêu là tên định danh của chương trình và hiển thị cho người phản hồi ở hộp thư để họ nhận biết.</div>
+        </div>
+        <div class="two-col">
+          <div class="fg">
+            <label class="field-label">Chọn bộ câu hỏi <span class="badge-soon" style="margin-left:4px"><i class="bx bx-book-bookmark"></i> tùy chọn</span></label>
+            <select class="fc" id="tplSel" onchange="onTemplatePick()">
+              <option value="">— Không dùng, tự tạo câu hỏi —</option>
+              <option value="perf">[L&amp;OD] Đánh giá hiệu suất giữa kỳ (3 câu)</option>
+              <option value="360">[L&amp;OD] Khảo sát 360 lãnh đạo (3 câu)</option>
+              <option value="hipo">[L&amp;OD] Đánh giá tiềm năng kế thừa (3 câu)</option>
+            </select>
+            <div class="fhint"><i class="bx bx-copy" style="vertical-align:-2px"></i> Khi chọn, câu hỏi được <strong>sao chép</strong> vào Bước 4 để bạn chỉnh — không ảnh hưởng template gốc.</div>
+          </div>
+          <div class="fg">
+            <label class="field-label">Hạn phản hồi<span class="req-star">*</span></label>
+            <input class="fc" id="dueDate" type="date" onchange="renderReview()"/>
+            <div class="fhint">Người phản hồi cần hoàn tất trước hạn này. Sau khi khởi chạy chỉ được gia hạn thêm.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 — Participants -->
+    <div class="panel" data-panel="1">
+      <div class="card-hd"><h3><i class="bx bx-user-check"></i> Người nhận feedback (Participants)</h3><p>Những người sẽ được nhận xét trong chương trình này.</p></div>
+      <div class="card-bd">
+        <div class="scope-note" id="scopeNote"><i class="bx bx-shield-quarter"></i><div id="scopeText"></div></div>
+        <div class="pick-toolbar">
+          <div class="pick-count">Đã chọn <b id="pCount">0</b> người nhận</div>
+          <button class="btn btn-outline btn-sm" onclick="importCsv('participant')"><i class="bx bx-upload"></i> Nhập từ Excel/CSV</button>
+        </div>
+        <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="pInput" autocomplete="off" placeholder="Tìm theo tên hoặc domain…" oninput="pSearch()" onfocus="pSearch()"/></div>
+        <div class="pick-results" id="pResults"></div>
+        <div class="rv-chips" id="pChips"></div>
+      </div>
+    </div>
+
+    <!-- STEP 3 — Reviewers -->
+    <div class="panel" data-panel="2">
+      <div class="card-hd"><h3><i class="bx bx-message-square-detail"></i> Người cho phản hồi (Reviewers)</h3><p>Những người sẽ viết nhận xét. Có thể chọn từ toàn công ty.</p></div>
+      <div class="card-bd">
+        <div class="info-note" style="margin-bottom:16px"><i class="bx bx-globe"></i><div>Reviewer <strong>không bị giới hạn theo division</strong> — bạn có thể chọn bất kỳ ai trong công ty làm người cho phản hồi.</div></div>
+        <div class="pick-toolbar">
+          <div class="pick-count">Đã chọn <b id="rCount">0</b> người phản hồi</div>
+          <button class="btn btn-outline btn-sm" onclick="importCsv('reviewer')"><i class="bx bx-upload"></i> Nhập từ Excel/CSV</button>
+        </div>
+        <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="rInput" autocomplete="off" placeholder="Tìm theo tên hoặc domain…" oninput="rSearch()" onfocus="rSearch()"/></div>
+        <div class="pick-results" id="rResults"></div>
+        <div class="rv-chips" id="rChips"></div>
+
+        <div class="toggle-row" style="margin-top:18px">
+          <div>
+            <label class="opt-toggle"><input type="checkbox" id="selfAssess" onchange="renderCount();renderReview()"/> Bao gồm participant tự đánh giá</label>
+            <div class="tr-desc">Khi bật, mỗi người nhận cũng tự viết nhận xét về chính mình. Phản hồi tự đánh giá được tách riêng và gắn nhãn <strong>"Tự đánh giá"</strong> trong báo cáo.</div>
+          </div>
+        </div>
+
+        <div class="count-banner">
+          <div class="cb-num" id="cbNum">0</div>
+          <div class="cb-txt" id="cbTxt">Chọn người nhận và người phản hồi để xem số lượt phản hồi sẽ tạo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 — Questionnaire -->
+    <div class="panel" data-panel="3">
+      <div class="card-hd"><h3><i class="bx bx-list-ul"></i> Bộ câu hỏi</h3><p>Các câu hỏi tự luận mà mỗi người phản hồi sẽ trả lời.</p></div>
+      <div class="card-bd">
+        <div class="info-note" style="margin-bottom:16px"><i class="bx bx-info-circle"></i><div>Phiên bản hiện tại chỉ hỗ trợ <strong>câu hỏi tự luận</strong>. Câu hỏi thang điểm (Likert) sẽ có ở giai đoạn sau — nút bên dưới đã để sẵn chỗ.</div></div>
+        <div id="qList"></div>
+        <button class="q-add" onclick="addQuestion()"><i class="bx bx-plus"></i> Thêm câu hỏi</button>
+        <div class="fhint" style="margin-top:12px"><i class="bx bx-bulb" style="vertical-align:-2px"></i> Dùng <strong>[người nhận]</strong> trong câu hỏi để hệ thống tự thay bằng tên participant tương ứng.</div>
+      </div>
+    </div>
+
+    <!-- STEP 5 — Settings & Review -->
+    <div class="panel" data-panel="4">
+      <div class="card-hd"><h3><i class="bx bx-cog"></i> Thiết lập &amp; Xem lại</h3><p>Chế độ ẩn danh, nhắc hạn và kiểm tra trước khi khởi chạy.</p></div>
+      <div class="card-bd">
+        <div class="fg">
+          <label class="field-label">Chế độ hiển thị danh tính người phản hồi</label>
+          <div style="display:grid;gap:10px">
+            <label class="radio-card on" data-anon="named" onclick="pickAnon(this)"><input type="radio" name="anon" checked/><div><b>Ghi danh (Named)</b><p>Người nhận biết ai đã cho phản hồi về mình.</p></div></label>
+            <label class="radio-card" data-anon="anon" onclick="pickAnon(this)"><input type="radio" name="anon"/><div><b>Ẩn danh (Anonymous)</b><p>Người nhận <strong>không</strong> biết ai cho phản hồi, trừ khi bạn chủ động hiển thị danh tính. Người phản hồi luôn thấy họ đang nhận xét về ai.</p></div></label>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="field-label">Nhắc hạn</label>
+          <div class="toggle-row">
+            <div>
+              <label class="opt-toggle"><input type="checkbox" id="autoRemind" checked/> Tự động nhắc trước hạn 3 ngày</label>
+              <div class="tr-desc">Dùng lại cơ chế nhắc của module phản hồi: tự động một lần trước hạn, và bạn có thể nhắc thủ công thêm trong lúc chương trình đang thu thập.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-note" style="margin-bottom:20px"><i class="bx bx-lock-open-alt"></i><div><strong>Báo cáo &amp; chia sẻ:</strong> Sau khi bạn <strong>Đóng</strong> chương trình và bấm <strong>Tạo báo cáo</strong>, AI sẽ tổng hợp báo cáo cho từng người nhận (điểm mạnh · cơ hội cải thiện). Báo cáo chỉ được chia sẻ tới quản lý khi bạn bấm <strong>Publish</strong>; nhân viên khác không xem được.</div></div>
+
+        <label class="field-label">Xem lại trước khi khởi chạy</label>
+        <div class="rev-grid" id="revGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer nav -->
+<div class="foot-nav">
+  <div class="foot-inner">
+    <div class="foot-step">Bước <b id="footStep">1</b>/5</div>
+    <div class="foot-spacer"></div>
+    <button class="btn btn-ghost" id="btnDraft" onclick="saveDraft()"><i class="bx bx-save"></i> Lưu nháp</button>
+    <button class="btn btn-outline" id="btnBack" onclick="prevStep()" disabled><i class="bx bx-chevron-left"></i> Quay lại</button>
+    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Tiếp tục <i class="bx bx-chevron-right"></i></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastMsg"></span></div>
+
+<script src="feedback-program-model.js"></script>
+<script>
+/* ── Seed nhân sự (tên · initials · domain · division) ── */
+const EMP=[
+  {id:'e1',name:'Nguyễn Minh Anh',ini:'MA',dom:'minhanh',div:'Kinh doanh',pos:'Sales Lead'},
+  {id:'e2',name:'Trần Quốc Bảo',ini:'QB',dom:'quocbao',div:'Kinh doanh',pos:'Account Manager'},
+  {id:'e3',name:'Bùi Tuấn Kiệt',ini:'TK',dom:'tuankiet',div:'Kinh doanh',pos:'Sales Executive'},
+  {id:'e4',name:'Lê Thu Hà',ini:'TH',dom:'thuha',div:'Marketing',pos:'Brand Manager'},
+  {id:'e5',name:'Vũ Khánh Linh',ini:'KL',dom:'khanhlinh',div:'Marketing',pos:'Content Lead'},
+  {id:'e6',name:'Phạm Gia Huy',ini:'GH',dom:'giahuy',div:'Công nghệ',pos:'Backend Engineer'},
+  {id:'e7',name:'Đỗ Nam Phong',ini:'NP',dom:'namphong',div:'Công nghệ',pos:'Product Designer'},
+  {id:'e8',name:'Đặng Mai Chi',ini:'MC',dom:'maichi',div:'Vận hành',pos:'Ops Lead'},
+  {id:'e9',name:'Ngô Đức Thắng',ini:'DT',dom:'ducthang',div:'Vận hành',pos:'Ops Executive'},
+  {id:'e10',name:'Hoàng Yến Nhi',ini:'YN',dom:'yennhi',div:'Nhân sự',pos:'HRBP'}
+];
+const TEMPLATES={
+  perf:['Điểm mạnh nổi bật nhất của [người nhận] trong kỳ vừa qua là gì?','Đâu là cơ hội cải thiện lớn nhất bạn nhìn thấy ở [người nhận]?','Nêu một ví dụ cụ thể về tác động của [người nhận] tới nhóm/dự án.'],
+  '360':['[người nhận] thể hiện năng lực lãnh đạo như thế nào khi làm việc cùng bạn?','Hành vi nào của [người nhận] bạn mong muốn được thấy nhiều hơn?','Hành vi nào của [người nhận] đang cản trở hiệu quả của nhóm?'],
+  hipo:['Vì sao bạn cho rằng [người nhận] sẵn sàng (hoặc chưa) cho vai trò lớn hơn?','Năng lực nào [người nhận] cần phát triển để đảm nhận vai trò kế thừa?','Mô tả một tình huống [người nhận] xử lý vượt kỳ vọng ở cấp độ hiện tại.']
+};
+const STATE={step:0,id:'',anon:'named',participants:[],reviewers:[],questions:[],templateId:''};
+
+/* ── Phân quyền participant theo vai trò ── */
+function participantPool(){
+  const role=document.getElementById('roleSel').value;
+  return FeedbackProgramModel.participantPool(EMP,role==='hrbp'
+    ? {role:'hrbp',division:'Kinh doanh'}
+    : {role:'lod',hrDivision:'Nhân sự'});
+}
+function reviewerPool(){return FeedbackProgramModel.reviewerPool(EMP);}
+function scopeText(){
+  const role=document.getElementById('roleSel').value;
+  return role==='hrbp'
+    ? 'Vai trò <b>HRBP</b>: bạn chỉ chọn được người nhận thuộc division bạn phụ trách — <b>Kinh doanh</b>.'
+    : 'Vai trò <b>L&amp;OD</b>: bạn chọn được người nhận thuộc <b>mọi division trừ Nhân sự (HR)</b>.';
+}
+function onRoleChange(){
+  // reset participants không còn hợp lệ
+  const allowed=new Set(participantPool().map(e=>e.id));
+  STATE.participants=STATE.participants.filter(p=>allowed.has(p.id));
+  document.getElementById('scopeText').innerHTML=scopeText();
+  renderChips('participant');pSearch();renderCount();renderReview();
+}
+
+/* ── Stepper / navigation ── */
+function gotoStep(n){
+  STATE.step=n;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',+p.dataset.panel===n));
+  document.querySelectorAll('.step-item').forEach(s=>{
+    const i=+s.dataset.step;
+    s.classList.toggle('active',i===n);
+    s.classList.toggle('done',i<n);
+    s.querySelector('.step-circle').innerHTML = i<n ? '<i class="bx bx-check"></i>' : (i+1);
+  });
+  document.getElementById('footStep').textContent=n+1;
+  document.getElementById('btnBack').disabled=n===0;
+  const next=document.getElementById('btnNext');
+  if(n===4){next.innerHTML='<i class="bx bx-rocket"></i> Khởi chạy chương trình';next.onclick=launch;}
+  else{next.innerHTML='Tiếp tục <i class="bx bx-chevron-right"></i>';next.onclick=nextStep;}
+  if(n===4)renderReview();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextStep(){if(STATE.step<4)gotoStep(STATE.step+1);}
+function prevStep(){if(STATE.step>0)gotoStep(STATE.step-1);}
+
+/* ── Step 1 ── */
+function onTemplatePick(){
+  const key=document.getElementById('tplSel').value;
+  STATE.templateId=key;
+  if(!key){return;}
+  STATE.questions=TEMPLATES[key].map((t,index)=>({id:`q${index+1}`,type:'open_text',text:t}));
+  renderQuestions();
+  toast('Đã sao chép câu hỏi từ template vào Bước 4');
+}
+
+/* ── People pickers ── */
+function personMeta(e){return `${e.div} — ${e.pos}`;}
+function pSearch(){renderResults('participant');}
+function rSearch(){renderResults('reviewer');}
+function renderResults(kind){
+  const isP=kind==='participant';
+  const input=document.getElementById(isP?'pInput':'rInput');
+  const box=document.getElementById(isP?'pResults':'rResults');
+  const q=input.value.toLowerCase().trim();
+  const chosen=new Set((isP?STATE.participants:STATE.reviewers).map(x=>x.id));
+  const pool=(isP?participantPool():reviewerPool()).filter(e=>!chosen.has(e.id)&&(!q||`${e.name} ${e.dom}`.toLowerCase().includes(q)));
+  if(!pool.length){box.innerHTML='<div class="pick-empty">Không còn ai phù hợp</div>';box.classList.add('open');return;}
+  box.innerHTML=pool.slice(0,7).map(e=>`<button type="button" class="pick-item" onclick="addPerson('${kind}','${e.id}')"><span class="avatar">${e.ini}</span><span style="min-width:0"><span class="pi-name">${e.name} <span class="pi-dom">(${e.dom})</span></span><span class="pi-org">${personMeta(e)}</span></span></button>`).join('');
+  box.classList.add('open');
+}
+function addPerson(kind,id){
+  const e=EMP.find(x=>x.id===id);if(!e)return;
+  const arr=kind==='participant'?STATE.participants:STATE.reviewers;
+  if(arr.some(x=>x.id===id))return;
+  arr.push(e);
+  document.getElementById(kind==='participant'?'pInput':'rInput').value='';
+  renderResults(kind);renderChips(kind);renderCount();renderReview();
+}
+function removePerson(kind,id){
+  if(kind==='participant')STATE.participants=STATE.participants.filter(x=>x.id!==id);
+  else STATE.reviewers=STATE.reviewers.filter(x=>x.id!==id);
+  renderChips(kind);renderResults(kind);renderCount();renderReview();
+}
+function renderChips(kind){
+  const arr=kind==='participant'?STATE.participants:STATE.reviewers;
+  const box=document.getElementById(kind==='participant'?'pChips':'rChips');
+  box.innerHTML=arr.map(e=>`<span class="rv-chip"><span class="avatar">${e.ini}</span><span class="rv-chip-name">${e.name}</span><button class="rv-chip-x" onclick="removePerson('${kind}','${e.id}')" title="Bỏ">&#x2715;</button></span>`).join('');
+  document.getElementById('pCount').textContent=STATE.participants.length;
+  document.getElementById('rCount').textContent=STATE.reviewers.length;
+}
+function importCsv(kind){
+  // mock: nạp toàn bộ pool hợp lệ để minh hoạ luồng import
+  const pool=kind==='participant'?participantPool():reviewerPool();
+  const arr=kind==='participant'?STATE.participants:STATE.reviewers;
+  pool.forEach(e=>{if(!arr.some(x=>x.id===e.id))arr.push(e);});
+  renderChips(kind);renderResults(kind);renderCount();renderReview();
+  toast(`Đã nhập ${pool.length} người từ tệp mẫu (demo)`);
+}
+
+/* ── Preview count ── */
+function assignmentCount(){
+  const self=document.getElementById('selfAssess').checked;
+  let total=0;
+  STATE.participants.forEach(p=>{
+    STATE.reviewers.forEach(r=>{if(r.id!==p.id)total++;});
+    if(self)total++; // participant tự đánh giá
+  });
+  return total;
+}
+function renderCount(){
+  const n=assignmentCount();
+  document.getElementById('cbNum').textContent=n;
+  const p=STATE.participants.length,r=STATE.reviewers.length;
+  const self=document.getElementById('selfAssess').checked;
+  document.getElementById('cbTxt').innerHTML = (p&&r)
+    ? `Sẽ tạo <b>${n} lượt phản hồi</b> = ${p} người nhận × ${r} người phản hồi${self?' + tự đánh giá':''} <span style="color:var(--z500)">(đã loại các cặp trùng người)</span>.`
+    : 'Chọn người nhận và người phản hồi để xem số lượt phản hồi sẽ tạo.';
+}
+
+/* ── Step 4 questions ── */
+function renderQuestions(){
+  const box=document.getElementById('qList');
+  box.innerHTML=STATE.questions.map((q,i)=>`
+    <div class="q-item">
+      <div class="q-top">
+        <span class="q-num"><span class="n">${i+1}</span> Câu hỏi ${i+1}</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="type-seg">
+            <button class="ts-btn on" type="button"><i class="bx bx-align-left"></i> Tự luận</button>
+            <button class="ts-btn" type="button" disabled>Thang điểm <span class="ts-soon">sắp có</span></button>
+          </div>
+          <button class="q-del" onclick="delQuestion(${i})" title="Xoá"><i class="bx bx-trash"></i></button>
+        </div>
+      </div>
+      <textarea class="fc" rows="2" placeholder="Nhập nội dung câu hỏi…" oninput="STATE.questions[${i}].text=this.value;renderReview()">${q.text.replace(/</g,'&lt;')}</textarea>
+    </div>`).join('') || '<div class="pick-empty" style="border:1px dashed var(--z300);border-radius:8px">Chưa có câu hỏi nào — thêm câu hỏi hoặc chọn template ở Bước 1.</div>';
+}
+function addQuestion(){STATE.questions.push({id:`q${Date.now()}`,type:'open_text',text:''});renderQuestions();renderReview();}
+function delQuestion(i){STATE.questions.splice(i,1);renderQuestions();renderReview();}
+
+/* ── Step 5 ── */
+function pickAnon(el){
+  document.querySelectorAll('.radio-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');el.querySelector('input').checked=true;STATE.anon=el.dataset.anon;renderReview();
+}
+function fmtDate(v){if(!v)return '—';const [y,m,d]=v.split('-');return `${d}/${m}/${y}`;}
+function renderReview(){
+  const g=document.getElementById('revGrid');if(!g)return;
+  const name=document.getElementById('progName').value.trim()||'—';
+  const due=fmtDate(document.getElementById('dueDate').value);
+  const anon=STATE.anon==='named'?'Ghi danh':'Ẩn danh';
+  const self=document.getElementById('selfAssess').checked?'Có':'Không';
+  g.innerHTML=`
+    <div class="rev-cell wide"><div class="rc-lbl">Mục tiêu</div><div class="rc-val">${name}</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Hạn phản hồi</div><div class="rc-val">${due}</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Người nhận</div><div class="rc-val">${STATE.participants.length} người</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Người phản hồi</div><div class="rc-val">${STATE.reviewers.length} người</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Số câu hỏi</div><div class="rc-val">${STATE.questions.filter(q=>q.text.trim()).length} câu tự luận</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Tổng lượt phản hồi</div><div class="rc-val">${assignmentCount()} lượt</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Chế độ danh tính</div><div class="rc-val">${anon}</div></div>
+    <div class="rev-cell"><div class="rc-lbl">Tự đánh giá</div><div class="rc-val">${self}</div></div>`;
+}
+
+/* ── Actions ── */
+function toast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2600);}
+function todayDMY(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;}
+function dueDMY(){const v=document.getElementById('dueDate').value;if(!v)return '';const[y,m,d]=v.split('-');return `${d}/${m}/${y}`;}
+function dueISO(value){if(!value)return '';const[d,m,y]=value.split('/');return `${y}-${m}-${d}`;}
+function campaignPayload(status){
+  return FeedbackProgramModel.normalizeCampaign({
+    id:STATE.id||`u${Date.now()}`,
+    goal:document.getElementById('progName').value,
+    status,
+    createdAt:STATE.createdAt||todayDMY(),
+    due:dueDMY(),
+    anon:STATE.anon,
+    participants:STATE.participants,
+    reviewers:STATE.reviewers,
+    questions:STATE.questions,
+    includeSelf:document.getElementById('selfAssess').checked,
+    autoRemind:document.getElementById('autoRemind').checked,
+    templateId:STATE.templateId||document.getElementById('tplSel').value,
+    assignments:FeedbackProgramModel.buildAssignments(STATE.participants,STATE.reviewers,{includeSelf:document.getElementById('selfAssess').checked}),
+    total:status==='collecting'?assignmentCount():0,
+    done:0,
+    report:'none'
+  });
+}
+function persistAndGo(status){
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('uc5_campaigns')||'[]');}catch(e){saved=[];}
+  const payload=campaignPayload(status);
+  const current=saved.findIndex(item=>item.id===payload.id);
+  if(current>=0)saved[current]=payload;else saved.unshift(payload);
+  localStorage.setItem('uc5_campaigns',JSON.stringify(saved));
+  location.href='index.html?created='+(status==='collecting'?'launch':'draft');
+}
+function saveDraft(){persistAndGo('draft');}
+function launch(){
+  const result=FeedbackProgramModel.validateLaunch(campaignPayload('collecting'),STATE.createdAt||todayDMY());
+  if(!result.valid){
+    const first=result.errors[0];
+    const steps={goal:0,due:0,participants:1,reviewers:2,questions:3};
+    const messages={goal:'Cần nhập Mục tiêu trước khi khởi chạy',due:first.code==='due_not_future'?'Hạn phản hồi phải sau ngày tạo chương trình':'Cần chọn Hạn phản hồi',participants:'Chọn ít nhất một người nhận feedback',reviewers:'Chọn ít nhất một người cho phản hồi',questions:'Thêm ít nhất một câu hỏi có nội dung'};
+    gotoStep(steps[first.field]);toast(messages[first.field]);return;
+  }
+  persistAndGo('collecting');
+}
+
+function hydrateDraft(){
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id)return;
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('uc5_campaigns')||'[]');}catch(e){saved=[];}
+  const source=saved.find(item=>item.id===id);if(!source)return;
+  const draft=FeedbackProgramModel.normalizeCampaign(source);
+  STATE.id=draft.id;STATE.createdAt=draft.createdAt;STATE.anon=draft.anon;STATE.participants=draft.participants;STATE.reviewers=draft.reviewers;STATE.questions=draft.questions;STATE.templateId=draft.templateId;
+  document.getElementById('progName').value=draft.goal;
+  document.getElementById('dueDate').value=dueISO(draft.due);
+  document.getElementById('tplSel').value=draft.templateId;
+  document.getElementById('selfAssess').checked=draft.includeSelf;
+  document.getElementById('autoRemind').checked=draft.autoRemind;
+  document.querySelectorAll('.radio-card').forEach(card=>card.classList.toggle('on',card.dataset.anon===draft.anon));
+  document.querySelector(`.radio-card[data-anon="${draft.anon}"] input`).checked=true;
+}
+
+/* init */
+hydrateDraft();
+document.getElementById('scopeText').innerHTML=scopeText();
+renderChips('participant');renderChips('reviewer');renderCount();renderQuestions();renderReview();
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#pInput')&&!e.target.closest('#pResults'))document.getElementById('pResults').classList.remove('open');
+  if(!e.target.closest('#rInput')&&!e.target.closest('#rResults'))document.getElementById('rResults').classList.remove('open');
+});
+</script>
+</body>
+</html>

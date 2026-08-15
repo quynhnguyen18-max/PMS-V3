@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chương trình phản hồi | Feedback Programs (UC5)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --r:8px;--rsm:6px;--rxs:4px;
+  --program-columns:minmax(0,2fr) minmax(105px,.65fr) minmax(210px,1.15fr) 24px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+a{text-decoration:none;color:inherit}
+
+/* PMS application shell — role-based Feedback entry for HR */
+.app{display:flex;min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:232px;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:20}.workspace{margin-left:232px;min-width:0;flex:1}.brand{display:flex;align-items:center;gap:9px;padding:16px;border-bottom:1px solid var(--z100)}.logo{width:26px;height:26px;border-radius:6px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800}.brand-name{font-size:13.5px;font-weight:700;color:var(--z900)}.brand-sub{font-size:11px;color:var(--z500)}.role-switch{display:flex;gap:2px;padding:10px 12px 6px}.role-btn{flex:1;padding:4px 0;border:1px solid var(--z200);background:#fff;color:var(--z500);border-radius:4px;font-size:12px;font-weight:600}.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}.nav{flex:1;padding:4px 6px}.nav-label{display:block;padding:12px 8px 4px;text-transform:uppercase;letter-spacing:.6px;font-size:10.5px;font-weight:600;color:var(--z400)}.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;margin:1px 0;border-radius:var(--rsm);font-size:13px;color:var(--z600);transition:var(--t)}.nav-item i{font-size:16px;color:var(--z500)}.nav-item:hover{background:var(--z100);color:var(--z900)}.nav-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}.nav-item.on i{color:var(--brand)}.profile{border-top:1px solid var(--z100);padding:11px 14px;display:flex;gap:9px;align-items:center}.profile-avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--brand-muted);color:var(--brand);font-size:10px;font-weight:700}.profile-name{font-size:12.5px;font-weight:600;color:var(--z900)}.profile-role{font-size:10.5px;color:var(--z500)}
+
+/* Topbar */
+.topbar{height:52px;background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100}
+.tb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0}
+.tb-name{font-size:13.5px;font-weight:700;color:var(--z900)}
+.tb-sub{font-size:11px;color:var(--z500)}
+
+.wrap{width:100%;padding:24px 24px 60px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}
+.page-h{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;margin-bottom:4px;line-height:1.2}
+.page-sub{font-size:12.5px;color:var(--z500)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
+.btn i{font-size:16px}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-h)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}
+.btn-ghost:hover{background:var(--z100);color:var(--z900)}
+.btn-sm{padding:5px 11px;font-size:12.5px}
+
+/* Status filter — pill có viền, đồng bộ E-04 (.seg-btn) */
+.seg{display:inline-flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.seg-btn{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:12.5px;font-weight:500;color:var(--z600);transition:var(--t);font-family:inherit;cursor:pointer;white-space:nowrap}
+.seg-btn:hover{background:var(--z50);border-color:var(--z400);color:var(--z900)}
+.seg-btn.on{background:var(--z600);border-color:var(--z600);color:var(--z0);font-weight:600}
+.seg-cnt{min-width:18px;height:17px;line-height:17px;text-align:center;padding:0 5px;border-radius:9px;background:var(--z100);color:var(--z600);font-size:10.5px;font-weight:700}
+.seg-btn.on .seg-cnt{background:var(--z0);color:var(--z600)}
+
+/* List — single surface, row dividers (Fiori/Workday style) */
+.board{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-sm)}
+.board-head,.row{display:grid;grid-template-columns:var(--program-columns);gap:16px;align-items:start}
+.board-head>*,.row>*{min-width:0}
+.row-arrow{font-size:20px;color:var(--z300);align-self:center;transition:var(--t)}
+.row.clickable:hover .row-arrow{color:var(--brand)}
+.board-head{padding:8px 18px;background:var(--z50);border-bottom:1px solid var(--z200);border-radius:var(--r) var(--r) 0 0}
+.board-head span{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--z500)}
+.board-head .h-r{text-align:right}
+.row{padding:12px 18px;border-bottom:1px solid var(--z100);transition:background .1s}
+.row:last-child{border-bottom:none;border-radius:0 0 var(--r) var(--r)}
+.row.clickable{cursor:pointer}
+.row.clickable:hover{background:var(--z50)}
+
+/* Chương trình */
+.g-title{font-size:12.5px;font-weight:600;color:var(--z900);line-height:1.4;margin-bottom:4px;overflow-wrap:anywhere}
+.g-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--z500)}
+
+/* Phạm vi — 2 icon xếp ngang, phân cách bằng gạch, nhãn hover */
+.scope{display:flex;align-items:center;gap:12px}
+.scope .sm{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--z700)}
+.scope .sm i{font-size:15px;color:var(--z400)}
+.scope .sm b{color:var(--z900);font-weight:700;font-size:12px}
+.scope-sep{width:1px;height:15px;background:var(--z200);flex-shrink:0}
+/* Tooltip — chuẩn design-system (.pms-tooltip) */
+.pms-tooltip{position:relative;display:inline-flex;cursor:help}
+.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:20;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}
+.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
+
+/* Tiến độ & thời hạn — semantic chip đồng bộ M-04 */
+.progress-status{min-width:0}
+.progress-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;min-height:23px;padding:3px 8px;border:1px solid var(--z300);border-radius:5px;background:var(--z50);color:var(--z600);font-size:11px;font-weight:600;line-height:1.35;white-space:normal}
+.progress-chip i{font-size:13px;flex:none}
+.progress-chip.collecting{border-color:var(--warn-bd);background:var(--warn-bg);color:#b45309}
+.progress-chip.overdue{border-color:var(--err-bd);background:var(--err-bg);color:var(--err)}
+.progress-chip.complete{border-color:var(--ok-bd);background:var(--ok-bg);color:var(--ok)}
+.progress-meta{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:10.5px;color:var(--z500);line-height:1.4;overflow-wrap:anywhere}
+.progress-meta.warn{color:var(--warn)}.progress-meta.err{color:var(--err)}.progress-meta.pub{color:var(--ok)}
+.progress-meta i{font-size:13px;flex:none}
+
+/* Hành động — chỉ nút mới có viền */
+.acts{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.icon-btn{width:30px;height:30px;border:none;background:transparent;color:var(--z400);border-radius:var(--rsm);display:inline-flex;align-items:center;justify-content:center;font-size:17px;transition:var(--t)}
+.icon-btn:hover{background:var(--z100);color:var(--err)}
+
+/* Empty */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:50px 20px;border:1px dashed var(--z300);border-radius:var(--r);background:var(--z50)}
+.empty>i{font-size:38px;color:var(--z400)}
+.empty .e-t{font-size:13.5px;font-weight:600;color:var(--z700)}
+.empty .e-s{font-size:12.5px;color:var(--z600);max-width:340px;line-height:1.5}
+
+/* Toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:var(--z0);padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:9px;box-shadow:var(--sh-lg);opacity:0;pointer-events:none;transition:all .25s ease;z-index:200;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast i{color:#4ade80;font-size:18px;flex-shrink:0}
+
+/* Layout 2 cột + panel phải */
+.layout{display:grid;grid-template-columns:1fr 290px;gap:18px 24px;align-items:start}
+.layout .seg{grid-column:1;grid-row:1;margin-bottom:0}
+.layout .list{grid-column:1;grid-row:2;min-width:0}
+.side{grid-column:2;grid-row:2;position:sticky;top:72px;align-self:start;height:max-content}
+.side-card{height:auto;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-sm);padding:16px 18px}
+.summary-section{display:flex;flex-direction:column}
+.side-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:10px}
+.summary-row{display:grid;grid-template-columns:12px minmax(0,1fr) 28px;align-items:center;column-gap:8px;flex:0 0 34px;min-height:34px;padding:6px 0;font-size:11.5px;color:var(--z700);width:100%;background:none;border:none;font-family:inherit;text-align:left}
+.summary-row .s-lbl{display:block;min-width:0}
+.summary-row .s-num{text-align:right;font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:700;color:var(--z900);white-space:nowrap}
+.summary-marker{width:8px;height:8px;border-radius:50%;display:block;justify-self:start}
+.summary-marker.summary-placeholder{visibility:hidden}
+.side-div{height:1px;background:var(--z100);margin:12px 0}
+.attn{border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.attn:hover{background:var(--z50)}
+.attn.on{background:var(--brand-muted)}
+.attn .a-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.attn.warn .a-dot{background:var(--warn)}.attn.warn .s-num{color:var(--warn)}
+.attn.err .a-dot{background:var(--err)}.attn.err .s-num{color:var(--err)}
+.attn.info .a-dot{background:var(--z400)}
+.side-hint{font-size:11.5px;color:var(--z500);margin-top:10px;line-height:1.5;display:none}
+.side-hint.on{display:block}
+.side-hint a{color:var(--brand);cursor:pointer;font-weight:600}
+
+@media(max-width:920px){
+  .layout{grid-template-columns:1fr}
+  .layout .seg,.layout .list,.side{grid-column:auto;grid-row:auto}
+  .side{position:static}
+}
+@media(max-width:820px){
+  .board-head{display:none}
+  .row{grid-template-columns:1fr;gap:12px;padding:16px 18px}
+  .row-arrow{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">M</div><div><div class="brand-name">MoMo HRM</div><div class="brand-sub">Performance</div></div></div>
+    <div class="role-switch"><button class="role-btn" onclick="location.href='../E-04/index.html'">Nhân viên</button><button class="role-btn" onclick="location.href='../M-04/index.html'">Quản lý</button><button class="role-btn on">HR</button></div>
+    <nav class="nav">
+      <span class="nav-label">Không gian quản trị</span>
+      <a class="nav-item" href="index.html"><i class="bx bx-home-alt-2"></i>Tổng quan</a>
+      <a class="nav-item on" href="index.html"><i class="bx bx-message-square-detail"></i>Phản hồi</a>
+    </nav>
+    <div class="profile"><div class="profile-avatar">HR</div><div><div class="profile-name">Lê Thuỳ Anh</div><div class="profile-role">HRBP</div></div></div>
+  </aside>
+  <div class="workspace">
+<div class="topbar">
+  <div class="tb-name">Không gian quản trị</div>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <div class="page-h">Chương trình phản hồi</div>
+      <div class="page-sub">Quản lý các đợt thu thập phản hồi có cấu trúc do HR khởi tạo.</div>
+    </div>
+    <a class="btn btn-primary" href="create-campaign.html"><i class="bx bx-plus"></i> Tạo chương trình</a>
+  </div>
+
+  <div class="layout">
+      <div class="seg" id="tabs">
+        <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả <span class="seg-cnt" id="cnt-all">0</span></button>
+        <button class="seg-btn" data-f="draft" onclick="setFilter('draft')">Nháp <span class="seg-cnt" id="cnt-draft">0</span></button>
+        <button class="seg-btn" data-f="collecting" onclick="setFilter('collecting')">Đang thu thập <span class="seg-cnt" id="cnt-collecting">0</span></button>
+        <button class="seg-btn" data-f="closed" onclick="setFilter('closed')">Đóng <span class="seg-cnt" id="cnt-closed">0</span></button>
+      </div>
+      <div class="list" id="list"></div>
+
+    <aside class="side">
+      <div class="side-card">
+        <div class="summary-section">
+          <div class="side-title">Tổng quan</div>
+          <div class="summary-row"><span class="summary-marker summary-placeholder"></span><span class="s-lbl">Chương trình đã tạo</span><span class="s-num" id="pnl-total">0</span></div>
+          <div class="summary-row"><span class="summary-marker summary-placeholder"></span><span class="s-lbl">Đang thu thập</span><span class="s-num" id="pnl-active">0</span></div>
+        </div>
+        <div class="side-div"></div>
+        <div class="summary-section">
+          <div class="side-title">Cần chú ý</div>
+          <button class="attn warn summary-row" data-f="due_soon" onclick="setFilter('due_soon')"><span class="summary-marker a-dot"></span><span class="s-lbl">Sắp hết hạn (≤3 ngày)</span><span class="s-num" id="pnl-duesoon">0</span></button>
+          <button class="attn err summary-row" data-f="overdue" onclick="setFilter('overdue')"><span class="summary-marker a-dot"></span><span class="s-lbl">Quá hạn</span><span class="s-num" id="pnl-overdue">0</span></button>
+          <button class="attn info summary-row" data-f="need_report" onclick="setFilter('need_report')"><span class="summary-marker a-dot"></span><span class="s-lbl">Chờ tạo báo cáo</span><span class="s-num" id="pnl-report">0</span></button>
+        </div>
+        <div class="side-hint" id="sideHint"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastMsg"></span></div>
+
+<script src="feedback-program-data.js"></script>
+<script src="feedback-program-model.js"></script>
+<script>
+const TODAY='11/08/2026';
+const STORE_KEY='uc5_campaigns';
+
+const SEED=FeedbackProgramData.seedPrograms();
+
+let FILTER='all';
+function load(){
+  let saved=[];
+  try{saved=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');}catch(e){saved=[];}
+  return [...saved,...SEED];
+}
+function persistSaved(list){
+  const savedIds=new Set(SEED.map(s=>s.id));
+  localStorage.setItem(STORE_KEY,JSON.stringify(list.filter(c=>!savedIds.has(c.id))));
+}
+let DATA=load();
+
+/* Date helpers */
+function parse(d){const[a,b,c]=String(d||'').split('/').map(Number);return a&&b&&c?new Date(c,b-1,a):null;}
+function daysBetween(a,b){return Math.round((parse(a)-parse(b))/86400000);}
+function isOverdue(c){return FeedbackProgramModel.isOverdue(c,TODAY);}
+function isDueSoon(c){return FeedbackProgramModel.isDueSoon(c,TODAY);}
+function needReport(c){return FeedbackProgramModel.needsReport(c);}
+function matches(c){
+  return FeedbackProgramModel.matchesFilter(c,FILTER,TODAY);
+}
+function peopleCount(value){return Array.isArray(value)?value.length:Number(value||0);}
+
+function progressStatusBlock(c){
+  if(c.status==='draft')return '<div class="progress-status"><span class="progress-chip"><i class="bx bx-circle"></i>Nháp</span></div>';
+
+  const ratio=`${c.done}/${c.total} đã trả lời`;
+  let label='Đang thu thập',variant='collecting',icon='bx-loader-circle';
+  let timeMeta=`Hạn ${c.due}`,timeClass='';
+  if(c.status==='closed'){
+    const complete=Number(c.done)===Number(c.total);
+    label=complete?'Hoàn thành':'Đã đóng';
+    variant=complete?'complete':'';
+    icon=complete?'bx-check-circle':'bx-lock-alt';
+    timeMeta='';
+  }else if(isOverdue(c)){
+    label='Quá hạn';variant='overdue';icon='bx-error-circle';
+    timeMeta=`Quá hạn ${daysBetween(TODAY,c.due)} ngày`;timeClass='err';
+  }
+
+  let reportMeta='';
+  if(c.status==='closed'){
+    if(c.report==='published')reportMeta='<div class="progress-meta pub"><i class="bx bx-check-double"></i>Đã chia sẻ quản lý</div>';
+    else if(c.report==='made')reportMeta='<div class="progress-meta"><i class="bx bx-file"></i>Đã tạo báo cáo</div>';
+    else reportMeta='<div class="progress-meta"><i class="bx bx-file-blank"></i>Chưa tạo báo cáo</div>';
+  }
+  const timeLine=timeMeta?`<div class="progress-meta ${timeClass}">${timeMeta}</div>`:'';
+  return `<div class="progress-status"><span class="progress-chip ${variant}"><i class="bx ${icon}"></i>${label}: ${ratio}</span>${timeLine}${reportMeta}</div>`;
+}
+function actions(c){
+  const stop='event.stopPropagation();';
+  if(c.status==='draft')
+    return `<a class="btn btn-outline btn-sm" href="create-campaign.html?id=${encodeURIComponent(c.id)}"><i class="bx bx-slider"></i> Tiếp tục thiết lập</a><button class="icon-btn" onclick="${stop}delCampaign('${c.id}')" title="Xoá nháp"><i class="bx bx-trash"></i></button>`;
+  if(c.status==='collecting')
+    return `<button class="btn btn-outline btn-sm" onclick="${stop}remind('${c.id}')"><i class="bx bx-bell"></i> Nhắc</button><button class="btn btn-outline btn-sm" onclick="${stop}closeCampaign('${c.id}')"><i class="bx bx-lock"></i> Đóng</button>`;
+  if(c.report==='none')
+    return `<button class="btn btn-primary btn-sm" onclick="${stop}makeReport('${c.id}')"><i class="bx bx-bar-chart-alt-2"></i> Tạo báo cáo</button>`;
+  if(c.report==='made')
+    return `<button class="btn btn-outline btn-sm" onclick="${stop}openReport('${c.id}')">Xem</button><button class="btn btn-primary btn-sm" onclick="${stop}publish('${c.id}')"><i class="bx bx-share-alt"></i> Publish</button>`;
+  return `<button class="btn btn-outline btn-sm" onclick="${stop}openReport('${c.id}')"><i class="bx bx-show"></i> Xem báo cáo</button>`;
+}
+
+function render(){
+  const by=k=>DATA.filter(c=>c.status===k).length;
+  document.getElementById('cnt-all').textContent=DATA.length;
+  document.getElementById('cnt-draft').textContent=by('draft');
+  document.getElementById('cnt-collecting').textContent=by('collecting');
+  document.getElementById('cnt-closed').textContent=by('closed');
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
+
+  // Panel tổng quan + cần chú ý
+  document.getElementById('pnl-total').textContent=DATA.length;
+  document.getElementById('pnl-active').textContent=by('collecting');
+  document.getElementById('pnl-duesoon').textContent=DATA.filter(isDueSoon).length;
+  document.getElementById('pnl-overdue').textContent=DATA.filter(c=>c.status==='collecting'&&isOverdue(c)).length;
+  document.getElementById('pnl-report').textContent=DATA.filter(needReport).length;
+  document.querySelectorAll('.attn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
+  const hint=document.getElementById('sideHint');
+  const special={due_soon:'sắp hết hạn',overdue:'quá hạn',need_report:'chờ tạo báo cáo'};
+  if(special[FILTER]){hint.classList.add('on');hint.innerHTML=`Đang lọc: <b>${special[FILTER]}</b> · <a onclick="setFilter('all')">Xem tất cả</a>`;}
+  else hint.classList.remove('on');
+
+  const rows=FeedbackProgramModel.sortCampaigns(DATA.filter(matches),TODAY);
+  const box=document.getElementById('list');
+  if(!rows.length){box.innerHTML='<div class="empty"><i class="bx bx-collection"></i><div class="e-t">Chưa có chương trình nào</div><div class="e-s">Bấm "Tạo chương trình" để bắt đầu một đợt thu thập phản hồi mới.</div></div>';return;}
+  const head=`<div class="board-head"><span>Chương trình</span><span>Phạm vi</span><span>Tiến độ &amp; thời hạn</span><span></span></div>`;
+  const body=rows.map(c=>`
+    <div class="row clickable" onclick="openDetail('${c.id}')">
+      <div class="c-goal">
+        <div class="g-title">${c.goal}</div>
+        <div class="g-meta">
+          <span>Tạo ${c.createdAt}</span>
+        </div>
+      </div>
+      <div class="scope">
+        <span class="sm pms-tooltip"><i class="bx bx-user-check"></i><b>${peopleCount(c.participants)}</b><span class="pms-tooltip-content">Người nhận phản hồi</span></span>
+        <span class="scope-sep"></span>
+        <span class="sm pms-tooltip"><i class="bx bx-message-square-detail"></i><b>${peopleCount(c.reviewers)}</b><span class="pms-tooltip-content">Người cho phản hồi</span></span>
+      </div>
+      ${progressStatusBlock(c)}
+      <i class="bx bx-chevron-right row-arrow"></i>
+    </div>`).join('');
+  box.innerHTML=`<div class="board">${head}${body}</div>`;
+}
+
+/* Actions */
+function find(id){return DATA.find(c=>c.id===id);}
+function save(){persistSaved(DATA);render();}
+function setFilter(f){FILTER=f;render();}
+function remind(id){toast('Đã gửi nhắc tới những người chưa phản hồi');}
+function closeCampaign(id){const c=find(id);if(!c)return;c.status='closed';c.report='none';save();toast('Đã đóng chương trình — giờ bạn có thể tạo báo cáo');}
+function makeReport(id){const c=find(id);if(!c)return;c.report='made';save();toast('AI đã tạo báo cáo cho từng người nhận');}
+function publish(id){const c=find(id);if(!c)return;c.report='published';save();toast('Đã chia sẻ báo cáo tới quản lý (và ghi vào hồ sơ nhân viên)');}
+function delCampaign(id){DATA=DATA.filter(c=>c.id!==id);save();toast('Đã xoá bản nháp');}
+function openDetail(id){const c=find(id);if(c&&c.status==='draft'){location.href=`create-campaign.html?id=${encodeURIComponent(c.id)}`;return;}if(c){location.href=`../H-06/index.html?id=${encodeURIComponent(c.id)}`;}}
+function openReport(id){toast('Màn báo cáo per-participant — bước thiết kế kế tiếp');}
+
+function toast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* Thông báo khi vừa từ màn tạo chuyển sang */
+(function(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('created')==='launch')toast('🚀 Đã khởi chạy chương trình — đang thu thập phản hồi');
+  else if(p.get('created')==='draft')toast('Đã lưu bản nháp chương trình');
+  if(p.get('created')){history.replaceState({},'',location.pathname);}
+})();
+render();
+</script>
+</body>
+</html>
