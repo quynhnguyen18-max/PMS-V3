@@ -587,27 +587,47 @@ test('request detail explains automatic and latest manual reminder timing', () =
   assert.doesNotMatch(html,/event\.type==='automatic'\?'Tự động':'Thủ công'/);
 });
 
-test('feedback requests expire after 90 days and reject due dates outside the allowed range', () => {
+test('feedback requests close after 90 days only when responses remain missing', () => {
   const model = require('./manager-request-model.js');
   assert.equal(model.maxDueDate('01/08/2026'),'30/10/2026');
   assert.deepEqual(model.dueRange('01/08/2026'),{min:'2026-08-01',max:'2026-10-30'});
   const input={goal:'Test 90-day rule',cycle:'2026',createdAt:'01/08/2026',due:'30/10/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'};
   const request=model.createRequest(input);
   assert.equal(model.requestStatus(request,'30/10/2026'),'collecting');
-  assert.equal(model.requestStatus(request,'31/10/2026'),'no_response');
+  assert.equal(model.requestStatus(request,'31/10/2026'),'closed');
   assert.equal(model.remindPending(request,'31/10/2026'),0,'closed requests cannot be reminded');
   assert.throws(()=>model.createRequest({...input,due:'31/10/2026'}),/90 ngày/);
   assert.throws(()=>model.createRequest({...input,due:'31/07/2026'}),/ngày tạo/);
-  request.assignments[0].status='done';
+  request.assignments[0].status='done';request.assignments[0].repliedAt='30/10/2026';
   assert.equal(model.requestStatus(request,'31/10/2026'),'complete','completed requests stay complete after 90 days');
 });
 
-test('manager request due field exposes the 90-day limit and no-response status', () => {
+test('overdue requests keep collecting until they complete inside the 90-day window', () => {
+  const model=require('./manager-request-model.js');
+  const request=model.createRequest({
+    goal:'Continue collection after due date',cycle:'2026',createdAt:'01/08/2026',due:'05/08/2026',
+    designees:[{id:'e1',name:'Tu',login:'tu.nguyen',lvl:'lm1'}],
+    reviewers:[{name:'Nam',login:'nam.le'},{name:'Mai',login:'mai.tran'}],sharedQuestion:'Goc nhin cua ban?'
+  });
+  assert.equal(model.requestStatus(request,'06/08/2026'),'overdue');
+  request.assignments.forEach(item=>{item.status='done';item.repliedAt='10/08/2026';});
+  assert.equal(model.requestStatus(request,'10/08/2026'),'complete');
+});
+
+test('manager request due field exposes the 90-day limit and closed status', () => {
   const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
   assert.match(html,/Yêu cầu có hiệu lực tối đa 90 ngày kể từ ngày tạo\./);
   assert.match(html,/function configureRequestDueRange\(\)/);
   assert.match(html,/due\.min=range\.min;due\.max=range\.max/);
-  assert.match(html,/status==='no_response'\?'Không phản hồi'/);
+  assert.match(html,/status==='closed'\?'Đóng'/);
+  assert.doesNotMatch(html,/Không phản hồi/);
+});
+
+test('design system defines the closed request state after the 90-day collection window', () => {
+  const design=fs.readFileSync(path.join(__dirname,'..','design-system','index.html'),'utf8');
+  assert.match(design,/fb-st-closed/);
+  assert.match(design,/Đóng/);
+  assert.match(design,/90 ngày/);
 });
 
 test('D4 request store initializes, upserts and serializes without duplicate ids', () => {
@@ -775,7 +795,7 @@ test('Kanban uses neutral lanes and cards with semantic color only in headers', 
 
 test('list view renders a lean cycle overview and Kanban uses full width', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
-  for (const id of ['requestListLayout','requestOverview','overviewTotal','overviewCollecting','overviewOverdue','overviewComplete','overviewAiReady']) {
+  for (const id of ['requestListLayout','requestOverview','overviewTotal','overviewCollecting','overviewOverdue','overviewComplete','overviewClosed']) {
     assert.match(html, new RegExp(`id="${id}"`), `${id} is required`);
   }
   assert.match(html, /function renderRequestOverview\(/);
@@ -783,6 +803,7 @@ test('list view renders a lean cycle overview and Kanban uses full width', () =>
   assert.match(html, /request-list-layout/);
   assert.match(html, /requestView==='list'/);
   assert.doesNotMatch(html, /Cần chú ý/);
+  assert.doesNotMatch(html, /Sẵn sàng tóm tắt AI/);
 });
 
 test('request list reserves enough width for progress chips beside the overview', () => {

@@ -159,7 +159,7 @@ input,select,textarea{font-family:inherit}
 .fb-st-collecting{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-bd)}
 .fb-st-overdue{color:var(--err);background:var(--err-bg);border-color:var(--err-bd)}
 .fb-st-complete{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
-.fb-st-no-response{color:var(--z600);background:var(--z100);border-color:var(--z300)}
+.fb-st-closed{color:var(--z600);background:var(--z100);border-color:var(--z300)}
 /* Goal type — unified: pink text, pink border, brand-muted bg */
 .b-what,.b-dev,.b-how{color:var(--brand);background:var(--brand-muted);border-color:var(--brand)}
 .prio{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;white-space:nowrap}
@@ -593,6 +593,7 @@ textarea.fc{resize:vertical}
           <li><b>Shared geometry:</b> header/row hoặc các dòng summary cùng loại phải lấy chung một khai báo grid; không tạo biến thể flex riêng làm lệch nhãn và số.</li>
           <li><b>Data-list density:</b> list quản trị dùng header 10px, title 12.5px, nội dung 12px và metadata 10.5px; row padding chuẩn 12px theo chiều dọc. Không tự tăng cỡ chữ ở một màn riêng trong cùng module.</li>
           <li><b>Semantic status chip:</b> chip tiến độ dùng 11px/600, cao tối thiểu 23px; vàng = đang thu thập, đỏ = quá hạn, xanh = hoàn thành, xám = nháp/đã đóng chưa đủ. Số đã trả lời phải hiển thị trực tiếp khi cần ra quyết định.</li>
+          <li><b>Feedback request lifecycle:</b> quá hạn khi đã qua hạn phản hồi do quản lý chọn nhưng vẫn thiếu phản hồi; ticket vẫn tiếp tục thu thập đến ngày thứ 90 kể từ ngày tạo. Hoàn thành khi đã đủ phản hồi trong cửa sổ 90 ngày. Đóng khi đã qua 90 ngày và vẫn thiếu phản hồi; không nhận thêm phản hồi hoặc lời nhắc.</li>
           <li><b>Metadata separator:</b> không dùng dấu chấm (<code>·</code> hoặc <code>.</code>) để ngăn các mảnh thông tin vì tạo cảm giác máy móc. Khi cần ghép metadata, chỉ dùng dấu gạch ngang ngắn có khoảng trắng hai bên: <code>Họ tên (domain) - Phòng ban - Team - Vị trí</code>.</li>
           <li><b>Identity spacing:</b> Họ tên và domain là hai phần tử riêng. Domain luôn có khoảng đệm trái 4px bằng CSS, không phụ thuộc vào whitespace trong template để tránh dính chữ khi render.</li>
           <li><b>Tooltip boundary rule:</b> tooltip của tên nhân viên và core value trong vùng panel có cuộn phải dùng placement lên hoặc xuống theo khoảng trống thực tế, và được đưa ra lớp overlay cố định khi cần để không bị cắt bởi <code>overflow</code>. Reuse token nền đen, chữ trắng, bo góc 6px, cỡ chữ 12px của <code>pms-tooltip</code>. Với detail theo M-04, dùng native scrollbar; không override global scrollbar riêng cho từng màn hình.</li>
@@ -757,7 +758,7 @@ textarea.fc{resize:vertical}
             <span class="badge fb-st-collecting"><i class="bx bx-loader-circle"></i>Đang thu thập / Chưa trả lời</span>
             <span class="badge fb-st-overdue"><i class="bx bx-error-circle"></i>Quá hạn</span>
             <span class="badge fb-st-complete"><i class="bx bx-check-circle"></i>Hoàn thành / Đã trả lời</span>
-            <span class="badge fb-st-no-response"><i class="bx bx-lock-alt"></i>Không phản hồi</span>
+            <span class="badge fb-st-closed"><i class="bx bx-lock-alt"></i>Đóng</span>
           </div>
           <div class="ds-divider"></div>
           <div class="ds-panel-title">Prio pills</div>

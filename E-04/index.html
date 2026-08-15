@@ -1620,7 +1620,7 @@ function cardRequest(f,idx){
     + (others.length>8 ? `<br>… và ${others.length-8} người nữa` : '');
   const suffix = more>0
     ? `<span class="fb-more" onclick="openReq(${idx})">và ${more} người khác<span class="fb-badge-tip tip-list">${list}</span></span>` : '';
-  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} · Hạn ${f.due}</span></div>${requestReminderSummary(f)}`;
+  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} · Hạn ${f.due}</span></div>`;
   return `<div class="fb-card has-chip" data-kind="request">
     <div class="fb-chip-tr">${st}</div>
     ${cardHead(SELF, first, meta, suffix)}
@@ -2533,7 +2533,6 @@ function reminderReviewerKey(request,reviewer){return `${request.date}|${reviewe
 function reminderReviewerHistory(request,reviewer,today=todayDMY()){const recorded=reviewer.manualReminderHistory||[],manual=(recorded.length?recorded:(reviewer.reminded?[reviewer.reminded]:[])).map(at=>({at,type:'manual'})),auto=reviewer.automaticRemindedAt||automaticReminderDate(request),automatic=dateTimeFromDMY(auto)<=dateTimeFromDMY(today)?[{at:auto,type:'automatic'}]:[];return [...manual,...automatic].sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));}
 function reminderHistoryTooltip(history){return history.map((event,index)=>`Lần ${index+1}: ${event.at}`).join('<br>');}
 function reminderReviewerMeta(request,reviewer){const auto=reviewer.automaticRemindedAt||automaticReminderDate(request),history=reminderReviewerHistory(request,reviewer),manual=reviewer.reminded,autoPending=dateTimeFromDMY(auto)>dateTimeFromDMY(todayDMY());if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${auto}</span></div>`;if(justRemindedReviewers.has(reminderReviewerKey(request,reviewer))&&manual&&autoPending)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-bell"></i>Đã nhắc: ${manual} · Lần nhắc tiếp theo: ${auto}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
-function requestReminderSummary(request){const history=request.reviewers.flatMap(reviewer=>reminderReviewerHistory(request,reviewer)).sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${automaticReminderDate(request)}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
 function isoFromDate(date){const p=n=>String(n).padStart(2,'0');return date?`${date.getUTCFullYear()}-${p(date.getUTCMonth()+1)}-${p(date.getUTCDate())}`:'';}
 function requestDueRange(createdAt=todayDMY()){const created=dateFromDMY(createdAt),max=new Date(created);max.setUTCDate(max.getUTCDate()+90);return {min:isoFromDate(created),max:isoFromDate(max)};}
 function configureReqDueRange(){const due=document.getElementById('reqDue');const range=requestDueRange();due.min=range.min;due.max=range.max;}

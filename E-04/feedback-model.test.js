@@ -66,6 +66,14 @@ test('employee request reminders show automatic timing and enforce a rolling 24-
   assert.doesNotMatch(html,/event\.type==='automatic'\?'Tự động':'Thủ công'/);
 });
 
+test('employee request feed card omits the aggregate reminder-count line', () => {
+  const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
+  const cardFn=html.match(/function cardRequest\(f,idx\)\{[\s\S]*?\n\}/)?.[0]||'';
+  assert.doesNotMatch(cardFn,/requestReminderSummary/);
+  assert.doesNotMatch(html,/function requestReminderSummary/);
+  assert.doesNotMatch(cardFn,/Đã nhắc:/);
+});
+
 test('employee feedback warns before discarding instead of offering draft saving', () => {
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const confirm = html.match(/id="dlg-confirm"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/)?.[0] || '';

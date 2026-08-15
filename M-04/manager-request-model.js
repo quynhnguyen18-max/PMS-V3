@@ -150,7 +150,7 @@
     const dueTs=request&&(request.dueTs||tsFromDMY(request.due));
     return !!(today&&dueTs&&today>dueTs);
   }
-  function isNoResponse(request,todayDMY){
+  function isClosed(request,todayDMY){
     const today=dateFromDMY(todayDMY),expires=dateFromDMY(maxDueDate(request&&request.createdAt));
     const pending=((request&&request.assignments)||[]).some(item=>item.status!=='done');
     return !!(pending&&today&&expires&&today>expires);
@@ -188,7 +188,7 @@
   function requestStatus(request,todayDMY){
     const stat=summarize(request,todayDMY);
     if(stat.total>0&&stat.pending===0)return 'complete';
-    if(isNoResponse(request,todayDMY))return 'no_response';
+    if(isClosed(request,todayDMY))return 'closed';
     if(stat.overdue>0)return 'overdue';
     return 'collecting';
   }
@@ -199,7 +199,7 @@
     },0);
   }
   function compareRequestsForAction(a,b,todayDMY){
-    const rank={overdue:0,collecting:1,complete:2,no_response:3};
+    const rank={overdue:0,collecting:1,complete:2,closed:3};
     const statusA=requestStatus(a,todayDMY),statusB=requestStatus(b,todayDMY);
     const group=(rank[statusA]??4)-(rank[statusB]??4);
     if(group)return group;
@@ -215,7 +215,7 @@
     return [...(requests||[])].sort((a,b)=>compareRequestsForAction(a,b,todayDMY));
   }
   function canRemindAssignment(request,assignment,nowDMY){
-    if(!assignment||assignment.status==='done'||requestStatus(request,String(nowDMY||'').slice(0,10))==='no_response')return false;
+    if(!assignment||assignment.status==='done'||requestStatus(request,String(nowDMY||'').slice(0,10))==='closed')return false;
     const now=dateTimeFromDMY(nowDMY),due=dateFromDMY(request&&request.due);
     if(!now||!due)return false;
     due.setUTCHours(23,59,59,999);
@@ -258,5 +258,5 @@
     };
   }
 
-  return {tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isNoResponse,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
+  return {tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
 });
