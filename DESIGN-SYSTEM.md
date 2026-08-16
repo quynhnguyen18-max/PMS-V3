@@ -215,6 +215,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 .dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg)}
 ```
 `.dlg-hd` (badges + title 15px/600 + close), `.dlg-tabs` (tab dialog), `.dlg-body` scroll, `.dlg-foot` (border-top, justify-end).
+**Review-confirmation modal:** Trước hành động gửi một yêu cầu, mở overlay dialog theo pattern này; không thay form bằng màn hình riêng. Đóng modal hoặc chọn “Quay lại chỉnh sửa” phải giữ nguyên dữ liệu đã nhập. Footer của modal rà soát dùng action compact `32px / 12px`, padding `12px 18px 16px` để nút không sát mép dưới.
 **Popup Tạo mục tiêu:** Loại mục tiêu (select: Mục tiêu Công việc / Mục tiêu Phát triển) · hàng 3 cột (Ưu tiên · Từ ngày · Đến ngày) · Tên mục tiêu (RTE neutral + đếm) · Kết quả cần đạt (RTE neutral) · footer: Lưu nháp (outline) + Gửi quản lý (default).
 **Popup Phản hồi đã nhận:** title + badge đếm hồng; các `.fb-card` (avatar, tên + domain, org, ngày; `.fb-qbox` nếu có câu hỏi — **nền hồng #fbe4f0, chữ z900/500** để tương phản rõ; `.fb-body`; `.fb-badges` core value nếu được ghi nhận).
 
@@ -248,6 +249,10 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 4. Khoảng cách block: 14–18px. Icon boxicons 13–16px, z500 (thường) / hồng (nhấn). Transition `--t`.
 5. Màu chỉ theo 3 ý định (xanh done / hồng action / xám neutral). Active/selected: nền `--brand-muted`, chữ `--brand`.
 6. Chữ phụ đọc được: z600/z700, KHÔNG z500/z400. Responsive: bảng `overflow-x:auto`, grid `1fr` khi hẹp.
+7. **Feedback direction:** nghĩa phản hồi luôn là `Người cho phản hồi → Người nhận phản hồi`. Khi form đặt người nhận ở bên trái và người cho ở bên phải, dùng tam giác xám đậm hướng sang trái để vẫn phản ánh đúng chiều phản hồi. Review modal phải dùng cùng thứ tự, nhãn rõ cả “Người nhận phản hồi” và “Người cho phản hồi”.
+8. **Questionnaire library:** Template có owner và phạm vi `personal`, `all_hr` hoặc `selected_hr`. Người được chia sẻ chỉ được dùng hoặc tạo bản sao; chỉ owner được sửa/xóa mẫu gốc. Câu hỏi được chọn vào request phải là bản clone, nên mọi chỉnh sửa chỉ áp dụng cho request đó.
+9. **Question type & inline validation:** Loại câu hỏi dùng icon có tooltip nền đen chữ trắng, không dùng text action thường trực. Khi submit form thiếu trường bắt buộc, hiển thị lỗi 11.5px ngay bên dưới trường, thêm `aria-invalid` và focus vào lỗi đầu tiên; toast không được là thông báo lỗi duy nhất.
+10. **Participant mapping:** Người cho phản hồi ở trái, người nhận phản hồi ở phải, tam giác xám đậm chỉ sang phải. Toggle cá nhân hóa chỉ khả dụng khi đã chọn từ hai người nhận phản hồi.
 
 ## YÊU CẦU
 Tạo màn hình **[MÔ TẢ MÀN HÌNH]**, dùng nguyên shell (sidebar + topbar + page), áp dụng đúng toàn bộ spec + triết lý tối giản. Trước khi code, liệt kê component sẽ dùng và map vào class chuẩn. Không phát minh class/màu mới trừ khi được cho phép. Đối chiếu `design-system/index.html` để chắc render đúng.
