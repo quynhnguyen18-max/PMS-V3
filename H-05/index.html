@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Chương trình phản hồi | Feedback Programs (UC5)</title>
+<title>Quản lý yêu cầu phản hồi của HR | MoMo HRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
@@ -176,10 +176,10 @@ a{text-decoration:none;color:inherit}
 <div class="wrap">
   <div class="page-head">
     <div>
-      <div class="page-h">Chương trình phản hồi</div>
+      <div class="page-h">Quản lý yêu cầu phản hồi của HR</div>
       <div class="page-sub">Quản lý các đợt thu thập phản hồi có cấu trúc do HR khởi tạo.</div>
     </div>
-    <a class="btn btn-primary" href="create-campaign.html"><i class="bx bx-plus"></i> Tạo chương trình</a>
+    <div style="display:flex;gap:8px"><a class="btn btn-outline" href="questionnaire-library.html"><i class="bx bx-collection"></i> Thư viện bộ câu hỏi</a><a class="btn btn-primary" href="create-campaign.html"><i class="bx bx-plus"></i> Tạo yêu cầu phản hồi</a></div>
   </div>
 
   <div class="layout">
@@ -307,7 +307,7 @@ function render(){
 
   const rows=FeedbackProgramModel.sortCampaigns(DATA.filter(matches),TODAY);
   const box=document.getElementById('list');
-  if(!rows.length){box.innerHTML='<div class="empty"><i class="bx bx-collection"></i><div class="e-t">Chưa có chương trình nào</div><div class="e-s">Bấm "Tạo chương trình" để bắt đầu một đợt thu thập phản hồi mới.</div></div>';return;}
+  if(!rows.length){box.innerHTML='<div class="empty"><i class="bx bx-collection"></i><div class="e-t">Chưa có chương trình nào</div><div class="e-s">Bấm "Tạo yêu cầu phản hồi" để bắt đầu một đợt thu thập phản hồi mới.</div></div>';return;}
   const head=`<div class="board-head"><span>Chương trình</span><span>Phạm vi</span><span>Tiến độ &amp; thời hạn</span><span></span></div>`;
   const body=rows.map(c=>`
     <div class="row clickable" onclick="openDetail('${c.id}')">

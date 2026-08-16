@@ -13,15 +13,59 @@
   }
   function normalizeQuestion(question,index=0){
     const source=question||{};
-    return {
+    const base={
       id:String(source.id||`q${index+1}`),
       type:source.type==='rating'?'rating':'open_text',
       text:String(source.text||'').trim()
+    };
+    if(base.type!=='rating')return base;
+    const score=Number(source.ratingScale);
+    const ratingScale=Number.isInteger(score)&&score>=2&&score<=10?score:null;
+    const ratingLabels=Object.fromEntries(Object.entries(source.ratingLabels||{}).map(([score,label])=>[String(score),String(label||'').trim()]));
+    return {...base,ratingScale,ratingLabels,detailedRatingLabels:Boolean(source.detailedRatingLabels)};
+  }
+  function normalizeReviewerMappings(mappings){
+    const seen=new Set();
+    return (Array.isArray(mappings)?mappings:[]).flatMap(mapping=>{
+      const participantId=String(mapping&&mapping.participantId||'').trim();
+      if(!participantId||seen.has(participantId))return [];
+      seen.add(participantId);
+      const reviewerIds=[...new Set((Array.isArray(mapping&&mapping.reviewerIds)?mapping.reviewerIds:[]).map(item=>String(item||'').trim()).filter(Boolean))];
+      return [{participantId,reviewerIds}];
+    });
+  }
+  function uniqueIds(values){
+    return [...new Set((Array.isArray(values)?values:[]).map(value=>String(value||'').trim()).filter(Boolean))];
+  }
+  function normalizeAssignmentMode(source){
+    const value=source&&source.reviewerAssignmentMode;
+    if(value==='shared'||value==='per_recipient')return value;
+    return Array.isArray(source&&source.reviewerMappings)&&source.reviewerMappings.length?'per_recipient':'shared';
+  }
+  function expandReviewerMappings(participants,mode,sharedReviewerIds,mappings){
+    if(mode!=='shared')return normalizeReviewerMappings(mappings);
+    const reviewerIds=uniqueIds(sharedReviewerIds);
+    return uniqueById(participants).map(participant=>({
+      participantId:participant.id,
+      reviewerIds:reviewerIds.filter(reviewerId=>reviewerId!==participant.id)
+    }));
+  }
+  function normalizeResultSharing(value){
+    const source=value||{};
+    const mode=['shared_all','shared_selected'].includes(source.mode)?source.mode:'not_shared';
+    const participantIds=[...new Set((Array.isArray(source.participantIds)?source.participantIds:[]).map(item=>String(item||'').trim()).filter(Boolean))];
+    return {
+      mode:mode==='shared_selected'&&participantIds.length?'shared_selected':mode==='shared_all'?'shared_all':'not_shared',
+      participantIds:mode==='shared_selected'?participantIds:[],
+      sharedAt:mode==='not_shared'?'':String(source.sharedAt||'').trim(),
+      sharedBy:mode==='not_shared'?'hr':String(source.sharedBy||'hr').trim()||'hr'
     };
   }
   function normalizeCampaign(campaign){
     const source=campaign||{};
     const participants=Array.isArray(source.participants)?source.participants:[];
+    const reviewerAssignmentMode=normalizeAssignmentMode(source);
+    const reviewerMappings=normalizeReviewerMappings(source.reviewerMappings);
     const reviewers=Array.isArray(source.reviewers)?source.reviewers:[];
     return {
       ...source,
@@ -32,13 +76,19 @@
       due:source.due||'',
       participants:[...participants],
       reviewers:[...reviewers],
+      reviewerMappings,
+      reviewerAssignmentMode,
+      sharedReviewerIds:uniqueIds(source.sharedReviewerIds),
       participantCount:Number(source.participantCount ?? (Array.isArray(source.participants)?source.participants.length:(source.participants||0))),
       reviewerCount:Number(source.reviewerCount ?? (Array.isArray(source.reviewers)?source.reviewers.length:(source.reviewers||0))),
       questions:(source.questions||[]).map(normalizeQuestion),
       includeSelf:Boolean(source.includeSelf),
-      anon:source.anon==='anon'?'anon':'named',
+      identityVisibility:Object.prototype.hasOwnProperty.call(source,'identityVisibility')?(source.identityVisibility==='anonymous'?'anonymous':source.identityVisibility==='named'?'named':''):(source.anon==='anon'?'anonymous':'named'),
+      anon:source.identityVisibility==='anonymous'||source.anon==='anon'?'anon':'named',
       autoRemind:source.autoRemind!==false,
       templateId:source.templateId||'',
+      invitationMessage:String(source.invitationMessage||'').trim(),
+      resultSharing:normalizeResultSharing(source.resultSharing),
       report:source.report||'none'
     };
   }
@@ -53,8 +103,22 @@
     const seen=new Set();
     return (people||[]).filter(person=>person&&person.id&&!seen.has(person.id)&&seen.add(person.id));
   }
-  function buildAssignments(participants,reviewers,options){
-    const ps=uniqueById(participants),rs=uniqueById(reviewers),includeSelf=Boolean(options&&options.includeSelf),out=[];
+  function buildAssignments(participants,reviewersOrMappings,options){
+    const ps=uniqueById(participants),includeSelf=Boolean(options&&options.includeSelf),out=[];
+    const mappings=normalizeReviewerMappings(reviewersOrMappings);
+    if(mappings.length){
+      const validParticipants=new Set(ps.map(person=>person.id));
+      mappings.forEach(mapping=>{
+        if(!validParticipants.has(mapping.participantId))return;
+        mapping.reviewerIds.forEach(reviewerId=>{
+          if(reviewerId===mapping.participantId)return;
+          out.push({id:`${mapping.participantId}:${reviewerId}`,participantId:mapping.participantId,reviewerId,selfAssessment:false,status:'pending'});
+        });
+      });
+      if(includeSelf)ps.forEach(participant=>out.push({id:`${participant.id}:${participant.id}:self`,participantId:participant.id,reviewerId:participant.id,selfAssessment:true,status:'pending'}));
+      return out;
+    }
+    const rs=uniqueById(reviewersOrMappings);
     ps.forEach(participant=>{
       rs.forEach(reviewer=>{
         if(reviewer.id===participant.id)return;
@@ -70,9 +134,32 @@
     if(!item.due)errors.push({field:'due',code:'required'});
     else if(daysBetween(item.due,createdAt)<=0)errors.push({field:'due',code:'due_not_future'});
     if(!item.participants.length)errors.push({field:'participants',code:'required'});
-    if(!item.reviewers.length)errors.push({field:'reviewers',code:'required'});
-    if(!item.questions.some(question=>question.type==='open_text'&&question.text))errors.push({field:'questions',code:'required'});
+    const hasMappings=item.reviewerMappings.length>0||Array.isArray(campaign&&campaign.reviewerMappings);
+    if(hasMappings){
+      const mapped=new Map(item.reviewerMappings.map(mapping=>[mapping.participantId,mapping.reviewerIds]));
+      if(item.participants.some(participant=>!(mapped.get(participant.id)||[]).some(reviewerId=>reviewerId!==participant.id)))errors.push({field:'reviewerMappings',code:'required'});
+    }else if(!item.reviewers.length)errors.push({field:'reviewers',code:'required'});
+    const ratingLabelsComplete=question=>question.detailedRatingLabels?Array.from({length:question.ratingScale||0},(_,index)=>question.ratingLabels[String(index+1)]).every(Boolean):Boolean(question.ratingLabels&&question.ratingLabels['1']&&question.ratingLabels[String(question.ratingScale)]);
+    const validQuestion=item.questions.some(question=>question.type==='open_text'&&question.text)||item.questions.some(question=>question.type==='rating'&&question.text&&question.ratingScale&&ratingLabelsComplete(question));
+    const invalidRating=item.questions.some(question=>question.type==='rating'&&question.text&&(!question.ratingScale||!ratingLabelsComplete(question)));
+    if(!validQuestion||invalidRating)errors.push({field:'questions',code:'required'});
+    if(!item.identityVisibility)errors.push({field:'identityVisibility',code:'required'});
     return {valid:errors.length===0,errors,campaign:item};
+  }
+  function isResultShared(campaign,participantId){
+    const sharing=normalizeResultSharing(campaign&&campaign.resultSharing);
+    return sharing.mode==='shared_all'||(sharing.mode==='shared_selected'&&sharing.participantIds.includes(String(participantId||'')));
+  }
+  function shareResults(campaign,participantIds,sharedAt){
+    const item=normalizeCampaign(campaign),ids=[...new Set((Array.isArray(participantIds)?participantIds:[]).map(value=>String(value||'').trim()).filter(Boolean))];
+    return {...item,resultSharing:ids.length?{mode:'shared_selected',participantIds:ids,sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'}:{mode:'shared_all',participantIds:[],sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'}};
+  }
+  function lockPendingAssignments(assignments){
+    return (Array.isArray(assignments)?assignments:[]).map(assignment=>assignment&&assignment.status==='pending'?{...assignment,status:'locked'}:assignment);
+  }
+  function closeCampaign(campaign,closedAt){
+    const item=normalizeCampaign(campaign);
+    return {...item,status:'closed',closedAt:String(closedAt||'').trim(),assignments:lockPendingAssignments(item.assignments)};
   }
   function isOverdue(campaign,today){return campaign&&campaign.status==='collecting'&&daysBetween(today,campaign.due)>0;}
   function isDueSoon(campaign,today){
@@ -160,5 +247,5 @@
     });
     return sent;
   }
-  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isOverdue,isDueSoon,needsReport,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,lockPendingAssignments,closeCampaign,isOverdue,isDueSoon,needsReport,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
 });
