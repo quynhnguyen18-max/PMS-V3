@@ -248,11 +248,12 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 3. Viền mặc định 1px z200; card nổi z300 + `--sh`.
 4. Khoảng cách block: 14–18px. Icon boxicons 13–16px, z500 (thường) / hồng (nhấn). Transition `--t`.
 5. Màu chỉ theo 3 ý định (xanh done / hồng action / xám neutral). Active/selected: nền `--brand-muted`, chữ `--brand`.
-6. Chữ phụ đọc được: z600/z700, KHÔNG z500/z400. Responsive: bảng `overflow-x:auto`, grid `1fr` khi hẹp.
+6. Chữ phụ đọc được: z600/z700, KHÔNG z500/z400. Responsive: bảng `overflow-x:auto`, grid `1fr` khi hẹp. **Form authoring:** tại laptop, giữ page shell đầy đủ nhưng căn giữa bề mặt nhập liệu với `max-width 860px`; chỉ chuyển grid thành `1fr` trước khi content bị co ép.
 7. **Feedback direction:** nghĩa phản hồi luôn là `Người cho phản hồi → Người nhận phản hồi`. Khi form đặt người nhận ở bên trái và người cho ở bên phải, dùng tam giác xám đậm hướng sang trái để vẫn phản ánh đúng chiều phản hồi. Review modal phải dùng cùng thứ tự, nhãn rõ cả “Người nhận phản hồi” và “Người cho phản hồi”.
 8. **Questionnaire library:** Template có owner và phạm vi `personal`, `all_hr` hoặc `selected_hr`. Người được chia sẻ chỉ được dùng hoặc tạo bản sao; chỉ owner được sửa/xóa mẫu gốc. Câu hỏi được chọn vào request phải là bản clone, nên mọi chỉnh sửa chỉ áp dụng cho request đó.
 9. **Question type & inline validation:** Loại câu hỏi dùng icon có tooltip nền đen chữ trắng, không dùng text action thường trực. Khi submit form thiếu trường bắt buộc, hiển thị lỗi 11.5px ngay bên dưới trường, thêm `aria-invalid` và focus vào lỗi đầu tiên; toast không được là thông báo lỗi duy nhất.
-10. **Participant mapping:** Người cho phản hồi ở trái, người nhận phản hồi ở phải, tam giác xám đậm chỉ sang phải. Toggle cá nhân hóa chỉ khả dụng khi đã chọn từ hai người nhận phản hồi.
+10. **Participant mapping:** Người nhận phản hồi ở trái, người cho phản hồi ở phải, tam giác xám đậm chỉ sang trái để giữ đúng chiều người cho → người nhận. Toggle cá nhân hóa chỉ khả dụng khi đã chọn từ hai người nhận phản hồi.
+11. **Context-width form fields:** Thời hạn phản hồi dùng chiều rộng ngữ cảnh `220px` khi đặt cạnh trường dài hơn. Nhóm option cùng hàng phải có chiều cao đều nhau; mô tả phụ tối đa 2 dòng, sau đó clamp. Ở breakpoint hẹp, nhóm trường xếp một cột với khoảng cách 18px.
 
 ## YÊU CẦU
 Tạo màn hình **[MÔ TẢ MÀN HÌNH]**, dùng nguyên shell (sidebar + topbar + page), áp dụng đúng toàn bộ spec + triết lý tối giản. Trước khi code, liệt kê component sẽ dùng và map vào class chuẩn. Không phát minh class/màu mới trừ khi được cho phép. Đối chiếu `design-system/index.html` để chắc render đúng.

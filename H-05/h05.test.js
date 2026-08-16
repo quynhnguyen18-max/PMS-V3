@@ -273,6 +273,28 @@ test('H-05 entry CTA opens the request builder with approved wording',()=>{
   assert.match(page,/<a class="btn btn-primary" href="create-campaign\.html"><i class="bx bx-plus"><\/i> T\u1ea1o y\u00eau c\u1ea7u ph\u1ea3n h\u1ed3i<\/a>/);
 });
 
+test('HR request builder centers the input surface while keeping page navigation full width',()=>{
+  const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  assert.match(page,/\.builder-form-surface\{width:100%;max-width:860px;margin:0 auto\}/);
+  assert.match(page,/<div class="builder-form-surface">\s*<form class="request-builder-form"/);
+  assert.match(page,/\.wrap\{width:100%;max-width:1100px/);
+});
+
+test('HR builder keeps the deadline compact and identity options aligned at laptop widths',()=>{
+  const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  assert.match(page,/\.request-builder-form \.schedule-visibility\{display:grid;grid-template-columns:220px minmax\(0,1fr\);gap:24px;align-items:start\}/);
+  assert.match(page,/\.request-builder-form \.feedback-choice-options\{grid-template-columns:minmax\(0,1\.16fr\) minmax\(0,\.84fr\)\}/);
+  assert.match(page,/\.request-builder-form \.feedback-choice-card small\{[^}]*-webkit-line-clamp:2[^}]*overflow:hidden/);
+  assert.match(page,/@media\(max-width:860px\)\{\.request-builder-form \.schedule-visibility\{grid-template-columns:1fr;gap:18px\}\}/);
+});
+
+test('design system documents centered HR authoring and responsive context-width controls',()=>{
+  const design=fs.readFileSync(require.resolve('../DESIGN-SYSTEM.md'),'utf8');
+  assert.match(design,/Form authoring[^\n]*max-width 860px/i);
+  assert.match(design,/Thời hạn phản hồi[^\n]*220px/);
+  assert.match(design,/Người nhận phản hồi ở trái, người cho phản hồi ở phải/i);
+});
+
 test.skip('legacy H-05 request builder uses one ordered form without wizard chrome',()=>{
   const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.doesNotMatch(page,/class="stepper"|footStep|btnDraft|data-step=/);

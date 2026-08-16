@@ -21,12 +21,22 @@
 /* Questionnaire-library popup follows the existing M-04 choice-card and people-picker contract. */
 .template-save-picker{margin-top:9px}.template-save-picker.hidden{display:none}#templateSaveModal .feedback-choice-options{grid-template-columns:repeat(3,minmax(0,1fr))}.template-save-picker .mapping-person-picker>i{position:absolute;top:50%;left:10px;z-index:1;transform:translateY(-50%);color:var(--z400);font-size:16px}.template-save-picker input{width:100%;min-height:34px;padding:6px 10px 6px 32px;border:1px solid var(--z300);border-radius:var(--rxs);color:var(--z600);font-size:12px}.template-save-picker .mapping-picker-results{display:block;position:static;max-height:132px;margin-top:5px;box-shadow:none}.template-save-picker .mapping-picker-results:empty{display:none}.mapping-arrow{border-left:0;border-right:8px solid var(--z600)}@media(max-width:640px){#templateSaveModal .feedback-choice-options{grid-template-columns:1fr}}
 </style>
+<style>
+/* Keep HR authoring focused, while the page shell retains the shared H-05 width. */
+.builder-form-surface{width:100%;max-width:860px;margin:0 auto}
+.request-builder-form .schedule-visibility{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;align-items:start}
+.request-builder-form .feedback-choice-options{grid-template-columns:minmax(0,1.16fr) minmax(0,.84fr)}
+.request-builder-form .feedback-choice-card{min-height:64px}
+.request-builder-form .feedback-choice-card small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+@media(max-width:860px){.request-builder-form .schedule-visibility{grid-template-columns:1fr;gap:18px}}
+</style>
 </head>
 <body>
 <header class="topbar"><div class="brand"><span class="brand-logo">M</span><span>MoMo HRM<small>Performance Management</small></span></div></header>
 <main class="wrap">
   <div class="breadcrumb"><span>Phản hồi</span><i class="bx bx-chevron-right"></i><span>Chương trình</span><i class="bx bx-chevron-right"></i><span>Tạo yêu cầu phản hồi</span></div>
   <div class="page-head"><div class="page-h">Tạo yêu cầu phản hồi</div><a class="btn btn-outline" href="index.html"><i class="bx bx-arrow-back"></i> Quay lại</a></div>
+  <div class="builder-form-surface">
   <form class="request-builder-form" id="requestForm" onsubmit="submitRequest(event)">
     <section class="field-section"><label class="field-label" for="progName">Mục tiêu<span class="req-star">*</span></label><input class="fc" id="progName" placeholder="Vd: Thu thập góc nhìn về khả năng phối hợp trong dự án Migration"/><div class="inline-error" id="goalInlineError"></div></section>
     <section class="field-section"><label class="field-label" for="tplSel">Chọn bộ câu hỏi</label><select class="fc" id="tplSel" onchange="onTemplatePick()"><option value="">Chọn bộ câu hỏi</option></select></section>
@@ -36,6 +46,7 @@
     <section class="field-section"><label class="field-label" for="invitationMessage">Lời ngỏ</label><textarea class="fc" id="invitationMessage" rows="2" placeholder="Nhập lời nhắn gửi đến người cho phản hồi"></textarea></section>
     <div class="form-actions"><button class="btn btn-primary" type="submit"><i class="bx bx-send"></i> Tạo yêu cầu phản hồi</button></div>
   </form>
+  </div>
 </main>
 <div class="review-overlay" id="reviewModal" onclick="if(event.target===this)closeReview()">
   <section class="review-modal" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
