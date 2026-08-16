@@ -54,9 +54,13 @@
     const source=value||{};
     const mode=['shared_all','shared_selected'].includes(source.mode)?source.mode:'not_shared';
     const participantIds=[...new Set((Array.isArray(source.participantIds)?source.participantIds:[]).map(item=>String(item||'').trim()).filter(Boolean))];
+    const audience=['recipient_and_managers','managers_only','specific_people'].includes(source.audience)?source.audience:'';
+    const additionalViewerNames=[...new Set((Array.isArray(source.additionalViewerNames)?source.additionalViewerNames:[]).map(item=>String(item||'').trim()).filter(Boolean))];
     return {
       mode:mode==='shared_selected'&&participantIds.length?'shared_selected':mode==='shared_all'?'shared_all':'not_shared',
       participantIds:mode==='shared_selected'?participantIds:[],
+      audience:mode==='not_shared'?'':audience||'recipient_and_managers',
+      additionalViewerNames:mode==='not_shared'?[]:additionalViewerNames,
       sharedAt:mode==='not_shared'?'':String(source.sharedAt||'').trim(),
       sharedBy:mode==='not_shared'?'hr':String(source.sharedBy||'hr').trim()||'hr'
     };
@@ -150,9 +154,10 @@
     const sharing=normalizeResultSharing(campaign&&campaign.resultSharing);
     return sharing.mode==='shared_all'||(sharing.mode==='shared_selected'&&sharing.participantIds.includes(String(participantId||'')));
   }
-  function shareResults(campaign,participantIds,sharedAt){
+  function shareResults(campaign,participantIds,sharedAt,options){
     const item=normalizeCampaign(campaign),ids=[...new Set((Array.isArray(participantIds)?participantIds:[]).map(value=>String(value||'').trim()).filter(Boolean))];
-    return {...item,resultSharing:ids.length?{mode:'shared_selected',participantIds:ids,sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'}:{mode:'shared_all',participantIds:[],sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'}};
+    const source=options||{};
+    return {...item,resultSharing:normalizeResultSharing({mode:ids.length?'shared_selected':'shared_all',participantIds:ids,audience:source.audience||'recipient_and_managers',additionalViewerNames:source.additionalViewerNames||[],sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'})};
   }
   function lockPendingAssignments(assignments){
     return (Array.isArray(assignments)?assignments:[]).map(assignment=>assignment&&assignment.status==='pending'?{...assignment,status:'locked'}:assignment);

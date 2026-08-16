@@ -698,15 +698,66 @@ test('normalizes safe result visibility defaults for legacy programs',()=>{
   const model=require(modelPath);
   const campaign=model.normalizeCampaign({});
   assert.equal(campaign.identityVisibility,'named');
-  assert.deepEqual(campaign.resultSharing,{mode:'not_shared',participantIds:[],sharedAt:'',sharedBy:'hr'});
+  assert.deepEqual(campaign.resultSharing,{mode:'not_shared',participantIds:[],audience:'',additionalViewerNames:[],sharedAt:'',sharedBy:'hr'});
 });
 
 test('shares results for selected recipients without exposing other recipients',()=>{
   const model=require(modelPath);
   const campaign=model.shareResults({id:'s1'},['p1','p3'],'16/08/2026');
-  assert.deepEqual(campaign.resultSharing,{mode:'shared_selected',participantIds:['p1','p3'],sharedAt:'16/08/2026',sharedBy:'hr'});
+  assert.deepEqual(campaign.resultSharing,{mode:'shared_selected',participantIds:['p1','p3'],audience:'recipient_and_managers',additionalViewerNames:[],sharedAt:'16/08/2026',sharedBy:'hr'});
   assert.equal(model.isResultShared(campaign,'p1'),true);
   assert.equal(model.isResultShared(campaign,'p2'),false);
+});
+
+test('records a specific result-sharing audience and typed additional viewers',()=>{
+  const model=require(modelPath);
+  const campaign=model.shareResults({id:'s1'},['p1'],'16/08/2026',{
+    audience:'specific_people',additionalViewerNames:['Mai Thị Hằng','Nguyễn Thành Nam']
+  });
+  assert.equal(campaign.resultSharing.audience,'specific_people');
+  assert.deepEqual(campaign.resultSharing.additionalViewerNames,['Mai Thị Hằng','Nguyễn Thành Nam']);
+});
+
+test('H-06 result sharing popup keeps audience options compact and uses the M-04 people picker',()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
+  assert.match(detail,/id="shareResultSettings"/);
+  assert.match(detail,/Người nhận phản hồi và các cấp quản lý của họ/);
+  assert.match(detail,/Chỉ các cấp quản lý của người nhận/);
+  assert.match(detail,/Người cụ thể/);
+  assert.match(detail,/function setResultShareAudience\(audience\)/);
+  assert.doesNotMatch(detail,/Người nhận phản hồi và cấp quản lý trực tiếp hoặc cấp cao hơn đều có thể xem/);
+  assert.match(detail,/function filterResultSharePeople\(\)/);
+  assert.match(detail,/window\.PMS_EMPLOYEES/);
+  assert.match(detail,/if\(!query\)return '';/);
+  assert.match(detail,/share-viewer-chips[\s\S]*share-people-picker/);
+  assert.match(detail,/share-viewer-chip[^}]*font-size:12px/);
+  assert.match(detail,/Thông tin người cho phản hồi/);
+  assert.match(detail,/Hiển thị tên người cho phản hồi cùng nội dung/);
+  assert.match(detail,/Chỉ hiển thị nội dung phản hồi/);
+  assert.match(detail,/btn-primary btn-share/);
+  assert.doesNotMatch(detail,/>Hủy<\/button>/);
+});
+
+test('H-06 overview keeps result sharing to one compact status row and puts identity information last',()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
+  assert.match(detail,/summary-share-status/);
+  assert.match(detail,/Chưa chia sẻ kết quả/);
+  assert.match(detail,/Đã chia sẻ kết quả/);
+  assert.match(detail,/Đã chia sẻ \$\{sharing\.sharedAt\}/);
+  const pending=detail.lastIndexOf('<span>Phản hồi đang chờ</span>');
+  const identity=detail.lastIndexOf('<span>Thông tin người cho</span>');
+  assert.ok(pending>-1&&identity>pending);
+});
+
+test('design system documents the required result-sharing audience and identity context',()=>{
+  const designSystem=fs.readFileSync(path.join(__dirname,'..','design-system','index.html'),'utf8');
+  assert.match(designSystem,/Người nhận phản hồi và các cấp quản lý của họ/);
+  assert.match(designSystem,/Chỉ các cấp quản lý của người nhận/);
+  assert.match(designSystem,/Người cụ thể/);
+  assert.match(designSystem,/Thông tin người cho phản hồi/);
+  assert.match(designSystem,/không lặp metadata mô tả dưới các option/);
+  assert.match(designSystem,/Status chia sẻ kết quả trong panel tổng quan hiển thị một hàng/);
+  assert.match(designSystem,/Chip người đã chọn đứng trên ô tìm kiếm/);
 });
 
 test('closes a ticket by locking every pending assignment while preserving submitted feedback',()=>{
@@ -917,8 +968,8 @@ test('H-06 keeps closure and sharing as separate HR actions with scoped confirma
   assert.match(detail,/Đóng ticket/);
   assert.match(detail,/Chưa chia sẻ kết quả/);
   assert.match(detail,/Đã chia sẻ kết quả/);
-  assert.match(detail,/Chia sẻ toàn bộ kết quả/);
   assert.match(detail,/Chia sẻ kết quả/);
+  assert.doesNotMatch(detail,/Chia sẻ toàn bộ kết quả/);
   assert.match(detail,/function requestResultShare\(scope\)/);
   assert.match(detail,/function confirmResultShare\(participantIds\)/);
   assert.match(detail,/FeedbackProgramModel\.closeCampaign/);
