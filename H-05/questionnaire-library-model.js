@@ -17,6 +17,7 @@
     if(type==='rating'){
       normalized.ratingScale=Math.min(10,Math.max(2,Number(question.ratingScale)||5));
       normalized.ratingLabels={...(question.ratingLabels||{})};
+      normalized.detailedRatingLabels=Boolean(question&&question.detailedRatingLabels);
     }
     return normalized;
   }

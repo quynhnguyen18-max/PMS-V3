@@ -60,6 +60,16 @@ test('saves a questionnaire with explicit sharing scope and name guidance',()=>{
   assert.match(library,/function saveQuestionnaire\(\)/);
 });
 
+test('questionnaire editor renders endpoint meanings and expands intermediate Likert meanings on demand',()=>{
+  const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
+  assert.match(library,/Ý nghĩa điểm thấp nhất/);
+  assert.match(library,/Ý nghĩa điểm cao nhất/);
+  assert.match(library,/Mô tả từng mức/);
+  assert.match(library,/function toggleEditorRatingDetails\(index\)/);
+  assert.match(library,/function setEditorRatingLabel\(index,score,value\)/);
+  assert.match(library,/class="editor-rating-detail-labels"/);
+});
+
 test('request builder groups library templates and protects unsaved questions from replacement',()=>{
   const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(builder,/questionnaire-library-model\.js/);
@@ -119,6 +129,16 @@ test('normalizes rating questions with scale labels, mappings, and invitation me
   assert.equal(campaign.questions[0].ratingLabels['5'],'exceeds expectations');
   assert.equal(campaign.invitationMessage,'Thank you for sharing feedback.');
   assert.deepEqual(campaign.reviewerMappings,[{participantId:'p1',reviewerIds:['r1','r2']}]);
+});
+
+test('questionnaire library keeps endpoint meanings and the optional detailed Likert setting',()=>{
+  const model=require(questionnaireModelPath);
+  const template=model.normalize({
+    questions:[{id:'q1',type:'rating',text:'Collaboration',ratingScale:5,detailedRatingLabels:true,ratingLabels:{1:'Cần cải thiện',3:'Đạt kỳ vọng',5:'Vượt kỳ vọng'}}]
+  },{id:'hrbp-1',name:'Lê Thuỳ Anh'});
+  assert.equal(template.questions[0].ratingLabels[1],'Cần cải thiện');
+  assert.equal(template.questions[0].ratingLabels[5],'Vượt kỳ vọng');
+  assert.equal(template.questions[0].detailedRatingLabels,true);
 });
 
 test('builds assignments from recipient-specific reviewer mappings and excludes self review',()=>{
