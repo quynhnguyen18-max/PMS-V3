@@ -338,7 +338,7 @@ function makeReport(id){const c=find(id);if(!c)return;c.report='made';save();toa
 function publish(id){const c=find(id);if(!c)return;c.report='published';save();toast('Đã chia sẻ báo cáo tới quản lý (và ghi vào hồ sơ nhân viên)');}
 function delCampaign(id){DATA=DATA.filter(c=>c.id!==id);save();toast('Đã xoá bản nháp');}
 function openDetail(id){const c=find(id);if(c&&c.status==='draft'){location.href=`create-campaign.html?id=${encodeURIComponent(c.id)}`;return;}if(c){location.href=`../H-06/index.html?id=${encodeURIComponent(c.id)}`;}}
-function openReport(id){toast('Màn báo cáo per-participant — bước thiết kế kế tiếp');}
+function openReport(id){location.href=`../H-06/index.html?id=${encodeURIComponent(id)}`;}
 
 function toast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2600);}
 

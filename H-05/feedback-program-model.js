@@ -56,15 +56,19 @@
     const participantIds=[...new Set((Array.isArray(source.participantIds)?source.participantIds:[]).map(item=>String(item||'').trim()).filter(Boolean))];
     const audience=['recipient_and_managers','managers_only','specific_people'].includes(source.audience)?source.audience:'';
     const additionalViewerNames=[...new Set((Array.isArray(source.additionalViewerNames)?source.additionalViewerNames:[]).map(item=>String(item||'').trim()).filter(Boolean))];
+    const contentLevel=['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail';
     return {
       mode:mode==='shared_selected'&&participantIds.length?'shared_selected':mode==='shared_all'?'shared_all':'not_shared',
       participantIds:mode==='shared_selected'?participantIds:[],
       audience:mode==='not_shared'?'':audience||'recipient_and_managers',
       additionalViewerNames:mode==='not_shared'?[]:additionalViewerNames,
+      contentLevel:mode==='not_shared'?'':contentLevel,
+      note:mode==='not_shared'?'':String(source.note||'').trim(),
       sharedAt:mode==='not_shared'?'':String(source.sharedAt||'').trim(),
       sharedBy:mode==='not_shared'?'hr':String(source.sharedBy||'hr').trim()||'hr'
     };
   }
+  function canShareResults(campaign){return Boolean(campaign)&&campaign.status==='closed';}
   function normalizeCampaign(campaign){
     const source=campaign||{};
     const participants=Array.isArray(source.participants)?source.participants:[];
@@ -157,7 +161,7 @@
   function shareResults(campaign,participantIds,sharedAt,options){
     const item=normalizeCampaign(campaign),ids=[...new Set((Array.isArray(participantIds)?participantIds:[]).map(value=>String(value||'').trim()).filter(Boolean))];
     const source=options||{};
-    return {...item,resultSharing:normalizeResultSharing({mode:ids.length?'shared_selected':'shared_all',participantIds:ids,audience:source.audience||'recipient_and_managers',additionalViewerNames:source.additionalViewerNames||[],sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'})};
+    return {...item,resultSharing:normalizeResultSharing({mode:ids.length?'shared_selected':'shared_all',participantIds:ids,audience:source.audience||'recipient_and_managers',additionalViewerNames:source.additionalViewerNames||[],contentLevel:source.contentLevel||'summary_detail',note:source.note||'',sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'})};
   }
   function lockPendingAssignments(assignments){
     return (Array.isArray(assignments)?assignments:[]).map(assignment=>assignment&&assignment.status==='pending'?{...assignment,status:'locked'}:assignment);
@@ -252,5 +256,5 @@
     });
     return sent;
   }
-  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,lockPendingAssignments,closeCampaign,isOverdue,isDueSoon,needsReport,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,canShareResults,lockPendingAssignments,closeCampaign,isOverdue,isDueSoon,needsReport,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
 });
