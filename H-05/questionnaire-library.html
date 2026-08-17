@@ -44,4 +44,10 @@ function setQuestionType(index,type){const question=editorQuestions[index];quest
 function setEditorRatingScale(index,scale){const question=ensureEditorRating(editorQuestions[index]);question.ratingScale=Math.max(2,Math.min(10,Number(scale)||5));Object.keys(question.ratingLabels).forEach(score=>{if(Number(score)>question.ratingScale)delete question.ratingLabels[score]});renderEditorQuestions()}
 function toggleEditorRatingDetails(index){const question=ensureEditorRating(editorQuestions[index]);question.detailedRatingLabels=!question.detailedRatingLabels;renderEditorQuestions()}
 function setEditorRatingLabel(index,score,value){ensureEditorRating(editorQuestions[index]).ratingLabels[score]=value}
+</script>
+<script>/* Đóng người-picker khi bấm ra ngoài */
+document.addEventListener('mousedown',function(e){
+  if(e.target.closest('.share-picker'))return;
+  var r=document.getElementById('shareResults');if(r)r.classList.remove('open');
+});
 </script></body></html>

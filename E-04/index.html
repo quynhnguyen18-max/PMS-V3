@@ -2957,5 +2957,12 @@ showWelcome();
 let clampT;
 addEventListener('resize',()=>{ clearTimeout(clampT); clampT=setTimeout(()=>applyClamps(document.getElementById('feed')),150); });
 </script>
+<script>/* Đóng người-picker khi bấm ra ngoài */
+document.addEventListener('mousedown',function(e){
+  if(e.target.closest('.pick-inputwrap')||e.target.closest('.pick-results'))return;
+  document.querySelectorAll('.pick-results').forEach(function(b){b.innerHTML='';});
+});
+(function(){var pi=document.getElementById('pickInput');if(pi)pi.addEventListener('focus',pickSearch);var ri=document.getElementById('reqPickInput');if(ri)ri.addEventListener('focus',reqPickSearch);})();
+</script>
 </body>
 </html>
