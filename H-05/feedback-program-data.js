@@ -9,7 +9,7 @@
     {id:'s3',goal:'Phản hồi dự án Chuyển đổi số',status:'collecting',createdAt:'20/07/2026',due:'09/08/2026',anon:'anon',participants:6,reviewers:4,total:24,done:18,report:'none'},
     {id:'s4',goal:'Đánh giá tiềm năng kế thừa khối Vận hành',status:'collecting',createdAt:'03/08/2026',due:'14/08/2026',anon:'anon',participants:5,reviewers:6,total:30,done:27,report:'none'},
     {id:'s5',goal:'Phản hồi 6 tháng đầu năm - Marketing',status:'closed',createdAt:'10/06/2026',due:'30/06/2026',anon:'named',participants:9,reviewers:4,total:36,done:34,report:'none'},
-    {id:'s6',goal:'Đánh giá cuối kỳ 2025 - khối Kinh doanh',status:'closed',createdAt:'02/12/2025',due:'22/12/2025',anon:'anon',participants:12,reviewers:5,total:55,done:52,report:'published'}
+    {id:'s6',goal:'Đánh giá cuối kỳ 2025 - khối Kinh doanh',status:'closed',createdAt:'02/12/2025',due:'22/12/2025',anon:'anon',participants:12,reviewers:5,total:55,done:52,report:'published',resultSharing:{mode:'shared_all',audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Cảm ơn cả nhóm đã dành thời gian phản hồi thẳng thắn. Mong mỗi bạn dùng kết quả này để phát triển trong năm 2026.',sharedAt:'23/12/2025',sharedBy:'hr'}}
   ];
   const REVIEWERS=[
     {id:'anh.nguyen',name:'Nguyễn Minh Anh',domain:'anh.nguyen',department:'Kinh doanh',team:'Sales',position:'Sales Manager',initials:'MA'},
