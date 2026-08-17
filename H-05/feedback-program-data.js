@@ -9,10 +9,10 @@
     {id:'s3',goal:'Phản hồi dự án Chuyển đổi số',status:'collecting',createdAt:'20/07/2026',due:'09/08/2026',anon:'anon',participants:6,reviewers:4,total:24,done:18,report:'none'},
     {id:'s4',goal:'Đánh giá tiềm năng kế thừa khối Vận hành',status:'collecting',createdAt:'03/08/2026',due:'14/08/2026',anon:'anon',participants:5,reviewers:6,total:30,done:27,report:'none'},
     {id:'s5',goal:'Phản hồi 6 tháng đầu năm - Marketing',status:'closed',createdAt:'10/06/2026',due:'30/06/2026',anon:'named',participants:9,reviewers:4,total:36,done:34,report:'none'},
-    {id:'s6',goal:'Đánh giá cuối kỳ 2025 - khối Kinh doanh',status:'closed',createdAt:'02/12/2025',due:'22/12/2025',anon:'anon',participants:12,reviewers:5,total:55,done:52,report:'published',resultSharing:{mode:'shared_all',audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Cảm ơn cả nhóm đã dành thời gian phản hồi thẳng thắn. Mong mỗi bạn dùng kết quả này để phát triển trong năm 2026.',sharedAt:'23/12/2025',sharedBy:'hr'}},
-    {id:'s7',goal:'Phản hồi giữa kỳ Q3 - nhóm Sản phẩm',status:'closed',createdAt:'05/07/2026',due:'20/07/2026',anon:'named',participants:8,reviewers:4,total:32,done:30,report:'published',resultSharing:{mode:'shared_all',audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Kết quả có kèm chi tiết từng phản hồi, hiển thị tên người cho phản hồi.',sharedAt:'22/07/2026',sharedBy:'hr'}},
-    {id:'s8',goal:'Khảo sát cộng tác Q2 - Vận hành',status:'closed',createdAt:'01/04/2026',due:'18/04/2026',anon:'named',participants:8,reviewers:4,total:32,done:29,report:'published',resultSharing:{mode:'shared_all',audience:'recipient_and_managers',contentLevel:'summary',note:'HR chỉ chia sẻ bản tổng hợp AI để mọi người nắm định hướng phát triển.',sharedAt:'20/04/2026',sharedBy:'hr'}},
-    {id:'s9',goal:'Phản hồi ẩn danh nửa đầu năm - Kinh doanh',status:'closed',createdAt:'02/01/2026',due:'20/01/2026',anon:'anon',participants:8,reviewers:4,total:32,done:28,report:'published',resultSharing:{mode:'shared_all',audience:'recipient_and_managers',contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp mỗi bạn phát triển.',sharedAt:'22/01/2026',sharedBy:'hr'}}
+    {id:'s6',goal:'Đánh giá cuối kỳ 2025 - khối Kinh doanh',status:'closed',createdAt:'02/12/2025',due:'22/12/2025',anon:'anon',participants:17,reviewers:5,total:55,done:52,report:'published',resultSharing:{mode:'shared_selected',participantIds:['tu.nguyen','duc.truong','nam.le'],audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Cảm ơn cả nhóm đã dành thời gian phản hồi thẳng thắn. Mong mỗi bạn dùng kết quả này để phát triển trong năm 2026.',sharedAt:'23/12/2025',sharedBy:'hr'}},
+    {id:'s7',goal:'Phản hồi giữa kỳ Q3 - nhóm Sản phẩm',status:'closed',createdAt:'05/07/2026',due:'20/07/2026',anon:'named',participants:17,reviewers:4,total:32,done:30,report:'published',resultSharing:{mode:'shared_selected',participantIds:['tu.nguyen','bao.nguyen','hang.mai'],audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Kết quả có kèm chi tiết từng phản hồi, hiển thị tên người cho phản hồi.',sharedAt:'22/07/2026',sharedBy:'hr'}},
+    {id:'s8',goal:'Khảo sát cộng tác Q2 - Vận hành',status:'closed',createdAt:'01/04/2026',due:'18/04/2026',anon:'named',participants:17,reviewers:4,total:32,done:29,report:'published',resultSharing:{mode:'shared_selected',participantIds:['duc.truong','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'HR chỉ chia sẻ bản tổng hợp AI để mọi người nắm định hướng phát triển.',sharedAt:'20/04/2026',sharedBy:'hr'}},
+    {id:'s9',goal:'Phản hồi ẩn danh nửa đầu năm - Kinh doanh',status:'closed',createdAt:'02/01/2026',due:'20/01/2026',anon:'anon',participants:17,reviewers:4,total:32,done:28,report:'published',resultSharing:{mode:'shared_selected',participantIds:['nam.le','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp mỗi bạn phát triển.',sharedAt:'22/01/2026',sharedBy:'hr'}}
   ];
   const REVIEWERS=[
     {id:'anh.nguyen',name:'Nguyễn Minh Anh',domain:'anh.nguyen',department:'Kinh doanh',team:'Sales',position:'Sales Manager',initials:'MA'},
@@ -30,7 +30,14 @@
     {id:'nam.bui',name:'Bùi Hoài Nam',domain:'nam.bui',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'BN',done:4},
     {id:'phuong.le',name:'Lê Phương Thảo',domain:'phuong.le',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'LP',done:1},
     {id:'son.tran',name:'Trần Quốc Sơn',domain:'son.tran',department:'Kinh doanh',team:'Key Account',position:'Key Account Executive',initials:'TS',done:3},
-    {id:'an.vo',name:'Võ Hải An',domain:'an.vo',department:'Kinh doanh',team:'Sales Operations',position:'Sales Operations Specialist',initials:'VA',done:0}
+    {id:'an.vo',name:'Võ Hải An',domain:'an.vo',department:'Kinh doanh',team:'Sales Operations',position:'Sales Operations Specialist',initials:'VA',done:0},
+    {id:'tu.nguyen',name:'Nguyễn Văn Tú',domain:'tu.nguyen',department:'ITC',team:'Backend',position:'Senior Engineer',initials:'NT',done:4},
+    {id:'duc.truong',name:'Trương Minh Đức',domain:'duc.truong',department:'ITC',team:'Platform',position:'SRE Lead',initials:'TĐ',done:4},
+    {id:'nam.le',name:'Lê Thành Nam',domain:'nam.le',department:'ITC',team:'Backend',position:'Software Engineer',initials:'LN',done:3},
+    {id:'bao.nguyen',name:'Nguyễn Quốc Bảo',domain:'bao.nguyen',department:'ITC',team:'Frontend',position:'Senior Engineer',initials:'NB',done:4},
+    {id:'hang.mai',name:'Mai Thị Hằng',domain:'hang.mai',department:'ITC',team:'DevOps',position:'Platform Engineer',initials:'MH',done:2},
+    {id:'long.pham',name:'Phạm Thành Long',domain:'long.pham',department:'Data',team:'Analytics',position:'Data Analyst',initials:'PL',done:0},
+    {id:'tung.dinh',name:'Đinh Văn Tùng',domain:'tung.dinh',department:'ITC',team:'Backend',position:'Engineering Manager',initials:'ĐT',done:3}
   ];
   const BODIES=[
     'Chủ động lắng nghe và tổng hợp ý kiến rõ ràng, giúp team thống nhất hướng xử lý nhanh hơn.',
@@ -71,7 +78,7 @@
       q5:['Trong đợt cao điểm, đã sắp xếp lại nguồn lực giúp nhóm vẫn kịp mốc quan trọng.','Đã chủ động phát hiện một điểm nghẽn và kết nối đúng người để xử lý nhanh.','Có lúc thay đổi yêu cầu, đã giúp team thống nhất cách làm mà không ảnh hưởng chất lượng.','Đã đứng ra điều phối khi một đầu việc có nguy cơ chậm, giúp nhóm hoàn thành đúng hạn.']
     }
   };
-  ['s7','s8','s9'].forEach(id=>{QUESTION_SETS[id]=QUESTION_SETS.s3;QUESTION_ANSWER_COPY[id]=QUESTION_ANSWER_COPY.s3;});
+  ['s6','s7','s8','s9'].forEach(id=>{QUESTION_SETS[id]=QUESTION_SETS.s3;QUESTION_ANSWER_COPY[id]=QUESTION_ANSWER_COPY.s3;});
   const BADGES=[['teamwork','customer'],['teamwork'],['excellence'],['innovation','learning']];
   function clone(value){return JSON.parse(JSON.stringify(value));}
   function answerBody(campaignId,question,reviewerIndex){

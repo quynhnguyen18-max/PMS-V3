@@ -671,6 +671,10 @@ input,select,textarea{font-family:inherit}
 </style>
   <script src="feedback-model.js"></script>
   <script src="request-question-ai.js"></script>
+  <script src="../H-05/feedback-program-data.js"></script>
+  <script src="../H-05/feedback-program-model.js"></script>
+  <script src="../H-05/feedback-report-view.js"></script>
+  <style>.hr-report-card{display:block;text-decoration:none;border:1px solid var(--brand-ring,rgba(165,0,100,.2));background:var(--brand-muted,rgba(165,0,100,.07));transition:box-shadow .12s,border-color .12s}.hr-report-card:hover{border-color:var(--brand,#a50064);box-shadow:0 3px 12px rgba(165,0,100,.12)}.hr-report-card .rail-title{color:var(--brand,#a50064)}.hr-report-sub{margin-top:5px;font-size:11.5px;color:var(--z600,#52525b);display:flex;align-items:center;justify-content:space-between;gap:8px}.hr-report-sub .go{color:var(--brand,#a50064);font-weight:600}</style>
 </head>
 <body>
 <div class="app">
@@ -695,7 +699,6 @@ input,select,textarea{font-family:inherit}
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
     <div class="sb-item" onclick="location.href='../E-01/index.html'"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</div>
     <div class="sb-item on"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
-    <div class="sb-item" onclick="location.href='../H-07/index.html?role=employee'"><i class="bx bx-bar-chart-alt-2"></i>Báo cáo phản hồi</div>
     <div class="sb-item" onclick="location.href='../demo-delight/feedback-delight-demo.html'"><i class="bx bx-gift"></i>New Demo Feedback</div>
   </nav>
   <div class="sb-foot">
@@ -771,6 +774,10 @@ input,select,textarea{font-family:inherit}
 
       <!-- RIGHT RAIL — thứ tự: giá trị → việc cần làm → thống kê -->
       <aside class="fb-rail">
+        <a class="rail-card hr-report-card" id="hrReportCard" href="../H-07/index.html?me=tu.nguyen" style="display:none">
+          <div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Báo cáo phản hồi từ HR</div>
+          <div class="hr-report-sub" id="hrReportSub"></div>
+        </a>
         <!-- việc cần làm đứng trước, rồi mới tới thông tin để xem -->
         <section class="rail-card" id="queueSec">
           <div class="rail-title"><i class="bx bx-bell"></i>Cần bạn phản hồi<span class="queue-cnt" id="queueCnt">0</span></div>
@@ -2965,5 +2972,7 @@ document.addEventListener('mousedown',function(e){
 });
 (function(){var pi=document.getElementById('pickInput');if(pi)pi.addEventListener('focus',pickSearch);var ri=document.getElementById('reqPickInput');if(ri)ri.addEventListener('focus',reqPickSearch);})();
 </script>
+<script>/* Card "Báo cáo phản hồi từ HR" chỉ hiện khi nhân viên có báo cáo được chia sẻ */
+(function(){try{if(typeof FeedbackReportView==='undefined')return;const n=FeedbackReportView.countFor('tu.nguyen');if(n>0){document.getElementById('hrReportSub').innerHTML=`<span>${n} báo cáo đã được chia sẻ</span><span class="go">Xem <i class="bx bx-right-arrow-alt"></i></span>`;document.getElementById('hrReportCard').style.display='block';}}catch(e){}})();</script>
 </body>
 </html>

@@ -101,8 +101,10 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
     <div class="main-col">
       <div id="aiMount"></div>
       <div class="cards" id="cards"></div>
+      <div class="report-panel" id="reportPanel" style="display:none"></div>
     </div>
     <aside class="rail">
+      <div id="hrReportRail"></div>
       <div class="rail-card">
         <div class="rail-title"><i class="bx bx-medal"></i>Giá trị được ghi nhận</div>
         <div id="railCV"></div>
@@ -114,6 +116,22 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
 <script src="manager-ai-summary.js"></script>
+<script src="../H-05/feedback-program-data.js"></script>
+<script src="../H-05/feedback-program-model.js"></script>
+<script src="../H-05/feedback-report-view.js"></script>
+<style>
+.hr-report-rail-card{border:1px solid var(--brand-ring,rgba(165,0,100,.2))!important;background:var(--brand-muted,rgba(165,0,100,.07))!important}
+.hr-report-open{width:100%;margin-top:9px;border:1px solid var(--brand,#a50064);background:#fff;color:var(--brand,#a50064);border-radius:6px;padding:8px 10px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}.hr-report-open:hover{background:var(--brand-muted,rgba(165,0,100,.07))}
+.report-panel-head{display:flex;align-items:center;gap:10px;margin-bottom:13px}.report-panel-back{border:1px solid var(--z200);background:#fff;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--z700);display:inline-flex;align-items:center;gap:6px;cursor:pointer}.report-panel-title{font-size:13px;font-weight:700;color:var(--z900)}
+.report-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}.report-tab{border:1px solid var(--z200);background:#fff;border-radius:20px;padding:5px 11px;font-size:11.5px;font-weight:600;color:var(--z600);cursor:pointer;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.report-tab.on{border-color:var(--brand,#a50064);background:var(--brand-muted,rgba(165,0,100,.07));color:var(--brand,#a50064)}
+.report-goal{font-size:15px;font-weight:700;color:var(--z900);line-height:1.35}.report-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0 15px;font-size:11.5px;color:var(--z500)}.report-meta span{display:inline-flex;align-items:center;gap:5px}.report-meta i{font-size:14px}.report-type{font-weight:600;color:var(--brand,#a50064)}
+.hr-note{margin:0 0 13px;padding:11px 13px;border:1px solid var(--brand-ring,rgba(165,0,100,.2));border-radius:8px;background:var(--brand-muted,rgba(165,0,100,.07))}.hr-note-label{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;color:var(--brand,#a50064);margin-bottom:5px}.hr-note-body{font-size:12.5px;line-height:1.6;color:var(--z700)}
+.report-panel .label{font-size:10px;font-weight:600;color:var(--z500);text-transform:uppercase;letter-spacing:.35px;margin:13px 0 7px}
+.question-evidence-group{padding:0 0 13px;margin:0 0 13px;border-bottom:1px solid var(--z200)}.question-evidence-group:last-of-type{margin-bottom:0;border-bottom:0}.question-disclosure{border:0;border-radius:7px;background:var(--brand-muted,rgba(165,0,100,.07))}.question-disclosure summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px;padding:8px 10px;cursor:pointer;color:var(--z700)}.question-disclosure summary::-webkit-details-marker{display:none}.question-disclosure summary::after{content:'⌄';font-size:15px;color:var(--z500);order:3}.question-disclosure[open] summary::after{transform:rotate(180deg)}.question-disclosure-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;color:var(--z500)}.question-response-count{margin-left:auto;font-size:11px;color:var(--z500);white-space:nowrap}.question-wording{padding:0 10px 9px;font-size:12px;line-height:1.5;color:var(--z700)}
+.shared-question{width:100%;background:var(--brand-muted,rgba(165,0,100,.07));border-radius:10px;padding:7px 12px 8px;margin-bottom:10px}.shared-question .label{margin:0 0 2px}.question-text{font-size:12.5px;line-height:1.5;margin:0}
+.question-response{position:relative;display:flex;gap:9px;padding:10px 3px 9px;border-bottom:1px solid var(--z100)}.question-response:last-child{border-bottom:0}.question-response-main{min-width:0;flex:1}.question-response-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.question-response .fb-line{font-size:12.5px;font-weight:600;color:var(--z900);display:flex;align-items:center;flex-wrap:wrap}.question-response .fb-date{font-size:11px;color:var(--z500);margin-top:2px}.question-response .fb-body{font-size:12.5px;line-height:1.6;color:var(--z700);margin:4px 0 0}.identity-text{display:block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.identity-anon{color:var(--z600);font-style:italic;font-weight:600}.avatar-anon{background:var(--z100)!important;color:var(--z500)!important}.avatar-anon i{font-size:16px}
+.content-note{display:flex;align-items:flex-start;gap:9px;padding:12px 13px;border:1px solid var(--z200);border-radius:8px;background:var(--z50);color:var(--z600);font-size:12px;line-height:1.55}.content-note i{font-size:17px;color:var(--z400);margin-top:1px}
+</style>
 <script>
 const CV_ORDER=['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'];
 let AI_COLLAPSED=false;
@@ -146,6 +164,13 @@ function railCVHTML(feedback){
 
 const params=new URLSearchParams(location.search),employeeId=params.get('employee'),cycle=params.get('cycle')||'2026';
 const employees=window.PMS_EMPLOYEES||[],store=ManagerFeedbackData.createStore(employees),employee=employees.find(item=>item.id===employeeId),items=employee?store.feedbackFor(employee.id,cycle):[];
+const HR_REPORTS=(employee&&typeof FeedbackReportView!=='undefined')?FeedbackReportView.entriesFor(employee.login):[];
+let hrReportIndex=0;
+function renderHrReportRail(){const rail=document.getElementById('hrReportRail');if(!rail)return;if(!HR_REPORTS.length){rail.innerHTML='';return;}rail.innerHTML=`<div class="rail-card hr-report-rail-card"><div class="rail-title"><i class="bx bx-bar-chart-alt-2"></i>Báo cáo phản hồi từ HR</div><div style="font-size:11.5px;color:var(--z600);margin-top:3px">${HR_REPORTS.length} báo cáo HR đã chia sẻ</div><button class="hr-report-open" onclick="openHrReport()"><i class="bx bx-show"></i> Xem báo cáo</button></div>`;}
+function renderHrReportPanel(){const panel=document.getElementById('reportPanel');const tabs=HR_REPORTS.length>1?`<div class="report-tabs">${HR_REPORTS.map((e,i)=>`<button class="report-tab${i===hrReportIndex?' on':''}" onclick="selectHrReport(${i})">${e.program.goal}</button>`).join('')}</div>`:'';panel.innerHTML=`<div class="report-panel-head"><button class="report-panel-back" onclick="closeHrReport()"><i class="bx bx-arrow-back"></i> Phản hồi đã nhận</button><span class="report-panel-title">Báo cáo phản hồi từ HR</span></div>${tabs}<div>${FeedbackReportView.detailHTML(HR_REPORTS[hrReportIndex],{base:'../'})}</div>`;}
+function openHrReport(){hrReportIndex=0;renderHrReportPanel();document.getElementById('aiMount').style.display='none';document.getElementById('cards').style.display='none';document.getElementById('reportPanel').style.display='block';}
+function closeHrReport(){document.getElementById('reportPanel').style.display='none';document.getElementById('aiMount').style.display='';document.getElementById('cards').style.display='';}
+function selectHrReport(index){hrReportIndex=index;renderHrReportPanel();}
 
 if(employee){
   document.title=`Phản hồi đã nhận - ${employee.name}`;
@@ -154,6 +179,7 @@ if(employee){
   document.getElementById('aiMount').innerHTML=items.length?aiSummaryHTML(employee,items):'';
   document.getElementById('cards').innerHTML=items.length?items.map((item,index)=>ManagerFeedbackData.feedbackCard(item,employee,{senderTooltipPlacement:index===0?'bottom':'top'})).join(''):'<div class="empty">Chưa có phản hồi trong chu kỳ này.</div>';
   document.getElementById('railCV').innerHTML=railCVHTML(items);
+  renderHrReportRail();
 }else{
   document.getElementById('cards').innerHTML='<div class="empty">Không tìm thấy nhân viên.</div>';
 }
