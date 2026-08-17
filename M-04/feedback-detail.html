@@ -131,6 +131,8 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 .shared-question{width:100%;background:var(--brand-muted,rgba(165,0,100,.07));border-radius:10px;padding:7px 12px 8px;margin-bottom:10px}.shared-question .label{margin:0 0 2px}.question-text{font-size:12.5px;line-height:1.5;margin:0}
 .question-response{position:relative;display:flex;gap:9px;padding:10px 3px 9px;border-bottom:1px solid var(--z100)}.question-response:last-child{border-bottom:0}.question-response-main{min-width:0;flex:1}.question-response-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.question-response .fb-line{font-size:12.5px;font-weight:600;color:var(--z900);display:flex;align-items:center;flex-wrap:wrap}.question-response .fb-date{font-size:11px;color:var(--z500);margin-top:2px}.question-response .fb-body{font-size:12.5px;line-height:1.6;color:var(--z700);margin:4px 0 0}.identity-text{display:block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.identity-anon{color:var(--z600);font-style:italic;font-weight:600}.avatar-anon{background:var(--z100)!important;color:var(--z500)!important}.avatar-anon i{font-size:16px}
 .content-note{display:flex;align-items:flex-start;gap:9px;padding:12px 13px;border:1px solid var(--z200);border-radius:8px;background:var(--z50);color:var(--z600);font-size:12px;line-height:1.55}.content-note i{font-size:17px;color:var(--z400);margin-top:1px}
+.report-panel .employee-badge-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}.report-panel .employee-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.report-panel .employee-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover;margin:0;border:0}
+.report-panel .avatar{width:30px;height:30px;font-size:10px;font-weight:700}.report-panel .question-response .cv-icons{display:flex;gap:3px}.report-panel .cv-icon{width:24px;height:24px;margin-left:0;border:0}
 </style>
 <script>
 const CV_ORDER=['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'];
@@ -180,6 +182,7 @@ if(employee){
   document.getElementById('cards').innerHTML=items.length?items.map((item,index)=>ManagerFeedbackData.feedbackCard(item,employee,{senderTooltipPlacement:index===0?'bottom':'top'})).join(''):'<div class="empty">Chưa có phản hồi trong chu kỳ này.</div>';
   document.getElementById('railCV').innerHTML=railCVHTML(items);
   renderHrReportRail();
+  if(params.get('report')==='1'&&HR_REPORTS.length)openHrReport();
 }else{
   document.getElementById('cards').innerHTML='<div class="empty">Không tìm thấy nhân viên.</div>';
 }
