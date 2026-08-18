@@ -12,7 +12,9 @@
     {id:'s6',goal:'Đánh giá cuối kỳ 2025 - khối Kinh doanh',status:'closed',createdAt:'02/12/2025',due:'22/12/2025',anon:'anon',participants:17,reviewers:5,total:55,done:52,report:'published',resultSharing:{mode:'shared_selected',participantIds:['tu.nguyen','duc.truong','nam.le'],audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Cảm ơn cả nhóm đã dành thời gian phản hồi thẳng thắn. Mong mỗi bạn dùng kết quả này để phát triển trong năm 2026.',sharedAt:'23/12/2025',sharedBy:'hr'}},
     {id:'s7',goal:'Phản hồi giữa kỳ Q3 - nhóm Sản phẩm',status:'closed',createdAt:'05/07/2026',due:'20/07/2026',anon:'named',participants:17,reviewers:4,total:32,done:30,report:'published',resultSharing:{mode:'shared_selected',participantIds:['tu.nguyen','bao.nguyen','hang.mai'],audience:'recipient_and_managers',contentLevel:'summary_detail',note:'Kết quả có kèm chi tiết từng phản hồi, hiển thị tên người cho phản hồi.',sharedAt:'22/07/2026',sharedBy:'hr'}},
     {id:'s8',goal:'Khảo sát cộng tác Q2 - Vận hành',status:'closed',createdAt:'01/04/2026',due:'18/04/2026',anon:'named',participants:17,reviewers:4,total:32,done:29,report:'published',resultSharing:{mode:'shared_selected',participantIds:['duc.truong','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'HR chỉ chia sẻ bản tổng hợp AI để mọi người nắm định hướng phát triển.',sharedAt:'20/04/2026',sharedBy:'hr'}},
-    {id:'s9',goal:'Phản hồi ẩn danh nửa đầu năm - Kinh doanh',status:'closed',createdAt:'02/01/2026',due:'20/01/2026',anon:'anon',participants:17,reviewers:4,total:32,done:28,report:'published',resultSharing:{mode:'shared_selected',participantIds:['nam.le','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp mỗi bạn phát triển.',sharedAt:'22/01/2026',sharedBy:'hr'}}
+    {id:'s9',goal:'Phản hồi ẩn danh nửa đầu năm - Kinh doanh',status:'closed',createdAt:'02/01/2026',due:'20/01/2026',anon:'anon',participants:17,reviewers:4,total:32,done:28,report:'published',resultSharing:{mode:'shared_selected',participantIds:['nam.le','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp mỗi bạn phát triển.',sharedAt:'22/01/2026',sharedBy:'hr'}},
+    {id:'s10',goal:'Đánh giá năng lực lãnh đạo giữa kỳ Q3',status:'closed',createdAt:'12/07/2026',due:'02/08/2026',anon:'named',participants:1,reviewers:5,total:5,done:5,report:'made',includeSelf:true},
+    {id:'s11',goal:'Phản hồi khởi động đội ngũ Data',status:'collecting',createdAt:'08/08/2026',due:'22/08/2026',anon:'named',participants:3,reviewers:4,total:12,done:0,report:'none'}
   ];
   const REVIEWERS=[
     {id:'anh.nguyen',name:'Nguyễn Minh Anh',domain:'anh.nguyen',department:'Kinh doanh',team:'Sales',position:'Sales Manager',initials:'MA'},
@@ -58,11 +60,18 @@
       {id:'q3',text:'Khi gặp thay đổi, họ đưa ra quyết định và kết nối các bên như thế nào?'},
       {id:'q4',text:'Năng lực hoặc trải nghiệm nào nên được phát triển để sẵn sàng cho vai trò lớn hơn?'},
       {id:'q5',text:'Một tình huống cụ thể nào cho thấy họ đã xử lý vượt kỳ vọng ở cấp độ hiện tại?'}
-    ]
+    ],
+    s10:[
+      {id:'q1',type:'rating',ratingScale:5,ratingLabels:{1:'Cần phát triển thêm',5:'Dẫn dắt nổi bật'},text:'Mức độ tạo ảnh hưởng tích cực tới đội ngũ'},
+      {id:'q2',type:'open_text',text:'Một hành vi lãnh đạo người nhận nên tiếp tục phát huy là gì?'}
+    ],
+    s11:[{id:'q1',type:'open_text',text:'Bạn mong người nhận sẽ hỗ trợ đội ngũ Data hiệu quả hơn ở điểm nào?'}]
   };
   const PROGRAM_DONE={
     s3:{'lan.hoang':3,'mai.tran':3,'duc.pham':4,'linh.vu':3,'hung.do':2,'thu.nguyen':3},
-    s4:{'lan.hoang':5,'mai.tran':5,'duc.pham':6,'linh.vu':5,'hung.do':6}
+    s4:{'lan.hoang':5,'mai.tran':5,'duc.pham':6,'linh.vu':5,'hung.do':6},
+    s10:{'lan.hoang':5},
+    s11:{'lan.hoang':0,'mai.tran':0,'duc.pham':0}
   };
   const QUESTION_ANSWER_COPY={
     s3:{
@@ -86,18 +95,21 @@
     const questionIndex=Math.max(0,Number(String(question.id).replace(/^q/,''))-1);
     return source?source[reviewerIndex%source.length]:BODIES[(reviewerIndex+questionIndex)%BODIES.length];
   }
-  function submittedAssignment(person,index,questions,campaignId){
-    const reviewer=REVIEWERS[index];
-    const answers=questions.map(question=>({questionId:question.id,body:answerBody(campaignId,question,index)}));
-    return {id:`s2:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'submitted',submittedAt:`${String(12-index).padStart(2,'0')}/08/2026`,body:answers[0].body,answers,badges:BADGES[index],manualReminderHistory:[]};
+  function questionAnswer(campaignId,question,reviewerIndex){
+    if(question.type==='rating')return {questionId:question.id,score:Math.min(Number(question.ratingScale)||5,3+reviewerIndex%3)};
+    return {questionId:question.id,body:answerBody(campaignId,question,reviewerIndex)};
   }
-  function pendingAssignment(person,index){
-    const reviewer=REVIEWERS[index];
-    const history=person.id==='lan.hoang'&&index===1?['10/08/2026 09:00']:[];
-    return {id:`s2:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'pending',manualReminderHistory:history};
+  function submittedAssignment(person,index,questions,campaignId,reviewer){
+    const answers=questions.map(question=>questionAnswer(campaignId,question,index));
+    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'submitted',submittedAt:`${String(12-index).padStart(2,'0')}/08/2026`,body:answers.find(answer=>answer.body)?.body||'',answers,badges:BADGES[index%BADGES.length],manualReminderHistory:[],selfAssessment:reviewer.id===person.id};
   }
-  function participant(person,questions,campaignId,done){
-    const assignments=REVIEWERS.map((_,index)=>index<done?submittedAssignment(person,index,questions,campaignId):pendingAssignment(person,index));
+  function pendingAssignment(person,index,campaignId,reviewer){
+    const history=campaignId==='s11'&&person.id==='lan.hoang'&&index===1?['08/08/2026 09:00','10/08/2026 09:00']:person.id==='lan.hoang'&&index===1?['10/08/2026 09:00']:[];
+    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'pending',manualReminderHistory:history,selfAssessment:reviewer.id===person.id};
+  }
+  function participant(person,questions,campaign,done){
+    const reviewers=[...REVIEWERS,...(campaign.includeSelf?[person]:[])];
+    const assignments=reviewers.map((reviewer,index)=>index<done?submittedAssignment(person,index,questions,campaign.id,reviewer):pendingAssignment(person,index,campaign.id,reviewer));
     return {
       employee:clone(Object.fromEntries(Object.entries(person).filter(([key])=>key!=='done'))),
       assignments,
@@ -112,7 +124,7 @@
   function detailForProgram(program){
     const campaign=clone(program||PROGRAMS[1]);
     const questions=clone(QUESTION_SETS[campaign.id]||QUESTION_SETS.s2);
-    const participants=PEOPLE.map(person=>participant(person,questions,campaign.id,(PROGRAM_DONE[campaign.id]&&PROGRAM_DONE[campaign.id][person.id])??person.done));
+    const participants=PEOPLE.map(person=>participant(person,questions,campaign,(PROGRAM_DONE[campaign.id]&&PROGRAM_DONE[campaign.id][person.id])??person.done));
     return {
       campaign,
       question:questions[0].text,

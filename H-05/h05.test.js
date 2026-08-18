@@ -534,6 +534,25 @@ test('H-05 seeds three- and five-question program details with one answer per su
   assert.equal(completed.answers[0].questionId,five.questions[0].id);
 });
 
+test('seeds report-ready, rating, self-assessment and reminder-history demo data',()=>{
+  const data=require('./feedback-program-data.js');
+  const made=data.programById('s10'),madeDetail=data.detailForProgram(made);
+  assert.equal(made.report,'made');
+  assert.equal(made.includeSelf,true);
+  const rating=madeDetail.questions.find(question=>question.type==='rating');
+  assert.equal(rating.ratingScale,5);
+  const self=madeDetail.participants[0].assignments.find(assignment=>assignment.selfAssessment);
+  assert.ok(self);
+  assert.equal(self.answers.find(answer=>answer.questionId===rating.id).score,4);
+  const empty=data.detailForProgram(data.programById('s11'));
+  assert.equal(empty.campaign.done,0);
+  assert.ok(empty.participants.flatMap(participant=>participant.assignments).every(assignment=>assignment.status==='pending'));
+  assert.equal(empty.participants[0].assignments[1].manualReminderHistory.length,2);
+  const detailPage=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
+  assert.match(detailPage,/class="rating-answer"/);
+  assert.match(detailPage,/Tự đánh giá/);
+});
+
 test('H-06 multi-question demo starts with partial, question-specific reviewer evidence',()=>{
   const data=require('./feedback-program-data.js');
   const model=require('./feedback-program-model.js');
