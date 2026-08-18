@@ -497,13 +497,14 @@ test('derives a neutral program overview without repeating program status',()=>{
   assert.deepEqual(model.programDetailOverview(detail,'11/08/2026'),{participants:2,reviewers:3,pending:3,overdue:2});
 });
 
-test('reminds only eligible pending program assignments once per rolling 24 hours',()=>{
+test('reminds pending program assignments through overdue collection until closure, once per rolling 24 hours',()=>{
   const model=require(modelPath),campaign={status:'collecting',due:'15/08/2026'};
   const assignment={id:'a1',status:'pending',manualReminderHistory:['12/08/2026 10:00']};
   assert.equal(model.canRemindProgramAssignment(campaign,assignment,'13/08/2026 09:59'),false);
   assert.equal(model.canRemindProgramAssignment(campaign,assignment,'13/08/2026 10:00'),true);
   assert.equal(model.canRemindProgramAssignment(campaign,{status:'submitted'},'13/08/2026 10:00'),false);
-  assert.equal(model.canRemindProgramAssignment(campaign,assignment,'16/08/2026 10:00'),false);
+  assert.equal(model.canRemindProgramAssignment(campaign,assignment,'16/08/2026 10:00'),true);
+  assert.equal(model.canRemindProgramAssignment({status:'closed',due:'15/08/2026'},assignment,'16/08/2026 10:00'),false);
 });
 
 test('H-05 list reminder uses the shared eligibility and cooldown rule',()=>{

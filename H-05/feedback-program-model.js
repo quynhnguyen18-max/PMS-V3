@@ -246,7 +246,6 @@
   }
   function canRemindProgramAssignment(campaign,assignment,now){
     if(!campaign||campaign.status!=='collecting'||!assignment||assignment.status==='submitted')return false;
-    if(daysBetween(String(now||'').slice(0,10),campaign.due)>0)return false;
     const history=assignment.manualReminderHistory||[];
     const last=dateTimeFromDMY(history.at(-1)),current=dateTimeFromDMY(now);
     return Boolean(current)&&(!last||current-last>=24*60*60*1000);
