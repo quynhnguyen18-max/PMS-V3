@@ -96,7 +96,7 @@ a{text-decoration:none;color:inherit}
 .progress-status{min-width:0}
 .progress-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;min-height:23px;padding:3px 8px;border:1px solid var(--z300);border-radius:5px;background:var(--z50);color:var(--z600);font-size:11px;font-weight:600;line-height:1.35;white-space:normal}
 .progress-chip i{font-size:13px;flex:none}
-.progress-chip.collecting{border-color:var(--warn-bd);background:var(--warn-bg);color:#b45309}
+.progress-chip.collecting,.progress-chip.due_soon{border-color:var(--warn-bd);background:var(--warn-bg);color:#b45309}
 .progress-chip.overdue{border-color:var(--err-bd);background:var(--err-bg);color:var(--err)}
 .progress-chip.complete{border-color:var(--ok-bd);background:var(--ok-bg);color:var(--ok)}
 .progress-meta{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:10.5px;color:var(--z500);line-height:1.4;overflow-wrap:anywhere}
@@ -187,7 +187,10 @@ a{text-decoration:none;color:inherit}
         <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả <span class="seg-cnt" id="cnt-all">0</span></button>
         <button class="seg-btn" data-f="draft" onclick="setFilter('draft')">Nháp <span class="seg-cnt" id="cnt-draft">0</span></button>
         <button class="seg-btn" data-f="collecting" onclick="setFilter('collecting')">Đang thu thập <span class="seg-cnt" id="cnt-collecting">0</span></button>
-        <button class="seg-btn" data-f="closed" onclick="setFilter('closed')">Đóng <span class="seg-cnt" id="cnt-closed">0</span></button>
+        <button class="seg-btn" data-f="due_soon" onclick="setFilter('due_soon')">Sắp đến hạn <span class="seg-cnt" id="cnt-due-soon">0</span></button>
+        <button class="seg-btn" data-f="overdue" onclick="setFilter('overdue')">Quá hạn <span class="seg-cnt" id="cnt-overdue">0</span></button>
+        <button class="seg-btn" data-f="complete" onclick="setFilter('complete')">Hoàn thành <span class="seg-cnt" id="cnt-complete">0</span></button>
+        <button class="seg-btn" data-f="closed" onclick="setFilter('closed')">Đã đóng <span class="seg-cnt" id="cnt-closed">0</span></button>
       </div>
       <div class="list" id="list"></div>
 
@@ -201,7 +204,7 @@ a{text-decoration:none;color:inherit}
         <div class="side-div"></div>
         <div class="summary-section">
           <div class="side-title">Cần chú ý</div>
-          <button class="attn warn summary-row" data-f="due_soon" onclick="setFilter('due_soon')"><span class="summary-marker a-dot"></span><span class="s-lbl">Sắp hết hạn (≤3 ngày)</span><span class="s-num" id="pnl-duesoon">0</span></button>
+          <button class="attn warn summary-row" data-f="due_soon" onclick="setFilter('due_soon')"><span class="summary-marker a-dot"></span><span class="s-lbl">Sắp đến hạn (≤3 ngày)</span><span class="s-num" id="pnl-duesoon">0</span></button>
           <button class="attn err summary-row" data-f="overdue" onclick="setFilter('overdue')"><span class="summary-marker a-dot"></span><span class="s-lbl">Quá hạn</span><span class="s-num" id="pnl-overdue">0</span></button>
           <button class="attn info summary-row" data-f="need_report" onclick="setFilter('need_report')"><span class="summary-marker a-dot"></span><span class="s-lbl">Chờ tạo báo cáo</span><span class="s-num" id="pnl-report">0</span></button>
         </div>
@@ -219,6 +222,7 @@ a{text-decoration:none;color:inherit}
 <script src="feedback-program-model.js"></script>
 <script>
 const TODAY='11/08/2026';
+const NOW='11/08/2026 10:00';
 const STORE_KEY='uc5_campaigns';
 
 const SEED=FeedbackProgramData.seedPrograms();
@@ -247,20 +251,17 @@ function matches(c){
 function peopleCount(value){return Array.isArray(value)?value.length:Number(value||0);}
 
 function progressStatusBlock(c){
-  if(c.status==='draft')return '<div class="progress-status"><span class="progress-chip"><i class="bx bx-circle"></i>Nháp</span></div>';
-
   const ratio=`${c.done}/${c.total} đã trả lời`;
-  let label='Đang thu thập',variant='collecting',icon='bx-loader-circle';
+  const status=FeedbackProgramModel.campaignStatus(c,TODAY);
+  if(status.state==='draft')return `<div class="progress-status"><span class="progress-chip"><i class="bx ${status.icon}"></i>${status.label}</span></div>`;
+  let {label,icon}=status,variant=status.state;
   let timeMeta=`Hạn ${c.due}`,timeClass='';
-  if(c.status==='closed'){
-    const complete=Number(c.done)===Number(c.total);
-    label=complete?'Hoàn thành':'Đã đóng';
-    variant=complete?'complete':'';
-    icon=complete?'bx-check-circle':'bx-lock-alt';
+  if(status.state==='closed'){
     timeMeta='';
-  }else if(isOverdue(c)){
-    label='Quá hạn';variant='overdue';icon='bx-error-circle';
+  }else if(status.state==='overdue'){
     timeMeta=`Quá hạn ${daysBetween(TODAY,c.due)} ngày`;timeClass='err';
+  }else if(status.state==='due_soon'){
+    timeMeta=`Còn ${Math.max(0,daysBetween(c.due,TODAY))} ngày`;timeClass='warn';
   }
 
   let reportMeta='';
@@ -276,8 +277,10 @@ function actions(c){
   const stop='event.stopPropagation();';
   if(c.status==='draft')
     return `<a class="btn btn-outline btn-sm" href="create-campaign.html?id=${encodeURIComponent(c.id)}"><i class="bx bx-slider"></i> Tiếp tục thiết lập</a><button class="icon-btn" onclick="${stop}delCampaign('${c.id}')" title="Xoá nháp"><i class="bx bx-trash"></i></button>`;
-  if(c.status==='collecting')
-    return `<button class="btn btn-outline btn-sm" onclick="${stop}remind('${c.id}')"><i class="bx bx-bell"></i> Nhắc</button><button class="btn btn-outline btn-sm" onclick="${stop}closeCampaign('${c.id}')"><i class="bx bx-lock"></i> Đóng</button>`;
+  if(c.status==='collecting'){
+    const canRemind=canRemindCampaign(c),remindTitle=canRemind?'Nhắc những người chưa trả lời đủ điều kiện':'Chưa có người nào đủ điều kiện nhận nhắc';
+    return `${FeedbackProgramModel.campaignStatus(c,TODAY).state==='complete'?'':`<button class="btn btn-outline btn-sm" onclick="${stop}remind('${c.id}')" ${canRemind?'':'disabled'} title="${remindTitle}"><i class="bx bx-bell"></i> Nhắc</button>`}<button class="btn btn-outline btn-sm" onclick="${stop}closeCampaign('${c.id}')"><i class="bx bx-lock"></i> Đóng</button>`;
+  }
   if(c.report==='none')
     return `<button class="btn btn-primary btn-sm" onclick="${stop}makeReport('${c.id}')"><i class="bx bx-bar-chart-alt-2"></i> Tạo báo cáo</button>`;
   if(c.report==='made')
@@ -286,22 +289,25 @@ function actions(c){
 }
 
 function render(){
-  const by=k=>DATA.filter(c=>c.status===k).length;
+  const by=k=>DATA.filter(c=>FeedbackProgramModel.campaignViewState(c,TODAY)===k).length;
   document.getElementById('cnt-all').textContent=DATA.length;
   document.getElementById('cnt-draft').textContent=by('draft');
   document.getElementById('cnt-collecting').textContent=by('collecting');
+  document.getElementById('cnt-due-soon').textContent=by('due_soon');
+  document.getElementById('cnt-overdue').textContent=by('overdue');
+  document.getElementById('cnt-complete').textContent=by('complete');
   document.getElementById('cnt-closed').textContent=by('closed');
   document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
 
   // Panel tổng quan + cần chú ý
   document.getElementById('pnl-total').textContent=DATA.length;
   document.getElementById('pnl-active').textContent=by('collecting');
-  document.getElementById('pnl-duesoon').textContent=DATA.filter(isDueSoon).length;
-  document.getElementById('pnl-overdue').textContent=DATA.filter(c=>c.status==='collecting'&&isOverdue(c)).length;
+  document.getElementById('pnl-duesoon').textContent=by('due_soon');
+  document.getElementById('pnl-overdue').textContent=by('overdue');
   document.getElementById('pnl-report').textContent=DATA.filter(needReport).length;
   document.querySelectorAll('.attn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
   const hint=document.getElementById('sideHint');
-  const special={due_soon:'sắp hết hạn',overdue:'quá hạn',need_report:'chờ tạo báo cáo'};
+  const special={due_soon:'sắp đến hạn',overdue:'quá hạn',need_report:'chờ tạo báo cáo'};
   if(special[FILTER]){hint.classList.add('on');hint.innerHTML=`Đang lọc: <b>${special[FILTER]}</b> · <a onclick="setFilter('all')">Xem tất cả</a>`;}
   else hint.classList.remove('on');
 
@@ -332,7 +338,14 @@ function render(){
 function find(id){return DATA.find(c=>c.id===id);}
 function save(){persistSaved(DATA);render();}
 function setFilter(f){FILTER=f;render();}
-function remind(id){toast('Đã gửi nhắc tới những người chưa phản hồi');}
+const REMINDER_DETAILS=new Map();
+function reminderParticipants(campaign){
+  if(Array.isArray(campaign.detailParticipants))return campaign.detailParticipants;
+  if(!REMINDER_DETAILS.has(campaign.id))REMINDER_DETAILS.set(campaign.id,FeedbackProgramData.detailForProgram(campaign).participants);
+  return REMINDER_DETAILS.get(campaign.id);
+}
+function canRemindCampaign(campaign){return reminderParticipants(campaign).flatMap(participant=>participant.assignments||[]).some(assignment=>FeedbackProgramModel.canRemindProgramAssignment(campaign,assignment,NOW));}
+function remind(id){const campaign=find(id);if(!campaign)return;const participants=reminderParticipants(campaign),count=FeedbackProgramModel.remindEligibleProgramAssignments(campaign,participants,NOW);if(Array.isArray(campaign.detailParticipants))save();else render();toast(count?`Đã nhắc ${count} người chưa trả lời đủ điều kiện`:'Hiện chưa có ai đủ điều kiện để nhắc');}
 function closeCampaign(id){const c=find(id);if(!c)return;c.status='closed';c.report='none';save();toast('Đã đóng chương trình — giờ bạn có thể tạo báo cáo');}
 function makeReport(id){const c=find(id);if(!c)return;c.report='made';save();toast('AI đã tạo báo cáo cho từng người nhận');}
 function publish(id){const c=find(id);if(!c)return;c.report='published';save();toast('Đã chia sẻ báo cáo tới quản lý (và ghi vào hồ sơ nhân viên)');}

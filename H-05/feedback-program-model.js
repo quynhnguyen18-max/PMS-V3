@@ -176,21 +176,25 @@
     return left!==null&&left>=0&&left<=3;
   }
   function needsReport(campaign){return Boolean(campaign&&campaign.status==='closed'&&campaign.report==='none');}
+  function campaignStatus(campaign,today){
+    const item=campaign||{},complete=Number(item.total)>0&&Number(item.done)>=Number(item.total);
+    if(item.status==='closed')return {state:'closed',label:'Đã đóng',icon:'bx-lock-alt'};
+    if(item.status==='draft')return {state:'draft',label:'Nháp',icon:'bx-circle'};
+    if(complete)return {state:'complete',label:'Hoàn thành',icon:'bx-check-circle'};
+    if(isOverdue(item,today))return {state:'overdue',label:'Quá hạn',icon:'bx-error-circle'};
+    if(isDueSoon(item,today))return {state:'due_soon',label:'Sắp đến hạn',icon:'bx-time-five'};
+    return {state:'collecting',label:'Đang thu thập',icon:'bx-loader-circle'};
+  }
   function campaignViewState(campaign,today){
-    if(!campaign)return 'draft';
-    if(campaign.status==='closed')return 'closed';
-    if(campaign.status==='draft')return 'draft';
-    return isOverdue(campaign,today)?'overdue':'collecting';
+    return campaignStatus(campaign,today).state;
   }
   function matchesFilter(campaign,filter,today){
     if(!filter||filter==='all')return true;
-    if(filter==='due_soon')return isDueSoon(campaign,today);
-    if(filter==='overdue')return isOverdue(campaign,today);
     if(filter==='need_report')return needsReport(campaign);
-    return campaign&&campaign.status===filter;
+    return campaignViewState(campaign,today)===filter;
   }
   function sortCampaigns(campaigns,today){
-    const priority={overdue:0,collecting:1,draft:2,closed:3};
+    const priority={overdue:0,due_soon:1,collecting:2,complete:3,draft:4,closed:5};
     return [...(campaigns||[])].sort((a,b)=>{
       const pa=priority[campaignViewState(a,today)],pb=priority[campaignViewState(b,today)];
       if(pa!==pb)return pa-pb;
@@ -256,5 +260,5 @@
     });
     return sent;
   }
-  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,canShareResults,lockPendingAssignments,closeCampaign,isOverdue,isDueSoon,needsReport,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,canShareResults,lockPendingAssignments,closeCampaign,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
 });

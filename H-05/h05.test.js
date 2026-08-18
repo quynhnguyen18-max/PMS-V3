@@ -229,12 +229,14 @@ test('rejects a due date that is not later than the creation date',()=>{
   assert.equal(result.errors.find(x=>x.field==='due').code,'due_not_future');
 });
 
-test('derives collecting, overdue, closed and report attention states',()=>{
+test('derives the shared campaign status vocabulary and report attention states',()=>{
   const model=require(modelPath);
-  assert.equal(model.campaignViewState({status:'collecting',due:'13/08/2026'},'11/08/2026'),'collecting');
+  assert.equal(model.campaignViewState({status:'collecting',due:'13/08/2026'},'11/08/2026'),'due_soon');
   assert.equal(model.isDueSoon({status:'collecting',due:'14/08/2026'},'11/08/2026'),true);
   assert.equal(model.campaignViewState({status:'collecting',due:'10/08/2026'},'11/08/2026'),'overdue');
   assert.equal(model.campaignViewState({status:'closed',report:'none'},'11/08/2026'),'closed');
+  assert.deepEqual(model.campaignStatus({status:'draft'},'11/08/2026'),{state:'draft',label:'Nháp',icon:'bx-circle'});
+  assert.deepEqual(model.campaignStatus({status:'collecting',due:'20/08/2026',done:4,total:4},'11/08/2026'),{state:'complete',label:'Hoàn thành',icon:'bx-check-circle'});
   assert.equal(model.needsReport({status:'closed',report:'none'}),true);
 });
 
@@ -504,6 +506,13 @@ test('reminds only eligible pending program assignments once per rolling 24 hour
   assert.equal(model.canRemindProgramAssignment(campaign,assignment,'16/08/2026 10:00'),false);
 });
 
+test('H-05 list reminder uses the shared eligibility and cooldown rule',()=>{
+  const page=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(page,/function canRemindCampaign\(campaign\)\{[\s\S]*canRemindProgramAssignment\(campaign,assignment,NOW\)/);
+  assert.match(page,/function remind\(id\)\{[\s\S]*remindEligibleProgramAssignments\(campaign,participants,NOW\)/);
+  assert.match(page,/Nhắc những người chưa trả lời đủ điều kiện/);
+});
+
 test('H-05 and H-06 read one shared program seed with deterministic detail fixtures',()=>{
   const data=require('./feedback-program-data.js');
   const program=data.programById('s2'),detail=data.detailForProgram(program);
@@ -548,7 +557,7 @@ test('H-06 uses the M-04 three-panel layout with internal content scroll and one
   assert.equal((detail.match(/class="program-progress"/g)||[]).length,0);
   assert.doesNotMatch(detail,/id="programProgress"/);
   assert.doesNotMatch(detail,/id="programMeta"/);
-  assert.match(detail,/function renderProgramOverview\(\)\{[\s\S]*?summary-title[^`]*summary-status summary-status-\$\{state\}/);
+  assert.match(detail,/function renderProgramOverview\(\)\{[\s\S]*?FeedbackProgramModel\.campaignStatus\(PROGRAM,TODAY\)[^`]*summary-status summary-status-\$\{status\.state\}/);
   assert.match(detail,/document\.getElementById\('overview'\)\.innerHTML=`[^`]*\$\{PROGRAM\.createdAt\}[^`]*\$\{PROGRAM\.due\}/);
   assert.match(detail,/function selectParticipant\(participantId\)/);
   assert.match(detail,/sortParticipantsForAction/);
@@ -745,7 +754,7 @@ test('H-06 overview keeps result sharing to one compact status row and puts iden
   assert.match(detail,/Đã chia sẻ kết quả/);
   assert.match(detail,/Đã chia sẻ \$\{sharing\.sharedAt\}/);
   const pending=detail.lastIndexOf('<span>Phản hồi đang chờ</span>');
-  const identity=detail.lastIndexOf('<span>Thông tin người cho</span>');
+  const identity=detail.lastIndexOf('<span>Thông tin người cho phản hồi</span>');
   assert.ok(pending>-1&&identity>pending);
 });
 
@@ -787,7 +796,7 @@ test.skip('legacy places deadline after recipient mapping beside reviewer identi
   const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   const mapping=page.indexOf('Người nhận phản hồi');
   const deadline=page.indexOf('Thời hạn phản hồi');
-  const visibility=page.indexOf('Chế độ danh tính người cho phản hồi');
+  const visibility=page.indexOf('Thông tin người cho phản hồi');
   assert.ok(mapping>-1&&deadline>mapping&&visibility>deadline);
   assert.match(page,/Hiện danh tính của người cho phản hồi/);
   assert.match(page,/Ẩn danh người cho phản hồi/);
@@ -848,7 +857,7 @@ test.skip('legacy HR builder maps M-04 style people with a compact reviewer pick
   assert.match(page,/aria-label="Sao chép người cho phản hồi"/);
   assert.doesNotMatch(page,/<i class="bx bx-copy"><\/i> Sao chép toàn bộ người cho phản hồi/);
   assert.match(page,/Người cho phản hồi<span class="req-star">\*<\/span><\/span><span aria-hidden="true"><\/span><span>Người nhận phản hồi/);
-  assert.match(page,/Chế độ danh tính người cho phản hồi/);
+  assert.match(page,/Thông tin người cho phản hồi/);
   assert.match(page,/function openReviewerPicker\(participantId\)\{if\(STATE\.activeReviewerPicker===participantId\)return;/);
 });
 
@@ -968,10 +977,11 @@ test('H-06 keeps closure and sharing as separate HR actions with scoped confirma
   assert.match(detail,/Đóng ticket/);
   assert.match(detail,/Chưa chia sẻ kết quả/);
   assert.match(detail,/Đã chia sẻ kết quả/);
-  assert.match(detail,/Chia sẻ kết quả/);
-  assert.doesNotMatch(detail,/Chia sẻ toàn bộ kết quả/);
+  assert.match(detail,/Chia sẻ toàn bộ kết quả/);
+  assert.match(detail,/Chia sẻ kết quả cá nhân/);
   assert.match(detail,/function requestResultShare\(scope\)/);
-  assert.match(detail,/function confirmResultShare\(participantIds\)/);
+  assert.match(detail,/function confirmResultShare\(participantIds,options\)/);
+  for(const name of ['renderProgramOverview','sharingSummary','openResultDialog','requestResultShare','confirmResultShare'])assert.equal((detail.match(new RegExp(`function ${name}\\(`,'g'))||[]).length,1,`${name} is defined once`);
   assert.match(detail,/FeedbackProgramModel\.closeCampaign/);
   assert.match(detail,/\.summary-status-closed\{/);
 });
