@@ -245,7 +245,7 @@
     };
   }
   function canRemindProgramAssignment(campaign,assignment,now){
-    if(!campaign||campaign.status!=='collecting'||!assignment||assignment.status==='submitted')return false;
+    if(!campaign||campaign.status!=='collecting'||!assignment||assignment.status==='submitted'||assignment.status==='locked')return false;
     const history=assignment.manualReminderHistory||[];
     const last=dateTimeFromDMY(history.at(-1)),current=dateTimeFromDMY(now);
     return Boolean(current)&&(!last||current-last>=24*60*60*1000);

@@ -62,6 +62,19 @@ a{text-decoration:none;color:inherit}
 .seg-btn.on{background:var(--z600);border-color:var(--z600);color:var(--z0);font-weight:600}
 .seg-cnt{min-width:18px;height:17px;line-height:17px;text-align:center;padding:0 5px;border-radius:9px;background:var(--z100);color:var(--z600);font-size:10.5px;font-weight:700}
 .seg-btn.on .seg-cnt{background:var(--z0);color:var(--z600)}
+/* Status filter — gom vào 1 nút dropdown */
+.filter-dd{position:relative;display:inline-block}
+.filter-trigger{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--z200);background:var(--z0);border-radius:50px;font-size:12.5px;font-weight:500;color:var(--z700);font-family:inherit;cursor:pointer;transition:var(--t);white-space:nowrap}
+.filter-trigger:hover{background:var(--z50);border-color:var(--z400);color:var(--z900)}
+.filter-trigger .ft-caret{font-size:16px;color:var(--z500);transition:transform .18s ease}
+.filter-dd.open .filter-trigger{border-color:var(--z400);background:var(--z50);color:var(--z900)}
+.filter-dd.open .ft-caret{transform:rotate(180deg)}
+.filter-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:60;min-width:230px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg);padding:6px;display:none}
+.filter-dd.open .filter-menu{display:block}
+.filter-opt{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:8px 10px;border:none;background:none;border-radius:var(--rsm);font-size:12.5px;font-weight:500;color:var(--z700);font-family:inherit;cursor:pointer;text-align:left;transition:var(--t)}
+.filter-opt:hover{background:var(--z50);color:var(--z900)}
+.filter-opt.on{background:var(--brand-muted);color:var(--z900);font-weight:600}
+.filter-opt.on .seg-cnt{background:var(--z0)}
 
 /* List — single surface, row dividers (Fiori/Workday style) */
 .board{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-sm)}
@@ -184,13 +197,23 @@ a{text-decoration:none;color:inherit}
 
   <div class="layout">
       <div class="seg" id="tabs">
-        <button class="seg-btn on" data-f="all" onclick="setFilter('all')">Tất cả <span class="seg-cnt" id="cnt-all">0</span></button>
-        <button class="seg-btn" data-f="draft" onclick="setFilter('draft')">Nháp <span class="seg-cnt" id="cnt-draft">0</span></button>
-        <button class="seg-btn" data-f="collecting" onclick="setFilter('collecting')">Đang thu thập <span class="seg-cnt" id="cnt-collecting">0</span></button>
-        <button class="seg-btn" data-f="due_soon" onclick="setFilter('due_soon')">Sắp đến hạn <span class="seg-cnt" id="cnt-due-soon">0</span></button>
-        <button class="seg-btn" data-f="overdue" onclick="setFilter('overdue')">Quá hạn <span class="seg-cnt" id="cnt-overdue">0</span></button>
-        <button class="seg-btn" data-f="complete" onclick="setFilter('complete')">Hoàn thành <span class="seg-cnt" id="cnt-complete">0</span></button>
-        <button class="seg-btn" data-f="closed" onclick="setFilter('closed')">Đã đóng <span class="seg-cnt" id="cnt-closed">0</span></button>
+        <div class="filter-dd" id="filterDD">
+          <button class="filter-trigger" id="filterTrigger" type="button" aria-haspopup="true" aria-expanded="false" onclick="toggleFilterMenu(event)">
+            <i class="bx bx-filter-alt"></i>
+            <span id="ft-label">Bộ lọc</span>
+            <span class="seg-cnt" id="ft-count">0</span>
+            <i class="bx bx-chevron-down ft-caret"></i>
+          </button>
+          <div class="filter-menu" id="filterMenu" role="menu">
+            <button class="filter-opt" data-f="all" role="menuitem" onclick="setFilter('all')">Tất cả <span class="seg-cnt" id="cnt-all">0</span></button>
+            <button class="filter-opt" data-f="draft" role="menuitem" onclick="setFilter('draft')">Nháp <span class="seg-cnt" id="cnt-draft">0</span></button>
+            <button class="filter-opt" data-f="collecting" role="menuitem" onclick="setFilter('collecting')">Đang thu thập <span class="seg-cnt" id="cnt-collecting">0</span></button>
+            <button class="filter-opt" data-f="due_soon" role="menuitem" onclick="setFilter('due_soon')">Sắp đến hạn <span class="seg-cnt" id="cnt-due-soon">0</span></button>
+            <button class="filter-opt" data-f="overdue" role="menuitem" onclick="setFilter('overdue')">Quá hạn <span class="seg-cnt" id="cnt-overdue">0</span></button>
+            <button class="filter-opt" data-f="complete" role="menuitem" onclick="setFilter('complete')">Hoàn thành <span class="seg-cnt" id="cnt-complete">0</span></button>
+            <button class="filter-opt" data-f="closed" role="menuitem" onclick="setFilter('closed')">Đã đóng <span class="seg-cnt" id="cnt-closed">0</span></button>
+          </div>
+        </div>
       </div>
       <div class="list" id="list"></div>
 
@@ -297,7 +320,11 @@ function render(){
   document.getElementById('cnt-overdue').textContent=by('overdue');
   document.getElementById('cnt-complete').textContent=by('complete');
   document.getElementById('cnt-closed').textContent=by('closed');
-  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
+  document.querySelectorAll('.filter-opt').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
+  // Đồng bộ nhãn + số trên nút lọc
+  const filterCount=FILTER==='all'?DATA.length:(FILTER==='need_report'?DATA.filter(needReport).length:by(FILTER));
+  document.getElementById('ft-label').textContent='Bộ lọc';
+  document.getElementById('ft-count').textContent=filterCount;
 
   // Panel tổng quan + cần chú ý
   document.getElementById('pnl-total').textContent=DATA.length;
@@ -337,7 +364,10 @@ function render(){
 /* Actions */
 function find(id){return DATA.find(c=>c.id===id);}
 function save(){persistSaved(DATA);render();}
-function setFilter(f){FILTER=f;render();}
+function setFilter(f){FILTER=f;closeFilterMenu();render();}
+function toggleFilterMenu(e){e.stopPropagation();const dd=document.getElementById('filterDD');const open=dd.classList.toggle('open');document.getElementById('filterTrigger').setAttribute('aria-expanded',open);}
+function closeFilterMenu(){const dd=document.getElementById('filterDD');if(!dd)return;dd.classList.remove('open');document.getElementById('filterTrigger').setAttribute('aria-expanded','false');}
+document.addEventListener('click',e=>{const dd=document.getElementById('filterDD');if(dd&&!dd.contains(e.target))closeFilterMenu();});
 const REMINDER_DETAILS=new Map();
 function reminderParticipants(campaign){
   if(Array.isArray(campaign.detailParticipants))return campaign.detailParticipants;
