@@ -287,14 +287,8 @@ function progressStatusBlock(c){
     timeMeta=`Còn ${Math.max(0,daysBetween(c.due,TODAY))} ngày`;timeClass='warn';
   }
 
-  let reportMeta='';
-  if(c.status==='closed'){
-    if(c.report==='published')reportMeta='<div class="progress-meta pub"><i class="bx bx-check-double"></i>Đã chia sẻ quản lý</div>';
-    else if(c.report==='made')reportMeta='<div class="progress-meta"><i class="bx bx-file"></i>Đã tạo báo cáo</div>';
-    else reportMeta='<div class="progress-meta"><i class="bx bx-file-blank"></i>Chưa tạo báo cáo</div>';
-  }
   const timeLine=timeMeta?`<div class="progress-meta ${timeClass}">${timeMeta}</div>`:'';
-  return `<div class="progress-status"><span class="progress-chip ${variant}"><i class="bx ${icon}"></i>${label}: ${ratio}</span>${timeLine}${reportMeta}</div>`;
+  return `<div class="progress-status"><span class="progress-chip ${variant}"><i class="bx ${icon}"></i>${label}: ${ratio}</span>${timeLine}</div>`;
 }
 function actions(c){
   const stop='event.stopPropagation();';

@@ -65,7 +65,7 @@
     const senderLabel=`${item.sender.name} <span class="fb-domain">(${item.sender.dom})</span>`;
     const senderTipClass=options.senderTooltipPlacement==='top'?' pms-tooltip-top':'';
     const sender=senderMeta?`<span class="fb-sender pms-tooltip" tabindex="0">${senderLabel}<span class="pms-tooltip-content${senderTipClass}" role="tooltip">${senderMeta}</span></span>`:senderLabel;
-    return `<article class="feedback-card">${badges?`<div class="cv-icons">${badges}</div>`:''}<div class="fb-head"><div class="avatar">${item.sender.ini}</div><div><div class="fb-line">${sender}</div><div class="fb-date">${item.date}</div></div></div>${item.question?`<div class="qa"><div class="qa-q"><span class="qa-label">Câu hỏi</span><span class="qa-text">${item.question}</span></div><div class="qa-a"><p class="fb-body">${item.body}</p></div></div>`:`<p class="fb-body">${item.body}</p>`}</article>`;
+    return `<article class="feedback-card">${badges?`<div class="cv-icons">${badges}</div>`:''}<div class="fb-head"><div class="avatar">${item.sender.ini}</div><div><div class="fb-line">${sender}</div><div class="fb-date">${item.date}</div></div></div>${item.question?`<div class="qa"><div class="qa-q q-collapse"><p class="qa-text q-text"><span class="q-label">Câu hỏi:</span> ${item.question}</p><button class="q-more" type="button" onclick="toggleQuestion(this)" hidden>Xem thêm</button></div><div class="qa-a"><p class="fb-body">${item.body}</p></div></div>`:`<p class="fb-body">${item.body}</p>`}</article>`;
   }
   function coreValueIcon(value){return CV_ICON[value]||'';}
   return {createStore,employeeMeta,feedbackCard,coreValueIcon};

@@ -174,8 +174,8 @@ test('answered feedback uses a compact conversational pair with only a question 
   const base = {sender:{name:'An', dom:'an.le', ini:'AL'}, date:'01/08/2026', cv:[]};
   const withQ = data.feedbackCard({...base, question:'Câu hỏi?', body:'Đây là trả lời.'}, emp);
   const noQ = data.feedbackCard({...base, body:'Nội dung trực tiếp.'}, emp);
-  // Có câu hỏi → hai bubble và đường nối tự giải thích quan hệ, không cần nhãn Câu hỏi/Trả lời.
-  assert.match(withQ, /<div class="qa"><div class="qa-q"><span class="qa-label">Câu hỏi<\/span><span class="qa-text">Câu hỏi\?<\/span><\/div><div class="qa-a"><p class="fb-body">Đây là trả lời\.<\/p>/);
+  // Có câu hỏi → bubble hỏi (nhãn "Câu hỏi:" liền mạch, có thể thu gọn) + bubble trả lời nối bằng đường dẫn.
+  assert.match(withQ, /<div class="qa"><div class="qa-q q-collapse"><p class="qa-text q-text"><span class="q-label">Câu hỏi:<\/span> Câu hỏi\?<\/p><button class="q-more" type="button" onclick="toggleQuestion\(this\)" hidden>Xem thêm<\/button><\/div><div class="qa-a"><p class="fb-body">Đây là trả lời\.<\/p>/);
   assert.doesNotMatch(withQ, /answer-label|>Trả lời</);
   // Không có câu hỏi → body trơn, không tạo cấu trúc hội thoại giả.
   assert.doesNotMatch(noQ, /class="qa"/);

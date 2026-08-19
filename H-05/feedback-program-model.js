@@ -241,11 +241,14 @@
       participants:participants.length,
       reviewers:new Set(assignments.map(item=>item.reviewer&&item.reviewer.id).filter(Boolean)).size,
       pending:assignments.filter(item=>item.status!=='submitted').length,
+      responded:assignments.filter(item=>item.status==='submitted').length,
+      totalResponses:assignments.length,
       overdue:participants.filter(item=>participantViewState(detail.campaign,item,today)==='overdue').length
     };
   }
   function canRemindProgramAssignment(campaign,assignment,now){
     if(!campaign||campaign.status!=='collecting'||!assignment||assignment.status==='submitted'||assignment.status==='locked')return false;
+    if(campaign.identityVisibility==='anonymous'||campaign.anon==='anon')return false;
     const history=assignment.manualReminderHistory||[];
     const last=dateTimeFromDMY(history.at(-1)),current=dateTimeFromDMY(now);
     return Boolean(current)&&(!last||current-last>=24*60*60*1000);
