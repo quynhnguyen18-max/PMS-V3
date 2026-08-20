@@ -62,7 +62,7 @@
       {id:'q5',text:'Một tình huống cụ thể nào cho thấy họ đã xử lý vượt kỳ vọng ở cấp độ hiện tại?'}
     ],
     s10:[
-      {id:'q1',type:'rating',ratingScale:5,ratingLabels:{1:'Cần phát triển thêm',5:'Dẫn dắt nổi bật'},text:'Mức độ tạo ảnh hưởng tích cực tới đội ngũ'},
+      {id:'q1',type:'open_text',text:'Bạn đánh giá thế nào về mức độ tạo ảnh hưởng tích cực tới đội ngũ của [người nhận]?'},
       {id:'q2',type:'open_text',text:'Một hành vi lãnh đạo người nhận nên tiếp tục phát huy là gì?'}
     ],
     s11:[{id:'q1',type:'open_text',text:'Bạn mong người nhận sẽ hỗ trợ đội ngũ Data hiệu quả hơn ở điểm nào?'}]
