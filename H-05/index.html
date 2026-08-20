@@ -329,7 +329,7 @@ function render(){
   document.querySelectorAll('.attn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
   const hint=document.getElementById('sideHint');
   const special={due_soon:'sắp đến hạn',overdue:'quá hạn',need_report:'chờ tạo báo cáo'};
-  if(special[FILTER]){hint.classList.add('on');hint.innerHTML=`Đang lọc: <b>${special[FILTER]}</b> · <a onclick="setFilter('all')">Xem tất cả</a>`;}
+  if(special[FILTER]){hint.classList.add('on');hint.innerHTML=`Đang lọc: <b>${special[FILTER]}</b> - <a onclick="setFilter('all')">Xem tất cả</a>`;}
   else hint.classList.remove('on');
 
   const rows=FeedbackProgramModel.sortCampaigns(DATA.filter(matches),TODAY);
