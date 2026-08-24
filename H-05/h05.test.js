@@ -73,9 +73,10 @@ test('questionnaire editor renders endpoint meanings and expands intermediate Li
 test('request builder groups library templates and protects unsaved questions from replacement',()=>{
   const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(builder,/questionnaire-library-model\.js/);
-  assert.match(builder,/Mẫu của tôi/);
-  assert.match(builder,/Mẫu được chia sẻ với tôi/);
-  assert.match(builder,/Mẫu hệ thống/);
+  assert.match(builder,/Bộ câu hỏi của tôi/);
+  assert.match(builder,/Bộ câu hỏi của HR khác/);
+  assert.doesNotMatch(builder,/Mẫu hệ thống/);
+  assert.match(builder,/questionnaire-library-seed\.js/);
   assert.match(builder,/function confirmQuestionReplacement\(nextAction\)/);
   assert.match(builder,/QuestionnaireLibraryModel\.cloneForRequest/);
   assert.match(builder,/Lưu thành bộ câu hỏi/);

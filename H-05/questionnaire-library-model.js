@@ -22,6 +22,34 @@
     return normalized;
   }
 
+  const QUESTION_TYPE_LABELS={open_text:'Câu hỏi mở',rating:'Câu hỏi Likert'};
+
+  /* Một thay đổi có thể kèm nội dung trước/sau để đọc được ngay trong history log.
+     Bản ghi cũ chỉ có chuỗi mô tả nên vẫn phải nhận dạng chuỗi. */
+  function normalizeChange(change){
+    if(typeof change==='string')return {label:change.trim(),before:'',after:''};
+    return {
+      label:String(change&&change.label||'').trim(),
+      before:String(change&&change.before||'').trim(),
+      after:String(change&&change.after||'').trim()
+    };
+  }
+
+  function normalizeHistoryEntry(entry,index){
+    return {
+      version:Number(entry&&entry.version)||index+1,
+      at:String(entry&&entry.at||''),
+      byId:String(entry&&entry.byId||''),
+      byName:String(entry&&entry.byName||'').trim(),
+      byDomain:String(entry&&entry.byDomain||'').trim(),
+      changes:(entry&&entry.changes||[]).map(normalizeChange).filter(change=>change.label)
+    };
+  }
+
+  function normalizeHistory(history){
+    return (history||[]).map(normalizeHistoryEntry).sort((a,b)=>a.version-b.version);
+  }
+
   function normalize(template,currentUser={}){
     const scope=SCOPES.has(template&&template.scope)?template.scope:'personal';
     const ownerId=String(template&&template.ownerId||currentUser.id||'');
@@ -30,13 +58,15 @@
       name:String(template&&template.name||'').trim(),
       ownerId,
       ownerName:String(template&&template.ownerName||currentUser.name||'').trim(),
+      ownerDomain:String(template&&template.ownerDomain||(ownerId===currentUser.id?currentUser.domain:'')||'').trim(),
       createdAt:String(template&&template.createdAt||''),
       updatedAt:String(template&&template.updatedAt||''),
       scope,
       sharedWithIds:scope==='selected_hr'?unique(template&&template.sharedWithIds):[],
       sourceTemplateId:String(template&&template.sourceTemplateId||''),
       isSystem:Boolean(template&&template.isSystem),
-      questions:(template&&template.questions||[]).map(normalizeQuestion)
+      questions:(template&&template.questions||[]).map(normalizeQuestion),
+      history:normalizeHistory(template&&template.history)
     };
   }
 
@@ -57,7 +87,38 @@
   function canEdit(template,userId){const normalized=normalize(template);return !normalized.isSystem&&normalized.ownerId===userId;}
   function canDelete(template,userId){return canEdit(template,userId);}
 
-  function makeCopy(template,currentUser,id){
+  const SCOPE_LABELS={personal:'Chỉ người tạo',all_hr:'Nhóm HRBP và L&OD',selected_hr:'HR được chọn'};
+  function scopeText(template){
+    const normalized=normalize(template);
+    if(normalized.scope==='selected_hr')return `${SCOPE_LABELS.selected_hr} (${normalized.sharedWithIds.length})`;
+    return SCOPE_LABELS[normalized.scope];
+  }
+
+  /* So sánh hai phiên bản để sinh dòng mô tả thay đổi cho history log. */
+  function diffTemplates(previous,next){
+    const before=normalize(previous),after=normalize(next),changes=[];
+    if(before.name!==after.name)changes.push({label:'Đổi tên bộ câu hỏi',before:before.name,after:after.name});
+    const beforeQuestions=before.questions,afterQuestions=after.questions;
+    const shared=Math.min(beforeQuestions.length,afterQuestions.length);
+    for(let index=0;index<shared;index++){
+      if(beforeQuestions[index].text!==afterQuestions[index].text)changes.push({label:`Sửa nội dung Câu hỏi ${index+1}`,before:beforeQuestions[index].text,after:afterQuestions[index].text});
+      else if(beforeQuestions[index].type!==afterQuestions[index].type)changes.push({label:`Đổi loại Câu hỏi ${index+1}`,before:QUESTION_TYPE_LABELS[beforeQuestions[index].type],after:QUESTION_TYPE_LABELS[afterQuestions[index].type]});
+    }
+    for(let index=shared;index<afterQuestions.length;index++)changes.push({label:`Thêm Câu hỏi ${index+1}`,after:afterQuestions[index].text});
+    for(let index=shared;index<beforeQuestions.length;index++)changes.push({label:`Xóa Câu hỏi ${index+1}`,before:beforeQuestions[index].text});
+    return changes.map(normalizeChange);
+  }
+
+  function appendVersion(template,entry){
+    const normalized=normalize(template);
+    const changes=(entry&&entry.changes||[]).map(normalizeChange).filter(change=>change.label);
+    if(!changes.length)return normalized;
+    const version=normalized.history.length?normalized.history[normalized.history.length-1].version+1:1;
+    normalized.history=[...normalized.history,normalizeHistoryEntry({...entry,version,changes})];
+    return normalized;
+  }
+
+  function makeCopy(template,currentUser,id,at=''){
     const source=normalize(template,currentUser);
     return normalize({
       ...source,
@@ -65,13 +126,17 @@
       name:`Bản sao - ${source.name}`,
       ownerId:currentUser.id,
       ownerName:currentUser.name,
+      ownerDomain:currentUser.domain||'',
+      createdAt:at||source.createdAt,
+      updatedAt:at||source.createdAt,
       scope:'personal',
       sharedWithIds:[],
       sourceTemplateId:source.id,
       isSystem:false,
-      questions:cloneForRequest(source)
+      questions:cloneForRequest(source),
+      history:[{version:1,at:at||source.createdAt,byId:currentUser.id,byName:currentUser.name,byDomain:currentUser.domain||'',changes:[{label:`Tạo bản sao từ “${source.name}” của ${source.ownerName}`}]}]
     },currentUser);
   }
 
-  return {normalize,normalizeQuestion,cloneForRequest,visibleTo,canUse,canEdit,canDelete,makeCopy};
+  return {normalize,normalizeQuestion,normalizeChange,normalizeHistoryEntry,cloneForRequest,visibleTo,canUse,canEdit,canDelete,makeCopy,scopeText,diffTemplates,appendVersion};
 });
