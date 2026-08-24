@@ -4,6 +4,16 @@
   if(root)root.QuestionnaireLibraryModel=api;
 })(typeof window!=='undefined'?window:globalThis,function(){
   const SCOPES=new Set(['personal','all_hr','selected_hr']);
+  const ROLES=new Set(['HRBP','L&OD']);
+
+  /* Bộ câu hỏi được nhóm theo nhóm người tạo, nên owner phải mang vai trò HR. */
+  function ownerRoleOf(template,currentUser){
+    const declared=template&&template.ownerRole;
+    if(ROLES.has(declared))return declared;
+    const ownerId=String(template&&template.ownerId||'');
+    if(ownerId&&ownerId===String(currentUser&&currentUser.id||'')&&ROLES.has(currentUser&&currentUser.role))return currentUser.role;
+    return /^lod/i.test(ownerId)?'L&OD':'HRBP';
+  }
 
   function unique(values){return [...new Set((values||[]).filter(Boolean))];}
 
@@ -59,6 +69,7 @@
       ownerId,
       ownerName:String(template&&template.ownerName||currentUser.name||'').trim(),
       ownerDomain:String(template&&template.ownerDomain||(ownerId===currentUser.id?currentUser.domain:'')||'').trim(),
+      ownerRole:ownerRoleOf(template,currentUser),
       createdAt:String(template&&template.createdAt||''),
       updatedAt:String(template&&template.updatedAt||''),
       scope,
@@ -127,6 +138,7 @@
       ownerId:currentUser.id,
       ownerName:currentUser.name,
       ownerDomain:currentUser.domain||'',
+      ownerRole:currentUser.role||'HRBP',
       createdAt:at||source.createdAt,
       updatedAt:at||source.createdAt,
       scope:'personal',
@@ -138,5 +150,5 @@
     },currentUser);
   }
 
-  return {normalize,normalizeQuestion,normalizeChange,normalizeHistoryEntry,cloneForRequest,visibleTo,canUse,canEdit,canDelete,makeCopy,scopeText,diffTemplates,appendVersion};
+  return {normalize,normalizeQuestion,normalizeChange,ownerRoleOf,normalizeHistoryEntry,cloneForRequest,visibleTo,canUse,canEdit,canDelete,makeCopy,scopeText,diffTemplates,appendVersion};
 });

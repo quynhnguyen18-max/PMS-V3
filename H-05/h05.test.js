@@ -73,13 +73,19 @@ test('questionnaire editor renders endpoint meanings and expands intermediate Li
 test('request builder groups library templates and protects unsaved questions from replacement',()=>{
   const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(builder,/questionnaire-library-model\.js/);
-  assert.match(builder,/Bộ câu hỏi của tôi/);
-  assert.match(builder,/Bộ câu hỏi của HR khác/);
+  assert.match(builder,/TEMPLATE_ROLE_ORDER=\['HRBP','L&OD'\]/);
+  assert.match(builder,/function templatePickerGroups\(\)/);
+  assert.match(builder,/id="templatePickerModal"/);
+  assert.match(builder,/localeCompare\(b\.name,'vi'\)/);
   assert.doesNotMatch(builder,/Mẫu hệ thống/);
+  assert.doesNotMatch(builder,/Phạm vi chia sẻ/);
+  assert.match(builder,/Tên chương trình phản hồi/);
+  assert.match(builder,/Nhập mục tiêu của yêu cầu phản hồi và lời nhắn gửi đến các bên liên quan/);
+  assert.match(builder,/id="invitationInlineError"/);
   assert.match(builder,/questionnaire-library-seed\.js/);
   assert.match(builder,/function confirmQuestionReplacement\(nextAction\)/);
   assert.match(builder,/QuestionnaireLibraryModel\.cloneForRequest/);
-  assert.match(builder,/Lưu thành bộ câu hỏi/);
+  assert.match(builder,/Lưu vào bộ câu hỏi/);
 });
 
 test('uses inline validation, icon-only question controls and reviewer-to-recipient mapping',()=>{
@@ -105,11 +111,11 @@ test('saves request questions through an explicit named questionnaire popup',()=
   const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(builder,/id="templateSaveModal"/);
   assert.match(builder,/Tên bộ câu hỏi/);
-  assert.match(builder,/Chỉ mình tôi/);
-  assert.match(builder,/Toàn bộ nhóm HR/);
-  assert.match(builder,/Chọn người cụ thể/);
+  assert.doesNotMatch(builder,/Chỉ mình tôi/);
+  assert.doesNotMatch(builder,/Chọn người cụ thể/);
   assert.match(builder,/function confirmSaveRequestTemplate\(\)/);
-  assert.match(builder,/scope:templateSaveScope/);
+  assert.match(builder,/scope:'all_hr'/);
+  assert.match(builder,/history:\[\{version:1/);
   assert.match(builder,/QuestionnaireLibraryModel\.cloneForRequest\(\{questions\}\)/);
 });
 
@@ -365,8 +371,9 @@ test('design system documents the shared or per-recipient structured-feedback bu
   assert.match(design,/12\.5px\/600/);
   assert.match(design,/13px\/400/);
   assert.match(design,/2.*10|10.*2/);
-  assert.match(design,/Ghi danh/);
   assert.match(design,/Ẩn danh/);
+  assert.match(design,/Hiển thị danh tính/);
+  assert.doesNotMatch(design,/Ghi danh/);
   assert.match(design,/Chưa chia sẻ kết quả/);
 });
 
@@ -761,7 +768,7 @@ test('H-06 result sharing popup keeps audience options compact and uses the M-04
   assert.match(detail,/if\(!query\)return '';/);
   assert.match(detail,/share-viewer-chips[\s\S]*share-people-picker/);
   assert.match(detail,/share-viewer-chip[^}]*font-size:12px/);
-  assert.match(detail,/Thông tin người cho phản hồi/);
+  assert.match(detail,/Danh tính người cho phản hồi/);
   assert.match(detail,/Hiển thị tên người cho phản hồi cùng nội dung/);
   assert.match(detail,/Chỉ hiển thị nội dung phản hồi/);
   assert.match(detail,/btn-primary btn-share/);
@@ -775,7 +782,7 @@ test('H-06 overview keeps result sharing to one compact status row and puts iden
   assert.match(detail,/Đã chia sẻ kết quả/);
   assert.match(detail,/Đã chia sẻ \$\{sharing\.sharedAt\}/);
   const pending=detail.lastIndexOf('<span>Phản hồi đang chờ</span>');
-  const identity=detail.lastIndexOf('<span>Thông tin người cho phản hồi</span>');
+  const identity=detail.lastIndexOf('<span>Danh tính người cho phản hồi</span>');
   assert.ok(pending>-1&&identity>pending);
 });
 
@@ -784,7 +791,7 @@ test('design system documents the required result-sharing audience and identity 
   assert.match(designSystem,/Người nhận phản hồi và các cấp quản lý của họ/);
   assert.match(designSystem,/Chỉ các cấp quản lý của người nhận/);
   assert.match(designSystem,/Người cụ thể/);
-  assert.match(designSystem,/Thông tin người cho phản hồi/);
+  assert.match(designSystem,/Danh tính người cho phản hồi/);
   assert.match(designSystem,/không lặp metadata mô tả dưới các option/);
   assert.match(designSystem,/Status chia sẻ kết quả trong panel tổng quan hiển thị một hàng/);
   assert.match(designSystem,/Chip người đã chọn đứng trên ô tìm kiếm/);
@@ -817,7 +824,7 @@ test.skip('legacy places deadline after recipient mapping beside reviewer identi
   const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   const mapping=page.indexOf('Người nhận phản hồi');
   const deadline=page.indexOf('Thời hạn phản hồi');
-  const visibility=page.indexOf('Thông tin người cho phản hồi');
+  const visibility=page.indexOf('Danh tính người cho phản hồi');
   assert.ok(mapping>-1&&deadline>mapping&&visibility>deadline);
   assert.match(page,/Hiện danh tính của người cho phản hồi/);
   assert.match(page,/Ẩn danh người cho phản hồi/);
@@ -878,7 +885,7 @@ test.skip('legacy HR builder maps M-04 style people with a compact reviewer pick
   assert.match(page,/aria-label="Sao chép người cho phản hồi"/);
   assert.doesNotMatch(page,/<i class="bx bx-copy"><\/i> Sao chép toàn bộ người cho phản hồi/);
   assert.match(page,/Người cho phản hồi<span class="req-star">\*<\/span><\/span><span aria-hidden="true"><\/span><span>Người nhận phản hồi/);
-  assert.match(page,/Thông tin người cho phản hồi/);
+  assert.match(page,/Danh tính người cho phản hồi/);
   assert.match(page,/function openReviewerPicker\(participantId\)\{if\(STATE\.activeReviewerPicker===participantId\)return;/);
 });
 
