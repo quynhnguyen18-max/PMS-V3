@@ -446,6 +446,9 @@ input,select,textarea{font-family:inherit}
 .mi-dom{font-size:12px;font-weight:400;color:var(--z500)}
 .mi-due{font-size:11.5px;font-weight:600;color:var(--z500)}
 .mi-due.soon{color:var(--warn)}.mi-due.over{color:var(--err)}
+#dlg-reply #replyDialog.hr-structured-reply .dlg-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;row-gap:10px}
+#dlg-reply #replyDialog.hr-structured-reply .mi{min-width:0}
+@media(max-width:520px){#dlg-reply #replyDialog.hr-structured-reply .dlg-meta{grid-template-columns:1fr}}
 /* câu hỏi chung ở đầu popup */
 .qshared{width:100%;border:0;padding:7px 12px 8px;background:var(--brand-muted);border-radius:10px;margin-bottom:14px}
 .rv-h{font-size:12px;font-weight:600;color:var(--z600);margin-bottom:2px}
@@ -656,6 +659,16 @@ input,select,textarea{font-family:inherit}
 .vis-locked{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}
 .vis-locked>i{font-size:16px;color:var(--z500);margin-top:1px;flex-shrink:0}
 .vis-locked .vc-note{margin-top:7px;color:var(--z500);font-size:11.5px;font-style:italic;line-height:1.45}
+.hr-identity-setting{display:flex;align-items:flex-start;gap:6px;margin-top:9px;padding:8px 10px;border-left:2px solid var(--brand);background:var(--brand-muted);font-size:12px;line-height:1.45;color:var(--z700)}
+.hr-identity-setting i{margin-top:1px;color:var(--brand);font-size:15px;flex:0 0 auto}
+.hr-identity-setting strong{color:var(--brand);font-weight:700}
+.hr-reply-questions{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.hr-reply-question{padding:12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0)}
+.hr-reply-question-label{display:flex;align-items:baseline;gap:8px;margin-bottom:9px;font-size:13px;font-weight:600;line-height:1.5;color:var(--z800)}
+.hr-reply-question-num{flex:0 0 auto;color:var(--brand);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.35px}
+.hr-rating{display:flex;gap:6px;flex-wrap:wrap}
+.hr-rating button{width:34px;height:34px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:13px;font-weight:600;color:var(--z600)}
+.hr-rating button:hover,.hr-rating button.on{border-color:var(--brand);background:var(--brand-muted);color:var(--brand)}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
@@ -1031,7 +1044,7 @@ input,select,textarea{font-family:inherit}
 
 <!-- Trả lời phản hồi (UC-R) overlay -->
 <div class="overlay" id="dlg-reply" onclick="if(event.target===this)requestClose('dlg-reply')">
-  <div class="dialog lg">
+  <div class="dialog lg" id="replyDialog">
     <div class="dlg-hd">
       <div>
         <div class="dlg-title" id="replyTitle">Trả lời Yêu cầu phản hồi</div>
@@ -1044,7 +1057,7 @@ input,select,textarea{font-family:inherit}
       <div id="replyForm">
         <div class="reply-ask" id="replyAsk"></div>
 
-        <div class="field">
+        <div class="field" id="replySingleAnswerField">
           <label class="field-label">Phản hồi của bạn<span class="req-star">*</span></label>
           <textarea class="compose-ta" id="replyTA" placeholder="Viết phản hồi của bạn cho câu hỏi trên…" oninput="onReplyInput()"></textarea>
           <div class="ai-panel" id="replyAiPanel" style="display:none"></div>
@@ -1053,8 +1066,9 @@ input,select,textarea{font-family:inherit}
             <button class="btn-ai" id="replyAiBtn" onclick="runReplyAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
           </div>
         </div>
+        <div id="replyStructuredFields" hidden></div>
 
-        <div class="field">
+        <div class="field" id="replyCvField">
           <label class="field-label">Huy hiệu <span class="field-hint">(Chọn một hoặc nhiều giá trị cốt lõi đồng nghiệp đã thể hiện)</span></label>
           <div class="cvpick-row" id="replyCvPick"></div>
         </div>
@@ -1244,7 +1258,23 @@ const MEDIA_CAMPAIGNS = [
 ];
 const MEDIA_STATE={campaign:null,posterIndex:0,insights:[],viewedCampaignIds:new Set()};
 
+function hrQueueFromProgram(programId,reviewerId){
+  const raw=FeedbackProgramData.programById(programId),program=raw&&FeedbackProgramModel.normalizeCampaign(raw),detail=raw&&FeedbackProgramData.detailForProgram(raw);
+  if(!program||!detail)return [];
+  const requester=program.requestedBy||{name:'Nhân sự',domain:'',initials:'HR'};
+  return (detail.participants||[]).flatMap(participant=>(participant.assignments||[])
+    .filter(assignment=>assignment.status!=='submitted'&&(assignment.reviewer.id===reviewerId||assignment.reviewer.domain===reviewerId))
+    .map(assignment=>({
+      id:`program-${program.id}-${participant.employee.id}-${assignment.reviewer.id}`,
+      programId:program.id,assignmentId:assignment.id,program,requestSource:'hr',cycle:String(program.createdAt||'').slice(-4)||'2026',
+      from:`HR - ${requester.name}`,dom:requester.domain||'',ini:requester.initials||initials(requester.name),about:'hr-program',
+      feedbackReceiver:participant.employee,context:program.goal,questions:detail.questions||[],identityVisibility:program.identityVisibility,
+      resultAudience:FeedbackProgramModel.resultAudience(program,participant.employee.id),sent:program.createdAt,dueDate:program.due,due:'còn 4 ngày',urgency:'normal'
+    })));
+}
 const QUEUE = [
+  ...hrQueueFromProgram('s12',SELF.dom),
+  ...hrQueueFromProgram('s13',SELF.dom),
   { cycle:'2026', from:'Trần Thị Mai', dom:'mai.tran', ini:'TM', about:'self', context:'Dự án Design System', sent:'28/07/2026', dueDate:'04/08/2026', due:'còn 2 ngày', urgency:'soon' },
   { cycle:'2026', from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu', context:'Chuẩn bị buổi 1:1 định kỳ', sent:'25/07/2026', dueDate:'01/08/2026', due:'quá hạn 1 ngày', urgency:'over' },
   { cycle:'2026', from:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', about:'self', context:'Buổi tech talk tháng 7', sent:'30/07/2026', dueDate:'07/08/2026', due:'còn 5 ngày', urgency:'normal' },
@@ -1256,8 +1286,8 @@ const QUEUE = [
   { cycle:'2026', from:'Bùi Thị Ngọc', dom:'ngoc.bui', ini:'BN', about:'self', context:'Buổi demo sản phẩm với khách hàng', sent:'01/08/2026', dueDate:'10/08/2026', due:'còn 8 ngày', urgency:'normal' },
   { cycle:'2026', from:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', about:'self', context:'Khảo sát trải nghiệm nội bộ', sent:'01/08/2026', dueDate:'11/08/2026', due:'còn 9 ngày', urgency:'normal' },
   { cycle:'2026', from:'Hồ Nhật Minh', dom:'minh.ho', ini:'HM', about:'self', context:'Hội thảo kỹ thuật nội bộ', sent:'02/08/2026', dueDate:'12/08/2026', due:'còn 10 ngày', urgency:'normal' },
-];
-QUEUE.forEach((q,i)=>q.id='q'+i);
+].filter(Boolean);
+QUEUE.forEach((q,i)=>q.id=q.id||'q'+i);
 /* câu hỏi của người yêu cầu (fallback nếu item không có sẵn) */
 function itemQuestion(q){
   if(q.question) return q.question;
@@ -1265,6 +1295,7 @@ function itemQuestion(q){
     ? `Bạn có nhận xét gì về ${q.aboutName} liên quan đến “${q.context}”?`
     : `Bạn có phản hồi gì cho mình sau “${q.context}”?`;
 }
+function isHrQueueRequest(item){return item&&item.requestSource==='hr';}
 
 let curFilter='all';
 let queueExpanded=false;
@@ -1279,7 +1310,9 @@ function sortedQueue(){
   return QUEUE.filter(q=>cycleMatches(q.cycle)).sort((a,b)=>(rank[a.urgency]??2)-(rank[b.urgency]??2));  // gấp nhất lên đầu
 }
 function queueRowHTML(q){
-  const headline = q.about==='self'
+  const headline = isHrQueueRequest(q)
+    ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b> <span class="q-pre">cho</span> <b>${q.feedbackReceiver.name}</b>`
+    : q.about==='self'
     ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b>`
     : `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b> <span class="q-pre">cho</span> <b>${q.aboutName}</b>`;
   const dueIcon = q.urgency==='over' ? 'bx-error-circle' : 'bx-time-five';
@@ -1295,7 +1328,9 @@ function queueRowHTML(q){
 }
 /* dòng gọn ở rail: chỉ tên người yêu cầu — chi tiết xem trong popup trả lời */
 function queueRailHTML(q){
-  const tip = q.about==='other'
+  const tip = isHrQueueRequest(q)
+    ? `${q.from} yêu cầu phản hồi cho ${q.feedbackReceiver.name} — ${q.context}`
+    : q.about==='other'
     ? `${q.from} yêu cầu phản hồi cho ${q.aboutName} — ${q.context}`
     : `${q.from} yêu cầu phản hồi — ${q.context}`;
   return `<div class="qrow-mini" onclick="openReply('${q.id}')" title="${tip}">
@@ -1356,6 +1391,7 @@ function cardMeta(vis, date, persp){
 function cardCVs(cv){
   return (cv&&cv.length) ? `<div class="fb-react">${badgeImgs(cv)}</div>` : '';
 }
+function visibleCardCv(item){return isHrQueueRequest(item)?[]:(item.cv||[]);}
 function hasCV(cv){ return (cv&&cv.length) ? ' has-react' : ''; }
 function visIcon(v, persp){
   // persp='sender' (phản hồi mình cho đi) → nói theo người nhận; mặc định là góc nhìn người nhận
@@ -1385,12 +1421,13 @@ function feedbackPair(question,body,tail=''){
 
 function cardReceived(f){
   const st=fbState(f);
+  const cv=visibleCardCv(f);
   if(!st.opened) return cardSealed(f);                // chưa mở → phong bì niêm phong
   // dấu đã cảm ơn: 1 trái tim nhỏ cạnh tên trên header, không chiếm dòng riêng
   const mark = st.thanked
     ? `<span class="fb-badge-wrap thx-mark"><i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.who.name}</span></span>` : '';
-  return `<div class="fb-card${hasCV(f.cv)}" data-kind="received" data-fb="${f.id}">
-    ${cardCVs(f.cv)}
+  return `<div class="fb-card${hasCV(cv)}" data-kind="received" data-fb="${f.id}">
+    ${cardCVs(cv)}
     ${cardHead(f.who, SELF, cardMeta(f.vis||'receiver', f.date), mark)}
     ${feedbackPair(f.q,f.body,expandBtn())}
     ${st.thanked?'':thxBar(f)}
@@ -1427,6 +1464,7 @@ function cardSealed(f){
 let activeReceivedReaderId=null;
 function renderReceivedReader(f){
   const bg=GIVE_BGS.find(item=>item.id===f.backgroundId);
+  const cv=visibleCardCv(f);
   document.getElementById('receivedReaderTitle').textContent='Phản hồi từ đồng nghiệp';
   document.getElementById('receivedReaderProfile').innerHTML=`
     <div class="fb-av">${f.who.ini||initials(f.who.name)}</div>
@@ -1434,7 +1472,7 @@ function renderReceivedReader(f){
       <div class="reader-name who-tip">${f.who.name} <span class="reader-domain">(${f.who.dom})</span>${fullOrg(f.who)?`<span class="fb-badge-tip">${fullOrg(f.who)}</span>`:''}</div>
       <div class="reader-meta"><span>${f.date}</span>${visIcon(f.vis||'receiver')}</div>
     </div>
-    <div class="reader-badges">${badgeImgs(f.cv)}</div>`;
+    <div class="reader-badges">${badgeImgs(cv)}</div>`;
   document.getElementById('receivedReaderQuestion').innerHTML=f.q
     ? `<div class="qa-q"><span class="qa-label">Câu hỏi</span><span class="qa-text">${f.q}</span></div>` : '';
   document.querySelector('#dlg-received-reader .reader-detail').classList.toggle('has-question',!!f.q);
@@ -1508,12 +1546,13 @@ function updateUnreadLabel(){
 }
 function unreadItems(items){ return items.filter(f=>f.kind==='received' && !fbState(f).opened); }
 function cardGiven(f){
+  const cv=visibleCardCv(f);
   // được người nhận cảm ơn → 1 trái tim nhỏ cạnh tên họ, cùng quy ước với phản hồi nhận
   const fresh = f.thankedAt && !thanksSeen();
   const mark = f.thankedAt
     ? `<span class="fb-badge-wrap thx-mark got${fresh?' ring':''}"><i class="bx bxs-heart"></i><span class="fb-badge-tip">${f.who.name} đã cảm ơn phản hồi này · ${f.thankedAt}</span></span>` : '';
-  return `<div class="fb-card${hasCV(f.cv)}${fresh?' fb-fresh':''}" data-kind="given" data-fb="${f.id||''}">
-    ${cardCVs(f.cv)}
+  return `<div class="fb-card${hasCV(cv)}${fresh?' fb-fresh':''}" data-kind="given" data-fb="${f.id||''}">
+    ${cardCVs(cv)}
     ${cardHead(SELF, f.who, cardMeta(f.vis, f.date, 'sender'), mark)}
     ${feedbackPair(f.q,f.body,expandBtn())}
   </div>`;
@@ -1597,7 +1636,7 @@ function draftCardsHTML(q){
   Object.values(DRAFTS.reply).forEach(r=>{
     if(r.cycle!==cy() || !inGiven) return;
     const o={key:'reply-'+r.itemId, label:'Bản nháp · Trả lời yêu cầu', savedAt:r.savedAt, open:`openReply('${r.itemId}')`,
-      title:`Trả lời yêu cầu của ${r.from} (${r.dom})`, body:snip(r.text)};
+      title:`Trả lời yêu cầu của ${r.from} (${r.dom})`, body:snip(r.text||Object.values(r.answers||{}).find(Boolean)||'')};
     if(match(o)) cards.push(draftCardHTML(o));
   });
   const rq=DRAFTS.req;
@@ -2587,23 +2626,51 @@ function submitRequest(){
 }
 
 /* ═══════ TRẢ LỜI YÊU CẦU (UC-R) ═══════ */
-let RV={item:null, vis:null, ai:null, aiUsed:false, cvs:[], _stage:null};
+let RV={item:null, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, _stage:null};
+function escapeHTML(value){return String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
+function hrAnswerReady(item){return (item.questions||[]).every(question=>question.type==='rating'?Number(RV.answers[question.id])>0:String(RV.answers[question.id]||'').trim());}
+function hrResponseAnswers(item){return (item.questions||[]).map(question=>question.type==='rating'?{questionId:question.id,score:Number(RV.answers[question.id])}:{questionId:question.id,body:String(RV.answers[question.id]||'').trim()});}
+function hrAudienceCopy(item){
+  const audience=item.resultAudience||FeedbackProgramModel.resultAudience(item.program,item.feedbackReceiver.id);
+  if(!audience.released)return {title:'Hiện tại chỉ HR xem được kết quả phản hồi này',detail:'HR sẽ chủ động quyết định khi nào và chia sẻ kết quả với ai sau khi tổng hợp chương trình.'};
+  const labels={recipients:'người nhận phản hồi',managers:'các cấp quản lý',others:'người khác do HR chỉ định'};
+  const names=(audience.audiences||[]).map(key=>labels[key]).filter(Boolean);
+  return {title:`HR đã chia sẻ kết quả với ${names.join(', ')||'người được chỉ định'}`,detail:'Phạm vi người xem do HR thiết lập cho chương trình và không thể thay đổi khi bạn trả lời.'};
+}
+function renderHrReplyQuestions(item){
+  const holder=document.getElementById('replyStructuredFields');
+  if(!isHrQueueRequest(item)){holder.hidden=true;holder.innerHTML='';return;}
+  holder.hidden=false;
+  holder.innerHTML=`<div class="hr-reply-questions">${(item.questions||[]).map((question,index)=>{
+    const value=RV.answers[question.id]||'';
+    const answer=question.type==='rating'
+      ? `<div class="hr-rating" role="group" aria-label="Trả lời câu ${index+1}">${Array.from({length:question.ratingScale||5},(_,score)=>score+1).map(score=>`<button type="button" class="${Number(value)===score?'on':''}" aria-pressed="${Number(value)===score}" onclick="setHrReplyRating('${question.id}',${score})">${score}</button>`).join('')}</div>`
+      : `<textarea class="compose-ta" data-hr-question="${question.id}" placeholder="Viết phản hồi của bạn…" oninput="setHrReplyAnswer('${question.id}',this.value)">${escapeHTML(value)}</textarea>`;
+    return `<section class="hr-reply-question"><div class="hr-reply-question-label"><span class="hr-reply-question-num">Câu ${index+1}</span><span>${escapeHTML(question.text)}</span></div>${answer}</section>`;
+  }).join('')}</div>`;
+}
+function setHrReplyAnswer(questionId,value){RV.answers[questionId]=value;syncReply();}
+function setHrReplyRating(questionId,score){RV.answers[questionId]=score;renderHrReplyQuestions(RV.item);syncReply();}
+function renderReplyPrompt(item){
+  const ctxLine=`<div class="reply-ask-ctx"><i class="bx bx-folder-open"></i>${escapeHTML(item.context)}</div>`;
+  if(isHrQueueRequest(item))return `${ctxLine}<div class="reply-ask-lbl">Lời ngỏ từ HR</div><div class="reply-ask-q">${escapeHTML(item.program.invitationMessage||'HR mời bạn dành thời gian cung cấp góc nhìn cụ thể và xây dựng cho chương trình này.')}</div>`;
+  return `${item.question?ctxLine:''}<div class="reply-ask-lbl">Câu hỏi</div><div class="reply-ask-q">${itemQuestion(item)}</div>`;
+}
 
 function openReply(id){
   const item=QUEUE.find(x=>x.id===id); if(!item) return;
-  RV={item, vis:null, ai:null, aiUsed:false, cvs:[], _stage:null};
+  RV={item, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, _stage:null};
+  document.getElementById('replyDialog').classList.toggle('hr-structured-reply',isHrQueueRequest(item));
   // header thống nhất: tiêu đề cố định + khối thông tin giống popup "Yêu cầu của tôi"
   document.getElementById('replySub').innerHTML=`
     <div class="dlg-meta">
       <div class="mi"><span class="mi-l">Người yêu cầu</span><span class="mi-v">${item.from} <span class="mi-dom">(${item.dom})</span></span></div>
-      ${item.about==='other'
-        ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${item.aboutName} <span class="mi-dom">(${item.aboutDom})</span></span></div>` : ''}
+      ${(item.about==='other'||isHrQueueRequest(item))
+        ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${isHrQueueRequest(item)?item.feedbackReceiver.name:item.aboutName} <span class="mi-dom">(${isHrQueueRequest(item)?item.feedbackReceiver.domain:item.aboutDom})</span></span></div>` : ''}
       <div class="mi"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
       <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">· ${item.due}</span></span></div>
     </div>`;
-  // context chỉ hiện riêng khi người yêu cầu tự viết câu hỏi (câu hỏi mặc định đã chứa context)
-  const ctxLine = item.question ? `<div class="reply-ask-ctx"><i class="bx bx-folder-open"></i>${item.context}</div>` : '';
-  document.getElementById('replyAsk').innerHTML=`${ctxLine}<div class="reply-ask-lbl">Câu hỏi</div><div class="reply-ask-q">${itemQuestion(item)}</div>`;
+  document.getElementById('replyAsk').innerHTML=renderReplyPrompt(item);
   document.getElementById('replyForm').style.display='';
   document.getElementById('replySuccess').style.display='none';
   document.getElementById('replyFoot').style.display='';
@@ -2614,19 +2681,36 @@ function openReply(id){
   document.getElementById('replyAiStatus').style.display='none';
   document.getElementById('replyAiBtn').className='btn-ai';
   document.getElementById('replyAiBtn').innerHTML='<i class="bx bx-magic"></i> Cải thiện với AI';
+  document.getElementById('replySingleAnswerField').hidden=isHrQueueRequest(item);
+  renderHrReplyQuestions(item);
   renderReplyVis(item);
   renderReplyCv();
   syncReply();
   restoreReplyDraft(item);
   closeOverlay('dlg-queue');
   openOverlay('dlg-reply');
-  setTimeout(()=>document.getElementById('replyTA').focus(),50);
+  setTimeout(()=>{const input=isHrQueueRequest(item)?document.querySelector('[data-hr-question]'):document.getElementById('replyTA');if(input)input.focus();},50);
 }
 
 /* visibility theo ngữ cảnh */
 function renderReplyVis(item){
   const el=document.getElementById('replyVisField');
-  if(item.about==='other'){   // UC3 — quản lý yêu cầu → mặc định shared, không đổi
+  if(isHrQueueRequest(item)){
+    RV.vis='hr';
+    const audience=hrAudienceCopy(item),anonymous=item.identityVisibility==='anonymous',identity=anonymous
+      ? 'Khi HR chia sẻ kết quả, danh tính của bạn không được hiển thị.'
+      : 'Khi HR chia sẻ kết quả, tên của bạn được hiển thị cùng nội dung phản hồi.';
+    el.innerHTML=`
+      <label class="field-label">Ai có thể xem kết quả phản hồi này?</label>
+      <div class="vis-locked">
+        <i class="bx bx-shield-quarter"></i>
+        <div>
+          <div class="vc-t">${audience.title}</div>
+          <div class="vc-d">${audience.detail}</div>
+          <div class="hr-identity-setting"><i class="bx ${anonymous?'bx-user-x':'bx-user-check'}"></i><span>Danh tính người cho phản hồi: <strong>${anonymous?'Ẩn danh':'Hiển thị tên'}</strong><br>${identity}</span></div>
+        </div>
+      </div>`;
+  } else if(item.about==='other'){   // UC3 — quản lý yêu cầu → mặc định shared, không đổi
     RV.vis='shared';
     el.innerHTML=`
       <label class="field-label">Ai có thể xem phản hồi này?</label>
@@ -2719,7 +2803,10 @@ function acceptReplyAI(){
 
 /* huy hiệu */
 function renderReplyCv(){
-  document.getElementById('replyCvPick').innerHTML=Object.keys(CV).map(name=>{
+  const field=document.getElementById('replyCvField'),picker=document.getElementById('replyCvPick');
+  if(isHrQueueRequest(RV.item)){RV.cvs=[];field.hidden=true;picker.innerHTML='';return;}
+  field.hidden=false;
+  picker.innerHTML=Object.keys(CV).map(name=>{
     const on=RV.cvs.includes(name)?' on':'';
     return `<button type="button" class="cvpick${on}" onclick="toggleReplyCv('${name}')"><img src="../Core value with BG/${CV[name]}" alt=""/><span class="fb-badge-tip">${name}</span></button>`;
   }).join('');
@@ -2727,6 +2814,10 @@ function renderReplyCv(){
 function toggleReplyCv(name){ const i=RV.cvs.indexOf(name); if(i>=0)RV.cvs.splice(i,1);else RV.cvs.push(name); renderReplyCv(); }
 
 function syncReply(){
+  if(isHrQueueRequest(RV.item)){
+    document.getElementById('replySend').disabled=!hrAnswerReady(RV.item);
+    return;
+  }
   const text=document.getElementById('replyTA').value.trim();
   document.getElementById('replyAiBtn').disabled=!text;
   const visOk = RV.item.about==='other' ? true : !!RV.vis;
@@ -2734,32 +2825,35 @@ function syncReply(){
 }
 function submitReply(){
   const item=RV.item;
+  const isHr=isHrQueueRequest(item),cv=isHr?[]:RV.cvs,answers=isHr?hrResponseAnswers(item):[];
   delete DRAFTS.reply[item.id];   // đã gửi → bỏ nháp
   const idx=QUEUE.findIndex(q=>q.id===item.id);
   if(idx>=0) QUEUE.splice(idx,1);
-  const target = item.about==='other' ? item.aboutName : item.from;
-  const targetDom = item.about==='other' ? item.aboutDom : item.dom;
-  FEED.unshift(FeedbackModel.createGivenResponse({
+  const target = isHr?item.feedbackReceiver.name:(item.about==='other' ? item.aboutName : item.from);
+  const targetDom = isHr?item.feedbackReceiver.domain:(item.about==='other' ? item.aboutDom : item.dom);
+  if(!isHr)FEED.unshift(FeedbackModel.createGivenResponse({
     id:`given-${Date.now()}`, cycle:item.cycle, date:todayDMY(), requestId:item.id,
     recipient:{name:target, dom:targetDom, ini:item.about==='other' ? initials(target) : item.ini, org:ORG_BY_DOM[targetDom] || ''},
     body:document.getElementById('replyTA').value.trim(),
-    vis:item.about==='other' ? 'manager' : RV.vis, cv:RV.cvs
+    vis:item.about==='other' ? 'manager' : RV.vis, cv, requestSource:item.requestSource
   }));
-  const visTxt = item.about==='other'
+  const visTxt = isHr
+    ? 'Chỉ HR xem được ở thời điểm hiện tại'
+    : item.about==='other'
     ? `${item.from} và ${item.aboutName}`
     : (RV.vis==='manager' ? `${item.from} và quản lý của họ` : `Chỉ ${item.from}`);
   document.getElementById('replyForm').style.display='none';
   document.getElementById('replyFoot').style.display='none';
   const s=document.getElementById('replySuccess'); s.style.display='';
   s.innerHTML=`
-    <div class="give-ok">
+      <div class="give-ok">
       <div class="give-ok-ic"><i class="bx bx-check"></i></div>
       <div class="give-ok-t">Đã gửi phản hồi</div>
-      <div class="give-ok-d">Cảm ơn bạn đã dành thời gian phản hồi cho ${target}. Sau khi gửi, phản hồi không thể chỉnh sửa.</div>
+      <div class="give-ok-d">${isHr?`Cảm ơn bạn đã hoàn thành ${answers.length} câu trả lời cho ${target}. Kết quả được lưu trong chương trình HR và chỉ HR quyết định việc chia sẻ.`:`Cảm ơn bạn đã dành thời gian phản hồi cho ${target}. Sau khi gửi, phản hồi không thể chỉnh sửa.`}</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
         <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt} xem được</div>
         ${RV.aiUsed?'<div class="give-ok-note"><i class="bx bx-magic"></i>Có hỗ trợ từ AI</div>':''}
-        ${RV.cvs.length?`<div class="give-ok-note"><i class="bx bx-medal"></i>${RV.cvs.join(', ')}</div>`:''}
+        ${cv.length?`<div class="give-ok-note"><i class="bx bx-medal"></i>${cv.join(', ')}</div>`:''}
       </div>
       <div style="margin-top:18px"><button class="btn btn-default btn-sm" onclick="closeOverlay('dlg-reply')"><i class="bx bx-check"></i> Xong</button></div>
     </div>`;
@@ -2780,7 +2874,7 @@ function isDirty(id){
       && !!(R.reviewers.length || document.getElementById('reqQ').value.trim() || document.getElementById('reqDue').value);
   if(id==='dlg-reply')
     return document.getElementById('replyForm').style.display!=='none'
-      && !!(document.getElementById('replyTA').value.trim() || RV.cvs.length || RV.vis);
+      && !!(isHrQueueRequest(RV.item)?Object.keys(RV.answers).length:(document.getElementById('replyTA').value.trim() || RV.cvs.length || RV.vis));
   return false;   // popup chỉ đọc → đóng thẳng
 }
 function requestClose(id){
@@ -2804,7 +2898,7 @@ function saveDraft(){
     key='req';
   }
   if(id==='dlg-reply'){
-    DRAFTS.reply[RV.item.id]={...meta, itemId:RV.item.id, from:RV.item.from, dom:RV.item.dom, text:document.getElementById('replyTA').value, cvs:[...RV.cvs], vis:RV.vis};
+    DRAFTS.reply[RV.item.id]={...meta, itemId:RV.item.id, from:RV.item.from, dom:RV.item.dom, text:isHrQueueRequest(RV.item)?'':document.getElementById('replyTA').value, answers:{...RV.answers}, cvs:[...RV.cvs], vis:RV.vis};
     key='reply-'+RV.item.id;
   }
   finishClose(id,'Đã lưu nháp — xem trong danh sách bên dưới.');
@@ -2858,6 +2952,8 @@ function restoreReqDraft(){
 }
 function restoreReplyDraft(item){
   const d=DRAFTS.reply[item.id]; if(!d) return;
+  RV.answers={...(d.answers||{})};
+  if(isHrQueueRequest(item))renderHrReplyQuestions(item);
   document.getElementById('replyTA').value=d.text||'';
   RV.cvs=[...d.cvs]; renderReplyCv();
   if(d.vis && document.getElementById('rvisR')){
@@ -2973,6 +3069,6 @@ document.addEventListener('mousedown',function(e){
 (function(){var pi=document.getElementById('pickInput');if(pi)pi.addEventListener('focus',pickSearch);var ri=document.getElementById('reqPickInput');if(ri)ri.addEventListener('focus',reqPickSearch);})();
 </script>
 <script>/* Card "Báo cáo phản hồi từ HR" chỉ hiện khi nhân viên có báo cáo được chia sẻ */
-(function(){try{if(typeof FeedbackReportView==='undefined')return;const n=FeedbackReportView.countFor('tu.nguyen');if(n>0){document.getElementById('hrReportSub').innerHTML=`<span>${n} báo cáo đã được chia sẻ</span><span class="go">Xem <i class="bx bx-right-arrow-alt"></i></span>`;document.getElementById('hrReportCard').style.display='block';}}catch(e){}})();</script>
+(function(){try{if(typeof FeedbackReportView==='undefined')return;const n=FeedbackReportView.countFor('tu.nguyen','recipients');if(n>0){document.getElementById('hrReportSub').innerHTML=`<span>${n} báo cáo đã được chia sẻ</span><span class="go">Xem <i class="bx bx-right-arrow-alt"></i></span>`;document.getElementById('hrReportCard').style.display='block';}}catch(e){}})();</script>
 </body>
 </html>

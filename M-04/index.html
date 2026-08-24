@@ -313,7 +313,7 @@ function visibleFeedbackForManager(employeeId){
 function org(emp){ return [emp.div,emp.dept,emp.team,emp.pos].filter(Boolean).join(' - '); }
 function managerCell(manager){ return manager ? `<div class="manager-meta"><strong style="color:var(--z700);font-weight:500">${manager.name}</strong><div>(${manager.login})</div></div>` : '<span class="latest empty-value">—</span>'; }
 function roleClass(){ return STATE.scope==='lm1'?'cols-direct':STATE.scope==='lm2'?'cols-lm2':'cols-hod'; }
-function hrReportCount(login){ return (typeof FeedbackReportView!=='undefined')?FeedbackReportView.countFor(login):0; }
+function hrReportCount(login){ return (typeof FeedbackReportView!=='undefined')?FeedbackReportView.countFor(login,'managers'):0; }
 function employeeHeader(){
   if(STATE.scope==='lm1') return `<div class="employee-list-header cols-direct"><div>Nhân viên</div><div>Phản hồi đã nhận</div><div class="report-col-head">Báo cáo HR</div><div>Chức năng</div></div>`;
   if(STATE.scope==='lm2') return `<div class="employee-list-header cols-lm2"><div>Nhân viên</div><div>Quản lý trực tiếp</div><div>Phản hồi đã nhận</div><div class="report-col-head">Báo cáo HR</div><div>Chức năng</div></div>`;
@@ -436,7 +436,7 @@ function toggleSplitView(){STATE.splitView=!STATE.splitView;document.getElementB
 function selectSplitEmployee(employeeId){STATE.selectedId=employeeId;renderEmployees();}
 function splitBadgeSummaryHTML(feedback){
   const counts={};
-  feedback.forEach(item=>(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;}));
+  feedback.forEach(item=>{if(item.requestSource==='hr'||item.source==='hr')return;(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;});});
   return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([value,count])=>{
     const icon=ManagerFeedbackData.coreValueIcon(value);
     return `<span class="split-badge-item">${icon?`<img src="../Core value with BG/${icon}" alt="">`:''}<span>${count}</span><span class="split-badge-tip">${value}</span></span>`;

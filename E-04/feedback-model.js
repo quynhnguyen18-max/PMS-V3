@@ -17,6 +17,10 @@
     return reviewer.responseId || `resp-${requestIdValue}-${reviewer.dom || reviewer.id || reviewer.name}`;
   }
 
+  function isHrRequest(request){
+    return Boolean(request) && (request.requestSource==='hr' || request.source==='hr');
+  }
+
   function responseFromReviewer(request, reviewer, index){
     if(reviewer.st!=='done' || !reviewer.fb) return null;
     const reqId=requestId(request,index);
@@ -26,7 +30,8 @@
       date, ts:tsFromDate(date), requestId:reqId, status:'submitted',
       who:{name:reviewer.name, dom:reviewer.dom, ini:reviewer.ini, org:reviewer.org},
       q:reviewer.q || request.question || '', body:reviewer.fb,
-      vis:reviewer.vis || 'receiver', cv:[...(reviewer.cv || [])]
+      vis:reviewer.vis || 'receiver', cv:isHrRequest(request)?[]:[...(reviewer.cv || [])],
+      ...(isHrRequest(request)?{requestSource:'hr'}:{})
     };
   }
 
@@ -57,7 +62,8 @@
     return {
       id:input.id, kind:'given', cycle:input.cycle, date:input.date, ts:tsFromDate(input.date),
       who:{...input.recipient}, body:input.body, vis:input.vis,
-      cv:[...(input.cv || [])], backgroundId:input.backgroundId || null,
+      cv:isHrRequest(input)?[]:[...(input.cv || [])], backgroundId:input.backgroundId || null,
+      ...(isHrRequest(input)?{requestSource:'hr'}:{}),
       ...(input.requestId ? {requestId:input.requestId} : {}), status:'submitted'
     };
   }
@@ -125,5 +131,5 @@
     return [...counts.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'vi'))[0]||null;
   }
 
-  return {tsFromDate,normalizeFeed,itemsForFilter,createGivenResponse,requestStatus,compareRequestsForAction,sortRequestsForAction,campaignStatus,activeMediaCampaign,snapshotReceivedFeedback,mostFrequentFeedbackGiver};
+  return {tsFromDate,normalizeFeed,itemsForFilter,createGivenResponse,isHrRequest,requestStatus,compareRequestsForAction,sortRequestsForAction,campaignStatus,activeMediaCampaign,snapshotReceivedFeedback,mostFrequentFeedbackGiver};
 });

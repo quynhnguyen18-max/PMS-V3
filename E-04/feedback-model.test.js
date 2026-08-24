@@ -164,6 +164,38 @@ test('projects completed request reviewers into received responses and excludes 
   assert.equal(projected[0].body, 'Đã trả lời');
 });
 
+test('removes core-value badges from HR-originated request responses', () => {
+  const response=FeedbackModel.createGivenResponse({
+    id:'hr-response',cycle:'2026',date:'12/08/2026',recipient:{name:'Tú',dom:'tu.nguyen'},body:'Nội dung',vis:'receiver',cv:['A'],requestSource:'hr'
+  });
+  const projected=FeedbackModel.normalizeFeed([{id:'hr-request',kind:'request',requestSource:'hr',date:'12/08/2026',reviewers:[{name:'Người phản hồi',dom:'reviewer',st:'done',fb:'Nội dung',cv:['A']}]}]).find(item=>item.requestId==='hr-request');
+  assert.deepEqual(response.cv,[]);
+  assert.equal(response.requestSource,'hr');
+  assert.deepEqual(projected.cv,[]);
+  assert.equal(projected.requestSource,'hr');
+});
+
+test('employee feedback renders HR request items from the shared structured program', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/hrQueueFromProgram\('s12',SELF\.dom\)/);
+  assert.match(html,/hrQueueFromProgram\('s13',SELF\.dom\)/);
+  assert.match(html,/from:`HR - \$\{requester\.name\}`/);
+  assert.match(html,/feedbackReceiver:participant\.employee/);
+  assert.match(html,/questions:detail\.questions\|\|\[\]/);
+  assert.match(html,/function renderHrReplyQuestions\(item\)/);
+  assert.match(html,/Hiện tại chỉ HR xem được kết quả phản hồi này/);
+  assert.match(html,/Danh tính người cho phản hồi: <strong>/);
+  assert.match(html,/#dlg-reply #replyDialog\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(html,/classList\.toggle\('hr-structured-reply',isHrQueueRequest\(item\)\)/);
+  assert.equal((html.match(/id="replyDialog"/g)||[]).length,1);
+  assert.ok(html.indexOf('id="replyDialog"')>html.indexOf('id="dlg-reply"'));
+  assert.match(html,/Lời ngỏ từ HR/);
+  assert.match(html,/<div class="field" id="replyCvField">\r?\n\s*<label class="field-label">Huy hiệu.*<\/label>\r?\n\s*<div class="cvpick-row" id="replyCvPick"><\/div>/);
+  assert.equal((html.match(/id="replyCvField"/g)||[]).length,1);
+  assert.match(html,/isHrQueueRequest\(RV\.item\)\)\{RV\.cvs=\[\];field\.hidden=true/);
+  assert.match(html,/if\(!isHr\)FEED\.unshift\(FeedbackModel\.createGivenResponse/);
+});
+
 test('received filter returns direct and request responses exactly once', () => {
   const received = FeedbackModel.itemsForFilter(feed, 'received', '2026');
 

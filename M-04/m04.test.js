@@ -189,6 +189,19 @@ test('answered feedback uses a compact conversational pair with only a question 
   }
 });
 
+test('does not render core-value badges for HR-originated feedback',()=>{
+  const data=require('./manager-feedback-data.js'),employee={name:'Tú',ini:'NT',login:'tu.nguyen'};
+  const card=data.feedbackCard({sender:{name:'HR',dom:'hr',ini:'HR'},date:'01/08/2026',body:'Nội dung',cv:['Tinh thần đồng đội'],requestSource:'hr'},employee);
+  assert.doesNotMatch(card,/cv-icons/);
+});
+
+test('manager HR report surfaces use only results released to managers',()=>{
+  const html=fs.readFileSync(pagePath,'utf8');
+  const detail=fs.readFileSync(detailPath,'utf8');
+  assert.match(html,/FeedbackReportView\.countFor\(login,'managers'\)/);
+  assert.match(detail,/FeedbackReportView\.entriesFor\(employee\.login,'managers'\)/);
+});
+
 test('feedback detail tab mirrors the personal feedback screen: feedback, core-value stats, AI summary', () => {
   const html = fs.readFileSync(detailPath, 'utf8');
   // load đủ 3 nguồn dữ liệu

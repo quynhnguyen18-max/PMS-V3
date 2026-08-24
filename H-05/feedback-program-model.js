@@ -124,6 +124,8 @@
       autoRemind:source.autoRemind!==false,
       templateId:source.templateId||'',
       invitationMessage:String(source.invitationMessage||'').trim(),
+      requestSource:source.requestSource==='manager'?'manager':'hr',
+      requestedBy:source.requestedBy&&typeof source.requestedBy==='object'?{...source.requestedBy}:null,
       resultSharing:normalizeResultSharing(source.resultSharing),
       report:source.report||'none'
     };
@@ -185,6 +187,15 @@
   function isResultShared(campaign,participantId){
     const sharing=normalizeResultSharing(campaign&&campaign.resultSharing);
     return sharing.mode==='shared_all'||(sharing.mode==='shared_selected'&&sharing.participantIds.includes(String(participantId||'')));
+  }
+  function resultAudience(campaign,participantId){
+    const item=normalizeCampaign(campaign),released=isResultShared(item,participantId);
+    return {released,audiences:released?item.resultSharing.audiences:[],identityVisibility:item.identityVisibility};
+  }
+  function canViewProgramResult(campaign,participantId,viewer){
+    if(viewer==='hr')return true;
+    const audience=resultAudience(campaign,participantId);
+    return audience.released&&audience.audiences.includes(viewer);
   }
   /* Cho phep chia se nhieu lan: cong don nguoi xem + pham vi, va ghi mot dong log cho moi lan chia se. */
   function shareResults(campaign,participantIds,sharedAt,options){
@@ -314,5 +325,5 @@
     });
     return sent;
   }
-  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
 });

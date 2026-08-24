@@ -60,7 +60,7 @@
     return {feedback,feedbackFor,employeeMeta};
   }
   function feedbackCard(item,employee,options={}){
-    const badges=(item.cv||[]).map(cv=>`<span class="pms-tooltip"><img class="cv-icon" src="../Core value with BG/${CV_ICON[cv]}" alt="${cv}"/><span class="pms-tooltip-content" role="tooltip">${cv}</span></span>`).join('');
+    const badges=(item.requestSource==='hr'||item.source==='hr'?[]:item.cv||[]).map(cv=>`<span class="pms-tooltip"><img class="cv-icon" src="../Core value with BG/${CV_ICON[cv]}" alt="${cv}"/><span class="pms-tooltip-content" role="tooltip">${cv}</span></span>`).join('');
     const senderMeta=[item.sender.dept,item.sender.team,item.sender.pos].filter(Boolean).join(' - ');
     const senderLabel=`${item.sender.name} <span class="fb-domain">(${item.sender.dom})</span>`;
     const senderTipClass=options.senderTooltipPlacement==='top'?' pms-tooltip-top':'';

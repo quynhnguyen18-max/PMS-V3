@@ -14,7 +14,9 @@
     {id:'s8',goal:'Khảo sát cộng tác Q2 - Vận hành',status:'closed',createdAt:'01/04/2026',due:'18/04/2026',anon:'named',participants:17,reviewers:4,total:32,done:29,report:'published',resultSharing:{mode:'shared_selected',participantIds:['duc.truong','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'HR chỉ chia sẻ bản tổng hợp AI để mọi người nắm định hướng phát triển.',sharedAt:'20/04/2026',sharedBy:'hr'}},
     {id:'s9',goal:'Phản hồi ẩn danh nửa đầu năm - Kinh doanh',status:'closed',createdAt:'02/01/2026',due:'20/01/2026',anon:'anon',participants:17,reviewers:4,total:32,done:28,report:'published',resultSharing:{mode:'shared_selected',participantIds:['nam.le','tung.dinh'],audience:'recipient_and_managers',contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp mỗi bạn phát triển.',sharedAt:'22/01/2026',sharedBy:'hr'}},
     {id:'s10',goal:'Đánh giá năng lực lãnh đạo giữa kỳ Q3',status:'closed',createdAt:'12/07/2026',due:'02/08/2026',anon:'named',participants:1,reviewers:5,total:5,done:5,report:'made',includeSelf:true},
-    {id:'s11',goal:'Phản hồi khởi động đội ngũ Data',status:'collecting',createdAt:'08/08/2026',due:'22/08/2026',anon:'named',participants:3,reviewers:4,total:12,done:0,report:'none'}
+    {id:'s11',goal:'Phản hồi khởi động đội ngũ Data',status:'collecting',createdAt:'08/08/2026',due:'22/08/2026',anon:'named',participants:3,reviewers:4,total:12,done:0,report:'none'},
+    {id:'s12',goal:'Phản hồi năng lực hợp tác giữa kỳ 2026 - ITC',requestSource:'hr',requestedBy:{name:'Lê Minh Thu',domain:'minhthu.le',initials:'LT'},invitationMessage:'HR mời bạn chia sẻ góc nhìn cụ thể, cân bằng về cách phối hợp của đồng nghiệp trong các dự án gần đây. Kết quả sẽ được HR tổng hợp và chia sẻ theo cấu hình chương trình.',status:'collecting',createdAt:'12/08/2026',due:'28/08/2026',identityVisibility:'anonymous',anon:'anon',participants:2,participantIds:['bao.nguyen','hang.mai'],reviewers:3,reviewerMappings:[{participantId:'bao.nguyen',reviewerIds:['tu.nguyen','anh.nguyen']},{participantId:'hang.mai',reviewerIds:['tu.nguyen','my.pham']}],total:4,done:0,report:'none',resultSharing:{mode:'not_shared'}},
+    {id:'s13',goal:'Phản hồi phối hợp phát hành Q3 - ITC',requestSource:'hr',requestedBy:{name:'Lê Minh Thu',domain:'minhthu.le',initials:'LT'},invitationMessage:'HR mời bạn ghi nhận các hành vi phối hợp hiệu quả trong đợt phát hành Q3 để làm rõ những thực hành đội ngũ nên tiếp tục phát huy.',status:'collecting',createdAt:'14/08/2026',due:'30/08/2026',identityVisibility:'named',anon:'named',participants:1,participantIds:['tung.dinh'],reviewers:2,reviewerMappings:[{participantId:'tung.dinh',reviewerIds:['tu.nguyen','viet.le']}],total:2,done:0,report:'none',resultSharing:{mode:'not_shared'}}
   ];
   const REVIEWERS=[
     {id:'anh.nguyen',name:'Nguyễn Minh Anh',domain:'anh.nguyen',department:'Kinh doanh',team:'Sales',position:'Sales Manager',initials:'MA'},
@@ -71,7 +73,9 @@
     s3:{'lan.hoang':3,'mai.tran':3,'duc.pham':4,'linh.vu':3,'hung.do':2,'thu.nguyen':3},
     s4:{'lan.hoang':5,'mai.tran':5,'duc.pham':6,'linh.vu':5,'hung.do':6},
     s10:{'lan.hoang':5},
-    s11:{'lan.hoang':0,'mai.tran':0,'duc.pham':0}
+    s11:{'lan.hoang':0,'mai.tran':0,'duc.pham':0},
+    s12:{'bao.nguyen':0,'hang.mai':0},
+    s13:{'tung.dinh':0}
   };
   const QUESTION_ANSWER_COPY={
     s3:{
@@ -87,8 +91,7 @@
       q5:['Trong đợt cao điểm, đã sắp xếp lại nguồn lực giúp nhóm vẫn kịp mốc quan trọng.','Đã chủ động phát hiện một điểm nghẽn và kết nối đúng người để xử lý nhanh.','Có lúc thay đổi yêu cầu, đã giúp team thống nhất cách làm mà không ảnh hưởng chất lượng.','Đã đứng ra điều phối khi một đầu việc có nguy cơ chậm, giúp nhóm hoàn thành đúng hạn.']
     }
   };
-  ['s6','s7','s8','s9'].forEach(id=>{QUESTION_SETS[id]=QUESTION_SETS.s3;QUESTION_ANSWER_COPY[id]=QUESTION_ANSWER_COPY.s3;});
-  const BADGES=[['teamwork','customer'],['teamwork'],['excellence'],['innovation','learning']];
+  ['s6','s7','s8','s9','s12','s13'].forEach(id=>{QUESTION_SETS[id]=QUESTION_SETS.s3;QUESTION_ANSWER_COPY[id]=QUESTION_ANSWER_COPY.s3;});
   function clone(value){return JSON.parse(JSON.stringify(value));}
   function answerBody(campaignId,question,reviewerIndex){
     const source=QUESTION_ANSWER_COPY[campaignId]&&QUESTION_ANSWER_COPY[campaignId][question.id];
@@ -101,14 +104,20 @@
   }
   function submittedAssignment(person,index,questions,campaignId,reviewer){
     const answers=questions.map(question=>questionAnswer(campaignId,question,index));
-    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'submitted',submittedAt:`${String(12-index).padStart(2,'0')}/08/2026`,body:answers.find(answer=>answer.body)?.body||'',answers,badges:BADGES[index%BADGES.length],manualReminderHistory:[],selfAssessment:reviewer.id===person.id};
+    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'submitted',submittedAt:`${String(12-index).padStart(2,'0')}/08/2026`,body:answers.find(answer=>answer.body)?.body||'',answers,badges:[],manualReminderHistory:[],selfAssessment:reviewer.id===person.id};
   }
   function pendingAssignment(person,index,campaignId,reviewer){
     const history=campaignId==='s11'&&person.id==='lan.hoang'&&index===1?['08/08/2026 09:00','10/08/2026 09:00']:person.id==='lan.hoang'&&index===1?['10/08/2026 09:00']:[];
-    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'pending',manualReminderHistory:history,selfAssessment:reviewer.id===person.id};
+    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'pending',badges:[],manualReminderHistory:history,selfAssessment:reviewer.id===person.id};
+  }
+  function personById(id){return [...PEOPLE,...REVIEWERS].find(person=>person.id===id)||null;}
+  function reviewersForParticipant(campaign,person){
+    const mapping=(campaign.reviewerMappings||[]).find(item=>item.participantId===person.id);
+    const reviewers=(mapping&&mapping.reviewerIds||[]).map(personById).filter(Boolean);
+    return reviewers.length?reviewers:REVIEWERS;
   }
   function participant(person,questions,campaign,done){
-    const reviewers=[...REVIEWERS,...(campaign.includeSelf?[person]:[])];
+    const reviewers=[...reviewersForParticipant(campaign,person),...(campaign.includeSelf?[person]:[])];
     const assignments=reviewers.map((reviewer,index)=>index<done?submittedAssignment(person,index,questions,campaign.id,reviewer):pendingAssignment(person,index,campaign.id,reviewer));
     return {
       employee:clone(Object.fromEntries(Object.entries(person).filter(([key])=>key!=='done'))),
@@ -123,8 +132,9 @@
   function programById(id){return clone(PROGRAMS.find(item=>item.id===id)||null);}
   function detailForProgram(program){
     const campaign=clone(program||PROGRAMS[1]);
-    const questions=clone(QUESTION_SETS[campaign.id]||QUESTION_SETS.s2);
-    const participants=PEOPLE.map(person=>participant(person,questions,campaign,(PROGRAM_DONE[campaign.id]&&PROGRAM_DONE[campaign.id][person.id])??person.done));
+    const questions=clone(QUESTION_SETS[campaign.id]||QUESTION_SETS.s2),selectedIds=new Set(campaign.participantIds||[]);
+    const people=selectedIds.size?PEOPLE.filter(person=>selectedIds.has(person.id)):PEOPLE;
+    const participants=people.map(person=>participant(person,questions,campaign,(PROGRAM_DONE[campaign.id]&&PROGRAM_DONE[campaign.id][person.id])??person.done));
     return {
       campaign,
       question:questions[0].text,

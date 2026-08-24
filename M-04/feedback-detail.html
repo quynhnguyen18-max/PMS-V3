@@ -175,14 +175,14 @@ function toggleAiSummary(){
 }
 function railCVHTML(feedback){
   const counts={};
-  feedback.forEach(item=>(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;}));
+  feedback.forEach(item=>{if(item.requestSource==='hr'||item.source==='hr')return;(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;});});
   const ranked=CV_ORDER.map(value=>[value,counts[value]||0]).sort((a,b)=>b[1]-a[1]);
   return ranked.map(([value,count])=>`<div class="cv-rank ${count?'':'zero'}"><img src="../Core value with BG/${ManagerFeedbackData.coreValueIcon(value)}" alt=""><span class="cv-rank-name">${value}</span><span class="cv-rank-cnt">${count}</span></div>`).join('');
 }
 
 const params=new URLSearchParams(location.search),employeeId=params.get('employee'),cycle=params.get('cycle')||'2026';
 const employees=window.PMS_EMPLOYEES||[],store=ManagerFeedbackData.createStore(employees),employee=employees.find(item=>item.id===employeeId),items=employee?store.feedbackFor(employee.id,cycle):[];
-const HR_REPORTS=(employee&&typeof FeedbackReportView!=='undefined')?FeedbackReportView.entriesFor(employee.login):[];
+const HR_REPORTS=(employee&&typeof FeedbackReportView!=='undefined')?FeedbackReportView.entriesFor(employee.login,'managers'):[];
 let reportIndex=0,activeTab='feedback';
 function renderDetailTabs(){const tabs=document.getElementById('detailTabs');if(!tabs)return;const reportTab=HR_REPORTS.length?`<button class="detail-tab${activeTab==='report'?' on':''}" onclick="switchTab('report')"><i class="bx bx-bar-chart-alt-2"></i>Báo cáo phản hồi từ HR<span class="tab-count">${HR_REPORTS.length}</span></button>`:'';tabs.innerHTML=`<button class="detail-tab${activeTab==='feedback'?' on':''}" onclick="switchTab('feedback')"><i class="bx bx-message-square-dots"></i>Phản hồi đã nhận<span class="tab-count">${items.length}</span></button>${reportTab}`;}
 function switchTab(tab){activeTab=tab;document.getElementById('layout').className=`layout mode-${tab}`;renderDetailTabs();if(tab==='report')renderReportDetail();}

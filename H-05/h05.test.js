@@ -760,6 +760,48 @@ test('records a specific result-sharing audience and typed additional viewers',(
   assert.deepEqual(campaign.resultSharing.additionalViewerNames,['Mai Thị Hằng','Nguyễn Thành Nam']);
 });
 
+test('seeds two structured HR request items for Nguyễn Văn Tú without core-value badges',()=>{
+  const data=require('./feedback-program-data.js'),model=require(modelPath),program=model.normalizeCampaign(data.programById('s12'));
+  const detail=data.detailForProgram(program);
+  assert.equal(program.requestSource,'hr');
+  assert.equal(program.requestedBy.name,'Lê Minh Thu');
+  assert.match(program.invitationMessage,/HR mời bạn chia sẻ góc nhìn cụ thể/);
+  assert.equal(program.identityVisibility,'anonymous');
+  assert.deepEqual(detail.questions.map(question=>question.id),['q1','q2','q3']);
+  assert.deepEqual(detail.participants.map(item=>item.employee.id),['bao.nguyen','hang.mai']);
+  assert.ok(detail.participants.every(item=>item.assignments.some(assignment=>assignment.reviewer.id==='tu.nguyen')));
+  assert.ok(detail.participants.every(item=>item.assignments.every(assignment=>assignment.badges.length===0)));
+  assert.deepEqual(model.resultAudience(program,'bao.nguyen'),{released:false,audiences:[],identityVisibility:'anonymous'});
+  assert.equal(model.canViewProgramResult(program,'bao.nguyen','recipients'),false);
+  assert.equal(model.canViewProgramResult(program,'bao.nguyen','managers'),false);
+  assert.equal(model.canViewProgramResult(program,'bao.nguyen','hr'),true);
+});
+
+test('requires an explicit HR audience release before employee or manager can view a program result',()=>{
+  const model=require(modelPath);
+  const campaign=model.shareResults({id:'s1',status:'closed'},['p1'],'16/08/2026',{audiences:['recipients']});
+  assert.equal(model.canViewProgramResult(campaign,'p1','recipients'),true);
+  assert.equal(model.canViewProgramResult(campaign,'p1','managers'),false);
+  assert.equal(model.canViewProgramResult(campaign,'p2','recipients'),false);
+});
+
+test('seeds a named-identity HR request item for Nguyễn Văn Tú',()=>{
+  const data=require('./feedback-program-data.js'),model=require(modelPath),program=model.normalizeCampaign(data.programById('s13'));
+  const detail=data.detailForProgram(program);
+  assert.equal(program.identityVisibility,'named');
+  assert.deepEqual(detail.participants.map(item=>item.employee.id),['tung.dinh']);
+  assert.ok(detail.participants[0].assignments.some(assignment=>assignment.reviewer.id==='tu.nguyen'));
+  assert.deepEqual(detail.questions.map(question=>question.id),['q1','q2','q3']);
+});
+
+test('HR builder owns requester, identity and release messaging for structured programs',()=>{
+  const builder=fs.readFileSync(path.join(__dirname,'create-campaign.html'),'utf8');
+  assert.match(builder,/requestedBy:CURRENT_HR/);
+  assert.match(builder,/HR chọn cách hiển thị danh tính trong kết quả phản hồi được chia sẻ/);
+  assert.match(builder,/người cho phản hồi nhận Request Item của mình/);
+  assert.doesNotMatch(builder,/quản lý trực tiếp của người nhận đã được gửi thông báo/);
+});
+
 test('seeds a two-entry sharing history with the recipients for each share',()=>{
   const data=require('./feedback-program-data.js');
   const sharing=require(modelPath).normalizeCampaign(data.programById('s7')).resultSharing;
