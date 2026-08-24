@@ -63,7 +63,8 @@ test('M-04 supports popup expansion, dedicated detail page, and split view', () 
 
 test('manager split view uses a compact employee header, badge tally and internal scroll', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
-  assert.match(html, /Phản hồi đã nhận của <span id="splitEmployeeName"/);
+  assert.match(html, /Phản hồi của <span id="splitEmployeeName"/);
+  assert.match(html, /id="splitOverview"/);
   assert.match(html, /id="splitBadgeSummary"/);
   assert.match(html, /function splitBadgeSummaryHTML\(/);
   assert.match(html, /\.split-pane-body\{[^}]*overflow-y:auto/);
@@ -164,8 +165,26 @@ test('split view prepends the same AI summary as the popup, with its own collaps
   assert.match(renderer, /toggleSplitAiSummary\(\)/);
   assert.match(html, /function toggleSplitAiSummary\(\)/);
   assert.match(html, /splitAiCollapsed:false/);
-  // summary phải đứng trước feedback card trong pane
-  assert.match(splitRenderer, /splitAiSummaryHTML\(emp,feedback\)\+feedback\.map/);
+  // summary phải đứng trước feedback card trong pane và có nhãn ngữ cảnh rõ ràng.
+  assert.match(splitRenderer, /Tổng hợp phản hồi đã nhận/);
+  assert.match(splitRenderer, /Phản hồi đã nhận/);
+  assert.ok(splitRenderer.indexOf('splitAiSummaryHTML(emp,feedback)') < splitRenderer.indexOf('feedback.map'));
+});
+
+test('manager feedback separates HR reports from received-feedback evidence', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const detail = fs.readFileSync(detailPath, 'utf8');
+  const opener = html.match(/function openFeedback\(employeeId\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const splitRenderer = html.match(/function renderSplitView\(items\)\{[\s\S]*?\n\}/)?.[0] || '';
+  assert.doesNotMatch(html, /report-badge/);
+  assert.match(opener, /Báo cáo phản hồi từ HR/);
+  assert.match(opener, /Tổng hợp phản hồi đã nhận/);
+  assert.match(opener, /Phản hồi đã nhận/);
+  assert.match(splitRenderer, /báo cáo HR đã chia sẻ/);
+  assert.match(splitRenderer, /openFeedbackTab\('\$\{emp\.id\}',true\)/);
+  assert.match(detail, /\.detail-tabs\{[^}]*padding:3px[^}]*border:1px solid var\(--z200\)[^}]*background:var\(--z100\)/);
+  assert.match(detail, /\.detail-tab\.on\{[^}]*background:var\(--z0\)[^}]*color:var\(--brand\)/);
+  assert.match(detail, /role="tablist"/);
 });
 
 test('answered feedback uses a compact conversational pair with only a question label', () => {
