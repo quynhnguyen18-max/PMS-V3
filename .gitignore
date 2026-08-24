@@ -8,3 +8,6 @@ Thumbs.db
 
 # Handoff notes — chỉ giữ ở máy local, không đưa lên repo
 FEEDBACK_HANDOFF_*.md
+
+# Worktree phụ do agent tạo — không đưa lên repo
+.codex-worktrees/

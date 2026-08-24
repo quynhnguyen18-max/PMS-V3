@@ -6,6 +6,7 @@
     "dev": "vite --port 5173 --open"
   },
   "devDependencies": {
+    "puppeteer": "^25.2.0",
     "vite": "^6.0.0"
   }
 }
