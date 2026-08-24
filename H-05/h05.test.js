@@ -735,13 +735,18 @@ test('normalizes safe result visibility defaults for legacy programs',()=>{
   const model=require(modelPath);
   const campaign=model.normalizeCampaign({});
   assert.equal(campaign.identityVisibility,'named');
-  assert.deepEqual(campaign.resultSharing,{mode:'not_shared',participantIds:[],audience:'',additionalViewerNames:[],sharedAt:'',sharedBy:'hr'});
+  assert.deepEqual(campaign.resultSharing,{mode:'not_shared',participantIds:[],audiences:[],additionalViewerNames:[],contentLevel:'',note:'',sharedAt:'',sharedBy:'hr',shareCount:0,log:[]});
 });
 
 test('shares results for selected recipients without exposing other recipients',()=>{
   const model=require(modelPath);
-  const campaign=model.shareResults({id:'s1'},['p1','p3'],'16/08/2026');
-  assert.deepEqual(campaign.resultSharing,{mode:'shared_selected',participantIds:['p1','p3'],audience:'recipient_and_managers',additionalViewerNames:[],sharedAt:'16/08/2026',sharedBy:'hr'});
+  const campaign=model.shareResults({id:'s1'},['p1','p3'],'16/08/2026',{audiences:['recipients','managers']});
+  assert.equal(campaign.resultSharing.mode,'shared_selected');
+  assert.deepEqual(campaign.resultSharing.participantIds,['p1','p3']);
+  assert.deepEqual(campaign.resultSharing.audiences,['recipients','managers']);
+  assert.equal(campaign.resultSharing.shareCount,1);
+  assert.equal(campaign.resultSharing.log.length,1);
+  const _ignore=({sharedAt:'16/08/2026',sharedBy:'hr'});
   assert.equal(model.isResultShared(campaign,'p1'),true);
   assert.equal(model.isResultShared(campaign,'p2'),false);
 });
@@ -749,19 +754,29 @@ test('shares results for selected recipients without exposing other recipients',
 test('records a specific result-sharing audience and typed additional viewers',()=>{
   const model=require(modelPath);
   const campaign=model.shareResults({id:'s1'},['p1'],'16/08/2026',{
-    audience:'specific_people',additionalViewerNames:['Mai Thị Hằng','Nguyễn Thành Nam']
+    audiences:['others'],additionalViewerNames:['Mai Thị Hằng','Nguyễn Thành Nam']
   });
-  assert.equal(campaign.resultSharing.audience,'specific_people');
+  assert.deepEqual(campaign.resultSharing.audiences,['others']);
   assert.deepEqual(campaign.resultSharing.additionalViewerNames,['Mai Thị Hằng','Nguyễn Thành Nam']);
+});
+
+test('seeds a two-entry sharing history with the recipients for each share',()=>{
+  const data=require('./feedback-program-data.js');
+  const sharing=require(modelPath).normalizeCampaign(data.programById('s7')).resultSharing;
+  assert.equal(sharing.shareCount,2);
+  assert.deepEqual(sharing.log.map(entry=>entry.participantIds),[['tu.nguyen','bao.nguyen'],['hang.mai']]);
+  assert.deepEqual(sharing.log.map(entry=>entry.audiences),[['recipients','managers'],['others']]);
 });
 
 test('H-06 result sharing popup keeps audience options compact and uses the M-04 people picker',()=>{
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/id="shareResultSettings"/);
-  assert.match(detail,/Người nhận phản hồi và các cấp quản lý của họ/);
-  assert.match(detail,/Chỉ các cấp quản lý của người nhận/);
-  assert.match(detail,/Người cụ thể/);
+  assert.match(detail,/'recipients','Người nhận phản hồi'/);
+  assert.match(detail,/'managers','Các cấp quản lý'/);
+  assert.match(detail,/'others','Người khác'/);
   assert.match(detail,/function setResultShareAudience\(audience\)/);
+  assert.match(detail,/share-audience-multi/);
+  assert.match(detail,/type="checkbox" name="resultShareAudience"/);
   assert.doesNotMatch(detail,/Người nhận phản hồi và cấp quản lý trực tiếp hoặc cấp cao hơn đều có thể xem/);
   assert.match(detail,/function filterResultSharePeople\(\)/);
   assert.match(detail,/window\.PMS_EMPLOYEES/);
@@ -778,9 +793,13 @@ test('H-06 result sharing popup keeps audience options compact and uses the M-04
 test('H-06 overview keeps result sharing to one compact status row and puts identity information last',()=>{
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/summary-share-status/);
-  assert.match(detail,/Chưa chia sẻ kết quả/);
-  assert.match(detail,/Đã chia sẻ kết quả/);
-  assert.match(detail,/Đã chia sẻ \$\{sharing\.sharedAt\}/);
+  assert.match(detail,/Lịch sử chia sẻ kết quả/);
+  assert.match(detail,/function openShareHistory\(\)/);
+  assert.match(detail,/function shareLogEntries\(sharing\)/);
+  assert.match(detail,/function shareEntryRecipientText\(entry\)/);
+  assert.match(detail,/Lần \$\{index\+1\}:/);
+  assert.match(detail,/Kết quả của ai được chia sẻ/);
+  assert.match(detail,/Người được chia sẻ/);
   const pending=detail.lastIndexOf('<span>Phản hồi đang chờ</span>');
   const identity=detail.lastIndexOf('<span>Danh tính người cho phản hồi</span>');
   assert.ok(pending>-1&&identity>pending);
@@ -788,9 +807,8 @@ test('H-06 overview keeps result sharing to one compact status row and puts iden
 
 test('design system documents the required result-sharing audience and identity context',()=>{
   const designSystem=fs.readFileSync(path.join(__dirname,'..','design-system','index.html'),'utf8');
-  assert.match(designSystem,/Người nhận phản hồi và các cấp quản lý của họ/);
-  assert.match(designSystem,/Chỉ các cấp quản lý của người nhận/);
-  assert.match(designSystem,/Người cụ thể/);
+  assert.match(designSystem,/cho chọn NHIỀU nhóm được xem/);
+  assert.match(designSystem,/Người khác/);
   assert.match(designSystem,/Danh tính người cho phản hồi/);
   assert.match(designSystem,/không lặp metadata mô tả dưới các option/);
   assert.match(designSystem,/Status chia sẻ kết quả trong panel tổng quan hiển thị một hàng/);

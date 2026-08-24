@@ -50,22 +50,50 @@
       reviewerIds:reviewerIds.filter(reviewerId=>reviewerId!==participant.id)
     }));
   }
+  const AUDIENCE_KEYS=['recipients','managers','others'];
+  function uniqueStrings(list){return [...new Set((Array.isArray(list)?list:[]).map(item=>String(item||'').trim()).filter(Boolean))];}
+  /* audience gio la multi-select; van nhan du lieu cu dang chuoi audience don de khong vo ban ghi da luu. */
+  function normalizeAudiences(source){
+    const set=new Set(uniqueStrings(source&&source.audiences).filter(item=>AUDIENCE_KEYS.includes(item)));
+    const legacy=source&&source.audience;
+    if(!set.size&&legacy){
+      if(legacy==='recipient_and_managers'){set.add('recipients');set.add('managers');}
+      else if(legacy==='managers_only'){set.add('managers');}
+      else if(legacy==='specific_people'){set.add('others');}
+    }
+    return AUDIENCE_KEYS.filter(key=>set.has(key));
+  }
+  function normalizeShareLogEntry(entry){
+    const source=entry||{};
+    return {
+      at:String(source.at||'').trim(),
+      audiences:normalizeAudiences(source),
+      additionalViewerNames:uniqueStrings(source.additionalViewerNames),
+      contentLevel:['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail',
+      participantIds:uniqueStrings(source.participantIds),
+      note:String(source.note||'').trim()
+    };
+  }
   function normalizeResultSharing(value){
     const source=value||{};
     const mode=['shared_all','shared_selected'].includes(source.mode)?source.mode:'not_shared';
-    const participantIds=[...new Set((Array.isArray(source.participantIds)?source.participantIds:[]).map(item=>String(item||'').trim()).filter(Boolean))];
-    const audience=['recipient_and_managers','managers_only','specific_people'].includes(source.audience)?source.audience:'';
-    const additionalViewerNames=[...new Set((Array.isArray(source.additionalViewerNames)?source.additionalViewerNames:[]).map(item=>String(item||'').trim()).filter(Boolean))];
+    const participantIds=uniqueStrings(source.participantIds);
+    const audiences=normalizeAudiences(source);
+    const additionalViewerNames=uniqueStrings(source.additionalViewerNames);
     const contentLevel=['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail';
+    const log=(Array.isArray(source.log)?source.log:[]).map(normalizeShareLogEntry).filter(entry=>entry.at||entry.audiences.length||entry.additionalViewerNames.length);
+    const resolvedMode=mode==='shared_selected'&&participantIds.length?'shared_selected':mode==='shared_all'?'shared_all':'not_shared';
     return {
-      mode:mode==='shared_selected'&&participantIds.length?'shared_selected':mode==='shared_all'?'shared_all':'not_shared',
-      participantIds:mode==='shared_selected'?participantIds:[],
-      audience:mode==='not_shared'?'':audience||'recipient_and_managers',
-      additionalViewerNames:mode==='not_shared'?[]:additionalViewerNames,
-      contentLevel:mode==='not_shared'?'':contentLevel,
-      note:mode==='not_shared'?'':String(source.note||'').trim(),
-      sharedAt:mode==='not_shared'?'':String(source.sharedAt||'').trim(),
-      sharedBy:mode==='not_shared'?'hr':String(source.sharedBy||'hr').trim()||'hr'
+      mode:resolvedMode,
+      participantIds:resolvedMode==='shared_selected'?participantIds:[],
+      audiences:resolvedMode==='not_shared'?[]:audiences,
+      additionalViewerNames:resolvedMode==='not_shared'?[]:additionalViewerNames,
+      contentLevel:resolvedMode==='not_shared'?'':contentLevel,
+      note:resolvedMode==='not_shared'?'':String(source.note||'').trim(),
+      sharedAt:resolvedMode==='not_shared'?'':String(source.sharedAt||'').trim(),
+      sharedBy:resolvedMode==='not_shared'?'hr':String(source.sharedBy||'hr').trim()||'hr',
+      shareCount:resolvedMode==='not_shared'?0:(log.length||1),
+      log:resolvedMode==='not_shared'?[]:log
     };
   }
   function canShareResults(campaign){return Boolean(campaign)&&campaign.status==='closed';}
@@ -158,10 +186,24 @@
     const sharing=normalizeResultSharing(campaign&&campaign.resultSharing);
     return sharing.mode==='shared_all'||(sharing.mode==='shared_selected'&&sharing.participantIds.includes(String(participantId||'')));
   }
+  /* Cho phep chia se nhieu lan: cong don nguoi xem + pham vi, va ghi mot dong log cho moi lan chia se. */
   function shareResults(campaign,participantIds,sharedAt,options){
-    const item=normalizeCampaign(campaign),ids=[...new Set((Array.isArray(participantIds)?participantIds:[]).map(value=>String(value||'').trim()).filter(Boolean))];
+    const item=normalizeCampaign(campaign);
+    const existing=normalizeResultSharing(item.resultSharing);
     const source=options||{};
-    return {...item,resultSharing:normalizeResultSharing({mode:ids.length?'shared_selected':'shared_all',participantIds:ids,audience:source.audience||'recipient_and_managers',additionalViewerNames:source.additionalViewerNames||[],contentLevel:source.contentLevel||'summary_detail',note:source.note||'',sharedAt:String(sharedAt||'').trim(),sharedBy:'hr'})};
+    const incomingIds=[...new Set((Array.isArray(participantIds)?participantIds:[]).map(value=>String(value||'').trim()).filter(Boolean))];
+    const shareAll=!incomingIds.length;
+    const mode=shareAll||existing.mode==='shared_all'?'shared_all':'shared_selected';
+    const incomingAudiences=normalizeAudiences({audiences:source.audiences,audience:source.audience});
+    const mergedAudiences=AUDIENCE_KEYS.filter(key=>existing.audiences.includes(key)||incomingAudiences.includes(key));
+    const incomingNames=uniqueStrings(source.additionalViewerNames);
+    const mergedNames=[...new Set([...existing.additionalViewerNames,...incomingNames])];
+    const mergedIds=[...new Set([...existing.participantIds,...incomingIds])];
+    const contentLevel=['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail';
+    const stamp=String(sharedAt||'').trim();
+    const entry={at:stamp,audiences:incomingAudiences,additionalViewerNames:incomingNames,contentLevel,participantIds:shareAll?[]:incomingIds,note:String(source.note||'').trim()};
+    const log=[...existing.log,entry];
+    return {...item,resultSharing:normalizeResultSharing({mode,participantIds:mergedIds,audiences:mergedAudiences,additionalViewerNames:mergedNames,contentLevel,note:String(source.note||'').trim(),sharedAt:stamp,sharedBy:'hr',log})};
   }
   function lockPendingAssignments(assignments){
     return (Array.isArray(assignments)?assignments:[]).map(assignment=>assignment&&assignment.status==='pending'?{...assignment,status:'locked'}:assignment);
@@ -169,6 +211,16 @@
   function closeCampaign(campaign,closedAt){
     const item=normalizeCampaign(campaign);
     return {...item,status:'closed',closedAt:String(closedAt||'').trim(),assignments:lockPendingAssignments(item.assignments)};
+  }
+  /* Yeu cau da dong van mo lai duoc, MIEN LA chua chia se ket qua. Sau khi chia se thi chot vinh vien. */
+  function canReopenCampaign(campaign){
+    const item=campaign||{};
+    return item.status==='closed'&&normalizeResultSharing(item.resultSharing).mode==='not_shared';
+  }
+  function reopenCampaign(campaign){
+    const item=normalizeCampaign(campaign);
+    if(!canReopenCampaign(item))return item;
+    return {...item,status:'collecting',closedAt:'',assignments:(item.assignments||[]).map(assignment=>assignment&&assignment.status==='locked'?{...assignment,status:'pending'}:assignment)};
   }
   function isOverdue(campaign,today){return campaign&&campaign.status==='collecting'&&daysBetween(today,campaign.due)>0;}
   function isDueSoon(campaign,today){
@@ -262,5 +314,5 @@
     });
     return sent;
   }
-  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,canShareResults,lockPendingAssignments,closeCampaign,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
 });
