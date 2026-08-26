@@ -214,7 +214,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 .overlay.open{display:flex}
 .dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg)}
 ```
-`.dlg-hd` (badges + title 15px/600 + close), `.dlg-tabs` (tab dialog), `.dlg-body` scroll, `.dlg-foot` (border-top, justify-end).
+`.dlg-hd` (badges + title 15px/600 + close). **Header dialog trong module Feedback (E-04, M-04, H-05, H-06, H-07) BẮT BUỘC nền hồng nhạt** `#fbe4f0` với `border-bottom:1px solid #f3cfe1` — áp cho `.dlg-hd`, `.dialog-head`, `.review-modal-head` và tương đương. Rule này để phân biệt dialog thuộc module Feedback với dialog module khác và giữ nhất quán giữa các popup (Yêu cầu phản hồi, Cho phản hồi, Chi tiết yêu cầu, Chọn bộ câu hỏi, Đóng yêu cầu, Chia sẻ kết quả…)., `.dlg-tabs` (tab dialog), `.dlg-body` scroll, `.dlg-foot` (border-top, justify-end).
 **Review-confirmation modal:** Trước hành động gửi một yêu cầu, mở overlay dialog theo pattern này; không thay form bằng màn hình riêng. Đóng modal hoặc chọn “Quay lại chỉnh sửa” phải giữ nguyên dữ liệu đã nhập. Footer của modal rà soát dùng action compact `32px / 12px`, padding `12px 18px 16px` để nút không sát mép dưới.
 **Popup Tạo mục tiêu:** Loại mục tiêu (select: Mục tiêu Công việc / Mục tiêu Phát triển) · hàng 3 cột (Ưu tiên · Từ ngày · Đến ngày) · Tên mục tiêu (RTE neutral + đếm) · Kết quả cần đạt (RTE neutral) · footer: Lưu nháp (outline) + Gửi quản lý (default).
 **Popup Phản hồi đã nhận:** title + badge đếm hồng; các `.fb-card` (avatar, tên + domain, org, ngày; `.fb-qbox` nếu có câu hỏi — **nền hồng #fbe4f0, chữ z900/500** để tương phản rõ; `.fb-body`; `.fb-badges` core value nếu được ghi nhận).
