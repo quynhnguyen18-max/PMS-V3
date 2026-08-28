@@ -416,7 +416,8 @@ input,select,textarea{font-family:inherit}
 .dialog.md{max-width:640px}
 .dialog.sm{max-width:420px}
 .ov-top{z-index:1100}
-.dlg-hd{padding:16px 20px 14px;flex-shrink:0;background:#fbe4f0;border-bottom:1px solid #f3cfe1;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.dlg-hd{padding:16px 20px 14px;flex-shrink:0;background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.dlg-hd--brand{background:#fbe4f0;border-bottom-color:#f3cfe1}
 .dlg-title{font-size:15px;font-weight:600;color:var(--z900);line-height:1.4}
 .dlg-sub{font-size:12px;color:var(--z500);margin-top:3px}
 .dlg-close{width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--t);flex-shrink:0;cursor:pointer}
@@ -872,7 +873,7 @@ input,select,textarea{font-family:inherit}
 <!-- Cần bạn phản hồi — tất cả (overlay) -->
 <div class="overlay" id="dlg-queue" onclick="if(event.target===this)closeOverlay('dlg-queue')">
   <div class="dialog md">
-    <div class="dlg-hd">
+    <div class="dlg-hd dlg-hd--brand">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="dlg-title">Cần bạn phản hồi</div>
         <span class="queue-cnt" id="queueAllCnt">0</span>
@@ -890,7 +891,7 @@ input,select,textarea{font-family:inherit}
 <!-- Đọc phản hồi chưa mở — background chỉ nằm trong nội dung -->
 <div class="overlay" id="dlg-received-reader" onclick="if(event.target===this)closeReceivedReader()">
   <div class="dialog reader-dialog" role="dialog" aria-modal="true" aria-labelledby="receivedReaderTitle">
-    <div class="dlg-hd">
+    <div class="dlg-hd dlg-hd--brand">
       <div class="dlg-title" id="receivedReaderTitle">Phản hồi từ đồng nghiệp</div>
       <button class="dlg-close" id="receivedReaderClose" onclick="closeReceivedReader()" aria-label="Đóng phản hồi">&#x2715;</button>
     </div>
@@ -919,7 +920,7 @@ input,select,textarea{font-family:inherit}
   <div class="dialog lg">
     <div class="dlg-flap"></div>
     <div class="dlg-seal"><i class="bx bxs-heart"></i></div>
-    <div class="dlg-hd">
+    <div class="dlg-hd dlg-hd--brand">
       <div class="dlg-title">Cho phản hồi</div>
       <button class="dlg-close" onclick="requestClose('dlg-give')">&#x2715;</button>
     </div>
@@ -994,7 +995,7 @@ input,select,textarea{font-family:inherit}
 <!-- Yêu cầu phản hồi (UC1) overlay -->
 <div class="overlay" id="dlg-newreq" onclick="if(event.target===this)requestClose('dlg-newreq')">
   <div class="dialog lg">
-    <div class="dlg-hd">
+    <div class="dlg-hd dlg-hd--brand">
       <div class="dlg-title">Yêu cầu phản hồi</div>
       <button class="dlg-close" onclick="requestClose('dlg-newreq')">&#x2715;</button>
     </div>
