@@ -680,6 +680,12 @@ input,select,textarea{font-family:inherit}
 .media-summary-dialog{width:min(840px,96vw);max-height:90vh;background:var(--z0);border-radius:12px;overflow:hidden;box-shadow:var(--sh-lg);display:flex;flex-direction:column}.media-summary-head{height:50px;padding:0 16px;border-bottom:1px solid var(--z200);display:flex;align-items:center}.media-summary-title{font-size:14px;font-weight:700;color:var(--z900);flex:1}.media-summary-note{font-size:10.5px;color:var(--z500);margin-right:10px}
 .media-story{display:grid;grid-template-columns:minmax(0,1fr) 240px;min-height:490px}.media-poster-stage{background:var(--z100);display:flex;align-items:center;justify-content:center;padding:22px}.media-poster{width:min(310px,100%);aspect-ratio:4/5;border-radius:16px;padding:28px;color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 16px 34px rgba(88,0,53,.2)}.media-template-impact{background:linear-gradient(155deg,#7d004c,#b0006b 58%,#e65b9c)}.media-template-growth{background:linear-gradient(155deg,#233047,#48566e 58%,#7b8da9)}.media-template-values{background:linear-gradient(155deg,#6c3d1f,#9a6234 58%,#d2a36c)}
 .media-poster-kicker{font-size:10px;letter-spacing:.8px;text-transform:uppercase;opacity:.82}.media-poster h3{font-size:23px;line-height:1.2;margin:58px 0 15px;color:#fff}.media-poster p{font-size:13.5px;line-height:1.58}.media-poster-foot{font-size:9.5px;opacity:.75;margin-top:auto}.media-story-side{border-left:1px solid var(--z200);padding:18px;display:flex;flex-direction:column}.media-story-side h4{font-size:13px;color:var(--z900)}.media-story-side>p{font-size:10.5px;color:var(--z500);margin-top:4px}.media-progress{display:flex;gap:5px;margin:18px 0}.media-progress span{height:4px;flex:1;border-radius:4px;background:var(--z200)}.media-progress span.on{background:var(--brand)}.media-story-nav{display:flex;gap:8px}.media-story-actions{display:grid;gap:8px;margin-top:auto}.media-story-actions .btn{justify-content:center}
+.media-download-menu{position:relative}.media-download-trigger{width:100%;justify-content:center}.media-download-trigger .bx-chevron-down{transition:transform var(--t)}.media-download-menu[data-open="true"] .media-download-trigger .bx-chevron-down{transform:rotate(180deg)}
+.media-download-list{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:var(--z0);border:1px solid var(--z200);border-radius:8px;box-shadow:var(--sh-md);padding:4px;display:none;z-index:2}
+.media-download-menu[data-open="true"] .media-download-list{display:block}
+.media-download-list button{width:100%;background:transparent;border:0;text-align:left;padding:8px 10px;border-radius:6px;font-size:12px;color:var(--z900);cursor:pointer;display:flex;align-items:center;gap:8px;transition:var(--t)}
+.media-download-list button:hover{background:var(--z100)}
+.media-download-list button i{font-size:14px;color:var(--z500)}
 @media(max-width:720px){.media-story{grid-template-columns:1fr}.media-story-side{border-left:0;border-top:1px solid var(--z200)}.media-poster-stage{padding:16px}.media-poster{width:min(280px,100%)}}
 </style>
   <script src="feedback-model.js"></script>
@@ -829,8 +835,13 @@ input,select,textarea{font-family:inherit}
           <button class="btn btn-outline btn-sm" id="mediaNext" onclick="moveMediaPoster(1)">Tiếp <i class="bx bx-chevron-right"></i></button>
         </div>
         <div class="media-story-actions">
-          <button class="btn btn-default" onclick="downloadCurrentMediaPoster()"><i class="bx bx-download"></i> Tải poster này</button>
-          <button class="btn btn-outline" onclick="downloadAllMediaPosters()"><i class="bx bx-download"></i> Tải tất cả</button>
+          <div class="media-download-menu" id="mediaDownloadMenu" data-open="false">
+            <button class="btn btn-default media-download-trigger" onclick="toggleMediaDownloadMenu(event)" aria-haspopup="menu" aria-expanded="false"><i class="bx bx-download"></i> Tải poster <i class="bx bx-chevron-down"></i></button>
+            <div class="media-download-list" role="menu">
+              <button role="menuitem" onclick="downloadCurrentMediaPoster();closeMediaDownloadMenu()"><i class="bx bx-image"></i> Chỉ poster này</button>
+              <button role="menuitem" onclick="downloadAllMediaPosters();closeMediaDownloadMenu()"><i class="bx bx-images"></i> Tất cả poster</button>
+            </div>
+          </div>
         </div>
       </aside>
     </div>
@@ -1816,6 +1827,9 @@ function mediaPosterSvg(index){
 function triggerMediaDownload(svg,name){const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));const link=Object.assign(document.createElement('a'),{href:url,download:name});link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}
 function downloadCurrentMediaPoster(){if(FeedbackModel.campaignStatus(MEDIA_STATE.campaign,MEDIA_NOW)!=='active')return;const index=MEDIA_STATE.posterIndex;triggerMediaDownload(mediaPosterSvg(index),`dau-an-cua-ban-${index+1}.svg`);}
 function downloadAllMediaPosters(){if(FeedbackModel.campaignStatus(MEDIA_STATE.campaign,MEDIA_NOW)!=='active')return;MEDIA_STATE.insights.forEach((_,index)=>setTimeout(()=>triggerMediaDownload(mediaPosterSvg(index),`dau-an-cua-ban-${index+1}.svg`),index*120));}
+function toggleMediaDownloadMenu(e){e&&e.stopPropagation();const m=document.getElementById('mediaDownloadMenu');if(!m)return;const open=m.getAttribute('data-open')==='true';m.setAttribute('data-open',String(!open));const t=m.querySelector('.media-download-trigger');if(t)t.setAttribute('aria-expanded',String(!open));}
+function closeMediaDownloadMenu(){const m=document.getElementById('mediaDownloadMenu');if(!m)return;m.setAttribute('data-open','false');const t=m.querySelector('.media-download-trigger');if(t)t.setAttribute('aria-expanded','false');}
+document.addEventListener('click',e=>{const m=document.getElementById('mediaDownloadMenu');if(m&&!m.contains(e.target))closeMediaDownloadMenu();});
 
 function renderAll(){
   renderQueue(); renderFeed(); renderRail(); syncThanksBadge(); renderMediaSummaryEntry();
