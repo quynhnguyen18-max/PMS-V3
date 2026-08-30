@@ -299,7 +299,7 @@
 <script>
 const EMPLOYEES=window.PMS_EMPLOYEES || [];
 const FEEDBACK_STORE=ManagerFeedbackData.createStore(EMPLOYEES);
-const REQUEST_STORAGE_KEY='pms.managerFeedbackRequests.v1';
+const REQUEST_STORAGE_KEY='pms.managerFeedbackRequests.v2';
 function requestStorage(){try{return window.localStorage;}catch(error){return {getItem(){return null;},setItem(){}};}}
 function loadRequestStore(){const storage=requestStorage(),seeded=ManagerRequestSeed.create(EMPLOYEES),loaded=ManagerRequestStorage.load(storage,REQUEST_STORAGE_KEY,()=>seeded),seedById=new Map(seeded.map(request=>[request.id,request])),merged=loaded.map(request=>seedById.get(request.id)||request),known=new Set(merged.map(request=>request.id));seeded.forEach(request=>{if(!known.has(request.id))merged.push(request);});ManagerRequestStorage.save(storage,REQUEST_STORAGE_KEY,merged);return ManagerRequestModel.createStore(merged);}
 function persistRequestStore(){return ManagerRequestStorage.save(requestStorage(),REQUEST_STORAGE_KEY,REQUEST_STORE.requests);}

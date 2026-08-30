@@ -36,7 +36,7 @@
 </main><div class="toast" id="toast"></div>
 <script src="../assets/employees-data.js"></script><script src="manager-feedback-data.js"></script><script src="manager-ai-summary.js"></script><script src="manager-request-model.js"></script><script src="manager-request-seed.js"></script><script src="manager-request-storage.js"></script>
 <script>
-const params=new URLSearchParams(location.search),requestId=params.get('request'),cycle=params.get('cycle')||'2026',employees=window.PMS_EMPLOYEES||[],storageKey='pms.managerFeedbackRequests.v1';
+const params=new URLSearchParams(location.search),requestId=params.get('request'),cycle=params.get('cycle')||'2026',employees=window.PMS_EMPLOYEES||[],storageKey='pms.managerFeedbackRequests.v2';
 const requests=ManagerRequestStorage.load(localStorage,storageKey,()=>ManagerRequestSeed.create(employees)),request=requests.find(item=>item.id===requestId),feedbackStore=ManagerFeedbackData.createStore(employees);const collapsedAiEmployees=new Set(),justRemindedAssignments=new Set();let selectedEmployeeId=null;
 function todayDMY(){const now=new Date(),pad=n=>String(n).padStart(2,'0');return `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;}
 function nowDMYTime(){const now=new Date(),pad=n=>String(n).padStart(2,'0');return `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;}

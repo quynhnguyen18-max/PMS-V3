@@ -17,6 +17,12 @@
   function create(employees){
     const direct=model.directReports(employees);
     const reviewerPool=employees.filter(person=>person.login!==MANAGER.login);
+    const upcoming=model.createRequest({
+      goal:'Thu thập phản hồi sau workshop Leadership tháng 8',
+      id:'manager-request-leadership-workshop',cycle:'2026',createdAt:'27/08/2026',due:'15/09/2026',createdBy:MANAGER,
+      designees:direct.slice(0,2),reviewers:reviewerPool.slice(0,3),
+      sharedQuestion:'Sau workshop Leadership, bạn ghi nhận điều gì về khả năng dẫn dắt và tạo ảnh hưởng của đồng nghiệp?'
+    });
     const collecting=model.createRequest({
       goal:'Thu thập góc nhìn về khả năng phối hợp trong dự án Migration',
       id:'manager-request-migration',cycle:'2026',createdAt:'28/07/2026',due:'15/08/2026',createdBy:MANAGER,
@@ -55,7 +61,7 @@
     markDone(crossTeam,[0,2,4,5],'08/06/2026');
     const career=model.createRequest({goal:'Tổng hợp góc nhìn cho buổi career conversation 6 tháng',id:'manager-request-career',cycle:'2026',createdAt:'08/05/2026',due:'25/05/2026',createdBy:MANAGER,designees:direct.slice(0,1),reviewers:reviewerPool.slice(1,6),sharedQuestion:'Bạn ghi nhận điểm mạnh nổi bật và một ưu tiên phát triển của nhân viên trong 6 tháng vừa qua là gì?'});
     markDone(career,career.assignments.map((_,index)=>index),'23/05/2026');
-    return [collecting,overdue,complete,leadership,probation,incident,crossTeam,career];
+    return [upcoming,collecting,overdue,complete,leadership,probation,incident,crossTeam,career];
   }
   return {create};
 });

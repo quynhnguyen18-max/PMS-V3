@@ -718,7 +718,8 @@ test('D4 seed requests all have a management goal', () => {
   const requests=seed.create(context.window.PMS_EMPLOYEES);
   assert.ok(requests.every(request=>request.goal));
   assert.ok(requests.length>=8);
-  assert.equal(requests[1].goal,'Thu thập góc nhìn phục vụ coaching và kế hoạch phát triển Q3');
+  assert.equal(requests[0].goal,'Thu thập phản hồi sau workshop Leadership tháng 8');
+  assert.equal(requests[2].goal,'Thu thập góc nhìn phục vụ coaching và kế hoạch phát triển Q3');
 });
 
 test('D4 seed provides collecting, overdue and complete request scenarios', () => {
@@ -736,7 +737,7 @@ test('D4 seed provides collecting, overdue and complete request scenarios', () =
 
 test('D4 storage loads valid requests, falls back on corrupt JSON and saves updates', () => {
   const storageAdapter=require('./manager-request-storage.js');
-  const key='pms.managerFeedbackRequests.v1';
+  const key='pms.managerFeedbackRequests.v2';
   const memory={};
   const storage={
     getItem(name){return Object.prototype.hasOwnProperty.call(memory,name)?memory[name]:null;},
@@ -756,7 +757,7 @@ test('D4 manager page wires request seed and local persistence', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   assert.match(html, /manager-request-seed\.js/);
   assert.match(html, /manager-request-storage\.js/);
-  assert.match(html, /pms\.managerFeedbackRequests\.v1/);
+  assert.match(html, /pms\.managerFeedbackRequests\.v2/);
   assert.match(html, /function loadRequestStore\(/);
   assert.match(html, /function persistRequestStore\(/);
   assert.match(html, /ManagerRequestStorage\.load/);
