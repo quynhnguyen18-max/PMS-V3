@@ -251,10 +251,13 @@ const STORE_KEY='uc5_campaigns';
 const SEED=FeedbackProgramData.seedPrograms();
 
 let FILTER='all';
+const DELETED_KEY='uc5_deleted_campaigns';
+function deletedIds(){try{return new Set(JSON.parse(localStorage.getItem(DELETED_KEY)||'[]'));}catch(e){return new Set();}}
 function load(){
   let saved=[];
   try{saved=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');}catch(e){saved=[];}
-  return [...saved,...SEED];
+  const removed=deletedIds();
+  return [...saved,...SEED].filter(c=>!removed.has(c.id));
 }
 function persistSaved(list){
   const savedIds=new Set(SEED.map(s=>s.id));
@@ -384,6 +387,7 @@ function toast(msg){const t=document.getElementById('toast');document.getElement
   const p=new URLSearchParams(location.search);
   if(p.get('created')==='launch')toast('🚀 Đã khởi chạy chương trình — đang thu thập phản hồi');
   else if(p.get('created')==='draft')toast('Đã lưu bản nháp chương trình');
+  else if(p.get('created')==='deleted')toast('Đã xóa yêu cầu nháp');
   if(p.get('created')){history.replaceState({},'',location.pathname);}
 })();
 render();

@@ -22,7 +22,8 @@
     const normalized={
       id:String(question&&question.id||`q${index+1}`),
       type,
-      text:String(question&&question.text||'').trim()
+      text:String(question&&question.text||'').trim(),
+      required:Boolean(question&&question.required)
     };
     if(type==='rating'){
       normalized.ratingScale=Math.min(10,Math.max(2,Number(question.ratingScale)||5));
@@ -33,6 +34,7 @@
   }
 
   const QUESTION_TYPE_LABELS={open_text:'Câu hỏi mở',rating:'Câu hỏi Likert'};
+  const REQUIRED_LABELS={true:'Bắt buộc trả lời',false:'Không bắt buộc'};
 
   /* Một thay đổi có thể kèm nội dung trước/sau để đọc được ngay trong history log.
      Bản ghi cũ chỉ có chuỗi mô tả nên vẫn phải nhận dạng chuỗi. */
@@ -114,6 +116,8 @@
     for(let index=0;index<shared;index++){
       if(beforeQuestions[index].text!==afterQuestions[index].text)changes.push({label:`Sửa nội dung Câu hỏi ${index+1}`,before:beforeQuestions[index].text,after:afterQuestions[index].text});
       else if(beforeQuestions[index].type!==afterQuestions[index].type)changes.push({label:`Đổi loại Câu hỏi ${index+1}`,before:QUESTION_TYPE_LABELS[beforeQuestions[index].type],after:QUESTION_TYPE_LABELS[afterQuestions[index].type]});
+      /* Bắt buộc là thiết lập độc lập với nội dung nên phải ghi lại kể cả khi câu hỏi giữ nguyên chữ. */
+      if(beforeQuestions[index].required!==afterQuestions[index].required)changes.push({label:`Đổi thiết lập trả lời Câu hỏi ${index+1}`,before:REQUIRED_LABELS[beforeQuestions[index].required],after:REQUIRED_LABELS[afterQuestions[index].required]});
     }
     for(let index=shared;index<afterQuestions.length;index++)changes.push({label:`Thêm Câu hỏi ${index+1}`,after:afterQuestions[index].text});
     for(let index=shared;index<beforeQuestions.length;index++)changes.push({label:`Xóa Câu hỏi ${index+1}`,before:beforeQuestions[index].text});

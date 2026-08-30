@@ -121,7 +121,7 @@ test('saves request questions through an explicit named questionnaire popup',()=
 
 test('normalizes legacy questions to the open_text contract',()=>{
   const model=require(modelPath);
-  assert.deepEqual(model.normalizeQuestion({id:'q1',type:'open',text:'  Một câu hỏi  '}),{id:'q1',type:'open_text',text:'Một câu hỏi'});
+  assert.deepEqual(model.normalizeQuestion({id:'q1',type:'open',text:'  Một câu hỏi  '}),{id:'q1',type:'open_text',text:'Một câu hỏi',required:false});
 });
 
 test('normalizes rating questions with scale labels, mappings, and invitation message',()=>{
@@ -513,6 +513,10 @@ test('reminds pending program assignments through overdue collection until closu
   assert.equal(model.canRemindProgramAssignment(campaign,{status:'submitted'},'13/08/2026 10:00'),false);
   assert.equal(model.canRemindProgramAssignment(campaign,assignment,'16/08/2026 10:00'),true);
   assert.equal(model.canRemindProgramAssignment({status:'closed',due:'15/08/2026'},assignment,'16/08/2026 10:00'),false);
+  /* Quá hạn vẫn nhắc được trong 90 ngày kể từ ngày tạo, sau đó ngừng. */
+  const windowCampaign={status:'collecting',createdAt:'01/08/2026',due:'15/08/2026'};
+  assert.equal(model.canRemindProgramAssignment(windowCampaign,{status:'pending',manualReminderHistory:[]},'20/09/2026 10:00'),true);
+  assert.equal(model.canRemindProgramAssignment(windowCampaign,{status:'pending',manualReminderHistory:[]},'01/11/2026 10:00'),false);
 });
 
 test('H-05 list reminder uses the shared eligibility and cooldown rule',()=>{
@@ -1072,4 +1076,229 @@ test('H-06 keeps closure and sharing as separate HR actions with scoped confirma
   for(const name of ['renderProgramOverview','sharingSummary','openResultDialog','requestResultShare','confirmResultShare'])assert.equal((detail.match(new RegExp(`function ${name}\\(`,'g'))||[]).length,1,`${name} is defined once`);
   assert.match(detail,/FeedbackProgramModel\.closeCampaign/);
   assert.match(detail,/\.summary-status-closed\{/);
+});
+
+test('per-question required flag survives normalize, clone and version history',()=>{
+  const programModel=require(modelPath);
+  const libraryModel=require(questionnaireModelPath);
+  const before=libraryModel.normalize({
+    id:'tpl-1',name:'HRBP_Khảo sát',ownerId:'hrbp-1',ownerName:'Lê Thuỳ Anh',
+    questions:[{id:'q1',type:'open_text',text:'Điểm mạnh?',required:true},{id:'q2',type:'open_text',text:'Góp ý thêm?'}]
+  },{id:'hrbp-1',name:'Lê Thuỳ Anh'});
+
+  assert.deepEqual(before.questions.map(question=>question.required),[true,false]);
+  assert.deepEqual(libraryModel.cloneForRequest(before).map(question=>question.required),[true,false]);
+
+  const after=libraryModel.normalize({...before,questions:[{...before.questions[0],required:false},before.questions[1]]},{id:'hrbp-1'});
+  const changes=libraryModel.diffTemplates(before,after);
+  assert.equal(changes.length,1);
+  assert.match(changes[0].label,/Đổi thiết lập trả lời Câu hỏi 1/);
+  assert.equal(changes[0].before,'Bắt buộc trả lời');
+  assert.equal(changes[0].after,'Không bắt buộc');
+
+  const campaign=programModel.normalizeCampaign({questions:[{id:'q1',type:'open_text',text:'Điểm mạnh?',required:true},{id:'q2',type:'open_text',text:'Góp ý thêm?'}]});
+  assert.deepEqual(campaign.questions.map(question=>question.required),[true,false]);
+});
+
+test('HR authoring screens expose a per-question required toggle defaulting to optional',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
+
+  assert.match(builder,/function setQuestionRequired\(index,checked\)/);
+  assert.match(builder,/class="opt-toggle q-required/);
+  assert.match(builder,/onchange="setQuestionRequired\(\$\{index\},this\.checked\)"/);
+  assert.match(builder,/type:'open_text',text:'',required:false/);
+  assert.match(builder,/question\.required\?'<span class="req-star">\*<\/span>':''/);
+
+  assert.match(library,/function setEditorQuestionRequired\(index,checked\)/);
+  assert.match(library,/onchange="setEditorQuestionRequired\(\$\{index\},this\.checked\)"/);
+  assert.match(library,/type:'open_text',text:'',required:false/);
+  assert.doesNotMatch(builder,/\(bắt buộc\)/);
+});
+
+test('reviewers can submit while optional questions stay empty',()=>{
+  const reply=fs.readFileSync(require.resolve('../E-04/index.html'),'utf8');
+  assert.match(reply,/function hrQuestionAnswered\(question\)/);
+  assert.match(reply,/questions\.filter\(question=>question\.required\)\.every\(hrQuestionAnswered\)&&questions\.some\(hrQuestionAnswered\)/);
+  assert.match(reply,/question\.required\?'<span class="hr-reply-required">\*<\/span>':''/);
+});
+
+test('template picker offers a custom option, silent swap and a text-fitted current tag',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+
+  assert.match(builder,/class="btn btn-outline" type="button" onclick="startCustomQuestionnaire\(\)"/);
+  assert.match(builder,/Tự tạo bộ câu hỏi mới/);
+  assert.match(builder,/function applyCustomQuestionnaire\(\)/);
+  assert.match(builder,/function startCustomQuestionnaire\(\)/);
+  assert.match(builder,/STATE\.templateId='custom'/);
+  /* Tự tạo là hành động ở footer, không phải một lựa chọn trong danh sách bộ có sẵn. */
+  assert.doesNotMatch(builder,/tpl-option-custom/);
+  assert.doesNotMatch(builder,/pickTemplate\('custom'\)/);
+
+  assert.match(builder,/function questionsMatchTemplate\(\)/);
+  assert.match(builder,/if\(!hasQuestionContent\(\)\|\|questionsMatchTemplate\(\)\|\|confirm\(/);
+
+  assert.match(builder,/\.tpl-option>\.tpl-option-current\{display:inline-flex;align-items:center;flex:0 0 auto;width:auto;/);
+  assert.doesNotMatch(builder,/\.tpl-option-current\{[^}]*height:20px/);
+});
+
+test('question order is reordered by drag and drop in both authoring screens',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
+
+  for(const html of [builder,library]){
+    /* Kéo thả thay cho nút mũi tên, nhưng tay cầm vẫn nhận phím mũi tên cho người dùng bàn phím. */
+    assert.match(html,/class="q-drag"/);
+    assert.match(html,/bx-grid-vertical/);
+    assert.match(html,/draggable="false"/);
+    assert.doesNotMatch(html,/q-move-btn/);
+    assert.doesNotMatch(html,/data-tooltip="Chuyển (lên trên|xuống dưới)"/);
+  }
+
+  assert.match(builder,/function startQuestionDrag\(event,index\)/);
+  assert.match(builder,/function dropQuestion\(event,index\)/);
+  assert.match(builder,/function setQuestionDraggable\(element,on\)/);
+  assert.match(builder,/function questionHandleKey\(event,index\)/);
+  assert.match(builder,/onmousedown="setQuestionDraggable\(this,true\)"/);
+  assert.match(builder,/function moveQuestion\(index,step\)/);
+
+  assert.match(library,/function startEditorDrag\(event,index\)/);
+  assert.match(library,/function dropEditorQuestion\(event,index\)/);
+  assert.match(library,/function setEditorDraggable\(element,on\)/);
+  assert.match(library,/function editorHandleKey\(event,index\)/);
+  assert.match(library,/function moveEditorQuestion\(index,step\)/);
+});
+
+test('review modal can save the request as a draft and reopen it without duplicating',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const list=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  assert.match(builder,/onclick="saveRequestDraft\(\)"><i class="bx bx-save"><\/i> Lưu nháp/);
+  assert.match(builder,/function saveRequestDraft\(\)/);
+  assert.match(builder,/\.\.\.result\.campaign,status:'draft',done:0/);
+  /* Lưu lại một nháp đang mở phải ghi đè theo id, không đẩy thêm bản mới vào danh sách. */
+  assert.match(builder,/function persistRequest\(payload\)\{const saved=loadSavedCampaigns\(\)\.filter\(item=>item\.id!==payload\.id\)/);
+  assert.match(builder,/id:draftId\|\|`u\$\{Date\.now\(\)\}`/);
+  assert.match(builder,/function loadDraft\(id\)/);
+  assert.match(builder,/Tiếp tục thiết lập yêu cầu phản hồi/);
+  assert.match(list,/created'\)==='draft'\)toast/);
+});
+
+test('draft requests can be deleted after an explicit confirmation',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const list=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  assert.match(builder,/id="deleteDraftBtn" onclick="askDeleteDraft\(\)"/);
+  assert.match(builder,/class="btn btn-outline btn-danger hidden"/);
+  assert.match(builder,/getElementById\('deleteDraftBtn'\)\.classList\.remove\('hidden'\)/);
+  assert.match(builder,/id="deleteDraftModal"/);
+  assert.match(builder,/function confirmDeleteDraft\(\)/);
+  assert.match(builder,/Xóa rồi sẽ không khôi phục lại được/);
+  assert.match(list,/created'\)==='deleted'\)toast/);
+
+  /* Nút xóa chỉ nằm ở màn chi tiết yêu cầu nháp, danh sách không có cột chức năng. */
+  assert.doesNotMatch(list,/row-delete/);
+  assert.doesNotMatch(list,/Chức năng/);
+  /* Nháp mẫu không nằm trong localStorage nên xóa phải ghi dấu, tải lại không được hiện lại. */
+  assert.match(list,/const DELETED_KEY='uc5_deleted_campaigns'/);
+  assert.match(list,/\.filter\(c=>!removed\.has\(c\.id\)\)/);
+  assert.match(builder,/function seedDraft\(id\)/);
+  assert.match(builder,/function markDraftDeleted\(id\)/);
+  /* Chương trình mẫu lưu participants dạng số nên loader phải chịu được dữ liệu không phải mảng. */
+  assert.match(builder,/const listOf=value=>Array\.isArray\(value\)\?value:\[\];/);
+});
+
+test('participant pickers keep the search box above the selected chips',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+
+  assert.match(builder,/\$\{renderPicker\('recipient'\)\}<div class="mapping-selected">/);
+  assert.match(builder,/\$\{renderPicker\('reviewer'\)\}<div class="mapping-selected">/);
+  assert.match(builder,/\$\{renderPicker\('reviewer',participant\.id\)\}<div class="mapping-reviewer-head">/);
+  assert.match(builder,/\.mapping-selected:not\(:empty\)\{margin-top:7px\}/);
+});
+
+test('detail screens flag reviewers and recipients who left the company',()=>{
+  const hrDetail=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
+  const managerDetail=fs.readFileSync(require.resolve('../M-04/request-detail.html'),'utf8');
+
+  for(const html of [hrDetail,managerDetail]){
+    assert.match(html,/function isResignedPerson\(person\)/);
+    assert.match(html,/Đã nghỉ việc<\/span>/);
+    assert.match(html,/\.emp-tag-resigned\{/);
+    /* Nhắc người đã nghỉ việc là vô nghĩa nên nút phải bị chặn kèm lý do. */
+    assert.match(html,/Người cho phản hồi đã nghỉ việc, không gửi nhắc được/);
+  }
+
+  /* Nghỉ việc thì dừng cả nhắc tự động, không hiển thị ngày nhắc sẽ không bao giờ chạy. */
+  for(const html of [hrDetail,managerDetail]){
+    assert.match(html,/Hệ thống dừng nhắc tự động/);
+    assert.match(html,/function canRemindAssignment\(/);
+    assert.match(html,/align-self:flex-start;margin:5px 0 0\}/);
+  }
+  /* Không tạo yêu cầu mới cho người đã nghỉ việc. */
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const managerList=fs.readFileSync(require.resolve('../M-04/index.html'),'utf8');
+  assert.match(builder,/window\.PMS_EMPLOYEES\|\|\[\]\)\.filter\(person=>!person\.resigned\)/);
+  assert.match(managerList,/directReports\(EMPLOYEES\)\.filter\(emp=>!emp\.resigned\)/);
+  assert.match(managerList,/emp\.login!==MANAGER\.login&&!emp\.resigned/);
+  /* Tag nhân sự phải dùng chung một component ở mọi màn, không chip xám riêng. */
+  assert.match(managerList,/<span class="emp-tag emp-tag-resigned">Đã nghỉ việc<\/span>/);
+  assert.match(managerList,/<span class="emp-tag emp-tag-maternity">Nghỉ thai sản<\/span>/);
+  assert.doesNotMatch(managerList,/emp-status/);
+
+  /* Ẩn danh vẫn phải ẩn: tag chỉ nằm trong nhánh hiển thị danh tính. */
+  assert.match(hrDetail,/personTooltip\(reviewer\)\}<\/span><\/span>\$\{resignedTag\(reviewer\)\}/);
+  assert.doesNotMatch(hrDetail,/identity-anon">Ẩn danh<\/span>`\}\$\{resignedTag/);
+});
+
+test('resigned reviewers drop out of the denominator while collecting',()=>{
+  const model=require(modelPath);
+  const managerModel=require('../M-04/manager-request-model.js');
+
+  const participant={assignments:[
+    {status:'submitted'},
+    {status:'pending'},
+    {status:'pending',excludedByResignation:true}
+  ]};
+  assert.deepEqual(model.participantProgress(participant),{done:1,total:2,pending:1});
+  /* AI Summary giữ ngưỡng 2 phản hồi, chỉ mẫu số đổi. */
+  assert.equal(model.isAiSummaryEligible({assignments:[{status:'submitted'},{status:'pending',excludedByResignation:true}]}),false);
+  assert.equal(model.isAiSummaryEligible({assignments:[{status:'submitted'},{status:'submitted'},{status:'pending',excludedByResignation:true}]}),true);
+
+  const overview=model.programDetailOverview({campaign:{status:'collecting',due:'30/08/2026'},participants:[participant]},'20/08/2026');
+  assert.equal(overview.totalResponses,2);
+  assert.equal(overview.pending,1);
+
+  const request={assignments:[
+    {employeeId:'e1',employeeName:'A',status:'done'},
+    {employeeId:'e1',employeeName:'A',status:'pending'},
+    {employeeId:'e1',employeeName:'A',status:'pending',excludedByResignation:true}
+  ],due:'30/08/2026'};
+  assert.equal(managerModel.summarize(request,'20/08/2026').total,2);
+  assert.equal(managerModel.byEmployee(request,'20/08/2026')[0].total,2);
+});
+
+test('detail screens stop counting and reminding resigned reviewers, and warn before sharing',()=>{
+  const hrDetail=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
+  const managerDetail=fs.readFileSync(require.resolve('../M-04/request-detail.html'),'utf8');
+
+  for(const html of [hrDetail,managerDetail]){
+    assert.match(html,/function applyResignationRules\(\)/);
+    assert.match(html,/excludedByResignation=collecting&&resigned/);
+    assert.match(html,/Ngừng thu thập/);
+    /* Tooltip phải nói đúng lý do chặn của chính dòng đó, không mặc định đổ cho cooldown 24 giờ. */
+    assert.match(html,/function remindBlockReason\(/);
+    assert.match(html,/quá 90 ngày kể từ ngày tạo/);
+    assert.match(html,/đã đóng, không gửi nhắc được/);
+    /* Nút nhắc bị chặn phải nhìn ra được là chặn, không chỉ mất khả năng bấm. */
+    assert.match(html,/\.btn-pending-remind:disabled\{opacity:\.45;cursor:not-allowed;background:var\(--z100\)/);
+    assert.match(html,/\.btn-pending-remind:hover:not\(:disabled\)/);
+  }
+  /* Chương trình đã đóng giữ nguyên số liệu lịch sử, chỉ lúc còn thu thập mới loại khỏi mẫu số. */
+  assert.match(hrDetail,/const collecting=PROGRAM\.status==='collecting'/);
+
+  /* Người nhận đã nghỉ việc không còn tài khoản xem kết quả nên dialog chia sẻ phải cảnh báo. */
+  assert.match(hrDetail,/function resignedShareWarningHTML\(\)/);
+  assert.match(hrDetail,/đã nghỉ việc nên không thể xem kết quả/);
+  assert.match(hrDetail,/\.share-warning\{/);
 });

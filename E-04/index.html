@@ -691,6 +691,7 @@ input,select,textarea{font-family:inherit}
 .hr-reply-question{padding:12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0)}
 .hr-reply-question-label{display:flex;align-items:baseline;gap:8px;margin-bottom:9px;font-size:13px;font-weight:600;line-height:1.5;color:var(--z800)}
 .hr-reply-question-num{flex:0 0 auto;color:var(--brand);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.35px}
+.hr-reply-required{margin-left:3px;color:var(--err)}
 .hr-rating{display:flex;gap:6px;flex-wrap:wrap}
 .hr-rating button{width:34px;height:34px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:13px;font-weight:600;color:var(--z600)}
 .hr-rating button:hover,.hr-rating button.on{border-color:var(--brand);background:var(--brand-muted);color:var(--brand)}
@@ -2671,7 +2672,8 @@ function submitRequest(){
 /* ═══════ TRẢ LỜI YÊU CẦU (UC-R) ═══════ */
 let RV={item:null, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, _stage:null};
 function escapeHTML(value){return String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
-function hrAnswerReady(item){return (item.questions||[]).every(question=>question.type==='rating'?Number(RV.answers[question.id])>0:String(RV.answers[question.id]||'').trim());}
+function hrQuestionAnswered(question){return question.type==='rating'?Number(RV.answers[question.id])>0:Boolean(String(RV.answers[question.id]||'').trim());}
+function hrAnswerReady(item){const questions=item.questions||[];return questions.filter(question=>question.required).every(hrQuestionAnswered)&&questions.some(hrQuestionAnswered);}
 function hrResponseAnswers(item){return (item.questions||[]).map(question=>question.type==='rating'?{questionId:question.id,score:Number(RV.answers[question.id])}:{questionId:question.id,body:String(RV.answers[question.id]||'').trim()});}
 function hrAudienceCopy(item){
   const audience=item.resultAudience||FeedbackProgramModel.resultAudience(item.program,item.feedbackReceiver.id);
@@ -2689,7 +2691,7 @@ function renderHrReplyQuestions(item){
     const answer=question.type==='rating'
       ? `<div class="hr-rating" role="group" aria-label="Trả lời câu ${index+1}">${Array.from({length:question.ratingScale||5},(_,score)=>score+1).map(score=>`<button type="button" class="${Number(value)===score?'on':''}" aria-pressed="${Number(value)===score}" onclick="setHrReplyRating('${question.id}',${score})">${score}</button>`).join('')}</div>`
       : `<textarea class="compose-ta" data-hr-question="${question.id}" placeholder="Viết phản hồi của bạn…" oninput="setHrReplyAnswer('${question.id}',this.value)">${escapeHTML(value)}</textarea>`;
-    return `<section class="hr-reply-question"><div class="hr-reply-question-label"><span class="hr-reply-question-num">Câu ${index+1}</span><span>${escapeHTML(question.text)}</span></div>${answer}</section>`;
+    return `<section class="hr-reply-question"><div class="hr-reply-question-label"><span class="hr-reply-question-num">Câu ${index+1}</span><span>${escapeHTML(question.text)}${question.required?'<span class="hr-reply-required">*</span>':''}</span></div>${answer}</section>`;
   }).join('')}</div>`;
 }
 function setHrReplyAnswer(questionId,value){RV.answers[questionId]=value;syncReply();}

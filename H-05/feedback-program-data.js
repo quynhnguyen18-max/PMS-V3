@@ -21,7 +21,7 @@
   const REVIEWERS=[
     {id:'anh.nguyen',name:'Nguyễn Minh Anh',domain:'anh.nguyen',department:'Kinh doanh',team:'Sales',position:'Sales Manager',initials:'MA'},
     {id:'quynh.tran',name:'Trần Ngọc Quỳnh',domain:'quynh.tran',department:'Kinh doanh',team:'Sales Operations',position:'Senior Specialist',initials:'QT'},
-    {id:'viet.le',name:'Lê Quốc Việt',domain:'viet.le',department:'Sản phẩm',team:'Growth',position:'Product Manager',initials:'VL'},
+    {id:'viet.le',name:'Lê Quốc Việt',domain:'viet.le',department:'Sản phẩm',team:'Growth',position:'Product Manager',initials:'VL',resigned:true},
     {id:'my.pham',name:'Phạm Thanh Mỹ',domain:'my.pham',department:'Kinh doanh',team:'Key Account',position:'Key Account Manager',initials:'PM'}
   ];
   const PEOPLE=[
@@ -50,24 +50,24 @@
     'Nên làm rõ thứ tự ưu tiên sớm hơn khi phạm vi công việc có thay đổi.'
   ];
   const QUESTION_SETS={
-    s2:[{id:'q1',text:'Đâu là điểm mạnh và một cơ hội phát triển khi phối hợp cùng team?'}],
+    s2:[{id:'q1',text:'Đâu là điểm mạnh và một cơ hội phát triển khi phối hợp cùng team?',required:true}],
     s3:[
-      {id:'q1',text:'Đâu là điểm mạnh nổi bật của đồng nghiệp khi phối hợp trong dự án Chuyển đổi số?'},
-      {id:'q2',text:'Đồng nghiệp đã tạo ảnh hưởng tích cực nào đến tiến độ hoặc chất lượng công việc?'},
-      {id:'q3',text:'Một cơ hội phát triển cụ thể nào sẽ giúp đồng nghiệp làm việc hiệu quả hơn?'}
+      {id:'q1',text:'Đâu là điểm mạnh nổi bật của đồng nghiệp khi phối hợp trong dự án Chuyển đổi số?',required:true},
+      {id:'q2',text:'Đồng nghiệp đã tạo ảnh hưởng tích cực nào đến tiến độ hoặc chất lượng công việc?',required:true},
+      {id:'q3',text:'Một cơ hội phát triển cụ thể nào sẽ giúp đồng nghiệp làm việc hiệu quả hơn?',required:true}
     ],
     s4:[
-      {id:'q1',text:'Đồng nghiệp đang thể hiện tiềm năng kế thừa qua những điểm mạnh nào?'},
-      {id:'q2',text:'Họ đã chủ động nhận thêm trách nhiệm hoặc dẫn dắt công việc ra sao?'},
-      {id:'q3',text:'Khi gặp thay đổi, họ đưa ra quyết định và kết nối các bên như thế nào?'},
-      {id:'q4',text:'Năng lực hoặc trải nghiệm nào nên được phát triển để sẵn sàng cho vai trò lớn hơn?'},
-      {id:'q5',text:'Một tình huống cụ thể nào cho thấy họ đã xử lý vượt kỳ vọng ở cấp độ hiện tại?'}
+      {id:'q1',text:'Đồng nghiệp đang thể hiện tiềm năng kế thừa qua những điểm mạnh nào?',required:true},
+      {id:'q2',text:'Họ đã chủ động nhận thêm trách nhiệm hoặc dẫn dắt công việc ra sao?',required:true},
+      {id:'q3',text:'Khi gặp thay đổi, họ đưa ra quyết định và kết nối các bên như thế nào?',required:true},
+      {id:'q4',text:'Năng lực hoặc trải nghiệm nào nên được phát triển để sẵn sàng cho vai trò lớn hơn?',required:true},
+      {id:'q5',text:'Một tình huống cụ thể nào cho thấy họ đã xử lý vượt kỳ vọng ở cấp độ hiện tại?',required:true}
     ],
     s10:[
-      {id:'q1',type:'open_text',text:'Bạn đánh giá thế nào về mức độ tạo ảnh hưởng tích cực tới đội ngũ của [người nhận]?'},
-      {id:'q2',type:'open_text',text:'Một hành vi lãnh đạo người nhận nên tiếp tục phát huy là gì?'}
+      {id:'q1',type:'open_text',text:'Bạn đánh giá thế nào về mức độ tạo ảnh hưởng tích cực tới đội ngũ của [người nhận]?',required:true},
+      {id:'q2',type:'open_text',text:'Một hành vi lãnh đạo người nhận nên tiếp tục phát huy là gì?',required:true}
     ],
-    s11:[{id:'q1',type:'open_text',text:'Bạn mong người nhận sẽ hỗ trợ đội ngũ Data hiệu quả hơn ở điểm nào?'}]
+    s11:[{id:'q1',type:'open_text',text:'Bạn mong người nhận sẽ hỗ trợ đội ngũ Data hiệu quả hơn ở điểm nào?',required:true}]
   };
   const PROGRAM_DONE={
     s3:{'lan.hoang':3,'mai.tran':3,'duc.pham':4,'linh.vu':3,'hung.do':2,'thu.nguyen':3},

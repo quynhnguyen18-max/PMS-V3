@@ -536,7 +536,9 @@ test('D4 model derives request status and locks reminders within the same day', 
   assert.equal(model.remindAssignment(request,request.assignments[1].id,'06/08/2026'),false,'same-day reminder must be locked');
   assert.equal(model.remindAssignment(request,request.assignments[0].id,'06/08/2026'),false,'done assignment cannot be reminded');
   assert.equal(model.remindPending(request,'07/08/2026'),3,'all pending assignments can be reminded after 24 hours');
-  assert.equal(model.remindPending(request,'12/08/2026'),0,'manual reminders stop after the deadline');
+  /* Quá hạn vẫn nhắc được: chỉ ràng buộc cooldown 24 giờ và cửa sổ 90 ngày kể từ ngày tạo. */
+  assert.equal(model.remindPending(request,'12/08/2026'),3,'reminders continue past the deadline');
+  assert.equal(model.remindPending(request,'20/11/2026'),0,'reminders stop after the 90-day window');
 
   request.assignments.slice(1).forEach(item=>{item.status='done';item.repliedAt='13/08/2026';});
   assert.equal(model.requestStatus(request,'13/08/2026'),'complete');
@@ -567,7 +569,7 @@ test('manager requests sort by action priority with status-specific tie breakers
   assert.equal(requests[0].id,'closed-old');
 });
 
-test('manual reminders use a rolling 24-hour cooldown per recipient until the deadline', () => {
+test('manual reminders use a rolling 24-hour cooldown per recipient inside the 90-day window', () => {
   const model=require('./manager-request-model.js');
   const request=model.createRequest({goal:'Reminder cooldown',cycle:'2026',createdAt:'01/08/2026',due:'15/08/2026',designees:[{id:'e1',name:'Tú',login:'tu.nguyen',lvl:'lm1'}],reviewers:[{name:'Nam',login:'nam.le'}],sharedQuestion:'Góc nhìn của bạn?'});
   const assignment=request.assignments[0];
@@ -578,7 +580,11 @@ test('manual reminders use a rolling 24-hour cooldown per recipient until the de
   assert.equal(model.canRemindAssignment(request,assignment,'13/08/2026 10:00'),true);
   assert.equal(model.remindAssignment(request,assignment.id,'13/08/2026 10:00'),true);
   assert.equal(assignment.manualReminderHistory.length,2,'manual reminders are unlimited after each cooldown');
-  assert.equal(model.canRemindAssignment(request,assignment,'16/08/2026 10:00'),false,'manual reminders stop after the deadline');
+  /* Quá hạn vẫn nhắc được, chỉ cần cách lần trước 24 giờ. */
+  assert.equal(model.canRemindAssignment(request,assignment,'16/08/2026 10:00'),true,'reminders continue past the deadline');
+  /* Sau 90 ngày kể từ ngày tạo thì ngừng nhắc. */
+  assert.equal(model.canRemindAssignment(request,assignment,'29/10/2026 10:00'),true,'still inside the 90-day window');
+  assert.equal(model.canRemindAssignment(request,assignment,'01/11/2026 10:00'),false,'reminders stop after 90 days');
 });
 
 test('automatic reminder timing is visible but does not block a manual reminder', () => {

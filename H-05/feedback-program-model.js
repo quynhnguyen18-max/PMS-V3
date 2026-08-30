@@ -16,7 +16,8 @@
     const base={
       id:String(source.id||`q${index+1}`),
       type:source.type==='rating'?'rating':'open_text',
-      text:String(source.text||'').trim()
+      text:String(source.text||'').trim(),
+      required:Boolean(source.required)
     };
     if(base.type!=='rating')return base;
     const score=Number(source.ratingScale);
@@ -268,8 +269,16 @@
     const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?$/);
     return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;
   }
-  function participantProgress(participant){
+  /* Người cho phản hồi nghỉ việc giữa kỳ sẽ không bao giờ trả lời. Trong lúc còn thu thập, lượt của họ
+     bị loại khỏi mẫu số (màn hình đặt cờ excludedByResignation) để tiến độ và trạng thái hoàn thành
+     phản ánh đúng phần còn thu được; chương trình đã đóng thì giữ nguyên số liệu lịch sử. */
+  function isCountedAssignment(assignment){return !(assignment&&assignment.excludedByResignation);}
+  function countedAssignments(participant){
     const assignments=Array.isArray(participant&&participant.assignments)?participant.assignments:[];
+    return assignments.filter(isCountedAssignment);
+  }
+  function participantProgress(participant){
+    const assignments=countedAssignments(participant);
     const done=assignments.filter(item=>item.status==='submitted').length;
     return {done,total:assignments.length,pending:assignments.length-done};
   }
@@ -299,7 +308,7 @@
   function isAiSummaryEligible(participant){return participantProgress(participant).done>=2;}
   function programDetailOverview(detail,today){
     const participants=detail&&detail.participants||[];
-    const assignments=participants.flatMap(item=>item.assignments||[]);
+    const assignments=participants.flatMap(item=>(item.assignments||[]).filter(isCountedAssignment));
     return {
       participants:participants.length,
       reviewers:new Set(assignments.map(item=>item.reviewer&&item.reviewer.id).filter(Boolean)).size,
@@ -309,9 +318,20 @@
       overdue:participants.filter(item=>participantViewState(detail.campaign,item,today)==='overdue').length
     };
   }
+  /* Cùng luật với yêu cầu của quản lý: quá hạn vẫn nhắc được trong 90 ngày kể từ ngày tạo chương trình. */
+  const REMIND_WINDOW_DAYS=90;
+  function isWithinRemindWindow(campaign,now){
+    const created=dateFromDMY(campaign&&campaign.createdAt),current=dateTimeFromDMY(now);
+    if(!current)return false;
+    if(!created)return true;
+    const end=new Date(created.getTime()+REMIND_WINDOW_DAYS*86400000);
+    end.setUTCHours(23,59,59,999);
+    return current<=end;
+  }
   function canRemindProgramAssignment(campaign,assignment,now){
     if(!campaign||campaign.status!=='collecting'||!assignment||assignment.status==='submitted'||assignment.status==='locked')return false;
     if(campaign.identityVisibility==='anonymous'||campaign.anon==='anon')return false;
+    if(!isWithinRemindWindow(campaign,now))return false;
     const history=assignment.manualReminderHistory||[];
     const last=dateTimeFromDMY(history.at(-1)),current=dateTimeFromDMY(now);
     return Boolean(current)&&(!last||current-last>=24*60*60*1000);
@@ -325,5 +345,5 @@
     });
     return sent;
   }
-  return {dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
 });

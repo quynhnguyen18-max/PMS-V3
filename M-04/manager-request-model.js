@@ -155,8 +155,11 @@
     const pending=((request&&request.assignments)||[]).some(item=>item.status!=='done');
     return !!(pending&&today&&expires&&today>expires);
   }
+  /* Cùng luật với chương trình của HR: lượt của người cho phản hồi đã nghỉ việc không tính vào mẫu số
+     khi yêu cầu còn đang thu thập (màn hình đặt cờ excludedByResignation). */
+  function isCountedAssignment(assignment){return !(assignment&&assignment.excludedByResignation);}
   function summarize(request,todayDMY){
-    const assignments=(request&&request.assignments)||[];
+    const assignments=((request&&request.assignments)||[]).filter(isCountedAssignment);
     const total=assignments.length;
     const done=assignments.filter(item=>item.status==='done').length;
     const pending=total-done;
@@ -169,7 +172,7 @@
   function byEmployee(request,todayDMY){
     const late=isOverdue(request,todayDMY);
     const rows=new Map();
-    ((request&&request.assignments)||[]).forEach(item=>{
+    ((request&&request.assignments)||[]).filter(isCountedAssignment).forEach(item=>{
       if(!rows.has(item.employeeId)){
         rows.set(item.employeeId,{employeeId:item.employeeId,employeeName:item.employeeName,total:0,done:0,pending:0,overdue:0,rate:0});
       }
@@ -214,12 +217,24 @@
   function sortRequestsForAction(requests,todayDMY){
     return [...(requests||[])].sort((a,b)=>compareRequestsForAction(a,b,todayDMY));
   }
+  /* Quá hạn vẫn nhắc được: yêu cầu sống trong 90 ngày kể từ ngày tạo, đúng phạm vi chọn hạn của form.
+     Sau mốc đó mới ngừng nhắc; giữa các lần nhắc thủ công vẫn phải cách nhau 24 giờ. */
+  const REMIND_WINDOW_DAYS=90;
+  function remindWindowEnd(request){
+    const created=dateFromDMY(request&&request.createdAt);
+    if(!created)return null;
+    const end=new Date(created.getTime()+REMIND_WINDOW_DAYS*86400000);
+    end.setUTCHours(23,59,59,999);
+    return end;
+  }
+  function isWithinRemindWindow(request,nowDMY){
+    const now=dateTimeFromDMY(nowDMY),end=remindWindowEnd(request);
+    return Boolean(now)&&(!end||now<=end);
+  }
   function canRemindAssignment(request,assignment,nowDMY){
     if(!assignment||assignment.status==='done'||requestStatus(request,String(nowDMY||'').slice(0,10))==='closed')return false;
-    const now=dateTimeFromDMY(nowDMY),due=dateFromDMY(request&&request.due);
-    if(!now||!due)return false;
-    due.setUTCHours(23,59,59,999);
-    if(now>due)return false;
+    const now=dateTimeFromDMY(nowDMY);
+    if(!now||!isWithinRemindWindow(request,nowDMY))return false;
     const last=dateTimeFromDMY(assignment.remindedAt);
     return !last||now-last>=86400000;
   }
@@ -258,5 +273,5 @@
     };
   }
 
-  return {tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
+  return {isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
 });
