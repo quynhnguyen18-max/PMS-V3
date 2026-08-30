@@ -1302,3 +1302,22 @@ test('detail screens stop counting and reminding resigned reviewers, and warn be
   assert.match(hrDetail,/đã nghỉ việc nên không thể xem kết quả/);
   assert.match(hrDetail,/\.share-warning\{/);
 });
+
+test('questionnaire library rows open on click and keep action icons aligned',()=>{
+  const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
+
+  /* Cả hàng là vùng bấm để xem nên nút con mắt bị bỏ, và mọi nút hành động phải chặn nổi bọt. */
+  assert.doesNotMatch(library,/bx-show/);
+  assert.doesNotMatch(library,/data-tooltip="Xem bộ câu hỏi"/);
+  assert.match(library,/<div class="template-row" role="button" tabindex="0"[^>]*onclick="openDetail\('\$\{item\.id\}'\)"/);
+  for(const action of ['useTemplate','copyTemplate','openEditor','deleteTemplate']){
+    assert.match(library,new RegExp(`onclick="event\\.stopPropagation\\(\\);${action}\\('\\$\\{item\\.id\\}'\\)"`));
+  }
+  /* Bốn ô cố định, hàng không sửa được vẫn chừa chỗ để icon gióng thẳng cột. */
+  assert.match(library,/\.row-actions\{display:grid;grid-template-columns:repeat\(4,28px\);justify-content:start/);
+  /* Cột chức năng rộng đúng 4 ô icon để tiêu đề gióng thẳng icon đầu tiên. */
+  assert.match(library,/minmax\(200px,1fr\) 124px;/);
+  assert.match(library,/\.library-head \.h-r\{text-align:left\}/);
+  assert.match(library,/\.icon-slot\{display:block;width:28px;height:28px\}/);
+  assert.match(library,/<span class="icon-slot" aria-hidden="true"><\/span><span class="icon-slot" aria-hidden="true"><\/span>/);
+});
