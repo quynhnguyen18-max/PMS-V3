@@ -201,7 +201,7 @@ test('answered feedback uses a compact conversational pair with only a question 
   // Bubble và connector phải đồng bộ ở popup/split lẫn trang chi tiết.
   for (const html of [fs.readFileSync(pagePath,'utf8'), fs.readFileSync(detailPath,'utf8')]) {
     assert.match(html, /\.qa-q\{[^}]*display:block[^}]*width:100%[^}]*border-radius/);
-    assert.match(html, /\.qa-label\{[^}]*text-transform:uppercase[^}]*color:var\(--z500\)/);
+    assert.match(html, /\.qa-label\{[^}]*display:inline[^}]*text-transform:none[^}]*color:var\(--z600\)/);
     assert.match(html, /\.qa-a\{[^}]*margin:0 0 0 8px[^}]*padding-left:10px/);
     assert.match(html, /\.qa-a::before\{[^}]*top:-2px[^}]*width:10px[^}]*height:13px[^}]*border-bottom/);
     assert.match(html, /\.qa-a \.fb-body\{[^}]*margin:0[^}]*font-size:12\.5px[^}]*background:transparent[^}]*padding:4px 8px 1px/);
@@ -954,7 +954,7 @@ test('request detail renders a non-editable AI summary before original feedback 
 test('request detail uses the shared compact question and answer pattern for individual questions', () => {
   const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
   assert.match(html, /function responsePair\(question,body\)/);
-  assert.match(html, /class="qa-q"><span class="qa-label">Câu hỏi<\/span><span class="qa-text">\$\{question\}<\/span>/);
+  assert.match(html, /class="qa-q"><span class="qa-label">Câu hỏi:<\/span> <span class="qa-text">\$\{question\}<\/span>/);
   assert.match(html, /request\.questionMode==='individual'\?responsePair\(assignment\.question/);
   assert.match(html, /\.qa-q\{[^}]*width:100%[^}]*background:var\(--brand-muted\)/);
   assert.match(html, /\.qa-a::before\{[^}]*top:-2px[^}]*border-bottom/);

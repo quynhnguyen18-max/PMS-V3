@@ -33,7 +33,7 @@ test('employee feedback supports all cycles and removes the employee info box', 
 test('employee answered feedback uses the shared compact question and answer pattern', () => {
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   assert.match(html, /function feedbackPair\(question,body,tail=''\)/);
-  assert.match(html, /class="qa-q"><span class="qa-label">Câu hỏi<\/span><span class="qa-text">\$\{question\}<\/span>/);
+  assert.match(html, /class="qa-q"><span class="qa-label">Câu hỏi:<\/span> <span class="qa-text">\$\{question\}<\/span>/);
   assert.match(html, /class="qa-a">[\s\S]*?<p class="fb-body">\$\{body\}<\/p>/);
   assert.match(html, /\.qa-q\{[^}]*width:100%[^}]*background:var\(--brand-muted\)/);
   assert.match(html, /\.qa-a::before\{[^}]*top:-2px[^}]*border-bottom/);
@@ -361,7 +361,10 @@ test('media summary viewer renders an admin template story with anonymous AI ins
   assert.match(html,/function moveMediaPoster\(direction\)/);
   assert.match(html,/Insight được AI diễn giải từ feedback và không hiển thị danh tính người gửi/);
   assert.doesNotMatch(html,/Thiết kế poster được quản trị bởi System Admin/);
-  assert.doesNotMatch(html,/insights:\s*\[[\s\S]*?who:/);
+  /* Chỉ soi khối dữ liệu campaign: insight của AI không được kèm danh tính người gửi.
+     Quét cả file sẽ bắt nhầm các object `who:` hợp lệ ở phần feed phía dưới. */
+  const campaignBlock=html.slice(html.indexOf('const MEDIA_CAMPAIGNS'),html.indexOf('const MEDIA_STATE'));
+  assert.doesNotMatch(campaignBlock,/insights:\s*\[[\s\S]*?who:/);
 });
 
 test('active media campaigns expose current and all-poster downloads only inside the viewer', () => {
@@ -415,4 +418,41 @@ test('personal feedback keeps a balanced two-column layout on laptop and large m
   assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-main\{max-width:820px/);
   assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-rail\{width:300px/);
   assert.doesNotMatch(html,/@media \(max-width:768px\)|@media \(max-width:767px\)/);
+});
+
+test('HR requests lead the action queue, stay anonymous in the list and land in given feedback', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  /* HR đứng trên mọi yêu cầu khác, trong mỗi nhóm xếp theo hạn gần nhất. */
+  assert.match(html,/\(isHrQueueRequest\(b\)-isHrQueueRequest\(a\)\)\|\|\(queueDueTs\(a\)-queueDueTs\(b\)\)/);
+  assert.match(html,/function queueDueTs\(item\)/);
+
+  /* Danh sách chỉ nói "HR", tên người HR gửi chỉ lộ ở màn trả lời. */
+  assert.match(html,/Yêu cầu phản hồi của<\/span> <b>HR<\/b> <span class="q-pre">cho<\/span>/);
+  assert.match(html,/\.qrow-hr\{/);
+  /* Chỉ dòng HR có viền trái nhấn; dòng quá hạn thường chỉ dùng chip cảnh báo. */
+  assert.doesNotMatch(html,/\.qrow\.over\{/);
+  /* Avatar mang chữ HR nên không lặp nhãn HR trước tiêu đề; dòng chương trình chỉ dành cho yêu cầu HR. */
+  assert.doesNotMatch(html,/q-hr-tag/);
+  assert.match(html,/\$\{hr\?`<div class="qrow-sub">\$\{q\.context\}<\/div>`:''\}/);
+
+  /* Bộ câu hỏi đã trả lời gộp thành một card trong "Phản hồi đã cho". */
+  assert.match(html,/function cardGivenHrProgram\(f\)/);
+  assert.match(html,/Đã trả lời \$\{answers\.filter\(pair=>pair\.answer\)\.length\}\/\$\{answers\.length\} câu hỏi/);
+  assert.match(html,/function toggleHrGiven\(button\)/);
+  /* Dùng lại đúng cặp câu hỏi - câu trả lời chuẩn của màn, không tự chế khối riêng. */
+  assert.match(html,/feedbackPair\(pair\.question,answerHTML\(pair\)\)/);
+  assert.doesNotMatch(html,/hr-given-q\{/);
+  assert.match(html,/if\(isHr\)FEED\.unshift\(\{/);
+});
+
+test('a closed HR request notifies once and then disappears', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  assert.match(html,/const CLOSED_NOTICE_KEY='uc5_e04_closed_notice_seen'/);
+  assert.match(html,/function markClosedNoticesSeen\(\)/);
+  assert.match(html,/!\(q\.programClosed&&closedNoticeSeen\(q\.id\)\)/);
+  assert.match(html,/Yêu cầu đã đóng, bạn không cần phản hồi/);
+  /* Yêu cầu đã đóng chỉ để đọc: không còn nút trả lời. */
+  assert.match(html,/qrow-closed[\s\S]{0,600}qrow-closed-note/);
 });

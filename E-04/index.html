@@ -192,13 +192,33 @@ input,select,textarea{font-family:inherit}
 .qm-name{font-size:12.5px;font-weight:500;color:var(--z800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qm-dom{font-weight:400;color:var(--z500)}
 .qrow{display:flex;align-items:center;gap:10px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 11px;transition:var(--t)}
+/* Yêu cầu của HR: nhấn bằng nhãn + viền trái hồng để tách khỏi yêu cầu của đồng nghiệp. */
+.qrow-hr{border-color:var(--brand-ring);background:var(--brand-muted);box-shadow:inset 3px 0 var(--brand)}
+.av-hr{background:var(--brand);color:#fff}
+.av-hr i,.fb-av-hr i{font-size:14px}
+.qrow-closed{background:var(--z50);border-color:var(--z200);box-shadow:inset 3px 0 var(--z300)}
+.qrow-closed-note{display:inline-flex;align-items:center;gap:5px;margin-top:5px;color:var(--z600);font-size:11.5px}
+.qrow-closed-note i{font-size:14px;color:var(--z500)}
+.qrow-mini-hr .qm-name{color:var(--z900);font-weight:600}
+/* Card gộp một bộ câu hỏi HR trong "Phản hồi đã cho". */
+.fb-card-hr{border-color:var(--brand-ring)}
+.fb-av-hr{background:var(--brand);color:#fff}
+.fb-sub-line{margin-top:2px;color:var(--z500);font-size:11.5px}
+.hr-given-body{margin-top:9px}
+.hr-given-count{display:inline-flex;align-items:center;gap:5px;margin-bottom:8px;color:var(--z600);font-size:11.5px;font-weight:600}
+.hr-given-count i{font-size:14px;color:var(--brand)}
+.hr-given-empty{color:var(--z500);font-style:italic}
+.hr-given-rest{display:none;margin-top:10px}
+.fb-card.hr-given-open .hr-given-rest{display:block}
+.hr-given-toggle{margin-top:8px;padding:0;border:0;background:transparent;color:var(--brand);font-size:12px;font-weight:600;cursor:pointer}
+.hr-given-toggle:hover{text-decoration:underline}
 .qrow:hover{border-color:var(--z300);box-shadow:var(--sh-sm)}
 .qrow-main{flex:1;min-width:0}
 .qrow-t{font-size:12.5px;color:var(--z900);line-height:1.4}
 .qrow-t b{font-weight:600}
 .qrow-sub{font-size:11.5px;color:var(--z500);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qrow-t .q-pre{color:var(--z500);font-weight:400}
-.qrow.over{border-left:3px solid var(--err);padding-left:9px}
+/* Chip "quá hạn" đã đủ báo trễ hạn; viền đỏ dày làm dòng thường nặng ngang dòng của HR. */
 .due{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--z500);flex-shrink:0;white-space:nowrap}
 .due i{font-size:12px}
 .due.soon{color:var(--warn)}.due.over{color:var(--err);font-weight:600}
@@ -389,7 +409,7 @@ input,select,textarea{font-family:inherit}
 .fb-qbox{width:100%;border:0;border-radius:10px;padding:7px 11px 8px;background:var(--brand-muted);margin-bottom:10px}
 .fb-q-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);margin-bottom:4px}
 .fb-q-txt{font-size:12.5px;color:var(--z800);line-height:1.55}
-.qa{margin:9px 0 0}.qa-q{display:block;width:100%;background:var(--brand-muted);color:var(--z700);font-size:12.5px;line-height:1.5;padding:7px 12px 8px;border-radius:10px 10px 10px 4px}.qa-label{display:block;font-size:10px;font-weight:600;line-height:1.3;text-transform:uppercase;letter-spacing:.35px;color:var(--z500);margin-bottom:2px}.qa-text{display:block}.qa-a{position:relative;margin:0 0 0 8px;padding-left:10px}.qa-a::before{content:'';position:absolute;left:0;top:-2px;width:10px;height:13px;border-left:2px solid var(--z200);border-bottom:2px solid var(--z200);border-bottom-left-radius:7px}.qa-a .fb-body{display:block;width:100%;margin:0;font-size:12.5px;background:transparent;border-radius:0;padding:4px 8px 1px}.qa-a .fb-body-wrap{margin:0}
+.qa{margin:9px 0 0}.qa-q{display:block;width:100%;background:var(--brand-muted);color:var(--z700);font-size:12.5px;line-height:1.5;padding:7px 12px 8px;border-radius:10px 10px 10px 4px}.qa-label{display:inline;margin:0;font-size:inherit;font-weight:600;line-height:inherit;letter-spacing:0;text-transform:none;color:var(--z600)}.qa-text{display:inline}.qa-a{position:relative;margin:0 0 0 8px;padding-left:10px}.qa-a::before{content:'';position:absolute;left:0;top:-2px;width:10px;height:13px;border-left:2px solid var(--z200);border-bottom:2px solid var(--z200);border-bottom-left-radius:7px}.qa-a .fb-body{display:block;width:100%;margin:0;font-size:12.5px;background:transparent;border-radius:0;padding:4px 8px 1px}.qa-a .fb-body-wrap{margin:0}
 .fb-body{font-size:13px;color:var(--z700);line-height:1.65;margin:0}
 /* ── Rút gọn nội dung dài: câu hỏi 1 dòng, nội dung 2 dòng, có nút mở rộng ── */
 .fb-card:not(.fb-expanded) .fb-q-txt{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -1204,6 +1224,22 @@ const FEED = [
     cv:['Không ngừng học hỏi'] },
 
   // ── GIVEN ──
+  /* Một lần trả lời bộ câu hỏi của HR: gộp cả bộ vào một card, câu không bắt buộc có thể bỏ trống. */
+  { kind:'given', id:'gvn-hr-1', cycle:'2026', date:'20/06/2026', ts:20260620, requestSource:'hr', vis:'hr',
+    program:'Khảo sát năng lực hợp tác nửa đầu 2026 - ITC',
+    who:{name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC – Mobile – iOS Engineer'},
+    hrAnswers:[
+      {question:'Đâu là điểm mạnh nổi bật của Trần Văn Khoa khi phối hợp trong nửa đầu năm?',
+       answer:'Khoa nắm rất chắc phần mobile và luôn chủ động cảnh báo sớm các rủi ro tích hợp. Trong đợt phát hành tháng 5, bạn phát hiện lệch schema giữa app và service trước khi lên staging nên cả nhóm không phải rollback.'},
+      {question:'Bạn ghi nhận Trần Văn Khoa đã tạo ảnh hưởng tích cực nào đến tiến độ hoặc chất lượng công việc?',
+       answer:'Bạn chủ động viết lại tài liệu tích hợp cho phần thanh toán, nhờ vậy hai bạn mới vào nhóm tự làm được mà không phải hỏi lại nhiều.'},
+      {question:'Một cơ hội phát triển cụ thể nào sẽ giúp Trần Văn Khoa làm việc hiệu quả hơn?',
+       answer:'Khoa có thể chia sẻ sớm hơn khi thấy phạm vi công việc phình ra, thay vì tự gánh rồi báo lại lúc gần đến hạn.'},
+      {question:'Nêu một ví dụ cụ thể về cách Trần Văn Khoa hỗ trợ đồng đội trong kỳ vừa qua.',
+       answer:'Buổi review kiến trúc tháng 6, bạn dành gần một buổi ngồi cùng nhóm backend để làm rõ luồng đồng bộ dữ liệu offline.'},
+      {question:'Bạn có đề xuất gì thêm cho chương trình phát triển của Trần Văn Khoa?', answer:''}
+    ],
+    body:'', cv:[] },
   { kind:'given', id:'gvn-1', cycle:'2026', date:'12/03/2026', ts:20260312, thankedAt:'14/03/2026',
     who:{name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
     body:'Mai làm việc rất chủ động trong dự án Design System. Bạn không chỉ hoàn thành phần component được giao mà còn chủ động chuẩn hoá tài liệu Storybook, giúp cả team dùng lại dễ dàng hơn nhiều.',
@@ -1297,6 +1333,16 @@ const MEDIA_CAMPAIGNS = [
 ];
 const MEDIA_STATE={campaign:null,posterIndex:0,insights:[],viewedCampaignIds:new Set()};
 
+/* Thông báo "HR đã đóng yêu cầu" chỉ cần đọc một lần: đọc xong thì tự biến mất khỏi hàng đợi
+   vì người dùng không còn hành động nào phải làm. */
+const CLOSED_NOTICE_KEY='uc5_e04_closed_notice_seen';
+function closedNoticeSeenIds(){try{return new Set(JSON.parse(localStorage.getItem(CLOSED_NOTICE_KEY)||'[]'));}catch(error){return new Set();}}
+function closedNoticeSeen(id){return closedNoticeSeenIds().has(id);}
+function markClosedNoticesSeen(){
+  const ids=closedNoticeSeenIds();
+  QUEUE.filter(item=>item.programClosed).forEach(item=>ids.add(item.id));
+  try{localStorage.setItem(CLOSED_NOTICE_KEY,JSON.stringify([...ids]));}catch(error){}
+}
 function hrQueueFromProgram(programId,reviewerId){
   const raw=FeedbackProgramData.programById(programId),program=raw&&FeedbackProgramModel.normalizeCampaign(raw),detail=raw&&FeedbackProgramData.detailForProgram(raw);
   if(!program||!detail)return [];
@@ -1308,12 +1354,14 @@ function hrQueueFromProgram(programId,reviewerId){
       programId:program.id,assignmentId:assignment.id,program,requestSource:'hr',cycle:String(program.createdAt||'').slice(-4)||'2026',
       from:`HR - ${requester.name}`,dom:requester.domain||'',ini:requester.initials||initials(requester.name),about:'hr-program',
       feedbackReceiver:participant.employee,context:program.goal,questions:detail.questions||[],identityVisibility:program.identityVisibility,
-      resultAudience:FeedbackProgramModel.resultAudience(program,participant.employee.id),sent:program.createdAt,dueDate:program.due,due:'còn 4 ngày',urgency:'normal'
+      resultAudience:FeedbackProgramModel.resultAudience(program,participant.employee.id),sent:program.createdAt,dueDate:program.due,due:'còn 4 ngày',urgency:'normal',
+      programClosed:program.status==='closed'
     })));
 }
 const QUEUE = [
   ...hrQueueFromProgram('s12',SELF.dom),
   ...hrQueueFromProgram('s13',SELF.dom),
+  ...hrQueueFromProgram('s14',SELF.dom),
   { cycle:'2026', from:'Trần Thị Mai', dom:'mai.tran', ini:'TM', about:'self', context:'Dự án Design System', sent:'28/07/2026', dueDate:'04/08/2026', due:'còn 2 ngày', urgency:'soon' },
   { cycle:'2026', from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu', context:'Chuẩn bị buổi 1:1 định kỳ', sent:'25/07/2026', dueDate:'01/08/2026', due:'quá hạn 1 ngày', urgency:'over' },
   { cycle:'2026', from:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', about:'self', context:'Buổi tech talk tháng 7', sent:'30/07/2026', dueDate:'07/08/2026', due:'còn 5 ngày', urgency:'normal' },
@@ -1344,22 +1392,42 @@ function cy(){ return document.getElementById('cycleSel').value; }
 function cycleMatches(value){ return cy()==='all' || value===cy(); }
 function activeCycle(){ return cy()==='all' ? String(new Date().getFullYear()) : cy(); }
 
+/* Yêu cầu của HR luôn đứng trên mọi yêu cầu khác; trong từng nhóm thì hạn gần nhất lên trước.
+   Chip "quá hạn" giữ nguyên để yêu cầu trễ hạn của đồng nghiệp vẫn nhận ra được dù nằm dưới. */
+function queueDueTs(item){
+  const [day,month,year]=String(item&&item.dueDate||'').split('/').map(Number);
+  return day&&month&&year?Date.UTC(year,month-1,day):Number.MAX_SAFE_INTEGER;
+}
+function visibleQueue(){
+  return QUEUE.filter(q=>cycleMatches(q.cycle)&&!(q.programClosed&&closedNoticeSeen(q.id)));
+}
 function sortedQueue(){
-  const rank={over:0,soon:1,normal:2};
-  return QUEUE.filter(q=>cycleMatches(q.cycle)).sort((a,b)=>(rank[a.urgency]??2)-(rank[b.urgency]??2));  // gấp nhất lên đầu
+  return visibleQueue().sort((a,b)=>(isHrQueueRequest(b)-isHrQueueRequest(a))||(queueDueTs(a)-queueDueTs(b)));
 }
 function queueRowHTML(q){
   const headline = isHrQueueRequest(q)
-    ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b> <span class="q-pre">cho</span> <b>${q.feedbackReceiver.name}</b>`
+    ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>HR</b> <span class="q-pre">cho</span> <b>${q.feedbackReceiver.name}</b>`
     : q.about==='self'
     ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b>`
     : `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b> <span class="q-pre">cho</span> <b>${q.aboutName}</b>`;
   const dueIcon = q.urgency==='over' ? 'bx-error-circle' : 'bx-time-five';
-  return `<div class="qrow ${q.urgency==='over'?'over':''}">
-    <div class="av av-brand av-sm">${q.ini}</div>
+  const hr = isHrQueueRequest(q);
+  /* Yêu cầu HR đã đóng chỉ để thông báo, không còn hành động nào cho nhân viên. */
+  if(hr&&q.programClosed){
+    return `<div class="qrow qrow-hr qrow-closed">
+    <div class="av av-hr av-sm">HR</div>
     <div class="qrow-main">
       <div class="qrow-t">${headline}</div>
       <div class="qrow-sub">${q.context}</div>
+      <div class="qrow-closed-note"><i class="bx bx-lock-alt"></i>Yêu cầu đã đóng, bạn không cần phản hồi</div>
+    </div>
+  </div>`;
+  }
+  return `<div class="qrow ${hr?'qrow-hr':''}">
+    <div class="av ${hr?'av-hr':'av-brand'} av-sm">${hr?'HR':q.ini}</div>
+    <div class="qrow-main">
+      <div class="qrow-t">${headline}</div>
+      ${hr?`<div class="qrow-sub">${q.context}</div>`:''}
     </div>
     <span class="due ${q.urgency}"><i class="bx ${dueIcon}"></i>${q.due}</span>
     <button class="btn btn-default btn-sm" onclick="openReply('${q.id}')">Trả lời</button>
@@ -1368,10 +1436,16 @@ function queueRowHTML(q){
 /* dòng gọn ở rail: chỉ tên người yêu cầu — chi tiết xem trong popup trả lời */
 function queueRailHTML(q){
   const tip = isHrQueueRequest(q)
-    ? `${q.from} yêu cầu phản hồi cho ${q.feedbackReceiver.name} — ${q.context}`
+    ? `HR yêu cầu phản hồi cho ${q.feedbackReceiver.name} — ${q.context}`
     : q.about==='other'
     ? `${q.from} yêu cầu phản hồi cho ${q.aboutName} — ${q.context}`
     : `${q.from} yêu cầu phản hồi — ${q.context}`;
+  if(isHrQueueRequest(q)){
+    return `<div class="qrow-mini qrow-mini-hr" onclick="${q.programClosed?`openQueueAll()`:`openReply('${q.id}')`}" title="${tip}">
+    <div class="av av-hr av-sm">HR</div>
+    <span class="qm-name">Yêu cầu phản hồi cho ${q.feedbackReceiver.name}</span>
+  </div>`;
+  }
   return `<div class="qrow-mini" onclick="openReply('${q.id}')" title="${tip}">
     <div class="av av-brand av-sm">${q.ini}</div>
     <span class="qm-name">${q.from} <span class="qm-dom">(${q.dom})</span></span>
@@ -1395,6 +1469,7 @@ function openQueueAll(){
   document.getElementById('queueAllCnt').textContent = items.length;
   document.getElementById('queueAllList').innerHTML = items.map(queueRowHTML).join('');
   openOverlay('dlg-queue');
+  markClosedNoticesSeen();
 }
 
 function statusChip(st){
@@ -1434,7 +1509,9 @@ function visibleCardCv(item){return isHrQueueRequest(item)?[]:(item.cv||[]);}
 function hasCV(cv){ return (cv&&cv.length) ? ' has-react' : ''; }
 function visIcon(v, persp){
   // persp='sender' (phản hồi mình cho đi) → nói theo người nhận; mặc định là góc nhìn người nhận
-  const [ic,txt] = v==='manager'
+  const [ic,txt] = v==='hr'
+    ? ['bx-id-card','Kết quả do HR tổng hợp và quyết định chia sẻ']
+    : v==='manager'
     ? ['bx-group','Chia sẻ với các cấp quản lý']
     : ['bx-lock-alt', persp==='sender' ? 'Chỉ người nhận' : 'Chỉ mình tôi'];
   return `<span class="fb-badge-wrap vis-ic"><i class="bx ${ic}"></i><span class="fb-badge-tip">${txt}</span></span>`;
@@ -1455,7 +1532,7 @@ function findFb(id){ return FeedbackModel.normalizeFeed(FEED).find(x=>x.id===id)
 
 function feedbackPair(question,body,tail=''){
   if(!question)return `<div class="fb-body-wrap"><p class="fb-body">${body}</p>${tail}</div>`;
-  return `<div class="qa"><div class="qa-q"><span class="qa-label">Câu hỏi</span><span class="qa-text">${question}</span></div><div class="qa-a"><div class="fb-body-wrap"><p class="fb-body">${body}</p>${tail}</div></div></div>`;
+  return `<div class="qa"><div class="qa-q"><span class="qa-label">Câu hỏi:</span> <span class="qa-text">${question}</span></div><div class="qa-a"><div class="fb-body-wrap"><p class="fb-body">${body}</p>${tail}</div></div></div>`;
 }
 
 function cardReceived(f){
@@ -1513,7 +1590,7 @@ function renderReceivedReader(f){
     </div>
     <div class="reader-badges">${badgeImgs(cv)}</div>`;
   document.getElementById('receivedReaderQuestion').innerHTML=f.q
-    ? `<div class="qa-q"><span class="qa-label">Câu hỏi</span><span class="qa-text">${f.q}</span></div>` : '';
+    ? `<div class="qa-q"><span class="qa-label">Câu hỏi:</span> <span class="qa-text">${f.q}</span></div>` : '';
   document.querySelector('#dlg-received-reader .reader-detail').classList.toggle('has-question',!!f.q);
   const canvas=document.getElementById('receivedReaderContent');
   canvas.textContent=f.body;
@@ -1584,7 +1661,39 @@ function updateUnreadLabel(){
   if(!n) lbl.remove(); else lbl.textContent=`Chưa mở · ${n}`;
 }
 function unreadItems(items){ return items.filter(f=>f.kind==='received' && !fbState(f).opened); }
+/* Một lần trả lời bộ câu hỏi của HR gồm nhiều câu, nên gộp thành MỘT card trong "Phản hồi đã cho":
+   phần đầu nêu chương trình và người nhận, phần thân mở rộng tại chỗ để xem đủ các cặp câu hỏi - trả lời. */
+function cardGivenHrProgram(f){
+  const answers=f.hrAnswers||[];
+  const [first,...rest]=answers;
+  const answerHTML=pair=>pair.answer||'<span class="hr-given-empty">Không trả lời câu này</span>';
+  const more=rest.length
+    ? `<div class="hr-given-rest">${rest.map(pair=>feedbackPair(pair.question,answerHTML(pair))).join('')}</div>
+       <button class="hr-given-toggle" type="button" onclick="toggleHrGiven(this)" aria-expanded="false">Xem thêm</button>`
+    : '';
+  return `<div class="fb-card fb-card-hr" data-kind="given" data-fb="${f.id||''}">
+    <div class="fb-head">
+      <div class="fb-av fb-av-hr">HR</div>
+      <div class="fb-head-main">
+        <div class="fb-line"><span class="fb-who">Yêu cầu phản hồi của HR cho ${f.who.name}</span></div>
+        <div class="fb-sub-line">${f.program||''}</div>
+      </div>
+      ${cardMeta(f.vis,f.date,'sender')}
+    </div>
+    <div class="hr-given-body">
+      <div class="hr-given-count"><i class="bx bx-list-check"></i>Đã trả lời ${answers.filter(pair=>pair.answer).length}/${answers.length} câu hỏi</div>
+      ${first?feedbackPair(first.question,answerHTML(first)):''}
+      ${more}
+    </div>
+  </div>`;
+}
+function toggleHrGiven(button){
+  const card=button.closest('.fb-card'),open=card.classList.toggle('hr-given-open');
+  button.setAttribute('aria-expanded',String(open));
+  button.textContent=open?'Thu gọn':'Xem thêm';
+}
 function cardGiven(f){
+  if(f.requestSource==='hr'&&(f.hrAnswers||[]).length)return cardGivenHrProgram(f);
   const cv=visibleCardCv(f);
   // được người nhận cảm ơn → 1 trái tim nhỏ cạnh tên họ, cùng quy ước với phản hồi nhận
   const fresh = f.thankedAt && !thanksSeen();
@@ -2876,6 +2985,13 @@ function submitReply(){
   if(idx>=0) QUEUE.splice(idx,1);
   const target = isHr?item.feedbackReceiver.name:(item.about==='other' ? item.aboutName : item.from);
   const targetDom = isHr?item.feedbackReceiver.domain:(item.about==='other' ? item.aboutDom : item.dom);
+  if(isHr)FEED.unshift({
+    kind:'given', id:`given-hr-${Date.now()}`, cycle:item.cycle, date:todayDMY(), ts:Number(todayDMY().split('/').reverse().join('')),
+    requestSource:'hr', program:item.context,
+    who:{name:target, dom:targetDom, ini:initials(target), org:ORG_BY_DOM[targetDom]||''},
+    hrAnswers:(item.questions||[]).map(question=>({question:question.text,answer:question.type==='rating'?(RV.answers[question.id]?`${RV.answers[question.id]}/${question.ratingScale||5}`:''):String(RV.answers[question.id]||'').trim()})),
+    body:'', cv:[], vis:'hr'
+  });
   if(!isHr)FEED.unshift(FeedbackModel.createGivenResponse({
     id:`given-${Date.now()}`, cycle:item.cycle, date:todayDMY(), requestId:item.id,
     recipient:{name:target, dom:targetDom, ini:item.about==='other' ? initials(target) : item.ini, org:ORG_BY_DOM[targetDom] || ''},
