@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>E-04 – Phản hồi cá nhân | MoMo HRM</title>
+<title>E-04 – Phản hồi của tôi | MoMo HRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
@@ -137,6 +137,17 @@ input,select,textarea{font-family:inherit}
 .stat-lbl{font-size:12.5px;color:var(--z600);display:flex;align-items:center;gap:8px}
 .stat-lbl i{font-size:15px;width:16px;text-align:center;color:var(--z400)}
 .stat-val{font-size:12.5px;font-weight:500;color:var(--z500)}
+/* chưa có lần nào được cảm ơn → làm mờ cả dòng, cùng cách xử lý với .cv-rank.zero */
+.stat-row.zero .stat-lbl{color:var(--z400)}
+.stat-row.zero .stat-lbl i{color:var(--z300)}
+.stat-row.zero .stat-val{color:var(--z400)}
+.stat-tip-wrap{position:relative;cursor:default;border-radius:var(--rxs)}
+.stat-tip-wrap:focus-visible{outline:2px solid var(--brand-ring);outline-offset:2px}
+/* .stat-lbl .stat-tip: cần specificity cao hơn .fb-badge-tip (khai báo sau trong file) để neo trái thay vì canh giữa */
+.stat-lbl .stat-tip{left:0;transform:none;white-space:normal;width:200px;text-align:left}
+.stat-lbl .stat-tip::after{left:18px;transform:none}
+/* hiện khi hover và khi focus bằng bàn phím (DS §8.1); vòng focus dùng :focus-visible để chuột bấm không vẽ ring */
+.stat-tip-wrap:hover .stat-tip,.stat-tip-wrap:focus .stat-tip{opacity:1}
 .cv-rank{display:flex;align-items:center;gap:10px;padding:6px 0}
 .cv-rank img{width:30px;height:30px;border-radius:50%;flex-shrink:0}
 .cv-rank-name{font-size:12px;color:var(--z700);flex:1;line-height:1.3}
@@ -182,6 +193,8 @@ input,select,textarea{font-family:inherit}
 .cycle-lbl{font-size:13px;color:var(--z700);font-weight:500}
 .cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 6px center;font-size:13px;color:var(--z800);font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none}
 .cycle-sel:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.cycle-range{font-size:12px;font-weight:400;color:var(--z500);white-space:nowrap}
+.cycle-range:empty{display:none}
 
 /* ── ACTION QUEUE (Cần bạn phản hồi) — nằm ở rail phải ── */
 .queue-cnt{margin-left:auto;height:17px;line-height:17px;padding:0 7px;border-radius:50px;font-size:10.5px;font-weight:600;background:var(--z100);color:var(--z600)}
@@ -763,7 +776,7 @@ input,select,textarea{font-family:inherit}
     <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
     <div class="sb-item" onclick="location.href='../E-01/index.html'"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</div>
-    <div class="sb-item on"><i class="bx bx-message-square-dots"></i>Phản hồi</div>
+    <div class="sb-item on"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</div>
     <div class="sb-item" onclick="location.href='../demo-delight/feedback-delight-demo.html'"><i class="bx bx-gift"></i>New Demo Feedback</div>
   </nav>
   <div class="sb-foot">
@@ -783,7 +796,7 @@ input,select,textarea{font-family:inherit}
   <header class="topbar">
     <button class="sb-toggle" onclick="toggleSidebar()" aria-label="Mở menu"><i class="bx bx-menu"></i></button>
     <a href="/" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Home</a>
-    <span class="topbar-title">Phản hồi cá nhân</span>
+    <span class="topbar-title">Phản hồi của tôi</span>
     <div class="topbar-right">
       <button class="ico-btn" aria-label="Thông báo" title="Thông báo"><i class="bx bx-bell"></i><span class="notif-dot"></span></button>
       <button class="ico-btn" aria-label="Trợ giúp" title="Trợ giúp"><i class="bx bx-help-circle"></i></button>
@@ -793,10 +806,10 @@ input,select,textarea{font-family:inherit}
 
   <main class="page">
     <div class="breadcrumb">
-      <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Phản hồi cá nhân</span>
+      <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Phản hồi của tôi</span>
     </div>
 
-    <div class="page-hd"><h1 class="page-title">Phản hồi cá nhân</h1></div>
+    <div class="page-hd"><h1 class="page-title">Phản hồi của tôi</h1></div>
 
     <div class="cycle-action-row">
       <div class="cycle-row">
@@ -807,6 +820,7 @@ input,select,textarea{font-family:inherit}
           <option value="2025">2025</option>
           <option value="all">Tất cả</option>
         </select>
+        <span class="cycle-range" id="cycleRange" title="Thời gian của chu kỳ phản hồi"></span>
       </div>
       <div class="hd-actions">
         <button class="media-summary-entry" id="mediaSummaryEntry" hidden onclick="openMediaSummary()" aria-label="Dấu ấn của bạn">
@@ -1340,7 +1354,7 @@ function closedNoticeSeenIds(){try{return new Set(JSON.parse(localStorage.getIte
 function closedNoticeSeen(id){return closedNoticeSeenIds().has(id);}
 function markClosedNoticesSeen(){
   const ids=closedNoticeSeenIds();
-  QUEUE.filter(item=>item.programClosed).forEach(item=>ids.add(item.id));
+  QUEUE.filter(isClosedNotice).forEach(item=>ids.add(item.id));
   try{localStorage.setItem(CLOSED_NOTICE_KEY,JSON.stringify([...ids]));}catch(error){}
 }
 function hrQueueFromProgram(programId,reviewerId){
@@ -1373,6 +1387,13 @@ const QUEUE = [
   { cycle:'2026', from:'Bùi Thị Ngọc', dom:'ngoc.bui', ini:'BN', about:'self', context:'Buổi demo sản phẩm với khách hàng', sent:'01/08/2026', dueDate:'10/08/2026', due:'còn 8 ngày', urgency:'normal' },
   { cycle:'2026', from:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', about:'self', context:'Khảo sát trải nghiệm nội bộ', sent:'01/08/2026', dueDate:'11/08/2026', due:'còn 9 ngày', urgency:'normal' },
   { cycle:'2026', from:'Hồ Nhật Minh', dom:'minh.ho', ini:'HM', about:'self', context:'Hội thảo kỹ thuật nội bộ', sent:'02/08/2026', dueDate:'12/08/2026', due:'còn 10 ngày', urgency:'normal' },
+  /* Ticket bị đóng: chỉ để báo, không còn hành động — hiển thị một lần rồi tự biến mất (giống thông báo của HR). */
+  { id:'ticket-closed-migration', cycle:'2026', ticketClosed:true, closedReason:'recipient-resigned',
+    from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Phạm Minh Đức', aboutDom:'duc.pham',
+    context:'Thu thập góc nhìn về khả năng phối hợp trong dự án Migration', sent:'28/07/2026', dueDate:'15/08/2026', due:'', urgency:'normal' },
+  { id:'ticket-closed-roadmap', cycle:'2026', ticketClosed:true, closedReason:'request-closed',
+    from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu',
+    context:'Ghi nhận hiệu quả buổi trình bày Roadmap', sent:'05/07/2026', dueDate:'20/07/2026', due:'', urgency:'normal' },
 ].filter(Boolean);
 QUEUE.forEach((q,i)=>q.id=q.id||'q'+i);
 /* câu hỏi của người yêu cầu (fallback nếu item không có sẵn) */
@@ -1383,6 +1404,13 @@ function itemQuestion(q){
     : `Bạn có phản hồi gì cho mình sau “${q.context}”?`;
 }
 function isHrQueueRequest(item){return item&&item.requestSource==='hr';}
+/* Thông báo đóng: yêu cầu HR bị đóng, hoặc ticket của quản lý bị đóng. Cả hai đều chỉ đọc một lần. */
+function isClosedNotice(item){return !!(item&&(item.programClosed||item.ticketClosed));}
+function closedNoticeText(item){
+  if(item.closedReason==='recipient-resigned')return 'Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi';
+  if(item.closedReason==='request-closed')return 'Quản lý đã đóng yêu cầu, bạn không cần phản hồi';
+  return 'Yêu cầu đã đóng, bạn không cần phản hồi';
+}
 
 let curFilter='all';
 let queueExpanded=false;
@@ -1391,6 +1419,10 @@ let queueExpanded=false;
 function cy(){ return document.getElementById('cycleSel').value; }
 function cycleMatches(value){ return cy()==='all' || value===cy(); }
 function activeCycle(){ return cy()==='all' ? String(new Date().getFullYear()) : cy(); }
+/* Chu kỳ phản hồi bám theo chu kỳ performance (FEEDBACK_PLAN §6b): chu kỳ N chạy tới ngày chốt YER của năm N. */
+const CYCLE_RANGES={'2025':['01/01/2025','31/12/2025'],'2026':['01/01/2026','30/04/2027'],'2027':['01/05/2027','30/04/2028']};
+function cycleRangeText(cycle){ const r=CYCLE_RANGES[String(cycle)]; return r ? `${r[0]} – ${r[1]}` : ''; }
+function renderCycleRange(){ const el=document.getElementById('cycleRange'); if(el) el.textContent=cycleRangeText(cy()); }
 
 /* Yêu cầu của HR luôn đứng trên mọi yêu cầu khác; trong từng nhóm thì hạn gần nhất lên trước.
    Chip "quá hạn" giữ nguyên để yêu cầu trễ hạn của đồng nghiệp vẫn nhận ra được dù nằm dưới. */
@@ -1399,7 +1431,7 @@ function queueDueTs(item){
   return day&&month&&year?Date.UTC(year,month-1,day):Number.MAX_SAFE_INTEGER;
 }
 function visibleQueue(){
-  return QUEUE.filter(q=>cycleMatches(q.cycle)&&!(q.programClosed&&closedNoticeSeen(q.id)));
+  return QUEUE.filter(q=>cycleMatches(q.cycle)&&!(isClosedNotice(q)&&closedNoticeSeen(q.id)));
 }
 function sortedQueue(){
   return visibleQueue().sort((a,b)=>(isHrQueueRequest(b)-isHrQueueRequest(a))||(queueDueTs(a)-queueDueTs(b)));
@@ -1413,13 +1445,13 @@ function queueRowHTML(q){
   const dueIcon = q.urgency==='over' ? 'bx-error-circle' : 'bx-time-five';
   const hr = isHrQueueRequest(q);
   /* Yêu cầu HR đã đóng chỉ để thông báo, không còn hành động nào cho nhân viên. */
-  if(hr&&q.programClosed){
-    return `<div class="qrow qrow-hr qrow-closed">
-    <div class="av av-hr av-sm">HR</div>
+  if(isClosedNotice(q)){
+    return `<div class="qrow ${hr?'qrow-hr':''} qrow-closed">
+    <div class="av ${hr?'av-hr':'av-brand'} av-sm">${hr?'HR':q.ini}</div>
     <div class="qrow-main">
       <div class="qrow-t">${headline}</div>
-      <div class="qrow-sub">${q.context}</div>
-      <div class="qrow-closed-note"><i class="bx bx-lock-alt"></i>Yêu cầu đã đóng, bạn không cần phản hồi</div>
+      ${hr?`<div class="qrow-sub">${q.context}</div>`:''}
+      <div class="qrow-closed-note"><i class="bx bx-lock-alt"></i>${closedNoticeText(q)}</div>
     </div>
   </div>`;
   }
@@ -1446,7 +1478,7 @@ function queueRailHTML(q){
     <span class="qm-name">Yêu cầu phản hồi cho ${q.feedbackReceiver.name}</span>
   </div>`;
   }
-  return `<div class="qrow-mini" onclick="openReply('${q.id}')" title="${tip}">
+  return `<div class="qrow-mini" onclick="${isClosedNotice(q)?`openQueueAll()`:`openReply('${q.id}')`}" title="${tip}">
     <div class="av av-brand av-sm">${q.ini}</div>
     <span class="qm-name">${q.from} <span class="qm-dom">(${q.dom})</span></span>
   </div>`;
@@ -1885,11 +1917,14 @@ function renderRail(){
   const rec=inCy.filter(f=>f.kind==='received').length;
   const giv=inCy.filter(f=>f.kind==='given').length;
   const openReq=inCy.filter(f=>f.kind==='request'&&f.status!=='completed').length;
+  // số phản hồi mình đã cho và được người nhận bấm cảm ơn — đọc liền mạch với dòng "Phản hồi đã cho" ngay trên
+  const thx=inCy.filter(f=>f.kind==='given'&&f.thankedAt).length;
   const todo=QUEUE.filter(q=>cycleMatches(q.cycle)).length;
   document.getElementById('railYear').textContent=cy()==='all'?'Tất cả':cy();
   document.getElementById('railStats').innerHTML=`
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-down-arrow-alt"></i>Phản hồi đã nhận</span><span class="stat-val">${rec}</span></div>
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-up-arrow-alt"></i>Phản hồi đã cho</span><span class="stat-val">${giv}</span></div>
+    <div class="stat-row${thx?'':' zero'}"><span class="stat-lbl${thx?'':' stat-tip-wrap'}"${thx?'':' tabindex="0"'}><i class="bx bx-heart"></i>Lời cảm ơn nhận được${thx?'':`<span class="fb-badge-tip stat-tip" role="tooltip">Lời cảm ơn từ người nhận sẽ xuất hiện ở đây</span>`}</span><span class="stat-val">${thx}</span></div>
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-user-voice"></i>Yêu cầu đang mở</span><span class="stat-val">${openReq}</span></div>
     <div class="stat-row"><span class="stat-lbl"><i class="bx bx-bell"></i>Cần bạn phản hồi</span><span class="stat-val">${todo}</span></div>`;
   // tally core values from the same normalized received-response collection
@@ -1971,7 +2006,7 @@ function closeMediaDownloadMenu(){const m=document.getElementById('mediaDownload
 document.addEventListener('click',e=>{const m=document.getElementById('mediaDownloadMenu');if(m&&!m.contains(e.target))closeMediaDownloadMenu();});
 
 function renderAll(){
-  renderQueue(); renderFeed(); renderRail(); syncThanksBadge(); renderMediaSummaryEntry();
+  renderCycleRange(); renderQueue(); renderFeed(); renderRail(); syncThanksBadge(); renderMediaSummaryEntry();
 }
 
 /* request detail overlay (read-only) */

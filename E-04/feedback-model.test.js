@@ -4,11 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-test('employee feedback screen is named Phản hồi cá nhân', () => {
+test('employee feedback screen is named Phản hồi của tôi', () => {
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-  assert.match(html, /<title>E-04 – Phản hồi cá nhân \| MoMo HRM<\/title>/);
-  assert.match(html, /<span class="topbar-title">Phản hồi cá nhân<\/span>/);
-  assert.match(html, /<h1 class="page-title">Phản hồi cá nhân<\/h1>/);
+  assert.match(html, /<title>E-04 – Phản hồi của tôi \| MoMo HRM<\/title>/);
+  assert.match(html, /<span class="topbar-title">Phản hồi của tôi<\/span>/);
+  assert.match(html, /<h1 class="page-title">Phản hồi của tôi<\/h1>/);
 });
 
 test('employee feedback cycle selector follows the manager header pattern', () => {
@@ -386,6 +386,29 @@ test('media summary identifies the colleague who gave the most feedback', () => 
   assert.deepEqual(FeedbackModel.mostFrequentFeedbackGiver(feedback),{name:'Mai Thị Hằng',dom:'hang.mai',count:2});
 });
 
+test('cycle activity rail counts thanked given feedback right under "Phản hồi đã cho"', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/const thx=inCy\.filter\(f=>f\.kind==='given'&&f\.thankedAt\)\.length;/);
+  // đọc thành cặp nhân–quả: đã cho → được cảm ơn, trước "Yêu cầu đang mở"
+  assert.match(html,/Phản hồi đã cho[\s\S]{0,220}Lời cảm ơn nhận được[\s\S]{0,400}Yêu cầu đang mở/);
+  // trạng thái 0: làm mờ cả dòng + tooltip thay vì để số 0 trơ trọi
+  assert.match(html,/\.stat-row\.zero \.stat-lbl\{color:var\(--z400\)\}/);
+  assert.match(html,/\.stat-row\.zero \.stat-val\{color:var\(--z400\)\}/);
+  assert.match(html,/role="tooltip">Lời cảm ơn từ người nhận sẽ xuất hiện ở đây</);
+  assert.match(html,/\.stat-tip-wrap:hover \.stat-tip,\.stat-tip-wrap:focus \.stat-tip\{opacity:1\}/);
+  // tooltip neo trái trong rail — cần specificity cao hơn .fb-badge-tip khai báo sau
+  assert.match(html,/\.stat-lbl \.stat-tip\{left:0;transform:none/);
+});
+
+test('cycle selector shows the cycle date range as secondary text', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  assert.match(html,/<span class="cycle-range" id="cycleRange"/);
+  assert.match(html,/'2026':\['01\/01\/2026','30\/04\/2027'\]/);
+  assert.match(html,/function renderCycleRange\(\)/);
+  assert.match(html,/function renderAll\(\)\{\s*renderCycleRange\(\);/);
+  assert.match(html,/\.cycle-range\{font-size:12px;font-weight:400;color:var\(--z500\)/);
+});
+
 test('media story starts with the top giver and uses the current campaign date range', () => {
   const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
   assert.match(html,/function buildMediaInsights\(campaign\)/);
@@ -446,13 +469,23 @@ test('HR requests lead the action queue, stay anonymous in the list and land in 
   assert.match(html,/if\(isHr\)FEED\.unshift\(\{/);
 });
 
-test('a closed HR request notifies once and then disappears', () => {
+test('closed HR requests and closed manager tickets both notify once, then disappear', () => {
   const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
 
   assert.match(html,/const CLOSED_NOTICE_KEY='uc5_e04_closed_notice_seen'/);
   assert.match(html,/function markClosedNoticesSeen\(\)/);
-  assert.match(html,/!\(q\.programClosed&&closedNoticeSeen\(q\.id\)\)/);
+  // một khái niệm chung cho cả hai loại thông báo đóng
+  assert.match(html,/function isClosedNotice\(item\)\{return !!\(item&&\(item\.programClosed\|\|item\.ticketClosed\)\);\}/);
+  assert.match(html,/QUEUE\.filter\(isClosedNotice\)\.forEach\(item=>ids\.add\(item\.id\)\)/);
+  assert.match(html,/!\(isClosedNotice\(q\)&&closedNoticeSeen\(q\.id\)\)/);
+  // ba câu thông báo theo đúng nguyên nhân đóng
   assert.match(html,/Yêu cầu đã đóng, bạn không cần phản hồi/);
-  /* Yêu cầu đã đóng chỉ để đọc: không còn nút trả lời. */
+  assert.match(html,/Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi/);
+  assert.match(html,/Quản lý đã đóng yêu cầu, bạn không cần phản hồi/);
+  // dữ liệu mẫu có cả hai nguyên nhân đóng ticket của quản lý
+  assert.match(html,/id:'ticket-closed-migration'[\s\S]{0,120}closedReason:'recipient-resigned'/);
+  assert.match(html,/id:'ticket-closed-roadmap'[\s\S]{0,120}closedReason:'request-closed'/);
+  /* Thông báo đóng chỉ để đọc: không còn nút trả lời, bấm ở rail thì mở popup. */
   assert.match(html,/qrow-closed[\s\S]{0,600}qrow-closed-note/);
+  assert.match(html,/isClosedNotice\(q\)\?`openQueueAll\(\)`/);
 });
