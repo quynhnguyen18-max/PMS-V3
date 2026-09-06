@@ -150,14 +150,116 @@
     const dueTs=request&&(request.dueTs||tsFromDMY(request.due));
     return !!(today&&dueTs&&today>dueTs);
   }
-  function isClosed(request,todayDMY){
-    const today=dateFromDMY(todayDMY),expires=dateFromDMY(maxDueDate(request&&request.createdAt));
-    const pending=((request&&request.assignments)||[]).some(item=>item.status!=='done');
-    return !!(pending&&today&&expires&&today>expires);
+  /* ── Luật nghỉ việc (Phase D4) ────────────────────────────────────────────
+     Model chỉ áp luật; màn hình truyền vào hàm tra cứu ai đã nghỉ việc.
+       · Người CHO phản hồi nghỉ  → ticket đóng, không ai trả lời được nữa.
+       · Người NHẬN phản hồi nghỉ → ticket đóng vì không cần thu nữa; người cho
+         phản hồi nào CHƯA trả lời thì được báo là khỏi trả lời (notifyReviewerClosed).
+       · Ticket đã trả lời rồi thì giữ nguyên: phản hồi đã thu được vẫn tính.
+       · Người TẠO yêu cầu (quản lý) nghỉ → đóng toàn bộ yêu cầu của họ.
+       · Không còn ticket nào hoạt động → đóng cả yêu cầu; luật này bao luôn
+         trường hợp yêu cầu chỉ có 1 ticket mà người cho phản hồi đã nghỉ. */
+  function personMatches(check,person){return !!(person&&check(person));}
+  function applyResignation(request,isResigned){
+    if(!request)return request;
+    const check=typeof isResigned==='function'?isResigned:function(){return false;};
+    (request.assignments||[]).forEach(function(item){
+      const reviewerGone=personMatches(check,item.reviewer);
+      const recipientGone=personMatches(check,{id:item.employeeId,login:item.employeeLogin,name:item.employeeName});
+      if(item.reviewer)item.reviewer.resigned=reviewerGone;
+      item.recipientResigned=recipientGone;
+      item.closedByResignation=item.status==='done'?null:(reviewerGone?'reviewer':(recipientGone?'recipient':null));
+      item.excludedByResignation=!!item.closedByResignation;
+      item.notifyReviewerClosed=item.closedByResignation==='recipient';
+    });
+    request.createdByResigned=personMatches(check,request.createdBy);
+    return request;
   }
+  function applyResignationAll(requests,isResigned){
+    (requests||[]).forEach(function(request){applyResignation(request,isResigned);});
+    return requests;
+  }
+  function isTicketClosed(assignment){return !!(assignment&&(assignment.closedByResignation||assignment.closedManually));}
+  /* ── Đóng chủ động (bám theo H-06 của HR) ────────────────────────────────
+     Quản lý đóng ở màn CHI TIẾT, hai phạm vi:
+       · toàn bộ yêu cầu  → khoá mọi ticket chưa trả lời
+       · theo người nhận  → chỉ khoá ticket của những người được chọn,
+                            người còn lại vẫn thu thập bình thường
+     Ticket đã trả lời không bị đụng tới. Đóng rồi vẫn mở lại được. */
+  function assignmentsOfRecipient(request,employeeId){
+    return ((request&&request.assignments)||[]).filter(function(item){return item.employeeId===employeeId;});
+  }
+  function isRecipientClosed(request,employeeId){
+    const rows=assignmentsOfRecipient(request,employeeId);
+    return rows.length>0&&rows.every(function(item){return item.status==='done'||item.closedManually||item.closedByResignation;});
+  }
+  /* Người nhận còn ticket chưa trả lời và chưa bị đóng — đúng danh sách hiện trong hộp thoại. */
+  function openRecipientsForClose(request){
+    const seen=new Map();
+    ((request&&request.assignments)||[]).forEach(function(item){
+      if(item.status==='done'||item.closedManually||item.closedByResignation)return;
+      if(!seen.has(item.employeeId))seen.set(item.employeeId,{employeeId:item.employeeId,employeeName:item.employeeName,employeeLogin:item.employeeLogin,open:0});
+      seen.get(item.employeeId).open++;
+    });
+    return [...seen.values()];
+  }
+  function lockPending(request,filter,closedAt){
+    ((request&&request.assignments)||[]).forEach(function(item){
+      if(item.status==='done'||item.closedByResignation)return;
+      if(filter&&!filter(item))return;
+      item.closedManually=true;item.closedAt=closedAt||'';
+    });
+  }
+  function closeRequestManually(request,closedAt){
+    if(!request)return request;
+    lockPending(request,null,closedAt);
+    request.closedManually=true;request.closedAt=closedAt||'';
+    return request;
+  }
+  function closeRecipients(request,employeeIds,closedAt){
+    if(!request)return request;
+    const ids=employeeIds||[];
+    lockPending(request,function(item){return ids.indexOf(item.employeeId)>=0;},closedAt);
+    /* Khoá hết người nhận thì cả yêu cầu cũng đóng — cùng cách H-06 xử lý. */
+    if(!openRecipientsForClose(request).length){request.closedManually=true;request.closedAt=closedAt||'';}
+    return request;
+  }
+  function reopenRequest(request){
+    if(!request)return request;
+    ((request.assignments)||[]).forEach(function(item){delete item.closedManually;delete item.closedAt;});
+    delete request.closedManually;delete request.closedAt;
+    return request;
+  }
+  function reopenRecipient(request,employeeId){
+    if(!request)return request;
+    assignmentsOfRecipient(request,employeeId).forEach(function(item){delete item.closedManually;delete item.closedAt;});
+    if(openRecipientsForClose(request).length){delete request.closedManually;delete request.closedAt;}
+    return request;
+  }
+  function activeAssignments(request){return ((request&&request.assignments)||[]).filter(isCountedAssignment);}
+  /* Vì sao yêu cầu bị đóng — trả về null nếu còn hoạt động. */
+  function closeReason(request,todayDMY){
+    if(!request)return null;
+    if(request.createdByResigned)return 'creator-resigned';
+    if(request.closedManually)return 'manual';
+    const all=(request.assignments)||[];
+    if(all.length&&activeAssignments(request).length===0)return 'no-active-ticket';
+    const today=dateFromDMY(todayDMY),expires=dateFromDMY(maxDueDate(request.createdAt));
+    const pending=activeAssignments(request).some(function(item){return item.status!=='done';});
+    return (pending&&today&&expires&&today>expires)?'expired':null;
+  }
+  const CLOSE_REASON_TEXT={
+    'creator-resigned':'Quản lý tạo yêu cầu đã nghỉ việc',
+    'manual':'Quản lý đã chủ động đóng',
+    'no-active-ticket':'Không còn ai có thể phản hồi',
+    'expired':'Quá 90 ngày kể từ ngày tạo'
+  };
+  function closeReasonText(request,todayDMY){return CLOSE_REASON_TEXT[closeReason(request,todayDMY)]||'';}
+  function closeManually(request){if(request)request.closedManually=true;return request;}
+  function isClosed(request,todayDMY){return !!closeReason(request,todayDMY);}
   /* Cùng luật với chương trình của HR: lượt của người cho phản hồi đã nghỉ việc không tính vào mẫu số
      khi yêu cầu còn đang thu thập (màn hình đặt cờ excludedByResignation). */
-  function isCountedAssignment(assignment){return !(assignment&&assignment.excludedByResignation);}
+  function isCountedAssignment(assignment){return !(assignment&&(assignment.excludedByResignation||assignment.closedManually));}
   function summarize(request,todayDMY){
     const assignments=((request&&request.assignments)||[]).filter(isCountedAssignment);
     const total=assignments.length;
@@ -172,11 +274,14 @@
   function byEmployee(request,todayDMY){
     const late=isOverdue(request,todayDMY);
     const rows=new Map();
-    ((request&&request.assignments)||[]).filter(isCountedAssignment).forEach(item=>{
+    /* Liệt kê MỌI người nhận, kể cả người đã bị đóng hết ticket — nếu lọc từ đây thì họ
+       biến mất khỏi màn chi tiết. Chỉ mẫu số tiến độ mới bỏ ticket đã đóng. */
+    ((request&&request.assignments)||[]).forEach(item=>{
       if(!rows.has(item.employeeId)){
-        rows.set(item.employeeId,{employeeId:item.employeeId,employeeName:item.employeeName,total:0,done:0,pending:0,overdue:0,rate:0});
+        rows.set(item.employeeId,{employeeId:item.employeeId,employeeName:item.employeeName,total:0,done:0,pending:0,closed:0,overdue:0,rate:0});
       }
       const row=rows.get(item.employeeId);
+      if(!isCountedAssignment(item)){row.closed++;return;}
       row.total++;
       if(item.status==='done') row.done++; else row.pending++;
     });
@@ -189,9 +294,13 @@
     return due&&today?Math.floor((today-due)/86400000):0;
   }
   function requestStatus(request,todayDMY){
+    const reason=closeReason(request,todayDMY);
+    /* Đóng có chủ đích (quản lý bấm đóng, hoặc người tạo nghỉ việc) luôn hiện là Đóng.
+       Còn đóng do hệ quả (hết ticket vì nghỉ việc, quá 90 ngày) thì phần đã thu đủ vẫn là Hoàn thành. */
+    if(reason==='manual'||reason==='creator-resigned')return 'closed';
     const stat=summarize(request,todayDMY);
     if(stat.total>0&&stat.pending===0)return 'complete';
-    if(isClosed(request,todayDMY))return 'closed';
+    if(reason)return 'closed';
     if(stat.overdue>0)return 'overdue';
     return 'collecting';
   }
@@ -232,7 +341,7 @@
     return Boolean(now)&&(!end||now<=end);
   }
   function canRemindAssignment(request,assignment,nowDMY){
-    if(!assignment||assignment.status==='done'||requestStatus(request,String(nowDMY||'').slice(0,10))==='closed')return false;
+    if(!assignment||assignment.status==='done'||isTicketClosed(assignment)||requestStatus(request,String(nowDMY||'').slice(0,10))==='closed')return false;
     const now=dateTimeFromDMY(nowDMY);
     if(!now||!isWithinRemindWindow(request,nowDMY))return false;
     const last=dateTimeFromDMY(assignment.remindedAt);
@@ -273,5 +382,5 @@
     };
   }
 
-  return {isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
+  return {closeRequestManually,closeRecipients,reopenRequest,reopenRecipient,openRecipientsForClose,isRecipientClosed,assignmentsOfRecipient,applyResignation,applyResignationAll,isTicketClosed,activeAssignments,closeReason,closeReasonText,closeManually,isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
 });

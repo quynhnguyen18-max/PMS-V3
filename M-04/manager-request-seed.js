@@ -61,7 +61,31 @@
     markDone(crossTeam,[0,2,4,5],'08/06/2026');
     const career=model.createRequest({goal:'Tổng hợp góc nhìn cho buổi career conversation 6 tháng',id:'manager-request-career',cycle:'2026',createdAt:'08/05/2026',due:'25/05/2026',createdBy:MANAGER,designees:direct.slice(0,1),reviewers:reviewerPool.slice(1,6),sharedQuestion:'Bạn ghi nhận điểm mạnh nổi bật và một ưu tiên phát triển của nhân viên trong 6 tháng vừa qua là gì?'});
     markDone(career,career.assignments.map((_,index)=>index),'23/05/2026');
-    return [upcoming,collecting,overdue,complete,leadership,probation,incident,crossTeam,career];
+    /* ── Hai kịch bản nghỉ việc, dựng riêng để xem được trên màn hình ──────────
+       Quản lý chỉ được yêu cầu phản hồi CHO direct report của mình, nên người nhận
+       ở cả hai yêu cầu dưới đây đều lấy từ `direct`. */
+    const resignedDesignee=direct.find(person=>person.resigned);
+    const activeDesignees=direct.filter(person=>!person.resigned);
+    const resignedReviewer=reviewerPool.find(person=>person.resigned);
+    const activeReviewers=reviewerPool.filter(person=>!person.resigned);
+    /* (1) NGƯỜI NHẬN phản hồi nghỉ việc: chỉ có 1 người nhận và chưa ai kịp trả lời
+           → mọi ticket đóng lại, cả yêu cầu chuyển sang Đóng. */
+    const recipientLeft=resignedDesignee?model.createRequest({
+      goal:'Thu thập phản hồi trước khi bàn giao công việc',
+      id:'manager-request-recipient-left',cycle:'2026',createdAt:'05/08/2026',due:'20/08/2026',createdBy:MANAGER,
+      designees:[resignedDesignee],reviewers:activeReviewers.slice(0,3),
+      sharedQuestion:'Bạn ghi nhận điều gì về cách đồng nghiệp bàn giao công việc và hỗ trợ team trong giai đoạn chuyển tiếp?'
+    }):null;
+    /* (2) NGƯỜI CHO phản hồi nghỉ việc: yêu cầu nhiều ticket, ticket của người đã nghỉ
+           ngừng thu thập, các ticket còn lại vẫn chạy nên yêu cầu vẫn Đang thu thập. */
+    const reviewerLeft=resignedReviewer?model.createRequest({
+      goal:'Thu thập góc nhìn chéo sau dự án tối ưu hệ thống',
+      id:'manager-request-reviewer-left',cycle:'2026',createdAt:'06/08/2026',due:'22/08/2026',createdBy:MANAGER,
+      designees:activeDesignees.slice(0,2),reviewers:[resignedReviewer,...activeReviewers.filter(person=>!activeDesignees.slice(0,2).some(item=>item.login===person.login)).slice(0,2)],
+      sharedQuestion:'Trong dự án tối ưu hệ thống, bạn đánh giá thế nào về cách đồng nghiệp phối hợp và giải quyết vấn đề?'
+    }):null;
+    if(reviewerLeft)markDone(reviewerLeft,[1],'12/08/2026');
+    return [upcoming,collecting,overdue,complete,leadership,probation,incident,crossTeam,career,recipientLeft,reviewerLeft].filter(Boolean);
   }
   return {create};
 });

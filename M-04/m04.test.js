@@ -19,13 +19,306 @@ test('M-04 provides D1 direct and indirect report navigation', () => {
 
 test('manager cycle selector sits in the top-right page header', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
-  assert.match(html, /<div class="page-head">[\s\S]*?<div class="manager-cycle">[\s\S]*?<select id="cycle"/);
+  assert.match(html, /<div class="page-head">[\s\S]*?<div class="cycle-row">[\s\S]*?<select class="cycle-sel" id="cycle"/);
   assert.match(html, /class="bx bx-calendar"/);
-  assert.match(html, /<span>Chu kỳ<\/span>/);
-  assert.match(html, /\.manager-cycle>i\{font-size:15px;color:var\(--z500\)\}/);
-  assert.match(html, /\.manager-cycle select\{height:28px/);
+  assert.match(html, /<span class="cycle-lbl">Chu kỳ<\/span>/);
+  // Cùng một pattern chu kỳ với E-01/E-04/E-05/M-01/M-02 — không dùng biến thể pill riêng cho M-04.
+  assert.match(html, /\.cycle-row\{display:flex;align-items:center;gap:8px/);
+  assert.match(html, /\.cycle-lbl\{font-size:13px;font-weight:500;color:var\(--z700\)\}/);
+  assert.doesNotMatch(html, /manager-cycle/);
   const scopeRow = html.match(/<div class="scope-row">([\s\S]*?)<\/div>\s*<\/section>/)?.[1] || '';
   assert.doesNotMatch(scopeRow, /id="cycle"/);
+});
+
+test('manager cycle selector shows the cycle date range as secondary text', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  assert.match(html, /<span class="cycle-range" id="cycleRange"/);
+  assert.match(html, /'2026':\['01\/01\/2026','30\/04\/2027'\]/);
+  assert.match(html, /function renderAllManagerViews\(\)\{renderCycleRange\(\);/);
+  assert.match(html, /\.cycle-range\{font-size:12px;font-weight:400;color:var\(--z500\)/);
+});
+
+const requestModelPath = path.join(__dirname, 'manager-request-model.js');
+const RESIGNED = new Set(['duc.pham', 'e3']);
+const isResigned = person => RESIGNED.has(String((person && person.login) || '').toLowerCase()) || RESIGNED.has(String((person && person.id) || ''));
+const ticket = (id, reviewerLogin, recipient, status) => ({
+  id, reviewer: { name: reviewerLogin, login: reviewerLogin },
+  employeeId: recipient, employeeLogin: recipient, employeeName: recipient,
+  status: status || 'pending', manualReminderHistory: []
+});
+const makeRequest = (assignments, extra) => Object.assign({
+  id: 'req', goal: 'G', createdAt: '01/08/2026', due: '15/08/2026',
+  createdBy: { name: 'Lê Thị Thanh', login: 'thanh.le' }, assignments
+}, extra || {});
+const TODAY = '10/08/2026';
+
+test('request detail rail matches H-06: custom tooltip, lock icon and a draggable width', () => {
+  const detail = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  const hr = fs.readFileSync(path.join(__dirname, '..', 'H-06', 'index.html'), 'utf8');
+
+  // tooltip: component dùng chung, hiện phía trên, chỉ cơ cấu tổ chức (DS §8.1 - không lặp tên/domain)
+  assert.ok(detail.includes('<span class="identity pms-tooltip" tabindex="0"><span class="identity-text">'));
+  assert.ok(hr.includes('<span class="identity pms-tooltip" tabindex="0"><span class="identity-text">'));
+  assert.ok(detail.includes('class="pms-tooltip-content pms-tooltip-top"'));
+  assert.ok(detail.includes("function railOrg(person){return [person&&person.dept,person&&person.team,person&&person.pos]"));
+  assert.ok(!detail.includes('<span class="identity" title='), 'không được dùng title mặc định cho dữ liệu nhân sự');
+  // rail cắt overflow nên tooltip phải neo theo hàng để luôn vừa bề ngang
+  assert.ok(detail.includes('.rail .pms-tooltip-content{left:13px;right:13px;width:auto'));
+  // tooltip phải neo lên TRÊN trong rail, nếu để rule gốc đè xuống dưới thì bị rail cắt mất chữ
+  assert.ok(detail.includes('top:auto;bottom:calc(100% + 7px)}'));
+  assert.ok(detail.includes('.rail .pms-tooltip-content::after{left:18px;transform:none;top:100%;bottom:auto'));
+  // ổ khoá + Mở lại ở header người nhận: chỉ khi có từ 2 người nhận, nút cùng cỡ với H-06
+  assert.ok(detail.includes('const multi=ManagerRequestModel.byEmployee(request,todayDMY()).length>=2;'));
+  assert.ok(detail.includes('class="btn btn-outline btn-share" onclick="reopenClosedRecipient('));
+  assert.ok(detail.includes('.btn-share{height:30px;padding:0 10px;font-size:11.5px;font-weight:600}'));
+  assert.ok(hr.includes('.btn-share{height:30px;padding:0 10px;font-size:11.5px;font-weight:600}'));
+  assert.ok(detail.includes('.ticket-lock{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px'));
+  assert.ok(hr.includes('.ticket-lock{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px'));
+  // người nhận đã đóng thì không còn gì để nhắc — ẩn hẳn nút, và mọi thao tác gom về một nhóm bên phải
+  assert.ok(detail.includes('const openPending=pending.filter(item=>!ManagerRequestModel.isTicketClosed(item));'));
+  assert.ok(detail.includes("remindAll.style.display=openPending.length&&!locked?'':'none'"));
+  assert.ok(detail.includes('<div class="pane-actions"><span id="recipientActions"'));
+  assert.ok(detail.includes('.pane-actions{display:flex;align-items:center;gap:7px}'));
+  assert.ok(hr.includes('.pane-actions{display:flex;align-items:center;gap:7px}'));
+
+  // ổ khoá cho người nhận đã đóng — cùng markup với H-06
+  assert.ok(detail.includes('<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>'));
+  assert.ok(hr.includes('<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>'));
+  assert.ok(detail.includes('.person-lock{align-self:center;flex:none;font-size:15px;color:var(--z500)}'));
+  assert.ok(hr.includes('.person-lock{align-self:center;flex:none;font-size:15px;color:var(--z500)}'));
+
+  // kéo giãn cột trái — cùng cơ chế và cùng khoảng 240-360px với H-06
+  assert.ok(detail.includes('id="railResizer" role="separator" aria-orientation="vertical"'));
+  assert.ok(hr.includes('id="railResizer" role="separator" aria-orientation="vertical"'));
+  assert.ok(detail.includes('grid-template-columns:var(--rail-w) minmax(440px,1fr) 280px'));
+  assert.match(detail, /const MIN=240,MAX=360,KEY='uc5_m04_rail_w';/);
+  assert.match(hr, /const MIN=240,MAX=360,KEY='uc5_h06_rail_w';/);
+  // breakpoint hẹp cũng phải kéo được, không hard-code lại số
+  assert.ok(detail.includes('.request-detail-layout{--rail-w:220px;grid-template-columns:var(--rail-w)'));
+});
+
+test('D4 seed demonstrates both resignation cases, with recipients always direct reports', () => {
+  const model = require(requestModelPath);
+  const seed = require('./manager-request-seed.js');
+  const context = { window: {} };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'assets', 'employees-data.js'), 'utf8'), context);
+  const employees = context.window.PMS_EMPLOYEES;
+  const isResigned = person => employees.some(item => item.resigned
+    && ((person && person.id && item.id === person.id)
+      || (person && person.login && String(item.login).toLowerCase() === String(person.login).toLowerCase())));
+  const requests = seed.create(employees);
+  model.applyResignationAll(requests, isResigned);
+  const TODAY_SEED = '10/08/2026';
+
+  // quản lý chỉ được yêu cầu phản hồi CHO direct report của mình
+  const directIds = new Set(model.directReports(employees).map(item => item.id));
+  requests.forEach(request => {
+    request.designees.forEach(person => {
+      assert.ok(directIds.has(person.id), `${person.name} không phải direct report của quản lý`);
+    });
+  });
+
+  // (1) người NHẬN phản hồi nghỉ việc → mọi ticket đóng, cả yêu cầu đóng
+  const recipientLeft = requests.find(item => item.id === 'manager-request-recipient-left');
+  assert.ok(recipientLeft, 'thiếu kịch bản người nhận nghỉ việc');
+  assert.equal(recipientLeft.designees.length, 1);
+  assert.ok(isResigned(recipientLeft.designees[0]));
+  assert.ok(recipientLeft.assignments.every(item => item.closedByResignation === 'recipient'));
+  assert.equal(model.activeAssignments(recipientLeft).length, 0);
+  assert.equal(model.requestStatus(recipientLeft, TODAY_SEED), 'closed');
+
+  // (2) người CHO phản hồi nghỉ việc → chỉ ticket của họ đóng, yêu cầu vẫn chạy
+  const reviewerLeft = requests.find(item => item.id === 'manager-request-reviewer-left');
+  assert.ok(reviewerLeft, 'thiếu kịch bản người cho phản hồi nghỉ việc');
+  const stopped = reviewerLeft.assignments.filter(item => item.closedByResignation === 'reviewer');
+  assert.ok(stopped.length >= 2, 'phải có ticket của người cho phản hồi đã nghỉ');
+  assert.ok(model.activeAssignments(reviewerLeft).length > 0, 'các ticket còn lại phải tiếp tục thu thập');
+  assert.notEqual(model.requestStatus(reviewerLeft, TODAY_SEED), 'closed');
+  // người cho phản hồi không trùng người nhận, cho dễ đọc trên màn hình
+  const designeeLogins = new Set(reviewerLeft.designees.map(item => item.login));
+  assert.ok(reviewerLeft.reviewers.every(item => !designeeLogins.has(item.login)));
+});
+
+test('a single-ticket request closes when its reviewer resigns', () => {
+  const model = require(requestModelPath);
+  const request = model.applyResignation(makeRequest([ticket('t1', 'duc.pham', 'e1')]), isResigned);
+  assert.equal(model.isTicketClosed(request.assignments[0]), true);
+  assert.equal(model.closeReason(request, TODAY), 'no-active-ticket');
+  assert.equal(model.requestStatus(request, TODAY), 'closed');
+});
+
+test('a multi-ticket request keeps running when one reviewer resigns', () => {
+  const model = require(requestModelPath);
+  const request = model.applyResignation(makeRequest([
+    ticket('t1', 'duc.pham', 'e1'), ticket('t2', 'mai.tran', 'e1')
+  ]), isResigned);
+  assert.equal(model.isTicketClosed(request.assignments[0]), true);
+  assert.equal(model.isTicketClosed(request.assignments[1]), false);
+  assert.equal(model.activeAssignments(request).length, 1);
+  assert.equal(model.requestStatus(request, TODAY), 'collecting');
+});
+
+test('when the recipient resigns the ticket closes, only unanswered reviewers are notified and reminders lock', () => {
+  const model = require(requestModelPath);
+  const request = model.applyResignation(makeRequest([
+    ticket('t1', 'mai.tran', 'duc.pham'), ticket('t2', 'lan.vu', 'duc.pham', 'done')
+  ]), isResigned);
+  assert.equal(request.assignments[0].closedByResignation, 'recipient');
+  assert.equal(request.assignments[0].notifyReviewerClosed, true);
+  // đã trả lời rồi thì không báo, và phản hồi thu được vẫn tính
+  assert.equal(request.assignments[1].closedByResignation, null);
+  assert.equal(request.assignments[1].notifyReviewerClosed, false);
+  assert.equal(model.summarize(request, TODAY).done, 1);
+  assert.equal(model.canRemindAssignment(request, request.assignments[0], TODAY + ' 09:00'), false);
+});
+
+test('every request closes when the manager who created it resigns', () => {
+  const model = require(requestModelPath);
+  const request = model.applyResignation(
+    makeRequest([ticket('t1', 'mai.tran', 'e1')], { createdBy: { login: 'duc.pham' } }), isResigned);
+  assert.equal(model.closeReason(request, TODAY), 'creator-resigned');
+  assert.equal(model.closeReasonText(request, TODAY), 'Quản lý tạo yêu cầu đã nghỉ việc');
+});
+
+test('a request can be closed on purpose and reports that reason', () => {
+  const model = require(requestModelPath);
+  const request = model.closeManually(model.applyResignation(makeRequest([ticket('t1', 'mai.tran', 'e1')]), isResigned));
+  assert.equal(model.closeReason(request, TODAY), 'manual');
+  assert.equal(model.closeReasonText(request, TODAY), 'Quản lý đã chủ động đóng');
+});
+
+test('the 90-day expiry still closes a request with unanswered tickets', () => {
+  const model = require(requestModelPath);
+  const request = model.applyResignation(makeRequest([ticket('t1', 'mai.tran', 'e1')]), isResigned);
+  assert.equal(model.closeReason(request, '10/08/2026'), null);
+  assert.equal(model.closeReason(request, '01/12/2026'), 'expired');
+});
+
+test('a reviewer who answered before resigning still counts toward the total', () => {
+  const model = require(requestModelPath);
+  const request = model.applyResignation(makeRequest([ticket('t1', 'duc.pham', 'e1', 'done')]), isResigned);
+  assert.equal(request.assignments[0].closedByResignation, null);
+  assert.equal(model.summarize(request, TODAY).total, 1);
+  assert.equal(model.requestStatus(request, TODAY), 'complete');
+});
+
+test('manager screens apply the resignation rules and name the closed ticket', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const detail = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  assert.match(html, /ManagerRequestModel\.applyResignationAll\(list,isResignedPerson\)/);
+  assert.match(detail, /ManagerRequestModel\.applyResignation\(request,isResignedPerson\)/);
+  // cùng bảng trạng thái ticket với H-06: user-x + "Ngừng thu thập", lock + "Đóng", time + "Chưa trả lời"
+  const hrDetail = fs.readFileSync(path.join(__dirname, '..', 'H-06', 'index.html'), 'utf8');
+  ['Ngừng thu thập', 'Chưa trả lời', 'bx-user-x', 'bx-lock-alt', 'bx-time-five'].forEach(token => {
+    assert.ok(detail.includes(token), `màn quản lý thiếu: ${token}`);
+    assert.ok(hrDetail.includes(token), `H-06 không còn: ${token}`);
+  });
+  assert.ok(detail.includes('Đóng · người nhận nghỉ việc'));
+  assert.ok(detail.includes("if(item&&item.closedByResignation==='reviewer')return 'bx-user-x';"));
+  // màn quản lý không ghi lại việc "đã báo" — luật thông báo thuộc về màn nhân viên
+  assert.ok(!detail.includes('Đã báo'));
+  assert.ok(!detail.includes('pending-note'));
+  assert.match(detail, /Người nhận phản hồi đã nghỉ việc, không cần thu thập nữa/);
+  // DS §8.2: ticket đã khoá dùng xám trung tính, không dùng vàng "đang chờ"
+  assert.match(detail, /\.pending\.pending\.pending-closed\{background:var\(--z50\)/);
+});
+
+test('a manager closes from the request detail screen, at request or recipient scope, like HR does in H-06', () => {
+  const detail = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
+  const list = fs.readFileSync(pagePath, 'utf8');
+  const hr = fs.readFileSync(path.join(__dirname, '..', 'H-06', 'index.html'), 'utf8');
+
+  // nút nằm ở màn chi tiết, KHÔNG nằm ở danh sách yêu cầu
+  assert.ok(detail.includes('<i class="bx bx-lock-alt"></i> Đóng yêu cầu</button>'));
+  assert.ok(hr.includes('<i class="bx bx-lock-alt"></i> Đóng yêu cầu</button>'));
+  assert.ok(!list.includes('closeRequest('));
+  assert.ok(!list.includes('request-row-actions'));
+
+  // hai phạm vi đóng, cùng cách diễn đạt với H-06
+  assert.ok(detail.includes('<strong>Đóng toàn bộ yêu cầu</strong>'));
+  assert.ok(detail.includes('<strong>Đóng yêu cầu theo người nhận</strong>'));
+  assert.ok(hr.includes('<strong>Đóng toàn bộ yêu cầu</strong>'));
+  assert.ok(hr.includes('<strong>Đóng yêu cầu theo người nhận</strong>'));
+  assert.match(detail, /ManagerRequestModel\.closeRequestManually\(request,todayDMY\(\)\)/);
+  assert.match(detail, /ManagerRequestModel\.closeRecipients\(request,CLOSE_STATE\.ids,todayDMY\(\)\)/);
+
+  // đóng ở chi tiết phải hiện ra danh sách: seed không được ghi đè thao tác đã lưu
+  assert.ok(list.includes('function mergeStoredRequestState(seed,stored)'));
+  assert.ok(list.includes('if(stored.closedManually){seed.closedManually=true'));
+  // popup phải dùng đúng bộ visual của H-06, không tự chế lại
+  ['.dialog-overlay{position:fixed;inset:0;z-index:70', '.confirm-title{margin:-18px -18px 14px;padding:15px 18px;background:#fbe4f0', '.share-audience-option.on strong{color:var(--brand)}', '.share-audience-option small{display:none}'].forEach(rule => {
+    assert.ok(detail.includes(rule), `popup thiếu rule của H-06: ${rule}`);
+    assert.ok(hr.includes(rule), `H-06 không còn rule: ${rule}`);
+  });
+  assert.ok(detail.includes('class="dialog-overlay" id="closeDialog"'));
+  // bề rộng và hàng người nhận lấy đúng của H-06 (avatar 30px + domain), không thì chữ xuống dòng vô duyên
+  assert.ok(detail.includes('.confirm-dialog.share-dialog{width:min(560px,100%)}'));
+  assert.ok(hr.includes('.confirm-dialog.share-dialog{width:min(560px,100%)}'));
+  assert.ok(detail.includes('<section class="confirm-dialog share-dialog">'));
+  assert.ok(detail.includes('.close-recipient{display:grid;grid-template-columns:16px 30px minmax(0,1fr);'));
+  assert.ok(hr.includes('.close-recipient{display:grid;grid-template-columns:16px 30px minmax(0,1fr);'));
+  assert.ok(detail.includes('<span class="avatar">${ini}</span>'));
+  assert.ok(detail.includes('<button class="btn btn-primary btn-share" type="button" id="closeDialogConfirm"'));
+  // một nút chính duy nhất, đóng popup bằng cách bấm ra ngoài — giống H-06
+  assert.ok(!detail.includes('>Huỷ</button>'));
+  // đóng rồi vẫn mở lại được, ở cả hai cấp — H-06 cũng vậy
+  assert.match(detail, /Mở lại yêu cầu<\/button>/);
+  assert.match(detail, /reopenClosedRecipient\(/);
+  assert.match(detail, /ManagerRequestModel\.reopenRequest\(request\)/);
+});
+
+test('closing scopes lock the right tickets and stay reversible', () => {
+  const model = require(requestModelPath);
+  const request = makeRequest([
+    ticket('t1', 'a', 'e1'), ticket('t2', 'b', 'e1'), ticket('t3', 'c', 'e2')
+  ]);
+  assert.deepEqual(model.openRecipientsForClose(request).map(r => r.employeeId), ['e1', 'e2']);
+
+  // đóng theo người nhận: e2 vẫn thu bình thường
+  model.closeRecipients(request, ['e1'], TODAY);
+  assert.equal(model.isRecipientClosed(request, 'e1'), true);
+  assert.equal(model.requestStatus(request, TODAY), 'collecting');
+  assert.equal(model.canRemindAssignment(request, request.assignments[0], TODAY + ' 09:00'), false);
+  assert.deepEqual(model.openRecipientsForClose(request).map(r => r.employeeId), ['e2']);
+
+  // đóng nốt người cuối thì cả yêu cầu đóng
+  model.closeRecipients(request, ['e2'], TODAY);
+  assert.equal(model.requestStatus(request, TODAY), 'closed');
+  assert.equal(model.closeReasonText(request, TODAY), 'Quản lý đã chủ động đóng');
+
+  // mở lại một người là yêu cầu chạy tiếp
+  model.reopenRecipient(request, 'e2');
+  assert.equal(model.requestStatus(request, TODAY), 'collecting');
+});
+
+test('a request closed on purpose reads as Đóng even when the answers already in are complete', () => {
+  const model = require(requestModelPath);
+  const request = makeRequest([ticket('t1', 'a', 'e1', 'done'), ticket('t2', 'b', 'e2')]);
+  model.closeRequestManually(request, TODAY);
+  assert.equal(model.requestStatus(request, TODAY), 'closed');
+  // phản hồi đã thu được không mất
+  assert.equal(model.summarize(request, TODAY).done, 1);
+  model.reopenRequest(request);
+  assert.equal(model.requestStatus(request, TODAY), 'collecting');
+});
+
+test('cycle overview hangs each explanation on its own info icon, not the whole row', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const overview = html.match(/<div class="request-overview-list">([\s\S]*?)<\/div>/)?.[1] || '';
+  ['collecting', 'overdue', 'complete', 'closed'].forEach(status => {
+    assert.ok(overview.includes(`<button class="overview-status" onclick="setRequestStatusFilter('${status}')"`),
+      `thiếu nút trạng thái ${status}`);
+  });
+  // chữ (i) là trigger, và tooltip nằm bên trong nó
+  assert.equal(overview.split('<span class="status-info"').length - 1, 4);
+  assert.ok(overview.includes('<i class="bx bx-info-circle"></i><span class="pms-tooltip-content overview-tip" role="tooltip">'));
+  assert.ok(html.includes('.request-overview-list .status-info:hover .pms-tooltip-content'));
+  // hàng không còn là trigger nữa
+  assert.ok(!overview.includes('class="pms-tooltip"'));
+  // .status-info cố tình không position để tooltip vẫn neo theo button, khỏi tràn card
+  assert.ok(html.includes('.request-overview-list button.overview-status{position:relative;cursor:pointer}'));
+  assert.ok(!/\.request-overview-list \.status-info\{[^}]*position:/.test(html));
 });
 
 test('manager feedback supports the all-cycle option', () => {

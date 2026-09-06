@@ -6,13 +6,64 @@
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
-:root{--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z900:#18181b;--brand:#a50064;--muted:rgba(165,0,100,.07);--ring:rgba(165,0,100,.2)}*{box-sizing:border-box}body{margin:0;background:var(--z50);font:14px 'Public Sans',sans-serif;color:var(--z700)}button{font:inherit}.topbar{height:52px;background:#fff;border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 24px}.page{padding:22px 24px 36px}.breadcrumb{font-size:11.5px;color:var(--z500);margin-bottom:12px}.breadcrumb a{color:inherit;text-decoration:none}.head{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px}.goal{font-size:18px;color:var(--z900);margin:0}.meta{font-size:11px;color:var(--z500);margin-top:5px}.btn{border:1px solid var(--z200);background:#fff;border-radius:6px;padding:7px 10px;color:var(--z600);display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;text-decoration:none;cursor:pointer}.shell{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:520px;background:#fff;border:1px solid var(--z200);border-radius:9px;overflow:hidden}.rail{background:var(--z50);border-right:1px solid var(--z200)}.rail-title{padding:11px 13px;color:var(--z500);font-size:10px;font-weight:600;text-transform:uppercase}.person{width:100%;border:0;border-top:1px solid var(--z200);background:transparent;padding:11px 13px;display:flex;gap:9px;text-align:left;cursor:pointer}.person.on{background:#fff;box-shadow:inset 3px 0 var(--brand)}.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--muted);color:var(--brand);font-size:10px;font-weight:700;flex:none}.identity{font-size:12px;font-weight:600;color:var(--z900)}.domain{font-weight:400;color:var(--z500)}.small{font-size:10px;color:var(--z500);margin-top:3px}.pane-head{padding:14px 16px;border-bottom:1px solid var(--z200);display:flex;justify-content:space-between;gap:14px}.pane-title{font-size:14px;font-weight:700;color:var(--z900)}.pane-body{padding:14px 16px}.shared-question,.question{padding:8px 10px;background:var(--z50);border-left:3px solid var(--ring);margin-bottom:10px}.label{font-size:10px;font-weight:600;color:var(--z500);text-transform:uppercase;margin:13px 0 7px}.question-text{font-size:12px;line-height:1.55;margin-top:3px}.feedback-card{position:relative;border:1px solid var(--z200);border-radius:8px;padding:14px;background:#fff;margin-bottom:9px}.fb-head{display:flex;gap:9px;padding-right:48px}.fb-line{font-size:12.5px;font-weight:600;color:var(--z900)}.fb-arrow{display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--z600);margin:0 8px}.fb-date{font-size:11px;color:var(--z500);margin-top:2px;display:flex;gap:5px}.fb-body{font-size:12.5px;line-height:1.65;margin:10px 0 0}.cv-icons{position:absolute;right:12px;top:12px}.cv-icon{width:26px;height:26px;border-radius:50%;background:var(--muted);display:inline-block}.pending{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--z200)}.ai{margin-top:14px;padding:10px 12px;background:var(--z50);border-radius:6px;color:var(--z500);font-size:11px}.empty{padding:30px;text-align:center;color:var(--z500)}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--z900);color:#fff;padding:9px 14px;border-radius:7px;display:none}.toast.show{display:block}@media(max-width:760px){.page{padding:16px}.head{flex-direction:column}.shell{grid-template-columns:1fr}.rail{border-right:0;border-bottom:1px solid var(--z200)}}
+:root{--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z900:#18181b;--brand:#a50064;--muted:rgba(165,0,100,.07);--ring:rgba(165,0,100,.2)}*{box-sizing:border-box}body{margin:0;background:var(--z50);font:14px 'Public Sans',sans-serif;color:var(--z700)}button{font:inherit}.topbar{height:52px;background:#fff;border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 24px}.page{padding:22px 24px 36px}.breadcrumb{font-size:11.5px;color:var(--z500);margin-bottom:12px}.breadcrumb a{color:inherit;text-decoration:none}.head{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px}.goal{font-size:18px;color:var(--z900);margin:0}.meta{font-size:11px;color:var(--z500);margin-top:5px}.btn{border:1px solid var(--z200);background:#fff;border-radius:6px;padding:7px 10px;color:var(--z600);display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;text-decoration:none;cursor:pointer}.shell{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:520px;background:#fff;border:1px solid var(--z200);border-radius:9px;overflow:hidden}.rail{background:var(--z50);border-right:1px solid var(--z200)}.rail-title{padding:11px 13px;color:var(--z500);font-size:10px;font-weight:600;text-transform:uppercase}.person{width:100%;border:0;border-top:1px solid var(--z200);background:transparent;padding:11px 13px;display:flex;gap:9px;text-align:left;cursor:pointer}.person.on{background:#fff;box-shadow:inset 3px 0 var(--brand)}.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--muted);color:var(--brand);font-size:10px;font-weight:700;flex:none}.identity{font-size:12px;font-weight:600;color:var(--z900)}.domain{font-weight:400;color:var(--z500)}.small{font-size:10px;color:var(--z500);margin-top:3px}.pane-head{padding:14px 16px;border-bottom:1px solid var(--z200);display:flex;align-items:center;justify-content:space-between;gap:14px}
+.pane-actions{display:flex;align-items:center;gap:7px}.pane-title{font-size:14px;font-weight:700;color:var(--z900)}.pane-body{padding:14px 16px}.shared-question,.question{padding:8px 10px;background:var(--z50);border-left:3px solid var(--ring);margin-bottom:10px}.label{font-size:10px;font-weight:600;color:var(--z500);text-transform:uppercase;margin:13px 0 7px}.question-text{font-size:12px;line-height:1.55;margin-top:3px}.feedback-card{position:relative;border:1px solid var(--z200);border-radius:8px;padding:14px;background:#fff;margin-bottom:9px}.fb-head{display:flex;gap:9px;padding-right:48px}.fb-line{font-size:12.5px;font-weight:600;color:var(--z900)}.fb-arrow{display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--z600);margin:0 8px}.fb-date{font-size:11px;color:var(--z500);margin-top:2px;display:flex;gap:5px}.fb-body{font-size:12.5px;line-height:1.65;margin:10px 0 0}.cv-icons{position:absolute;right:12px;top:12px}.cv-icon{width:26px;height:26px;border-radius:50%;background:var(--muted);display:inline-block}.person-lock{align-self:center;flex:none;font-size:15px;color:var(--z500)}
+.btn-share{height:30px;padding:0 10px;font-size:11.5px;font-weight:600}
+.ticket-lock{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:15px;flex:none;color:var(--z600);background:var(--z100);border:1px solid var(--z300)}
+.pending.pending.pending-closed{background:var(--z50);border-color:var(--z200)}.pending.pending-closed .pending-tag{color:var(--z600)}.pending.pending-closed .identity{color:var(--z600)}/* Popup đóng yêu cầu — sao đúng bộ visual của H-06 (HR) để hai màn nhìn như một. */
+.dialog-overlay{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(24,24,27,.45)}
+.dialog-overlay.open{display:flex}
+.confirm-dialog.share-dialog{width:min(560px,100%)}
+.confirm-dialog{width:min(420px,100%);max-height:calc(100vh - 48px);display:flex;flex-direction:column;overflow:hidden;padding:18px;border:1px solid var(--z200);border-radius:9px;background:#fff;box-shadow:0 14px 36px rgba(24,24,27,.2)}
+.confirm-title{margin:-18px -18px 14px;padding:15px 18px;background:#fbe4f0;border-bottom:1px solid #f3cfe1;font-size:14px;font-weight:700;color:var(--z900)}
+.confirm-copy{margin-top:6px;font-size:12px;line-height:1.55;color:var(--z600)}
+.confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.confirm-actions .btn-primary{height:30px;padding:0 10px;border-color:var(--brand);background:var(--brand);color:#fff;font-size:11.5px;font-weight:600}
+.confirm-actions .btn-primary:hover{background:#8d0056;border-color:#8d0056}
+.confirm-actions .btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.share-section{margin-top:14px}
+.share-section-label{display:block;margin-bottom:7px;color:var(--z900);font-size:12.5px;font-weight:600}
+.share-audience-options{display:grid;gap:7px}
+.share-audience-option{display:grid;grid-template-columns:16px minmax(0,1fr);gap:7px;align-items:center;min-height:38px;padding:8px 10px;border:1px solid var(--z200);border-radius:6px;background:#fff;color:var(--z600);cursor:pointer}
+.share-audience-option:hover{background:var(--z50);border-color:var(--z300)}
+.share-audience-option.on{border-color:var(--brand);background:var(--brand-muted)}
+.share-audience-option strong{display:block;color:var(--z700);font-size:12px;font-weight:600}
+.share-audience-option.on strong{color:var(--brand)}
+.share-audience-option small{display:none}
+.share-audience-option input{margin-top:0;accent-color:var(--brand)}
+.close-recipient-list{display:grid;gap:6px;max-height:236px;overflow:auto;margin-top:2px;padding-right:2px}
+.close-recipient{display:grid;grid-template-columns:16px 30px minmax(0,1fr);gap:9px;align-items:center;padding:8px 10px;border:1px solid var(--z200);border-radius:6px;background:#fff;cursor:pointer}
+.close-recipient:hover{background:var(--z50);border-color:var(--z300)}
+.close-recipient.on{border-color:var(--brand);background:var(--brand-muted)}
+.close-recipient input{margin:0;accent-color:var(--brand)}
+.close-recipient .cr-info{min-width:0}
+.close-recipient .cr-name .domain{color:var(--z500);font-weight:400;margin-left:3px}
+.close-recipient .cr-name{display:block;color:var(--z800);font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.close-recipient .cr-meta{display:block;margin-top:1px;color:var(--z500);font-size:11px}
+.close-recipient-section.hidden{display:none}
+.close-empty{padding:12px;border:1px dashed var(--z200);border-radius:6px;color:var(--z500);font-size:12px;text-align:center}
+.pending{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--z200)}.ai{margin-top:14px;padding:10px 12px;background:var(--z50);border-radius:6px;color:var(--z500);font-size:11px}.empty{padding:30px;text-align:center;color:var(--z500)}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--z900);color:#fff;padding:9px 14px;border-radius:7px;display:none}.toast.show{display:block}@media(max-width:760px){.page{padding:16px}.head{flex-direction:column}.shell{grid-template-columns:1fr}.rail{border-right:0;border-bottom:1px solid var(--z200)}}
 /* Keep employee identity and progress as two distinct information rows. */
-.person-copy{min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:1px}.person-copy .identity{display:block;line-height:1.35}.person-copy .small{display:block;margin:0;line-height:1.4}
+.person-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px;padding-top:1px}
+.identity-text{display:block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}
+/* Rail có overflow-x:hidden nên tooltip canh giữa sẽ bị cắt hai bên (H-06 đang dính đúng lỗi này).
+   Neo trái + cho xuống dòng trong bề ngang rail hẹp nhất (240px) để đọc được trọn vẹn. */
+/* Neo tooltip vào cả hàng (.person) thay vì vào tên, để nó luôn vừa đúng bề ngang rail dù rail được kéo rộng hẹp. */
+.rail .person{position:relative}
+.rail .identity.pms-tooltip{position:static}
+.rail .pms-tooltip-content{left:13px;right:13px;width:auto;transform:none;white-space:normal;text-align:left;top:auto;bottom:calc(100% + 7px)}
+.rail .pms-tooltip-content::after{left:18px;transform:none;top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
+.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}.person-copy .identity{display:block;line-height:1.35}.person-copy .small{display:block;margin:0;line-height:1.4}
 .pms-tooltip{position:relative;display:inline-flex;align-items:center;cursor:help}.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
 /* Request detail follows the shared PMS split-view hierarchy. */
 :root{--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);--warning:#9a5b00;--warning-muted:#fff9e8;--warning-border:#f4ce76}
-.page{padding:22px 24px 28px}.goal{line-height:1.35;letter-spacing:-.4px}.meta{font-size:12px}.request-detail-layout{grid-template-columns:240px minmax(440px,1fr) 280px;height:calc(100vh - 190px);min-height:520px;max-height:760px}.rail{overflow-y:auto}.content-pane{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--z200)}.pane-head{flex:0 0 auto}.pane-body{padding:14px 16px;overflow-y:auto;min-height:0}.shared-question,.question{background:var(--brand-muted);border-left:3px solid var(--brand-ring);padding:10px 12px}.question .label,.shared-question .label{margin-top:0;color:var(--brand)}.feedback-card{padding:14px 16px}.fb-line{display:flex;align-items:center;flex-wrap:wrap;gap:0}.fb-line .pms-tooltip{margin-right:0}.fb-body{font-size:13.5px;line-height:1.6}.cv-icons{display:flex;gap:3px}.cv-icon{width:28px;height:28px;object-fit:cover;background:transparent}.pending-list{display:flex;flex-direction:column;gap:8px}.pending{padding:11px 12px;background:var(--warning-muted);border:1px solid var(--warning-border);border-radius:7px}.pending .identity{color:var(--z900)}.pending-status{display:inline-flex;align-items:center;gap:5px;color:var(--warning);font-size:11px;font-weight:600;margin-top:4px}.ticket-summary{background:var(--z50);padding:16px;overflow-y:auto}.summary-title{font-size:13px;font-weight:700;color:var(--z900);margin-bottom:14px}.summary-status{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--warning-border);border-radius:6px;background:var(--warning-muted);color:var(--warning);font-size:11.5px;font-weight:600}.summary-progress{margin:16px 0}.summary-progress-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--z600);margin-bottom:7px}.summary-progress-head strong{color:var(--z900)}.summary-progress-track{height:6px;border-radius:20px;background:var(--z200);overflow:hidden}.summary-progress-fill{display:block;height:100%;border-radius:inherit;background:var(--brand)}.summary-list{border-top:1px solid var(--z200)}.summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--z200);font-size:11.5px;color:var(--z500)}.summary-row strong{color:var(--z700);font-weight:500;text-align:right}.summary-ai{margin-top:14px;padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:#fff}.summary-ai-title{font-size:12px;font-weight:600;color:var(--z800)}.summary-ai-copy{font-size:11px;line-height:1.5;color:var(--z500);margin-top:4px}.ai{display:none}
+.page{padding:22px 24px 28px}.goal{line-height:1.35;letter-spacing:-.4px}.meta{font-size:12px}.request-detail-layout{--rail-w:240px;position:relative;grid-template-columns:var(--rail-w) minmax(440px,1fr) 280px;height:calc(100vh - 190px);min-height:520px;max-height:760px}
+.rail-resizer{position:absolute;top:0;bottom:0;left:var(--rail-w);width:9px;margin-left:-4px;z-index:10;cursor:col-resize;background:transparent;border:0;padding:0;touch-action:none}
+.rail-resizer::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);background:transparent;transition:background .12s}
+.rail-resizer:hover::before{background:var(--z300)}
+.rail-resizer:focus{outline:none}
+.rail-resizer:focus-visible::before{background:var(--brand)}.rail{overflow-y:auto;overflow-x:hidden}.content-pane{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--z200)}.pane-head{flex:0 0 auto}.pane-body{padding:14px 16px;overflow-y:auto;min-height:0}.shared-question,.question{background:var(--brand-muted);border-left:3px solid var(--brand-ring);padding:10px 12px}.question .label,.shared-question .label{margin-top:0;color:var(--brand)}.feedback-card{padding:14px 16px}.fb-line{display:flex;align-items:center;flex-wrap:wrap;gap:0}.fb-line .pms-tooltip{margin-right:0}.fb-body{font-size:13.5px;line-height:1.6}.cv-icons{display:flex;gap:3px}.cv-icon{width:28px;height:28px;object-fit:cover;background:transparent}.pending-list{display:flex;flex-direction:column;gap:8px}.pending{padding:11px 12px;background:var(--warning-muted);border:1px solid var(--warning-border);border-radius:7px}.pending .identity{color:var(--z900)}.pending-status{display:inline-flex;align-items:center;gap:5px;color:var(--warning);font-size:11px;font-weight:600;margin-top:4px}.ticket-summary{background:var(--z50);padding:16px;overflow-y:auto}.summary-title{font-size:13px;font-weight:700;color:var(--z900);margin-bottom:14px}.summary-status{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--warning-border);border-radius:6px;background:var(--warning-muted);color:var(--warning);font-size:11.5px;font-weight:600}.summary-progress{margin:16px 0}.summary-progress-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--z600);margin-bottom:7px}.summary-progress-head strong{color:var(--z900)}.summary-progress-track{height:6px;border-radius:20px;background:var(--z200);overflow:hidden}.summary-progress-fill{display:block;height:100%;border-radius:inherit;background:var(--brand)}.summary-list{border-top:1px solid var(--z200)}.summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--z200);font-size:11.5px;color:var(--z500)}.summary-row strong{color:var(--z700);font-weight:500;text-align:right}.summary-ai{margin-top:14px;padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:#fff}.summary-ai-title{font-size:12px;font-weight:600;color:var(--z800)}.summary-ai-copy{font-size:11px;line-height:1.5;color:var(--z500);margin-top:4px}.ai{display:none}
 .person .person-copy .emp-tag,.person-info .emp-tag{align-self:flex-start;margin:5px 0 0}
 .emp-tag{display:inline-flex;align-items:center;margin-left:6px;padding:1px 8px;border:1px solid;border-radius:50px;font-size:10px;font-weight:500;line-height:1.6;white-space:nowrap}.emp-tag-resigned{border-color:var(--error-border);background:var(--error-muted);color:var(--error)}.employee-badge-summary{display:flex;align-items:center;gap:10px;min-height:28px;margin-top:8px}.employee-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.employee-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.btn-remind{font-size:11.5px;font-weight:600;box-shadow:0 1px 2px rgba(24,24,27,.08);border-color:var(--z300);height:30px;padding:0 10px;white-space:nowrap;align-self:flex-start}.btn-remind i{font-size:14px;color:var(--z600)}.btn-remind:hover{background:var(--z50);border-color:var(--z500)}.btn-pending-remind{height:28px;padding:0 9px;font-size:11px;white-space:nowrap;border-color:var(--z300)}.btn-pending-remind:hover:not(:disabled){background:var(--z50);border-color:var(--z500)}.btn-pending-remind:disabled{opacity:.45;cursor:not-allowed;background:var(--z100);border-color:var(--z200);color:var(--z500);box-shadow:none}.btn-pending-remind i{font-size:13px}
 .reminder-meta{display:flex;align-items:center;min-height:18px;margin-top:7px;color:var(--z500);font-size:10.5px;line-height:1.4}.reminder-meta i{font-size:11px}.reminder-summary{display:inline-flex;align-items:center;gap:4px}.reminder-info{margin-left:1px;color:var(--z500)}.reminder-history-tip{left:0;transform:none;min-width:210px;white-space:normal;text-align:left;font-size:10px;font-weight:400;line-height:1.45}.reminder-history-tip::after{left:14px;transform:none}.pending{display:block}.pending-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.pending-actions{display:flex;align-items:center;gap:8px;flex:none}.pending-tag{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;padding:0;color:var(--warning);font-size:10.5px;font-weight:600;white-space:nowrap}.question.pending-question{margin:9px 0 0;background:var(--z100);border:1px solid var(--z200);border-radius:7px;padding:8px 10px}.pending-question .label{margin:0 0 3px;color:var(--z500)}.pending-question .question-text{font-size:12px;color:var(--z700)}
@@ -25,16 +76,16 @@
 .shared-question,.question{background:var(--brand-muted);border-left:3px solid var(--brand-ring)}.question .label,.shared-question .label{color:var(--brand)}
 .ai-summary{border-color:var(--z200);box-shadow:0 3px 12px rgba(24,24,27,.06)}.ai-summary-head{background:#fff;border-bottom-color:var(--z200);padding-top:10px;padding-bottom:10px}.ai-summary-head-meta{flex-direction:row;align-items:center;gap:8px}
 .qa{margin:9px 0 0}.qa-q{display:block;width:100%;background:var(--brand-muted);color:var(--z700);font-size:12.5px;line-height:1.5;padding:7px 12px 8px;border-radius:10px 10px 10px 4px}.qa-label{display:inline;margin:0;font-size:inherit;font-weight:600;line-height:inherit;letter-spacing:0;text-transform:none;color:var(--z600)}.qa-text{display:inline}.qa-a{position:relative;margin:0 0 0 8px;padding-left:10px}.qa-a::before{content:'';position:absolute;left:0;top:-2px;width:10px;height:13px;border-left:2px solid var(--z200);border-bottom:2px solid var(--z200);border-bottom-left-radius:7px}.qa-a .fb-body{display:block;width:100%;margin:0;font-size:12.5px;background:transparent;border-radius:0;padding:4px 8px 1px}.shared-question{width:100%;background:var(--brand-muted);border:0;border-radius:10px;padding:7px 12px 8px}.shared-question .label{margin:0 0 2px;color:var(--z500);line-height:1.3;letter-spacing:.35px}.shared-question .question-text{font-size:12.5px;line-height:1.5;margin:0}
-@media(max-width:1100px){.request-detail-layout{grid-template-columns:220px minmax(420px,1fr) 250px}}@media(max-width:900px){.request-detail-layout{height:auto;max-height:none;grid-template-columns:220px minmax(0,1fr)}.ticket-summary{grid-column:1/-1;border-top:1px solid var(--z200)}.content-pane{max-height:650px;border-right:0}}@media(max-width:680px){.request-detail-layout{display:block}.rail{max-height:240px}.content-pane{max-height:none}.pane-body{overflow:visible}.ticket-summary{border-top:1px solid var(--z200)}}
+@media(max-width:1100px){.request-detail-layout{--rail-w:220px;grid-template-columns:var(--rail-w) minmax(420px,1fr) 250px}}@media(max-width:900px){.request-detail-layout{height:auto;max-height:none;grid-template-columns:220px minmax(0,1fr)}.ticket-summary{grid-column:1/-1;border-top:1px solid var(--z200)}.content-pane{max-height:650px;border-right:0}}@media(max-width:680px){.request-detail-layout{display:block}.rail-resizer{display:none}.rail{max-height:240px}.content-pane{max-height:none}.pane-body{overflow:visible}.ticket-summary{border-top:1px solid var(--z200)}}
 </style>
 </head>
 <body>
 <header class="topbar">MoMo Performance - Phản hồi</header>
 <main class="page">
   <div class="breadcrumb"><a href="index.html?mode=requests">Phản hồi</a> / Yêu cầu / Chi tiết</div>
-  <header class="head"><h1 class="goal" id="requestGoal"></h1><div style="display:flex;align-items:center;gap:8px"><button type="button" class="btn" title="Tải xuống" onclick="(window.toast||window.notify||function(){})('Đang chuẩn bị tệp tải xuống...')"><i class="bx bx-download"></i></button><a class="btn" href="index.html?mode=requests"><i class="bx bx-arrow-back"></i> Quay lại</a></div></header>
-  <div class="shell request-detail-layout"><aside class="rail"><div class="rail-title">Nhân viên nhận feedback</div><div id="requestEmployeeRail"></div></aside><section class="content-pane"><header class="pane-head"><div><div class="pane-title" id="employeeTitle"></div><div class="employee-badge-summary" id="employeeBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button class="btn btn-remind" id="remindAll" onclick="remindPending()"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button></header><div class="pane-body"><div id="employeeAiSummary"></div><div id="sharedQuestion"></div><div id="requestResponseFeed"></div><div id="pendingReviewers"></div></div></section><aside class="ticket-summary" id="ticketSummary" aria-label="Tổng quan yêu cầu"></aside></div>
-</main><div class="toast" id="toast"></div>
+  <header class="head"><h1 class="goal" id="requestGoal"></h1><div style="display:flex;align-items:center;gap:8px"><button type="button" class="btn" title="Tải xuống" onclick="(window.toast||window.notify||function(){})('Đang chuẩn bị tệp tải xuống...')"><i class="bx bx-download"></i></button><span id="requestActions" style="display:flex;gap:8px"></span><a class="btn" href="index.html?mode=requests"><i class="bx bx-arrow-back"></i> Quay lại</a></div></header>
+  <div class="shell request-detail-layout"><aside class="rail"><div class="rail-title">Nhân viên nhận feedback</div><div id="requestEmployeeRail"></div></aside><div class="rail-resizer" id="railResizer" role="separator" aria-orientation="vertical" tabindex="0" aria-label="Kéo để đổi độ rộng cột danh sách"></div><section class="content-pane"><header class="pane-head"><div><div class="pane-title" id="employeeTitle"></div><div class="employee-badge-summary" id="employeeBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><div class="pane-actions"><span id="recipientActions" style="display:flex;align-items:center;gap:7px"></span><button class="btn btn-remind" id="remindAll" onclick="remindPending()"><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button></div></header><div class="pane-body"><div id="employeeAiSummary"></div><div id="sharedQuestion"></div><div id="requestResponseFeed"></div><div id="pendingReviewers"></div></div></section><aside class="ticket-summary" id="ticketSummary" aria-label="Tổng quan yêu cầu"></aside></div>
+</main><div class="dialog-overlay" id="closeDialog" role="dialog" aria-modal="true" aria-labelledby="closeDialogTitle" onclick="if(event.target===this)closeCloseDialog()"><section class="confirm-dialog share-dialog"><div class="confirm-title" id="closeDialogTitle">Đóng yêu cầu</div><p class="confirm-copy">Sau khi đóng sẽ ngừng thu thập phản hồi. Bạn vẫn có thể mở lại khi cần.</p><div id="closeSettings"></div><div class="confirm-actions"><button class="btn btn-primary btn-share" type="button" id="closeDialogConfirm" onclick="confirmClosure()">Đóng yêu cầu</button></div></section></div><div class="toast" id="toast"></div>
 <script src="../assets/employees-data.js"></script><script src="manager-feedback-data.js"></script><script src="manager-ai-summary.js"></script><script src="manager-request-model.js"></script><script src="manager-request-seed.js"></script><script src="manager-request-storage.js"></script>
 <script>
 const params=new URLSearchParams(location.search),requestId=params.get('request'),cycle=params.get('cycle')||'2026',employees=window.PMS_EMPLOYEES||[],storageKey='pms.managerFeedbackRequests.v2';
@@ -53,22 +104,91 @@ function isResignedPerson(person){
   return staff.some(item=>item.resigned&&((id&&item.id===id)||(login&&String(item.login||'').toLowerCase()===login)));
 }
 /* Gắn trạng thái nghỉ việc lên assignment trước khi tính tiến độ, để mẫu số bỏ đúng phần không thu được. */
-function applyResignationRules(){
-  const collecting=ManagerRequestModel.requestStatus(request,todayDMY())!=='closed';
-  (request.assignments||[]).forEach(item=>{
-    const resigned=isResignedPerson(item.reviewer);
-    if(item.reviewer)item.reviewer.resigned=resigned;
-    item.excludedByResignation=collecting&&resigned&&item.status!=='done';
-  });
+/* ── Đóng chủ động — bám theo luồng của H-06 (HR): nút ở màn chi tiết, chọn
+     phạm vi "toàn bộ yêu cầu" hoặc "theo người nhận", đóng rồi vẫn mở lại được. */
+let CLOSE_STATE={scope:'all',ids:[]};
+/* Mở lại cho từng người nhận — đối xứng với phạm vi "đóng theo người nhận". */
+function renderRecipientActions(){
+  const box=document.getElementById('recipientActions');if(!box)return;
+  const closedByHand=ManagerRequestModel.assignmentsOfRecipient(request,selectedEmployeeId).some(item=>item.closedManually);
+  const closed=ManagerRequestModel.isRecipientClosed(request,selectedEmployeeId);
+  /* Giống H-06: ổ khoá + Mở lại chỉ hiện khi yêu cầu có từ 2 người nhận trở lên;
+     một người nhận thì thao tác đã nằm ở cấp yêu cầu rồi. */
+  const multi=ManagerRequestModel.byEmployee(request,todayDMY()).length>=2;
+  box.innerHTML=multi?[
+    closed?`<span class="ticket-lock" title="Đã đóng"><i class="bx bx-lock-alt"></i></span>`:'',
+    closedByHand?`<button type="button" class="btn btn-outline btn-share" onclick="reopenClosedRecipient('${selectedEmployeeId}')"><i class="bx bx-lock-open-alt"></i> Mở lại</button>`:''
+  ].join(''):'';
 }
-function canRemindAssignment(item,now){return !isResignedPerson(item&&item.reviewer)&&ManagerRequestModel.canRemindAssignment(request,item,now);}
+function renderRequestActions(){
+  const box=document.getElementById('requestActions');if(!box)return;
+  const closedManually=!!request.closedManually;
+  const lifecycle=ManagerRequestModel.requestStatus(request,todayDMY());
+  const canClose=!closedManually&&lifecycle!=='closed'&&ManagerRequestModel.openRecipientsForClose(request).length>0;
+  box.innerHTML=[
+    canClose?'<button type="button" class="btn" onclick="openCloseDialog()"><i class="bx bx-lock-alt"></i> Đóng yêu cầu</button>':'',
+    closedManually?'<button type="button" class="btn" onclick="reopenWholeRequest()"><i class="bx bx-lock-open-alt"></i> Mở lại yêu cầu</button>':''
+  ].join('');
+}
+function openCloseDialog(){CLOSE_STATE={scope:'all',ids:[]};renderCloseSettings();document.getElementById('closeDialog').classList.add('open');}
+function closeCloseDialog(){document.getElementById('closeDialog').classList.remove('open');}
+function setCloseScope(scope){CLOSE_STATE.scope=scope;renderCloseSettings();}
+function toggleCloseRecipient(id){const at=CLOSE_STATE.ids.indexOf(id);if(at>=0)CLOSE_STATE.ids.splice(at,1);else CLOSE_STATE.ids.push(id);renderCloseSettings();}
+function renderCloseSettings(){
+  const open=ManagerRequestModel.openRecipientsForClose(request),some=CLOSE_STATE.scope==='some';
+  const rows=open.map(item=>{
+    const on=CLOSE_STATE.ids.indexOf(item.employeeId)>=0;
+    const person=employees.find(emp=>emp.id===item.employeeId)||{};
+    const ini=person.ini||String(item.employeeName||'').split(' ').map(part=>part[0]).join('').slice(0,2);
+    const dom=item.employeeLogin||person.login||'';
+    return `<label class="close-recipient${on?' on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleCloseRecipient('${item.employeeId}')"/><span class="avatar">${ini}</span><span class="cr-info"><span class="cr-name">${item.employeeName}${dom?`<span class="domain">(${dom})</span>`:''}</span><span class="cr-meta">Còn ${item.open} người chưa trả lời</span></span></label>`;
+  }).join('');
+  const listBlock=open.length?`<div class="close-recipient-list">${rows}</div>`:'<div class="close-empty">Tất cả người nhận đã hoàn tất hoặc đã đóng.</div>';
+  document.getElementById('closeSettings').innerHTML=`<section class="share-section"><div class="share-audience-options"><label class="share-audience-option${some?'':' on'}"><input type="radio" name="closeScope" ${some?'':'checked'} onchange="setCloseScope('all')"/><span><strong>Đóng toàn bộ yêu cầu</strong><small>Ngừng thu thập cho tất cả người nhận. Người chưa trả lời sẽ không gửi được nữa.</small></span></label><label class="share-audience-option${some?' on':''}"><input type="radio" name="closeScope" ${some?'checked':''} onchange="setCloseScope('some')"/><span><strong>Đóng yêu cầu theo người nhận</strong><small>Chọn 1 hoặc nhiều người nhận để đóng; những người còn lại vẫn tiếp tục thu thập.</small></span></label></div></section><section class="share-section close-recipient-section${some?'':' hidden'}"><span class="share-section-label">Chọn người nhận cần đóng</span>${listBlock}</section>`;
+  document.getElementById('closeDialogConfirm').disabled=some&&!CLOSE_STATE.ids.length;
+}
+function confirmClosure(){
+  if(CLOSE_STATE.scope==='some'){
+    if(!CLOSE_STATE.ids.length)return;
+    ManagerRequestModel.closeRecipients(request,CLOSE_STATE.ids,todayDMY());
+    finishClosure(`Đã đóng yêu cầu cho ${CLOSE_STATE.ids.length} người nhận.`);
+  }else{
+    ManagerRequestModel.closeRequestManually(request,todayDMY());
+    finishClosure('Đã đóng yêu cầu — ngừng thu thập phản hồi.');
+  }
+}
+function finishClosure(message){closeCloseDialog();persist();render();notify(message);}
+function reopenWholeRequest(){ManagerRequestModel.reopenRequest(request);persist();render();notify('Đã mở lại yêu cầu — tiếp tục thu thập phản hồi.');}
+function reopenClosedRecipient(id){ManagerRequestModel.reopenRecipient(request,id);persist();render();notify('Đã mở lại yêu cầu cho nhân viên này.');}
+function applyResignationRules(){ManagerRequestModel.applyResignation(request,isResignedPerson);}
+function canRemindAssignment(item,now){return ManagerRequestModel.canRemindAssignment(request,item,now);}
+/* Cùng bảng trạng thái ticket với H-06:
+     người cho phản hồi nghỉ việc → bx-user-x  · "Ngừng thu thập"
+     ticket đã đóng               → bx-lock-alt · "Đóng"
+     còn lại                      → bx-time-five · "Chưa trả lời"
+   M-04 có thêm trường hợp H-06 không có (người NHẬN nghỉ việc) nên ghi rõ lý do sau chữ "Đóng". */
+function ticketStateIcon(item,locked){
+  if(item&&item.closedByResignation==='reviewer')return 'bx-user-x';
+  if(ManagerRequestModel.isTicketClosed(item)||locked)return 'bx-lock-alt';
+  return 'bx-time-five';
+}
+function ticketStateLabel(item,locked){
+  if(item&&item.closedByResignation==='reviewer')return 'Ngừng thu thập';
+  if(item&&item.closedByResignation==='recipient')return 'Đóng · người nhận nghỉ việc';
+  if(ManagerRequestModel.isTicketClosed(item)||locked)return 'Đóng';
+  return 'Chưa trả lời';
+}
 function remindBlockReason(item,now){
-  if(isResignedPerson(item&&item.reviewer))return 'Người cho phản hồi đã nghỉ việc, không gửi nhắc được';
+  if(item&&item.closedByResignation==='reviewer')return 'Người cho phản hồi đã nghỉ việc, không gửi nhắc được';
+  if(item&&item.closedByResignation==='recipient')return 'Người nhận phản hồi đã nghỉ việc, không cần thu thập nữa';
+  if(item&&item.closedManually)return 'Yêu cầu đã được đóng, không gửi nhắc được';
   if(ManagerRequestModel.requestStatus(request,todayDMY())==='closed')return 'Yêu cầu đã đóng, không gửi nhắc được';
   if(!ManagerRequestModel.isWithinRemindWindow(request,now))return 'Đã quá 90 ngày kể từ ngày tạo yêu cầu, không gửi nhắc được';
   return 'Mỗi người chỉ được nhắc thủ công một lần trong 24 giờ';
 }
 function resignedTag(person){return isResignedPerson(person)?'<span class="emp-tag emp-tag-resigned">Đã nghỉ việc</span>':'';}
+/* Tooltip rail: chỉ cơ cấu tổ chức, không lặp tên/domain đang nhìn thấy (DS §8.1, giống personTooltip của H-06). */
+function railOrg(person){return [person&&person.dept,person&&person.team,person&&person.pos].filter(Boolean).join(' - ');}
 function org(person){return [person.div,person.dept,person.team,person.pos].filter(Boolean).join(' - ');} // Phòng ban - Team - Vị trí
 function identityTooltip(label,meta,className='identity'){return `<span class="${className} pms-tooltip" tabindex="0">${label}<span class="pms-tooltip-content" role="tooltip">${meta}</span></span>`;}
 function feedbackForAssignment(assignment,index){const items=feedbackStore.feedbackFor(assignment.employeeId,cycle);return items.find(item=>item.sender.dom===assignment.reviewer.login)||items[index%items.length];}
@@ -83,10 +203,13 @@ function render(){applyResignationRules();
   const stat=ManagerRequestModel.summarize(request,todayDMY()),rows=ManagerRequestModel.byEmployee(request,todayDMY());
   document.title=`${request.goal} | Chi tiết yêu cầu`;
   document.getElementById('requestGoal').textContent=request.goal;
+  renderRequestActions();
   renderTicketSummary(stat,rows);
   if(!rows.some(row=>row.employeeId===selectedEmployeeId))selectedEmployeeId=rows[0]?.employeeId;
-  document.getElementById('requestEmployeeRail').innerHTML=rows.map(row=>{const person=employees.find(item=>item.id===row.employeeId);return `<button class="person ${row.employeeId===selectedEmployeeId?'on':''}" onclick="selectEmployee('${row.employeeId}')"><span class="avatar">${person?.ini||''}</span><span><span class="identity" title="${person?`${person.name} (${person.login}) - ${org(person)}`:row.employeeName}">${person?.name||row.employeeName} <span class="domain">(${person?.login||''})</span></span><span class="small">${row.done}/${row.total} phản hồi đã nhận</span>${resignedTag(person||{login:row.employeeId})}</span></button>`;}).join('');
-  const employee=employees.find(item=>item.id===selectedEmployeeId),assignments=request.assignments.filter(item=>item.employeeId===selectedEmployeeId),done=assignments.filter(item=>item.status==='done'),pending=assignments.filter(item=>item.status!=='done');
+  renderRecipientActions();
+  document.getElementById('requestEmployeeRail').innerHTML=rows.map(row=>{const person=employees.find(item=>item.id===row.employeeId);return `<button class="person ${row.employeeId===selectedEmployeeId?'on':''}" onclick="selectEmployee('${row.employeeId}')"><span class="avatar">${person?.ini||''}</span><span><span class="identity pms-tooltip" tabindex="0"><span class="identity-text">${person?.name||row.employeeName} <span class="domain">(${person?.login||''})</span></span><span class="pms-tooltip-content pms-tooltip-top" role="tooltip">${railOrg(person)}</span></span><span class="small">${row.done}/${row.total} phản hồi đã nhận</span>${resignedTag(person||{login:row.employeeId})}</span>${ManagerRequestModel.isRecipientClosed(request,row.employeeId)?`<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>`:''}</button>`;}).join('');
+  const employee=employees.find(item=>item.id===selectedEmployeeId),assignments=request.assignments.filter(item=>item.employeeId===selectedEmployeeId),done=assignments.filter(item=>item.status==='done'),pending=assignments.filter(item=>item.status!=='done');
+  if(!employee){document.getElementById('requestResponseFeed').innerHTML='<div class="empty">Chọn một nhân viên để xem chi tiết.</div>';return;}
   document.getElementById('employeeTitle').textContent=`Phản hồi đã nhận của ${employee?.name||''}`;
   document.getElementById('employeeBadgeSummary').innerHTML=employeeBadgeSummary(assignments);
   renderEmployeeAiSummary(employee,done);
@@ -94,8 +217,10 @@ function render(){applyResignationRules();
   document.getElementById('requestResponseFeed').innerHTML=done.length?`<div class="label">Phản hồi đã nhận</div>${done.map((assignment,index)=>responseCard(assignment,feedbackForAssignment(assignment,index),employee)).join('')}`:'';
   const locked=ManagerRequestModel.requestStatus(request,todayDMY())==='closed';
   const now=nowDMYTime(),eligible=pending.filter(item=>canRemindAssignment(item,now));
-  document.getElementById('pendingReviewers').innerHTML=pending.length?`<div class="label">${locked?'Đóng':'Cần phản hồi'}</div><div class="pending-list">${pending.map(item=>{const canRemind=canRemindAssignment(item,now);return `<div class="pending"><div class="pending-head"><div class="identity">${item.reviewer.name}&nbsp;<span class="domain">(${item.reviewer.login})</span>${resignedTag(item.reviewer)}</div><div class="pending-actions"><span class="pending-tag"><i class="bx ${item.excludedByResignation?'bx-user-x':locked?'bx-lock-alt':'bx-time-five'}"></i>${item.excludedByResignation?'Ngừng thu thập':locked?'Đóng':'Chưa trả lời'}</span>${locked?'':`<button class="btn btn-pending-remind" onclick="remindOne('${item.id}')" ${canRemind?'':'disabled'} title="${canRemind?'Gửi lời nhắc thủ công':remindBlockReason(item,now)}"><i class="bx bx-bell"></i> Nhắc</button>`}</div></div>${request.questionMode==='individual'?`<div class="question pending-question"><div class="label">Câu hỏi</div><div class="question-text">${item.question}</div></div>`:''}${reminderMeta(item)}</div>`;}).join('')}</div>`:'';
-  const remindAll=document.getElementById('remindAll');remindAll.style.display=pending.length&&!locked?'':'none';remindAll.disabled=!eligible.length;
+  document.getElementById('pendingReviewers').innerHTML=pending.length?`<div class="label">${locked?'Đóng':pending.every(item=>ManagerRequestModel.isTicketClosed(item))?'Đã đóng':'Cần phản hồi'}</div><div class="pending-list">${pending.map(item=>{const canRemind=canRemindAssignment(item,now);return `<div class="pending${ManagerRequestModel.isTicketClosed(item)?' pending-closed':''}"><div class="pending-head"><div class="identity">${item.reviewer.name}&nbsp;<span class="domain">(${item.reviewer.login})</span>${resignedTag(item.reviewer)}</div><div class="pending-actions"><span class="pending-tag"><i class="bx ${ticketStateIcon(item,locked)}"></i>${ticketStateLabel(item,locked)}</span>${locked||ManagerRequestModel.isTicketClosed(item)?'':`<button class="btn btn-pending-remind" onclick="remindOne('${item.id}')" ${canRemind?'':'disabled'} title="${canRemind?'Gửi lời nhắc thủ công':remindBlockReason(item,now)}"><i class="bx bx-bell"></i> Nhắc</button>`}</div></div>${request.questionMode==='individual'?`<div class="question pending-question"><div class="label">Câu hỏi</div><div class="question-text">${item.question}</div></div>`:''}${reminderMeta(item)}</div>`;}).join('')}</div>`:'';
+  /* Ticket đã đóng thì không còn gì để nhắc — H-06 cũng ẩn hẳn nút này khi người nhận đã đóng. */
+  const openPending=pending.filter(item=>!ManagerRequestModel.isTicketClosed(item));
+  const remindAll=document.getElementById('remindAll');remindAll.style.display=openPending.length&&!locked?'':'none';remindAll.disabled=!eligible.length;
 }
 function selectEmployee(id){selectedEmployeeId=id;render();}function persist(){ManagerRequestStorage.save(localStorage,storageKey,requests);}function notify(text){const box=document.getElementById('toast');box.textContent=text;box.classList.add('show');setTimeout(()=>box.classList.remove('show'),2400);}function remindOne(id){if(ManagerRequestModel.remindAssignment(request,id,nowDMYTime())){justRemindedAssignments.add(id);persist();render();notify('Đã gửi nhắc người chưa trả lời.');}}function remindPending(){let count=0,now=nowDMYTime();request.assignments.filter(item=>item.employeeId===selectedEmployeeId).forEach(item=>{if(ManagerRequestModel.remindAssignment(request,item.id,now)){justRemindedAssignments.add(item.id);count++;}});if(count){persist();render();notify(`Đã nhắc ${count} người chưa trả lời.`);}}
 render();
@@ -103,4 +228,23 @@ render();
 <script>
 function normalizeEmployeeRail(){document.querySelectorAll('#requestEmployeeRail .person').forEach(person=>{const copy=person.children[1],progress=copy?.querySelector('.small'),identity=copy?.querySelector('.identity');if(!copy||!progress)return;copy.classList.add('person-copy');if(identity?.title){const content=document.createElement('span');content.className='pms-tooltip-content';content.setAttribute('role','tooltip');content.textContent=identity.title;identity.removeAttribute('title');identity.classList.add('pms-tooltip');identity.tabIndex=0;identity.appendChild(content);}if(!progress.textContent.startsWith('Đã nhận:')){const match=progress.textContent.match(/(\d+)\/(\d+)/);if(match)progress.textContent=`Đã nhận: ${match[1]}/${match[2]} phản hồi`;}});}
 const employeeRail=document.getElementById('requestEmployeeRail');new MutationObserver(normalizeEmployeeRail).observe(employeeRail,{childList:true});normalizeEmployeeRail();
-</script></body></html>
+</script><script>/* Kéo đổi độ rộng cột danh sách (rail trái) — cùng cách làm với màn chi tiết của HR (H-06) */
+(function(){
+  const shell=document.querySelector('.shell.request-detail-layout'),handle=document.getElementById('railResizer');
+  if(!shell||!handle)return;
+  const MIN=240,MAX=360,KEY='uc5_m04_rail_w';
+  const clamp=v=>Math.min(MAX,Math.max(MIN,v));
+  const curW=()=>parseInt(getComputedStyle(shell).getPropertyValue('--rail-w'),10)||MIN;
+  const setW=w=>shell.style.setProperty('--rail-w',clamp(w)+'px');
+  const saved=parseInt(localStorage.getItem(KEY),10);
+  if(saved>=MIN&&saved<=MAX)setW(saved);
+  let startX=0,startW=0,dragging=false;
+  handle.addEventListener('pointerdown',e=>{dragging=true;startX=e.clientX;startW=curW();try{handle.setPointerCapture(e.pointerId)}catch(_){}document.body.style.userSelect='none';e.preventDefault();});
+  handle.addEventListener('pointermove',e=>{if(dragging)setW(startW+(e.clientX-startX));});
+  const end=e=>{if(!dragging)return;dragging=false;document.body.style.userSelect='';localStorage.setItem(KEY,curW());try{handle.releasePointerCapture(e.pointerId)}catch(_){}};
+  handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);
+  handle.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){setW(curW()-12);localStorage.setItem(KEY,curW());e.preventDefault();}else if(e.key==='ArrowRight'){setW(curW()+12);localStorage.setItem(KEY,curW());e.preventDefault();}});
+  handle.addEventListener('dblclick',()=>{setW(MIN);localStorage.setItem(KEY,MIN);});
+})();
+</script>
+</body></html>
