@@ -9,6 +9,12 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--z50);font:14px 'Public Sans',sans-serif;color:var(--z700)}
 .top{height:52px;background:#fff;border-bottom:1px solid var(--z200);display:flex;align-items:center;gap:8px;padding:0 24px;color:var(--z600);font-size:13px;position:sticky;top:0;z-index:30}
+/* Nút tải nằm cùng hàng với hai tab, canh giữa theo chiều cao khối tab để không bị lệch. */
+.detail-tab-row{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.detail-download{height:34px;width:34px;margin-top:3px;border:1px solid var(--z200);background:var(--z0);border-radius:8px;color:var(--z600);font-size:17px;display:grid;place-items:center;cursor:pointer;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.detail-download:hover{background:var(--z100);color:var(--z900);border-color:var(--z300)}
+.detail-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--z900);color:#fff;font-size:12.5px;padding:9px 14px;border-radius:7px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:80}
+.detail-toast.show{opacity:1}
 .top .brand-dot{width:20px;height:20px;border-radius:5px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11px}
 main{max-width:1400px;margin:auto;padding:0 24px 24px}
 /* header freeze ngay dưới thanh trên khi cuộn */
@@ -93,7 +99,7 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 <header class="top"><span class="brand-dot">M</span>MoMo Performance - Phản hồi đã nhận</header>
 <main>
   <div class="head">
-    <div class="detail-tabs" id="detailTabs" role="tablist"></div>
+    <div class="detail-tab-row"><div class="detail-tabs" id="detailTabs" role="tablist"></div><button type="button" class="detail-download" id="detailDownload" onclick="downloadThisEmployee()"><i class="bx bx-download"></i></button></div>
     <div id="employeeHeader"></div>
   </div>
   <div class="layout mode-feedback" id="layout">
@@ -184,6 +190,25 @@ const params=new URLSearchParams(location.search),employeeId=params.get('employe
 const employees=window.PMS_EMPLOYEES||[],store=ManagerFeedbackData.createStore(employees),employee=employees.find(item=>item.id===employeeId),items=employee?store.feedbackFor(employee.id,cycle):[];
 const HR_REPORTS=(employee&&typeof FeedbackReportView!=='undefined')?FeedbackReportView.entriesFor(employee.login,'managers'):[];
 let reportIndex=0,activeTab='feedback';
+/* Tải phản hồi của đúng nhân viên đang xem. Dùng lại `items` và `HR_REPORTS` mà trang này
+   đã dựng sẵn — không tự lọc lại, để phạm vi tải luôn khớp với những gì màn hình hiển thị. */
+function detailToast(text){
+  let box=document.getElementById('detailToast');
+  if(!box){box=document.createElement('div');box.id='detailToast';box.className='detail-toast';document.body.appendChild(box);}
+  box.textContent=text;box.classList.add('show');
+  clearTimeout(detailToast._t);detailToast._t=setTimeout(()=>box.classList.remove('show'),2600);
+}
+function downloadThisEmployee(){
+  if(!employee){detailToast('Không tìm thấy nhân viên.');return;}
+  const parts=[`${items.length} phản hồi`];
+  if(HR_REPORTS.length)parts.push(`${HR_REPORTS.length} báo cáo HR ở sheet riêng`);
+  detailToast(`Đang chuẩn bị tệp cho ${employee.name} — ${parts.join(' · ')}.`);
+}
+function syncDetailDownloadLabel(){
+  const btn=document.getElementById('detailDownload');if(!btn||!employee)return;
+  const label=`Tải phản hồi của ${employee.name}`;
+  btn.title=label;btn.setAttribute('aria-label',label);
+}
 function renderDetailTabs(){const tabs=document.getElementById('detailTabs');if(!tabs)return;const reportTab=HR_REPORTS.length?`<button class="detail-tab${activeTab==='report'?' on':''}" role="tab" aria-selected="${activeTab==='report'}" onclick="switchTab('report')"><i class="bx bx-bar-chart-alt-2"></i>Báo cáo phản hồi từ HR<span class="tab-count">${HR_REPORTS.length}</span></button>`:'';tabs.innerHTML=`<button class="detail-tab${activeTab==='feedback'?' on':''}" role="tab" aria-selected="${activeTab==='feedback'}" onclick="switchTab('feedback')"><i class="bx bx-message-square-dots"></i>Phản hồi đã nhận<span class="tab-count">${items.length}</span></button>${reportTab}`;}
 function switchTab(tab){activeTab=tab;document.getElementById('layout').className=`layout mode-${tab}`;renderDetailTabs();if(tab==='report')renderReportDetail();}
 function reportItemHTML(entry,index){const anon=entry.program.identityVisibility==='anonymous';return `<button class="report-item${index===reportIndex?' on':''}" onclick="selectReport(${index})"><span class="avatar-report"><i class="bx bx-file"></i></span><span class="report-item-info"><span class="report-item-name">${entry.program.goal}</span><span class="report-item-sub">Chia sẻ ${entry.sharing.sharedAt||''} - ${anon?'Ẩn danh':'Ghi danh'}</span></span></button>`;}
@@ -200,7 +225,7 @@ if(employee){
   document.getElementById('cards').innerHTML=items.length?items.map((item,index)=>ManagerFeedbackData.feedbackCard(item,employee,{senderTooltipPlacement:index===0?'bottom':'top'})).join(''):'<div class="empty">Chưa có phản hồi trong chu kỳ này.</div>';
   document.getElementById('railCV').innerHTML=railCVHTML(items);
   initQuestionCollapse(document.getElementById('cards'));
-  renderDetailTabs();
+  syncDetailDownloadLabel();renderDetailTabs();
   if(HR_REPORTS.length){renderReportList();renderReportDetail();}
   if(params.get('report')==='1'&&HR_REPORTS.length)switchTab('report');
 }else{

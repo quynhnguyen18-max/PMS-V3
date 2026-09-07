@@ -303,6 +303,78 @@ test('a request closed on purpose reads as Đóng even when the answers already 
   assert.equal(model.requestStatus(request, TODAY), 'collecting');
 });
 
+test('the request tab teaches the feature when empty, and the CTA names the job', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+
+  // CTA và tiêu đề popup dùng chung một tên, tách bạch với nút "Yêu cầu phản hồi" bên màn nhân viên
+  assert.ok(html.includes('<i class="bx bx-user-voice"></i> Thu thập phản hồi cho nhân viên</button>'));
+  assert.ok(html.includes('id="requestDialogTitle">Thu thập phản hồi cho nhân viên<'));
+  assert.ok(!html.includes('Tạo yêu cầu phản hồi'));
+
+  // empty state phân biệt hai tình huống: chưa từng tạo vs lọc không ra kết quả
+  assert.match(html, /function requestEmptyState\(\)/);
+  assert.match(html, /if\(filtering\|\|requestsForSelectedCycle\(\)\.length\)/);
+  assert.ok(html.includes('Không có yêu cầu nào khớp bộ lọc hiện tại.'));
+  assert.ok(html.includes('Chưa có yêu cầu phản hồi nào'));
+  assert.ok(html.includes('nhờ đồng nghiệp góp góc nhìn về một nhân viên trong nhóm, phục vụ cho việc coaching'));
+  assert.match(html, /class="request-empty"[\s\S]{0,600}onclick="openRequestDialog\(\)"/);
+  // phải sửa ở bản renderRequestList định nghĩa SAU, vì bản đó mới thực sự chạy
+  assert.ok(html.lastIndexOf('requestEmptyState()') > html.lastIndexOf('function requestEmptyState()'));
+
+  // tooltip trạng thái Đóng theo đúng câu đã chốt
+  assert.ok(html.includes('role="tooltip">Yêu cầu này không còn nhận phản hồi do đã quá 90 ngày hoặc được Người yêu cầu đóng hoặc người liên quan đã nghỉ việc.'));
+});
+
+test('managers can download received feedback per employee or in bulk, within their own scope', () => {
+  const html = fs.readFileSync(pagePath, 'utf8');
+
+  // icon tải ở từng dòng, cạnh icon xem — có tooltip tên nút
+  assert.ok(html.includes('aria-label="Tải phản hồi của ${emp.name}"'));
+  assert.ok(html.includes('<i class="bx bx-download"></i></button>'));
+  // icon căn trái thẳng với nhãn cột, không dồn về mép phải
+  assert.ok(html.includes('.row-actions{display:flex;align-items:center;justify-content:flex-start;gap:2px;margin-left:-6px}'));
+  assert.ok(!html.includes('.row-actions{display:flex;align-items:center;justify-content:flex-end'));
+
+  // nút header mở hộp thoại chọn phạm vi, dùng lại visual của H-06
+  assert.ok(html.includes('id="headerDownload"'));
+  assert.ok(html.includes('onclick="openDownloadDialog()"'));
+  assert.ok(html.includes('<strong>Tải toàn bộ (${list.length} nhân viên)</strong>'));
+  assert.ok(html.includes('<strong>Chọn từng nhân viên</strong>'));
+  const hr = fs.readFileSync(path.join(__dirname, '..', 'H-06', 'index.html'), 'utf8');
+  ['.confirm-title{margin:-18px -18px 14px;padding:15px 18px;background:#fbe4f0', '.share-audience-option.on strong{color:var(--brand)}'].forEach(rule => {
+    assert.ok(html.includes(rule), `hộp thoại tải thiếu rule của H-06: ${rule}`);
+    assert.ok(hr.includes(rule));
+  });
+
+  // phạm vi tải phải lấy từ đúng hàm lọc của màn hình, không truy vấn riêng
+  assert.match(html, /function currentEmployees\(\)/);
+  assert.match(html, /function renderEmployees\(\)\{\s*const items=currentEmployees\(\);/);
+  assert.match(html, /return currentEmployees\(\)\.filter\(emp=>visibleFeedbackForManager\(emp\.id\)\.length\|\|hrReportCount\(emp\.login\)\)/);
+  assert.match(html, /function downloadFeedback\(ids\)\{[\s\S]{0,200}currentEmployees\(\)\.filter/);
+
+  // báo cáo HR đi kèm nhưng tách sheet riêng, và nói rõ điều đó trong hộp thoại
+  assert.match(html, /báo cáo HR ở sheet riêng/);
+  assert.match(html, /Báo cáo do HR chia sẻ được tách thành sheet riêng/);
+
+  // nút header nằm trên thanh tab nên phải tự đổi phạm vi theo tab đang mở
+  assert.match(html, /function syncHeaderDownload\(\)/);
+  // ba nơi xem phản hồi của một người đều tải được ngay tại chỗ, không cần quay về bảng
+  assert.ok(html.includes('id="dialogDownload"'));   // popup xem nhanh
+  assert.ok(html.includes('id="splitDownload"'));    // split view
+  assert.match(html, /function downloadSelectedEmployee\(\)\{if\(STATE\.selectedId\)downloadFeedback\(\[STATE\.selectedId\]\);\}/);
+  assert.match(html, /function syncViewerDownloadLabels\(\)/);
+  const detail = fs.readFileSync(path.join(__dirname, 'feedback-detail.html'), 'utf8');
+  assert.ok(detail.includes('id="detailDownload"'));
+  // nút tải nằm cùng hàng với hai tab cho dễ thấy, không nấp trên thanh thương hiệu
+  assert.ok(detail.includes('<div class="detail-tab-row"><div class="detail-tabs" id="detailTabs" role="tablist"></div><button type="button" class="detail-download" id="detailDownload"'));
+  assert.ok(!detail.includes('class="top-download"'));
+  assert.match(detail, /function downloadThisEmployee\(\)/);
+  // màn chi tiết dùng lại dữ liệu sẵn có của trang, không tự lọc lại kẻo lệch phạm vi
+  assert.match(detail, /`\$\{items\.length\} phản hồi`/);
+  assert.match(detail, /HR_REPORTS\.length\)parts\.push/);
+  assert.match(html, /if\(STATE\.contentMode!=='feedback'\)\{toast\('Đang chuẩn bị tệp danh sách yêu cầu đã tạo\.\.\.'\);return;\}/);
+});
+
 test('cycle overview hangs each explanation on its own info icon, not the whole row', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   const overview = html.match(/<div class="request-overview-list">([\s\S]*?)<\/div>/)?.[1] || '';

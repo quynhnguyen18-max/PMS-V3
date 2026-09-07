@@ -24,7 +24,42 @@
 <style>
 .scope-guide,.filters{display:none!important}.list-head{position:relative}.list-actions{margin-left:auto;display:flex;align-items:center;gap:8px}.search{margin-left:0}.filter-menu{position:relative}.filter-toggle{height:32px}.filter-count{min-width:17px;height:17px;padding:0 5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;display:none;place-items:center}.filter-count.show{display:grid}.filter-popover{position:absolute;right:0;top:38px;width:520px;padding:12px;background:#fff;border:1px solid var(--z200);border-radius:8px;box-shadow:var(--shadow);z-index:30;display:none}.filter-popover.open{display:block}.filter-popover-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.filter-select{width:100%;min-width:0}.filter-popover-foot{display:flex;justify-content:flex-end;margin-top:10px;padding-top:10px;border-top:1px solid var(--z100)}
 .cycle-row{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}.cycle-row>i{font-size:15px;color:var(--z500)}.cycle-lbl{font-size:13px;font-weight:500;color:var(--z700)}.cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 6px center;font-size:13px;color:var(--z800);font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none}.cycle-sel:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}.cycle-range{font-size:12px;font-weight:400;color:var(--z500);white-space:nowrap}.cycle-range:empty{display:none}
-.cols-direct{grid-template-columns:minmax(280px,1fr) 130px 96px 92px}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 96px 92px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 96px 92px}.report-cell{font-size:12px;color:var(--z600)}.report-none{color:var(--z400)}.hr-report-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:11px 13px;border:1px solid var(--brand-ring);border-radius:8px;background:var(--brand-muted)}.hr-report-banner-text{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--z700)}.hr-report-banner-text i{font-size:18px;color:var(--brand);margin-top:1px}.hr-report-banner-copy{display:flex;flex-direction:column;gap:2px}.hr-report-banner-title{font-size:12.5px;font-weight:700;color:var(--z900)}.hr-report-banner-copy b{color:var(--brand)}.hr-report-banner-btn{flex:none;color:var(--brand)!important;border-color:var(--brand)!important}.hr-report-banner-btn:hover{background:#fff!important}.feedback-content-group{display:flex;flex-direction:column;gap:8px}.feedback-content-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 1px 0;font-size:12.5px;font-weight:700;color:var(--z900)}.feedback-content-title span:last-child{font-size:11px;font-weight:500;color:var(--z500)}.feedback-card-list{display:flex;flex-direction:column;gap:9px}.employee-list-header>div{white-space:nowrap}.metric-cell{font-size:12px;color:var(--z700)}.emp-tag{display:inline-flex;align-items:center;margin-left:6px;padding:1px 8px;border:1px solid;border-radius:50px;font-size:10px;font-weight:500;line-height:1.6;white-space:nowrap}.emp-tag-resigned{border-color:#fecaca;background:#fef2f2;color:var(--err)}.emp-tag-maternity{border-color:#bfdbfe;background:#eff6ff;color:#2563eb}
+.cols-direct{grid-template-columns:minmax(280px,1fr) 130px 96px 112px}
+/* Căn trái để hai icon thẳng hàng với nhãn cột "Chức năng"; lùi 6px bù phần đệm bên trong nút 28px. */
+.row-actions{display:flex;align-items:center;justify-content:flex-start;gap:2px;margin-left:-6px}
+/* Hộp thoại tải phản hồi — dùng đúng bộ visual của H-06 để các popup trong hệ thống nhìn như một. */
+.dialog-overlay{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(24,24,27,.45)}
+.dialog-overlay.open{display:flex}
+.confirm-dialog{width:min(420px,100%);max-height:calc(100vh - 48px);display:flex;flex-direction:column;overflow:hidden;padding:18px;border:1px solid var(--z200);border-radius:9px;background:#fff;box-shadow:0 14px 36px rgba(24,24,27,.2)}
+.confirm-dialog.share-dialog{width:min(560px,100%)}
+.confirm-title{margin:-18px -18px 14px;padding:15px 18px;background:#fbe4f0;border-bottom:1px solid #f3cfe1;font-size:14px;font-weight:700;color:var(--z900)}
+.confirm-copy{margin-top:6px;font-size:12px;line-height:1.55;color:var(--z600)}
+.confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.confirm-actions .btn-primary{height:30px;padding:0 10px;border-color:var(--brand);background:var(--brand);color:#fff;font-size:11.5px;font-weight:600}
+.confirm-actions .btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.share-section{margin-top:14px}
+.share-section-label{display:block;margin-bottom:7px;color:var(--z900);font-size:12.5px;font-weight:600}
+.share-audience-options{display:grid;gap:7px}
+.share-audience-option{display:grid;grid-template-columns:16px minmax(0,1fr);gap:7px;align-items:center;min-height:38px;padding:8px 10px;border:1px solid var(--z200);border-radius:6px;background:#fff;color:var(--z600);cursor:pointer}
+.share-audience-option:hover{background:var(--z50);border-color:var(--z300)}
+.share-audience-option.on{border-color:var(--brand);background:var(--brand-muted)}
+.share-audience-option strong{display:block;color:var(--z700);font-size:12px;font-weight:600}
+.share-audience-option.on strong{color:var(--brand)}
+.share-audience-option small{display:none}
+.share-audience-option input{margin-top:0;accent-color:var(--brand)}
+.dl-list{display:grid;gap:6px;max-height:236px;overflow:auto;margin-top:2px;padding-right:2px}
+.dl-person{display:grid;grid-template-columns:16px 30px minmax(0,1fr);gap:9px;align-items:center;padding:8px 10px;border:1px solid var(--z200);border-radius:6px;background:#fff;cursor:pointer}
+.dl-person:hover{background:var(--z50);border-color:var(--z300)}
+.dl-person.on{border-color:var(--brand);background:var(--brand-muted)}
+.dl-person input{margin:0;accent-color:var(--brand)}
+.dl-person .avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--brand-muted);color:var(--brand);font-size:10px;font-weight:700}
+.dl-info{min-width:0}
+.dl-name{display:block;color:var(--z800);font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl-name .domain{color:var(--z500);font-weight:400;margin-left:3px}
+.dl-meta{display:block;margin-top:1px;color:var(--z500);font-size:11px}
+.dl-empty{padding:12px;border:1px dashed var(--z200);border-radius:6px;color:var(--z500);font-size:12px;text-align:center}
+.dl-note{display:flex;gap:6px;align-items:flex-start;margin-top:12px;font-size:11px;line-height:1.5;color:var(--z500)}
+.dl-note i{font-size:14px;margin-top:1px}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 96px 112px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 96px 112px}.report-cell{font-size:12px;color:var(--z600)}.report-none{color:var(--z400)}.hr-report-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:11px 13px;border:1px solid var(--brand-ring);border-radius:8px;background:var(--brand-muted)}.hr-report-banner-text{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--z700)}.hr-report-banner-text i{font-size:18px;color:var(--brand);margin-top:1px}.hr-report-banner-copy{display:flex;flex-direction:column;gap:2px}.hr-report-banner-title{font-size:12.5px;font-weight:700;color:var(--z900)}.hr-report-banner-copy b{color:var(--brand)}.hr-report-banner-btn{flex:none;color:var(--brand)!important;border-color:var(--brand)!important}.hr-report-banner-btn:hover{background:#fff!important}.feedback-content-group{display:flex;flex-direction:column;gap:8px}.feedback-content-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 1px 0;font-size:12.5px;font-weight:700;color:var(--z900)}.feedback-content-title span:last-child{font-size:11px;font-weight:500;color:var(--z500)}.feedback-card-list{display:flex;flex-direction:column;gap:9px}.employee-list-header>div{white-space:nowrap}.metric-cell{font-size:12px;color:var(--z700)}.emp-tag{display:inline-flex;align-items:center;margin-left:6px;padding:1px 8px;border:1px solid;border-radius:50px;font-size:10px;font-weight:500;line-height:1.6;white-space:nowrap}.emp-tag-resigned{border-color:#fecaca;background:#fef2f2;color:var(--err)}.emp-tag-maternity{border-color:#bfdbfe;background:#eff6ff;color:#2563eb}
 .dialog-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;vertical-align:2px}.dialog-actions{display:flex;gap:4px}.privacy-banner{display:none}.split-shell{display:none;grid-template-columns:310px minmax(0,1fr);height:calc(100vh - 230px);min-height:480px;max-height:720px;border:1px solid var(--z200);border-radius:8px;background:#fff;overflow:hidden}.split-shell.open{display:grid}.split-list{border-right:1px solid var(--z200);overflow-y:auto}.split-person{width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px}.split-person:hover,.split-person.on{background:var(--z50)}.split-person.on{box-shadow:inset 3px 0 var(--brand)}.split-pane{min-width:0;min-height:0;max-height:720px;display:flex;flex-direction:column}.split-pane-head{padding:14px 16px;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;gap:10px;flex:0 0 auto}.split-pane-title{font-size:14px;font-weight:700;color:var(--z900)}.split-employee-name{cursor:help}.split-overview{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:7px}.split-overview-item{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--z600)}.split-overview-item i{font-size:14px;color:var(--z500)}.split-hr-report{border:0;background:transparent;padding:0;color:var(--brand);font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:5px}.split-hr-report:hover{text-decoration:underline}.split-hr-report i{font-size:14px}.split-badge-summary{display:flex;align-items:center;gap:10px;min-height:25px;margin-top:8px}.split-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.split-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}.view-hidden{display:none}
 .split-badge-item{position:relative;cursor:help}.split-badge-tip{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:30;padding:4px 8px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease}.split-badge-tip::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.split-badge-item:hover .split-badge-tip{opacity:1}
 .pms-tooltip{position:relative;display:inline-flex;cursor:help}.fb-sender{gap:4px;align-items:baseline}.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
@@ -139,7 +174,7 @@
     <header class="topbar"><div class="topbar-title">Không gian quản lý</div><div class="topbar-actions"><button class="icon-btn" title="Trợ giúp"><i class="bx bx-help-circle"></i></button><button class="icon-btn" title="Thông báo"><i class="bx bx-bell"></i></button></div></header>
     <section class="page">
       <div class="breadcrumb">Mục tiêu &amp; Đánh giá&nbsp; / &nbsp;Phản hồi của đội nhóm</div>
-      <div class="page-head"><div><h1 class="page-title">Phản hồi của đội nhóm</h1><p class="page-desc">Theo dõi phản hồi cấp dưới nhận được trong phạm vi quản lý và quyền được chia sẻ.</p></div><div class="page-head-actions"><button type="button" class="icon-btn" title="Tải xuống" onclick="(window.toast||window.notify||function(){})('Đang chuẩn bị tệp tải xuống...')"><i class="bx bx-download"></i></button><div class="cycle-row"><i class="bx bx-calendar"></i><span class="cycle-lbl">Chu kỳ</span><select class="cycle-sel" id="cycle" aria-label="Chu kỳ" onchange="renderAllManagerViews()"><option value="2026">2026</option><option value="2025">2025</option><option value="all">Tất cả</option></select><span class="cycle-range" id="cycleRange" title="Thời gian của chu kỳ phản hồi"></span></div><button class="btn btn-primary" id="requestCta" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Tạo yêu cầu phản hồi</button></div></div>
+      <div class="page-head"><div><h1 class="page-title">Phản hồi của đội nhóm</h1><p class="page-desc">Theo dõi phản hồi cấp dưới nhận được trong phạm vi quản lý và quyền được chia sẻ.</p></div><div class="page-head-actions"><button type="button" class="icon-btn" id="headerDownload" aria-label="Tải phản hồi đã nhận" title="Tải phản hồi đã nhận" onclick="openDownloadDialog()"><i class="bx bx-download"></i></button><div class="cycle-row"><i class="bx bx-calendar"></i><span class="cycle-lbl">Chu kỳ</span><select class="cycle-sel" id="cycle" aria-label="Chu kỳ" onchange="renderAllManagerViews()"><option value="2026">2026</option><option value="2025">2025</option><option value="all">Tất cả</option></select><span class="cycle-range" id="cycleRange" title="Thời gian của chu kỳ phản hồi"></span></div><button class="btn btn-primary" id="requestCta" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Thu thập phản hồi cho nhân viên</button></div></div>
 
       <div class="content-tabs" id="contentModeTabs" role="tablist" aria-label="Nội dung phản hồi quản lý">
         <button class="content-tab on" id="feedbackModeTab" role="tab" aria-selected="true" aria-controls="feedbackModePanel" onclick="setContentMode('feedback')">Phản hồi nhân viên đã nhận</button>
@@ -157,7 +192,7 @@
 
       <div class="list-head"><div class="result-title" id="listTitle">Direct reports</div><span class="result-count" id="resultCount">0 nhân viên</span><div class="list-actions"><label class="search"><i class="bx bx-search"></i><input id="searchInput" placeholder="Tìm theo tên hoặc domain…" oninput="renderEmployees()"/></label><div class="filter-menu" id="filterMenu" style="display:none"><button class="btn btn-outline filter-toggle" id="filterToggle" onclick="toggleFilterPanel()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="filterCount">0</span></button><div class="filter-popover" id="filterPopover"><div class="filter-popover-grid"><select class="filter-select" id="filterDivision" onchange="renderEmployees()"></select><select class="filter-select" id="filterDepartment" onchange="renderEmployees()"></select><select class="filter-select" id="filterTeam" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager2" onchange="renderEmployees()"></select></div><div class="filter-popover-foot"><button class="btn btn-outline" onclick="clearFilters()">Xóa bộ lọc</button></div></div></div><button class="btn btn-outline" id="splitViewButton" aria-pressed="false" onclick="toggleSplitView()"><i class="bx bx-columns"></i> Split View</button></div></div>
       <div id="listView"><div class="employee-list" id="employeeList"></div></div>
-      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div style="flex:1"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
+      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div style="flex:1"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button class="icon-btn" id="splitDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
       </section>
 
       <section class="mode-panel" id="requestModePanel" role="tabpanel" aria-labelledby="requestsModeTab" hidden>
@@ -175,7 +210,7 @@
               <button class="overview-status" onclick="setRequestStatusFilter('collecting')" aria-label="Lọc theo trạng thái Đang thu thập"><span><i class="overview-dot collecting"></i>Đang thu thập<span class="status-info" onclick="event.stopPropagation()" aria-hidden="true"><i class="bx bx-info-circle"></i><span class="pms-tooltip-content overview-tip" role="tooltip">Yêu cầu đang trong thời gian thu thập phản hồi.</span></span></span><strong id="overviewCollecting">0</strong></button>
               <button class="overview-status" onclick="setRequestStatusFilter('overdue')" aria-label="Lọc theo trạng thái Quá hạn"><span><i class="overview-dot overdue"></i>Quá hạn<span class="status-info" onclick="event.stopPropagation()" aria-hidden="true"><i class="bx bx-info-circle"></i><span class="pms-tooltip-content overview-tip" role="tooltip">Yêu cầu đã quá hạn nhưng còn người chưa phản hồi.</span></span></span><strong id="overviewOverdue">0</strong></button>
               <button class="overview-status" onclick="setRequestStatusFilter('complete')" aria-label="Lọc theo trạng thái Hoàn thành"><span><i class="overview-dot complete"></i>Hoàn thành<span class="status-info" onclick="event.stopPropagation()" aria-hidden="true"><i class="bx bx-info-circle"></i><span class="pms-tooltip-content overview-tip" role="tooltip">Yêu cầu đã nhận đủ phản hồi.</span></span></span><strong id="overviewComplete">0</strong></button>
-              <button class="overview-status" onclick="setRequestStatusFilter('closed')" aria-label="Lọc theo trạng thái Đóng"><span><i class="overview-dot closed"></i>Đóng<span class="status-info" onclick="event.stopPropagation()" aria-hidden="true"><i class="bx bx-info-circle"></i><span class="pms-tooltip-content overview-tip" role="tooltip">Yêu cầu đã dừng, không nhận thêm phản hồi — do quá 90 ngày, do quản lý chủ động đóng, hoặc do người trong yêu cầu đã nghỉ việc.</span></span></span><strong id="overviewClosed">0</strong></button>
+              <button class="overview-status" onclick="setRequestStatusFilter('closed')" aria-label="Lọc theo trạng thái Đóng"><span><i class="overview-dot closed"></i>Đóng<span class="status-info" onclick="event.stopPropagation()" aria-hidden="true"><i class="bx bx-info-circle"></i><span class="pms-tooltip-content overview-tip" role="tooltip">Yêu cầu này không còn nhận phản hồi do đã quá 90 ngày hoặc được Người yêu cầu đóng hoặc người liên quan đã nghỉ việc.</span></span></span><strong id="overviewClosed">0</strong></button>
             </div>
           </aside>
         </div>
@@ -187,7 +222,7 @@
 
 <div class="overlay" id="feedbackDialog" onclick="if(event.target===this)closeFeedback()">
   <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
-    <header class="dialog-head"><div class="dialog-heading"><div class="dialog-title" id="dialogTitle">Phản hồi đã nhận <span class="dialog-count" id="dialogCount">0</span></div><div class="dialog-sub" id="dialogSub"></div></div><div class="dialog-actions"><button class="icon-btn" id="openTabButton" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button><button class="close" onclick="closeFeedback()" aria-label="Đóng">×</button></div></header>
+    <header class="dialog-head"><div class="dialog-heading"><div class="dialog-title" id="dialogTitle">Phản hồi đã nhận <span class="dialog-count" id="dialogCount">0</span></div><div class="dialog-sub" id="dialogSub"></div></div><div class="dialog-actions"><button class="icon-btn" id="dialogDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" id="openTabButton" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button><button class="close" onclick="closeFeedback()" aria-label="Đóng">×</button></div></header>
     <div class="dialog-body" id="dialogBody"></div>
     <footer class="dialog-foot"><button class="btn btn-outline" onclick="closeFeedback()">Đóng</button></footer>
   </section>
@@ -198,7 +233,7 @@
   <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="requestDialogTitle">
     <header class="dialog-head dialog-head--brand">
       <div class="dialog-heading">
-        <div class="dialog-title" id="requestDialogTitle">Yêu cầu phản hồi cho nhân viên</div>
+        <div class="dialog-title" id="requestDialogTitle">Thu thập phản hồi cho nhân viên</div>
       </div>
       <button class="close" onclick="requestCloseAttempt()" aria-label="Đóng">×</button>
     </header>
@@ -285,7 +320,7 @@
   </section>
 </div>
 
-<div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
+<div class="dialog-overlay" id="downloadDialog" role="dialog" aria-modal="true" aria-labelledby="downloadDialogTitle" onclick="if(event.target===this)closeDownloadDialog()"><section class="confirm-dialog share-dialog"><div class="confirm-title" id="downloadDialogTitle">Tải phản hồi đã nhận</div><p class="confirm-copy">Tệp chỉ gồm những phản hồi bạn đang được xem trong phạm vi quản lý này.</p><div id="downloadSettings"></div><div class="dl-note"><i class="bx bx-info-circle"></i><span>Báo cáo do HR chia sẻ được tách thành sheet riêng, có ghi rõ nguồn là chương trình của HR.</span></div><div class="confirm-actions"><button class="btn btn-primary" type="button" id="downloadConfirm" onclick="confirmDownload()"><i class="bx bx-download"></i> Tải xuống</button></div></section></div><div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
 
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
@@ -368,17 +403,81 @@ function setScope(scope){
   renderFilters();
   renderEmployees();
 }
-function renderEmployees(){
+/* Danh sách nhân viên ĐANG hiển thị: tab scope + bộ lọc + ô tìm kiếm.
+   Bảng và chức năng tải dùng chung hàm này để phạm vi không bao giờ lệch nhau. */
+/* ── Tải phản hồi đã nhận ─────────────────────────────────────────────────
+   Phạm vi tải LUÔN lấy từ đúng hàm lọc của màn hình (tab direct/indirect,
+   bộ lọc, ô tìm kiếm) và đúng visibility — không truy vấn riêng, để tệp
+   không bao giờ chứa nhiều hơn những gì quản lý đang được xem. */
+let DOWNLOAD_STATE={scope:'all',ids:[]};
+function downloadableEmployees(){
+  return currentEmployees().filter(emp=>visibleFeedbackForManager(emp.id).length||hrReportCount(emp.login));
+}
+function syncHeaderDownload(){
+  const btn=document.getElementById('headerDownload');if(!btn)return;
+  const feedbackTab=STATE.contentMode==='feedback';
+  const label=feedbackTab?'Tải phản hồi đã nhận':'Tải danh sách yêu cầu đã tạo';
+  btn.title=label;btn.setAttribute('aria-label',label);
+}
+function openDownloadDialog(){
+  /* Nút nằm trên thanh tab nên phải tự biết đang ở tab nào, nếu không thì mơ hồ tải cái gì. */
+  if(STATE.contentMode!=='feedback'){toast('Đang chuẩn bị tệp danh sách yêu cầu đã tạo...');return;}
+  DOWNLOAD_STATE={scope:'all',ids:[]};
+  renderDownloadSettings();
+  document.getElementById('downloadDialog').classList.add('open');
+}
+function closeDownloadDialog(){document.getElementById('downloadDialog').classList.remove('open');}
+function setDownloadScope(scope){DOWNLOAD_STATE.scope=scope;renderDownloadSettings();}
+function toggleDownloadPerson(id){const at=DOWNLOAD_STATE.ids.indexOf(id);if(at>=0)DOWNLOAD_STATE.ids.splice(at,1);else DOWNLOAD_STATE.ids.push(id);renderDownloadSettings();}
+function renderDownloadSettings(){
+  const list=downloadableEmployees(),some=DOWNLOAD_STATE.scope==='some';
+  const rows=list.map(emp=>{
+    const on=DOWNLOAD_STATE.ids.indexOf(emp.id)>=0,count=visibleFeedbackForManager(emp.id).length,reports=hrReportCount(emp.login);
+    const meta=[count?`${count} phản hồi`:'',reports?`${reports} báo cáo HR`:''].filter(Boolean).join(' · ');
+    return `<label class="dl-person${on?' on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleDownloadPerson('${emp.id}')"/><span class="avatar">${emp.ini}</span><span class="dl-info"><span class="dl-name">${emp.name}<span class="domain">(${emp.login})</span></span><span class="dl-meta">${meta}</span></span></label>`;
+  }).join('');
+  const block=list.length?`<div class="dl-list">${rows}</div>`:'<div class="dl-empty">Chưa có phản hồi nào để tải trong phạm vi này.</div>';
+  document.getElementById('downloadSettings').innerHTML=`<section class="share-section"><div class="share-audience-options"><label class="share-audience-option${some?'':' on'}"><input type="radio" name="downloadScope" ${some?'':'checked'} onchange="setDownloadScope('all')"/><span><strong>Tải toàn bộ (${list.length} nhân viên)</strong><small>Gồm mọi nhân viên đang hiển thị theo bộ lọc hiện tại.</small></span></label><label class="share-audience-option${some?' on':''}"><input type="radio" name="downloadScope" ${some?'checked':''} onchange="setDownloadScope('some')"/><span><strong>Chọn từng nhân viên</strong><small>Chỉ tải phản hồi của những người bạn chọn.</small></span></label></div></section><section class="share-section" ${some?'':'hidden'}><span class="share-section-label">Chọn nhân viên cần tải</span>${block}</section>`;
+  document.getElementById('downloadConfirm').disabled=!list.length||(some&&!DOWNLOAD_STATE.ids.length);
+}
+function confirmDownload(){
+  const list=downloadableEmployees();
+  const ids=DOWNLOAD_STATE.scope==='some'?DOWNLOAD_STATE.ids:list.map(emp=>emp.id);
+  closeDownloadDialog();
+  downloadFeedback(ids);
+}
+/* Popup xem nhanh và Split View đều đang xem đúng một người — tải luôn người đó, khỏi hộp thoại. */
+function downloadSelectedEmployee(){if(STATE.selectedId)downloadFeedback([STATE.selectedId]);}
+function syncViewerDownloadLabels(){
+  const emp=EMPLOYEES.find(item=>item.id===STATE.selectedId);if(!emp)return;
+  const label=`Tải phản hồi của ${emp.name}`;
+  ['splitDownload','dialogDownload'].forEach(id=>{const btn=document.getElementById(id);if(!btn)return;btn.title=label;btn.setAttribute('aria-label',label);});
+}
+/* Một đường ra duy nhất cho cả nút ở từng dòng lẫn hộp thoại, để phạm vi luôn tính giống nhau. */
+function downloadFeedback(ids){
+  const picked=currentEmployees().filter(emp=>ids.indexOf(emp.id)>=0);
+  if(!picked.length){toast('Chưa có phản hồi nào để tải.');return;}
+  const feedback=picked.reduce((sum,emp)=>sum+visibleFeedbackForManager(emp.id).length,0);
+  const reports=picked.reduce((sum,emp)=>sum+hrReportCount(emp.login),0);
+  const who=picked.length===1?picked[0].name:`${picked.length} nhân viên`;
+  const parts=[`${feedback} phản hồi`];
+  if(reports)parts.push(`${reports} báo cáo HR ở sheet riêng`);
+  toast(`Đang chuẩn bị tệp cho ${who} — ${parts.join(' · ')}.`);
+}
+function currentEmployees(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
   const division=document.getElementById('filterDivision').value;
   const department=document.getElementById('filterDepartment').value;
   const team=document.getElementById('filterTeam').value;
   const manager=document.getElementById('filterManager').value;
   const manager2=document.getElementById('filterManager2').value;
-  const items=employeesInScope().filter(emp=>(!q || `${emp.name} ${emp.login}`.toLowerCase().includes(q))
+  return employeesInScope().filter(emp=>(!q || `${emp.name} ${emp.login}`.toLowerCase().includes(q))
     && (!division || emp.div===division) && (!department || emp.dept===department)
     && (!team || emp.team===team) && (!manager || (emp.mgr&&emp.mgr.login===manager))
     && (!manager2 || (emp.mgr2&&emp.mgr2.login===manager2)));
+}
+function renderEmployees(){
+  const items=currentEmployees();
   updateFilterUi();
   document.getElementById('resultCount').textContent=`${items.length} nhân viên`;
   const list=document.getElementById('employeeList');
@@ -393,7 +492,10 @@ function renderEmployees(){
       ${managerColumns}
       <div class="metric metric-cell">${visible}</div>
       <div class="metric report-cell">${hrReports||'<span class="report-none">–</span>'}</div>
-      <button class="row-action" aria-label="Xem phản hồi" title="${hasDetails?'Xem phản hồi và báo cáo':'Chưa có phản hồi hoặc báo cáo HR được chia sẻ'}" onclick="event.stopPropagation();${hasDetails?`openFeedback('${emp.id}')`:''}" ${hasDetails?'':'disabled'}><i class="bx bx-show"></i></button>
+      <div class="row-actions">
+        <button class="row-action" aria-label="Xem phản hồi" title="${hasDetails?'Xem phản hồi và báo cáo':'Chưa có phản hồi hoặc báo cáo HR được chia sẻ'}" onclick="event.stopPropagation();${hasDetails?`openFeedback('${emp.id}')`:''}" ${hasDetails?'':'disabled'}><i class="bx bx-show"></i></button>
+        <button class="row-action" aria-label="Tải phản hồi của ${emp.name}" title="${hasDetails?`Tải phản hồi của ${emp.name}`:'Chưa có gì để tải'}" onclick="event.stopPropagation();${hasDetails?`downloadFeedback([&quot;${emp.id}&quot;])`:''}" ${hasDetails?'':'disabled'}><i class="bx bx-download"></i></button>
+      </div>
     </article>`;
   }).join('');
   renderSplitView(items);
@@ -446,10 +548,11 @@ function openFeedback(employeeId){
   const feedbackContent=items.length?`${summary?`<section class="feedback-content-group"><div class="feedback-content-title"><span>Tổng hợp phản hồi đã nhận</span><span>Từ ${items.length} phản hồi</span></div>${summary}</section>`:''}<section class="feedback-content-group"><div class="feedback-content-title"><span>Phản hồi đã nhận</span><span>${items.length} phản hồi</span></div><div class="feedback-card-list">${sortedItems.map(item=>feedbackCard(item,emp)).join('')}</div></section>`:'<div class="empty">Chưa có phản hồi nào được chia sẻ với quản lý.</div>';
   document.getElementById('dialogBody').innerHTML=hrBanner+feedbackContent;
   document.getElementById('feedbackDialog').classList.add('open');
+  syncViewerDownloadLabels();
 }
 function openFeedbackTab(employeeId=STATE.selectedId,report=false){if(!employeeId)return;const cycle=document.getElementById('cycle').value;window.open(`feedback-detail.html?employee=${encodeURIComponent(employeeId)}&cycle=${encodeURIComponent(cycle)}${report?'&report=1':''}`,'_blank','noopener');}
 function toggleSplitView(){STATE.splitView=!STATE.splitView;document.getElementById('listView').classList.toggle('view-hidden',STATE.splitView);document.getElementById('splitShell').classList.toggle('open',STATE.splitView);document.getElementById('splitViewButton').setAttribute('aria-pressed',String(STATE.splitView));renderEmployees();}
-function selectSplitEmployee(employeeId){STATE.selectedId=employeeId;renderEmployees();}
+function selectSplitEmployee(employeeId){STATE.selectedId=employeeId;renderEmployees();syncViewerDownloadLabels();}
 function splitBadgeSummaryHTML(feedback){
   const counts={};
   feedback.forEach(item=>{if(item.requestSource==='hr'||item.source==='hr')return;(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;});});
@@ -478,6 +581,7 @@ function closeFeedback(){document.getElementById('feedbackDialog').classList.rem
 /* ═══════ D4 / MR-2 — theo dõi yêu cầu đã tạo ═══════ */
 function setContentMode(mode){
   STATE.contentMode=mode;
+  syncHeaderDownload();
   const feedback=mode==='feedback';
   document.getElementById('feedbackModePanel').hidden=!feedback;
   document.getElementById('requestModePanel').hidden=feedback;
@@ -736,6 +840,11 @@ restoreRequestListState();
 @media(max-width:800px){.request-list-layout .request-table-head{display:none}.request-list-layout .request-table-row{grid-template-columns:1fr}.request-list-layout .progress-chip{max-width:none}}
 .request-overview-bar span:nth-child(4){background:var(--z500)}.overview-dot.no-response{background:var(--z500)}
 /* tooltip giải thích 4 trạng thái ở panel Tổng quan chu kỳ — dùng component .pms-tooltip dùng chung (DS §8.1) */
+.request-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:44px 24px}
+.request-empty-icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--brand-muted);color:var(--brand);font-size:22px}
+.request-empty-title{font-size:13.5px;font-weight:700;color:var(--z900)}
+.request-empty-copy{max-width:420px;margin:0;font-size:12.5px;line-height:1.6;color:var(--z600)}
+.request-empty .btn{margin-top:4px}
 /* Tooltip neo vào chữ (i): .status-info cố tình KHÔNG position nên tooltip vẫn tính theo button (đủ rộng, không tràn card) */
 .request-overview-list button.overview-status{position:relative;cursor:pointer}
 .request-overview-list .status-info{display:inline-flex;align-items:center;margin-left:5px;color:var(--z400);cursor:help}
@@ -747,7 +856,15 @@ restoreRequestListState();
 @media(max-width:850px){.request-overview-list button span.pms-tooltip-content{left:0;transform:none}}
 </style>
 <script>
-function renderRequestList(requests){const shown=requests.slice(0,STATE.requestLimit),list=document.getElementById('requestList');list.innerHTML=shown.length?`<div class="request-table-head"><span>Yêu cầu</span><span>Nhân viên nhận feedback</span><span>Tiến độ &amp; thời hạn</span><span></span></div>${shown.map(requestRowHTML).join('')}`:'<div class="empty">Chưa có yêu cầu phù hợp.</div>';const button=document.getElementById('requestLoadMore');button.style.display=shown.length<requests.length?'':'none';document.getElementById('requestLoadMeta').textContent=`Đang hiển thị ${shown.length} trong ${requests.length} yêu cầu`;}
+/* Hai tình huống rỗng khác hẳn nhau: chưa từng tạo yêu cầu nào thì cần giới thiệu tính năng,
+   còn lọc ra không có kết quả thì chỉ cần gợi ý bỏ lọc — đừng dạy lại người đã biết dùng. */
+function requestEmptyState(){
+  const filtering=STATE.requestStatusFilter!=='all';
+  if(filtering||requestsForSelectedCycle().length)
+    return '<div class="empty">Không có yêu cầu nào khớp bộ lọc hiện tại.</div>';
+  return `<div class="request-empty"><div class="request-empty-icon"><i class="bx bx-user-voice"></i></div><div class="request-empty-title">Chưa có yêu cầu phản hồi nào</div><p class="request-empty-copy">Bạn có thể nhờ đồng nghiệp góp góc nhìn về một nhân viên trong nhóm, phục vụ cho việc coaching và theo sát sự phát triển của bạn ấy.</p><button class="btn btn-primary" type="button" onclick="openRequestDialog()"><i class="bx bx-user-voice"></i> Thu thập phản hồi cho nhân viên</button></div>`;
+}
+function renderRequestList(requests){const shown=requests.slice(0,STATE.requestLimit),list=document.getElementById('requestList');list.innerHTML=shown.length?`<div class="request-table-head"><span>Yêu cầu</span><span>Nhân viên nhận feedback</span><span>Tiến độ &amp; thời hạn</span><span></span></div>${shown.map(requestRowHTML).join('')}`:requestEmptyState();document.querySelector('.request-load-more').style.display=shown.length?'':'none';const button=document.getElementById('requestLoadMore');button.style.display=shown.length<requests.length?'':'none';document.getElementById('requestLoadMeta').textContent=`Đang hiển thị ${shown.length} trong ${requests.length} yêu cầu`;}
 function renderRequestOverview(requests){const cycle=document.getElementById('cycle').value,counts={collecting:0,overdue:0,complete:0,closed:0};requests.forEach(request=>{const status=ManagerRequestModel.requestStatus(request,todayDMY());if(counts[status]!==undefined)counts[status]++;});const total=requests.length||1;document.getElementById('overviewCycle').textContent=cycle;document.getElementById('overviewTotal').textContent=requests.length;document.getElementById('overviewCollecting').textContent=counts.collecting;document.getElementById('overviewOverdue').textContent=counts.overdue;document.getElementById('overviewComplete').textContent=counts.complete;document.getElementById('overviewClosed').textContent=counts.closed;document.getElementById('overviewCollectingBar').style.width=`${counts.collecting/total*100}%`;document.getElementById('overviewOverdueBar').style.width=`${counts.overdue/total*100}%`;document.getElementById('overviewCompleteBar').style.width=`${counts.complete/total*100}%`;document.getElementById('overviewClosedBar').style.width=`${counts.closed/total*100}%`;}
 function renderRequestMonitoring(){const all=requestsForSelectedCycle(),requests=filteredRequests(),isList=STATE.requestView==='list';document.getElementById('requestListView').classList.toggle('on',isList);document.getElementById('requestKanbanView').classList.toggle('on',!isList);document.getElementById('requestListLayout').style.display=isList?'':'none';document.getElementById('requestKanban').classList.toggle('open',!isList);renderRequestList(requests);renderRequestKanban(requests);renderRequestOverview(all);document.querySelector('.request-load-more').style.display=isList?'':'none';}
 renderRequestMonitoring();
