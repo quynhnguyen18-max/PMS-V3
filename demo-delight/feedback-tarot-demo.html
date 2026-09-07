@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  DEMO ONLY — KHÔNG GHÉP VÀO PROTOTYPE CHÍNH
+  "Dấu ấn của bạn" kể theo lối trải bài tarot.
+
+  NGOẠI LỆ DESIGN SYSTEM — có chủ đích, đã được duyệt:
+    Mặt bài dùng nền đêm + một accent kim loại (vàng) ngoài hồng MoMo. DS §19
+    quy định một accent duy nhất; ở đây phá luật để lấy chất trải bài. Ranh giới:
+    ngoại lệ CHỈ áp dụng bên trong .tarot-stage. Sidebar, topbar, page, nút,
+    breadcrumb ngoài sân khấu vẫn dùng nguyên token và class chuẩn.
+
+  DỮ LIỆU: lấy đúng feed thật của Nguyễn Văn Tú trong E-04 (12 phản hồi nhận
+  từ 7 người / 6 nhóm, 7 phản hồi đã cho, 2 lời cảm ơn) để mọi luật hiển thị
+  được kiểm chứng trên số thật chứ không phải số đẹp bịa ra.
+
+  Bộ bài: nghi thức mở + 5 lá + màn trải cuối.
+  ============================================================================
+-->
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DEMO · Dấu ấn của bạn — Trải bài | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══════════ TOKENS — copy nguyên từ E-04 ═══════════ */
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;
+  --z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#fff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+
+  /* ── NGOẠI LỆ: chỉ dùng trong .tarot-stage ── */
+  --tar-night:#170617;        /* nền đêm sau sân khấu */
+  --tar-deep:#2a0821;         /* mặt bài, phần tối */
+  --tar-plum:#5d0b40;         /* mặt bài, phần chuyển */
+  --tar-gold:#e9c884;         /* accent kim loại DUY NHẤT ngoài hồng */
+  --tar-gold-soft:rgba(233,200,132,.42);
+  --tar-ink:#fff5fb;          /* chữ chính trên mặt bài */
+  --tar-ink-dim:rgba(255,245,251,.66);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+a{text-decoration:none}
+
+/* ═══════════ SHELL — nguyên bản E-04, không đụng ═══════════ */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t)}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none;width:calc(100% - 12px);text-align:left}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500)}
+.sb-item.on i{color:var(--brand)}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm)}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.page{padding:20px 24px 96px;flex:1;max-width:1080px}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
+.bc-sep{color:var(--z400)}
+.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.page-desc{font-size:13px;color:var(--z600);margin-bottom:18px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-sm{width:24px;height:24px;font-size:10px}
+.sb-foot .av{width:28px;height:28px;font-size:11px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:50px;font-size:11px;font-weight:600;border:1px solid}
+.ch-demo{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;line-height:1.4;white-space:nowrap;transition:var(--t)}
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default:hover{background:var(--brand-h);border-color:var(--brand-h)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{border-color:var(--z300);background:var(--z50)}
+
+/* ── Thẻ mời mở bộ bài (ngoài sân khấu, vẫn theo DS) ── */
+.invite{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh);padding:22px 24px;display:flex;align-items:center;gap:22px;max-width:720px}
+.invite-art{width:96px;height:132px;flex-shrink:0;border-radius:10px;position:relative;background:linear-gradient(150deg,var(--tar-deep),var(--tar-plum) 62%,var(--brand));box-shadow:0 8px 22px rgba(42,8,33,.32)}
+.invite-art::after{content:'';position:absolute;inset:7px;border:1px solid var(--tar-gold-soft);border-radius:6px}
+.invite-art span{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:var(--tar-gold)}
+.invite h2{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.invite p{font-size:13px;color:var(--z600);margin-bottom:14px;max-width:44ch}
+.note-box{margin-top:18px;max-width:720px;border:1px solid var(--z200);border-left:3px solid var(--brand);border-radius:var(--rsm);background:var(--z0);padding:13px 15px}
+.note-box h3{font-size:12px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.note-box ul{margin:0;padding-left:17px}
+.note-box li{font-size:12.5px;color:var(--z600);margin-bottom:3px}
+
+/* ═══════════════════════════════════════════════════════════════
+   SÂN KHẤU TRẢI BÀI — vùng ngoại lệ design system
+   ═══════════════════════════════════════════════════════════════ */
+.tarot-stage{position:fixed;inset:0;z-index:400;display:none;flex-direction:column;
+  background:radial-gradient(120% 90% at 50% 8%,#3a0c2c 0%,var(--tar-night) 58%,#0d030d 100%);
+  color:var(--tar-ink);overflow:hidden}
+.tarot-stage.open{display:flex}
+
+/* hạt sáng nền — thuần CSS, không ảnh */
+.tarot-stage::before{content:'';position:absolute;inset:-40%;pointer-events:none;opacity:.5;
+  background:
+    radial-gradient(1.6px 1.6px at 12% 18%,var(--tar-gold) 50%,transparent 51%),
+    radial-gradient(1.2px 1.2px at 78% 12%,#fff 50%,transparent 51%),
+    radial-gradient(1.8px 1.8px at 62% 74%,var(--tar-gold) 50%,transparent 51%),
+    radial-gradient(1.1px 1.1px at 26% 82%,#fff 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 88% 56%,var(--tar-gold) 50%,transparent 51%),
+    radial-gradient(1.2px 1.2px at 42% 34%,#fff 50%,transparent 51%),
+    radial-gradient(1.4px 1.4px at 8% 58%,var(--tar-gold) 50%,transparent 51%),
+    radial-gradient(1.1px 1.1px at 94% 88%,#fff 50%,transparent 51%);
+  animation:drift 46s linear infinite}
+@keyframes drift{to{transform:translate3d(60px,-46px,0) rotate(6deg)}}
+
+.tarot-top{position:relative;z-index:3;display:flex;align-items:center;gap:12px;padding:16px 22px;flex-shrink:0}
+.tarot-brandline{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--tar-gold);font-weight:600}
+.tarot-brandline i{font-size:14px}
+.tarot-x{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--tar-gold-soft);color:var(--tar-ink);display:grid;place-items:center;font-size:19px;transition:var(--t)}
+.tarot-x:hover{background:rgba(233,200,132,.14)}
+
+.tarot-body{position:relative;z-index:3;flex:1;display:flex;align-items:center;justify-content:center;padding:4px 22px;min-height:0}
+
+/* ── Mặt bài ───────────────────────────────────────────────── */
+.card{width:328px;height:504px;border-radius:15px;position:relative;flex-shrink:0;
+  background:linear-gradient(158deg,var(--tar-deep) 0%,var(--tar-plum) 52%,#7d0c50 100%);
+  box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(233,200,132,.28);
+  transform-style:preserve-3d}
+.card-frame{position:absolute;inset:11px;border:1px solid var(--tar-gold-soft);border-radius:9px;pointer-events:none}
+.card-frame::before,.card-frame::after{content:'';position:absolute;width:15px;height:15px;border:1px solid var(--tar-gold)}
+.card-frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.card-frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.card-inner{position:absolute;inset:11px;padding:26px 24px;display:flex;flex-direction:column;overflow:hidden}
+
+.card-roman{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;color:var(--tar-gold);margin-bottom:auto}
+.card-title{font-family:'Playfair Display',serif;font-size:27px;line-height:1.2;font-weight:600;color:var(--tar-ink);margin-bottom:9px}
+.card-sub{font-size:13px;line-height:1.55;color:var(--tar-ink-dim);margin-bottom:16px}
+.card-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(233,200,132,.22);font-size:11px;letter-spacing:.4px;color:var(--tar-gold);display:flex;align-items:center;gap:6px}
+
+/* con số lớn */
+.big-stat{display:flex;align-items:baseline;gap:9px;margin-bottom:3px}
+.big-num{font-family:'Playfair Display',serif;font-size:62px;line-height:.9;font-weight:600;color:var(--tar-gold)}
+.big-unit{font-size:14px;color:var(--tar-ink-dim)}
+.mini-row{display:flex;gap:18px;margin-top:14px}
+.mini-num{font-family:'Playfair Display',serif;font-size:25px;color:var(--tar-ink);line-height:1}
+.mini-lbl{font-size:11px;color:var(--tar-ink-dim);margin-top:2px}
+
+/* danh sách người */
+.people{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.person-line{display:flex;align-items:center;gap:10px}
+.person-av{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;
+  background:rgba(233,200,132,.16);color:var(--tar-gold);border:1px solid var(--tar-gold-soft);flex-shrink:0}
+.person-nm{font-size:13.5px;font-weight:600;color:var(--tar-ink);line-height:1.25}
+.person-og{font-size:11px;color:var(--tar-ink-dim)}
+
+/* core values — linh vật */
+/* Lưới 2 cột: giá trị nổi bật nhất nằm hàng trên và to hơn hẳn. Ô rộng cố định
+   để nhãn dài ("Khách hàng là trung tâm") không đè sang ô bên cạnh — cỡ ảnh mới
+   là thứ thay đổi theo thứ hạng, không phải bề rộng ô. */
+.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px 8px;justify-items:center;align-items:end;margin-top:8px}
+.cv-cell{display:flex;flex-direction:column;align-items:center;gap:5px;width:112px}
+.cv-cell img{width:var(--cv-w);height:var(--cv-w);border-radius:50%;object-fit:cover;flex-shrink:0;
+  border:1px solid var(--tar-gold-soft);background:rgba(255,255,255,.05)}
+.cv-cell.hero img{border-color:var(--tar-gold);box-shadow:0 0 0 3px rgba(233,200,132,.2),0 8px 20px rgba(0,0,0,.4)}
+.cv-nm{font-size:10.5px;line-height:1.3;text-align:center;color:var(--tar-ink-dim);width:100%}
+.cv-cell.hero .cv-nm{color:var(--tar-ink);font-weight:600;font-size:11px}
+.cv-ct{font-family:'Playfair Display',serif;font-size:15px;color:var(--tar-gold);line-height:1}
+.cv-cell.hero .cv-ct{font-size:20px}
+
+/* danh sách gạch đầu dòng */
+.quill{display:flex;flex-direction:column;gap:11px;margin-top:2px}
+.quill li{list-style:none;display:flex;gap:9px;font-size:13px;line-height:1.5;color:var(--tar-ink)}
+.quill i{color:var(--tar-gold);font-size:14px;margin-top:2px;flex-shrink:0}
+
+/* ── Chồng bài úp (nghi thức mở) ─────────────────────────────── */
+.deck{position:relative;width:328px;height:504px;cursor:pointer}
+.deck-card{position:absolute;inset:0;border-radius:15px;
+  background:linear-gradient(158deg,#3a0a2a,#6c0c48 60%,var(--brand));
+  box-shadow:0 18px 44px rgba(0,0,0,.5),0 0 0 1px rgba(233,200,132,.3);
+  animation:breathe 5.5s ease-in-out infinite}
+.deck-card:nth-child(1){transform:translate(-13px,9px) rotate(-6deg);animation-delay:.5s}
+.deck-card:nth-child(2){transform:translate(8px,5px) rotate(4deg);animation-delay:.25s}
+.deck-card:nth-child(3){transform:none}
+@keyframes breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
+/* hoa văn mặt lưng — dùng chung cho cả bộ */
+.deck-back{position:absolute;inset:11px;border:1px solid var(--tar-gold-soft);border-radius:9px;display:grid;place-items:center;overflow:hidden}
+.deck-back::before{content:'';position:absolute;inset:0;opacity:.55;
+  background-image:repeating-linear-gradient(45deg,transparent 0 9px,rgba(233,200,132,.16) 9px 10px),
+                   repeating-linear-gradient(-45deg,transparent 0 9px,rgba(233,200,132,.16) 9px 10px)}
+.deck-mark{position:relative;width:78px;height:78px;border-radius:50%;border:1px solid var(--tar-gold);
+  display:grid;place-items:center;background:rgba(23,6,23,.55)}
+.deck-mark span{font-family:'Playfair Display',serif;font-size:33px;font-weight:600;color:var(--tar-gold)}
+.deck-mark::after{content:'';position:absolute;inset:-9px;border:1px solid var(--tar-gold-soft);border-radius:50%}
+
+/* Nghi thức mở xếp theo cột: lời chào trên, bộ bài giữa, lời mời dưới.
+   Bộ bài thu nhỏ lại ở trạng thái này để cả ba khối vừa một màn 720px,
+   không phải cuộn — nghi thức mà phải cuộn thì mất hết. */
+.ritual-wrap{display:flex;flex-direction:column;align-items:center;gap:18px}
+.ritual-wrap .deck{width:280px;height:430px}
+.ritual{text-align:center;width:360px}
+.ritual h2{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;color:var(--tar-ink);margin-bottom:7px}
+.ritual p{font-size:13px;color:var(--tar-ink-dim)}
+.ritual-cta{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:50px;
+  border:1px solid var(--tar-gold);color:var(--tar-gold);font-size:13px;font-weight:600;letter-spacing:.3px;transition:var(--t)}
+.ritual-cta:hover{background:rgba(233,200,132,.14)}
+.ritual-cta i{animation:tap 1.9s ease-in-out infinite}
+@keyframes tap{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* ── Chuyển động đổi lá ──────────────────────────────────────── */
+.card.enter{animation:drawUp .52s cubic-bezier(.2,.8,.26,1) both}
+@keyframes drawUp{
+  from{opacity:0;transform:translateY(56px) scale(.9) rotate(-3deg)}
+  to{opacity:1;transform:none}
+}
+.card.leaving{animation:slideAway .34s ease-in both;position:absolute}
+@keyframes slideAway{
+  to{opacity:0;transform:translate(-78px,26px) scale(.86) rotate(-7deg)}
+}
+.deck.cutting .deck-card:nth-child(3){animation:cut .8s cubic-bezier(.3,.75,.3,1) both}
+@keyframes cut{
+  35%{transform:translateY(-56px) rotateY(0deg)}
+  100%{transform:translateY(-16px) rotateY(90deg);opacity:0}
+}
+.deck.cutting .deck-card:nth-child(1),.deck.cutting .deck-card:nth-child(2){animation:fadeStack .5s ease both}
+@keyframes fadeStack{to{opacity:0;transform:scale(.94)}}
+.ritual-wrap.cutting .ritual,.ritual-wrap.cutting .ritual-cta{animation:fadeStack .3s ease both}
+
+/* ── Thanh điều hướng ───────────────────────────────────────── */
+.tarot-foot{position:relative;z-index:3;flex-shrink:0;padding:14px 22px 24px;display:flex;align-items:center;justify-content:center;gap:16px}
+.pips{display:flex;gap:7px}
+.pip{width:7px;height:7px;border-radius:50%;background:rgba(233,200,132,.3);transition:var(--t)}
+.pip.on{background:var(--tar-gold);transform:scale(1.35)}
+.nav-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--tar-gold-soft);color:var(--tar-ink);display:grid;place-items:center;font-size:20px;transition:var(--t)}
+.nav-btn:hover:not(:disabled){background:rgba(233,200,132,.14);border-color:var(--tar-gold)}
+.nav-btn:disabled{opacity:.28;cursor:not-allowed}
+.foot-cta{display:inline-flex;align-items:center;gap:6px;padding:8px 17px;border-radius:50px;background:var(--tar-gold);color:#2a0821;font-size:13px;font-weight:700;transition:var(--t)}
+.foot-cta:hover{filter:brightness(1.08)}
+.foot-ghost{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:50px;border:1px solid var(--tar-gold-soft);color:var(--tar-ink);font-size:12.5px;font-weight:600}
+.foot-ghost:hover{background:rgba(233,200,132,.12)}
+
+/* ── Màn trải cuối ──────────────────────────────────────────── */
+.spread-wrap{display:none;flex-direction:column;align-items:center;gap:20px;width:100%}
+.spread-wrap.on{display:flex}
+.spread-head{text-align:center}
+.spread-head h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--tar-ink);margin-bottom:5px}
+.spread-head p{font-size:13px;color:var(--tar-ink-dim)}
+.fan{display:flex;justify-content:center;align-items:flex-end;padding:26px 0 8px;min-height:280px}
+.fan .mini-card{width:150px;height:231px;border-radius:11px;margin:0 -20px;cursor:pointer;position:relative;overflow:hidden;
+  background:linear-gradient(158deg,var(--tar-deep),var(--tar-plum) 55%,#7d0c50);
+  box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 0 1px rgba(233,200,132,.26);
+  transform-origin:bottom center;transition:transform .22s ease,box-shadow .22s ease;
+  animation:fanIn .5s cubic-bezier(.2,.8,.26,1) both}
+.fan .mini-card:hover{transform:translateY(-16px) rotate(0deg) scale(1.05)!important;z-index:9;
+  box-shadow:0 22px 46px rgba(0,0,0,.6),0 0 0 1px var(--tar-gold)}
+@keyframes fanIn{from{opacity:0;transform:translateY(40px) rotate(0)}}
+.mini-frame{position:absolute;inset:8px;border:1px solid var(--tar-gold-soft);border-radius:6px;padding:13px 12px;display:flex;flex-direction:column}
+.mini-roman{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:2px;color:var(--tar-gold)}
+.mini-title{font-family:'Playfair Display',serif;font-size:13.5px;line-height:1.28;color:var(--tar-ink);margin-top:auto;overflow-wrap:anywhere}
+.mini-key{font-size:11px;color:var(--tar-gold);margin-top:5px;font-weight:600}
+
+/* ── Tôn trọng người tắt hiệu ứng ───────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  .tarot-stage::before,.deck-card,.ritual-cta i{animation:none}
+  .card.enter,.card.leaving,.fan .mini-card,.deck.cutting .deck-card,
+  .deck.cutting .deck-card:nth-child(1),.deck.cutting .deck-card:nth-child(2){animation-duration:.01ms}
+}
+@media (max-width:900px){
+  .card,.deck{width:290px;height:446px}
+  .fan .mini-card{width:118px;height:182px;margin:0 -14px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo"><span>M</span></div>
+      <div>
+        <div class="sb-name">MoMo <em>HRM</em></div>
+        <div class="sb-sub">Performance Management</div>
+      </div>
+    </div>
+    <div class="role-sw">
+      <button class="role-btn on">Nhân viên</button>
+      <button class="role-btn">Quản lý</button>
+    </div>
+    <nav class="sb-nav">
+      <span class="sb-grp">Tổng quan</span>
+      <button class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</button>
+      <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+      <button class="sb-item"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</button>
+      <button class="sb-item" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</button>
+      <button class="sb-item" onclick="location.href='feedback-delight-demo.html'"><i class="bx bx-gift"></i>New Demo Feedback</button>
+      <button class="sb-item on"><i class="bx bx-moon"></i>Demo Trải bài</button>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="av av-brand">NT</div>
+        <div>
+          <div class="sb-uname">Nguyễn Văn Tú</div>
+          <div class="sb-urole">Nhân viên, Backend Team</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <span class="topbar-title">Dấu ấn của bạn — bản thử nghiệm</span>
+      <div class="topbar-right">
+        <span class="chip ch-demo"><i class="bx bx-purchase-tag"></i> DEMO — file tách riêng</span>
+        <button class="ico-btn"><i class="bx bx-bell"></i></button>
+        <button class="ico-btn"><i class="bx bx-help-circle"></i></button>
+        <div class="av av-brand av-sm" style="margin-left:3px">NT</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="breadcrumb"><span>Trang chủ</span><span class="bc-sep">/</span><span>Phản hồi của tôi</span><span class="bc-sep">/</span><span>Dấu ấn của bạn</span></div>
+      <div class="page-hd"><h1 class="page-title">Dấu ấn của bạn</h1></div>
+      <p class="page-desc">Bản thử nghiệm cách kể "Dấu ấn của bạn" theo lối trải bài. Chưa ghép vào màn chính.</p>
+
+      <div class="invite">
+        <div class="invite-art"><span>✦</span></div>
+        <div>
+          <h2>Bộ bài của bạn đã sẵn sàng</h2>
+          <p>Năm lá bài được trải từ 12 phản hồi bạn nhận trong năm 2026. Không ai khác nhìn thấy bộ bài này.</p>
+          <button class="btn btn-default" onclick="openStage()"><i class="bx bx-moon"></i> Mở bộ bài</button>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <h3>Ghi chú cho buổi review</h3>
+        <ul>
+          <li><strong>Số liệu là thật</strong> — lấy đúng feed của Nguyễn Văn Tú trong E-04, không phải số đẹp bịa ra.</li>
+          <li><strong>Lá I</strong> đếm số người (unique), không đếm số phản hồi. Gọi tên top 3; hoà thì ưu tiên người phản hồi gần đây nhất.</li>
+          <li><strong>Lá II</strong> chỉ hiện giá trị có dữ liệu &gt; 0 — "Đổi mới" của Tú bằng 0 nên được ẩn. Hai giá trị bằng điểm thì to và nổi như nhau.</li>
+          <li><strong>Ngoại lệ design system</strong> chỉ áp dụng bên trong sân khấu trải bài; sidebar, topbar và trang này vẫn theo chuẩn.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SÂN KHẤU TRẢI BÀI ═══ -->
+<div class="tarot-stage" id="stage" role="dialog" aria-label="Dấu ấn của bạn">
+  <div class="tarot-top">
+    <span class="tarot-brandline"><i class="bx bx-moon"></i> Dấu ấn của bạn · 2026</span>
+    <button class="tarot-x" onclick="closeStage()" aria-label="Đóng"><i class="bx bx-x"></i></button>
+  </div>
+
+  <div class="tarot-body" id="stageBody"></div>
+
+  <div class="tarot-foot" id="stageFoot"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DỮ LIỆU — trích đúng feed của Nguyễn Văn Tú trong E-04
+   ═══════════════════════════════════════════════════════════════ */
+const RECEIVED=[
+  {d:'14/03/2026',n:'Lê Thành Nam',   ini:'LN',org:'ITC – Mobile – iOS Developer',   cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi']},
+  {d:'22/04/2026',n:'Hoàng Thị Lan',  ini:'HL',org:'MKT – Brand – Senior Designer',  cv:['Khách hàng là trung tâm']},
+  {d:'05/06/2026',n:'Trương Minh Đức',ini:'TĐ',org:'ITC – Backend – Senior Engineer',cv:['Thực thi xuất sắc','Tinh thần đồng đội']},
+  {d:'18/09/2025',n:'Nguyễn Quốc Bảo',ini:'NB',org:'ITC – Platform – Tech Lead',     cv:['Không ngừng học hỏi']},
+  {d:'10/03/2026',n:'Lê Thành Nam',   ini:'LN',org:'ITC – Mobile',                   cv:['Thực thi xuất sắc']},
+  {d:'11/03/2026',n:'Hoàng Thị Lan',  ini:'HL',org:'MKT – Brand',                    cv:['Khách hàng là trung tâm']},
+  {d:'13/03/2026',n:'Trương Minh Đức',ini:'TĐ',org:'ITC – Backend',                  cv:['Không ngừng học hỏi','Thực thi xuất sắc']},
+  {d:'15/07/2026',n:'Mai Thị Hằng',   ini:'MH',org:'ITC – DevOps',                   cv:['Tinh thần đồng đội']},
+  {d:'18/07/2026',n:'Lê Văn Hùng',    ini:'LH',org:'ITC – Backend',                  cv:['Thực thi xuất sắc']},
+  {d:'06/02/2026',n:'Nguyễn Quốc Bảo',ini:'NB',org:'ITC – Platform',                 cv:['Tinh thần đồng đội']},
+  {d:'08/02/2026',n:'Lê Văn Hùng',    ini:'LH',org:'ITC – Backend',                  cv:['Không ngừng học hỏi']},
+  {d:'10/02/2026',n:'Trần Thị Mai',   ini:'TM',org:'ITC – Frontend',                 cv:['Tinh thần đồng đội']}
+];
+const GIVEN=[
+  {d:'20/06/2026',n:'Trần Văn Khoa',     thanked:false},
+  {d:'02/08/2026',n:'Vũ Thị Lan',        thanked:false},
+  {d:'18/07/2026',n:'Nguyễn Thị Phương', thanked:false},
+  {d:'12/03/2026',n:'Trần Thị Mai',      thanked:true },
+  {d:'18/05/2026',n:'Vũ Thị Lan',        thanked:true },
+  {d:'02/06/2026',n:'Mai Thị Hằng',      thanked:false},
+  {d:'20/06/2026',n:'Phạm Minh Đức',     thanked:false}
+];
+/* Điểm mạnh và góp ý là AI diễn giải lại từ nội dung phản hồi — KHÔNG trích
+   nguyên văn và KHÔNG nêu tên người viết. */
+const AI_STRENGTHS=[
+  'Bạn biến việc phức tạp thành thứ ai cũng hiểu được',
+  'Người khác thấy an tâm khi bạn nhận phần khó',
+  'Bạn nhớ hỏi lại — kể cả khi không ai nhắc'
+];
+const AI_GROWTH=[
+  'Rủ đồng đội vào sớm hơn, ngay từ lúc còn đang nghĩ',
+  'Nói ra tiêu chuẩn của bạn thay vì tự tay làm cho đạt'
+];
+const CV_ART={
+  'Đổi mới':'Innovation.png',
+  'Tinh thần đồng đội':'Teamwork.png',
+  'Không ngừng học hỏi':'Constant_.png',
+  'Khách hàng là trung tâm':'Customer_.png',
+  'Thực thi xuất sắc':'Excellence.png'
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   LUẬT TÍNH — mỗi luật một hàm, để review từng cái một
+   ═══════════════════════════════════════════════════════════════ */
+function ts(dmy){const [d,m,y]=String(dmy||'').split('/');return Number(`${y}${m}${d}`)||0;}
+
+/* Lá I — đếm NGƯỜI (unique), không đếm số phản hồi.
+   Gọi tên top 3; không đủ 3 người thì lấy top 2.
+   Hoà số phản hồi thì ưu tiên người phản hồi GẦN ĐÂY NHẤT — không xếp theo
+   bảng chữ cái, vì chọn theo tên là chọn đại rồi tuyên bố "nhiều nhất". */
+function circle(){
+  const by=new Map();
+  RECEIVED.forEach(item=>{
+    const cur=by.get(item.n)||{name:item.n,ini:item.ini,org:item.org,count:0,last:0};
+    cur.count++; cur.last=Math.max(cur.last,ts(item.d));
+    if(ts(item.d)>=cur.last)cur.org=item.org;
+    by.set(item.n,cur);
+  });
+  const people=[...by.values()].sort((a,b)=>b.count-a.count||b.last-a.last);
+  const teams=new Set(RECEIVED.map(item=>(item.org.split('–')[1]||'').trim()).filter(Boolean));
+  return {people, total:people.length, teams:teams.size,
+          top:people.slice(0,people.length>=3?3:2)};
+}
+
+/* Lá II — chỉ giá trị có dữ liệu > 0. Giá trị bằng 0 bị ẩn hẳn: một lá bài
+   khen ngợi không nên có hạng bét. Bằng điểm thì nổi bật như nhau. */
+function values(){
+  const count={};
+  RECEIVED.forEach(item=>(item.cv||[]).forEach(v=>count[v]=(count[v]||0)+1));
+  const rows=Object.entries(count).filter(([,n])=>n>0)
+    .map(([name,n])=>({name,n,art:CV_ART[name]}))
+    .sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'vi'));
+  const max=rows.length?rows[0].n:0;
+  return rows.map(row=>({...row,hero:row.n===max}));
+}
+
+/* Lá V — cho đi bao nhiêu, tới bao nhiêu người, nhận lại bao nhiêu lời cảm ơn. */
+function given(){
+  return {total:GIVEN.length,
+          people:new Set(GIVEN.map(item=>item.n)).size,
+          thanks:GIVEN.filter(item=>item.thanked).length};
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NỘI DUNG 5 LÁ
+   ═══════════════════════════════════════════════════════════════ */
+const ROMAN=['I','II','III','IV','V'];
+function CARDS(){
+  const c=circle(), v=values(), g=given();
+  return [
+    { key:'Vòng tròn', short:'Vòng tròn',
+      title:'Vòng tròn quanh bạn',
+      sub:`${c.total} người từ ${c.teams} nhóm khác nhau đã dừng lại để nói về bạn.`,
+      foot:'Đếm theo người, không đếm theo số phản hồi',
+      body:`<div class="people">${c.top.map(p=>`
+        <div class="person-line">
+          <span class="person-av">${p.ini}</span>
+          <span><span class="person-nm">${p.name}</span><br><span class="person-og">${p.org}</span></span>
+        </div>`).join('')}</div>
+        <div class="mini-row">
+          <div><div class="mini-num">${c.total}</div><div class="mini-lbl">người</div></div>
+          <div><div class="mini-num">${c.teams}</div><div class="mini-lbl">nhóm</div></div>
+          <div><div class="mini-num">${RECEIVED.length}</div><div class="mini-lbl">phản hồi</div></div>
+        </div>`
+    },
+    { key:v[0]?v[0].name:'—', short:'Ánh sáng',
+      title:'Ánh sáng bạn toả ra',
+      sub:'Những giá trị đồng nghiệp gắn tên bạn vào, nhiều nhất đứng trước.',
+      foot:'Chỉ hiện giá trị đã được ghi nhận',
+      body:`<div class="cv-grid">${v.map(row=>`
+        <div class="cv-cell ${row.hero?'hero':''}" style="--cv-w:${row.hero?66:46}px">
+          <img src="../Core value with BG/${row.art}" alt="${row.name}"/>
+          <span class="cv-ct">${row.n}</span>
+          <span class="cv-nm">${row.name}</span>
+        </div>`).join('')}</div>`
+    },
+    { key:'Điểm mạnh', short:'Điều họ thấy',
+      title:'Điều mọi người nhìn thấy ở bạn',
+      sub:'Ba điều lặp đi lặp lại trong những gì người khác viết về bạn.',
+      foot:'AI đọc lại phản hồi, không nêu tên ai',
+      body:`<ul class="quill">${AI_STRENGTHS.map(text=>`<li><i class="bx bxs-star"></i><span>${text}</span></li>`).join('')}</ul>`
+    },
+    { key:'Mở đường', short:'Mở đường',
+      title:'Lá bài mở đường',
+      sub:'Không phải điều bạn làm chưa tốt — là cánh cửa người khác thấy bạn có thể đẩy ra.',
+      foot:'AI đọc lại phản hồi, không nêu tên ai',
+      body:`<ul class="quill">${AI_GROWTH.map(text=>`<li><i class="bx bx-key"></i><span>${text}</span></li>`).join('')}</ul>`
+    },
+    { key:`${g.total} lượt cho đi`, short:'Đã gieo',
+      title:'Những gì bạn đã gieo',
+      sub:`Bạn đã viết ${g.total} phản hồi cho ${g.people} người, và nhận lại ${g.thanks} lời cảm ơn.`,
+      foot:'Văn hoá phản hồi bắt đầu từ người chịu viết trước',
+      body:`<div class="big-stat"><span class="big-num">${g.total}</span><span class="big-unit">phản hồi bạn đã cho đi</span></div>
+        <div class="mini-row">
+          <div><div class="mini-num">${g.people}</div><div class="mini-lbl">người được bạn nhắc tên</div></div>
+          <div><div class="mini-num">${g.thanks} ♥</div><div class="mini-lbl">lời cảm ơn nhận lại</div></div>
+        </div>`
+    }
+  ];
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SÂN KHẤU
+   ═══════════════════════════════════════════════════════════════ */
+let STEP=-1;               /* -1 nghi thức mở · 0..4 lá bài · 5 màn trải */
+const deck=CARDS();
+
+function openStage(){STEP=-1;document.getElementById('stage').classList.add('open');render();}
+function closeStage(){document.getElementById('stage').classList.remove('open');}
+
+function cardHTML(index,entering){
+  const card=deck[index];
+  return `<article class="card ${entering?'enter':''}">
+    <span class="card-frame"></span>
+    <div class="card-inner">
+      <div class="card-roman">${ROMAN[index]}</div>
+      <h2 class="card-title">${card.title}</h2>
+      <p class="card-sub">${card.sub}</p>
+      ${card.body}
+      <div class="card-foot"><i class="bx bx-info-circle"></i>${card.foot}</div>
+    </div>
+  </article>`;
+}
+
+function deckHTML(){
+  const back=`<div class="deck-back"><div class="deck-mark"><span>M</span></div></div>`;
+  return `<div class="ritual-wrap">
+    <div class="ritual">
+      <h2>Chào Tú.</h2>
+      <p>Năm nay có ${RECEIVED.length} phản hồi nói về bạn. Mình trải chúng thành ${deck.length} lá.</p>
+    </div>
+    <div class="deck" id="deck" onclick="cutDeck()" role="button" tabindex="0" aria-label="Cắt bài để mở lá đầu tiên"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();cutDeck();}">
+      <div class="deck-card">${back}</div>
+      <div class="deck-card">${back}</div>
+      <div class="deck-card">${back}</div>
+    </div>
+    <button class="ritual-cta" onclick="cutDeck()"><i class="bx bx-pointer"></i> Chạm để cắt bài</button>
+  </div>`;
+}
+
+function spreadHTML(){
+  return `<div class="spread-wrap on">
+    <div class="spread-head">
+      <h2>Trọn bộ dấu ấn của bạn</h2>
+      <p>Năm lá, một năm. Tải về hoặc chia sẻ lá bạn thích.</p>
+    </div>
+    <div class="fan">${deck.map((card,index)=>`
+      <div class="mini-card" style="transform:rotate(${(index-2)*7}deg) translateY(${Math.abs(index-2)*11}px);animation-delay:${index*80}ms"
+           onclick="goTo(${index})" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'){goTo(${index});}">
+        <div class="mini-frame">
+          <div class="mini-roman">${ROMAN[index]}</div>
+          <div class="mini-title">${card.short}</div>
+          <div class="mini-key">${card.key}</div>
+        </div>
+      </div>`).join('')}</div>
+  </div>`;
+}
+
+function footHTML(){
+  if(STEP===-1)return '';
+  if(STEP===deck.length)return `
+    <button class="foot-ghost" onclick="goTo(0)"><i class="bx bx-revision"></i> Xem lại từ đầu</button>
+    <button class="foot-cta" onclick="alert('Demo: sẽ xuất ảnh cả bộ 5 lá.')"><i class="bx bx-download"></i> Tải cả bộ</button>`;
+  return `
+    <button class="nav-btn" onclick="move(-1)" ${STEP===0?'disabled':''} aria-label="Lá trước"><i class="bx bx-chevron-left"></i></button>
+    <div class="pips">${deck.map((_,index)=>`<span class="pip ${index===STEP?'on':''}"></span>`).join('')}</div>
+    <button class="nav-btn" onclick="move(1)" aria-label="Lá tiếp"><i class="bx bx-chevron-right"></i></button>
+    <button class="foot-ghost" onclick="alert('Demo: sẽ xuất ảnh lá này.')"><i class="bx bx-download"></i> Tải lá này</button>`;
+}
+
+function render(entering){
+  const body=document.getElementById('stageBody');
+  if(STEP===-1)body.innerHTML=deckHTML();
+  else if(STEP===deck.length)body.innerHTML=spreadHTML();
+  else body.innerHTML=cardHTML(STEP,entering!==false);
+  document.getElementById('stageFoot').innerHTML=footHTML();
+}
+
+/* Cắt bài: lá trên cùng nhấc lên, lật nghiêng rồi biến mất, lá I rút lên thay chỗ.
+   Giữ nguyên nghi thức của tarot mà không tốn một slide chỉ để chào. */
+function cutDeck(){
+  const el=document.getElementById('deck');
+  if(!el||el.classList.contains('cutting'))return;
+  el.classList.add('cutting');
+  el.closest('.ritual-wrap').classList.add('cutting');
+  setTimeout(()=>{STEP=0;render(true);},560);
+}
+function move(delta){
+  const next=STEP+delta;
+  if(next<0||next>deck.length)return;
+  const current=document.querySelector('#stageBody .card');
+  if(current&&delta>0){current.classList.add('leaving');setTimeout(()=>{STEP=next;render(true);},220);}
+  else{STEP=next;render(true);}
+}
+function goTo(index){STEP=index;render(true);}
+
+document.addEventListener('keydown',event=>{
+  if(!document.getElementById('stage').classList.contains('open'))return;
+  if(event.key==='Escape')closeStage();
+  if(event.key==='ArrowRight'&&STEP>=0)move(1);
+  if(event.key==='ArrowLeft'&&STEP>0)move(-1);
+});
+</script>
+</body>
+</html>
