@@ -23,9 +23,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DEMO · Dấu ấn của bạn — Trải bài | MoMo HRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
 <style>
+/* ═══════════ FONT MOMO — chi dung trong san khau trai bai ═══════════
+   TrustSans lo phan noi dung doc duoc; MoMoSignature lo chu dac biet (ten la bai,
+   con so lon, loi chao) va duoc to mau vang de tach hazn khoi phan con lai. */
+@font-face{font-family:'MoMo Trust Sans';src:url('../momo%20font/MoMoTrustSans-Light.otf') format('opentype');font-weight:300;font-display:swap}
+@font-face{font-family:'MoMo Trust Sans';src:url('../momo%20font/MoMoTrustSans-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'MoMo Trust Sans';src:url('../momo%20font/MoMoTrustSans-Medium.otf') format('opentype');font-weight:500;font-display:swap}
+@font-face{font-family:'MoMo Trust Display';src:url('../momo%20font/MoMoTrustDisplay.otf') format('opentype');font-weight:700;font-display:swap}
+@font-face{font-family:'MoMo Signature';src:url('../momo%20font/MoMoSignature.otf') format('opentype');font-weight:400;font-display:swap}
+
 /* ═══════════ TOKENS — copy nguyên từ E-04 ═══════════ */
 :root{
   --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;
@@ -108,7 +117,7 @@ a{text-decoration:none}
 .invite{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh);padding:22px 24px;display:flex;align-items:center;gap:22px;max-width:720px}
 .invite-art{width:96px;height:132px;flex-shrink:0;border-radius:10px;position:relative;background:linear-gradient(150deg,var(--tar-deep),var(--tar-plum) 62%,var(--brand));box-shadow:0 8px 22px rgba(42,8,33,.32)}
 .invite-art::after{content:'';position:absolute;inset:7px;border:1px solid var(--tar-gold-soft);border-radius:6px}
-.invite-art span{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:var(--tar-gold)}
+.invite-art img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;box-shadow:0 0 0 1px var(--tar-gold)}
 .invite h2{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
 .invite p{font-size:13px;color:var(--z600);margin-bottom:14px;max-width:44ch}
 .note-box{margin-top:18px;max-width:720px;border:1px solid var(--z200);border-left:3px solid var(--brand);border-radius:var(--rsm);background:var(--z0);padding:13px 15px}
@@ -119,7 +128,7 @@ a{text-decoration:none}
 /* ═══════════════════════════════════════════════════════════════
    SÂN KHẤU TRẢI BÀI — vùng ngoại lệ design system
    ═══════════════════════════════════════════════════════════════ */
-.tarot-stage{position:fixed;inset:0;z-index:400;display:none;flex-direction:column;
+.tarot-stage{font-family:'MoMo Trust Sans','Public Sans',sans-serif;position:fixed;inset:0;z-index:400;display:none;flex-direction:column;
   background:radial-gradient(120% 90% at 50% 8%,#3a0c2c 0%,var(--tar-night) 58%,#0d030d 100%);
   color:var(--tar-ink);overflow:hidden}
 .tarot-stage.open{display:flex}
@@ -157,17 +166,17 @@ a{text-decoration:none}
 .card-frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
 .card-inner{position:absolute;inset:11px;padding:26px 24px;display:flex;flex-direction:column;overflow:hidden}
 
-.card-roman{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;color:var(--tar-gold);margin-bottom:auto}
-.card-title{font-family:'Playfair Display',serif;font-size:27px;line-height:1.2;font-weight:600;color:var(--tar-ink);margin-bottom:9px}
-.card-sub{font-size:13px;line-height:1.55;color:var(--tar-ink-dim);margin-bottom:16px}
-.card-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(233,200,132,.22);font-size:11px;letter-spacing:.4px;color:var(--tar-gold);display:flex;align-items:center;gap:6px}
+.card-roman{font-family:'MoMo Trust Display','MoMo Trust Sans','Public Sans',sans-serif;font-size:13px;letter-spacing:3px;color:var(--tar-gold);margin-bottom:auto}
+/* text-wrap:balance chia deu cac dong nen khong con dong cuoi tro tro mot chu. */
+.card-title{font-family:'MoMo Signature',cursive;font-size:33px;line-height:1.14;font-weight:400;color:var(--tar-gold);margin-bottom:10px;text-wrap:balance}
+.card-sub{font-size:13px;line-height:1.55;color:var(--tar-ink-dim);margin-bottom:16px;text-wrap:pretty}
 
 /* con số lớn */
 .big-stat{display:flex;align-items:baseline;gap:9px;margin-bottom:3px}
-.big-num{font-family:'Playfair Display',serif;font-size:62px;line-height:.9;font-weight:600;color:var(--tar-gold)}
+.big-num{font-family:'MoMo Signature',cursive;font-size:70px;line-height:.86;font-weight:400;color:var(--tar-gold)}
 .big-unit{font-size:14px;color:var(--tar-ink-dim)}
 .mini-row{display:flex;gap:18px;margin-top:14px}
-.mini-num{font-family:'Playfair Display',serif;font-size:25px;color:var(--tar-ink);line-height:1}
+.mini-num{font-family:'MoMo Signature',cursive;font-size:30px;color:var(--tar-ink);line-height:1}
 .mini-lbl{font-size:11px;color:var(--tar-ink-dim);margin-top:2px}
 
 /* danh sách người */
@@ -184,12 +193,11 @@ a{text-decoration:none}
    là thứ thay đổi theo thứ hạng, không phải bề rộng ô. */
 .cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px 8px;justify-items:center;align-items:end;margin-top:8px}
 .cv-cell{display:flex;flex-direction:column;align-items:center;gap:5px;width:112px}
-.cv-cell img{width:var(--cv-w);height:var(--cv-w);border-radius:50%;object-fit:cover;flex-shrink:0;
-  border:1px solid var(--tar-gold-soft);background:rgba(255,255,255,.05)}
-.cv-cell.hero img{border-color:var(--tar-gold);box-shadow:0 0 0 3px rgba(233,200,132,.2),0 8px 20px rgba(0,0,0,.4)}
+.cv-cell img{width:var(--cv-w);height:var(--cv-w);border-radius:50%;display:block;flex-shrink:0}
+.cv-cell.hero img{box-shadow:0 0 0 2px var(--tar-gold),0 0 22px rgba(233,200,132,.34)}
 .cv-nm{font-size:10.5px;line-height:1.3;text-align:center;color:var(--tar-ink-dim);width:100%}
 .cv-cell.hero .cv-nm{color:var(--tar-ink);font-weight:600;font-size:11px}
-.cv-ct{font-family:'Playfair Display',serif;font-size:15px;color:var(--tar-gold);line-height:1}
+.cv-ct{font-family:'MoMo Signature',cursive;font-size:19px;color:var(--tar-gold);line-height:1}
 .cv-cell.hero .cv-ct{font-size:20px}
 
 /* danh sách gạch đầu dòng */
@@ -212,10 +220,12 @@ a{text-decoration:none}
 .deck-back::before{content:'';position:absolute;inset:0;opacity:.55;
   background-image:repeating-linear-gradient(45deg,transparent 0 9px,rgba(233,200,132,.16) 9px 10px),
                    repeating-linear-gradient(-45deg,transparent 0 9px,rgba(233,200,132,.16) 9px 10px)}
-.deck-mark{position:relative;width:78px;height:78px;border-radius:50%;border:1px solid var(--tar-gold);
-  display:grid;place-items:center;background:rgba(23,6,23,.55)}
-.deck-mark span{font-family:'Playfair Display',serif;font-size:33px;font-weight:600;color:var(--tar-gold)}
-.deck-mark::after{content:'';position:absolute;inset:-9px;border:1px solid var(--tar-gold-soft);border-radius:50%}
+/* Mat lung mang linh vat cua giá trị nổi bật nhất của chính người xem — bộ bài
+   là của họ, nên mặt lưng cũng là của họ. Vòng vàng kép giữ chất bài cổ. */
+.deck-mark{position:relative;width:104px;height:104px;border-radius:50%;
+  display:grid;place-items:center;box-shadow:0 0 0 1px var(--tar-gold),0 0 26px rgba(233,200,132,.3)}
+.deck-mark img{width:104px;height:104px;border-radius:50%;display:block}
+.deck-mark::after{content:'';position:absolute;inset:-10px;border:1px solid var(--tar-gold-soft);border-radius:50%}
 
 /* Nghi thức mở xếp theo cột: lời chào trên, bộ bài giữa, lời mời dưới.
    Bộ bài thu nhỏ lại ở trạng thái này để cả ba khối vừa một màn 720px,
@@ -223,7 +233,7 @@ a{text-decoration:none}
 .ritual-wrap{display:flex;flex-direction:column;align-items:center;gap:18px}
 .ritual-wrap .deck{width:280px;height:430px}
 .ritual{text-align:center;width:360px}
-.ritual h2{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;color:var(--tar-ink);margin-bottom:7px}
+.ritual h2{font-family:'MoMo Signature',cursive;font-size:32px;font-weight:400;color:var(--tar-gold);margin-bottom:7px;text-wrap:balance}
 .ritual p{font-size:13px;color:var(--tar-ink-dim)}
 .ritual-cta{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:50px;
   border:1px solid var(--tar-gold);color:var(--tar-gold);font-size:13px;font-weight:600;letter-spacing:.3px;transition:var(--t)}
@@ -267,7 +277,7 @@ a{text-decoration:none}
 .spread-wrap{display:none;flex-direction:column;align-items:center;gap:20px;width:100%}
 .spread-wrap.on{display:flex}
 .spread-head{text-align:center}
-.spread-head h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--tar-ink);margin-bottom:5px}
+.spread-head h2{font-family:'MoMo Signature',cursive;font-size:34px;font-weight:400;color:var(--tar-gold);margin-bottom:5px;text-wrap:balance}
 .spread-head p{font-size:13px;color:var(--tar-ink-dim)}
 .fan{display:flex;justify-content:center;align-items:flex-end;padding:26px 0 8px;min-height:280px}
 .fan .mini-card{width:150px;height:231px;border-radius:11px;margin:0 -20px;cursor:pointer;position:relative;overflow:hidden;
@@ -279,8 +289,9 @@ a{text-decoration:none}
   box-shadow:0 22px 46px rgba(0,0,0,.6),0 0 0 1px var(--tar-gold)}
 @keyframes fanIn{from{opacity:0;transform:translateY(40px) rotate(0)}}
 .mini-frame{position:absolute;inset:8px;border:1px solid var(--tar-gold-soft);border-radius:6px;padding:13px 12px;display:flex;flex-direction:column}
-.mini-roman{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:2px;color:var(--tar-gold)}
-.mini-title{font-family:'Playfair Display',serif;font-size:13.5px;line-height:1.28;color:var(--tar-ink);margin-top:auto;overflow-wrap:anywhere}
+.mini-roman{font-family:'MoMo Trust Display','MoMo Trust Sans','Public Sans',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tar-gold)}
+/* MoMo Signature rong hon Playfair nhieu, phai ha co xuong moi vua khung 150px. */
+.mini-title{font-family:'MoMo Signature',cursive;font-size:15px;line-height:1.2;color:var(--tar-gold);margin-top:auto;overflow-wrap:anywhere}
 .mini-key{font-size:11px;color:var(--tar-gold);margin-top:5px;font-weight:600}
 
 /* ── Tôn trọng người tắt hiệu ứng ───────────────────────────── */
@@ -347,7 +358,7 @@ a{text-decoration:none}
       <p class="page-desc">Bản thử nghiệm cách kể "Dấu ấn của bạn" theo lối trải bài. Chưa ghép vào màn chính.</p>
 
       <div class="invite">
-        <div class="invite-art"><span>✦</span></div>
+        <div class="invite-art"><img src="../Core value with BG/Excellence.png" alt=""/></div>
         <div>
           <h2>Bộ bài của bạn đã sẵn sàng</h2>
           <p>Năm lá bài được trải từ 12 phản hồi bạn nhận trong năm 2026. Không ai khác nhìn thấy bộ bài này.</p>
@@ -477,8 +488,7 @@ function CARDS(){
   return [
     { key:'Vòng tròn', short:'Vòng tròn',
       title:'Vòng tròn quanh bạn',
-      sub:`${c.total} người từ ${c.teams} nhóm khác nhau đã dừng lại để nói về bạn.`,
-      foot:'Đếm theo người, không đếm theo số phản hồi',
+      sub:'Năm nay, đây là những đồng nghiệp trao cho bạn nhiều món quà nhất.',
       body:`<div class="people">${c.top.map(p=>`
         <div class="person-line">
           <span class="person-av">${p.ini}</span>
@@ -492,8 +502,7 @@ function CARDS(){
     },
     { key:v[0]?v[0].name:'—', short:'Ánh sáng',
       title:'Ánh sáng bạn toả ra',
-      sub:'Những giá trị đồng nghiệp gắn tên bạn vào, nhiều nhất đứng trước.',
-      foot:'Chỉ hiện giá trị đã được ghi nhận',
+      sub:'Những giá trị đồng nghiệp thấy rõ nhất ở bạn.',
       body:`<div class="cv-grid">${v.map(row=>`
         <div class="cv-cell ${row.hero?'hero':''}" style="--cv-w:${row.hero?66:46}px">
           <img src="../Core value with BG/${row.art}" alt="${row.name}"/>
@@ -503,20 +512,17 @@ function CARDS(){
     },
     { key:'Điểm mạnh', short:'Điều họ thấy',
       title:'Điều mọi người nhìn thấy ở bạn',
-      sub:'Ba điều lặp đi lặp lại trong những gì người khác viết về bạn.',
-      foot:'AI đọc lại phản hồi, không nêu tên ai',
+      sub:'Ấn tượng đồng nghiệp giữ lại sau những lần làm việc cùng bạn.',
       body:`<ul class="quill">${AI_STRENGTHS.map(text=>`<li><i class="bx bxs-star"></i><span>${text}</span></li>`).join('')}</ul>`
     },
     { key:'Mở đường', short:'Mở đường',
       title:'Lá bài mở đường',
-      sub:'Không phải điều bạn làm chưa tốt — là cánh cửa người khác thấy bạn có thể đẩy ra.',
-      foot:'AI đọc lại phản hồi, không nêu tên ai',
+      sub:'Những điều đồng nghiệp tin sẽ đưa bạn đi xa hơn.',
       body:`<ul class="quill">${AI_GROWTH.map(text=>`<li><i class="bx bx-key"></i><span>${text}</span></li>`).join('')}</ul>`
     },
     { key:`${g.total} lượt cho đi`, short:'Đã gieo',
-      title:'Những gì bạn đã gieo',
-      sub:`Bạn đã viết ${g.total} phản hồi cho ${g.people} người, và nhận lại ${g.thanks} lời cảm ơn.`,
-      foot:'Văn hoá phản hồi bắt đầu từ người chịu viết trước',
+      title:'Điều bạn đã gieo',
+      sub:'Văn hoá phản hồi bắt đầu từ người chịu viết trước.',
       body:`<div class="big-stat"><span class="big-num">${g.total}</span><span class="big-unit">phản hồi bạn đã cho đi</span></div>
         <div class="mini-row">
           <div><div class="mini-num">${g.people}</div><div class="mini-lbl">người được bạn nhắc tên</div></div>
@@ -544,13 +550,13 @@ function cardHTML(index,entering){
       <h2 class="card-title">${card.title}</h2>
       <p class="card-sub">${card.sub}</p>
       ${card.body}
-      <div class="card-foot"><i class="bx bx-info-circle"></i>${card.foot}</div>
     </div>
   </article>`;
 }
 
 function deckHTML(){
-  const back=`<div class="deck-back"><div class="deck-mark"><span>M</span></div></div>`;
+  const hero=values()[0];
+  const back=`<div class="deck-back"><div class="deck-mark"><img src="../Core value with BG/${hero?hero.art:'Teamwork.png'}" alt=""/></div></div>`;
   return `<div class="ritual-wrap">
     <div class="ritual">
       <h2>Chào Tú.</h2>
