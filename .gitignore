@@ -11,3 +11,9 @@ FEEDBACK_HANDOFF_*.md
 
 # Worktree phụ do agent tạo — không đưa lên repo
 .codex-worktrees/
+
+# Phiên brainstorm tạm của agent — không đưa lên repo
+.superpowers/
+
+# Output build cục bộ
+PMS_HuongDanSuDung.pptx

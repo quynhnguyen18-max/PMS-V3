@@ -74,7 +74,7 @@ Nguyên tắc IA:
 │  [ Direct reports ] [ Indirect reports ]        (LM1/LM2/HOD) │ ← tái dùng cơ chế M-01
 ├───────────────────────────────────────────────────────────────┤
 │  Danh sách nhân viên · phản hồi mỗi người nhận được           │
-│   ┌─ Minh Trần   · 8 phản hồi nhận · [xem]                    │ ← mở popup giống popup_fb_preview
+│   ┌─ Minh Trần   · 8 phản hồi nhận · [xem]                    │ ← mở popup preview phản hồi
 │   ├─ Lan Phạm    · 3 phản hồi nhận · [xem]                    │
 │   └─ ...                                                        │
 │                                                                │
@@ -82,7 +82,7 @@ Nguyên tắc IA:
 └───────────────────────────────────────────────────────────────┘
 ```
 
-- Xem phản hồi cấp dưới nhận được → **tái dùng popup `popup_fb_preview.html`** (xem mục 6).
+- Xem phản hồi cấp dưới nhận được → **tái dùng popup `docs/reference/popup_fb_preview.html`** (xem mục 6).
 - Direct/Indirect dùng lại đúng tab-switch LM1/LM2/HOD có sẵn ở M-01.
 
 ---
@@ -142,7 +142,7 @@ Luồng: chọn direct report(s) → chọn reviewers → context → hệ thố
 
 ## 5. Component library
 
-- **Feedback card / popup "Phản hồi đã nhận"** — `popup_fb_preview.html` là **popup danh sách phản hồi 1 người nhận**, gắn với nút "Phản hồi đã nhận" ở màn Đánh giá giữa năm. **Tái dùng đúng bối cảnh:** (a) làm card trong feed view Nhân viên; (b) làm popup khi Quản lý bấm "xem" phản hồi của 1 cấp dưới. Chuẩn hóa 1 lần, dùng lại.
+- **Feedback card / popup "Phản hồi đã nhận"** — `docs/reference/popup_fb_preview.html` là **popup danh sách phản hồi 1 người nhận**, gắn với nút "Phản hồi đã nhận" ở màn Đánh giá giữa năm. **Tái dùng đúng bối cảnh:** (a) làm card trong feed view Nhân viên; (b) làm popup khi Quản lý bấm "xem" phản hồi của 1 cấp dưới. Chuẩn hóa 1 lần, dùng lại.
 - **Core Value badges (5)** — icon-only 34–54px, hover hiện tên. Lấy từ `Core value with BG/`:
   Đổi mới (`Innovation.png`) · Tinh thần đồng đội (`Teamwork.png`) · Không ngừng học hỏi (`Constant_.png`) · Khách hàng là trung tâm (`Customer_.png`) · Thực thi xuất sắc (`Excellence.png`). Style `.cv-item` / `.fb-badge` đã có trong design system.
 - **AI Coach panel** — chip STAR/STARAR/Core Value, before/after.
