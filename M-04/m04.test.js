@@ -336,7 +336,13 @@ test('managers can download received feedback per employee or in bulk, within th
   assert.ok(!html.includes('.row-actions{display:flex;align-items:center;justify-content:flex-end'));
 
   // nút header mở hộp thoại chọn phạm vi, dùng lại visual của H-06
-  assert.ok(html.includes('id="headerDownload"'));
+  // nút tải nằm trong thanh công cụ của tab, ngay cạnh ô tìm kiếm — không còn ở header trang
+  assert.ok(html.includes('<div class="list-actions"><button type="button" class="btn btn-outline" id="headerDownload"'));
+  assert.ok(html.includes('onclick="openDownloadDialog()"'));
+  assert.ok(html.includes('.list-actions #headerDownload{height:32px'));
+  assert.ok(!html.includes('class="icon-btn" id="headerDownload"'), 'không còn nút tải kiểu icon ở header trang');
+  // nút đã thuộc hẳn tab phản hồi nên bỏ luôn phần đổi nhãn theo tab
+  assert.ok(!html.includes('function syncHeaderDownload'));
   assert.ok(html.includes('onclick="openDownloadDialog()"'));
   assert.ok(html.includes('<strong>Tải toàn bộ (${list.length} nhân viên)</strong>'));
   assert.ok(html.includes('<strong>Chọn từng nhân viên</strong>'));
@@ -357,7 +363,6 @@ test('managers can download received feedback per employee or in bulk, within th
   assert.match(html, /Báo cáo do HR chia sẻ được tách thành sheet riêng/);
 
   // nút header nằm trên thanh tab nên phải tự đổi phạm vi theo tab đang mở
-  assert.match(html, /function syncHeaderDownload\(\)/);
   // ba nơi xem phản hồi của một người đều tải được ngay tại chỗ, không cần quay về bảng
   assert.ok(html.includes('id="dialogDownload"'));   // popup xem nhanh
   assert.ok(html.includes('id="splitDownload"'));    // split view
@@ -372,7 +377,6 @@ test('managers can download received feedback per employee or in bulk, within th
   // màn chi tiết dùng lại dữ liệu sẵn có của trang, không tự lọc lại kẻo lệch phạm vi
   assert.match(detail, /`\$\{items\.length\} phản hồi`/);
   assert.match(detail, /HR_REPORTS\.length\)parts\.push/);
-  assert.match(html, /if\(STATE\.contentMode!=='feedback'\)\{toast\('Đang chuẩn bị tệp danh sách yêu cầu đã tạo\.\.\.'\);return;\}/);
 });
 
 test('cycle overview hangs each explanation on its own info icon, not the whole row', () => {
@@ -1171,14 +1175,34 @@ test('manager request UI follows shared typography, table-link and progress-chip
   assert.match(html,/\.request-table-row\{[^}]*align-items:flex-start/);
 });
 
-test('manager content tabs are primary navigation while report scope remains secondary', () => {
+test('manager content tabs are folder tabs, with a thin pink outline on the closed one', () => {
   const html=fs.readFileSync(pagePath,'utf8');
+  const m01=fs.readFileSync(path.join(__dirname,'..','M-01','index.html'),'utf8');
   assert.match(html,/Phản hồi nhân viên đã nhận<\/button>/);
   assert.match(html,/Yêu cầu phản hồi đã tạo<\/button>/);
-  assert.match(html,/\.content-tabs\{[^}]*display:flex[^}]*border-bottom:1px solid var\(--z200\)[^}]*background:transparent/);
-  assert.match(html,/\.content-tab\.on\{[^}]*background:transparent[^}]*color:var\(--brand\)[^}]*box-shadow:none/);
-  assert.match(html,/\.content-tab\.on:after\{[^}]*height:3px[^}]*background:var\(--brand\)/);
-  assert.match(html,/\.scope-tabs\{[^}]*background:var\(--z100\)[^}]*border:1px solid var\(--z200\)[^}]*border-radius:8px/);
+
+  // hình dạng thẻ lấy theo M-01
+  assert.ok(html.includes('border-bottom:2px solid var(--z200)'));
+  assert.ok(html.includes('border-radius:var(--rsm) var(--rsm) 0 0;margin-bottom:-2px'));
+  assert.ok(m01.includes('border-radius:var(--rsm) var(--rsm) 0 0'));
+
+  // tab đang mở: nền hồng nhạt + vạch hồng trên đỉnh
+  assert.ok(html.includes('.content-tab.on{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}'));
+
+  // tab chưa mở: VIỀN HỒNG mảnh nhưng NỀN TRẮNG, chữ không làm mờ
+  assert.ok(html.includes('border:1px solid var(--brand-ring)'));
+  assert.ok(html.includes('background:var(--z0);color:var(--z800);font-size:13px;font-weight:600'));
+  assert.ok(!html.includes('border:1px solid var(--z300)'), 'tab chưa mở không được dùng viền xám');
+
+  // không quay lại các kiểu đã bị loại
+  assert.ok(!html.includes('.content-tab:after'), 'đã loại kiểu gạch chân');
+  assert.ok(!html.includes('.content-tab.on{background:var(--brand);color:var(--z0)'), 'đã loại kiểu thanh phân đoạn');
+
+  // bộ lọc phạm vi giữ nguyên, không bị đụng tới
+  assert.match(html,/\.scope-tabs\{[^}]*background:var\(--z100\)[^}]*border-radius:8px/);
+  assert.match(html,/\.scope-btn\.on\{[^}]*background:#fff/);
+  assert.ok(html.includes('id="tab-direct" onclick="setScope(\'lm1\')"'));
+
   const tabBlock=html.match(/id="contentModeTabs"[\s\S]*?<\/div>/)?.[0]||'';
   assert.doesNotMatch(tabBlock,/requestModeBadge|content-count/);
 });
