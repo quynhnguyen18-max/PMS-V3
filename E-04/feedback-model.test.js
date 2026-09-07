@@ -47,9 +47,17 @@ test('employee request due field is limited to 90 days and expired requests are 
   assert.match(html,/Yêu cầu có hiệu lực tối đa 90 ngày kể từ ngày tạo\./);
   assert.match(html,/function configureReqDueRange\(\)/);
   assert.match(html,/due\.min=range\.min;due\.max=range\.max/);
-  assert.match(html,/function requestLifecycleStatus\(request,today=todayDMY\(\)\)/);
-  assert.match(html,/return 'no_response'/);
+  /* Luật vòng đời chỉ được viết một lần, trong model. Màn hình gọi lại chứ không chép,
+     vì bản chép cũ coi yêu cầu không có người phản hồi nào là 'complete'. */
+  assert.match(html,/function requestLifecycleStatus\(request,today=todayDMY\(\)\)\{return FeedbackModel\.requestStatus\(request,today\);\}/);
+  assert.doesNotMatch(html,/return 'no_response'/);
   assert.match(html,/Không phản hồi/);
+
+  const model=require('./feedback-model.js');
+  const expired={date:'01/01/2026',due:'15/01/2026',reviewers:[{st:'pending'}]};
+  assert.equal(model.requestStatus(expired,'01/06/2026'),'no_response');
+  assert.equal(model.requestStatus({date:'01/06/2026',due:'15/06/2026',reviewers:[{st:'pending'}]},'20/06/2026'),'overdue');
+  assert.equal(model.requestStatus({date:'01/06/2026',due:'30/06/2026',reviewers:[]},'10/06/2026'),'collecting');
 });
 
 test('employee request reminders show automatic timing and enforce a rolling 24-hour cooldown', () => {
@@ -516,13 +524,26 @@ test('closed HR requests and closed manager tickets both notify once, then disap
   assert.match(html,/function isClosedNotice\(item\)\{return !!\(item&&\(item\.programClosed\|\|item\.ticketClosed\)\);\}/);
   assert.match(html,/QUEUE\.filter\(isClosedNotice\)\.forEach\(item=>ids\.add\(item\.id\)\)/);
   assert.match(html,/!\(isClosedNotice\(q\)&&closedNoticeSeen\(q\.id\)\)/);
-  // ba câu thông báo theo đúng nguyên nhân đóng
-  assert.match(html,/Yêu cầu đã đóng, bạn không cần phản hồi/);
-  assert.match(html,/Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi/);
-  assert.match(html,/Quản lý đã đóng yêu cầu, bạn không cần phản hồi/);
+  /* Câu chữ nằm ở bảng dùng chung của ManagerRequestModel, màn hình không tự viết lại. */
+  assert.match(html,/function closedNoticeText\(item\)\{return ManagerRequestModel\.reviewerNoticeText\(item&&item\.closedReason\);\}/);
+  assert.match(html,/<script src="\.\.\/M-04\/manager-request-model\.js"><\/script>/);
+
+  const managerModel=require('../M-04/manager-request-model.js');
+  assert.equal(managerModel.reviewerNoticeText('recipient-resigned'),'Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi');
+  assert.equal(managerModel.reviewerNoticeText('manual'),'Quản lý đã đóng yêu cầu, bạn không cần phản hồi');
+  assert.equal(managerModel.reviewerNoticeText('khong-co-ma-nay'),'Yêu cầu đã đóng, bạn không cần phản hồi');
+
+  /* Mã lý do phải là đúng bộ mã closeReason() của M-04 dùng, cộng mức ticket 'recipient-resigned'.
+     Đặt tên riêng ở E-04 là hai màn nói hai thứ tiếng về cùng một sự kiện. */
+  const managerReasons=['creator-resigned','manual','no-active-ticket','expired'];
+  managerReasons.forEach(code=>assert.ok(managerModel.closeReasonCodes().includes(code),`thiếu mã ${code}`));
+  assert.ok(managerModel.closeReasonCodes().includes('recipient-resigned'));
+  [...html.matchAll(/closedReason:'([a-z-]+)'/g)].forEach(match=>
+    assert.ok(managerModel.closeReasonCodes().includes(match[1]),`E-04 dùng mã lạ: ${match[1]}`));
+
   // dữ liệu mẫu có cả hai nguyên nhân đóng ticket của quản lý
   assert.match(html,/id:'ticket-closed-migration'[\s\S]{0,120}closedReason:'recipient-resigned'/);
-  assert.match(html,/id:'ticket-closed-roadmap'[\s\S]{0,120}closedReason:'request-closed'/);
+  assert.match(html,/id:'ticket-closed-roadmap'[\s\S]{0,120}closedReason:'manual'/);
   /* Thông báo đóng chỉ để đọc: không còn nút trả lời, bấm ở rail thì mở popup. */
   assert.match(html,/qrow-closed[\s\S]{0,600}qrow-closed-note/);
   assert.match(html,/isClosedNotice\(q\)\?`openQueueAll\(\)`/);

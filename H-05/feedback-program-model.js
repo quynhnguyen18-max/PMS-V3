@@ -265,8 +265,11 @@
       return (dateFromDMY(b.createdAt)||0)-(dateFromDMY(a.createdAt)||0);
     });
   }
+  /* Nhận cả "07/09/2026 14:30" và "07/09/2026 · 14:30" — dấu · là ký tự phân cách metadata
+     của design system, M-04 và E-04 đã nhận cả hai. Không nhận thì mọi mốc nhắc ghi theo
+     kiểu đó sẽ parse ra null và cooldown 24 giờ im lặng mất tác dụng. */
   function dateTimeFromDMY(value){
-    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?$/);
+    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[· ]\s*(\d{2}):(\d{2}))?$/);
     return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;
   }
   /* Người cho phản hồi nghỉ việc giữa kỳ sẽ không bao giờ trả lời. Trong lúc còn thu thập, lượt của họ

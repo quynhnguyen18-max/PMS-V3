@@ -163,16 +163,21 @@
   function applyResignation(request,isResigned){
     if(!request)return request;
     const check=typeof isResigned==='function'?isResigned:function(){return false;};
+    request.createdByResigned=personMatches(check,request.createdBy);
+    /* Cùng luật với H-06: chỉ loại khỏi mẫu số KHI YÊU CẦU CÒN ĐANG THU THẬP.
+       Yêu cầu đã đóng hẳn thì số liệu đóng băng đúng như lúc đóng, không tự đẹp lên.
+       Chỉ xét hai loại đóng có chủ đích ở đây; 'no-active-ticket' và 'expired' sinh
+       ra TỪ chính cờ này nên đưa vào sẽ thành vòng lặp. */
+    const collecting=!request.closedManually&&!request.createdByResigned;
     (request.assignments||[]).forEach(function(item){
       const reviewerGone=personMatches(check,item.reviewer);
       const recipientGone=personMatches(check,{id:item.employeeId,login:item.employeeLogin,name:item.employeeName});
       if(item.reviewer)item.reviewer.resigned=reviewerGone;
       item.recipientResigned=recipientGone;
       item.closedByResignation=item.status==='done'?null:(reviewerGone?'reviewer':(recipientGone?'recipient':null));
-      item.excludedByResignation=!!item.closedByResignation;
+      item.excludedByResignation=collecting&&!!item.closedByResignation;
       item.notifyReviewerClosed=item.closedByResignation==='recipient';
     });
-    request.createdByResigned=personMatches(check,request.createdBy);
     return request;
   }
   function applyResignationAll(requests,isResigned){
@@ -255,11 +260,28 @@
     'expired':'Quá 90 ngày kể từ ngày tạo'
   };
   function closeReasonText(request,todayDMY){return CLOSE_REASON_TEXT[closeReason(request,todayDMY)]||'';}
+  /* ── Bảng lý do đóng dùng chung ────────────────────────────────────────────
+     Cùng một mã lý do cho cả hai vai. Chỉ khác câu chữ vì khác người đọc:
+       · CLOSE_REASON_TEXT      → quản lý đọc ở M-04, nói về yêu cầu của mình.
+       · REVIEWER_NOTICE_TEXT   → người được hỏi đọc ở E-04, nói về việc của họ.
+     Thêm 'recipient-resigned' cho mức TICKET: người nhận nghỉ nên riêng ticket
+     này đóng, phần còn lại của yêu cầu vẫn thu bình thường. */
+  const REVIEWER_NOTICE_TEXT={
+    'recipient-resigned':'Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi',
+    'creator-resigned':'Người tạo yêu cầu đã nghỉ việc, yêu cầu đã đóng — bạn không cần phản hồi',
+    'manual':'Quản lý đã đóng yêu cầu, bạn không cần phản hồi',
+    'no-active-ticket':'Yêu cầu đã đóng vì không còn ai có thể phản hồi',
+    'expired':'Yêu cầu đã quá 90 ngày nên tự đóng, bạn không cần phản hồi'
+  };
+  function reviewerNoticeText(reason){return REVIEWER_NOTICE_TEXT[reason]||'Yêu cầu đã đóng, bạn không cần phản hồi';}
+  function closeReasonCodes(){return Object.keys(REVIEWER_NOTICE_TEXT);}
   function closeManually(request){if(request)request.closedManually=true;return request;}
   function isClosed(request,todayDMY){return !!closeReason(request,todayDMY);}
   /* Cùng luật với chương trình của HR: lượt của người cho phản hồi đã nghỉ việc không tính vào mẫu số
      khi yêu cầu còn đang thu thập (màn hình đặt cờ excludedByResignation). */
-  function isCountedAssignment(assignment){return !(assignment&&(assignment.excludedByResignation||assignment.closedManually));}
+  /* Giống H-06: ticket bị KHOÁ khi đóng vẫn nằm trong mẫu số. Người chưa trả lời mà bị
+     khoá là thông tin cần giữ — bỏ họ ra thì yêu cầu đóng lúc mới thu 1/3 sẽ hiện 100%. */
+  function isCountedAssignment(assignment){return !(assignment&&assignment.excludedByResignation);}
   function summarize(request,todayDMY){
     const assignments=((request&&request.assignments)||[]).filter(isCountedAssignment);
     const total=assignments.length;
@@ -382,5 +404,5 @@
     };
   }
 
-  return {closeRequestManually,closeRecipients,reopenRequest,reopenRecipient,openRecipientsForClose,isRecipientClosed,assignmentsOfRecipient,applyResignation,applyResignationAll,isTicketClosed,activeAssignments,closeReason,closeReasonText,closeManually,isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
+  return {reviewerNoticeText,closeReasonCodes,closeRequestManually,closeRecipients,reopenRequest,reopenRecipient,openRecipientsForClose,isRecipientClosed,assignmentsOfRecipient,applyResignation,applyResignationAll,isTicketClosed,activeAssignments,closeReason,closeReasonText,closeManually,isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
 });

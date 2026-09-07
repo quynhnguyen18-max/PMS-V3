@@ -1284,7 +1284,6 @@ test('detail screens stop counting and reminding resigned reviewers, and warn be
 
   for(const html of [hrDetail,managerDetail]){
     assert.match(html,/function applyResignationRules\(\)/);
-    assert.match(html,/excludedByResignation=collecting&&resigned/);
     assert.match(html,/Ngừng thu thập/);
     /* Tooltip phải nói đúng lý do chặn của chính dòng đó, không mặc định đổ cho cooldown 24 giờ. */
     assert.match(html,/function remindBlockReason\(/);
@@ -1294,8 +1293,30 @@ test('detail screens stop counting and reminding resigned reviewers, and warn be
     assert.match(html,/\.btn-pending-remind:disabled\{opacity:\.45;cursor:not-allowed;background:var\(--z100\)/);
     assert.match(html,/\.btn-pending-remind:hover:not\(:disabled\)/);
   }
-  /* Chương trình đã đóng giữ nguyên số liệu lịch sử, chỉ lúc còn thu thập mới loại khỏi mẫu số. */
+  /* Chương trình đã đóng giữ nguyên số liệu lịch sử, chỉ lúc còn thu thập mới loại khỏi mẫu số.
+     HR đặt cờ ngay trong màn hình; quản lý gọi qua model dùng chung nên kiểm tra bằng hành vi,
+     không bắt hai màn phải viết giống hệt một dòng mã. */
   assert.match(hrDetail,/const collecting=PROGRAM\.status==='collecting'/);
+  assert.match(managerDetail,/ManagerRequestModel\.applyResignation\(request,isResignedPerson\)/);
+
+  const managerModel=require('../M-04/manager-request-model.js');
+  const gone=person=>String(person&&(person.login||person.id||''))==='da.nghi';
+  const makeReq=()=>managerModel.applyResignation({
+    id:'r1',createdAt:'01/08/2026',due:'20/08/2026',createdBy:{login:'sep'},
+    assignments:[
+      {id:'a1',employeeId:'e1',employeeName:'A',status:'done',reviewer:{login:'r1'}},
+      {id:'a2',employeeId:'e1',employeeName:'A',status:'pending',reviewer:{login:'da.nghi'}},
+      {id:'a3',employeeId:'e1',employeeName:'A',status:'pending',reviewer:{login:'r3'}}
+    ]},gone);
+
+  /* Còn thu thập: lượt của người đã nghỉ rơi khỏi mẫu số, giống participantProgress của H-06. */
+  assert.deepEqual(managerModel.summarize(makeReq(),'10/08/2026'),{total:2,done:1,pending:1,overdue:0,rate:50});
+
+  /* Đã đóng: số liệu đóng băng. Ticket bị khoá vẫn nằm trong mẫu số — bỏ ra thì yêu cầu
+     đóng lúc mới thu được 1/3 sẽ hiện 100% và giấu mất chuyện hai người không trả lời. */
+  const closed=managerModel.applyResignation(managerModel.closeRequestManually(makeReq(),'10/08/2026'),gone);
+  assert.deepEqual(managerModel.summarize(closed,'10/08/2026'),{total:3,done:1,pending:2,overdue:0,rate:33});
+  assert.equal(managerModel.requestStatus(closed,'10/08/2026'),'closed');
 
   /* Người nhận đã nghỉ việc không còn tài khoản xem kết quả nên dialog chia sẻ phải cảnh báo. */
   assert.match(hrDetail,/function resignedShareWarningHTML\(\)/);

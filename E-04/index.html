@@ -752,6 +752,8 @@ input,select,textarea{font-family:inherit}
   <script src="../H-05/feedback-program-data.js"></script>
   <script src="../H-05/feedback-program-model.js"></script>
   <script src="../H-05/feedback-report-view.js"></script>
+  <!-- Luật đóng yêu cầu của quản lý: dùng chung đúng bảng lý do với M-04, không tự đặt tên mã riêng. -->
+  <script src="../M-04/manager-request-model.js"></script>
   <style>.hr-report-card{display:block;text-decoration:none;border:1px solid var(--brand-ring,rgba(165,0,100,.2));background:var(--brand-muted,rgba(165,0,100,.07));transition:box-shadow .12s,border-color .12s}.hr-report-card:hover{border-color:var(--brand,#a50064);box-shadow:0 3px 12px rgba(165,0,100,.12)}.hr-report-card .rail-title{color:var(--brand,#a50064)}.hr-report-sub{margin-top:5px;font-size:11.5px;color:var(--z600,#52525b);display:flex;align-items:center;justify-content:space-between;gap:8px}.hr-report-sub .go{color:var(--brand,#a50064);font-weight:600}</style>
 </head>
 <body>
@@ -1408,7 +1410,7 @@ const QUEUE = [
   { id:'ticket-closed-migration', cycle:'2026', ticketClosed:true, closedReason:'recipient-resigned',
     from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Phạm Minh Đức', aboutDom:'duc.pham',
     context:'Thu thập góc nhìn về khả năng phối hợp trong dự án Migration', sent:'28/07/2026', dueDate:'15/08/2026', due:'', urgency:'normal' },
-  { id:'ticket-closed-roadmap', cycle:'2026', ticketClosed:true, closedReason:'request-closed',
+  { id:'ticket-closed-roadmap', cycle:'2026', ticketClosed:true, closedReason:'manual',
     from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu',
     context:'Ghi nhận hiệu quả buổi trình bày Roadmap', sent:'05/07/2026', dueDate:'20/07/2026', due:'', urgency:'normal' },
 ].filter(Boolean);
@@ -1423,11 +1425,9 @@ function itemQuestion(q){
 function isHrQueueRequest(item){return item&&item.requestSource==='hr';}
 /* Thông báo đóng: yêu cầu HR bị đóng, hoặc ticket của quản lý bị đóng. Cả hai đều chỉ đọc một lần. */
 function isClosedNotice(item){return !!(item&&(item.programClosed||item.ticketClosed));}
-function closedNoticeText(item){
-  if(item.closedReason==='recipient-resigned')return 'Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi';
-  if(item.closedReason==='request-closed')return 'Quản lý đã đóng yêu cầu, bạn không cần phản hồi';
-  return 'Yêu cầu đã đóng, bạn không cần phản hồi';
-}
+/* Câu chữ lấy từ bảng dùng chung trong ManagerRequestModel: mã lý do phải trùng với
+   closeReason() bên M-04, đặt tên riêng ở đây là hai màn nói hai thứ tiếng. */
+function closedNoticeText(item){return ManagerRequestModel.reviewerNoticeText(item&&item.closedReason);}
 
 let curFilter='all';
 let queueExpanded=false;
@@ -2796,7 +2796,10 @@ function reminderReviewerMeta(request,reviewer){const auto=reviewer.automaticRem
 function isoFromDate(date){const p=n=>String(n).padStart(2,'0');return date?`${date.getUTCFullYear()}-${p(date.getUTCMonth()+1)}-${p(date.getUTCDate())}`:'';}
 function requestDueRange(createdAt=todayDMY()){const created=dateFromDMY(createdAt),max=new Date(created);max.setUTCDate(max.getUTCDate()+90);return {min:isoFromDate(created),max:isoFromDate(max)};}
 function configureReqDueRange(){const due=document.getElementById('reqDue');const range=requestDueRange();due.min=range.min;due.max=range.max;}
-function requestLifecycleStatus(request,today=todayDMY()){const done=request.status==='completed'||request.reviewers.every(item=>item.st==='done');if(done)return 'complete';const created=dateFromDMY(request.date),expires=created&&new Date(created);if(expires)expires.setUTCDate(expires.getUTCDate()+90);const now=dateFromDMY(today);if(now&&expires&&now>expires)return 'no_response';if(request.due&&tsFrom(today)>tsFrom(request.due))return 'overdue';return 'collecting';}
+/* Luật vòng đời yêu cầu nằm ở FeedbackModel, màn hình không chép lại.
+   Bản chép cũ ở đây coi yêu cầu KHÔNG có người phản hồi nào là 'complete'
+   (vì [].every(...) trả về true) — model có thêm chốt reviewers.length nên không dính. */
+function requestLifecycleStatus(request,today=todayDMY()){return FeedbackModel.requestStatus(request,today);}
 function submitRequest(){
   DRAFTS.req=null;   // đã gửi → bỏ nháp
   const dueISO=document.getElementById('reqDue').value;
