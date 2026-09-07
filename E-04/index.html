@@ -1254,6 +1254,20 @@ const FEED = [
       {question:'Bạn có đề xuất gì thêm cho chương trình phát triển của Trần Văn Khoa?', answer:''}
     ],
     body:'', cv:[] },
+  /* Trả lời yêu cầu của quản lý trực tiếp: cùng cách hiển thị với bộ câu hỏi của HR,
+     chỉ khác là không có dòng mục tiêu — chỉ câu hỏi và câu trả lời. */
+  { kind:'given', id:'gvn-mgr-1', cycle:'2026', date:'02/08/2026', ts:20260802, requestSource:'manager', vis:'mgr-request',
+    requester:{name:'Lê Thị Thanh', dom:'thanh.le', ini:'LT'},
+    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
+    hrAnswers:[{question:'Bạn đánh giá thế nào về sự phối hợp và đóng góp của Vũ Thị Lan trong dự án Migration?',
+       answer:'Lan dựng bộ regression test cho phần payment rất kỹ và chạy lại đầy đủ sau mỗi lần đổi schema. Nhờ vậy đợt cắt sang service mới nhóm phát hiện sớm hai lỗi tính phí, không để lọt lên production.'}],
+    body:'', cv:[] },
+  { kind:'given', id:'gvn-mgr-2', cycle:'2026', date:'18/07/2026', ts:20260718, requestSource:'manager', vis:'mgr-request',
+    requester:{name:'Lê Thị Thanh', dom:'thanh.le', ini:'LT'},
+    who:{name:'Nguyễn Thị Phương', dom:'phuong.nguyen', ini:'NP', org:'ITC – Data – Data Scientist'},
+    hrAnswers:[{question:'Bạn ghi nhận điểm mạnh nào của Nguyễn Thị Phương trong cách dẫn dắt công việc?',
+       answer:'Phương chia bài toán rất rõ trước khi bắt tay vào làm. Ở dự án dự báo nhu cầu, bạn tách hẳn phần làm sạch dữ liệu ra thành các bước nhỏ có thể kiểm tra được, nên khi kết quả lệch thì cả nhóm biết ngay phải soi ở đâu.'}],
+    body:'', cv:[] },
   { kind:'given', id:'gvn-1', cycle:'2026', date:'12/03/2026', ts:20260312, thankedAt:'14/03/2026',
     who:{name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
     body:'Mai làm việc rất chủ động trong dự án Design System. Bạn không chỉ hoàn thành phần component được giao mà còn chủ động chuẩn hoá tài liệu Storybook, giúp cả team dùng lại dễ dàng hơn nhiều.',
@@ -1351,7 +1365,10 @@ const MEDIA_STATE={campaign:null,posterIndex:0,insights:[],viewedCampaignIds:new
    vì người dùng không còn hành động nào phải làm. */
 const CLOSED_NOTICE_KEY='uc5_e04_closed_notice_seen';
 function closedNoticeSeenIds(){try{return new Set(JSON.parse(localStorage.getItem(CLOSED_NOTICE_KEY)||'[]'));}catch(error){return new Set();}}
-function closedNoticeSeen(id){return closedNoticeSeenIds().has(id);}
+/* TẠM THỜI cho buổi review: luôn hiện thông báo yêu cầu đã đóng, bỏ luật chỉ-xem-một-lần.
+   Đổi cờ này về false là khôi phục nguyên hành vi thật, không phải sửa gì thêm. */
+const ALWAYS_SHOW_CLOSED_NOTICES=true;
+function closedNoticeSeen(id){return !ALWAYS_SHOW_CLOSED_NOTICES&&closedNoticeSeenIds().has(id);}
 function markClosedNoticesSeen(){
   const ids=closedNoticeSeenIds();
   QUEUE.filter(isClosedNotice).forEach(item=>ids.add(item.id));
@@ -1545,6 +1562,8 @@ function visIcon(v, persp){
     ? ['bx-id-card','Kết quả do HR tổng hợp và quyết định chia sẻ']
     : v==='manager'
     ? ['bx-group','Chia sẻ với các cấp quản lý']
+    : v==='mgr-request'
+    ? ['bx-group','Quản lý và nhân viên đều xem được các phản hồi theo yêu cầu này']
     : ['bx-lock-alt', persp==='sender' ? 'Chỉ người nhận' : 'Chỉ mình tôi'];
   return `<span class="fb-badge-wrap vis-ic"><i class="bx ${ic}"></i><span class="fb-badge-tip">${txt}</span></span>`;
 }
@@ -1695,25 +1714,31 @@ function updateUnreadLabel(){
 function unreadItems(items){ return items.filter(f=>f.kind==='received' && !fbState(f).opened); }
 /* Một lần trả lời bộ câu hỏi của HR gồm nhiều câu, nên gộp thành MỘT card trong "Phản hồi đã cho":
    phần đầu nêu chương trình và người nhận, phần thân mở rộng tại chỗ để xem đủ các cặp câu hỏi - trả lời. */
+/* Trả lời cả một bộ câu hỏi — dùng chung cho yêu cầu của HR và của quản lý trực tiếp.
+   Khác biệt duy nhất: yêu cầu của quản lý KHÔNG hiện dòng mục tiêu, chỉ câu hỏi và câu trả lời. */
 function cardGivenHrProgram(f){
+  const isHr=f.requestSource!=='manager';
+  const requester=f.requester||{name:'HR',ini:'HR'};
   const answers=f.hrAnswers||[];
   const [first,...rest]=answers;
   const answerHTML=pair=>pair.answer||'<span class="hr-given-empty">Không trả lời câu này</span>';
-  const more=rest.length
+  /* Yêu cầu của quản lý chỉ có ĐÚNG 1 câu hỏi (chung cho mọi người, hoặc riêng từng người
+     — vẫn là một câu), nên không có dòng đếm và không có nút Xem thêm. */
+  const more=(!isHr)?'':rest.length
     ? `<div class="hr-given-rest">${rest.map(pair=>feedbackPair(pair.question,answerHTML(pair))).join('')}</div>
        <button class="hr-given-toggle" type="button" onclick="toggleHrGiven(this)" aria-expanded="false">Xem thêm</button>`
     : '';
   return `<div class="fb-card fb-card-hr" data-kind="given" data-fb="${f.id||''}">
     <div class="fb-head">
-      <div class="fb-av fb-av-hr">HR</div>
+      <div class="fb-av ${isHr?'fb-av-hr':''}">${isHr?'HR':requester.ini}</div>
       <div class="fb-head-main">
-        <div class="fb-line"><span class="fb-who">Yêu cầu phản hồi của HR cho ${f.who.name}</span></div>
-        <div class="fb-sub-line">${f.program||''}</div>
+        <div class="fb-line"><span class="fb-who">Yêu cầu phản hồi của ${isHr?'HR':`${requester.name} <span class="fb-sender-dom">(${requester.dom})</span>`} cho ${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span></span></div>
+        ${isHr?`<div class="fb-sub-line">${f.program||''}</div>`:cardMeta(f.vis,f.date,'sender')}
       </div>
-      ${cardMeta(f.vis,f.date,'sender')}
+      ${isHr?cardMeta(f.vis,f.date,'sender'):''}
     </div>
     <div class="hr-given-body">
-      <div class="hr-given-count"><i class="bx bx-list-check"></i>Đã trả lời ${answers.filter(pair=>pair.answer).length}/${answers.length} câu hỏi</div>
+      ${isHr?`<div class="hr-given-count"><i class="bx bx-list-check"></i>Đã trả lời ${answers.filter(pair=>pair.answer).length}/${answers.length} câu hỏi</div>`:''}
       ${first?feedbackPair(first.question,answerHTML(first)):''}
       ${more}
     </div>
@@ -1725,7 +1750,7 @@ function toggleHrGiven(button){
   button.textContent=open?'Thu gọn':'Xem thêm';
 }
 function cardGiven(f){
-  if(f.requestSource==='hr'&&(f.hrAnswers||[]).length)return cardGivenHrProgram(f);
+  if((f.requestSource==='hr'||f.requestSource==='manager')&&(f.hrAnswers||[]).length)return cardGivenHrProgram(f);
   const cv=visibleCardCv(f);
   // được người nhận cảm ơn → 1 trái tim nhỏ cạnh tên họ, cùng quy ước với phản hồi nhận
   const fresh = f.thankedAt && !thanksSeen();

@@ -386,6 +386,44 @@ test('media summary identifies the colleague who gave the most feedback', () => 
   assert.deepEqual(FeedbackModel.mostFrequentFeedbackGiver(feedback),{name:'Mai Thị Hằng',dom:'hang.mai',count:2});
 });
 
+test('answering a line-manager request shows one question and is always shared', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+  const model=require(path.join(__dirname,'..','M-04','manager-request-model.js'));
+
+  // luật gốc bên M-04: mỗi người cho phản hồi nhận đúng 1 câu hỏi, visibility cố định 'shared'
+  const request=model.createRequest({
+    goal:'G', cycle:'2026', createdAt:'01/08/2026', due:'20/08/2026',
+    designees:[{id:'e1',name:'A',login:'a'}],
+    reviewers:[{name:'B',login:'b'},{name:'C',login:'c'}],
+    sharedQuestion:'Một câu hỏi duy nhất?'
+  });
+  assert.equal(request.visibility,'shared');
+  assert.equal(request.reviewerCanChangeVisibility,false);
+  request.assignments.forEach(item=>{
+    assert.equal(typeof item.question,'string');
+    assert.equal(item.question,'Một câu hỏi duy nhất?');
+  });
+
+  // card trên màn nhân viên phải bám đúng luật đó
+  // tên kèm domain cho cả quản lý lẫn người nhận, đúng quy ước .fb-sender-dom của feed
+  assert.ok(html.includes('cho ${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span>'));
+  assert.ok(html.includes('${requester.name} <span class="fb-sender-dom">(${requester.dom})</span>'));
+  // ngày + chế độ chia sẻ nằm ở dòng 2 trong .fb-head-main, giống card đã cho thường
+  assert.ok(html.includes(":cardMeta(f.vis,f.date,'sender')}"));
+  assert.match(html,/const more=\(!isHr\)\?'':rest\.length/);           // không có "Xem thêm"
+  assert.match(html,/\$\{isHr\?`<div class="hr-given-count"/);          // không có dòng đếm câu hỏi
+  assert.match(html,/\$\{isHr\?`<div class="fb-sub-line"/);             // không có dòng mục tiêu
+  assert.match(html,/v==='mgr-request'[\s\S]{0,80}Quản lý và nhân viên đều xem được các phản hồi theo yêu cầu này/);
+
+  // dữ liệu mẫu: đúng 1 câu hỏi mỗi demo, và chia sẻ đúng chế độ
+  const demos=html.match(/id:'gvn-mgr-\d'[\s\S]{0,900}?body:''/g)||[];
+  assert.equal(demos.length,2);
+  demos.forEach(demo=>{
+    assert.equal((demo.match(/\{question:/g)||[]).length,1,'yêu cầu của quản lý chỉ được có 1 câu hỏi');
+    assert.match(demo,/vis:'mgr-request'/);
+  });
+});
+
 test('cycle activity rail counts thanked given feedback right under "Phản hồi đã cho"', () => {
   const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
   assert.match(html,/const thx=inCy\.filter\(f=>f\.kind==='given'&&f\.thankedAt\)\.length;/);
