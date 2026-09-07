@@ -2781,20 +2781,19 @@ function syncReq(){
     : !!document.getElementById('reqQ').value.trim();
   document.getElementById('reqSend').disabled = !(hasReviewers && due && dueInput.checkValidity() && qOk);
 }
-function fmtDMY(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+const fmtDMY=ManagerRequestModel.fmtDMY;
 function todayDMY(){ const t=new Date(); const p=n=>String(n).padStart(2,'0'); return `${p(t.getDate())}/${p(t.getMonth()+1)}/${t.getFullYear()}`; }
 function nowDMYTime(){const t=new Date(),p=n=>String(n).padStart(2,'0');return `${p(t.getDate())}/${p(t.getMonth()+1)}/${t.getFullYear()} ${p(t.getHours())}:${p(t.getMinutes())}`;}
-function tsFrom(dmy){ const [d,m,y]=dmy.split('/'); return +(y+m+d); }
-function dateFromDMY(dmy){const [d,m,y]=String(dmy||'').split('/').map(Number);return d&&m&&y?new Date(Date.UTC(y,m-1,d)):null;}
-function dateTimeFromDMY(value){const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[· ]\s*(\d{2}):(\d{2}))?$/);return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;}
-function automaticReminderDate(request){const due=dateFromDMY(request.due);if(!due)return '';due.setUTCDate(due.getUTCDate()-3);const p=n=>String(n).padStart(2,'0');return `${p(due.getUTCDate())}/${p(due.getUTCMonth()+1)}/${due.getUTCFullYear()}`;}
+const tsFrom=ManagerRequestModel.tsFromDMY;
+const dateFromDMY=ManagerRequestModel.dateFromDMY;
+const dateTimeFromDMY=ManagerRequestModel.dateTimeFromDMY;
+const automaticReminderDate=ManagerRequestModel.automaticReminderDate;
 function canRemindReviewer(request,reviewer,now=nowDMYTime()){if(!reviewer||reviewer.st==='done'||requestLifecycleStatus(request,String(now).slice(0,10))==='no_response')return false;const current=dateTimeFromDMY(now),due=dateFromDMY(request.due);if(!current||!due)return false;due.setUTCHours(23,59,59,999);if(current>due)return false;const last=dateTimeFromDMY(reviewer.reminded);return !last||current-last>=86400000;}
 function reminderReviewerKey(request,reviewer){return `${request.date}|${reviewer.dom}`;}
 function reminderReviewerHistory(request,reviewer,today=todayDMY()){const recorded=reviewer.manualReminderHistory||[],manual=(recorded.length?recorded:(reviewer.reminded?[reviewer.reminded]:[])).map(at=>({at,type:'manual'})),auto=reviewer.automaticRemindedAt||automaticReminderDate(request),automatic=dateTimeFromDMY(auto)<=dateTimeFromDMY(today)?[{at:auto,type:'automatic'}]:[];return [...manual,...automatic].sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));}
 function reminderHistoryTooltip(history){return history.map((event,index)=>`Lần ${index+1}: ${event.at}`).join('<br>');}
 function reminderReviewerMeta(request,reviewer){const auto=reviewer.automaticRemindedAt||automaticReminderDate(request),history=reminderReviewerHistory(request,reviewer),manual=reviewer.reminded,autoPending=dateTimeFromDMY(auto)>dateTimeFromDMY(todayDMY());if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${auto}</span></div>`;if(justRemindedReviewers.has(reminderReviewerKey(request,reviewer))&&manual&&autoPending)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-bell"></i>Đã nhắc: ${manual} · Lần nhắc tiếp theo: ${auto}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
-function isoFromDate(date){const p=n=>String(n).padStart(2,'0');return date?`${date.getUTCFullYear()}-${p(date.getUTCMonth()+1)}-${p(date.getUTCDate())}`:'';}
-function requestDueRange(createdAt=todayDMY()){const created=dateFromDMY(createdAt),max=new Date(created);max.setUTCDate(max.getUTCDate()+90);return {min:isoFromDate(created),max:isoFromDate(max)};}
+function requestDueRange(createdAt=todayDMY()){return ManagerRequestModel.dueRange(createdAt);}
 function configureReqDueRange(){const due=document.getElementById('reqDue');const range=requestDueRange();due.min=range.min;due.max=range.max;}
 /* Luật vòng đời yêu cầu nằm ở FeedbackModel, màn hình không chép lại.
    Bản chép cũ ở đây coi yêu cầu KHÔNG có người phản hồi nào là 'complete'

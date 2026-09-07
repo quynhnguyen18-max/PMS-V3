@@ -687,7 +687,7 @@ test('indirect scopes provide organizational filters without inline scope guides
 
 test('design system defines the short-hyphen metadata separator rule', () => {
   const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
-  assert.match(designSystem, /Không dùng.*`·`.*metadata/);
+  assert.match(designSystem, /Metadata separator[\s\S]{0,200}không dùng ký tự middot `·`[\s\S]{0,160}metadata/i);
   assert.match(designSystem, /dấu gạch ngang ngắn.*` - `/);
 });
 
@@ -1364,4 +1364,74 @@ test('shared feedback data gives every employee three manager-visible scenarios'
     assert.ok(feedback.some(item => !item.cv.length), `${employee.id} must include feedback without badges`);
     assert.doesNotMatch(store.employeeMeta(employee), /·/);
   }
+});
+
+/* ── §20 — nguyên tắc đồng bộ giữa các màn hình ─────────────────────────────
+   Ba test dưới đây không kiểm tra một màn cụ thể, mà kiểm tra ĐIỀU KIỆN để các
+   màn không lệch nhau. Chúng là chốt chặn cho loại lỗi "mỗi màn một luật" mà
+   nhìn riêng từng màn thì không thấy được. */
+
+test('§20.1 màn hình không chép lại hàm luật của model vào script của chính nó', () => {
+  /* Chép là sẽ lệch, và lệch kiểu này im lặng: test đọc model nên vẫn xanh
+     trong khi màn hình chạy bản chép đã sai. Cần luật gì thì <script src> model đó vào. */
+  const owned = ['dateFromDMY','dateTimeFromDMY','tsFromDMY','maxDueDate','dueRange','automaticReminderDate','requestStatus'];
+  const screens = [
+    'E-04/index.html','E-05/index.html',
+    'M-04/index.html','M-04/request-detail.html','M-04/feedback-detail.html',
+    'H-05/index.html','H-05/create-campaign.html','H-05/questionnaire-library.html',
+    'H-06/index.html','H-07/index.html'
+  ].filter(screen => fs.existsSync(path.join(__dirname, '..', screen)));
+  for (const screen of screens) {
+    const html = fs.readFileSync(path.join(__dirname, '..', screen), 'utf8');
+    for (const fn of owned) {
+      assert.ok(!html.includes(`function ${fn}(`) && !html.includes(`function ${fn} (`),
+        `${screen} định nghĩa lại ${fn}() — luật này thuộc về model, xem DESIGN-SYSTEM.md §20.1`);
+    }
+  }
+});
+
+test('§20.2 mã lý do đóng là một bộ dùng chung, không màn nào tự đặt mã riêng', () => {
+  const model = require(requestModelPath);
+  const codes = model.closeReasonCodes();
+  /* Bốn mã cấp yêu cầu phải khớp đúng closeReason(), cộng một mã cấp ticket. */
+  ['creator-resigned','manual','no-active-ticket','expired','recipient-resigned']
+    .forEach(code => assert.ok(codes.includes(code), `thiếu mã ${code}`));
+
+  for (const screen of ['E-04/index.html','M-04/index.html','M-04/request-detail.html']) {
+    const html = fs.readFileSync(path.join(__dirname, '..', screen), 'utf8');
+    [...html.matchAll(/closedReason:\s*'([a-z-]+)'/g)].forEach(match =>
+      assert.ok(codes.includes(match[1]), `${screen} dùng mã lạ "${match[1]}" — xem §20.2`));
+  }
+});
+
+test('§20.4 đóng yêu cầu thì đóng băng số liệu, ticket bị khoá vẫn nằm trong mẫu số', () => {
+  const model = require(requestModelPath);
+  const make = () => ({
+    id:'r1', createdAt:'01/08/2026', due:'20/08/2026', createdBy:{login:'sep'},
+    assignments:[
+      {id:'a1',employeeId:'e1',employeeName:'A',status:'done',reviewer:{login:'r1'}},
+      {id:'a2',employeeId:'e1',employeeName:'A',status:'pending',reviewer:{login:'r2'}},
+      {id:'a3',employeeId:'e1',employeeName:'A',status:'pending',reviewer:{login:'r3'}}
+    ]});
+  const today = '10/08/2026';
+
+  /* Đóng lúc mới thu được 1/3 mà hiện 100% là che mất đúng thứ thao tác đóng cần ghi lại. */
+  const closed = model.closeRequestManually(make(), today);
+  assert.deepEqual(model.summarize(closed, today), {total:3,done:1,pending:2,overdue:0,rate:33});
+  assert.equal(model.requestStatus(closed, today), 'closed');
+
+  /* Cùng cách H-06 xử lý: cờ loại trừ do nghỉ việc chỉ đặt khi CÒN thu thập. */
+  const gone = person => String(person && (person.login || person.id || '')) === 'r2';
+  assert.equal(model.applyResignation(make(), gone).assignments[1].excludedByResignation, true);
+  assert.equal(model.applyResignation(closed, gone).assignments[1].excludedByResignation, false);
+});
+
+test('§20 design system ghi rõ nguyên tắc đồng bộ giữa các màn hình', () => {
+  const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
+  assert.match(designSystem, /## 20\. NGUYÊN TẮC ĐỒNG BỘ GIỮA CÁC MÀN HÌNH/);
+  assert.match(designSystem, /Luật nghiệp vụ chỉ được viết MỘT lần, trong file model/);
+  assert.match(designSystem, /Một sự việc — một bộ mã — nhiều câu chữ/);
+  assert.match(designSystem, /Ticket bị khoá khi đóng vẫn nằm trong mẫu số/);
+  /* Mở lại: HR chốt sau khi chia sẻ, quản lý thì không — khác nhau có chủ đích, phải ghi rõ. */
+  assert.match(designSystem, /mở lại được \*\*chừng nào chưa chia sẻ kết quả\*\*/);
 });

@@ -243,7 +243,8 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 - **Accordion** `.accordion`: item gập/mở, header chevron xoay + chữ hồng khi mở (`.acc-item.open`); body max-height transition. JS toggle class `.open` (`[data-acc]`).
 
 ## 19. QUY TẮC CHUNG (bắt buộc)
-**Metadata separator:** TUYỆT ĐỐI không dùng ký tự middot `·` (U+00B7) ở bất kỳ text UI nào — status, chip, meta, hint, tách metadata. Luôn thay bằng dấu gạch ngang ngắn ` - ` (space-hyphen-space). Ví dụ: "Chưa đóng - sẽ đóng khi chia sẻ", KHÔNG "Chưa đóng · sẽ đóng khi chia sẻ".
+
+**19.0 Metadata separator.** TUYỆT ĐỐI không dùng ký tự middot `·` (U+00B7) ở bất kỳ text UI nào — status, chip, meta, hint, tách metadata. Luôn thay bằng dấu gạch ngang ngắn ` - ` (space-hyphen-space). Ví dụ: "Chưa đóng - sẽ đóng khi chia sẻ", KHÔNG "Chưa đóng · sẽ đóng khi chia sẻ".
 1. Chỉ dùng token đã định nghĩa; không hardcode hex (ngoại lệ: header hồng `#fbe4f0`/`#f3cfe1`).
 2. Bo góc: card/dialog `--r`(8) · control/badge `--rsm`(6)/`--rxs`(4) · pill/chip tròn 50px.
 3. Viền mặc định 1px z200; card nổi z300 + `--sh`.
@@ -270,6 +271,119 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 
 
 18. **Màn Tạo yêu cầu phản hồi (H-05 `create-campaign`):** trường tên chương trình dùng nhãn `Tên chương trình phản hồi` (không dùng “Mục tiêu”); `Lời ngỏ` là trường BẮT BUỘC với placeholder `Nhập mục tiêu của yêu cầu phản hồi và lời nhắn gửi đến các bên liên quan` và inline error riêng. Chọn bộ câu hỏi dùng POPUP `Chọn bộ câu hỏi có sẵn` (không dùng select, không có dòng metadata dưới tiêu đề): cột trái là danh sách nhóm theo nhóm người tạo `HRBP` rồi `L&OD`, trong mỗi nhóm sắp theo tên A-Z (`localeCompare` locale `vi`); cột phải xem trước thẳng danh sách câu hỏi, KHÔNG lặp lại tên bộ câu hỏi vì cột trái đã hiển thị; CTA `Dùng bộ câu hỏi này` disabled tới khi chọn. Bộ đang áp dụng gắn nhãn `Đang dùng`. Popup có hành động **Tự tạo bộ câu hỏi mới** đặt ở FOOTER bên trái (nút outline, icon `bx-edit-alt`), KHÔNG đặt trong danh sách chọn bên trái: tự tạo là lối thoát khi HR xem xong mà không dùng bộ nào, không phải một bộ câu hỏi để "dùng" — nếu để trong danh sách thì CTA `Dùng bộ câu hỏi này` đọc sai nghĩa. Bấm nút này áp dụng ngay và đóng popup: yêu cầu bắt đầu với một câu hỏi trống, nhãn trigger đổi thành `Tự tạo bộ câu hỏi`. CTA chính `Dùng bộ câu hỏi này` chỉ dành cho bộ có sẵn và vẫn disabled tới khi chọn một bộ. Khi bộ câu hỏi hiện tại vẫn đúng bản clone của bộ đang dùng (HR chưa sửa tay), chọn bộ khác phải NẠP THẲNG, không hỏi xác nhận; chỉ hỏi khi HR đã tự nhập hoặc đã sửa nội dung. Tag `Đang dùng` bo sát text (`display:inline-flex`, padding 2px 7px, không đặt `height`/`line-height` cố định). Modal phải `display:flex;flex-direction:column` trong `max-height 88vh`, body `flex:1;min-height:0`, hai cột tự cuộn — nếu không, bộ câu hỏi dài sẽ đẩy CTA ra khỏi màn hình. Dialog `Lưu vào bộ câu hỏi` không hỏi phạm vi chia sẻ và ghi luôn phiên bản đầu vào history log. Sau khi gửi yêu cầu, KHÔNG nhảy thẳng sang màn chi tiết: mở alert dialog xác nhận (icon tròn `--brand-muted`, title `Đã tạo yêu cầu phản hồi`, nội dung nêu tên chương trình + đã gửi thông báo + báo cáo chỉ hiện sau khi HR chia sẻ) với hai hành động `Về danh sách chương trình` và `Xem chi tiết chương trình`; dialog này không có nút `×` và không đóng bằng click ngoài vì HR phải chọn điểm đến. Popup **Rà soát yêu cầu phản hồi** có ba hành động theo thứ tự `Quay lại chỉnh sửa` - `Lưu nháp` - `Gửi yêu cầu`: `Lưu nháp` ghi chương trình với `status: draft`, `done: 0`, KHÔNG gửi thông báo cho ai, rồi quay về danh sách kèm toast. Yêu cầu nháp mở lại bằng `create-campaign.html?id=<id>`: form nạp lại toàn bộ dữ liệu đã lưu, tiêu đề đổi thành `Tiếp tục thiết lập yêu cầu phản hồi`, lưu lại giữ nguyên id (không sinh chương trình trùng). Nút `Xóa yêu cầu` CHỈ nằm ở màn chi tiết yêu cầu (màn tiếp tục thiết lập), KHÔNG đưa vào danh sách chương trình và KHÔNG thêm cột `Chức năng` cho bảng danh sách. Xóa nháp mẫu ghi id vào `uc5_deleted_campaigns` để danh sách không hiện lại sau khi tải lại. Chỉ ở trạng thái nháp mới hiện nút `Xóa yêu cầu` (btn outline màu err) ở page head, bấm mở dialog xác nhận nêu rõ nháp chưa gửi cho ai và xóa không khôi phục được. **Người tham gia:** chip người đã chọn nằm DƯỚI ô tìm kiếm ở màn này (ngược với dialog chia sẻ kết quả ở mục 12, nơi chip đứng trên ô tìm kiếm) — ở form authoring, ô tìm kiếm là điểm thao tác chính nên phải đứng yên một chỗ, không bị đẩy xuống mỗi lần thêm người. Mỗi câu hỏi có toggle `Bắt buộc` ngay trên hàng tiêu đề câu hỏi, mặc định TẮT như Google Form; câu bắt buộc hiển thị dấu `*` đỏ ở mọi nơi đọc lại câu hỏi (preview chọn bộ câu hỏi, review trước khi gửi, popup xem bộ câu hỏi, màn trả lời E-04, màn kết quả H-06) và KHÔNG dùng hậu tố text “(bắt buộc)”. Người cho phản hồi chỉ bị chặn gửi khi còn câu bắt buộc chưa trả lời, đồng thời phải trả lời ít nhất một câu. Đổi thứ tự câu hỏi bằng KÉO THẢ như Google Form: tay cầm `.q-drag` (icon `bx-grid-vertical`) đứng đầu hàng tiêu đề câu hỏi, card chỉ bật `draggable` khi giữ chuột trên tay cầm (nếu để card luôn draggable thì bôi chọn chữ trong textarea sẽ biến thành kéo card); vị trí thả hiển thị bằng vạch hồng `inset box-shadow` ở mép trên/dưới card đích, card đang kéo `opacity:.5`. Tay cầm là button focus được và nhận phím mũi tên lên/xuống để người dùng bàn phím vẫn đổi được thứ tự. Không dùng nút mũi tên thường trực. Áp dụng cho cả form tạo yêu cầu lẫn editor thư viện bộ câu hỏi.
+
+## 20. NGUYÊN TẮC ĐỒNG BỘ GIỮA CÁC MÀN HÌNH (bắt buộc — đọc trước khi sửa bất kỳ màn nào)
+
+Module Feedback có 5 màn hình đọc chung một nghiệp vụ nhưng phục vụ 3 vai khác nhau
+(nhân viên · quản lý · HR). Phần lớn lỗi trong module này không phải lỗi CSS, mà là
+**hai màn hình cùng nói về một sự việc bằng hai luật khác nhau** — và không ai phát hiện
+vì mỗi màn nhìn riêng thì đều hợp lý. Các rule dưới đây có để chặn đúng loại lỗi đó.
+
+### 20.1 Luật nghiệp vụ chỉ được viết MỘT lần, trong file model
+
+| File model | Sở hữu luật gì | Màn hình dùng |
+|---|---|---|
+| `E-04/feedback-model.js` | vòng đời yêu cầu nhân viên tự tạo, chuẩn hoá feed | E-04 |
+| `M-04/manager-request-model.js` | yêu cầu của quản lý: tạo, tiến độ, nghỉ việc, đóng, nhắc | M-04, `request-detail`, E-04 |
+| `H-05/feedback-program-model.js` | chương trình của HR: tạo, tiến độ, chia sẻ kết quả, đóng, nhắc | H-05, H-06, H-07, E-04, M-04 |
+
+- Màn hình **KHÔNG được chép luật vào `<script>` của chính nó**, kể cả khi chỉ vài dòng.
+  Bản chép sẽ lệch, và test đọc model nên sẽ xanh trong khi màn hình chạy sai — loại lỗi
+  không có cách nào nhìn ra. Cần luật gì thì `<script src>` model đó vào, kể cả khác thư mục.
+- Cùng lý do: `dateFromDMY`, `dateTimeFromDMY`, `tsFromDMY`, `maxDueDate`, `dueRange`,
+  `automaticReminderDate` là hàm của model, không viết lại trong màn hình.
+- Nếu hai vai cần **cùng một luật nhưng khác câu chữ**, tách làm hai: mã lý do dùng chung
+  đặt trong model, bảng câu chữ đặt cạnh nhau trong cùng model (xem `CLOSE_REASON_TEXT`
+  cho quản lý và `REVIEWER_NOTICE_TEXT` cho người được hỏi). KHÔNG để mỗi màn tự đặt mã.
+
+### 20.2 Một sự việc — một bộ mã — nhiều câu chữ
+
+Mã lý do đóng yêu cầu (`ManagerRequestModel.closeReasonCodes()`) là bộ mã DUY NHẤT.
+Đặt tên riêng ở màn khác (`request-closed`, `closed-by-manager`…) là hai màn nói hai thứ tiếng.
+
+| Mã | Khi nào | Quản lý đọc (M-04) | Người được hỏi đọc (E-04) |
+|---|---|---|---|
+| `creator-resigned` | quản lý tạo yêu cầu đã nghỉ việc | Quản lý tạo yêu cầu đã nghỉ việc | Người tạo yêu cầu đã nghỉ việc… |
+| `manual` | quản lý chủ động bấm đóng | Quản lý đã chủ động đóng | Quản lý đã đóng yêu cầu… |
+| `no-active-ticket` | không còn ai có thể trả lời | Không còn ai có thể phản hồi | Yêu cầu đã đóng vì không còn ai… |
+| `expired` | quá 90 ngày kể từ ngày tạo | Quá 90 ngày kể từ ngày tạo | Yêu cầu đã quá 90 ngày nên tự đóng… |
+| `recipient-resigned` | (mức ticket) người nhận nghỉ việc | ghi sau chữ Đóng trên ticket | Người nhận phản hồi đã nghỉ việc… |
+
+### 20.3 Trạng thái: mỗi vai có tập trạng thái riêng, nhưng cùng luật
+
+Ba màn không dùng chung một danh sách trạng thái, và điều đó là **có chủ đích** —
+nhân viên không cần biết yêu cầu bị đóng vì lý do gì, HR thì cần. Nhưng luật sinh ra
+trạng thái phải giống nhau. Bảng đối chiếu:
+
+| Ý nghĩa | E-04 (nhân viên) | M-04 (quản lý) | H-05/H-06 (HR) |
+|---|---|---|---|
+| đang thu thập | `collecting` · Đang thu thập | `collecting` · Đang thu thập | `collecting` · Đang thu thập |
+| sắp đến hạn | — | — | `due_soon` · Sắp đến hạn |
+| quá hạn | `overdue` · Quá hạn | `overdue` · Quá hạn | `overdue` · Quá hạn |
+| đủ phản hồi | `complete` · Hoàn thành | `complete` · Hoàn thành | `complete` · Hoàn thành |
+| ngừng thu | `no_response` · Không phản hồi | `closed` · Đóng | `closed` · Đã đóng |
+| chưa gửi | — | — | `draft` · Nháp |
+
+Quy tắc bắt buộc khi thêm/sửa trạng thái:
+- **Đóng có chủ đích thắng Hoàn thành, đóng do hệ quả thì không.** Quản lý bấm đóng hoặc
+  người tạo nghỉ việc → luôn hiện Đóng. Hết ticket vì nghỉ việc, hoặc quá 90 ngày → phần
+  đã thu đủ vẫn là Hoàn thành. HR đóng chương trình thì `closed` luôn thắng (HR đóng bao
+  giờ cũng là chủ đích).
+- **Yêu cầu không có người phản hồi nào KHÔNG phải là Hoàn thành.** `[].every()` trả về
+  `true` nên phải chốt `reviewers.length > 0` — đây là lỗi từng lọt.
+- List và detail của cùng một vai phải gọi CÙNG một helper trạng thái, không tự suy diễn lại.
+
+### 20.4 Tiến độ và mẫu số — luật chung cho cả HR và quản lý
+
+- **Còn đang thu thập:** lượt của người đã nghỉ việc bị LOẠI khỏi mẫu số
+  (`excludedByResignation`) để tiến độ phản ánh đúng phần còn thu được.
+- **Đã đóng:** số liệu ĐÓNG BĂNG — không loại trừ gì nữa, kể cả người đã nghỉ.
+  Cờ chỉ được đặt khi còn thu thập (`collecting && resigned`).
+- **Ticket bị khoá khi đóng vẫn nằm trong mẫu số.** Bỏ ra thì yêu cầu đóng lúc mới thu
+  được 1/3 sẽ hiện 100% — che mất đúng thứ mà thao tác đóng cần ghi lại. HR khoá bằng
+  `status:'locked'`, quản lý khoá bằng `closedManually`; cả hai đều vẫn được đếm.
+- Ngưỡng AI Summary luôn là **2 phản hồi trở lên**, chỉ mẫu số thay đổi.
+
+### 20.5 Nhắc — cùng một cửa sổ, cùng một cooldown
+
+Cả HR và quản lý: nhắc được trong **90 ngày kể từ ngày tạo**, quá hạn vẫn nhắc được,
+mỗi người cách lần nhắc gần nhất tối thiểu **24 giờ**. Ngừng nhắc khi: người đó đã nghỉ
+việc · ticket/yêu cầu đã đóng · quá 90 ngày · chương trình ẩn danh (chỉ HR).
+Thứ tự tooltip lý do chặn xem §19 rule 15b.
+
+### 20.6 Mở lại sau khi đóng — luật KHÁC nhau, và phải ghi rõ vì sao
+
+- **HR (H-05/H-06):** mở lại được **chừng nào chưa chia sẻ kết quả**; chia sẻ rồi là chốt
+  vĩnh viễn, vì người ngoài đã đọc số liệu đó.
+- **Quản lý (M-04):** mở lại được không điều kiện, vì yêu cầu của quản lý không có bước
+  chia sẻ kết quả ra ngoài.
+
+Khác nhau ở đây là đúng, không phải chưa đồng bộ. Nếu sau này M-04 có chia sẻ kết quả thì
+phải áp luật của HR.
+
+### 20.7 Quy trình bắt buộc khi vẽ hoặc sửa một màn hình
+
+1. **Đọc model trước khi vẽ.** Mở file model sở hữu luật của màn đó, đọc hết, rồi mới thiết kế.
+   Không suy luật từ ảnh chụp màn hình khác.
+2. **Xử lý conflict, không chép hình.** Khi màn tham chiếu mâu thuẫn với luật (ví dụ model
+   cho đúng 1 câu hỏi mà bản mẫu vẽ 3 câu), dừng lại và nêu mâu thuẫn — không vẽ theo hình.
+3. **Rà toàn bộ thành phần phụ thuộc trong cùng lần sửa** (§19 rule 17): cột, filter/tab,
+   nút hành động, field trong form, và **các màn hình khác đọc cùng dữ liệu**.
+4. **Kiểm tra giá trị hợp lệ.** Mọi giá trị enum (`vis`, `status`, `closedReason`, `lvl`…)
+   phải nằm trong tập model chấp nhận. Giá trị lạ thường rơi xuống nhánh mặc định và hiển
+   thị sai một cách im lặng.
+5. **Copy component thì copy đủ thuộc tính** (§19 rule 13), kể cả `display`.
+6. **Bug nhìn thấy ở màn này, kiểm tra luôn màn kia.** H-06 và `request-detail` của M-04
+   dùng chung cấu trúc; sửa một bên thì kiểm tra bên còn lại.
+
+### 20.8 Test là nơi chốt tính đồng bộ
+
+- Test so sánh CHÉO giữa các màn (M-04 ↔ H-06 ↔ M-01) là có chủ đích: chúng chặn drift.
+- **Không assert vào chuỗi mã nguồn của một bản chép.** Nếu hai màn dùng chung model,
+  hãy kiểm tra **hành vi** qua model; bắt hai màn viết giống hệt một dòng mã sẽ chặn đúng
+  việc gom về một nguồn.
+- Khi xoá một rule CSS/JS cũ, xoá luôn assertion của nó. Rule chỉ bị đè chứ không bị xoá
+  sẽ khiến test xanh trong khi giao diện đã đổi.
 
 ## YÊU CẦU
 Tạo màn hình **[MÔ TẢ MÀN HÌNH]**, dùng nguyên shell (sidebar + topbar + page), áp dụng đúng toàn bộ spec + triết lý tối giản. Trước khi code, liệt kê component sẽ dùng và map vào class chuẩn. Không phát minh class/màu mới trừ khi được cho phép. Đối chiếu `design-system/index.html` để chắc render đúng.

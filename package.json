@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite --port 5173 --open"
+    "dev": "vite --port 5173 --open",
+    "test": "node --test E-04/feedback-model.test.js H-05/h05.test.js M-04/m04.test.js"
   },
   "devDependencies": {
     "puppeteer": "^25.2.0",
