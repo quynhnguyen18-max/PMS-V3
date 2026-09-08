@@ -173,14 +173,19 @@ a{text-decoration:none}
 /* text-wrap:balance chia deu cac dong nen khong con dong cuoi tro tro mot chu. */
 .card-title{font-family:'MoMo Signature',cursive;font-size:33px;line-height:1.14;font-weight:400;color:var(--tar-gold);margin-bottom:10px;text-wrap:balance}
 .card-sub{font-size:13px;line-height:1.55;color:var(--tar-ink-dim);margin-bottom:16px;text-wrap:pretty}
-/* Hình chìm hợp nội dung từng lá — đủ mờ để không tranh chỗ với chữ. */
-.card-glyph{position:absolute;right:-24px;bottom:-30px;font-size:172px;line-height:1;color:rgba(233,200,132,.075);pointer-events:none;z-index:0}
+/* Hình chìm: icon nhỏ lặp kín mặt bài thay cho một icon to ở góc. Hàng chẵn
+   lệch nửa bước để ra hoa văn so le, giống mặt vải in chứ không phải lưới. */
+.card-tile{position:absolute;inset:-14px;z-index:0;pointer-events:none;display:flex;flex-direction:column;gap:30px;overflow:hidden}
+.tile-row{display:flex;gap:34px;flex-shrink:0;font-size:16px;line-height:1;color:rgba(233,200,132,.075)}
+.tile-row:nth-child(even){margin-left:17px}
 
-/* Câu tổng kết có số nhấn — chỉ con số được tô vàng, phần chữ giữ nguyên. */
-.seed-line{font-size:15px;line-height:1.95;color:var(--tar-ink);text-wrap:pretty}
-/* Số to quá thì câu vỡ nhịp và dòng cuối rớt lại một mình; 21px + màu vàng
-   đã đủ nổi, không cần cỡ chữ tiêu đề. */
-.seed-line b{font-family:'MoMo Signature',cursive;font-size:21px;font-weight:400;color:var(--tar-gold);line-height:1;padding:0 1px}
+/* Ba dòng số, mỗi dòng một ý — thay cho câu văn dài tự xuống dòng giữa chừng
+   ("6 đồng / nghiệp"). Cột số rộng cố định nên ba nhãn thẳng hàng nhau. */
+.seed-list{display:flex;flex-direction:column;gap:12px;margin-top:2px}
+.seed-row{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:12px}
+.seed-num{font-family:'MoMo Signature',cursive;font-size:40px;line-height:.9;color:var(--tar-gold);text-align:right}
+.seed-lbl{font-size:13px;line-height:1.35;color:var(--tar-ink)}
+.seed-row+.seed-row{border-top:1px solid rgba(233,200,132,.16);padding-top:12px}
 
 /* danh sách người — tên bên trái, số phản hồi bên phải cùng một cột */
 .people{display:flex;flex-direction:column;gap:13px;margin-top:2px}
@@ -240,7 +245,7 @@ a{text-decoration:none}
 .ritual-wrap .deck{width:280px;height:430px}
 .ritual{text-align:center;width:360px}
 .ritual h2{font-family:'MoMo Signature',cursive;font-size:32px;font-weight:400;color:var(--tar-gold);margin-bottom:7px;text-wrap:balance}
-.ritual p{font-size:13px;color:var(--tar-ink-dim)}
+.ritual p{font-size:13px;color:var(--tar-ink-dim);text-wrap:balance}
 .ritual-cta{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:50px;
   border:1px solid var(--tar-gold);color:var(--tar-gold);font-size:13px;font-weight:600;letter-spacing:.3px;transition:var(--t)}
 .ritual-cta:hover{background:rgba(233,200,132,.14)}
@@ -533,8 +538,11 @@ function CARDS(){
       sub:'Mỗi phản hồi bạn viết là một lần ai đó được nhìn thấy.',
       /* Một câu duy nhất mang cả ba con số, thay cho khối số rời rạc kèm nhãn
          khó hiểu ("người được bạn nhắc tên"). Chỉ con số được tô vàng. */
-      body:`<p class="seed-line">Bạn đã trao <b>${g.total}</b> phản hồi cho <b>${g.people}</b> đồng nghiệp,
-        và nhận về <b>${g.thanks}</b> lời cảm ơn.</p>`
+      body:`<div class="seed-list">
+        <div class="seed-row"><span class="seed-num">${g.total}</span><span class="seed-lbl">phản hồi bạn đã trao đi</span></div>
+        <div class="seed-row"><span class="seed-num">${g.people}</span><span class="seed-lbl">đồng nghiệp đã nhận được</span></div>
+        <div class="seed-row"><span class="seed-num">${g.thanks}</span><span class="seed-lbl">lời cảm ơn gửi lại bạn</span></div>
+      </div>`
     }
   ];
 }
@@ -548,12 +556,18 @@ const deck=CARDS();
 function openStage(){STEP=-1;document.getElementById('stage').classList.add('open');render();}
 function closeStage(){document.getElementById('stage').classList.remove('open');}
 
+/* 12 hàng × 7 icon: mỗi hàng cao 46px (16 chữ + 30 gap) nên cần đủ 12 hàng mới
+   phủ hết 510px chiều cao vùng hoa văn; 9 hàng bỏ trống hẳn 126px dưới đáy bài. */
+function tileHTML(glyph){
+  const row=`<div class="tile-row">${`<i class="bx ${glyph}"></i>`.repeat(7)}</div>`;
+  return row.repeat(12);
+}
 function cardHTML(index,entering){
   const card=deck[index];
   return `<article class="card ${entering?'enter':''}">
     <span class="card-frame"></span>
     <div class="card-inner">
-      <i class="bx ${card.glyph} card-glyph" aria-hidden="true"></i>
+      <div class="card-tile" aria-hidden="true">${tileHTML(card.glyph)}</div>
       <div class="card-roman">${ROMAN[index]}</div>
       <div class="card-core">
         <h2 class="card-title">${card.title}</h2>
@@ -570,7 +584,7 @@ function deckHTML(){
   return `<div class="ritual-wrap">
     <div class="ritual">
       <h2>Chào Tú.</h2>
-      <p>Năm nay có ${RECEIVED.length} phản hồi nói về bạn. Mình trải chúng thành ${deck.length} lá.</p>
+      <p>Chào mừng bạn đến với buổi trải bài dấu ấn của riêng mình.</p>
     </div>
     <div class="deck" id="deck" onclick="cutDeck()" role="button" tabindex="0" aria-label="Cắt bài để mở lá đầu tiên"
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();cutDeck();}">
