@@ -93,6 +93,37 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 .pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}
 .pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
 .pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
+/* ── CẢM ƠN: quản lý thả tim cho phản hồi nhân viên nhận được ──────────────
+   Dấu tim nằm ngay sau tên người gửi (cùng quy ước với màn nhân viên E-04);
+   nút "Cảm ơn" nằm cuối dòng ngày, dùng chỗ trống sẵn có nên không thêm dòng nào.
+   Tim người nhận #a50064 (hồng MoMo), tim quản lý #f95396 (hồng +1). */
+.thx-mark{position:relative;display:inline-flex;align-items:center;margin-left:5px;vertical-align:-2px;line-height:1;cursor:default}
+.thx-mark svg{display:block;height:14px;width:auto}
+.thx-mark .h-rcv{fill:#a50064}
+.thx-mark .h-mgr{fill:#f95396}
+.thx-mark .h-cut{fill:none;stroke:#fff;stroke-width:3.8;stroke-linejoin:round}
+@keyframes thx-pop{0%{transform:scale(0) rotate(-28deg);opacity:0}60%{transform:scale(1.3) rotate(4deg);opacity:1}100%{transform:scale(1);opacity:1}}
+.thx-mark.pop{animation:thx-pop .5s cubic-bezier(.3,1.6,.5,1) both}
+.thx-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:60;width:max-content;white-space:nowrap;padding:7px 10px;border-radius:6px;background:var(--z900);color:#fff;font-size:12px;font-weight:500;line-height:1.45;text-align:left;pointer-events:none;opacity:0;transition:opacity .12s ease}
+.thx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.thx-mark:hover .thx-tip,.thx-mark:focus-visible .thx-tip{opacity:1}
+.thx-tip-title{display:block;font-size:10.5px;font-weight:600;letter-spacing:.3px;color:var(--z400);padding-bottom:3px}
+.thx-tip-row{display:flex;align-items:flex-start;gap:6px;padding:1px 0}
+.thx-tip-dot{width:9px;height:9px;border-radius:50%;background:#a50064;flex:none;margin-top:4px}
+.thx-tip-row.mgr .thx-tip-dot{background:#f95396}
+.thx-tip-row em{font-style:normal;color:var(--z400)}
+/* Thanh cảm ơn ở chân card — sao đúng .fb-thx-bar / .fb-thx của E-04 để hai màn nhìn như một. */
+.fb-thx-bar{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--z200);overflow:hidden;transition:opacity .2s ease,margin-top .35s ease,padding-top .35s ease,height .35s ease}
+.fb-thx-bar.gone{opacity:0;height:0;margin-top:0;padding-top:0;border-top-color:transparent}
+.fb-thx{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;font-size:12.5px;font-weight:600;color:var(--brand);background:var(--z0);border:1px solid var(--brand-ring);transition:all .12s ease;cursor:pointer}
+.fb-thx:hover{background:var(--brand-muted);border-color:var(--brand)}
+.fb-thx i{font-size:14px}
+.fb-thx-hint{font-size:11.5px;color:var(--z500)}
+@keyframes thx-btn-pop{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+.fb-thx.pop{animation:thx-btn-pop .42s cubic-bezier(.3,1.6,.5,1)}
+.thx-fly{position:fixed;z-index:200;pointer-events:none;color:#f95396;animation:thx-fly-up 1.05s ease-out forwards}
+@keyframes thx-fly-up{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}18%{opacity:1;transform:translate(-50%,-70%) scale(1.15)}100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-260%) scale(.75)}}
+@media(prefers-reduced-motion:reduce){.thx-mark.pop,.thx-fly,.fb-thx.pop{animation:none!important}}
 </style>
 </head>
 <body>
@@ -125,6 +156,7 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
+<script src="manager-thanks.js"></script>
 <script src="manager-ai-summary.js"></script>
 <script src="../H-05/feedback-program-data.js"></script>
 <script src="../H-05/feedback-program-model.js"></script>
@@ -155,6 +187,9 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 @media(max-width:900px){.head{flex-direction:column}.emp-chip{width:100%;align-items:flex-start}.ec-line{white-space:normal}.layout{grid-template-columns:1fr}.layout.mode-feedback{height:auto;min-height:0;overflow:visible}.layout.mode-feedback .main-col{overflow:visible;padding-right:0}.report-shell{height:auto;max-height:none;grid-template-columns:1fr}.report-list{max-height:210px;border-right:0;border-bottom:1px solid var(--z200)}.dialog-ai-summary-content{grid-template-columns:1fr}}
 </style>
 <script>
+/* Quản lý thả tim cảm ơn — trạng thái lưu ở localStorage nên dùng chung với M-04/index.html */
+const THANKS_STORE=ManagerThanks.use(ManagerThanks.createStore(window.localStorage));
+function thankFeedback(id,button){const who=ManagerThanks.thank(id,button);if(who)detailToast(`Đã gửi lời cảm ơn tới ${who}.`);}
 const CV_ORDER=['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'];
 const CURRENT_MANAGER={name:'Lê Thị Thanh',login:'thanh.le',ini:'LT'};
 let AI_COLLAPSED=false;
@@ -202,7 +237,7 @@ function downloadThisEmployee(){
   if(!employee){detailToast('Không tìm thấy nhân viên.');return;}
   const parts=[`${items.length} phản hồi`];
   if(HR_REPORTS.length)parts.push(`${HR_REPORTS.length} báo cáo HR ở sheet riêng`);
-  detailToast(`Đang chuẩn bị tệp cho ${employee.name} — ${parts.join(' · ')}.`);
+  detailToast(`Đang chuẩn bị tệp cho ${employee.name} — ${parts.join(' - ')}.`);
 }
 function syncDetailDownloadLabel(){
   const btn=document.getElementById('detailDownload');if(!btn||!employee)return;

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CHỐT – Hai trái tim hồng MoMo | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══ TOKENS — E-04 ═══ */
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;
+  --z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;
+  --brand:#A50064;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --t:all .12s ease;
+  /* ── PHỐI MÀU ĐÃ CHỐT ── */
+  --thx-self:#A50064;   /* Màu hồng MoMo   — tim của người nhận phản hồi */
+  --thx-mgr:#F95396;    /* Màu hồng +1     — tim của quản lý trực tiếp   */
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50)}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.demo-top{background:var(--z0);border-bottom:1px solid var(--z200);padding:16px 0 14px}
+.demo-tag{display:inline-flex;align-items:center;gap:5px;background:var(--ok-bg);border:1px solid var(--ok-bd);color:var(--ok);
+  font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 8px;border-radius:20px}
+.demo-h1{font-size:20px;font-weight:700;color:var(--z900);letter-spacing:-.4px;margin:8px 0 3px}
+.demo-sub{font-size:13px;color:var(--z600);max-width:880px}
+.swatches{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--z700);
+  background:var(--z50);border:1px solid var(--z200);border-radius:20px;padding:3px 11px 3px 4px}
+.chip .dot{width:17px;height:17px;border-radius:5px;flex-shrink:0}
+.chip em{font-style:normal;color:var(--z500);font-weight:400}
+.ctrls{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.sw{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--z600);cursor:pointer;user-select:none}
+.sw input{display:none}
+.sw .track{width:34px;height:19px;border-radius:20px;background:var(--z300);position:relative;transition:var(--t);flex-shrink:0}
+.sw .track::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:var(--t);box-shadow:var(--sh-sm)}
+.sw input:checked+.track{background:var(--brand)}
+.sw input:checked+.track::after{transform:translateX(15px)}
+
+.page{padding:18px 0 60px}
+.sec-h{display:flex;align-items:baseline;gap:9px;margin:22px 0 9px}
+.sec-h:first-child{margin-top:0}
+.sec-n{font-size:14.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px}
+.sec-d{font-size:12.5px;color:var(--z500)}
+
+/* ── ba trạng thái ── */
+.states{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.st{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:12px}
+.st-art{display:flex;align-items:center;justify-content:center;height:56px;background:var(--z50);border:1px dashed var(--z200);border-radius:var(--rsm)}
+.st-art .zoom{transform:scale(2.4);transform-origin:center}
+.st-t{font-size:12.5px;font-weight:700;color:var(--z900);margin-top:9px}
+.st-s{font-size:11.5px;color:var(--z500);line-height:1.45;margin-top:2px;min-height:46px}
+.st-real{margin-top:7px;padding-top:8px;border-top:1px dashed var(--z200);font-size:12.5px;color:var(--z700);display:flex;align-items:center;gap:5px}
+.st-w{font-size:11px;color:var(--z400);margin-top:5px}
+.st-w b{color:var(--z600);font-weight:600}
+
+/* ── CARD PHẢN HỒI — copy style E-04 ── */
+.feed{display:flex;flex-direction:column;gap:10px}
+.feed-grp{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--z500);margin:6px 0 -2px}
+.fb-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;transition:border-color .12s ease;position:relative}
+.fb-card:hover{border-color:var(--z300)}
+.fb-card.has-react .fb-head{padding-right:96px}
+.fb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;
+  flex-shrink:0;letter-spacing:-.2px;background:var(--brand-muted);color:var(--brand);margin-top:1px}
+.fb-sender-dom{color:var(--z600);font-weight:400}
+.fb-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}
+.fb-head-main{min-width:0}
+.fb-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.35;min-width:0}
+.fb-who{font-size:13px;font-weight:600;color:var(--z900)}
+.fb-arrow{width:0;height:0;border-left:6px solid var(--z600);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;flex-shrink:0;margin:0 2px}
+.fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
+.fb-meta-date{font-size:11.5px;color:var(--z500)}
+.fb-react{position:absolute;top:12px;right:15px;display:flex;align-items:center;gap:5px}
+.cv-badge{width:24px;height:24px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:13px}
+.fb-body{font-size:13px;color:var(--z700);line-height:1.65}
+.fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:12px;
+  font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.fb-badge-wrap:hover .fb-badge-tip{opacity:1}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DẤU CẢM ƠN — trái tim, đúng chỗ cũ (ngay sau tên trên dòng đầu card).
+   Hai tim chồng lệch kiểu Facebook, tách nhau bằng viền trắng.
+   Cùng gam hồng nên độ tách dựa vào ĐẬM/NHẠT + viền trắng.
+   Cao 15px → nằm gọn trong dòng 18px sẵn có, card không cao thêm.
+   ══════════════════════════════════════════════════════════════════════ */
+.thx-mark{position:relative;display:inline-flex;align-items:center;margin-left:3px;cursor:default;line-height:1;vertical-align:middle}
+.thx-mark svg{display:block;height:15px;width:auto}
+.thx-mark .h-self{fill:var(--thx-self)}
+.thx-mark .h-mgr{fill:var(--thx-mgr)}
+.thx-mark .h-cut{fill:none;stroke:var(--z0);stroke-width:3.8;stroke-linejoin:round}
+
+.thx-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);
+  font-size:12px;font-weight:500;padding:7px 10px;border-radius:6px;width:max-content;white-space:nowrap;text-align:left;
+  pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.45;box-shadow:var(--sh-md)}
+.thx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.thx-mark:hover .thx-tip,.thx-mark:focus-visible .thx-tip{opacity:1}
+.tip-t{font-size:11px;color:var(--z400);font-weight:600;letter-spacing:.3px;padding-bottom:3px}
+.tip-r{display:flex;align-items:flex-start;gap:6px;padding:1px 0}
+.tip-r .tdot{width:9px;height:9px;border-radius:50%;background:var(--thx-self);flex-shrink:0;margin-top:4px}
+.tip-r.mgr .tdot{background:var(--thx-mgr)}
+.tip-r em{font-style:normal;color:var(--z400)}
+
+.rule{background:var(--z0);border:1px solid var(--z200);border-left:3px solid var(--brand);border-radius:var(--r);padding:13px 15px}
+.rule+.rule{margin-top:10px}
+.rule.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.rule h4{font-size:12.5px;font-weight:700;color:var(--z900);margin-bottom:7px}
+.rule ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.rule li{font-size:12.5px;color:var(--z600);display:flex;gap:8px;line-height:1.55}
+.rule li i{color:var(--brand);font-size:15px;flex-shrink:0;margin-top:1px}
+.rule.warn li i{color:var(--warn)}
+.rule b{color:var(--z900);font-weight:600}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;background:var(--z100);border-radius:var(--rxs);padding:1px 5px;color:var(--z800)}
+
+@media(max-width:860px){.states{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="demo-top">
+  <div class="wrap">
+    <span class="demo-tag"><i class="bx bx-check-circle"></i> Phối màu đã chốt</span>
+    <h1 class="demo-h1">Hai trái tim cùng gam hồng MoMo</h1>
+    <p class="demo-sub">Giữ nguyên hình trái tim và vị trí hiện tại. Hai tim chồng lệch kiểu Facebook, tách nhau bằng viền trắng mảnh; phân biệt bằng <b>độ đậm nhạt</b> của cùng một gam hồng thương hiệu.</p>
+    <div class="swatches">
+      <span class="chip"><span class="dot" style="background:#A50064"></span>#A50064 <em>- Màu hồng MoMo - người nhận phản hồi</em></span>
+      <span class="chip"><span class="dot" style="background:#F95396"></span>#F95396 <em>- Màu hồng +1 - quản lý trực tiếp</em></span>
+    </div>
+    <div class="ctrls">
+      <label class="sw"><input type="checkbox" id="bigSw"/><span class="track"></span> Phóng to toàn trang để soi chi tiết</label>
+      <label class="sw"><input type="checkbox" id="orderSw"/><span class="track"></span> Đổi thứ tự chồng: tim quản lý ra trước</label>
+    </div>
+  </div>
+</div>
+
+<div class="wrap page">
+
+  <div class="sec-h"><span class="sec-n">Ba trạng thái</span><span class="sec-d">Phóng to ở trên, cỡ thật ở dưới.</span></div>
+  <div class="states" id="states"></div>
+
+  <div class="sec-h"><span class="sec-n">Nhìn trong card thật</span><span class="sec-d">Cỡ thật, đúng bố cục E-04. Rê chuột vào tim để xem ô chú thích.</span></div>
+  <div class="feed" id="feed"></div>
+
+  <div class="sec-h"><span class="sec-n">Chốt lại đặc tả</span></div>
+  <div class="rule">
+    <h4>Hiển thị</h4>
+    <ul>
+      <li><i class="bx bx-heart"></i><span><b>Không ai cảm ơn</b> → không hiện gì.</span></li>
+      <li><i class="bx bx-heart"></i><span><b>Một người</b> → một tim, màu cho biết là ai: <span class="code">#A50064</span> là người nhận phản hồi, <span class="code">#F95396</span> là quản lý trực tiếp.</span></li>
+      <li><i class="bx bx-heart"></i><span><b>Hai người</b> → hai tim chồng lệch. Rê chuột ra một ô liệt kê cả hai, <b>không hiện thời gian</b>.</span></li>
+      <li><i class="bx bx-ruler"></i><span>Một tim rộng 16px, hai tim rộng 20px — thêm <b>4px</b>. Cao 15px, lọt trong dòng 18px sẵn có nên <b>card không cao thêm pixel nào</b>.</span></li>
+      <li><i class="bx bx-lock-alt"></i><span>Quản lý chỉ thả tim được với phản hồi <b>chia sẻ tới cấp quản lý</b>. Phản hồi “Chỉ người nhận” thì tối đa một tim.</span></li>
+      <li><i class="bx bx-bell"></i><span>Tab <b>Đã cho</b> giữ nguyên cơ chế báo hiện có: badge số trên nút tab, card nổi lên đầu, xem xong badge tắt còn tim ở lại.</span></li>
+    </ul>
+  </div>
+  <div class="rule warn">
+    <h4>Một điểm cần chị soi kỹ trước khi em áp vào E-04</h4>
+    <ul>
+      <li><i class="bx bx-error-circle"></i><span>Vì hai tim cùng gam hồng, khi <b>chỉ mình quản lý cảm ơn</b> thì trên card chỉ có một tim hồng nhạt <span class="code">#F95396</span> đứng riêng — chị xem card thứ hai trong danh sách trên. Ở cỡ 15px nó có thể bị đọc nhầm thành “tim mờ / chưa kích hoạt” thay vì “quản lý đã cảm ơn”. Nếu chị thấy vướng, em có thể xử lý mà vẫn giữ đúng phối màu chị chốt: giữ tim quản lý ở tông <span class="code">#F95396</span> nhưng thêm viền ngoài mảnh màu <span class="code">#A50064</span>, hoặc luôn vẽ đủ hai tim và làm mờ tim chưa có.</span></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const P='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+const S=0.78, FRONT='translate(0,3) scale('+S+')', BACK='translate(9.5,0) scale('+S+')';
+let MGR_FIRST=false;   /* thứ tự chồng — công tắc ở đầu trang */
+
+function heart1(who){ return `<svg viewBox="1 2 22 20.5"><path class="h-${who}" d="${P}"/></svg>`; }
+function heart2(){
+  const back = MGR_FIRST ? 'self' : 'mgr';
+  const front= MGR_FIRST ? 'mgr'  : 'self';
+  return `<svg viewBox="0 1 27.5 20.5">
+    <path class="h-${back}" d="${P}" transform="${BACK}"/>
+    <path class="h-cut" d="${P}" transform="${FRONT}"/>
+    <path class="h-${front}" d="${P}" transform="${FRONT}"/></svg>`;
+}
+
+/* ── ba trạng thái ── */
+const STATES=[
+  {art:()=>heart1('self'), t:'Một tim — người nhận',
+   s:'Người nhận phản hồi đã cảm ơn. Đúng như prototype hiện tại, không đổi gì.', w:'16px', real:'Nguyễn Văn Tú'},
+  {art:()=>heart1('mgr'), t:'Một tim — quản lý',
+   s:'Chỉ quản lý trực tiếp cảm ơn. Tim mang tông hồng +1 nên khác với tim của người nhận.', w:'16px', real:'Nguyễn Văn Tú'},
+  {art:()=>heart2(), t:'Hai tim — cả hai',
+   s:'Cả người nhận lẫn quản lý đều cảm ơn. Tim đậm nằm trước, tim nhạt nhô ra sau.', w:'20px', real:'Nguyễn Văn Tú'}
+];
+
+/* ── card demo ── */
+const SELF={name:'Nguyễn Văn Tú',ini:'NT'};
+const CARDS=[
+  {id:'c1',from:{name:'Trương Minh Đức',dom:'duc.truong',ini:'TĐ'},to:SELF,date:'05/06/2026',vis:'manager',cv:2,
+   thx:2, tipT:'Đã cảm ơn Minh Đức',
+   people:[{n:'Bạn',r:'',m:false},{n:'Lê Thị Thanh',r:'quản lý trực tiếp của bạn',m:true}],
+   body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
+   note:'Hai người cảm ơn.'},
+
+  {id:'c2',from:{name:'Hoàng Thị Lan',dom:'lan.hoang',ini:'HL'},to:SELF,date:'22/04/2026',vis:'mgr-request',cv:1,
+   thx:1, who:'mgr', people:[{n:'Lê Thị Thanh',r:'quản lý trực tiếp của bạn',m:true}], tipTail:'đã cảm ơn Thị Lan',
+   body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó.',
+   note:'Chỉ quản lý cảm ơn — đây là card chị cần soi kỹ.'},
+
+  {id:'c3',from:{name:'Nguyễn Quốc Bảo',dom:'bao.nguyen',ini:'NB'},to:SELF,date:'18/09/2025',vis:'manager',cv:1,
+   thx:1, who:'self', people:[{n:'Bạn',r:'',m:false}], tipTail:'đã cảm ơn Quốc Bảo',
+   body:'Năm nay Tú tiến bộ rõ về tư duy hệ thống. Các đề xuất kiến trúc của bạn ngày càng chững chạc và có tính đến vận hành lâu dài.',
+   note:'Chỉ mình cảm ơn — như hiện tại.'},
+
+  {id:'c4',from:SELF,to:{name:'Vũ Thị Lan',dom:'lan.vu',ini:'VL'},date:'18/05/2026',vis:'manager',cv:1,sender:true,
+   thx:2, tipT:'Đã cảm ơn bạn',
+   people:[{n:'Vũ Thị Lan',r:'',m:false},{n:'Đỗ Quang Huy',r:'quản lý trực tiếp của Lan',m:true}],
+   body:'Cảm ơn Lan đã hỗ trợ dựng bộ regression test cho payment module rất kỹ. Nhờ vậy đợt release vừa rồi mình phát hiện sớm được 2 lỗi nghiêm trọng trước khi lên production.',
+   note:'Tab “Đã cho” — người nhận và quản lý của họ đều cảm ơn.'},
+
+  {id:'c5',from:{name:'Lê Thành Nam',dom:'nam.le',ini:'LN'},to:SELF,date:'14/03/2026',vis:'receiver',cv:3,
+   thx:0,
+   body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng.',
+   note:'Chưa ai cảm ơn — không hiện gì.'}
+];
+
+function visIcon(v,persp){
+  const m={manager:['bx-group','Chia sẻ với các cấp quản lý'],
+           'mgr-request':['bx-group','Quản lý và nhân viên đều xem được các phản hồi theo yêu cầu này']};
+  const [ic,txt]=m[v]||['bx-lock-alt',persp?'Chỉ người nhận':'Chỉ mình tôi'];
+  return `<span class="fb-badge-wrap"><i class="bx ${ic}" style="font-size:13px;color:var(--z500)"></i><span class="fb-badge-tip">${txt}</span></span>`;
+}
+function cvBadges(n){
+  const ics=['bx-target-lock','bx-group','bx-book-open'];
+  return n?`<div class="fb-react">${Array.from({length:n},(_,i)=>`<span class="cv-badge"><i class="bx ${ics[i%3]}"></i></span>`).join('')}</div>`:'';
+}
+function mark(c){
+  if(!c.thx) return '';
+  const art = c.thx===2 ? heart2() : heart1(c.who);
+  const tip = c.thx===2
+    ? `<span class="thx-tip"><span class="tip-t">${c.tipT}</span>${c.people.map(p=>
+        `<span class="tip-r${p.m?' mgr':''}"><span class="tdot"></span><span>${p.n}${p.r?` <em>- ${p.r}</em>`:''}</span></span>`).join('')}</span>`
+    : `<span class="thx-tip"><span class="tip-r${c.people[0].m?' mgr':''}"><span class="tdot"></span><span>${c.people[0].n}${
+        c.people[0].r?` <em>(${c.people[0].r})</em>`:''} ${c.tipTail}</span></span></span>`;
+  return `<span class="thx-mark" tabindex="0">${art}${tip}</span>`;
+}
+function card(c){
+  const nm=p=>p.dom?`<span class="fb-who">${p.name} <span class="fb-sender-dom">(${p.dom})</span></span>`
+                   :`<span class="fb-who">${p.name}</span>`;
+  return `<div class="fb-card${c.cv?' has-react':''}" data-id="${c.id}">
+    ${cvBadges(c.cv)}
+    <div class="fb-head">
+      <div class="fb-av">${c.from.ini}</div>
+      <div class="fb-head-main">
+        <div class="fb-line">${nm(c.from)}<span class="fb-arrow"></span>${nm(c.to)}${mark(c)}</div>
+        <div class="fb-meta"><span class="fb-meta-date">${c.date}</span>${visIcon(c.vis,c.sender)}</div>
+      </div>
+    </div>
+    <p class="fb-body">${c.body}</p>
+  </div>`;
+}
+function renderFeed(){
+  document.getElementById('feed').innerHTML=CARDS.map(c=>`<div class="feed-grp">${c.note}</div>${card(c)}`).join('');
+}
+function renderStates(){
+  document.getElementById('states').innerHTML=STATES.map(s=>`
+    <div class="st">
+      <div class="st-art"><span class="thx-mark zoom" style="position:static;margin:0">${s.art()}</span></div>
+      <div class="st-t">${s.t}</div>
+      <div class="st-s">${s.s}</div>
+      <div class="st-real">${s.real} <span class="thx-mark" style="position:static">${s.art()}</span></div>
+      <div class="st-w"><b>Bề ngang:</b> ${s.w}</div>
+    </div>`).join('');
+}
+document.getElementById('bigSw').onchange=e=>{
+  document.documentElement.style.fontSize=e.target.checked?'19px':'14px';
+};
+document.getElementById('orderSw').onchange=e=>{
+  MGR_FIRST=e.target.checked; renderStates(); renderFeed();
+};
+renderStates(); renderFeed();
+</script>
+</body>
+</html>

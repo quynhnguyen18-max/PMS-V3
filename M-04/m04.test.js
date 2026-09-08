@@ -1435,3 +1435,119 @@ test('§20 design system ghi rõ nguyên tắc đồng bộ giữa các màn hì
   /* Mở lại: HR chốt sau khi chia sẻ, quản lý thì không — khác nhau có chủ đích, phải ghi rõ. */
   assert.match(designSystem, /mở lại được \*\*chừng nào chưa chia sẻ kết quả\*\*/);
 });
+
+/* ═══ Quản lý thả tim cảm ơn phản hồi nhân viên nhận được ═══
+   Chốt thiết kế: giữ nguyên hình trái tim và vị trí ngay sau tên người gửi;
+   hai tim chồng lệch khi cả nhân viên lẫn quản lý đều cảm ơn;
+   tim nhân viên #a50064 (hồng MoMo), tim quản lý #f95396 (hồng +1);
+   nút "Cảm ơn" nằm cuối dòng ngày để card không phát sinh dòng mới. */
+function fakeStorage(initial){
+  const map=new Map(Object.entries(initial||{}));
+  return {getItem:key=>map.has(key)?map.get(key):null,setItem:(key,value)=>map.set(key,String(value)),removeItem:key=>map.delete(key),dump:()=>Object.fromEntries(map)};
+}
+
+test('manager thanks store persists picked feedback ids and survives broken storage', () => {
+  const thanks = require('./manager-thanks.js');
+  const storage = fakeStorage();
+  const store = thanks.createStore(storage, 'test.thanks');
+  assert.equal(store.has('f1'), false);
+  assert.equal(store.add('f1'), true);
+  assert.equal(store.add('f1'), false, 'mỗi người chỉ thả một tim cho một phản hồi');
+  assert.equal(store.has('f1'), true);
+  assert.deepEqual(JSON.parse(storage.dump()['test.thanks']), ['f1']);
+  // mở lại trang: đọc lại đúng trạng thái cũ
+  assert.equal(thanks.createStore(storage, 'test.thanks').has('f1'), true);
+  // localStorage hỏng thì bắt đầu từ rỗng chứ không nổ
+  assert.equal(thanks.createStore(fakeStorage({'test.thanks':'{['}), 'test.thanks').has('f1'), false);
+});
+
+test('thanks mark keeps the heart shape, pairs two MoMo pinks and always names the feedback giver', () => {
+  const thanks = require('./manager-thanks.js');
+  assert.equal(thanks.markHTML({receiver:false, manager:false}, 'Lê Thành Nam'), '');
+  const onlyReceiver = thanks.markHTML({receiver:true, manager:false}, 'Lê Thành Nam');
+  const onlyManager = thanks.markHTML({receiver:false, manager:true}, 'Lê Thành Nam');
+  const both = thanks.markHTML({receiver:true, manager:true}, 'Lê Thành Nam');
+  // một người → một tim, màu cho biết là ai
+  assert.match(onlyReceiver, /class="h-rcv"/);
+  assert.doesNotMatch(onlyReceiver, /h-mgr/);
+  assert.match(onlyManager, /class="h-mgr"/);
+  assert.doesNotMatch(onlyManager, /h-rcv/);
+  // tim lẻ dùng đúng cấu trúc câu của màn nhân viên E-04: "<ai> đã cảm ơn <người cho phản hồi>"
+  assert.match(onlyReceiver, /Nhân viên đã cảm ơn Lê Thành Nam/);
+  assert.match(onlyManager, /Bạn đã cảm ơn Lê Thành Nam/);
+  // hai người → hai tim chồng lệch, tách nhau bằng viền trắng
+  assert.match(both, /h-mgr[\s\S]*h-cut[\s\S]*h-rcv/);
+  // ô chú thích gộp làm một, nêu tên người cho phản hồi, không có thời gian
+  assert.match(both, /Đã cảm ơn Lê Thành Nam/);
+  assert.match(both, /Nhân viên[\s\S]*người nhận phản hồi/);
+  assert.match(both, /Bạn[\s\S]*quản lý trực tiếp/);
+  assert.doesNotMatch(both, /\d{2}\/\d{2}\/\d{4}/);
+});
+
+test('manager feedback card offers the thank action until the manager has used it', () => {
+  const thanks = require('./manager-thanks.js');
+  const data = require('./manager-feedback-data.js');
+  const employee = {name:'Tú', ini:'NT', login:'tu.nguyen'};
+  const item = {id:'f1', thankedByReceiver:true, sender:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ'}, date:'05/06/2026', body:'Nội dung', cv:[]};
+  const store = thanks.createStore(fakeStorage(), 'test.card');
+  thanks.use(store);
+  try {
+    const before = data.feedbackCard(item, employee);
+    // tim của nhân viên đã có sẵn, nút vẫn còn cho quản lý
+    assert.match(before, /data-thx-receiver="1"/);
+    assert.match(before, /class="h-rcv"/);
+    assert.match(before, /class="fb-thx" data-thx-id="f1"/);
+    assert.match(before, /onclick="thankFeedback\('f1',this\)"/);
+    // thanh cảm ơn nằm ở CHÂN card, đúng vị trí và cách thể hiện của màn nhân viên E-04
+    assert.match(before, /<div class="fb-thx-bar"><button type="button" class="fb-thx"/);
+    assert.match(before, /<span class="fb-thx-hint">Gửi tim tim để cảm ơn người cho phản hồi nhé<\/span><\/div><\/article>$/);
+    // tim lẻ của nhân viên nêu tên đúng người đã cho phản hồi
+    assert.match(before, /Nhân viên đã cảm ơn Trương Minh Đức/);
+    assert.doesNotMatch(before, /fb-date">05\/06\/2026[^<]*<[^/]/, 'dòng ngày giữ nguyên, không nhét nút vào');
+    store.add('f1');
+    const after = data.feedbackCard(item, employee);
+    assert.doesNotMatch(after, /class="fb-thx"/, 'đã thả tim thì nút biến mất');
+    assert.match(after, /h-mgr[\s\S]*h-cut[\s\S]*h-rcv/, 'còn lại dấu hai tim');
+    assert.match(after, /Đã cảm ơn Trương Minh Đức/);
+  } finally {
+    thanks.use(null);
+  }
+});
+
+test('manager feedback card stays unchanged when the thanks module is not wired in', () => {
+  const thanks = require('./manager-thanks.js');
+  const data = require('./manager-feedback-data.js');
+  thanks.use(null);
+  const card = data.feedbackCard({id:'f1', thankedByReceiver:true, sender:{name:'An', dom:'an.le', ini:'AL'}, date:'01/08/2026', body:'Nội dung', cv:[]}, {name:'Tú'});
+  assert.doesNotMatch(card, /thx-mark|fb-thx/);
+});
+
+test('both manager surfaces load the thanks module and share one localStorage state', () => {
+  const pages = [fs.readFileSync(pagePath, 'utf8'), fs.readFileSync(detailPath, 'utf8')];
+  for (const html of pages) {
+    assert.match(html, /<script src="manager-thanks\.js"><\/script>/);
+    assert.match(html, /ManagerThanks\.use\(ManagerThanks\.createStore\(window\.localStorage\)\)/);
+    assert.match(html, /function thankFeedback\(id,button\)\{const who=ManagerThanks\.thank\(id,button\);/);
+    // cùng một bộ màu chốt cho hai tim, dùng chung ở popup, split view và trang chi tiết
+    assert.match(html, /\.thx-mark \.h-rcv\{fill:#a50064\}/);
+    assert.match(html, /\.thx-mark \.h-mgr\{fill:#f95396\}/);
+    assert.match(html, /\.thx-mark svg\{display:block;height:14px/);
+    // ô chú thích luôn nằm gọn trên MỘT dòng, không bị ngắt giữa chừng vì tên dài
+    assert.match(html, /\.thx-tip\{[^}]*width:max-content;white-space:nowrap/);
+    // DESIGN-SYSTEM 19.0: cấm middot, mọi chỗ ngăn cách metadata phải dùng " - "
+    assert.doesNotMatch(html, /·/);
+    assert.doesNotMatch(html, /\.thx-tip\{[^}]*max-width/);
+    // thanh cảm ơn dùng đúng bộ style của E-04: kẻ đứt, nút pill, dòng gợi ý, thu lại khi bấm
+    assert.match(html, /\.fb-thx-bar\{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var\(--z200\)/);
+    assert.match(html, /\.fb-thx-bar\.gone\{opacity:0;height:0/);
+    assert.match(html, /\.fb-thx\{[^}]*padding:5px 13px;border-radius:20px;font-size:12\.5px/);
+    assert.match(html, /\.fb-thx-hint\{font-size:11\.5px;color:var\(--z500\)\}/);
+  }
+});
+
+test('thanks module follows the design-system metadata separator rule (no middot)', () => {
+  // DESIGN-SYSTEM 19.0: TUYỆT ĐỐI không dùng middot "·" trong text UI — luôn là " - ".
+  const source = fs.readFileSync(path.join(__dirname, 'manager-thanks.js'), 'utf8');
+  assert.doesNotMatch(source, /·/);
+  assert.match(source, /<em>- \$\{role\}<\/em>/);
+});

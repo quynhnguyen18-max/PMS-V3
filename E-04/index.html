@@ -209,9 +209,36 @@ input,select,textarea{font-family:inherit}
 .qrow-hr{border-color:var(--brand-ring);background:var(--brand-muted);box-shadow:inset 3px 0 var(--brand)}
 .av-hr{background:var(--brand);color:#fff}
 .av-hr i,.fb-av-hr i{font-size:14px}
-.qrow-closed{background:var(--z50);border-color:var(--z200);box-shadow:inset 3px 0 var(--z300)}
-.qrow-closed-note{display:inline-flex;align-items:center;gap:5px;margin-top:5px;color:var(--z600);font-size:11.5px}
-.qrow-closed-note i{font-size:14px;color:var(--z500)}
+/* Lối vào lịch sử: một dòng chữ mảnh ở chân thẻ, cố ý KHÔNG làm thành nút hay thẻ riêng
+   để không cạnh tranh với việc cần làm. */
+.hist-link{display:flex;align-items:center;gap:6px;width:100%;margin-top:8px;padding:6px 2px 0;border:0;border-top:1px solid var(--z100);
+  background:none;color:var(--z500);font-size:11.5px;font-weight:500;transition:var(--t)}
+.hist-link:hover{color:var(--brand)}
+.hist-link i{font-size:14px}
+.hist-link .n{margin-left:auto;color:var(--z400);font-weight:600}
+.queue-empty{display:flex;align-items:center;gap:6px;padding:4px 2px;color:var(--z500);font-size:12px}
+.queue-empty i{font-size:15px;color:var(--ok)}
+/* ── DÒNG YÊU CẦU ĐÃ ĐÓNG trong popup lịch sử ── */
+.closed-note{margin:0 0 4px;color:var(--z800);font-size:12.5px;line-height:1.55}
+.crow{display:flex;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}
+.crow-main{min-width:0;flex:1}
+.crow-t{font-size:12.5px;color:var(--z900);line-height:1.45}
+.crow-t b{font-weight:600}
+.crow-t .q-pre{color:var(--z500);font-weight:400}
+.crow-ctx{font-size:11.5px;color:var(--z500);margin-top:2px}
+.crow-q{font-size:12px;color:var(--z600);line-height:1.5;margin-top:5px;padding-left:9px;border-left:2px solid var(--z200)}
+.crow-rest{display:none}
+.crow.crow-open .crow-rest{display:block}
+.crow-toggle{margin-top:5px;padding:0;border:0;background:none;color:var(--z600);font-size:11.5px;font-weight:600}
+.crow-toggle:hover{color:var(--z900)}
+.crow-toggle:hover{text-decoration:underline}
+/* Ngày gửi, ngày đóng và lý do đóng nằm CÙNG một hàng — cùng là metadata của một sự kiện. */
+.crow-meta{display:flex;align-items:center;flex-wrap:wrap;gap:5px 14px;margin-top:7px;font-size:11px;color:var(--z500)}
+.crow-meta span{display:inline-flex;align-items:center;gap:4px}
+.crow-meta i{font-size:13px;color:var(--z400)}
+.crow-why{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;
+  background:var(--z100);color:var(--z600);font-size:11px;font-weight:600}
+.crow-why i{font-size:13px}
 .qrow-mini-hr .qm-name{color:var(--z900);font-weight:600}
 /* Card gộp một bộ câu hỏi HR trong "Phản hồi đã cho". */
 .fb-card-hr{border-color:var(--brand-ring)}
@@ -350,7 +377,26 @@ input,select,textarea{font-family:inherit}
 .fb-thx-hint{font-size:11.5px;color:var(--z500)}
 @keyframes thx-pop{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
 .fb-thx.pop{animation:thx-pop .42s cubic-bezier(.3,1.6,.5,1)}
-.thx-mark{color:var(--brand);font-size:14px;line-height:1;display:inline-flex;margin-left:1px}
+.thx-mark{color:var(--brand);font-size:14px;line-height:1;display:inline-flex;align-items:center;margin-left:1px;vertical-align:-2px}
+/* Hai trái tim cùng gam hồng MoMo: tim của người nhận phản hồi #a50064 (hồng MoMo),
+   tim của quản lý trực tiếp #f95396 (hồng +1). Khi cả hai cùng cảm ơn thì hai tim
+   chồng lệch kiểu Facebook, tách nhau bằng một viền trắng mảnh. Cao 15px nên nằm
+   gọn trong dòng tên sẵn có — card không cao thêm. */
+.thx-mark svg{display:block;height:15px;width:auto}
+.thx-mark .h-rcv{fill:#a50064}
+.thx-mark .h-mgr{fill:#f95396}
+.thx-mark .h-cut{fill:none;stroke:var(--z0);stroke-width:3.8;stroke-linejoin:round}
+/* Ô chú thích gộp làm một: liệt kê ai đã cảm ơn, mỗi người một dòng, không có thời gian. */
+.thx-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:1100;width:max-content;white-space:nowrap;
+  padding:7px 10px;border-radius:6px;background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;line-height:1.45;text-align:left;
+  pointer-events:none;opacity:0;transition:opacity .12s ease}
+.thx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
+.thx-mark:hover .thx-tip,.thx-mark:focus-visible .thx-tip{opacity:1}
+.thx-tip-title{display:block;font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--z400);padding-bottom:3px}
+.thx-tip-row{display:flex;align-items:flex-start;gap:6px;padding:1px 0}
+.thx-tip-dot{width:9px;height:9px;border-radius:50%;background:#a50064;flex:none;margin-top:4px}
+.thx-tip-row.mgr .thx-tip-dot{background:#f95396}
+.thx-tip-row em{font-style:normal;color:var(--z400)}
 @keyframes thx-mark-in{0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.35) rotate(4deg);opacity:1}100%{transform:scale(1);opacity:1}}
 .thx-mark.pop{animation:thx-mark-in .5s cubic-bezier(.3,1.6,.5,1) both}
 @keyframes thx-heart-up{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
@@ -547,6 +593,84 @@ input,select,textarea{font-family:inherit}
 /* textarea */
 .compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:var(--z0)}
 .compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
+/* ── Hướng dẫn STAR / STAR-AR chìm trong ô soạn phản hồi ──────────────────
+   Lớp phủ không nhận chuột nên bấm vào đâu cũng là bấm vào textarea.
+   Ô soạn cao sẵn đủ chứa hướng dẫn nên khi ẩn đi không bị nhảy layout.
+   Placeholder gốc bị làm trong suốt lúc hướng dẫn hiện, và trở lại khi ô được focus. */
+/* ══ HAI CÁCH HIỂN THỊ HƯỚNG DẪN — CÙNG HIỆN để sếp review rồi chọn bỏ một ══
+   A: hướng dẫn chìm ngay trong ô, đọc được liền, mất khi bấm vào ô.
+   B: nút bóng đèn cạnh nhãn, bấm ra bảng chi tiết dưới ô, ở lại trong lúc gõ. */
+.ta-wrap{position:relative}
+.ta-wrap:hover .compose-ta:not(:focus):not(.has-bg){border-color:var(--z400)}
+/* Chỉ nới cao khi CHƯA chọn nền — chọn nền rồi thì .compose-ta.has-bg đã cho 170px,
+   đè lên nó là hướng dẫn bị cắt mất dòng cuối. */
+.ta-wrap .compose-ta:not(.has-bg){min-height:146px}
+.compose-ta.guide-on::placeholder,.compose-ta.guide-on.has-bg::placeholder{color:transparent}
+.ta-guide{position:absolute;inset:0;padding:10px 12px;pointer-events:none;color:var(--z400);text-align:left;
+  font-size:11.5px;line-height:1.5;transition:opacity .14s ease}
+.ta-guide.hide{opacity:0}
+/* Dòng mời viết là thứ đậm nhất trong ô để mắt hiểu "đây là chỗ gõ";
+   phần mẹo lùi xuống --z400 và 11px thành phụ chú, tránh bị đọc thành infobox. */
+.tg-prompt{margin:0;font-size:13px;line-height:1.6;color:var(--z500)}
+.tg-tip{margin:0 0 5px;font-size:11px;line-height:1.5;color:var(--z400)}
+.tg-tip:last-child{margin-bottom:0}
+/* Cùng cách xuống dòng với bảng chi tiết: tên mô hình một dòng, công thức dòng dưới. */
+.tg-tip-l{display:block;color:var(--z500)}
+.tg-tip b{font-weight:700;color:var(--z500)}
+#giveGuideTip{margin-top:7px}
+/* Chọn nền: mượn màu chữ của nền và bám padding của nền, nhưng LUÔN căn trái. */
+.compose-ta.has-bg+.ta-guide{color:var(--ta-fg,#fff);opacity:.92;text-shadow:0 1px 2px rgba(255,255,255,.75);
+  padding:var(--ta-pad,30px 22px);text-align:left}
+.compose-ta.has-bg.ta-dark+.ta-guide{text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.compose-ta.has-bg+.ta-guide .tg-prompt,.compose-ta.has-bg+.ta-guide .tg-tip{color:inherit}
+/* ── Mẹo viết phản hồi ────────────────────────────────────────────────────
+   Nằm cuối hàng nhãn "Nội dung phản hồi" — hàng này vốn bỏ trống bên phải nên
+   không tốn thêm dòng nào. Bảng mẹo mở ra ngay dưới ô soạn và ở lại trong lúc
+   người dùng đang gõ — khác placeholder, vốn tắt ngay khi bắt đầu viết. */
+/* Nhãn gốc có margin-bottom:7px; bọc vào hàng flex là mất, làm ô soạn dính sát nhãn
+   và icon trông như dán vào viền ô. Trả lại đúng 7px cho cả hàng. */
+.field-label-row{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}
+.field-label-row .field-label{margin-bottom:0}
+/* Chỉ còn icon: nút chữ trước đây quá to nên nằm sát mép ô, trông như dính vào viền. */
+/* Icon nằm gần đỉnh vùng cuộn của popup nên tooltip xổ lên bị header che mất —
+   cho xổ xuống, và neo về bên phải để không tràn khỏi mép popup. */
+.tip-btn-wrap{flex-shrink:0}
+.tip-btn-wrap .fb-badge-tip{bottom:auto;top:calc(100% + 7px);left:auto;right:0;transform:none}
+.tip-btn-wrap .fb-badge-tip::after{top:auto;bottom:100%;left:auto;right:8px;transform:none;
+  border-top-color:transparent;border-bottom-color:var(--z900)}
+.tip-btn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;
+  border:1px solid transparent;border-radius:50%;background:none;color:var(--brand);font-size:16px;transition:var(--t)}
+.tip-btn:hover{background:var(--brand-muted);border-color:var(--brand-ring)}
+.tip-btn[aria-expanded="true"]{background:var(--brand-muted);border-color:var(--brand-ring)}
+.tip-btn:focus-visible{outline:2px solid var(--brand-ring);outline-offset:1px}
+/* Mở popup thì bóng đèn nháy vài nhịp để kéo mắt, rồi thôi — không nháy mãi gây rối. */
+/* Nhịp đập LIÊN TỤC, không phải vài nhịp rồi thôi: chạy vài giây rồi tắt thì người dùng
+   nhìn sang là đã đứng im, coi như không có hiệu ứng gì. Đập cách quãng 1.9s một nhịp nên
+   vẫn kéo mắt mà không nhấp nháy liên hồi gây rối. Dừng hẳn khi người dùng đã tương tác. */
+@keyframes tip-blink{
+  0%{transform:scale(1);background:var(--brand-muted);box-shadow:0 0 0 0 rgba(165,0,100,.5)}
+  14%{transform:scale(1.28);background:var(--brand);color:#fff;box-shadow:0 0 0 6px rgba(165,0,100,.16)}
+  30%{transform:scale(1);background:var(--brand-muted);color:var(--brand);box-shadow:0 0 0 12px rgba(165,0,100,0)}
+  44%{transform:scale(1.16);background:var(--brand);color:#fff;box-shadow:0 0 0 0 rgba(165,0,100,0)}
+  60%,100%{transform:scale(1);background:var(--brand-muted);color:var(--brand);box-shadow:0 0 0 0 rgba(165,0,100,0)}}
+.tip-btn.blink{animation:tip-blink 1.9s ease-out infinite}
+/* Chấm báo đứng yên: vừa là tín hiệu "có gì đó mới ở đây" khi mắt chưa bắt được nhịp đập,
+   vừa là phương án thay thế cho máy đã tắt hiệu ứng chuyển động. */
+.tip-btn.blink::after{content:'';position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:50%;
+  background:var(--brand);border:1.5px solid var(--z0);box-shadow:0 0 0 1px rgba(165,0,100,.25)}
+@media(prefers-reduced-motion:reduce){
+  .tip-btn.blink{animation:none;background:var(--brand-muted);border-color:var(--brand-ring)}}
+/* Nằm NGAY DƯỚI ô soạn chứ không nổi đè lên: mẹo phải đọc được trong lúc đang viết,
+   nên không được che mất chỗ gõ. Đóng lại thì khối biến mất hoàn toàn, không tốn chỗ. */
+.tip-pop{margin-top:8px;background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--r);padding:11px 13px}
+.tip-pop-h{font-size:12px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.tip-pop-p{margin:0 0 9px;font-size:12px;line-height:1.6;color:var(--z600)}
+.tip-pop-p:last-child{margin-bottom:0}
+/* Tên mô hình xuống dòng riêng: công thức phía sau dài, gộp chung một dòng thì mắt
+   không tách được đâu là tên mô hình, đâu là các vế cần điền. */
+.tip-pop-l{display:block;color:var(--z800)}
+.tip-pop-l b{font-weight:700}
+.tip-pop-l b:last-child{color:var(--brand);letter-spacing:.2px}
 /* ── Chọn nền cho ô nội dung (kiểu status Facebook) ── */
 .bg-row{display:flex;align-items:center;gap:9px;margin-top:8px}
 .bg-row-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);flex-shrink:0}
@@ -935,6 +1059,29 @@ input,select,textarea{font-family:inherit}
 </div>
 
 <!-- Cần bạn phản hồi — tất cả (overlay) -->
+<!-- Yêu cầu đã đóng — popup RIÊNG, không lồng tab với việc cần làm -->
+<div class="overlay" id="dlg-closed" onclick="if(event.target===this)closeOverlay('dlg-closed')">
+  <div class="dialog md">
+    <!-- DS 16: header chỉ có title 1 dòng → nền hồng nhạt qua modifier .dlg-hd--brand -->
+    <div class="dlg-hd dlg-hd--brand">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="dlg-title">Yêu cầu đã đóng</div>
+        <span class="queue-cnt" id="closedCnt">0</span>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-closed')">&#x2715;</button>
+    </div>
+    <div class="dlg-body" style="display:flex;flex-direction:column;gap:8px">
+      <!-- Dòng dẫn nhập để trần, không đóng khung: bỏ vào khung là thành một ô viền nữa,
+           lẫn với các ô yêu cầu ngay bên dưới. -->
+      <p class="closed-note">Những yêu cầu này đã được đóng, bạn không cần trả lời nữa. Danh sách giữ lại để bạn tra cứu khi cần.</p>
+      <div id="closedList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-closed')">Đóng</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="dlg-queue" onclick="if(event.target===this)closeOverlay('dlg-queue')">
   <div class="dialog md">
     <div class="dlg-hd dlg-hd--brand">
@@ -1007,9 +1154,38 @@ input,select,textarea{font-family:inherit}
 
         <!-- content -->
         <div class="field">
-          <label class="field-label">Nội dung phản hồi<span class="req-star">*</span></label>
+          <!-- Nhãn và link mẹo dùng chung một hàng sẵn có nên không phát sinh dòng mới. -->
+          <div class="field-label-row">
+            <label class="field-label" for="giveTA">Nội dung phản hồi<span class="req-star">*</span></label>
+            <span class="fb-badge-wrap tip-btn-wrap">
+              <button type="button" class="tip-btn" id="writeTipBtn" onclick="toggleWriteTip()"
+                aria-expanded="false" aria-controls="writeTip" aria-label="Mẹo hay để viết phản hồi"><i class="bx bx-bulb"></i></button>
+              <span class="fb-badge-tip">Mẹo hay để viết phản hồi</span>
+            </span>
+          </div>
           <div class="type-guide" id="typeGuide" style="display:none"></div>
-          <textarea class="compose-ta" id="giveTA" placeholder="Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?" oninput="onGiveInput()"></textarea>
+          <div class="ta-wrap">
+            <textarea class="compose-ta" id="giveTA" placeholder="Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?"
+              aria-describedby="giveGuideTip" oninput="onGiveInput()" onfocus="syncGiveGuide()" onblur="syncGiveGuide()"></textarea>
+            <!-- CÁCH A: hướng dẫn chìm trong ô. Dòng đầu trùng placeholder thật nên ẩn khỏi
+                 screen reader; phần mẹo nối vào ô qua aria-describedby để vẫn nghe được khi gõ. -->
+            <div class="ta-guide" id="giveGuide">
+              <p class="tg-prompt" aria-hidden="true">Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?</p>
+              <div id="giveGuideTip">
+                <p class="tg-tip"><span class="tg-tip-l">1. Để <b>ghi nhận</b> - dùng Mô hình <b>STAR</b>:</span>
+                  [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Kết quả tích cực đạt được].</p>
+                <p class="tg-tip"><span class="tg-tip-l">2. Để <b>góp ý xây dựng</b> - dùng Mô hình <b>STAR-AR</b>:</span>
+                  [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Hệ quả] + [Đề xuất cách làm tốt hơn] + [Kết quả tốt hơn nếu đổi cách làm].</p>
+              </div>
+            </div>
+          </div>
+          <div class="tip-pop" id="writeTip" role="dialog" aria-label="Mẹo viết phản hồi hiệu quả" hidden>
+            <div class="tip-pop-h">Mẹo viết phản hồi hiệu quả</div>
+            <p class="tip-pop-p"><span class="tip-pop-l">1. Để <b>ghi nhận</b> - dùng Mô hình <b>STAR</b>:</span>
+              [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Kết quả tích cực đạt được].</p>
+            <p class="tip-pop-p"><span class="tip-pop-l">2. Để <b>góp ý xây dựng</b> - dùng Mô hình <b>STAR-AR</b>:</span>
+              [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Hệ quả] + [Đề xuất cách làm tốt hơn] + [Kết quả tốt hơn nếu đổi cách làm].</p>
+            </div>
           <div class="bg-row">
             <span class="bg-row-lbl">Chọn nền</span>
             <div class="bg-list" id="bgList"></div>
@@ -1197,6 +1373,8 @@ function badgeImgs(list){
 
 /* người đang đăng nhập — không hiển thị domain/phòng ban của chính mình trên feed */
 const SELF={name:'Nguyễn Văn Tú', dom:'tu.nguyen', ini:'NT'};
+/* Quản lý trực tiếp của Tú — người có thể thả tim cảm ơn các phản hồi Tú nhận được */
+const SELF_MGR={name:'Lê Thị Thanh', dom:'thanh.le'};
 
 /* Hồ sơ đầy đủ dùng cho tooltip ở feed + popup chi tiết yêu cầu.
    Request data chỉ cần giữ org ngắn; position được resolve thống nhất theo domain. */
@@ -1221,7 +1399,9 @@ function initials(name){ return String(name||'').trim().split(/\s+/).slice(-2).m
 /* kind: received | given | request ; cycle theo mục 6b */
 const FEED = [
   // ── RECEIVED ──
-  { kind:'received', id:'rcv-1', opened:true, thanked:false, cycle:'2026', date:'14/03/2026', ts:20260314, vis:'receiver',
+  /* mgrThx: quản lý trực tiếp của mình (SELF_MGR) đã thả tim cảm ơn người cho phản hồi.
+     Chỉ có thể xảy ra với phản hồi được chia sẻ tới cấp quản lý. */
+  { kind:'received', id:'rcv-1', opened:true, thanked:false, mgrThx:true, cycle:'2026', date:'14/03/2026', ts:20260314, vis:'manager',
     who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
     body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi'] },
@@ -1231,10 +1411,15 @@ const FEED = [
     q:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.',
     cv:['Khách hàng là trung tâm'] },
-  { kind:'received', id:'rcv-3', opened:false, thanked:false, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager', backgroundId:'letter',
+  { kind:'received', id:'rcv-3', opened:true, thanked:true, mgrThx:true, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager', backgroundId:'letter',
     who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
     body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội'] },
+  /* Chỉ mình cảm ơn: phạm vi "Chỉ mình tôi" nên quản lý không xem được — vĩnh viễn một tim. */
+  { kind:'received', id:'rcv-5', opened:true, thanked:true, cycle:'2026', date:'28/07/2026', ts:20260728, vis:'receiver',
+    who:{name:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', org:'ITC – Backend – Software Engineer'},
+    body:'Mỗi lần mình hỏi về luồng thanh toán, Tú đều vẽ lại sơ đồ và giải thích từ đầu chứ không trả lời cho xong. Nhờ vậy mình nắm được hệ thống nhanh hơn hẳn so với đọc tài liệu.',
+    cv:['Tinh thần đồng đội'] },
   { kind:'received', id:'rcv-4', opened:true, thanked:true, cycle:'2025', date:'18/09/2025', ts:20250918, vis:'receiver',
     who:{name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform – Tech Lead'},
     body:'Năm nay Tú tiến bộ rõ về tư duy hệ thống. Các đề xuất kiến trúc của bạn ngày càng chững chạc và có tính đến vận hành lâu dài.',
@@ -1275,14 +1460,15 @@ const FEED = [
     who:{name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
     body:'Mai làm việc rất chủ động trong dự án Design System. Bạn không chỉ hoàn thành phần component được giao mà còn chủ động chuẩn hoá tài liệu Storybook, giúp cả team dùng lại dễ dàng hơn nhiều.',
     cv:['Tinh thần đồng đội','Thực thi xuất sắc'], vis:'receiver' },
-  { kind:'given', id:'gvn-2', cycle:'2026', date:'18/05/2026', ts:20260518, thankedAt:'19/05/2026',
+  /* mgrThx: quản lý trực tiếp của NGƯỜI NHẬN phản hồi đã thả tim cảm ơn mình. */
+  { kind:'given', id:'gvn-2', cycle:'2026', date:'18/05/2026', ts:20260518, thankedAt:'19/05/2026', mgrThx:{name:'Đỗ Quang Huy'},
     who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
     body:'Cảm ơn Lan đã hỗ trợ dựng bộ regression test cho payment module rất kỹ. Nhờ vậy đợt release vừa rồi mình phát hiện sớm được 2 lỗi nghiêm trọng trước khi lên production.',
     cv:['Khách hàng là trung tâm'], vis:'manager' },
-  { kind:'given', id:'gvn-3', cycle:'2026', date:'02/06/2026', ts:20260602,
+  { kind:'given', id:'gvn-3', cycle:'2026', date:'02/06/2026', ts:20260602, mgrThx:{name:'Phan Anh Tuấn'},
     who:{name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps – Platform Engineer'},
     body:'Đợt migration vừa rồi Hằng phản hồi rất nhanh mỗi khi có cảnh báo hạ tầng, kể cả ngoài giờ, nhờ vậy team không bị block ở bước chuyển dữ liệu. Nếu lần sau mình thống nhất trước kênh báo sự cố thì sẽ đỡ mất thời gian tìm đúng người.',
-    cv:['Tinh thần đồng đội'], vis:'receiver' },
+    cv:['Tinh thần đồng đội'], vis:'manager' },
   { kind:'given', id:'gvn-4', cycle:'2026', date:'20/06/2026', ts:20260620,
     who:{name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC – Data – Data Engineer'},
     body:'Đức chủ động tự học phần message queue rồi chia sẻ lại cho cả team trong buổi tech share tháng 6, phần ví dụ thực tế rất dễ hiểu. Nếu viết lại thành tài liệu ngắn thì người mới vào sẽ đỡ mất thời gian dò hỏi.',
@@ -1364,19 +1550,9 @@ const MEDIA_CAMPAIGNS = [
 ];
 const MEDIA_STATE={campaign:null,posterIndex:0,insights:[],viewedCampaignIds:new Set()};
 
-/* Thông báo "HR đã đóng yêu cầu" chỉ cần đọc một lần: đọc xong thì tự biến mất khỏi hàng đợi
-   vì người dùng không còn hành động nào phải làm. */
-const CLOSED_NOTICE_KEY='uc5_e04_closed_notice_seen';
-function closedNoticeSeenIds(){try{return new Set(JSON.parse(localStorage.getItem(CLOSED_NOTICE_KEY)||'[]'));}catch(error){return new Set();}}
-/* TẠM THỜI cho buổi review: luôn hiện thông báo yêu cầu đã đóng, bỏ luật chỉ-xem-một-lần.
-   Đổi cờ này về false là khôi phục nguyên hành vi thật, không phải sửa gì thêm. */
-const ALWAYS_SHOW_CLOSED_NOTICES=true;
-function closedNoticeSeen(id){return !ALWAYS_SHOW_CLOSED_NOTICES&&closedNoticeSeenIds().has(id);}
-function markClosedNoticesSeen(){
-  const ids=closedNoticeSeenIds();
-  QUEUE.filter(isClosedNotice).forEach(item=>ids.add(item.id));
-  try{localStorage.setItem(CLOSED_NOTICE_KEY,JSON.stringify([...ids]));}catch(error){}
-}
+/* Yêu cầu đã đóng KHÔNG còn là thông báo đọc-một-lần-rồi-mất: nó là lịch sử, phải tra
+   lại được bất cứ lúc nào. Vì vậy bỏ hẳn cơ chế đánh dấu đã xem; thay vào đó tách ra
+   khỏi ô "Cần bạn phản hồi" và cho một popup riêng để tra cứu. */
 function hrQueueFromProgram(programId,reviewerId){
   const raw=FeedbackProgramData.programById(programId),program=raw&&FeedbackProgramModel.normalizeCampaign(raw),detail=raw&&FeedbackProgramData.detailForProgram(raw);
   if(!program||!detail)return [];
@@ -1389,7 +1565,7 @@ function hrQueueFromProgram(programId,reviewerId){
       from:`HR - ${requester.name}`,dom:requester.domain||'',ini:requester.initials||initials(requester.name),about:'hr-program',
       feedbackReceiver:participant.employee,context:program.goal,questions:detail.questions||[],identityVisibility:program.identityVisibility,
       resultAudience:FeedbackProgramModel.resultAudience(program,participant.employee.id),sent:program.createdAt,dueDate:program.due,due:'còn 4 ngày',urgency:'normal',
-      programClosed:program.status==='closed'
+      programClosed:program.status==='closed',closedAt:program.closedAt||'',closedReason:'hr-closed'
     })));
 }
 const QUEUE = [
@@ -1408,10 +1584,10 @@ const QUEUE = [
   { cycle:'2026', from:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', about:'self', context:'Khảo sát trải nghiệm nội bộ', sent:'01/08/2026', dueDate:'11/08/2026', due:'còn 9 ngày', urgency:'normal' },
   { cycle:'2026', from:'Hồ Nhật Minh', dom:'minh.ho', ini:'HM', about:'self', context:'Hội thảo kỹ thuật nội bộ', sent:'02/08/2026', dueDate:'12/08/2026', due:'còn 10 ngày', urgency:'normal' },
   /* Ticket bị đóng: chỉ để báo, không còn hành động — hiển thị một lần rồi tự biến mất (giống thông báo của HR). */
-  { id:'ticket-closed-migration', cycle:'2026', ticketClosed:true, closedReason:'recipient-resigned',
+  { id:'ticket-closed-migration', cycle:'2026', ticketClosed:true, closedReason:'recipient-resigned', closedAt:'02/08/2026',
     from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Phạm Minh Đức', aboutDom:'duc.pham',
     context:'Thu thập góc nhìn về khả năng phối hợp trong dự án Migration', sent:'28/07/2026', dueDate:'15/08/2026', due:'', urgency:'normal' },
-  { id:'ticket-closed-roadmap', cycle:'2026', ticketClosed:true, closedReason:'manual',
+  { id:'ticket-closed-roadmap', cycle:'2026', ticketClosed:true, closedReason:'manual', closedAt:'20/07/2026',
     from:'Lê Thị Thanh', dom:'thanh.le', ini:'LT', about:'other', aboutName:'Vũ Thị Lan', aboutDom:'lan.vu',
     context:'Ghi nhận hiệu quả buổi trình bày Roadmap', sent:'05/07/2026', dueDate:'20/07/2026', due:'', urgency:'normal' },
 ].filter(Boolean);
@@ -1429,6 +1605,8 @@ function isClosedNotice(item){return !!(item&&(item.programClosed||item.ticketCl
 /* Câu chữ lấy từ bảng dùng chung trong ManagerRequestModel: mã lý do phải trùng với
    closeReason() bên M-04, đặt tên riêng ở đây là hai màn nói hai thứ tiếng. */
 function closedNoticeText(item){return ManagerRequestModel.reviewerNoticeText(item&&item.closedReason);}
+/* Ở màn lịch sử chỉ cần LÝ DO đóng: tiêu đề popup đã nói "Yêu cầu đã đóng" rồi. */
+function closedReasonShort(item){return ManagerRequestModel.closeReasonShort(item&&item.closedReason);}
 
 let curFilter='all';
 let queueExpanded=false;
@@ -1448,11 +1626,21 @@ function queueDueTs(item){
   const [day,month,year]=String(item&&item.dueDate||'').split('/').map(Number);
   return day&&month&&year?Date.UTC(year,month-1,day):Number.MAX_SAFE_INTEGER;
 }
-function visibleQueue(){
-  return QUEUE.filter(q=>cycleMatches(q.cycle)&&!(isClosedNotice(q)&&closedNoticeSeen(q.id)));
-}
+function visibleQueue(){ return QUEUE.filter(q=>cycleMatches(q.cycle)); }
+/* Ô "Cần bạn phản hồi" chỉ đếm và chỉ hiện việc CÒN PHẢI LÀM. Yêu cầu đã đóng không
+   còn hành động nào nên tính vào đây là báo sai số việc tồn cho nhân viên. */
+function actionQueue(){ return visibleQueue().filter(q=>!isClosedNotice(q)); }
 function sortedQueue(){
-  return visibleQueue().sort((a,b)=>(isHrQueueRequest(b)-isHrQueueRequest(a))||(queueDueTs(a)-queueDueTs(b)));
+  return actionQueue().sort((a,b)=>(isHrQueueRequest(b)-isHrQueueRequest(a))||(queueDueTs(a)-queueDueTs(b)));
+}
+/* Lịch sử: đóng gần nhất lên trước, vì tra cứu thường là tìm cái vừa xảy ra. */
+function closedQueue(){
+  return visibleQueue().filter(isClosedNotice)
+    .sort((a,b)=>tsFromDMYSafe(b.closedAt)-tsFromDMYSafe(a.closedAt));
+}
+function tsFromDMYSafe(value){
+  const [day,month,year]=String(value||'').split('/').map(Number);
+  return day&&month&&year?Date.UTC(year,month-1,day):0;
 }
 function queueRowHTML(q){
   const headline = isHrQueueRequest(q)
@@ -1462,17 +1650,6 @@ function queueRowHTML(q){
     : `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b> <span class="q-pre">cho</span> <b>${q.aboutName}</b>`;
   const dueIcon = q.urgency==='over' ? 'bx-error-circle' : 'bx-time-five';
   const hr = isHrQueueRequest(q);
-  /* Yêu cầu HR đã đóng chỉ để thông báo, không còn hành động nào cho nhân viên. */
-  if(isClosedNotice(q)){
-    return `<div class="qrow ${hr?'qrow-hr':''} qrow-closed">
-    <div class="av ${hr?'av-hr':'av-brand'} av-sm">${hr?'HR':q.ini}</div>
-    <div class="qrow-main">
-      <div class="qrow-t">${headline}</div>
-      ${hr?`<div class="qrow-sub">${q.context}</div>`:''}
-      <div class="qrow-closed-note"><i class="bx bx-lock-alt"></i>${closedNoticeText(q)}</div>
-    </div>
-  </div>`;
-  }
   return `<div class="qrow ${hr?'qrow-hr':''}">
     <div class="av ${hr?'av-hr':'av-brand'} av-sm">${hr?'HR':q.ini}</div>
     <div class="qrow-main">
@@ -1491,26 +1668,34 @@ function queueRailHTML(q){
     ? `${q.from} yêu cầu phản hồi cho ${q.aboutName} — ${q.context}`
     : `${q.from} yêu cầu phản hồi — ${q.context}`;
   if(isHrQueueRequest(q)){
-    return `<div class="qrow-mini qrow-mini-hr" onclick="${q.programClosed?`openQueueAll()`:`openReply('${q.id}')`}" title="${tip}">
+    return `<div class="qrow-mini qrow-mini-hr" onclick="openReply('${q.id}')" title="${tip}">
     <div class="av av-hr av-sm">HR</div>
     <span class="qm-name">Yêu cầu phản hồi cho ${q.feedbackReceiver.name}</span>
   </div>`;
   }
-  return `<div class="qrow-mini" onclick="${isClosedNotice(q)?`openQueueAll()`:`openReply('${q.id}')`}" title="${tip}">
+  return `<div class="qrow-mini" onclick="openReply('${q.id}')" title="${tip}">
     <div class="av av-brand av-sm">${q.ini}</div>
     <span class="qm-name">${q.from} <span class="qm-dom">(${q.dom})</span></span>
   </div>`;
 }
 function renderQueue(){
-  const items = sortedQueue();
+  const items = sortedQueue(), closed = closedQueue();
   document.getElementById('queueCnt').textContent = items.length;
   const sec = document.getElementById('queueSec');
-  if(!items.length){ sec.style.display='none'; return; }
+  /* Còn lịch sử thì thẻ vẫn phải hiện, nếu không nhân viên mất luôn lối vào tra cứu. */
+  if(!items.length && !closed.length){ sec.style.display='none'; return; }
   sec.style.display='';
   const LIMIT=3;
-  let html = items.slice(0,LIMIT).map(queueRailHTML).join('');
+  let html = items.length
+    ? items.slice(0,LIMIT).map(queueRailHTML).join('')
+    : `<div class="queue-empty"><i class="bx bx-check-circle"></i>Bạn đã trả lời hết các yêu cầu</div>`;
   if(items.length>LIMIT){
     html += `<button class="queue-more" onclick="openQueueAll()"><i class="bx bx-list-ul"></i> Xem tất cả (${items.length})</button>`;
+  }
+  /* Lối vào lịch sử: một dòng mảnh ở chân thẻ, không phải một thẻ riêng — lịch sử là thứ
+     thỉnh thoảng mới tra, không đáng chiếm chỗ ngang hàng với việc cần làm. */
+  if(closed.length){
+    html += `<button class="hist-link" onclick="openClosedQueue()"><i class="bx bx-archive"></i>Yêu cầu đã đóng<span class="n">${closed.length}</span></button>`;
   }
   document.getElementById('queueList').innerHTML = html;
 }
@@ -1519,7 +1704,56 @@ function openQueueAll(){
   document.getElementById('queueAllCnt').textContent = items.length;
   document.getElementById('queueAllList').innerHTML = items.map(queueRowHTML).join('');
   openOverlay('dlg-queue');
-  markClosedNoticesSeen();
+}
+/* ── LỊCH SỬ YÊU CẦU ĐÃ ĐÓNG ──────────────────────────────────────────────
+   Popup RIÊNG, không lồng tab chung với việc cần làm: hai việc khác nhau hẳn về mục đích,
+   gộp vào một chỗ là bắt người dùng phải phân biệt trước khi đọc. */
+function closedQuestions(q){
+  return isHrQueueRequest(q)
+    ? (q.questions||[]).map(question=>question.text).filter(Boolean)
+    : [itemQuestion(q)];
+}
+function closedQueueRowHTML(q,index){
+  const hr=isHrQueueRequest(q);
+  const dom = value => value ? ` <span class="fb-sender-dom">(${value})</span>` : '';
+  const headline = hr
+    ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b>${dom(q.dom)} <span class="q-pre">cho</span> <b>${q.feedbackReceiver.name}</b>${dom(q.feedbackReceiver.domain)}`
+    : q.about==='self'
+    ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b>${dom(q.dom)}`
+    : `<span class="q-pre">Yêu cầu phản hồi của</span> <b>${q.from}</b>${dom(q.dom)} <span class="q-pre">cho</span> <b>${q.aboutName}</b>${dom(q.aboutDom)}`;
+  const questions=closedQuestions(q);
+  const [first,...rest]=questions;
+  /* Bộ câu hỏi của HR có thể dài: hiện câu đầu, các câu còn lại gập lại cho khỏi ngợp. */
+  const more = rest.length
+    ? `<div class="crow-rest">${rest.map(text=>`<div class="crow-q">${text}</div>`).join('')}</div>
+       <button class="crow-toggle" type="button" onclick="toggleClosedRow(this)" aria-expanded="false">Xem thêm ${rest.length} câu hỏi</button>`
+    : '';
+  return `<article class="crow" data-i="${index}">
+    <div class="av ${hr?'av-hr':'av-gray'} av-sm">${hr?'HR':q.ini}</div>
+    <div class="crow-main">
+      <div class="crow-t">${headline}</div>
+      ${hr?`<div class="crow-ctx">${q.context}</div>`:''}
+      ${first?`<div class="crow-q">${first}</div>`:''}
+      ${more}
+      <div class="crow-meta">
+        <span><i class="bx bx-send"></i>Gửi ${q.sent||'—'}</span>
+        <span><i class="bx bx-lock-alt"></i>Đóng ${q.closedAt||'—'}</span>
+        <span class="crow-why"><i class="bx bx-info-circle"></i>${closedReasonShort(q)}</span>
+      </div>
+    </div>
+  </article>`;
+}
+function toggleClosedRow(button){
+  const row=button.closest('.crow'),open=row.classList.toggle('crow-open');
+  button.setAttribute('aria-expanded',String(open));
+  const rest=row.querySelectorAll('.crow-rest .crow-q').length;
+  button.textContent=open?'Thu gọn':`Xem thêm ${rest} câu hỏi`;
+}
+function openClosedQueue(){
+  const items=closedQueue();
+  document.getElementById('closedCnt').textContent=items.length;
+  document.getElementById('closedList').innerHTML=items.map(closedQueueRowHTML).join('');
+  openOverlay('dlg-closed');
 }
 
 function statusChip(st){
@@ -1569,6 +1803,53 @@ function visIcon(v, persp){
   return `<span class="fb-badge-wrap vis-ic"><i class="bx ${ic}"></i><span class="fb-badge-tip">${txt}</span></span>`;
 }
 
+/* ── DẤU CẢM ƠN ───────────────────────────────────────────────────────────
+   Một phản hồi có thể được cảm ơn bởi hai người:
+     • người NHẬN phản hồi        → tim hồng MoMo #a50064
+     • QUẢN LÝ TRỰC TIẾP của họ   → tim hồng +1 #f95396 (chỉ khi phản hồi được
+                                     chia sẻ tới cấp quản lý)
+   Tab "Đã nhận": người nhận là chính mình, nên là tim của mình + tim của quản lý mình.
+   Tab "Đã cho" : người nhận là đồng nghiệp, nên là tim của họ + tim của quản lý họ.
+   Vị trí không đổi so với trước — vẫn nằm ngay sau tên trên dòng đầu card. */
+const HEART_PATH='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+function heartSvg(who){
+  return `<svg viewBox="1 2 22 20.5" aria-hidden="true"><path class="h-${who}" d="${HEART_PATH}"/></svg>`;
+}
+/* Hai tim chồng lệch: tim quản lý nhô ra sau, tim người nhận nằm trước. */
+function heartPairSvg(){
+  return `<svg viewBox="0 1 27.5 20.5" aria-hidden="true">`
+    +`<path class="h-mgr" d="${HEART_PATH}" transform="translate(9.5,0) scale(0.78)"/>`
+    +`<path class="h-cut" d="${HEART_PATH}" transform="translate(0,3) scale(0.78)"/>`
+    +`<path class="h-rcv" d="${HEART_PATH}" transform="translate(0,3) scale(0.78)"/></svg>`;
+}
+/* rows: [{name, role, mgr}] — người nhận trước, quản lý sau. target: người được cảm ơn. */
+function thxMark(rows,target,extra){
+  if(!rows.length) return '';
+  const both=rows.length===2;
+  const art=both?heartPairSvg():heartSvg(rows[0].mgr?'mgr':'rcv');
+  const tip=both
+    ? `<span class="thx-tip"><span class="thx-tip-title">Đã cảm ơn ${target}</span>`
+      +rows.map(r=>`<span class="thx-tip-row ${r.mgr?'mgr':'rcv'}"><span class="thx-tip-dot"></span><span>${r.name}${r.role?` <em>- ${r.role}</em>`:''}</span></span>`).join('')
+      +`</span>`
+    : `<span class="thx-tip"><span class="thx-tip-row ${rows[0].mgr?'mgr':'rcv'}"><span class="thx-tip-dot"></span>`
+      +`<span>${rows[0].name}${rows[0].role?` (${rows[0].role})`:''} đã cảm ơn ${target}</span></span></span>`;
+  return `<span class="fb-badge-wrap thx-mark${extra?' '+extra:''}" tabindex="0">${art}${tip}</span>`;
+}
+/* Tab "Đã nhận": tim của mình + tim của quản lý mình, cùng cảm ơn người cho phản hồi. */
+function receivedThxRows(f,thanked){
+  const rows=[];
+  if(thanked) rows.push({name:'Bạn',role:'',mgr:false});
+  if(f.mgrThx) rows.push({name:SELF_MGR.name,role:'quản lý trực tiếp của bạn',mgr:true});
+  return rows;
+}
+/* Tab "Đã cho": tim của người nhận + tim của quản lý trực tiếp của họ, cùng cảm ơn mình. */
+function givenThxRows(f){
+  const rows=[];
+  if(f.thankedAt) rows.push({name:f.who.name,role:'',mgr:false});
+  if(f.mgrThx) rows.push({name:f.mgrThx.name,role:`quản lý trực tiếp của ${f.who.name}`,mgr:true});
+  return rows;
+}
+
 /* ── Trạng thái đọc / cảm ơn ──────────────────────────────────────────────
    FeedbackModel.normalizeFeed() TẠO OBJECT MỚI mỗi lần render, và còn sinh thêm
    card nhận từ câu trả lời yêu cầu (resp-*) vốn không nằm trong FEED.
@@ -1591,9 +1872,8 @@ function cardReceived(f){
   const st=fbState(f);
   const cv=visibleCardCv(f);
   if(!st.opened) return cardSealed(f);                // chưa mở → phong bì niêm phong
-  // dấu đã cảm ơn: 1 trái tim nhỏ cạnh tên trên header, không chiếm dòng riêng
-  const mark = st.thanked
-    ? `<span class="fb-badge-wrap thx-mark"><i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.who.name}</span></span>` : '';
+  // dấu đã cảm ơn: tim nhỏ cạnh tên trên header, không chiếm dòng riêng
+  const mark = thxMark(receivedThxRows(f,st.thanked), f.who.name);
   return `<div class="fb-card${hasCV(cv)}" data-kind="received" data-fb="${f.id}">
     ${cardCVs(cv)}
     ${cardHead(f.who, SELF, cardMeta(f.vis||'receiver', f.date), mark)}
@@ -1695,11 +1975,11 @@ function thankFb(id, btn){
   setTimeout(()=>{
     if(bar){ bar.style.height=bar.offsetHeight+'px'; requestAnimationFrame(()=>bar.classList.add('gone')); }
     const line=card&&card.querySelector('.fb-line');
-    if(line && !line.querySelector('.thx-mark')){
-      const m=document.createElement('span');
-      m.className='fb-badge-wrap thx-mark pop';
-      m.innerHTML=`<i class="bx bxs-heart"></i><span class="fb-badge-tip">Bạn đã cảm ơn ${f.who.name}</span>`;
-      line.appendChild(m);
+    if(line){
+      // quản lý đã cảm ơn từ trước thì trên dòng đã có sẵn một tim — thay hẳn bằng dấu hai tim
+      const html=thxMark(receivedThxRows(f,true), f.who.name, 'pop');
+      const existing=line.querySelector('.thx-mark');
+      if(existing) existing.outerHTML=html; else line.insertAdjacentHTML('beforeend',html);
     }
     setTimeout(()=>{ if(bar) bar.remove(); }, slow?400:0);
   }, slow?420:0);
@@ -1753,10 +2033,9 @@ function toggleHrGiven(button){
 function cardGiven(f){
   if((f.requestSource==='hr'||f.requestSource==='manager')&&(f.hrAnswers||[]).length)return cardGivenHrProgram(f);
   const cv=visibleCardCv(f);
-  // được người nhận cảm ơn → 1 trái tim nhỏ cạnh tên họ, cùng quy ước với phản hồi nhận
+  // được cảm ơn → tim nhỏ cạnh tên họ, cùng quy ước với phản hồi nhận
   const fresh = f.thankedAt && !thanksSeen();
-  const mark = f.thankedAt
-    ? `<span class="fb-badge-wrap thx-mark got${fresh?' ring':''}"><i class="bx bxs-heart"></i><span class="fb-badge-tip">${f.who.name} đã cảm ơn phản hồi này · ${f.thankedAt}</span></span>` : '';
+  const mark = thxMark(givenThxRows(f), 'bạn', `got${fresh?' ring':''}`);
   return `<div class="fb-card${hasCV(cv)}${fresh?' fb-fresh':''}" data-kind="given" data-fb="${f.id||''}">
     ${cardCVs(cv)}
     ${cardHead(SELF, f.who, cardMeta(f.vis, f.date, 'sender'), mark)}
@@ -2253,20 +2532,23 @@ function renderBgPick(){
 function pickBg(id){
   G.bg = (G.bg===id) ? null : id;                 // bấm lại ô đang chọn → bỏ nền
   const ta=document.getElementById('giveTA');
+  /* Đặt biến nền lên KHUNG BỌC: lớp phủ hướng dẫn là anh em của textarea nên không
+     kế thừa được biến đặt trên chính textarea — đặt sai chỗ là chữ luôn rơi về #fff. */
+  const wrap=ta.closest('.ta-wrap')||ta;
   const b=GIVE_BGS.find(x=>x.id===G.bg);
   if(b){
     ta.classList.add('has-bg');
     ta.classList.toggle('ta-dark', !!b.dark);      // chỉ nền tối mới cần đổ bóng chữ
     ta.style.background=b.css;
     ta.style.backgroundSize=b.size||'auto';
-    ta.style.setProperty('--ta-fg', b.fg||'#fff');
-    ta.style.setProperty('--ta-align', b.align||'center');
-    ta.style.setProperty('--ta-pad', b.pad||'30px 22px');
-    ta.style.setProperty('--ta-lh', b.lh||'1.6');
+    wrap.style.setProperty('--ta-fg', b.fg||'#fff');
+    wrap.style.setProperty('--ta-align', b.align||'center');
+    wrap.style.setProperty('--ta-pad', b.pad||'30px 22px');
+    wrap.style.setProperty('--ta-lh', b.lh||'1.6');
   } else {
     ta.classList.remove('has-bg','ta-dark');
     ta.style.background=''; ta.style.backgroundSize='';
-    ['--ta-fg','--ta-align','--ta-pad','--ta-lh'].forEach(p=>ta.style.removeProperty(p));
+    ['--ta-fg','--ta-align','--ta-pad','--ta-lh'].forEach(p=>wrap.style.removeProperty(p));
   }
   renderBgPick();
 }
@@ -2284,6 +2566,7 @@ function openGive(){
   document.getElementById('pickInput').value='';
   document.getElementById('pickResults').innerHTML='';
   document.getElementById('giveTA').value='';
+  toggleWriteTip(false);
   document.getElementById('aiPanel').style.display='none';
   document.getElementById('aiPanel').innerHTML='';
   document.getElementById('giveAiBar').style.display='flex';
@@ -2300,6 +2583,7 @@ function openGive(){
   syncGive();
   restoreGiveDraft();
   openOverlay('dlg-give');
+  blinkWriteTip();
   setTimeout(()=>document.getElementById('pickInput').focus(),50);
 }
 
@@ -2339,6 +2623,7 @@ function pickClear(){
 
 /* content + AI */
 function onGiveInput(){
+  stopBlinkWriteTip();
   G.fromSample=false;
   if(G.tplText!=null && document.getElementById('giveTA').value!==G.tplText) G.tplText=null;  // user tự sửa mẫu → ngừng đồng bộ
   // sửa tay sau khi AI → coi như vẫn là tác giả cuối; bỏ cờ aiUsed nếu khác bản gợi ý
@@ -2544,7 +2829,53 @@ function setGVis(v){
   syncGive();
 }
 
+/* CÁCH A — hướng dẫn chìm trong ô: chỉ hiện khi ô trống VÀ không được focus. */
+function syncGiveGuide(){
+  const ta=document.getElementById('giveTA'),guide=document.getElementById('giveGuide');
+  if(!ta||!guide) return;
+  const hide=document.activeElement===ta || ta.value.trim()!=='';
+  guide.classList.toggle('hide',hide);
+  ta.classList.toggle('guide-on',!hide);
+}
+/* Bảng mẹo viết phản hồi: mở/đóng bằng nút cạnh nhãn, đóng khi bấm ra ngoài hoặc Esc.
+   Cố ý KHÔNG tự đóng khi người dùng gõ — mẹo phải còn đó trong lúc viết mới có ích. */
+function toggleWriteTip(force){
+  const pop=document.getElementById('writeTip'),btn=document.getElementById('writeTipBtn');
+  if(!pop||!btn) return;
+  const open = (force===undefined) ? pop.hidden : force;
+  if(force===undefined) stopBlinkWriteTip();   // người dùng tự bấm → thôi mời gọi nữa
+  pop.hidden=!open;
+  btn.setAttribute('aria-expanded',String(open));
+  if(open) document.addEventListener('pointerdown',writeTipOutside,true);
+  else document.removeEventListener('pointerdown',writeTipOutside,true);
+}
+/* Nháy lại từ đầu mỗi lần mở popup: gỡ class rồi ép trình duyệt vẽ lại mới chạy lại animation. */
+/* Gọi NGAY SAU openOverlay(): lúc này overlay đã bỏ display:none nên animation mới chạy.
+   Gắn class đồng bộ chứ không đợi requestAnimationFrame — rAF không chạy khi tab bị ẩn,
+   người dùng quay lại tab sẽ thấy icon đứng im. Reflow ở giữa để nháy lại từ đầu mỗi lần mở. */
+function blinkWriteTip(){
+  const btn=document.getElementById('writeTipBtn'); if(!btn) return;
+  btn.classList.remove('blink');
+  void btn.offsetWidth;
+  btn.classList.add('blink');
+}
+/* Dừng khi người dùng đã tương tác: bấm vào icon, hoặc bắt đầu gõ nội dung.
+   Gõ rồi tức là họ đã vào việc — đập tiếp lúc đó là làm phiền chứ không còn là mời gọi. */
+function stopBlinkWriteTip(){
+  const btn=document.getElementById('writeTipBtn');
+  if(btn) btn.classList.remove('blink');
+}
+function writeTipOutside(event){
+  if(event.target.closest('#writeTip,#writeTipBtn')) return;
+  toggleWriteTip(false);
+}
+document.addEventListener('keydown',event=>{
+  if(event.key!=='Escape') return;
+  const pop=document.getElementById('writeTip');
+  if(pop && !pop.hidden){ event.stopPropagation(); toggleWriteTip(false); }
+},true);
 function syncGive(){
+  syncGiveGuide();
   const text=document.getElementById('giveTA').value.trim();
   document.getElementById('aiBtn').disabled = !text;
   const ok = G.recipient && text && G.vis;
@@ -2793,7 +3124,7 @@ function canRemindReviewer(request,reviewer,now=nowDMYTime()){if(!reviewer||revi
 function reminderReviewerKey(request,reviewer){return `${request.date}|${reviewer.dom}`;}
 function reminderReviewerHistory(request,reviewer,today=todayDMY()){const recorded=reviewer.manualReminderHistory||[],manual=(recorded.length?recorded:(reviewer.reminded?[reviewer.reminded]:[])).map(at=>({at,type:'manual'})),auto=reviewer.automaticRemindedAt||automaticReminderDate(request),automatic=dateTimeFromDMY(auto)<=dateTimeFromDMY(today)?[{at:auto,type:'automatic'}]:[];return [...manual,...automatic].sort((a,b)=>dateTimeFromDMY(a.at)-dateTimeFromDMY(b.at));}
 function reminderHistoryTooltip(history){return history.map((event,index)=>`Lần ${index+1}: ${event.at}`).join('<br>');}
-function reminderReviewerMeta(request,reviewer){const auto=reviewer.automaticRemindedAt||automaticReminderDate(request),history=reminderReviewerHistory(request,reviewer),manual=reviewer.reminded,autoPending=dateTimeFromDMY(auto)>dateTimeFromDMY(todayDMY());if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${auto}</span></div>`;if(justRemindedReviewers.has(reminderReviewerKey(request,reviewer))&&manual&&autoPending)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-bell"></i>Đã nhắc: ${manual} · Lần nhắc tiếp theo: ${auto}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
+function reminderReviewerMeta(request,reviewer){const auto=reviewer.automaticRemindedAt||automaticReminderDate(request),history=reminderReviewerHistory(request,reviewer),manual=reviewer.reminded,autoPending=dateTimeFromDMY(auto)>dateTimeFromDMY(todayDMY());if(!history.length)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-calendar"></i>Hệ thống sẽ tự động nhắc ngày ${auto}</span></div>`;if(justRemindedReviewers.has(reminderReviewerKey(request,reviewer))&&manual&&autoPending)return `<div class="reminder-meta"><span class="reminder-summary"><i class="bx bx-bell"></i>Đã nhắc: ${manual} - Lần nhắc tiếp theo: ${auto}</span></div>`;return `<div class="reminder-meta"><span class="reminder-summary who-tip"><i class="bx bx-bell"></i>Đã nhắc: ${history.length} lần<span class="fb-badge-tip reminder-history-tip">${reminderHistoryTooltip(history)}</span></span></div>`;}
 function requestDueRange(createdAt=todayDMY()){return ManagerRequestModel.dueRange(createdAt);}
 function configureReqDueRange(){const due=document.getElementById('reqDue');const range=requestDueRange();due.min=range.min;due.max=range.max;}
 /* Luật vòng đời yêu cầu nằm ở FeedbackModel, màn hình không chép lại.

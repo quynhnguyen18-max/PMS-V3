@@ -268,7 +268,8 @@ test('prototype 2026 data exposes all eight request responses in Received', () =
   const fromRequests = received.filter(item => item.requestId);
 
   assert.equal(fromRequests.length, 8);
-  assert.equal(received.length, 11);
+  // 8 câu trả lời theo yêu cầu + 4 phản hồi gieo sẵn (rcv-1, rcv-2, rcv-3, rcv-5) trong chu kỳ 2026
+  assert.equal(received.length, 12);
   assert.equal(new Set(received.map(item => item.id)).size, received.length);
 });
 
@@ -515,36 +516,183 @@ test('HR requests lead the action queue, stay anonymous in the list and land in 
   assert.match(html,/if\(isHr\)FEED\.unshift\(\{/);
 });
 
-test('closed HR requests and closed manager tickets both notify once, then disappear', () => {
+test('closed requests leave the action queue and live in their own history dialog', () => {
   const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
 
-  assert.match(html,/const CLOSED_NOTICE_KEY='uc5_e04_closed_notice_seen'/);
-  assert.match(html,/function markClosedNoticesSeen\(\)/);
-  // một khái niệm chung cho cả hai loại thông báo đóng
+  // một khái niệm chung cho cả hai loại yêu cầu đã đóng
   assert.match(html,/function isClosedNotice\(item\)\{return !!\(item&&\(item\.programClosed\|\|item\.ticketClosed\)\);\}/);
-  assert.match(html,/QUEUE\.filter\(isClosedNotice\)\.forEach\(item=>ids\.add\(item\.id\)\)/);
-  assert.match(html,/!\(isClosedNotice\(q\)&&closedNoticeSeen\(q\.id\)\)/);
-  /* Câu chữ nằm ở bảng dùng chung của ManagerRequestModel, màn hình không tự viết lại. */
+  /* Ô "Cần bạn phản hồi" chỉ đếm và chỉ hiện việc còn phải làm — tính cả yêu cầu đã đóng
+     vào đây là báo sai số việc tồn. */
+  assert.match(html,/function actionQueue\(\)\{ return visibleQueue\(\)\.filter\(q=>!isClosedNotice\(q\)\); \}/);
+  assert.match(html,/function sortedQueue\(\)\{\s*return actionQueue\(\)/);
+  // lịch sử: đóng gần nhất lên trước
+  assert.match(html,/function closedQueue\(\)\{[\s\S]{0,200}filter\(isClosedNotice\)[\s\S]{0,160}tsFromDMYSafe\(b\.closedAt\)-tsFromDMYSafe\(a\.closedAt\)/);
+  // KHÔNG còn cơ chế đọc-một-lần-rồi-mất: lịch sử phải tra lại được bất cứ lúc nào
+  assert.doesNotMatch(html,/CLOSED_NOTICE_KEY|markClosedNoticesSeen|closedNoticeSeen|ALWAYS_SHOW_CLOSED_NOTICES/);
+  // popup RIÊNG, không lồng tab chung với việc cần làm
+  assert.match(html,/<div class="overlay" id="dlg-closed"/);
+  assert.match(html,/function openClosedQueue\(\)\{[\s\S]{0,300}openOverlay\('dlg-closed'\)/);
+  assert.doesNotMatch(html,/id="dlg-queue"[\s\S]{0,600}pop-tab|queueAllList[\s\S]{0,200}closedList/);
+  // lối vào là một dòng mảnh ở chân thẻ, không phải thẻ riêng ở cột phải
+  assert.match(html,/class="hist-link" onclick="openClosedQueue\(\)"><i class="bx bx-archive"><\/i>Yêu cầu đã đóng/);
+  assert.match(html,/\.hist-link\{[^}]*border:0;border-top:1px solid var\(--z100\)/);
+  // hết việc nhưng còn lịch sử thì thẻ vẫn phải hiện, không thì mất lối vào tra cứu
+  assert.match(html,/if\(!items\.length && !closed\.length\)\{ sec\.style\.display='none'; return; \}/);
+});
+
+test('closed request history carries who, when sent, when closed and the question', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  // đủ bốn thông tin để tra cứu lại
+  assert.match(html,/<i class="bx bx-send"><\/i>Gửi \$\{q\.sent\|\|'—'\}/);
+  assert.match(html,/<i class="bx bx-lock-alt"><\/i>Đóng \$\{q\.closedAt\|\|'—'\}/);
+  /* Ở màn lịch sử chỉ nêu LÝ DO đóng — tiêu đề popup đã nói "Yêu cầu đã đóng" rồi,
+     nhắc lại "bạn không cần phản hồi" ở từng dòng là thừa. */
+  /* Ngày gửi, ngày đóng và lý do đóng nằm CÙNG một hàng metadata. */
+  assert.match(html,/<div class="crow-meta">\s*<span><i class="bx bx-send"><\/i>Gửi \$\{q\.sent\|\|'—'\}<\/span>\s*<span><i class="bx bx-lock-alt"><\/i>Đóng \$\{q\.closedAt\|\|'—'\}<\/span>\s*<span class="crow-why"><i class="bx bx-info-circle"><\/i>\$\{closedReasonShort\(q\)\}<\/span>\s*<\/div>/);
+  assert.match(html,/\.crow-meta\{display:flex;align-items:center;flex-wrap:wrap/);
+  assert.doesNotMatch(html,/\.crow-why\{[^}]*margin-top/);
+  assert.match(html,/function closedReasonShort\(item\)\{return ManagerRequestModel\.closeReasonShort\(item&&item\.closedReason\);\}/);
+  const shortText=require('../M-04/manager-request-model.js').closeReasonShort;
+  assert.equal(shortText('hr-closed'),'HR đã đóng yêu cầu');
+  assert.equal(shortText('manual'),'Quản lý đã đóng yêu cầu');
+  assert.equal(shortText('recipient-resigned'),'Người nhận phản hồi đã nghỉ việc');
+  assert.equal(shortText('expired'),'Yêu cầu hết hiệu lực vì quá 90 ngày');
+  assert.equal(shortText('khong-co-ma-nay'),'Yêu cầu đã đóng');
+  // không lặp lại phần "bạn không cần phản hồi" ở dòng lý do
+  Object.values({a:shortText('hr-closed'),b:shortText('manual'),c:shortText('recipient-resigned')})
+    .forEach(text=>assert.doesNotMatch(text,/không cần phản hồi|ticket đã đóng/));
+
+  // domain đi kèm cả người gửi (kể cả HR) lẫn người nhận
+  assert.match(html,/const dom = value => value \? ` <span class="fb-sender-dom">\(\$\{value\}\)<\/span>` : '';/);
+  assert.match(html,/<b>\$\{q\.from\}<\/b>\$\{dom\(q\.dom\)\} <span class="q-pre">cho<\/span> <b>\$\{q\.feedbackReceiver\.name\}<\/b>\$\{dom\(q\.feedbackReceiver\.domain\)\}/);
+  assert.match(html,/<b>\$\{q\.aboutName\}<\/b>\$\{dom\(q\.aboutDom\)\}/);
+
+  // DS 16: header chỉ có title 1 dòng → nền hồng nhạt
+  assert.match(html,/<div class="dlg-hd dlg-hd--brand">\s*<div style="display:flex;align-items:center;gap:8px">\s*<div class="dlg-title">Yêu cầu đã đóng<\/div>/);
+  // dòng dẫn nhập để chữ đậm cho dễ đọc
+  assert.match(html,/\.closed-note\{margin:0 0 4px;color:var\(--z800\)/);
+  // nút xem thêm câu hỏi dùng xám đậm, không dùng màu thương hiệu
+  assert.match(html,/\.crow-toggle\{[^}]*color:var\(--z600\)/);
+  assert.doesNotMatch(html,/\.crow-toggle\{[^}]*color:var\(--brand\)/);
+  assert.match(html,/function closedQuestions\(q\)\{[\s\S]{0,220}q\.questions\|\|\[\]\)\.map\(question=>question\.text\)/);
+  // dữ liệu mẫu phải có ngày đóng, nếu không cột "Đóng" luôn trống
+  assert.match(html,/id:'ticket-closed-migration'[\s\S]{0,160}closedAt:'02\/08\/2026'/);
+  assert.match(html,/id:'ticket-closed-roadmap'[\s\S]{0,160}closedAt:'20\/07\/2026'/);
+  assert.match(html,/programClosed:program\.status==='closed',closedAt:program\.closedAt\|\|''/);
+
+  // bộ câu hỏi của HR có thể dài → gập lại, bấm mới mở đủ
+  assert.match(html,/class="crow-toggle" type="button" onclick="toggleClosedRow\(this\)" aria-expanded="false">Xem thêm \$\{rest\.length\} câu hỏi/);
+  assert.match(html,/\.crow-rest\{display:none\}/);
+  assert.match(html,/\.crow\.crow-open \.crow-rest\{display:block\}/);
+
+  /* Dòng dẫn nhập để TRẦN, không đóng khung: thêm một khung viền nữa là lẫn với các ô
+     yêu cầu ngay bên dưới. */
+  assert.match(html,/<p class="closed-note">Những yêu cầu này đã được đóng, bạn không cần trả lời nữa\. Danh sách giữ lại để bạn tra cứu khi cần\.<\/p>/);
+  assert.match(html,/\.closed-note\{margin:0 0 4px;color:var\(--z800\);font-size:12\.5px;line-height:1\.55\}/);
+  assert.doesNotMatch(html,/\.closed-note\{[^}]*border/);
+
+  /* Câu chữ lý do đóng vẫn lấy từ bảng dùng chung của ManagerRequestModel. */
   assert.match(html,/function closedNoticeText\(item\)\{return ManagerRequestModel\.reviewerNoticeText\(item&&item\.closedReason\);\}/);
   assert.match(html,/<script src="\.\.\/M-04\/manager-request-model\.js"><\/script>/);
-
   const managerModel=require('../M-04/manager-request-model.js');
   assert.equal(managerModel.reviewerNoticeText('recipient-resigned'),'Người nhận phản hồi đã nghỉ việc, ticket đã đóng — bạn không cần phản hồi');
   assert.equal(managerModel.reviewerNoticeText('manual'),'Quản lý đã đóng yêu cầu, bạn không cần phản hồi');
-  assert.equal(managerModel.reviewerNoticeText('khong-co-ma-nay'),'Yêu cầu đã đóng, bạn không cần phản hồi');
-
-  /* Mã lý do phải là đúng bộ mã closeReason() của M-04 dùng, cộng mức ticket 'recipient-resigned'.
-     Đặt tên riêng ở E-04 là hai màn nói hai thứ tiếng về cùng một sự kiện. */
-  const managerReasons=['creator-resigned','manual','no-active-ticket','expired'];
-  managerReasons.forEach(code=>assert.ok(managerModel.closeReasonCodes().includes(code),`thiếu mã ${code}`));
-  assert.ok(managerModel.closeReasonCodes().includes('recipient-resigned'));
   [...html.matchAll(/closedReason:'([a-z-]+)'/g)].forEach(match=>
     assert.ok(managerModel.closeReasonCodes().includes(match[1]),`E-04 dùng mã lạ: ${match[1]}`));
+});
 
-  // dữ liệu mẫu có cả hai nguyên nhân đóng ticket của quản lý
-  assert.match(html,/id:'ticket-closed-migration'[\s\S]{0,120}closedReason:'recipient-resigned'/);
-  assert.match(html,/id:'ticket-closed-roadmap'[\s\S]{0,120}closedReason:'manual'/);
-  /* Thông báo đóng chỉ để đọc: không còn nút trả lời, bấm ở rail thì mở popup. */
-  assert.match(html,/qrow-closed[\s\S]{0,600}qrow-closed-note/);
-  assert.match(html,/isClosedNotice\(q\)\?`openQueueAll\(\)`/);
+test('thanks tooltip follows the design-system metadata separator rule (no middot)', () => {
+  // DESIGN-SYSTEM 19.0: TUYỆT ĐỐI không dùng middot "·" trong text UI — luôn là " - ".
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const from = html.indexOf('function thxMark(');
+  assert.ok(from > 0, 'phải tìm được hàm dựng dấu tim');
+  const mark = html.slice(from, html.indexOf('function receivedThxRows(', from));
+  assert.doesNotMatch(mark, /\u00B7/);
+  assert.match(mark, /<em>- \$\{r\.role\}<\/em>/);
+});
+
+test('both guide styles show together so reviewers can compare and drop one', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  assert.match(html, /<div class="ta-guide" id="giveGuide">/);
+  assert.match(html, /<div class="tip-pop" id="writeTip"/);
+  // không còn cơ chế tách chế độ — cả hai cùng chạy trên một màn
+  assert.doesNotMatch(html, /guide-inbox|guide-tip|applyGuideMode|GUIDE_MODE_KEY/);
+});
+
+test('style A keeps the STAR guide inside the compose box without clipping on any background', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const from = html.indexOf('<div class="ta-guide" id="giveGuide">');
+  const guide = html.slice(from, html.indexOf('</div>', html.indexOf('tg-tip"><span class="tg-tip-l">2.', from)));
+  assert.match(guide, /<p class="tg-prompt" aria-hidden="true">Bạn muốn phản hồi điều gì\?/);
+  // cùng cách xuống dòng và in đậm với bảng chi tiết
+  assert.match(guide, /<span class="tg-tip-l">1\. Để <b>ghi nhận<\/b> - dùng Mô hình <b>STAR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
+  assert.match(guide, /<span class="tg-tip-l">2\. Để <b>góp ý xây dựng<\/b> - dùng Mô hình <b>STAR-AR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
+  assert.match(html, /\.tg-tip-l\{display:block;color:var\(--z500\)\}/);
+  assert.doesNotMatch(guide, /\u00B7/);
+  // dòng mời viết đậm nhất, mẹo lùi xuống làm phụ chú — tránh bị đọc thành infobox
+  assert.match(html, /\.tg-prompt\{margin:0;font-size:13px;line-height:1\.6;color:var\(--z500\)\}/);
+  assert.match(html, /\.tg-tip\{margin:0 0 5px;font-size:11px;line-height:1\.5;color:var\(--z400\)\}/);
+  // bấm vào ô là ẩn, rời ô mà còn trống thì hiện lại
+  assert.match(html, /const hide=document\.activeElement===ta \|\| ta\.value\.trim\(\)!==''/);
+  assert.match(html, /onfocus="syncGiveGuide\(\)" onblur="syncGiveGuide\(\)"/);
+  assert.match(html, /function syncGive\(\)\{\s*syncGiveGuide\(\);/);
+  // LUÔN căn trái dù nền quy định căn giữa
+  assert.match(html, /\.ta-guide\{[^}]*text-align:left/);
+  assert.match(html, /padding:var\(--ta-pad,30px 22px\);text-align:left\}/);
+  // nới cao CHỈ khi chưa chọn nền — chọn nền rồi thì .compose-ta.has-bg đã cho 170px
+  assert.match(html, /\.ta-wrap \.compose-ta:not\(\.has-bg\)\{min-height:146px\}/);
+  // biến của nền đặt trên khung bọc để lớp phủ (anh em của textarea) kế thừa được
+  assert.match(html, /const wrap=ta\.closest\('\.ta-wrap'\)\|\|ta;/);
+  assert.match(html, /wrap\.style\.setProperty\('--ta-fg', b\.fg\|\|'#fff'\)/);
+  assert.doesNotMatch(html, /ta\.style\.setProperty\('--ta-fg'/);
+  assert.match(html, /aria-describedby="giveGuideTip"/);
+});
+
+test('style B is an icon-only bulb that blinks on open and names itself on hover', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  // Nút chữ cũ quá to nên nằm sát mép ô, trông như dính vào viền → chỉ còn icon 24px.
+  assert.match(html, /aria-controls="writeTip" aria-label="Mẹo hay để viết phản hồi"><i class="bx bx-bulb"><\/i><\/button>/);
+  assert.match(html, /\.tip-btn\{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px/);
+  assert.doesNotMatch(html, /<\/i>Mẹo viết phản hồi<\/button>/);
+  // hàng nhãn phải giữ lại margin-bottom 7px của .field-label, nếu không ô soạn dính sát nhãn
+  assert.match(html, /\.field-label-row\{[^}]*margin-bottom:7px\}/);
+  // tooltip xổ XUỐNG vì icon nằm gần đỉnh vùng cuộn, xổ lên bị header che
+  assert.match(html, /<span class="fb-badge-tip">Mẹo hay để viết phản hồi<\/span>/);
+  assert.match(html, /\.tip-btn-wrap \.fb-badge-tip\{bottom:auto;top:calc\(100% \+ 7px\);left:auto;right:0;transform:none\}/);
+  // nhịp đập LIÊN TỤC, không phải vài nhịp rồi tắt — tắt sớm thì nhìn sang đã đứng im
+  assert.match(html, /@keyframes tip-blink\{/);
+  assert.match(html, /\.tip-btn\.blink\{animation:tip-blink 1\.9s ease-out infinite\}/);
+  assert.doesNotMatch(html, /\.tip-btn\.blink\{animation:tip-blink [\d.]+s ease-out \d+\}/);
+  // chấm báo đứng yên, cũng là phương án cho máy đã tắt hiệu ứng chuyển động
+  assert.match(html, /\.tip-btn\.blink::after\{content:'';position:absolute;top:-1px;right:-1px;width:8px;height:8px/);
+  assert.match(html, /@media\(prefers-reduced-motion:reduce\)\{\s*\.tip-btn\.blink\{animation:none;background:var\(--brand-muted\);border-color:var\(--brand-ring\)\}\}/);
+  // dừng khi người dùng đã tương tác: bấm icon, hoặc bắt đầu gõ nội dung
+  assert.match(html, /if\(force===undefined\) stopBlinkWriteTip\(\);/);
+  assert.match(html, /function onGiveInput\(\)\{\s*stopBlinkWriteTip\(\);/);
+  // phải gắn class SAU khi overlay bỏ display:none, và gắn đồng bộ (rAF không chạy khi tab ẩn)
+  assert.match(html, /openOverlay\('dlg-give'\);\s*blinkWriteTip\(\);/);
+  assert.doesNotMatch(html, /function blinkWriteTip\(\)\{[\s\S]{0,400}?requestAnimationFrame/);
+  assert.match(html, /btn\.classList\.remove\('blink'\);\s*void btn\.offsetWidth;\s*btn\.classList\.add\('blink'\);/);
+  // Bảng chi tiết nằm NGAY SAU ô soạn, không nổi đè lên ô, không tự đóng khi gõ
+  const ta = html.indexOf('id="giveTA"'), pop = html.indexOf('<div class="tip-pop" id="writeTip"');
+  assert.ok(pop > ta && pop - ta < 1900, 'bảng mẹo phải nằm liền sau ô soạn');
+  assert.doesNotMatch(html, /\.tip-pop\{[^}]*position:absolute/);
+  assert.doesNotMatch(html, /function onGiveInput\(\)\{[\s\S]{0,400}?toggleWriteTip/);
+  assert.match(html, /document\.addEventListener\('pointerdown',writeTipOutside,true\)/);
+  assert.match(html, /if\(event\.key!=='Escape'\) return;/);
+});
+
+test('tip detail breaks the line after the colon and bolds the action words and model names', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const from = html.indexOf('<div class="tip-pop" id="writeTip"');
+  const tip = html.slice(from, html.indexOf('</div>', html.indexOf('2. Để <b>góp ý', from)));
+  assert.match(tip, /<div class="tip-pop-h">Mẹo viết phản hồi hiệu quả<\/div>/);
+  assert.match(tip, /<span class="tip-pop-l">1\. Để <b>ghi nhận<\/b> - dùng Mô hình <b>STAR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
+  assert.match(tip, /<span class="tip-pop-l">2\. Để <b>góp ý xây dựng<\/b> - dùng Mô hình <b>STAR-AR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
+  assert.match(html, /\.tip-pop-l\{display:block;color:var\(--z800\)\}/);
+  assert.match(html, /\.tip-pop-l b:last-child\{color:var\(--brand\)/);
+  // ra khỏi ô nhập thì không cần làm mờ: --z600 đạt chuẩn WCAG
+  assert.match(html, /\.tip-pop-p\{margin:0 0 9px;font-size:12px;line-height:1\.6;color:var\(--z600\)\}/);
+  assert.doesNotMatch(tip, /\u00B7/);
 });
