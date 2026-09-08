@@ -156,10 +156,18 @@ a{text-decoration:none}
 .tarot-body{position:relative;z-index:3;flex:1;display:flex;align-items:center;justify-content:center;padding:4px 22px;min-height:0}
 
 /* ── Mặt bài ───────────────────────────────────────────────── */
-.card{width:328px;height:504px;border-radius:15px;position:relative;flex-shrink:0;
-  background:linear-gradient(158deg,var(--tar-deep) 0%,var(--tar-plum) 52%,#7d0c50 100%);
-  box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(233,200,132,.28);
-  transform-style:preserve-3d}
+/* Ba tầng: .card-slot lo hiệu ứng rút bài, .card-flip lo cú lật, .card-face là
+   hai mặt. perspective phải đặt ở tầng CHA của phần tử xoay mới ra chiều sâu. */
+.card-slot{width:328px;height:504px;position:relative;flex-shrink:0;perspective:1500px;
+  filter:drop-shadow(0 24px 46px rgba(0,0,0,.55))}
+.card-flip{position:absolute;inset:0;transform-style:preserve-3d;
+  transition:transform .66s cubic-bezier(.26,.8,.3,1)}
+.card-flip.face-down{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;border-radius:15px;overflow:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  box-shadow:0 0 0 1px rgba(233,200,132,.28)}
+.face-front{background:linear-gradient(158deg,var(--tar-deep) 0%,var(--tar-plum) 52%,#7d0c50 100%)}
+.face-back{transform:rotateY(180deg);background:linear-gradient(158deg,#3a0a2a,#6c0c48 60%,var(--brand))}
 .card-frame{position:absolute;inset:11px;border:1px solid var(--tar-gold-soft);border-radius:9px;pointer-events:none}
 .card-frame::before,.card-frame::after{content:'';position:absolute;width:15px;height:15px;border:1px solid var(--tar-gold)}
 .card-frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
@@ -173,11 +181,12 @@ a{text-decoration:none}
 /* text-wrap:balance chia deu cac dong nen khong con dong cuoi tro tro mot chu. */
 .card-title{font-family:'MoMo Signature',cursive;font-size:33px;line-height:1.14;font-weight:400;color:var(--tar-gold);margin-bottom:10px;text-wrap:balance}
 .card-sub{font-size:13px;line-height:1.55;color:var(--tar-ink-dim);margin-bottom:16px;text-wrap:pretty}
-/* Hình chìm: icon nhỏ lặp kín mặt bài thay cho một icon to ở góc. Hàng chẵn
-   lệch nửa bước để ra hoa văn so le, giống mặt vải in chứ không phải lưới. */
-.card-tile{position:absolute;inset:-14px;z-index:0;pointer-events:none;display:flex;flex-direction:column;gap:30px;overflow:hidden}
-.tile-row{display:flex;gap:34px;flex-shrink:0;font-size:16px;line-height:1;color:rgba(233,200,132,.075)}
-.tile-row:nth-child(even){margin-left:17px}
+/* Hoa văn mặt trước: dùng LẠI đúng lưới chéo của mặt lưng, chỉ mờ hơn nhiều —
+   cùng một bộ bài thì hai mặt phải cùng một ngôn ngữ hoa văn. Icon boxicon lặp
+   lại trông như sticker dán, không ra chất bài, nên bỏ. */
+.card-tile{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:repeating-linear-gradient(45deg,transparent 0 9px,rgba(233,200,132,.07) 9px 10px),
+                   repeating-linear-gradient(-45deg,transparent 0 9px,rgba(233,200,132,.07) 9px 10px)}
 
 /* Ba dòng số, mỗi dòng một ý — thay cho câu văn dài tự xuống dòng giữa chừng
    ("6 đồng / nghiệp"). Cột số rộng cố định nên ba nhãn thẳng hàng nhau. */
@@ -253,12 +262,12 @@ a{text-decoration:none}
 @keyframes tap{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 
 /* ── Chuyển động đổi lá ──────────────────────────────────────── */
-.card.enter{animation:drawUp .52s cubic-bezier(.2,.8,.26,1) both}
+.card-slot.enter{animation:drawUp .52s cubic-bezier(.2,.8,.26,1) both}
 @keyframes drawUp{
   from{opacity:0;transform:translateY(56px) scale(.9) rotate(-3deg)}
   to{opacity:1;transform:none}
 }
-.card.leaving{animation:slideAway .34s ease-in both;position:absolute}
+.card-slot.leaving{animation:slideAway .34s ease-in both;position:absolute}
 @keyframes slideAway{
   to{opacity:0;transform:translate(-78px,26px) scale(.86) rotate(-7deg)}
 }
@@ -291,7 +300,9 @@ a{text-decoration:none}
 .spread-head h2{font-family:'MoMo Signature',cursive;font-size:34px;font-weight:400;color:var(--tar-gold);margin-bottom:5px;text-wrap:balance}
 .spread-head p{font-size:13px;color:var(--tar-ink-dim)}
 .fan{display:flex;justify-content:center;align-items:flex-end;padding:26px 0 8px;min-height:280px}
-.fan .mini-card{width:150px;height:231px;border-radius:11px;margin:0 -20px;cursor:pointer;position:relative;overflow:hidden;
+/* Chồng nhau 20px mỗi bên thì lá sau che mất 18px chữ của lá trước ("Điều họ
+   thấ|y"). Rút còn 10px: vẫn ra dáng xoè quạt mà chữ không bị lá bên cạnh ăn. */
+.fan .mini-card{width:150px;height:231px;border-radius:11px;margin:0 -10px;cursor:pointer;position:relative;overflow:hidden;
   background:linear-gradient(158deg,var(--tar-deep),var(--tar-plum) 55%,#7d0c50);
   box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 0 1px rgba(233,200,132,.26);
   transform-origin:bottom center;transition:transform .22s ease,box-shadow .22s ease;
@@ -299,21 +310,27 @@ a{text-decoration:none}
 .fan .mini-card:hover{transform:translateY(-16px) rotate(0deg) scale(1.05)!important;z-index:9;
   box-shadow:0 22px 46px rgba(0,0,0,.6),0 0 0 1px var(--tar-gold)}
 @keyframes fanIn{from{opacity:0;transform:translateY(40px) rotate(0)}}
-.mini-frame{position:absolute;inset:8px;border:1px solid var(--tar-gold-soft);border-radius:6px;padding:13px 12px;display:flex;flex-direction:column}
+.mini-frame{position:absolute;inset:8px;border:1px solid var(--tar-gold-soft);border-radius:6px;padding:13px 12px;display:flex;flex-direction:column;align-items:flex-start}
+/* Linh vật giữa lá nhỏ, đúng cái đang nằm trên mặt lưng — nhìn màn trải là
+   nhận ra ngay đây là bộ bài của mình. */
+.mini-mark{width:52px;height:52px;border-radius:50%;display:block;margin:auto auto 12px;
+  box-shadow:0 0 0 1px var(--tar-gold),0 0 16px rgba(233,200,132,.26)}
 .mini-roman{font-family:'MoMo Trust Display','MoMo Trust Sans','Public Sans',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tar-gold)}
 /* MoMo Signature rong hon Playfair nhieu, phai ha co xuong moi vua khung 150px. */
-.mini-title{font-family:'MoMo Signature',cursive;font-size:15px;line-height:1.2;color:var(--tar-gold);margin-top:auto;overflow-wrap:anywhere}
-.mini-key{font-size:11px;color:var(--tar-gold);margin-top:5px;font-weight:600}
+/* Bỏ .mini-key: với lá I và IV nó trùng y hệt tên lá nên hiện ra thành hai
+   dòng chữ giống nhau chồng lên nhau. */
+.mini-title{font-family:'MoMo Signature',cursive;font-size:15px;line-height:1.2;color:var(--tar-gold);width:100%;overflow-wrap:anywhere}
 
 /* ── Tôn trọng người tắt hiệu ứng ───────────────────────────── */
 @media (prefers-reduced-motion:reduce){
   .tarot-stage::before,.deck-card,.ritual-cta i{animation:none}
-  .card.enter,.card.leaving,.fan .mini-card,.deck.cutting .deck-card,
+  .card-flip{transition:none}
+  .card-slot.enter,.card-slot.leaving,.fan .mini-card,.deck.cutting .deck-card,
   .deck.cutting .deck-card:nth-child(1),.deck.cutting .deck-card:nth-child(2){animation-duration:.01ms}
 }
 @media (max-width:900px){
-  .card,.deck{width:290px;height:446px}
-  .fan .mini-card{width:118px;height:182px;margin:0 -14px}
+  .card-slot,.deck{width:290px;height:446px}
+  .fan .mini-card{width:118px;height:182px;margin:0 -6px}
 }
 </style>
 </head>
@@ -500,7 +517,7 @@ const ROMAN=['I','II','III','IV','V'];
 function CARDS(){
   const c=circle(), v=values(), g=given();
   return [
-    { key:'Vòng tròn', short:'Vòng tròn', glyph:'bx-group',
+    { short:'Vòng tròn',
       title:'Vòng tròn quanh bạn',
       sub:'Năm nay, đây là những đồng nghiệp trao cho bạn nhiều món quà nhất.',
       /* Số phản hồi đứng cạnh tên: đó mới là thông tin cần nhìn ra ngay, nên
@@ -513,7 +530,7 @@ function CARDS(){
           <span class="person-ct">${p.count}<i class="bx bx-gift"></i></span>
         </div>`).join('')}</div>`
     },
-    { key:v[0]?v[0].name:'—', short:'Ánh sáng', glyph:'bx-sun',
+    { short:'Ánh sáng',
       title:'Ánh sáng bạn toả ra',
       sub:'Những giá trị đồng nghiệp thấy rõ nhất ở bạn.',
       body:`<div class="cv-list">${v.map(row=>`
@@ -523,17 +540,17 @@ function CARDS(){
           <span class="cv-ct">${row.n}</span>
         </div>`).join('')}</div>`
     },
-    { key:'Điểm mạnh', short:'Điều họ thấy', glyph:'bx-show',
+    { short:'Điều họ thấy',
       title:'Điều mọi người nhìn thấy ở bạn',
       sub:'Ấn tượng đồng nghiệp giữ lại sau những lần làm việc cùng bạn.',
       body:`<ul class="quill">${AI_STRENGTHS.map(text=>`<li><i class="bx bxs-star"></i><span>${text}</span></li>`).join('')}</ul>`
     },
-    { key:'Mở đường', short:'Mở đường', glyph:'bx-key',
+    { short:'Mở đường',
       title:'Lá bài mở đường',
       sub:'Những điều đồng nghiệp tin sẽ đưa bạn đi xa hơn.',
       body:`<ul class="quill">${AI_GROWTH.map(text=>`<li><i class="bx bx-key"></i><span>${text}</span></li>`).join('')}</ul>`
     },
-    { key:`${g.total} lượt cho đi`, short:'Đã gieo', glyph:'bx-leaf',
+    { short:'Đã gieo',
       title:'Điều bạn đã gieo',
       sub:'Mỗi phản hồi bạn viết là một lần ai đó được nhìn thấy.',
       /* Một câu duy nhất mang cả ba con số, thay cho khối số rời rạc kèm nhãn
@@ -556,31 +573,44 @@ const deck=CARDS();
 function openStage(){STEP=-1;document.getElementById('stage').classList.add('open');render();}
 function closeStage(){document.getElementById('stage').classList.remove('open');}
 
-/* 12 hàng × 7 icon: mỗi hàng cao 46px (16 chữ + 30 gap) nên cần đủ 12 hàng mới
-   phủ hết 510px chiều cao vùng hoa văn; 9 hàng bỏ trống hẳn 126px dưới đáy bài. */
-function tileHTML(glyph){
-  const row=`<div class="tile-row">${`<i class="bx ${glyph}"></i>`.repeat(7)}</div>`;
-  return row.repeat(12);
+/* Mặt lưng dùng chung cho cả bộ: linh vật của giá trị nổi bật nhất người xem. */
+function backFaceHTML(){
+  const hero=values()[0];
+  return `<div class="deck-back"><div class="deck-mark"><img src="../Core value with BG/${hero?hero.art:'Teamwork.png'}" alt=""/></div></div>`;
 }
+/* Lá bài dựng sẵn ở trạng thái ÚP (.face-down); render xong mới gỡ class ra để
+   trình duyệt chạy transition lật. Không đợi một frame thì trạng thái đầu và
+   cuối vào cùng một lần tính layout, transition bị bỏ qua và bài hiện thẳng mặt. */
 function cardHTML(index,entering){
   const card=deck[index];
-  return `<article class="card ${entering?'enter':''}">
-    <span class="card-frame"></span>
-    <div class="card-inner">
-      <div class="card-tile" aria-hidden="true">${tileHTML(card.glyph)}</div>
-      <div class="card-roman">${ROMAN[index]}</div>
-      <div class="card-core">
-        <h2 class="card-title">${card.title}</h2>
-        <p class="card-sub">${card.sub}</p>
-        ${card.body}
-      </div>
+  return `<div class="card-slot ${entering?'enter':''}">
+    <div class="card-flip face-down">
+      <div class="card-face face-back">${backFaceHTML()}</div>
+      <article class="card-face face-front">
+        <span class="card-frame"></span>
+        <div class="card-inner">
+          <div class="card-tile" aria-hidden="true"></div>
+          <div class="card-roman">${ROMAN[index]}</div>
+          <div class="card-core">
+            <h2 class="card-title">${card.title}</h2>
+            <p class="card-sub">${card.sub}</p>
+            ${card.body}
+          </div>
+        </div>
+      </article>
     </div>
-  </article>`;
+  </div>`;
+}
+/* Giữ mặt úp một nhịp ngắn cho người xem kịp thấy mặt lưng rồi mới lật. */
+const FLIP_HOLD=300;
+function revealCard(){
+  const flip=document.querySelector('#stageBody .card-flip');
+  if(!flip)return;
+  requestAnimationFrame(()=>setTimeout(()=>flip.classList.remove('face-down'),FLIP_HOLD));
 }
 
 function deckHTML(){
-  const hero=values()[0];
-  const back=`<div class="deck-back"><div class="deck-mark"><img src="../Core value with BG/${hero?hero.art:'Teamwork.png'}" alt=""/></div></div>`;
+  const back=backFaceHTML();
   return `<div class="ritual-wrap">
     <div class="ritual">
       <h2>Chào Tú.</h2>
@@ -596,6 +626,7 @@ function deckHTML(){
   </div>`;
 }
 
+function heroArt(){const hero=values()[0];return hero?hero.art:'Teamwork.png';}
 function spreadHTML(){
   return `<div class="spread-wrap on">
     <div class="spread-head">
@@ -608,8 +639,8 @@ function spreadHTML(){
            onkeydown="if(event.key==='Enter'){goTo(${index});}">
         <div class="mini-frame">
           <div class="mini-roman">${ROMAN[index]}</div>
+          <img class="mini-mark" src="../Core value with BG/${heroArt()}" alt=""/>
           <div class="mini-title">${card.short}</div>
-          <div class="mini-key">${card.key}</div>
         </div>
       </div>`).join('')}</div>
   </div>`;
@@ -631,7 +662,7 @@ function render(entering){
   const body=document.getElementById('stageBody');
   if(STEP===-1)body.innerHTML=deckHTML();
   else if(STEP===deck.length)body.innerHTML=spreadHTML();
-  else body.innerHTML=cardHTML(STEP,entering!==false);
+  else{body.innerHTML=cardHTML(STEP,entering!==false);revealCard();}
   document.getElementById('stageFoot').innerHTML=footHTML();
 }
 
@@ -647,8 +678,8 @@ function cutDeck(){
 function move(delta){
   const next=STEP+delta;
   if(next<0||next>deck.length)return;
-  const current=document.querySelector('#stageBody .card');
-  if(current&&delta>0){current.classList.add('leaving');setTimeout(()=>{STEP=next;render(true);},220);}
+  const current=document.querySelector('#stageBody .card-slot');
+  if(current&&delta>0){current.classList.add('leaving');setTimeout(()=>{STEP=next;render(true);},180);}
   else{STEP=next;render(true);}
 }
 function goTo(index){STEP=index;render(true);}
