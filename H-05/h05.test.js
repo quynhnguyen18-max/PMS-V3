@@ -322,6 +322,25 @@ test('HR builder keeps the deadline compact and identity options aligned at lapt
   assert.match(page,/@media\(max-width:860px\)\{\.request-builder-form \.schedule-visibility\{grid-template-columns:1fr;gap:18px\}\}/);
 });
 
+test('identity visibility keeps every explanation inside the two option cards',()=>{
+  const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const design=fs.readFileSync(require.resolve('../DESIGN-SYSTEM.md'),'utf8');
+  const lead='Khi HR chia sẻ kết quả tới Quản lý và/hoặc Nhân viên, danh tính người cho phản hồi sẽ được:';
+  const anon='Chỉ nội dung phản hồi được hiển thị.';
+  const named='Hiển thị cả nội dung phản hồi và họ tên người cho.';
+  assert.ok(page.includes(`<div class="field-hint identity-lead">${lead}</div>`));
+  assert.ok(page.includes(`<span class="feedback-choice-title">Ẩn danh</span><small>${anon}</small>`));
+  assert.ok(page.includes(`<span class="feedback-choice-title">Hiển thị danh tính</span><small>${named}</small>`));
+  /* Giải thích gói gọn trong hai thẻ option — không còn ô diễn giải riêng bên dưới,
+     vì nó chỉ hiện sau khi chọn và nói lại đúng ý đã ghi trong thẻ. */
+  assert.doesNotMatch(page,/identityDynamicHint|identity-dyn-hint/);
+  assert.doesNotMatch(page,/HR chọn cách hiển thị danh tính trong kết quả phản hồi được chia sẻ/);
+  // DESIGN-SYSTEM là nguồn chuẩn của câu chữ này, phải cập nhật cùng lúc với màn hình
+  assert.ok(design.includes(lead));
+  assert.ok(design.includes(anon));
+  assert.ok(design.includes(named));
+});
+
 test('design system documents centered HR authoring and responsive context-width controls',()=>{
   const design=fs.readFileSync(require.resolve('../DESIGN-SYSTEM.md'),'utf8');
   assert.match(design,/Form authoring[^\n]*max-width 860px/i);
@@ -806,8 +825,12 @@ test('seeds a named-identity HR request item for Nguyễn Văn Tú',()=>{
 test('HR builder owns requester, identity and release messaging for structured programs',()=>{
   const builder=fs.readFileSync(path.join(__dirname,'create-campaign.html'),'utf8');
   assert.match(builder,/requestedBy:CURRENT_HR/);
-  assert.match(builder,/HR chọn cách hiển thị danh tính trong kết quả phản hồi được chia sẻ/);
-  assert.match(builder,/người cho phản hồi nhận Request Item của mình/);
+  assert.match(builder,/Khi HR chia sẻ kết quả tới Quản lý và\/hoặc Nhân viên, danh tính người cho phản hồi sẽ được:/);
+  /* Dòng lưu ý dưới "Lời ngỏ" có icon (i) đứng đầu để nhận ra ngay là thông tin,
+     không phải hướng dẫn nhập. */
+  assert.ok(builder.includes('<div class="field-hint field-hint-info"><i class="bx bx-info-circle"></i><span>Người cho và nhận phản hồi sẽ được thông báo về yêu cầu phản hồi đã tạo. Tuy nhiên, Báo cáo kết quả cuối cùng chỉ hiển thị khi HR chọn chia sẻ.</span></div>'));
+  assert.match(builder,/\.field-hint-info\{display:flex;align-items:flex-start;gap:6px\}/);
+  assert.doesNotMatch(builder,/người cho phản hồi nhận Request Item của mình/);
   assert.doesNotMatch(builder,/quản lý trực tiếp của người nhận đã được gửi thông báo/);
 });
 
