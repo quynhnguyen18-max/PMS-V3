@@ -166,39 +166,45 @@ a{text-decoration:none}
 .card-frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
 .card-inner{position:absolute;inset:11px;padding:26px 24px;display:flex;flex-direction:column;overflow:hidden}
 
-.card-roman{font-family:'MoMo Trust Display','MoMo Trust Sans','Public Sans',sans-serif;font-size:13px;letter-spacing:3px;color:var(--tar-gold);margin-bottom:auto}
+.card-roman{font-family:'MoMo Trust Display','MoMo Trust Sans','Public Sans',sans-serif;font-size:13px;letter-spacing:3px;color:var(--tar-gold)}
+/* Số La Mã neo trên đỉnh, phần còn lại canh giữa theo chiều dọc. Trước đây
+   card-roman ăn margin-bottom:auto nên đẩy toàn bộ nội dung xuống đáy bài. */
+.card-core{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
 /* text-wrap:balance chia deu cac dong nen khong con dong cuoi tro tro mot chu. */
 .card-title{font-family:'MoMo Signature',cursive;font-size:33px;line-height:1.14;font-weight:400;color:var(--tar-gold);margin-bottom:10px;text-wrap:balance}
 .card-sub{font-size:13px;line-height:1.55;color:var(--tar-ink-dim);margin-bottom:16px;text-wrap:pretty}
+/* Hình chìm hợp nội dung từng lá — đủ mờ để không tranh chỗ với chữ. */
+.card-glyph{position:absolute;right:-24px;bottom:-30px;font-size:172px;line-height:1;color:rgba(233,200,132,.075);pointer-events:none;z-index:0}
 
-/* con số lớn */
-.big-stat{display:flex;align-items:baseline;gap:9px;margin-bottom:3px}
-.big-num{font-family:'MoMo Signature',cursive;font-size:70px;line-height:.86;font-weight:400;color:var(--tar-gold)}
-.big-unit{font-size:14px;color:var(--tar-ink-dim)}
-.mini-row{display:flex;gap:18px;margin-top:14px}
-.mini-num{font-family:'MoMo Signature',cursive;font-size:30px;color:var(--tar-ink);line-height:1}
-.mini-lbl{font-size:11px;color:var(--tar-ink-dim);margin-top:2px}
+/* Câu tổng kết có số nhấn — chỉ con số được tô vàng, phần chữ giữ nguyên. */
+.seed-line{font-size:15px;line-height:1.95;color:var(--tar-ink);text-wrap:pretty}
+/* Số to quá thì câu vỡ nhịp và dòng cuối rớt lại một mình; 21px + màu vàng
+   đã đủ nổi, không cần cỡ chữ tiêu đề. */
+.seed-line b{font-family:'MoMo Signature',cursive;font-size:21px;font-weight:400;color:var(--tar-gold);line-height:1;padding:0 1px}
 
-/* danh sách người */
-.people{display:flex;flex-direction:column;gap:9px;margin-top:4px}
-.person-line{display:flex;align-items:center;gap:10px}
-.person-av{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;
-  background:rgba(233,200,132,.16);color:var(--tar-gold);border:1px solid var(--tar-gold-soft);flex-shrink:0}
-.person-nm{font-size:13.5px;font-weight:600;color:var(--tar-ink);line-height:1.25}
-.person-og{font-size:11px;color:var(--tar-ink-dim)}
+/* danh sách người — tên bên trái, số phản hồi bên phải cùng một cột */
+.people{display:flex;flex-direction:column;gap:13px;margin-top:2px}
+.person-line{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:11px}
+.person-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:700;
+  background:rgba(233,200,132,.16);color:var(--tar-gold);border:1px solid var(--tar-gold-soft)}
+.person-nm{display:block;font-size:13.5px;font-weight:600;color:var(--tar-ink);line-height:1.25}
+.person-og{display:block;font-size:11px;color:var(--tar-ink-dim);line-height:1.3}
+.person-ct{display:inline-flex;align-items:center;gap:4px;font-family:'MoMo Signature',cursive;font-size:26px;
+  color:var(--tar-gold);line-height:1;white-space:nowrap}
+.person-ct i{font-size:14px}
 
-/* core values — linh vật */
-/* Lưới 2 cột: giá trị nổi bật nhất nằm hàng trên và to hơn hẳn. Ô rộng cố định
-   để nhãn dài ("Khách hàng là trung tâm") không đè sang ô bên cạnh — cỡ ảnh mới
-   là thứ thay đổi theo thứ hạng, không phải bề rộng ô. */
-.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px 8px;justify-items:center;align-items:end;margin-top:8px}
-.cv-cell{display:flex;flex-direction:column;align-items:center;gap:5px;width:112px}
-.cv-cell img{width:var(--cv-w);height:var(--cv-w);border-radius:50%;display:block;flex-shrink:0}
-.cv-cell.hero img{box-shadow:0 0 0 2px var(--tar-gold),0 0 22px rgba(233,200,132,.34)}
-.cv-nm{font-size:10.5px;line-height:1.3;text-align:center;color:var(--tar-ink-dim);width:100%}
-.cv-cell.hero .cv-nm{color:var(--tar-ink);font-weight:600;font-size:11px}
-.cv-ct{font-family:'MoMo Signature',cursive;font-size:19px;color:var(--tar-gold);line-height:1}
-.cv-cell.hero .cv-ct{font-size:20px}
+/* core values — xếp dọc, mỗi giá trị một hàng.
+   Cột ảnh rộng cố định 60px nên ảnh to nhỏ khác nhau vẫn canh giữa cùng một trục,
+   chữ và số không bao giờ dính vào ảnh hay lệch hàng. */
+.cv-list{display:flex;flex-direction:column;gap:12px;margin-top:2px}
+.cv-row{display:grid;grid-template-columns:60px 1fr auto;align-items:center;gap:12px}
+.cv-art{display:grid;place-items:center}
+.cv-row img{width:var(--cv-w);height:var(--cv-w);border-radius:50%;display:block}
+.cv-row.hero img{box-shadow:0 0 0 2px var(--tar-gold),0 0 20px rgba(233,200,132,.34)}
+.cv-nm{font-size:12px;line-height:1.3;color:var(--tar-ink-dim)}
+.cv-row.hero .cv-nm{color:var(--tar-ink);font-weight:600;font-size:13.5px}
+.cv-ct{font-family:'MoMo Signature',cursive;font-size:22px;color:var(--tar-gold);line-height:1;white-space:nowrap}
+.cv-row.hero .cv-ct{font-size:28px}
 
 /* danh sách gạch đầu dòng */
 .quill{display:flex;flex-direction:column;gap:11px;margin-top:2px}
@@ -440,6 +446,9 @@ const CV_ART={
 /* ═══════════════════════════════════════════════════════════════
    LUẬT TÍNH — mỗi luật một hàm, để review từng cái một
    ═══════════════════════════════════════════════════════════════ */
+/* Chỉ lấy Phòng – Team, bỏ chức danh: để mỗi dòng người gọn đúng một dòng,
+   ba dòng cao bằng nhau. Chức danh không phải thứ lá bài này nói tới. */
+function shortOrg(org){return String(org||'').split('–').slice(0,2).map(part=>part.trim()).filter(Boolean).join(' – ');}
 function ts(dmy){const [d,m,y]=String(dmy||'').split('/');return Number(`${y}${m}${d}`)||0;}
 
 /* Lá I — đếm NGƯỜI (unique), không đếm số phản hồi.
@@ -486,48 +495,46 @@ const ROMAN=['I','II','III','IV','V'];
 function CARDS(){
   const c=circle(), v=values(), g=given();
   return [
-    { key:'Vòng tròn', short:'Vòng tròn',
+    { key:'Vòng tròn', short:'Vòng tròn', glyph:'bx-group',
       title:'Vòng tròn quanh bạn',
       sub:'Năm nay, đây là những đồng nghiệp trao cho bạn nhiều món quà nhất.',
+      /* Số phản hồi đứng cạnh tên: đó mới là thông tin cần nhìn ra ngay, nên
+         chỉ nó được tô vàng. Bỏ dãy "7 người · 6 nhóm · 12 phản hồi" vì ba con
+         số rời nhau không nói lên điều gì cho người đọc. */
       body:`<div class="people">${c.top.map(p=>`
         <div class="person-line">
           <span class="person-av">${p.ini}</span>
-          <span><span class="person-nm">${p.name}</span><br><span class="person-og">${p.org}</span></span>
-        </div>`).join('')}</div>
-        <div class="mini-row">
-          <div><div class="mini-num">${c.total}</div><div class="mini-lbl">người</div></div>
-          <div><div class="mini-num">${c.teams}</div><div class="mini-lbl">nhóm</div></div>
-          <div><div class="mini-num">${RECEIVED.length}</div><div class="mini-lbl">phản hồi</div></div>
-        </div>`
-    },
-    { key:v[0]?v[0].name:'—', short:'Ánh sáng',
-      title:'Ánh sáng bạn toả ra',
-      sub:'Những giá trị đồng nghiệp thấy rõ nhất ở bạn.',
-      body:`<div class="cv-grid">${v.map(row=>`
-        <div class="cv-cell ${row.hero?'hero':''}" style="--cv-w:${row.hero?66:46}px">
-          <img src="../Core value with BG/${row.art}" alt="${row.name}"/>
-          <span class="cv-ct">${row.n}</span>
-          <span class="cv-nm">${row.name}</span>
+          <span><span class="person-nm">${p.name}</span><span class="person-og">${shortOrg(p.org)}</span></span>
+          <span class="person-ct">${p.count}<i class="bx bx-gift"></i></span>
         </div>`).join('')}</div>`
     },
-    { key:'Điểm mạnh', short:'Điều họ thấy',
+    { key:v[0]?v[0].name:'—', short:'Ánh sáng', glyph:'bx-sun',
+      title:'Ánh sáng bạn toả ra',
+      sub:'Những giá trị đồng nghiệp thấy rõ nhất ở bạn.',
+      body:`<div class="cv-list">${v.map(row=>`
+        <div class="cv-row ${row.hero?'hero':''}" style="--cv-w:${row.hero?52:36}px">
+          <span class="cv-art"><img src="../Core value with BG/${row.art}" alt="${row.name}"/></span>
+          <span class="cv-nm">${row.name}</span>
+          <span class="cv-ct">${row.n}</span>
+        </div>`).join('')}</div>`
+    },
+    { key:'Điểm mạnh', short:'Điều họ thấy', glyph:'bx-show',
       title:'Điều mọi người nhìn thấy ở bạn',
       sub:'Ấn tượng đồng nghiệp giữ lại sau những lần làm việc cùng bạn.',
       body:`<ul class="quill">${AI_STRENGTHS.map(text=>`<li><i class="bx bxs-star"></i><span>${text}</span></li>`).join('')}</ul>`
     },
-    { key:'Mở đường', short:'Mở đường',
+    { key:'Mở đường', short:'Mở đường', glyph:'bx-key',
       title:'Lá bài mở đường',
       sub:'Những điều đồng nghiệp tin sẽ đưa bạn đi xa hơn.',
       body:`<ul class="quill">${AI_GROWTH.map(text=>`<li><i class="bx bx-key"></i><span>${text}</span></li>`).join('')}</ul>`
     },
-    { key:`${g.total} lượt cho đi`, short:'Đã gieo',
+    { key:`${g.total} lượt cho đi`, short:'Đã gieo', glyph:'bx-leaf',
       title:'Điều bạn đã gieo',
-      sub:'Văn hoá phản hồi bắt đầu từ người chịu viết trước.',
-      body:`<div class="big-stat"><span class="big-num">${g.total}</span><span class="big-unit">phản hồi bạn đã cho đi</span></div>
-        <div class="mini-row">
-          <div><div class="mini-num">${g.people}</div><div class="mini-lbl">người được bạn nhắc tên</div></div>
-          <div><div class="mini-num">${g.thanks} ♥</div><div class="mini-lbl">lời cảm ơn nhận lại</div></div>
-        </div>`
+      sub:'Mỗi phản hồi bạn viết là một lần ai đó được nhìn thấy.',
+      /* Một câu duy nhất mang cả ba con số, thay cho khối số rời rạc kèm nhãn
+         khó hiểu ("người được bạn nhắc tên"). Chỉ con số được tô vàng. */
+      body:`<p class="seed-line">Bạn đã trao <b>${g.total}</b> phản hồi cho <b>${g.people}</b> đồng nghiệp,
+        và nhận về <b>${g.thanks}</b> lời cảm ơn.</p>`
     }
   ];
 }
@@ -546,10 +553,13 @@ function cardHTML(index,entering){
   return `<article class="card ${entering?'enter':''}">
     <span class="card-frame"></span>
     <div class="card-inner">
+      <i class="bx ${card.glyph} card-glyph" aria-hidden="true"></i>
       <div class="card-roman">${ROMAN[index]}</div>
-      <h2 class="card-title">${card.title}</h2>
-      <p class="card-sub">${card.sub}</p>
-      ${card.body}
+      <div class="card-core">
+        <h2 class="card-title">${card.title}</h2>
+        <p class="card-sub">${card.sub}</p>
+        ${card.body}
+      </div>
     </div>
   </article>`;
 }
