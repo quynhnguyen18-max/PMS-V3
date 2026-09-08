@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>YER 2026 — Bảng điều hướng tình huống | MoMo HRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;
+  --brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.5;color:var(--z700);background:var(--z50);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+button{font-family:inherit}
+
+/* ── shell ─────────────────────────────────────────────── */
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;gap:10px;padding:0 20px;position:sticky;top:0;z-index:20}
+.topbar-title{font-size:13.5px;font-weight:600;color:var(--z900)}
+.topbar-spacer{flex:1}
+.tb-link{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--z600);text-decoration:none;padding:4px 10px;border:1px solid var(--z200);border-radius:var(--rsm)}
+.tb-link:hover{background:var(--z100);color:var(--z900)}
+.page{padding:18px 20px 20px;max-width:1440px;margin:0 auto}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px}
+.page-sub{font-size:13px;color:var(--z600);margin-top:3px;max-width:860px}
+
+.card{background:var(--z0);border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.card-hd{padding:10px 14px;background:#fbe4f0;border-bottom:1px solid #f3cfe1;display:flex;align-items:center;gap:8px}
+.card-hd i{font-size:16px;color:var(--brand)}
+.card-hd h2{font-size:13px;font-weight:700;color:var(--z900);letter-spacing:-.1px}
+.card-hd .hd-note{margin-left:auto;font-size:11.5px;color:var(--z600);font-weight:500}
+.card-bd{padding:12px 14px}
+
+/* ── timeline process ──────────────────────────────────── */
+.proc{display:flex;overflow-x:auto}
+.proc-step{flex:1 1 0;min-width:126px;padding:11px 12px;border-right:1px solid var(--z200);display:flex;flex-direction:column;gap:5px}
+.proc-step:last-child{border-right:0}
+.proc-step.now{background:var(--brand-muted)}
+.proc-top{display:flex;align-items:center;gap:7px}
+.proc-num{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--z100);color:var(--z400);flex:none}
+.proc-step.past .proc-num{background:var(--z200);color:var(--z600)}
+.proc-step.now .proc-num{background:var(--brand);color:#fff}
+.proc-name{font-size:12.5px;font-weight:600;color:var(--z900);line-height:1.3}
+.proc-step.future .proc-name{color:var(--z500)}
+.proc-date{font-size:11.5px;color:var(--z600);font-variant-numeric:tabular-nums}
+.proc-tag{font-size:11px;font-weight:600;color:var(--z500);text-transform:uppercase;letter-spacing:.4px}
+.proc-step.now .proc-tag{color:var(--brand)}
+.proc-foot{display:flex;flex-wrap:wrap;gap:16px;padding:9px 14px;border-top:1px solid var(--z200);background:var(--z50)}
+.proc-foot div{font-size:12px;color:var(--z600);display:flex;align-items:center;gap:6px}
+.proc-foot i{font-size:14px;color:var(--brand)}
+.proc-foot strong{color:var(--z900);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ── layout ────────────────────────────────────────────── */
+.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);gap:14px;align-items:start;margin-top:14px}
+@media(max-width:1120px){.layout{grid-template-columns:1fr}}
+.rail{position:sticky;top:calc(var(--nh) + 14px);display:flex;flex-direction:column;gap:14px}
+@media(max-width:1120px){.rail{position:static}}
+
+/* ── scenario catalogue ────────────────────────────────── */
+#sc-body{display:grid;grid-template-columns:1fr}
+@media(min-width:1280px){#sc-body{grid-template-columns:1fr 1fr}
+  .grp:nth-child(odd){border-right:1px solid var(--z200)}}
+.grp{min-width:0}
+.grp-hd{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--z50);border-bottom:1px solid var(--z200);border-top:1px solid var(--z200)}
+.grp:first-child .grp-hd,.grp:nth-child(2) .grp-hd{border-top:0}
+@media(max-width:1279px){.grp:nth-child(2) .grp-hd{border-top:1px solid var(--z200)}}
+.grp-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500)}
+.grp-cnt{font-size:10px;font-weight:700;background:var(--z200);color:var(--z600);border-radius:var(--rxs);padding:0 5px;height:16px;line-height:16px}
+.sc{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:start;width:100%;text-align:left;
+    padding:10px 14px;border:0;border-bottom:1px solid var(--z200);background:var(--z0);cursor:pointer;transition:var(--t)}
+.sc:last-child{border-bottom:0}
+.sc:hover{background:var(--z50)}
+.sc.on{background:var(--brand-muted)}
+.sc-code{font-size:11px;font-weight:700;color:var(--z500);font-variant-numeric:tabular-nums;padding-top:1px}
+.sc.on .sc-code{color:var(--brand)}
+.sc-name{display:block;font-size:13px;font-weight:500;color:var(--z900);line-height:1.4}
+.sc-watch{display:block;font-size:12px;color:var(--z600);margin-top:2px;line-height:1.45}
+.sc-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;align-items:center}
+.sc-go{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--z500);white-space:nowrap;padding-top:1px}
+.sc.on .sc-go,.sc:hover .sc-go{color:var(--brand)}
+@media(max-width:520px){.sc{grid-template-columns:30px minmax(0,1fr)}.sc-go{display:none}}
+
+/* ── state panel ───────────────────────────────────────── */
+.who{display:flex;align-items:center;gap:9px;padding-bottom:10px;border-bottom:1px solid var(--z200)}
+.av{width:30px;height:30px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;flex:none}
+.who-name{font-size:13.5px;font-weight:600;color:var(--z900)}
+.who-meta{font-size:12px;color:var(--z600)}
+.blk{padding-top:10px}
+.blk + .blk{border-top:1px solid var(--z200);margin-top:10px}
+.blk-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:7px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;font-size:12.5px}
+.row + .row{border-top:1px dashed var(--z200)}
+.row-k{color:var(--z600);white-space:nowrap}
+.row-v{display:flex;align-items:center;gap:6px;min-width:0;justify-content:flex-end;text-align:right}
+.row-score{font-size:13px;font-weight:700;color:var(--z900);font-variant-numeric:tabular-nums;flex:none}
+.row-lvl{font-size:12px;color:var(--z600);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-dash{color:var(--z400)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+
+.badge{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap}
+.b-ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
+.b-action{color:var(--brand);background:var(--brand-muted);border-color:var(--brand)}
+.b-muted{color:var(--z600);background:var(--z100);border-color:var(--z200)}
+.b-role{color:var(--z600);background:var(--z0);border-color:var(--z300)}
+
+.note{display:flex;gap:7px;font-size:12px;color:var(--z600);margin-top:10px;padding-top:10px;border-top:1px solid var(--z200);line-height:1.5}
+.note i{color:var(--brand);font-size:15px;flex:none}
+.note strong{color:var(--z900);font-weight:600}
+.guide-row{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--z600);line-height:1.5;padding:8px 0}
+.guide-row:first-child{padding-top:0}
+.guide-row:last-child{padding-bottom:0}
+.guide-row i{font-size:15px;color:var(--brand);flex:none;margin-top:1px}
+.guide-row strong{color:var(--z900);font-weight:600}
+.empty-state{border:1px dashed var(--z300);background:var(--z50);border-radius:var(--rsm);padding:16px;text-align:center;color:var(--z600);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <i class="bx bx-been-here" style="font-size:18px;color:var(--brand)"></i>
+  <span class="topbar-title" id="tb-title">YER 2026 — Bảng điều hướng tình huống</span>
+  <div class="topbar-spacer"></div>
+  <a class="tb-link" href="components.html"><i class="bx bx-shape-square"></i><span id="lnk-comp">Component nền tảng</span></a>
+  <div id="lang-slot"></div>
+</div>
+
+<div class="page">
+  <div class="page-title" id="pg-title">Bảng điều hướng tình huống</div>
+  <div class="page-sub" id="pg-sub">—</div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-hd">
+      <i class="bx bx-calendar-check"></i><h2 id="hd-timeline">Timeline kỳ đánh giá</h2>
+      <span class="hd-note" id="tl-now">—</span>
+    </div>
+    <div class="proc" id="proc"></div>
+    <div class="proc-foot" id="proc-foot"></div>
+  </div>
+
+  <div class="layout">
+    <div class="card">
+      <div class="card-hd">
+        <i class="bx bx-list-check"></i><h2 id="hd-scenarios">Danh mục tình huống</h2>
+        <span class="hd-note" id="sc-note">—</span>
+      </div>
+      <div id="sc-body"></div>
+    </div>
+
+    <div class="rail">
+      <div class="card">
+        <div class="card-hd"><i class="bx bx-radar"></i><h2 id="hd-state">Trạng thái tại ngày hệ thống</h2></div>
+        <div class="card-bd" id="state"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="bx bx-help-circle"></i><h2 id="hd-guide">Cách dùng thanh demo</h2></div>
+        <div class="card-bd" id="guide"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/employees-data.js"></script>
+<script src="../assets/yer-data.js"></script>
+<script src="../assets/yer-store.js"></script>
+<script src="../assets/yer-model.js"></script>
+<script src="../assets/yer-i18n.js"></script>
+<script src="../assets/yer-demo.js"></script>
+<script>
+(function(){
+  var Y = window.PMSYer, S = window.PMSStore, I = window.PMSI18n;
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+  function lg(){ return I.lang(); }
+  function emp(id){ return (window.PMS_EMPLOYEES||[]).filter(function(x){return x.id===id;})[0]||null; }
+
+  var ROLE_LABEL = { nv:['Nhân viên','Employee'], lm:['Quản lý trực tiếp','Line Manager'], lm2:['Quản lý cấp 2','Second-level'], hod:['Trưởng đơn vị','HOD'], hrbp:['HRBP','HRBP'], lod:['L&OD','L&OD'], tr:['Total Reward','Total Reward'], hrd:['HR Director','HR Director'] };
+  function roleLabel(k){ var r=ROLE_LABEL[k]; return r ? (lg()==='en'?r[1]:r[0]) : k; }
+
+  var LOCAL = {
+    tbTitle:['YER 2026 — Bảng điều hướng tình huống','YER 2026 — Scenario navigator'],
+    pageTitle:['Bảng điều hướng tình huống','Scenario navigator'],
+    pageSub:['Chọn một tình huống để đặt thanh demo dưới màn hình về đúng vai trò, đúng nhân sự và đúng ngày hệ thống. Panel bên phải cho biết hệ thống suy ra trạng thái gì tại thời điểm đó.',
+             'Pick a scenario to set the demo bar at the bottom to the matching role, person and system date. The right panel shows the state the system derives at that point in time.'],
+    hdTimeline:['Timeline kỳ đánh giá','Cycle timeline'],
+    hdScenarios:['Danh mục tình huống','Scenario catalogue'],
+    hdState:['Trạng thái tại ngày hệ thống','State at the system date'],
+    scNote:['tình huống','scenarios'],
+    nowAt:['Đang ở','Now at'],
+    stepOpen:['Đang mở','Open'], stepClosed:['Đã đóng','Closed'], stepFuture:['Chưa mở','Not open'],
+    mgrCutoff:['Hạn chốt đổi Quản lý','Manager change cut-off'],
+    onboardCutoff:['Chỉ đánh giá nhân sự onboard trước','Only employees onboarded before'],
+    scoresHd:['Điểm toàn diện theo từng cấp','Overall rating by level'],
+    finalScore:['Điểm cuối cùng','Final rating'],
+    nvHd:['Nhân viên nhìn thấy gì','What the employee sees'],
+    nvGoalScores:['Điểm từng mục tiêu của Quản lý','Manager score per goal'],
+    nvLmOverall:['Điểm toàn diện của Quản lý','Manager overall rating'],
+    nvResponseBox:['Ô phản hồi','Response box'],
+    yes:['Đã có','Available'], notYet:['Chưa có','Not yet'], notPublished:['Chưa công bố','Not published'],
+    open:['Đang mở','Open'], hidden:['Không hiển thị','Hidden'], locked:['Đã khóa','Locked'],
+    sentAt:['Đã gửi phản hồi','Response sent'],
+    threadLocked:['Quản lý đã trả lời, luồng khóa','Manager replied, thread locked'],
+    waitReply:['chờ Quản lý trả lời','awaiting manager reply'],
+    flagsHd:['Dấu hiệu đặc biệt','Special flags'],
+    fMaternity:['Nghỉ thai sản','Maternity leave'], fResigned:['Đã nghỉ việc','Resigned'],
+    fLeaving:['Nghỉ việc từ','Leaving on'], fIneligible:['Không đủ điều kiện','Not eligible'],
+    fMissingGoal:['Thiếu mục tiêu','Missing goals'], fLateOnboard:['Onboard sau hạn','Onboarded after cut-off'],
+    fImported:['Mục tiêu do Quản lý import','Goals imported by manager'],
+    fMgrChange:['Đổi Quản lý','Manager changed'], fWrapDone:['Đã bàn giao','Wrap-up done'],
+    fWrapExpired:['Bàn giao hết hạn','Wrap-up expired'], fWrapSkipped:['Bỏ qua bàn giao','Wrap-up skipped'],
+    fGoalChanged:['Mục tiêu đổi sau Mid-Year','Goal changed after Mid-Year'],
+    viewAs:['Đang xem với vai trò','Viewing as'],
+    statusK:['Trạng thái','Status'],
+    hint:['Kéo <strong>Ngày hệ thống</strong> ở thanh demo để xem trạng thái đổi theo thời gian: đồng bộ điểm khi quá hạn, mở và đóng ô phản hồi, công bố điểm cuối cùng.',
+          'Drag <strong>System date</strong> on the demo bar to watch the state change over time: score sync after a deadline, the response box opening and closing, and final rating publication.'],
+    notFound:['Không tìm thấy nhân sự','Person not found']
+  };
+  function L(k){ var r=LOCAL[k]; return r ? (lg()==='en'?r[1]:r[0]) : k; }
+
+  /* ── timeline ─────────────────────────────────────────── */
+  function renderTimeline(){
+    var s = S.session(), TL = window.PMS_YER_TIMELINE;
+    document.getElementById('proc').innerHTML = TL.steps.map(function(st, i){
+      var state = Y.stepState(st.key, s.date);
+      var cls = state === 'open' ? 'now' : state === 'closed' ? 'past' : 'future';
+      var tag = state === 'open' ? L('stepOpen') : state === 'closed' ? L('stepClosed') : L('stepFuture');
+      return '<div class="proc-step ' + cls + '">' +
+        '<div class="proc-top"><span class="proc-num">' + (i+1) + '</span>' +
+          '<span class="proc-name">' + esc(lg()==='en'?st.en:st.vi) + '</span></div>' +
+        '<div class="proc-date">' + esc(Y.fmt(st.from, lg())) + ' - ' + esc(Y.fmt(st.to, lg())) + '</div>' +
+        '<div class="proc-tag">' + esc(tag) + '</div>' +
+      '</div>';
+    }).join('');
+    document.getElementById('proc-foot').innerHTML =
+      '<div><i class="bx bx-calendar-x"></i>' + L('mgrCutoff') + ': <strong>' + esc(Y.fmt(TL.mgrCutoff, lg())) + '</strong></div>' +
+      '<div><i class="bx bx-user-check"></i>' + L('onboardCutoff') + ' <strong>' + esc(Y.fmt(TL.onboardCutoff, lg())) + '</strong></div>';
+    document.getElementById('tl-now').textContent = L('nowAt') + ' ' + Y.fmt(s.date, lg());
+  }
+
+  /* ── catalogue ────────────────────────────────────────── */
+  function renderScenarios(){
+    var s = S.session();
+    var groups = window.PMS_YER_GROUPS || [];
+    var all = window.PMS_YER_SCENARIOS || [];
+    document.getElementById('sc-note').textContent = all.length + ' ' + L('scNote');
+
+    document.getElementById('sc-body').innerHTML = groups.map(function(g){
+      var rows = all.filter(function(x){ return x.g === g.id; });
+      if(!rows.length) return '';
+      return '<section class="grp">' +
+        '<div class="grp-hd"><span class="grp-name">' + esc(lg()==='en'?g.en:g.vi) + '</span>' +
+        '<span class="grp-cnt">' + rows.length + '</span></div>' +
+        rows.map(function(sc){
+          var e = emp(sc.emp);
+          var on = sc.emp === s.emp && sc.date === s.date;
+          return '<button class="sc' + (on?' on':'') + '" data-open="' + sc.id + '">' +
+            '<span class="sc-code">' + esc(sc.id) + '</span>' +
+            '<span>' +
+              '<span class="sc-name">' + esc(lg()==='en'?sc.en:sc.vi) + '</span>' +
+              '<span class="sc-watch">' + esc(lg()==='en'?sc.wen:sc.wvi) + '</span>' +
+              '<span class="sc-meta">' +
+                '<span class="badge b-role">' + esc(roleLabel(sc.role)) + '</span>' +
+                '<span class="badge b-muted">' + esc(e ? e.name : sc.emp) + '</span>' +
+                '<span class="badge b-muted">' + esc(Y.fmt(sc.date, lg())) + '</span>' +
+              '</span>' +
+            '</span>' +
+            '<span class="sc-go"><i class="bx bx-right-arrow-alt"></i></span>' +
+          '</button>';
+        }).join('') + '</section>';
+    }).join('');
+
+    document.querySelectorAll('[data-open]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var sc = (window.PMS_YER_SCENARIOS||[]).filter(function(x){ return x.id===b.dataset.open; })[0];
+        if(!sc) return;
+        S.setSession({ role: sc.role, emp: sc.emp, date: sc.date });
+        location.reload();
+      });
+    });
+  }
+
+  /* ── state panel ──────────────────────────────────────── */
+  function scoreRow(label, score, synced){
+    if(score == null){
+      return '<div class="row"><span class="row-k">' + esc(label) + '</span>' +
+             '<span class="row-v"><span class="row-dash">—</span></span></div>';
+    }
+    return '<div class="row"><span class="row-k">' + esc(label) + '</span><span class="row-v">' +
+      (synced ? '<span class="badge b-muted">HR system</span>' : '') +
+      '<span class="row-score">' + score + '</span>' +
+      '<span class="row-lvl">' + esc(Y.scoreLabel(score, lg())) + '</span>' +
+    '</span></div>';
+  }
+
+  function renderState(){
+    var s = S.session();
+    var p = Y.profile(s.emp, s.date);
+    var box = document.getElementById('state');
+    if(!p){ box.innerHTML = '<div class="empty-state">' + L('notFound') + '</div>'; return; }
+    var st = Y.status(p, lg());
+    var e = p.emp;
+
+    var head =
+      '<div class="who">' +
+        '<span class="av">' + esc(e.ini || '') + '</span>' +
+        '<span style="min-width:0">' +
+          '<span class="who-name">' + esc(e.name) + '</span> ' +
+          '<span class="who-meta">(' + esc(e.login) + ')</span>' +
+          '<div class="who-meta">' + esc(e.div + ' - ' + e.dept) + ' - ' + esc(e.pos) + '</div>' +
+        '</span>' +
+      '</div>' +
+      '<div class="blk" style="padding-top:9px">' +
+        '<div class="row"><span class="row-k">' + L('viewAs') + '</span><span class="row-v">' +
+          '<span class="badge b-role">' + esc(roleLabel(s.role)) + '</span></span></div>' +
+        '<div class="row"><span class="row-k">' + L('statusK') + '</span><span class="row-v">' +
+          '<span class="badge ' + (st.tone==='done'?'b-ok':st.tone==='action'?'b-action':'b-muted') + '">' + esc(st.label) + '</span>' +
+        '</span></div>' +
+      '</div>';
+
+    var scores =
+      '<div class="blk"><div class="blk-hd">' + L('scoresHd') + '</div>' +
+        scoreRow(roleLabel('nv'), p.self && p.self.overall ? p.self.overall.score : null, false) +
+        scoreRow(roleLabel('lm'), p.lm && p.lm.overall ? p.lm.overall.score : null, p.lm && p.lm.synced) +
+        scoreRow(roleLabel('lm2'), p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced) +
+        scoreRow(roleLabel('hod'), p.hod ? p.hod.score : null, false) +
+        scoreRow(L('finalScore'), p.published && p.final ? p.final.score : (p.final ? p.final.score : null), false) +
+      '</div>';
+
+    function tag(txt, tone){ return '<span class="badge ' + tone + '">' + esc(txt) + '</span>'; }
+    var nvView =
+      '<div class="blk"><div class="blk-hd">' + L('nvHd') + '</div>' +
+        '<div class="row"><span class="row-k">' + L('nvGoalScores') + '</span><span class="row-v">' +
+          (p.lm && !p.lm.synced ? tag(L('yes'),'b-ok') : tag(L('notYet'),'b-muted')) + '</span></div>' +
+        '<div class="row"><span class="row-k">' + L('nvLmOverall') + '</span><span class="row-v">' +
+          tag(L('notPublished'),'b-muted') + '</span></div>' +
+        '<div class="row"><span class="row-k">' + L('finalScore') + '</span><span class="row-v">' +
+          (p.published ? tag(String(p.final.score),'b-ok') : tag(L('notPublished'),'b-muted')) + '</span></div>' +
+        '<div class="row"><span class="row-k">' + L('nvResponseBox') + '</span><span class="row-v">' +
+          (p.responseOpen ? tag(L('open'),'b-action') : p.threadLocked ? tag(L('locked'),'b-muted') : tag(L('hidden'),'b-muted')) + '</span></div>' +
+        (p.response
+          ? '<div class="row"><span class="row-k">' + L('sentAt') + '</span><span class="row-v"><span class="row-lvl">' +
+            esc(Y.fmt(p.response.at, lg())) + ' - ' + esc(p.reply ? L('threadLocked') : L('waitReply')) + '</span></span></div>'
+          : '') +
+      '</div>';
+
+    var flags = [];
+    if(p.maternity) flags.push([L('fMaternity'),'b-action']);
+    if(p.resigned) flags.push([L('fResigned'),'b-muted']);
+    if(p.resignFrom && !p.resigned) flags.push([L('fLeaving') + ' ' + Y.fmt(p.resignFrom, lg()),'b-action']);
+    if(p.eligibility.reason === 'missing-goal') flags.push([L('fMissingGoal'),'b-action']);
+    if(p.eligibility.reason === 'late-onboard') flags.push([L('fLateOnboard'),'b-muted']);
+    if(p.importedGoals) flags.push([L('fImported'),'b-muted']);
+    if(p.mgrChange) flags.push([L('fMgrChange') + ' ' + Y.fmt(p.mgrChange.at, lg()),'b-muted']);
+    if(p.wrapup && p.wrapup.status === 'done') flags.push([L('fWrapDone'),'b-ok']);
+    if(p.wrapup && p.wrapup.status === 'expired') flags.push([L('fWrapExpired'),'b-muted']);
+    if(p.wrapup && p.wrapup.status === 'skipped') flags.push([L('fWrapSkipped'),'b-muted']);
+    if(p.goalChangedAfterMyr.length) flags.push([L('fGoalChanged'),'b-muted']);
+
+    var flagBox = flags.length
+      ? '<div class="blk"><div class="blk-hd">' + L('flagsHd') + '</div><div class="chips">' +
+        flags.map(function(f){ return tag(f[0], f[1]); }).join('') + '</div></div>'
+      : '';
+
+    box.innerHTML = head + scores + nvView + flagBox +
+      '<div class="note"><i class="bx bx-info-circle"></i><span>' + L('hint') + '</span></div>';
+  }
+
+  function renderGuide(){
+    var items = lg()==='en' ? [
+      ['bx-user-voice','<strong>Role</strong> switches the whole prototype to that person’s view and permissions.'],
+      ['bx-slider','<strong>System date</strong> is the time machine. Everything re-renders for that date: open steps, overdue sync, response window, publication.'],
+      ['bx-user','<strong>Person</strong> picks which employee profile you are looking at.'],
+      ['bx-been-here','A <strong>HR system</strong> badge means the score was copied by the system after a missed deadline, with no comment.'],
+      ['bx-reset','<strong>Reset data</strong> clears everything you clicked and returns to the seeded state.'],
+      ['bx-keyboard','Press <strong>D</strong> to hide or show the demo bar before showing the screen to someone.']
+    ] : [
+      ['bx-user-voice','<strong>Vai trò</strong> đổi toàn bộ prototype sang góc nhìn và quyền của người đó.'],
+      ['bx-slider','<strong>Ngày hệ thống</strong> là cỗ máy thời gian. Mọi thứ render lại theo ngày đó: bước đang mở, đồng bộ điểm khi quá hạn, ô phản hồi, công bố kết quả.'],
+      ['bx-user','<strong>Nhân sự</strong> chọn hồ sơ nhân viên đang xem.'],
+      ['bx-been-here','Badge <strong>HR system</strong> nghĩa là điểm do hệ thống copy khi quá hạn, không kèm nhận xét.'],
+      ['bx-reset','<strong>Đặt lại dữ liệu</strong> xóa mọi thao tác đã bấm và trả về dữ liệu gốc.'],
+      ['bx-keyboard','Nhấn phím <strong>D</strong> để ẩn hoặc hiện thanh demo trước khi trình bày.']
+    ];
+    document.getElementById('hd-guide').textContent = lg()==='en' ? 'How to use the demo bar' : 'Cách dùng thanh demo';
+    document.getElementById('guide').innerHTML = items.map(function(it, i){
+      return '<div class="guide-row"' + (i ? ' style="border-top:1px dashed var(--z200)"' : '') + '>' +
+        '<i class="bx ' + it[0] + '"></i><span>' + it[1] + '</span></div>';
+    }).join('');
+  }
+
+  function renderChrome(){
+    document.getElementById('tb-title').textContent = L('tbTitle');
+    document.getElementById('pg-title').textContent = L('pageTitle');
+    document.getElementById('pg-sub').innerHTML = L('pageSub');
+    document.getElementById('hd-timeline').textContent = L('hdTimeline');
+    document.getElementById('hd-scenarios').textContent = L('hdScenarios');
+    document.getElementById('hd-state').textContent = L('hdState');
+    document.getElementById('lnk-comp').textContent = lg()==='en' ? 'Components' : 'Component nền tảng';
+  }
+
+  function renderAll(){ renderChrome(); renderTimeline(); renderScenarios(); renderState(); renderGuide(); }
+
+  I.mountToggle(document.getElementById('lang-slot'));
+  I.onChange(renderAll);
+  document.addEventListener('pms:demo-change', renderAll);
+  renderAll();
+})();
+</script>
+</body>
+</html>

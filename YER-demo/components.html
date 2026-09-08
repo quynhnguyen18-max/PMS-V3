@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>YER 2026 — Component nền tảng | MoMo HRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;
+  --brand:#A50064;--brand-h:#8B0055;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  --nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.5;color:var(--z700);background:var(--z50);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+button{font-family:inherit}
+a{color:inherit}
+
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;gap:10px;padding:0 20px;position:sticky;top:0;z-index:20}
+.topbar-title{font-size:13.5px;font-weight:600;color:var(--z900)}
+.topbar-spacer{flex:1}
+.tb-link{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--z600);text-decoration:none;padding:4px 10px;border:1px solid var(--z200);border-radius:var(--rsm)}
+.tb-link:hover{background:var(--z100);color:var(--z900)}
+.page{padding:18px 20px 20px;max-width:1440px;margin:0 auto}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px}
+.page-sub{font-size:13px;color:var(--z600);margin-top:3px;max-width:900px}
+
+.card{background:var(--z0);border:1px solid var(--z300);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.card-hd{padding:10px 14px;background:#fbe4f0;border-bottom:1px solid #f3cfe1;display:flex;align-items:center;gap:8px}
+.card-hd i{font-size:16px;color:var(--brand)}
+.card-hd h2{font-size:13px;font-weight:700;color:var(--z900);letter-spacing:-.1px}
+.card-hd .hd-note{margin-left:auto;font-size:11.5px;color:var(--z600);font-weight:500}
+.card-bd{padding:14px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-top:14px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.demo-blk + .demo-blk{margin-top:16px;padding-top:16px;border-top:1px solid var(--z200)}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:8px}
+.hint{font-size:12px;color:var(--z600);margin-top:8px;line-height:1.55}
+.hint strong{color:var(--z900);font-weight:600}
+
+.fld{border:1px solid var(--z200);border-radius:var(--rsm);padding:10px 11px;background:var(--z0)}
+.flbl{display:block;font-size:12.5px;font-weight:500;color:var(--z700);margin-bottom:5px}
+.fc{width:100%;border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 10px;font-size:13.5px;color:var(--z900);font-family:inherit;background:var(--z0);resize:vertical}
+.fc:focus{border-color:var(--brand);outline:2px solid var(--brand-ring)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;cursor:pointer;transition:var(--t)}
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default:hover{background:var(--brand-h)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
+.btn-outline:hover{background:var(--z100)}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.state-line{font-size:12px;color:var(--z600);margin-top:8px}
+.state-line b{color:var(--z900)}
+.panel{border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50);padding:12px}
+.mock-wrap{border:1px solid var(--z300);border-radius:var(--rsm);overflow-x:auto}
+.mock{width:100%;border-collapse:collapse;min-width:420px}
+.mock th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);background:var(--brand-muted);padding:9px 12px;border-bottom:1px solid var(--brand-ring)}
+.mock th.c{text-align:center;width:78px}
+.mock td{padding:9px 12px;border-bottom:1px solid var(--z200);font-size:13px;color:var(--z900);vertical-align:middle}
+.mock td.c{text-align:center}
+.mock td.ql{background:var(--z50)}
+.mock tr:last-child td{border-bottom:0}
+.mock td.c > div{display:inline-flex;justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <i class="bx bx-shape-square" style="font-size:18px;color:var(--brand)"></i>
+  <span class="topbar-title" id="tb-title">YER 2026 — Component nền tảng</span>
+  <div class="topbar-spacer"></div>
+  <a class="tb-link" href="./"><i class="bx bx-list-check"></i><span id="lnk-nav">Bảng tình huống</span></a>
+  <div id="lang-slot"></div>
+</div>
+
+<div class="page">
+  <div class="page-title" id="pg-title">Component nền tảng</div>
+  <div class="page-sub" id="pg-sub">—</div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-hd"><i class="bx bx-slider"></i><h2 id="hd-rating">Chọn điểm đánh giá</h2>
+        <span class="hd-note">Enhancement 10</span></div>
+      <div class="card-bd">
+        <div class="demo-blk">
+          <div class="eyebrow" id="eb-goal">Trong lưới đánh giá - ô điểm chỉ rộng khoảng 64px</div>
+          <div class="mock-wrap">
+            <table class="mock">
+              <thead><tr>
+                <th id="mk-goal">Mục tiêu</th>
+                <th class="c" id="mk-nv">Điểm NV</th>
+                <th class="c" id="mk-lm">Điểm QLTT</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td id="mk-g1">Tối ưu API response time xuống dưới 200ms</td>
+                  <td class="c"><div id="rt-cell1"></div></td>
+                  <td class="c ql"><div id="rt-cell1b"></div></td>
+                </tr>
+                <tr>
+                  <td id="mk-g2">Refactor authentication module sang stateless JWT</td>
+                  <td class="c"><div id="rt-cell2"></div></td>
+                  <td class="c ql"><div id="rt-cell2b"></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="demo-blk">
+          <div class="eyebrow" id="eb-overall">Khối điểm toàn diện - có chỗ hiện tên mức bên cạnh</div>
+          <div class="panel"><div id="rt-overall"></div></div>
+        </div>
+        <div class="demo-blk">
+          <div class="eyebrow" id="eb-ro">Sau khi gửi - định nghĩa nằm trong ⓘ</div>
+          <div class="panel">
+            <div style="display:flex;flex-wrap:wrap;gap:24px">
+              <div><div class="flbl" id="lb-ro1">Mục tiêu công việc</div><div id="rt-ro1"></div></div>
+              <div><div class="flbl" id="lb-ro2">Điểm toàn diện</div><div id="rt-ro2"></div></div>
+            </div>
+          </div>
+          <div class="hint" id="hint-rating">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-hd"><i class="bx bx-folder-open"></i><h2 id="hd-tabs">Tab chu kỳ đánh giá</h2>
+        <span class="hd-note">Enhancement 11</span></div>
+      <div class="card-bd">
+        <div id="yer-tabs"></div>
+        <div class="panel" id="tab-panel">—</div>
+        <div class="hint" id="hint-tabs">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="bx bx-save"></i><h2 id="hd-dirty">Cảnh báo dữ liệu chưa lưu</h2>
+        <span class="hd-note">Enhancement 12</span></div>
+      <div class="card-bd">
+        <div class="fld">
+          <label class="flbl" for="dm-cmt" id="lb-cmt">Nhận xét thử - gõ vài chữ rồi bấm chuyển tab ở trên</label>
+          <textarea class="fc" id="dm-cmt" rows="3" placeholder=""></textarea>
+        </div>
+        <div class="row-btns">
+          <button class="btn btn-outline" id="btn-try"><i class="bx bx-transfer"></i><span id="lb-try">Thử chuyển màn</span></button>
+          <button class="btn btn-default" id="btn-save"><i class="bx bx-save"></i><span id="lb-save">Lưu nháp</span></button>
+        </div>
+        <div class="state-line" id="dirty-line">—</div>
+        <div class="hint" id="hint-dirty">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/employees-data.js"></script>
+<script src="../assets/yer-data.js"></script>
+<script src="../assets/yer-store.js"></script>
+<script src="../assets/yer-model.js"></script>
+<script src="../assets/yer-i18n.js"></script>
+<script src="../assets/yer-ui.js"></script>
+<script src="../assets/yer-demo.js"></script>
+<script>
+(function(){
+  var Y = window.PMSYer, S = window.PMSStore, I = window.PMSI18n, U = window.PMSUi;
+  function lg(){ return I.lang(); }
+  function L(vi, en){ return lg()==='en' ? en : vi; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+  var rtOverall, tabsApi, activeTab = 'yer';
+
+  /* ── Enh 10 ─────────────────────────────────────────── */
+  function buildRating(){
+    U.rating(document.getElementById('rt-cell1'), { step:'int', compact:true, value:4 });
+    U.rating(document.getElementById('rt-cell2'), { step:'int', compact:true });
+    U.rating(document.getElementById('rt-cell1b'), { step:'int', compact:true, value:4, readonly:true });
+    U.rating(document.getElementById('rt-cell2b'), { step:'int', compact:true, readonly:true });
+
+    rtOverall = U.rating(document.getElementById('rt-overall'), {
+      step:'half', required:true, value: rtOverall ? rtOverall.value : null,
+      label: L('Điểm toàn diện của Quản lý trực tiếp', 'Line manager overall rating')
+    });
+    U.rating(document.getElementById('rt-ro1'), { step:'int', value:4, readonly:true });
+    U.rating(document.getElementById('rt-ro2'), { step:'half', value:3.5, readonly:true });
+
+    document.getElementById('lb-ro1').textContent = L('Mục tiêu công việc','Work goal');
+    document.getElementById('lb-ro2').textContent = L('Điểm toàn diện','Overall rating');
+    document.getElementById('mk-goal').textContent = L('Mục tiêu','Goal');
+    document.getElementById('mk-nv').textContent = L('Điểm NV','Employee');
+    document.getElementById('mk-lm').textContent = L('Điểm QLTT','Manager');
+    document.getElementById('eb-goal').textContent = L('Trong lưới đánh giá - ô điểm chỉ rộng khoảng 64px','Inside the review grid - the score cell is only about 64px wide');
+    document.getElementById('eb-overall').textContent = L('Khối điểm toàn diện - có chỗ hiện tên mức bên cạnh','Overall rating block - room to show the level name beside it');
+    document.getElementById('eb-ro').textContent = L('Sau khi gửi - mục tiêu chỉ còn số, điểm toàn diện còn số và tên mức','After submitting - goals keep the number only, the overall rating keeps number and level name');
+    document.getElementById('hint-rating').innerHTML = L(
+      'Nút chọn giữ đúng kích thước ô trong lưới, nhưng bảng chọn mở ra hiển thị <strong>toàn bộ thang điểm kèm tên mức, không phải cuộn</strong>. Điểm từng mục tiêu gửi xong chỉ còn <strong>số</strong>. Điểm toàn diện có thêm bước 0.5, <strong>ô định nghĩa chỉ hiện sau khi chọn điểm</strong>, gửi xong còn <strong>số và tên mức</strong> kèm ⓘ.',
+      'The trigger keeps the size of a grid cell, but the panel that opens shows <strong>the whole scale with level names, no scrolling</strong>. A submitted goal score keeps <strong>the number only</strong>. The overall rating adds half steps, <strong>the definition box appears only after a score is picked</strong>, and once submitted it keeps <strong>the number and the level name</strong> plus the ⓘ.');
+  }
+
+  /* ── Enh 11 ─────────────────────────────────────────── */
+  function tabItems(){
+    var s = S.session();
+    var p = Y.profile(s.emp, s.date);
+    var selfState = Y.stepState('self', s.date);
+    var yerOpen = Y.cmp(s.date, Y.step('self').from) >= 0;
+
+    function yerState(){
+      if(!yerOpen) return L('Chưa mở','Not open yet');
+      if(p && p.eligibility.reason === 'missing-goal') return L('Không đánh giá','Not evaluated');
+      if(p && p.published) return L('Đã hoàn tất','Completed');
+      if(p && p.lm) return L('Đã có kết quả của Quản lý','Manager result available');
+      if(p && p.self) return L('Đang chờ Quản lý','Awaiting manager');
+      if(p && p.maternity) return L('Không yêu cầu tự đánh giá','Self assessment not required');
+      if(selfState === 'open') return L('Cần tự đánh giá','Self assessment needed');
+      return L('Đang chờ Quản lý','Awaiting manager');
+    }
+    return [
+      { key:'goals', label:L('Mục tiêu','Goals') },
+      { key:'myr', label:L('Đánh giá giữa năm','Mid-Year Review'),
+        state: (p && p.myr && p.myr.submitted) ? L('Đã hoàn tất','Completed') : L('Không có dữ liệu','No data') },
+      { key:'yer', label:L('Đánh giá cuối năm','Year-End Review'), state: yerState(),
+        disabled: !yerOpen, openFrom: Y.fmt(Y.step('self').from, lg()),
+        dot: yerOpen && selfState === 'open' && p && !p.self && !p.maternity }
+    ];
+  }
+
+  function buildTabs(){
+    var el = document.getElementById('yer-tabs');
+    var items = tabItems();
+    if(items.filter(function(i){return i.key===activeTab;})[0].disabled) activeTab = 'goals';
+    tabsApi = U.tabs(el, { active: activeTab, items: items, onSelect: function(k){ activeTab = k; drawPanel(); } });
+    drawPanel();
+    document.getElementById('hint-tabs').innerHTML = L(
+      'Nhãn dưới tên tab nói <strong>việc người dùng cần làm</strong> thay vì trạng thái chung chung. Tab chưa mở dùng viền đứt nét và tooltip ghi ngày bắt đầu. Kéo <strong>Ngày hệ thống</strong> về trước 05/01/2027 để thấy trạng thái chưa mở.',
+      'The label under each tab names <strong>what the user needs to do</strong> instead of a vague status. A tab that is not open yet uses a dashed border and a tooltip with its start date. Drag <strong>System date</strong> before 05/01/2027 to see the not-open state.');
+  }
+
+  function drawPanel(){
+    var s = S.session();
+    var p = Y.profile(s.emp, s.date);
+    var names = { goals:L('Mục tiêu','Goals'), myr:L('Đánh giá giữa năm','Mid-Year Review'), yer:L('Đánh giá cuối năm','Year-End Review') };
+    document.getElementById('tab-panel').innerHTML =
+      '<div style="font-size:12.5px;color:var(--z600)">' +
+        L('Đang xem tab','Currently on tab') + ': <b style="color:var(--z900)">' + esc(names[activeTab]) + '</b> - ' +
+        esc(p ? p.emp.name : '') + ' - ' + esc(Y.fmt(s.date, lg())) +
+      '</div>';
+  }
+
+  /* ── Enh 12 ─────────────────────────────────────────── */
+  function buildDirty(){
+    document.getElementById('lb-cmt').textContent = L('Nhận xét thử - gõ vài chữ rồi bấm chuyển tab ở trên','Test comment - type something, then switch tab above');
+    document.getElementById('dm-cmt').setAttribute('placeholder', L('Gõ thử vài chữ để tạo dữ liệu chưa lưu','Type something to create unsaved data'));
+    document.getElementById('lb-try').textContent = L('Thử chuyển màn','Try leaving the screen');
+    document.getElementById('lb-save').textContent = L('Lưu nháp','Save draft');
+    document.getElementById('hint-dirty').innerHTML = L(
+      'Áp cho mọi hành động rời màn: đổi tab, đổi nhân viên, breadcrumb, đóng tab trình duyệt, đổi kỳ. Không có auto-save nên <strong>Lưu nháp và Chuyển tab</strong> là nút chính, <strong>Không lưu</strong> là hành động phá dữ liệu nên để dạng cảnh báo đỏ.',
+      'Applies to every way of leaving: switching tab, switching employee, breadcrumb, closing the browser tab, changing cycle. There is no auto-save, so <strong>Save draft and switch</strong> is the primary action and <strong>Discard</strong> is styled as destructive.');
+    drawDirtyLine();
+  }
+
+  function drawDirtyLine(){
+    document.getElementById('dirty-line').innerHTML =
+      L('Trạng thái dữ liệu','Data state') + ': <b>' +
+      (U.dirty.isDirty ? L('Có thay đổi chưa lưu','Unsaved changes') : L('Đã lưu','Saved')) + '</b>';
+  }
+
+  document.getElementById('btn-try').addEventListener('click', function(){
+    U.dirty.guard(function(){ U.toast(L('Đã rời màn hình','Left the screen')); drawDirtyLine(); });
+  });
+  document.getElementById('btn-save').addEventListener('click', function(){
+    U.dirty.clear(); U.toast(L('Đã lưu nháp','Draft saved')); drawDirtyLine();
+  });
+  document.getElementById('dm-cmt').addEventListener('input', function(){ U.dirty.mark(); drawDirtyLine(); });
+  U.dirty.watch(document);
+  U.dirty.onSaveDraft(function(){ drawDirtyLine(); });
+
+  function renderAll(){
+    document.getElementById('tb-title').textContent = L('YER 2026 — Component nền tảng','YER 2026 — Foundation components');
+    document.getElementById('pg-title').textContent = L('Component nền tảng','Foundation components');
+    document.getElementById('pg-sub').textContent = L(
+      'Ba thành phần dùng lại ở mọi màn Đánh giá cuối năm. Đổi vai trò, nhân sự và ngày hệ thống ở thanh demo để xem chúng phản ứng theo dữ liệu thật.',
+      'Three components reused across every Year-End Review screen. Change role, person and system date on the demo bar to see them react to real data.');
+    document.getElementById('lnk-nav').textContent = L('Bảng tình huống','Scenarios');
+    document.getElementById('hd-rating').textContent = L('Chọn điểm đánh giá','Rating selector');
+    document.getElementById('hd-tabs').textContent = L('Tab chu kỳ đánh giá','Cycle tabs');
+    document.getElementById('hd-dirty').textContent = L('Cảnh báo dữ liệu chưa lưu','Unsaved data warning');
+    buildRating(); buildTabs(); buildDirty();
+  }
+
+  I.mountToggle(document.getElementById('lang-slot'));
+  I.onChange(renderAll);
+  document.addEventListener('pms:demo-change', renderAll);
+  renderAll();
+})();
+</script>
+</body>
+</html>
