@@ -99,6 +99,10 @@ test('uses inline validation, icon-only question controls and reviewer-to-recipi
   assert.doesNotMatch(builder,/id="personalizeReviewers"|personalizeToggleLabel|canPersonalize/);
   assert.match(builder,/Người nhận phản hồi[\s\S]*Người cho phản hồi/);
   assert.match(builder,/border-right:8px solid var\(--z600\)/);
+  /* Mũi tên canh theo tâm ô bên trái: hàng padding 12px, ô cao 34px nên tâm ô ở 29px,
+     mũi tên cao 12px phải bắt đầu ở 23px. Để 17px là tụt xuống 6px so với ô. */
+  assert.match(builder,/\.mapping-arrow\{position:relative;width:0;height:0;margin-top:11px/);
+  assert.doesNotMatch(builder,/\.mapping-arrow\{[^}]*margin-top:17px/);
 });
 
 test('H-05 landing exposes the HR request hub and questionnaire library entry',()=>{
