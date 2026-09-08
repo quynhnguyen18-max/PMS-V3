@@ -95,7 +95,8 @@ test('uses inline validation, icon-only question controls and reviewer-to-recipi
   assert.match(builder,/setAttribute\('aria-invalid','true'\)/);
   assert.match(builder,/data-tooltip="Câu hỏi mở"/);
   assert.match(builder,/data-tooltip="Câu hỏi Likert"/);
-  assert.match(builder,/toggle\.disabled=!canPersonalize/);
+  /* Không còn công tắc chọn chế độ: màn luôn ở 'per_recipient'. */
+  assert.doesNotMatch(builder,/id="personalizeReviewers"|personalizeToggleLabel|canPersonalize/);
   assert.match(builder,/Người nhận phản hồi[\s\S]*Người cho phản hồi/);
   assert.match(builder,/border-right:8px solid var\(--z600\)/);
 });
@@ -972,7 +973,13 @@ test.skip('legacy persists reviewer identity visibility and starts every new req
 
 test('maps shared and per-recipient reviewers with a conditional copy action',()=>{
   const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
-  assert.match(page,/reviewerAssignmentMode:'shared'/);
+  /* Mở màn là đã ở chế độ cá nhân hóa: HR không phải bật công tắc mới thấy lưới
+     người nhận - người cho. Ít hơn 2 người nhận thì chỉ KHÓA công tắc, không ép
+     mode về 'shared' — ép về sẽ xoá mất chính cái mặc định này lúc màn còn trống. */
+  assert.match(page,/reviewerAssignmentMode:'per_recipient'/);
+  assert.doesNotMatch(page,/reviewerAssignmentMode:'shared',sharedReviewerIds/);
+  assert.doesNotMatch(page,/if\(!canPersonalize&&STATE\.reviewerAssignmentMode==='per_recipient'\)STATE\.reviewerAssignmentMode='shared'/);
+  assert.match(page,/STATE\.reviewerAssignmentMode=draft\.reviewerAssignmentMode\|\|'per_recipient'/);
   assert.match(page,/sharedReviewerIds:\[\]/);
   assert.match(page,/function setReviewerAssignmentMode\(mode\)/);
   assert.match(page,/function addSharedRecipient\(id\)/);
@@ -992,8 +999,13 @@ test('uses the M-04 people picker pattern without widening the personalised mapp
   const selectedChipRenderer=page.slice(page.indexOf('function renderChips('),page.indexOf('function recipientRole('));
   const recipientRenderer=page.slice(page.indexOf('function recipientRole('),page.indexOf('function renderSharedMapping('));
 
-  assert.match(page,/id="personalizeReviewers"/);
-  assert.match(page,/Cá nhân hóa người cho theo từng người nhận/);
+  /* Công tắc "Cá nhân hóa" đã bỏ hẳn — mỗi người nhận luôn có danh sách người cho riêng,
+     nên không còn chế độ nào để HR chọn. */
+  assert.doesNotMatch(page,/id="personalizeReviewers"/);
+  assert.doesNotMatch(page,/Cá nhân hóa người cho theo từng người nhận/);
+  assert.match(page,/function syncReviewerAssignmentModeUI\(mode\)\{const gridHead=document\.getElementById\('mappingGridHead'\);/);
+  // nháp cũ lưu ở chế độ chung phải được chuyển sang, không mất người đã chọn
+  assert.match(page,/if\(STATE\.reviewerAssignmentMode!=='per_recipient'\)setReviewerAssignmentMode\('per_recipient'\);/);
   assert.doesNotMatch(page,/class="mapping-mode"/);
   assert.match(page,/\.mapping-list\.per-recipient \.mapping-row[^}]*grid-template-columns:minmax\(0,\.3fr\) 24px minmax\(0,\.7fr\)/);
   assert.match(page,/\.mapping-chip\{[^}]*border-color:var\(--brand-ring\)[^}]*background:var\(--brand-muted\)/);
