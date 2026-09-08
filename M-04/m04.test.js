@@ -729,7 +729,7 @@ test('manager feedback textareas inherit the design-system typography', () => {
   assert.match(html, /button,input,select,textarea\{font:inherit\}/);
 });
 
-test('MR-1 explains responsible use and presents a clear giver-to-receiver flow', () => {
+test('MR-1 explains responsible use and presents a clear receiver-to-giver flow', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   const plan = fs.readFileSync(path.join(__dirname, '..', 'FEEDBACK_PLAN.md'), 'utf8');
   assert.match(html, /Hãy sử dụng tính năng này khi cần thêm góc nhìn từ những người đã trực tiếp làm việc với nhân viên/);
@@ -737,9 +737,17 @@ test('MR-1 explains responsible use and presents a clear giver-to-receiver flow'
   assert.match(html, /<em>Nội dung yêu cầu và phản hồi có thể được các bên liên quan nhìn thấy\.<\/em>/);
   assert.doesNotMatch(html, /Chỉ tạo yêu cầu khi bạn cần thêm góc nhìn cụ thể để coaching/);
   assert.match(html, /class="field request-role-flow"/);
-  assert.ok(html.indexOf('id="requestGiverRole"') < html.indexOf('id="requestReceiverRole"'));
+  /* Chọn người NHẬN trước rồi mới tới người CHO — cùng thứ tự với lưới người tham gia
+     ở màn tạo yêu cầu của HR (H-05 create-campaign), để hai màn đọc như một. */
+  assert.ok(html.indexOf('id="requestReceiverRole"') < html.indexOf('id="requestGiverRole"'));
+  assert.match(html, /Nhân viên nhận phản hồi<span class="req-star">\*<\/span>/);
   assert.match(html, /Người cho phản hồi<span class="req-star">\*<\/span>/);
-  assert.match(html, /class="request-flow-arrow"/);
+  /* Phản hồi đi TỪ người cho SANG người nhận. Người nhận đứng bên trái nên mũi tên
+     phải chỉ TRÁI, không giữ nguyên chiều cũ sau khi hoán vị hai ô. */
+  assert.match(html, /class="request-flow-arrow" aria-hidden="true"><i class="bx bxs-left-arrow"><\/i>/);
+  assert.doesNotMatch(html, /request-flow-arrow[^>]*><i class="bx bxs-right-arrow"/);
+  // canh tâm mũi tên theo Ô NHẬP, không theo cả cột (cột còn dòng chú thích bên dưới)
+  assert.match(html, /\.request-flow-arrow\{display:flex;align-items:center;justify-content:center;padding-top:29px/);
   assert.match(html, /@media\(max-width:700px\)\{\.request-role-flow\{grid-template-columns:minmax\(0,1fr\)/);
   assert.match(plan, /Feedback không phải là công cụ đánh giá/);
 });

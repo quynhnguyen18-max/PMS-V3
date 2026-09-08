@@ -167,7 +167,9 @@
 .field-2col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
 .field-2col .date-input{width:100%}
 .field-2col .field-hint{display:block;margin-top:6px}
-.request-guidance{display:flex;align-items:flex-start;gap:10px;margin:0 0 12px;padding:12px 14px;border:1px solid var(--brand-ring);border-radius:8px;background:var(--brand-muted);color:var(--z700);font-size:12px;line-height:1.55}.request-guidance i{flex:none;margin-top:1px;color:var(--brand);font-size:18px}.request-guidance-copy{display:flex;flex-direction:column;gap:6px}.request-guidance-copy p,.request-guidance-copy em{margin:0}.request-guidance-copy em{color:var(--z600);font-size:11.5px}.request-role-flow{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:start}.request-role-card{min-width:0}.request-flow-arrow{display:flex;align-items:center;justify-content:center;padding-top:35px;color:var(--z500)}.request-flow-arrow i{font-size:20px}.role-caption{display:block;margin-top:6px;color:var(--z500);font-size:11px;line-height:1.4}
+.request-guidance{display:flex;align-items:flex-start;gap:10px;margin:0 0 12px;padding:12px 14px;border:1px solid var(--brand-ring);border-radius:8px;background:var(--brand-muted);color:var(--z700);font-size:12px;line-height:1.55}.request-guidance i{flex:none;margin-top:1px;color:var(--brand);font-size:18px}.request-guidance-copy{display:flex;flex-direction:column;gap:6px}.request-guidance-copy p,.request-guidance-copy em{margin:0}.request-guidance-copy em{color:var(--z600);font-size:11.5px}.request-role-flow{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:start}.request-role-card{min-width:0}/* padding-top canh tâm mũi tên đúng tâm Ô NHẬP, không phải tâm cả cột (cột còn dòng
+   chú thích bên dưới nên canh theo cột sẽ tụt xuống 6px). */
+.request-flow-arrow{display:flex;align-items:center;justify-content:center;padding-top:29px;color:var(--z500)}.request-flow-arrow i{font-size:20px}.role-caption{display:block;margin-top:6px;color:var(--z500);font-size:11px;line-height:1.4}
 .vis-value{display:flex;align-items:center;gap:7px;min-height:35px;font-size:13px;color:var(--z800);line-height:1.5}
 .vis-value>i{font-size:16px;color:var(--z500);flex:none}
 @media(max-width:580px){.field-2col{grid-template-columns:minmax(0,1fr);gap:16px}}
@@ -306,18 +308,21 @@
         <input class="text-input" id="requestGoal" placeholder="Vd: Thu thập góc nhìn về khả năng phối hợp trong dự án Migration" oninput="syncRequestForm()"/>
       </div>
       <div class="field request-role-flow">
-        <div class="request-role-card" id="requestGiverRole">
-          <label class="field-label" for="reviewerInput">Người cho phản hồi<span class="req-star">*</span></label>
-          <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="reviewerInput" autocomplete="off" placeholder="Tìm tên hoặc domain…" oninput="reviewerSearch()" onfocus="reviewerSearch()"/></div>
-          <div class="pick-results" id="reviewerResults"></div><div class="rv-chips" id="reviewerChips"></div>
-          <span class="role-caption">Chọn từ 1 đến 20 người</span>
-        </div>
-        <div class="request-flow-arrow" aria-hidden="true"><i class="bx bxs-right-arrow"></i></div>
+        <!-- Thứ tự người nhận đứng trước người cho, giống lưới người tham gia ở màn tạo
+             yêu cầu của HR (H-05 create-campaign). Mũi tên chỉ SANG TRÁI vì phản hồi đi
+             từ người cho sang người nhận, mà người nhận đang đứng bên trái. -->
         <div class="request-role-card" id="requestReceiverRole">
           <label class="field-label" for="designeeInput">Nhân viên nhận phản hồi<span class="req-star">*</span></label>
           <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="designeeInput" autocomplete="off" placeholder="Tìm tên hoặc domain…" oninput="designeeSearch()" onfocus="designeeSearch()"/></div>
           <div class="pick-results" id="designeeResults"></div><div class="rv-chips" id="designeeChips"></div>
           <span class="role-caption">Chỉ nhân viên báo cáo trực tiếp</span>
+        </div>
+        <div class="request-flow-arrow" aria-hidden="true"><i class="bx bxs-left-arrow"></i></div>
+        <div class="request-role-card" id="requestGiverRole">
+          <label class="field-label" for="reviewerInput">Người cho phản hồi<span class="req-star">*</span></label>
+          <div class="pick-inputwrap"><i class="bx bx-search"></i><input class="pick-input" id="reviewerInput" autocomplete="off" placeholder="Tìm tên hoặc domain…" oninput="reviewerSearch()" onfocus="reviewerSearch()"/></div>
+          <div class="pick-results" id="reviewerResults"></div><div class="rv-chips" id="reviewerChips"></div>
+          <span class="role-caption">Chọn từ 1 đến 20 người</span>
         </div>
       </div>
 
