@@ -37,13 +37,20 @@
    ═══════════════════════════════════════════════════════════════ */
 /* z-index 2000: sân khấu là lớp trên cùng của trang mở nó. feedback-delight-demo
    có thanh điều khiển và lớp confetti ở 900-1800, để 400 thì bị đè lên mặt bài. */
-.tarot-stage{font-family:'MoMo Trust Sans','Public Sans',sans-serif;position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;
+/* Sân khấu nằm trong khung popup như dialog "Dấu ấn của bạn" của E-04, không
+   chiếm trọn màn hình — người xem vẫn thấy mình đang ở trong màn Phản hồi.
+   .tarot-stage là lớp phủ tối, .tarot-dialog mới là khung bài. */
+.tarot-stage{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+  padding:16px;background:rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+.tarot-stage.open{display:flex;animation:tarot-ov-in .16s ease}
+@keyframes tarot-ov-in{from{opacity:0}}
+.tarot-dialog{font-family:'MoMo Trust Sans','Public Sans',sans-serif;position:relative;overflow:hidden;
+  width:min(840px,96vw);height:min(760px,92vh);border-radius:12px;display:flex;flex-direction:column;
   background:radial-gradient(120% 90% at 50% 8%,#3a0c2c 0%,var(--tar-night) 58%,#0d030d 100%);
-  color:var(--tar-ink);overflow:hidden}
-.tarot-stage.open{display:flex}
+  color:var(--tar-ink);box-shadow:var(--sh-lg)}
 
 /* hạt sáng nền — thuần CSS, không ảnh */
-.tarot-stage::before{content:'';position:absolute;inset:-40%;pointer-events:none;opacity:.5;
+.tarot-dialog::before{content:'';position:absolute;inset:-40%;pointer-events:none;opacity:.5;
   background:
     radial-gradient(1.6px 1.6px at 12% 18%,var(--tar-gold) 50%,transparent 51%),
     radial-gradient(1.2px 1.2px at 78% 12%,#fff 50%,transparent 51%),
@@ -93,9 +100,8 @@
 /* Hoa văn mặt trước: dùng LẠI đúng lưới chéo của mặt lưng, chỉ mờ hơn nhiều —
    cùng một bộ bài thì hai mặt phải cùng một ngôn ngữ hoa văn. Icon boxicon lặp
    lại trông như sticker dán, không ra chất bài, nên bỏ. */
-.card-tile{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;
-  background-image:repeating-linear-gradient(45deg,transparent 0 9px,rgba(233,200,132,.07) 9px 10px),
-                   repeating-linear-gradient(-45deg,transparent 0 9px,rgba(233,200,132,.07) 9px 10px)}
+.card-tile{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M0 14L14 0M0 0L14 14' stroke='%23e9c884' stroke-width='1' fill='none'/%3E%3C/svg%3E")}
 
 /* Ba dòng số, mỗi dòng một ý — thay cho câu văn dài tự xuống dòng giữa chừng
    ("6 đồng / nghiệp"). Cột số rộng cố định nên ba nhãn thẳng hàng nhau. */
@@ -146,9 +152,12 @@
 @keyframes breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
 /* hoa văn mặt lưng — dùng chung cho cả bộ */
 .deck-back{position:absolute;inset:11px;border:1px solid var(--tar-gold-soft);border-radius:9px;display:grid;place-items:center;overflow:hidden}
-.deck-back::before{content:'';position:absolute;inset:0;opacity:.55;
-  background-image:repeating-linear-gradient(45deg,transparent 0 9px,rgba(233,200,132,.16) 9px 10px),
-                   repeating-linear-gradient(-45deg,transparent 0 9px,rgba(233,200,132,.16) 9px 10px)}
+/* Lưới chéo vẽ bằng SVG data-URI chứ không phải repeating-linear-gradient:
+   html2canvas 1.4.1 (dùng để xuất ảnh) vỡ ở cú pháp gradient hai vị trí
+   ("transparent 0 9px") và ném lỗi addColorStop non-finite, nên không tải được
+   ảnh nào. Ô 14px cho ra khoảng cách vuông góc 10px, đúng như bản gradient cũ. */
+.deck-back::before{content:'';position:absolute;inset:0;opacity:.16;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M0 14L14 0M0 0L14 14' stroke='%23e9c884' stroke-width='1' fill='none'/%3E%3C/svg%3E")}
 /* Mat lung mang linh vat cua giá trị nổi bật nhất của chính người xem — bộ bài
    là của họ, nên mặt lưng cũng là của họ. Vòng vàng kép giữ chất bài cổ. */
 .deck-mark{position:relative;width:104px;height:104px;border-radius:50%;
@@ -232,12 +241,20 @@
 
 /* ── Tôn trọng người tắt hiệu ứng ───────────────────────────── */
 @media (prefers-reduced-motion:reduce){
-  .tarot-stage::before,.deck-card,.ritual-cta i{animation:none}
+  .tarot-dialog::before,.deck-card,.ritual-cta i{animation:none}
   .card-flip{transition:none}
   .card-slot.enter,.card-slot.leaving,.fan .mini-card,.deck.cutting .deck-card,
   .deck.cutting .deck-card:nth-child(1),.deck.cutting .deck-card:nth-child(2){animation-duration:.01ms}
 }
+/* Khung 760px không đủ cho lá 504px + nghi thức/điều hướng, nên bài nhỏ lại. */
+.card-slot,.deck{width:284px;height:436px}
+.ritual-wrap .deck{width:248px;height:381px}
+.tarot-top{padding:13px 18px}
+.tarot-body{padding:2px 18px}
+.tarot-foot{padding:12px 18px 18px}
+.card-inner{padding:22px 20px}
+.card-title{font-size:29px}
 @media (max-width:900px){
-  .card-slot,.deck{width:290px;height:446px}
+  .card-slot,.deck{width:250px;height:384px}
   .fan .mini-card{width:118px;height:182px;margin:0 -6px}
 }
