@@ -26,11 +26,11 @@
   --tar-ink-dim:rgba(255,245,251,.66);
 }
 
-@font-face{font-family:'MoMo Trust Sans';src:url('../momo%20font/MoMoTrustSans-Light.otf') format('opentype');font-weight:300;font-display:swap}
-@font-face{font-family:'MoMo Trust Sans';src:url('../momo%20font/MoMoTrustSans-Regular.otf') format('opentype');font-weight:400;font-display:swap}
-@font-face{font-family:'MoMo Trust Sans';src:url('../momo%20font/MoMoTrustSans-Medium.otf') format('opentype');font-weight:500;font-display:swap}
-@font-face{font-family:'MoMo Trust Display';src:url('../momo%20font/MoMoTrustDisplay.otf') format('opentype');font-weight:700;font-display:swap}
-@font-face{font-family:'MoMo Signature';src:url('../momo%20font/MoMoSignature.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'MoMo Trust Sans';src:url('../MoMo%20Font/MoMoTrustSans-Light.otf') format('opentype');font-weight:300;font-display:swap}
+@font-face{font-family:'MoMo Trust Sans';src:url('../MoMo%20Font/MoMoTrustSans-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'MoMo Trust Sans';src:url('../MoMo%20Font/MoMoTrustSans-Medium.otf') format('opentype');font-weight:500;font-display:swap}
+@font-face{font-family:'MoMo Trust Display';src:url('../MoMo%20Font/MoMoTrustDisplay.otf') format('opentype');font-weight:700;font-display:swap}
+@font-face{font-family:'MoMo Signature';src:url('../MoMo%20Font/MoMoSignature.otf') format('opentype');font-weight:400;font-display:swap}
 
 /* ═══════════════════════════════════════════════════════════════
    SÂN KHẤU TRẢI BÀI — vùng ngoại lệ design system
