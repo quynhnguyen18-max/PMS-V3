@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="tarot-stage.css"/>
 <style>
 /* ═══════════ TOKENS — copy nguyên từ E-04 ═══════════ */
 :root{
@@ -85,7 +86,13 @@ a{text-decoration:none}
 .cycle-row>i{font-size:15px;color:var(--z500)}
 .cycle-lbl{font-size:13px;color:var(--z700);font-weight:500}
 .cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 6px center;font-size:13px;color:var(--z800);font-weight:500;appearance:none;-webkit-appearance:none}
-.hd-actions{margin-left:auto;display:flex;gap:7px}
+.hd-actions{margin-left:auto;display:flex;gap:7px;align-items:center}
+/* Nút "Dấu ấn của tôi" — copy nguyên style của E-04 để hai màn không lệch nhau. */
+.media-summary-entry{position:relative;z-index:1;border:0;border-radius:999px;background:var(--brand);color:#fff;box-shadow:var(--sh-sm);height:30px;padding:0 13px;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;transition:var(--t)}
+.media-summary-entry:hover{background:var(--brand-h)}
+.media-entry-star{font-size:15px;line-height:1;animation:media-entry-blink 1.35s ease-in-out infinite}
+@keyframes media-entry-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.86)}}
+@media (prefers-reduced-motion:reduce){.media-entry-star{animation:none}}
 .av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
 .av-brand{background:var(--brand-muted);color:var(--brand)}
 .av-sm{width:24px;height:24px;font-size:9.5px}
@@ -404,6 +411,10 @@ body.reduced *{animation-duration:.01ms!important;animation-iteration-count:1!im
           <select class="cycle-sel"><option>2026</option><option>2025</option><option>Tất cả</option></select>
         </div>
         <div class="hd-actions">
+          <!-- Mở sân khấu trải bài trong tarot-stage.js — cùng một bộ bài với màn Demo Trải bài. -->
+          <button class="media-summary-entry" onclick="openStage()" aria-label="Dấu ấn của tôi">
+            <span class="media-entry-star">✦</span><span class="media-entry-label">Dấu ấn của tôi</span>
+          </button>
           <button class="btn btn-default" onclick="openGive()"><i class="bx bx-message-rounded-add"></i> Cho phản hồi</button>
           <button class="btn btn-cta-outline"><i class="bx bx-user-voice"></i> Yêu cầu phản hồi</button>
         </div>
@@ -979,5 +990,6 @@ function receiveThanks(){
 renderFeed(); renderCVPick(); syncSegHeart();
 setTimeout(enterFeedback, 300);
 </script>
+<script src="tarot-stage.js"></script>
 </body>
 </html>
