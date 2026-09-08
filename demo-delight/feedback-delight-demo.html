@@ -346,7 +346,92 @@ a{text-decoration:none}
 
 body.reduced *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.06s!important}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.06s!important}}
-@media(max-width:1100px){.fb-layout{flex-direction:column}.fb-rail{width:100%;position:static;flex-direction:row;flex-wrap:wrap}.fb-rail>*{flex:1;min-width:240px}}
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Cụm huy hiệu giá trị nằm sát cạnh phải của card, nên tooltip canh giữa thò
+   hẳn ra ngoài viewport và sinh thanh cuộn ngang "ma" — trang bị kéo ngang
+   dù mắt không thấy gì thừa. Neo mép phải, đúng DS §19 rule 16. */
+.fb-badge-tip{left:auto;right:0;transform:none}
+
+/* ≤1100 — rail xuống dưới, xếp ngang */
+@media(max-width:1100px){
+  .fb-layout{flex-direction:column}
+  .fb-rail{width:100%;position:static;flex-direction:row;flex-wrap:wrap}
+  .fb-rail>*{flex:1;min-width:240px}
+}
+
+/* ≤900 — sidebar thu còn cột icon.
+   Không ẩn hẳn: ẩn là mất luôn điều hướng, mà 64px vẫn chừa đủ chỗ nội dung
+   ngay cả ở màn 375px. Nhãn chữ nằm trong text node chứ không bọc thẻ nên
+   không selector nào chạm tới được — tắt bằng font-size:0 rồi bật lại cho
+   icon và badge số. */
+@media(max-width:900px){
+  :root{--sw:64px}
+  .sb-brand{justify-content:center;padding:14px 6px 10px}
+  .sb-brand>div:not(.sb-logo){display:none}
+  .role-sw,.sb-grp{display:none}
+  .sb-nav{padding-top:10px}
+  .sb-item{justify-content:center;gap:0;padding:9px 0;margin:2px 8px;width:calc(100% - 16px);font-size:0}
+  .sb-item i{font-size:18px;width:auto}
+  .sb-cnt{position:absolute;top:2px;right:6px;font-size:9.5px;min-width:14px;height:14px;padding:0 3px}
+  .sb-item{position:relative}
+  .sb-foot{padding:8px 6px}
+  .sb-user{justify-content:center;padding:5px 0}
+  .sb-user>div:not(.av){display:none}
+
+  .page{padding:16px 16px 104px}
+  .topbar{padding:0 12px;gap:7px}
+  .topbar-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fb-layout{gap:16px}
+}
+
+/* ≤760 — một cột thật sự: hàng nút và ô tìm kiếm trải hết chiều ngang */
+@media(max-width:760px){
+  .cycle-action-row{gap:8px}
+  .hd-actions{margin-left:0;width:100%;flex-wrap:wrap}
+  .hd-actions>*{flex:1 1 auto;justify-content:center}
+  .feed-bar{align-items:stretch}
+  .feed-search{width:100%}
+  .feed-search input{width:100%}
+  .fb-rail>*{min-width:0;flex:1 1 100%}
+
+  /* Chip trạng thái đang chiếm 210px bên phải đầu card; ở khổ hẹp chỗ đó chỉ
+     còn hơn trăm px nên tên người bị bẻ mỗi dòng một chữ. Cho chip xuống dòng
+     riêng và trả lại toàn bộ chiều ngang cho nội dung. */
+  .fb-head,.fb-card.has-chip .fb-head{padding-right:0}
+  .fb-chip-tr{position:static;margin:0 0 9px;display:block}
+  .fb-card{padding:13px 13px}
+
+  /* Con dấu tim đang đè lên chữ ở dải thông tin phía dưới phong bì. Kéo hẳn
+     lên vùng nắp thư để hai thứ không chồng nhau. */
+  .env-seal{top:20px}
+  .env-front{padding-left:12px;padding-right:12px}
+
+  /* Thanh điều khiển demo: giữ đúng MỘT hàng và cuộn ngang, thay vì xuống ba
+     hàng đẩy cao lên che mất nội dung cuối trang. */
+  .ctl{flex-wrap:nowrap;overflow-x:auto;padding:8px 12px;gap:7px}
+  .ctl>*{flex-shrink:0}
+  .ctl .hint{display:none}
+}
+
+/* ≤480 — điện thoại */
+@media(max-width:480px){
+  .page{padding:14px 12px 104px}
+  .page-title{font-size:17px}
+  .topbar .chip{display:none}
+  .hd-actions>*{flex:1 1 100%}
+  .seg{width:100%}
+  .seg-btn{flex:1 1 auto;text-align:center}
+  /* Ở khổ điện thoại dải thông tin phải tự cao theo nội dung, nên chuyển nó về
+     dòng chảy thường. Nhưng nắp thư và con dấu vẫn là lớp phủ tuyệt đối, nên
+     phải chừa sẵn 66px phía trên: nắp chiếm 0-60, con dấu 20-48, chữ bắt đầu
+     từ 66 là không thứ nào đè lên thứ nào. */
+  .env-seal-view{height:auto;min-height:0;padding-top:66px}
+  .env-front{position:static;height:auto;flex-wrap:wrap;padding:0 12px 13px}
+  .env-cta{margin-left:auto}
+}
 </style>
 </head>
 <body>
@@ -367,11 +452,11 @@ body.reduced *{animation-duration:.01ms!important;animation-iteration-count:1!im
     </div>
     <nav class="sb-nav">
       <span class="sb-grp">Tổng quan</span>
-      <button class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</button>
+      <button class="sb-item" title="Trang chủ" aria-label="Trang chủ"><i class="bx bx-home-alt"></i>Trang chủ</button>
       <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
-      <button class="sb-item"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</button>
-      <button class="sb-item" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</button>
-      <button class="sb-item on" onclick="enterFeedback()">
+      <button class="sb-item" title="Mục tiêu và Đánh giá cá nhân" aria-label="Mục tiêu và Đánh giá cá nhân"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</button>
+      <button class="sb-item" title="Phản hồi của tôi" aria-label="Phản hồi của tôi" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</button>
+      <button class="sb-item on" title="New Demo Feedback" aria-label="New Demo Feedback" onclick="enterFeedback()">
         <i class="bx bx-gift"></i>New Demo Feedback
         <span class="sb-cnt" id="sbCnt">2</span>
       </button>
