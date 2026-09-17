@@ -204,7 +204,8 @@
     }
     function toggle(show) {
       bar.classList.toggle('hidden', !show);
-      pill.classList.toggle('show', showDemoOnLoad && !show);
+      // Viên Demo luôn hiện khi thanh đang ẩn, để mở lại được mà không cần nhớ phím tắt
+      pill.classList.toggle('show', !show);
       document.body.classList.toggle('pms-demo-on', show);
       syncPad();
     }

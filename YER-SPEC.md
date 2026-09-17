@@ -144,6 +144,8 @@ LM2/HOD sửa điểm thoải mái tới hết deadline của mình.
 
 - Xác định theo trạng thái tại **ngày mở kỳ YER** (05/01/2027). Chỉ áp dụng cho thai sản, không mở rộng cho nghỉ ốm/nghỉ không lương.
 - NV thai sản **không bắt buộc** tự đánh giá, nhưng vẫn làm được nếu muốn.
+- **Không đưa NV thai sản vào luồng nộp trễ của §27.1**: không hiện màn `Quá hạn tự đánh giá`,
+  không báo cửa sổ nộp trễ đã đóng, nhãn tab giữ `Không yêu cầu tự đánh giá`.
 - Có goal thì LM đánh giá bình thường. Không có goal thì LM **import goal** rồi **approve**, sau đó đánh giá.
 - Import goal: Excel 2 sheet `WHAT Goals` + `DEVELOPMENT Goals`, giống `M-02`.
 - Bước tự đánh giá chuyển `Không yêu cầu (Nghỉ thai sản)`, không tính là chưa hoàn thành, không gửi nhắc.
@@ -326,17 +328,64 @@ Hai luồng riêng, không trộn vào nhau.
 ### 27.1 Nhân viên nộp trễ bằng file import
 
 **Thay §5.** Trước đây thiếu mục tiêu là chặn hẳn, gắn `Không đánh giá` và dừng quy trình.
-Nay nhân viên trễ hạn **tự import một file gồm cả mục tiêu và nội dung tự đánh giá**.
+Nay nhân viên trễ hạn **tự nộp một file gồm cả mục tiêu và nội dung tự đánh giá**.
 
-- Áp dụng cho cả nhân viên **chưa có mục tiêu nào trên hệ thống**.
-- Mục tiêu import vào thẳng, **không qua bước duyệt mục tiêu**. Nhân viên tự chịu trách nhiệm
-  bảo đảm mục tiêu đã thống nhất với Quản lý trước đó.
-- Cửa sổ nộp trễ nằm **trong timeline của bước Quản lý trực tiếp** (19/01 - 01/02/2027).
-- Hồ sơ gắn badge `Nộp trễ hạn`. Quản lý vào đánh giá bình thường.
-- `Không đánh giá` chỉ còn dành cho nhân viên **không nộp trễ và cũng không đủ mục tiêu**
-  khi hết cửa sổ nộp trễ.
-- Nhắc: nhân viên trễ hạn và Quản lý đang phụ trách sau cut-off 31/12/2026 đều nhận nhắc.
-  Prototype không dựng inbox thông báo, chỉ hiện badge và banner trên màn.
+**Cửa sổ nộp trễ** trùng đúng timeline bước Quản lý trực tiếp (19/01 - 01/02/2027).
+Mô hình: `lateWindowOpen = stepState('lm') === 'open'`.
+
+**Ai thấy màn nộp trễ.** Mọi nhân viên chưa tự đánh giá trong cửa sổ này, **bất kể tình
+trạng mục tiêu**. Ba trường hợp đều vào cùng một luồng:
+
+| | Tình trạng mục tiêu | Nhân sự mẫu |
+|---|---|---|
+| 1 | Đủ mục tiêu đã duyệt | `y9` Nguyễn Mai Anh |
+| 2 | Thiếu một loại, ví dụ mục tiêu phát triển | `y10` Trần Quốc Huy |
+| 3 | Chưa có mục tiêu nào | `y11` Lê Minh Châu |
+
+**Hai trường hợp KHÔNG vào luồng này:**
+
+- **Đã nghỉ việc**: hồ sơ chỉ để tra cứu.
+- **Đang nghỉ thai sản**: §12 đã miễn bước tự đánh giá cho nhóm này, nên không được hiện
+  màn `Quá hạn tự đánh giá`, không báo cửa sổ nộp trễ đã đóng, nhãn tab giữ nguyên
+  `Không yêu cầu tự đánh giá`. Chốt ngày 17/09/2026. Nhân sự mẫu: `e4` Vũ Thị Lan.
+
+**Giao diện màn nộp trễ** thay toàn bộ nội dung tab, không phải một khối phụ:
+
+1. Badge `Quá hạn tự đánh giá` và **đếm ngược số ngày còn lại** tới hạn chót của Quản lý,
+   tính cả ngày cuối.
+2. Ba bước: **Tải file mẫu** → **Điền tự đánh giá** → **Tải lên và nộp**.
+3. Ô chọn file, chỉ nhận `.xlsx` hoặc `.xls`, một file duy nhất.
+4. **Ô tích xác nhận bắt buộc**: mục tiêu trong file đã thống nhất với Quản lý trước đó.
+   Chưa tích thì không nộp được.
+5. Dòng nhắc: nộp xong không sửa và không thu hồi được.
+
+**File mẫu.** Bấm `Tải file mẫu`:
+
+- Chưa có mục tiêu đã duyệt → chỉ có mẫu trống.
+- Có mục tiêu đã duyệt → hỏi chọn **Mẫu trống** hay **Kèm mục tiêu đã duyệt**.
+
+File nằm ở `assets/templates/`, bản dựng có ba file: mẫu trống, bản của `y9`, bản của `y10`.
+
+**Sau khi nộp**, hồ sơ chuyển thẳng sang bước Quản lý trực tiếp:
+
+- Mục tiêu trong file vào thẳng, trạng thái `imported`, **không qua bước duyệt mục tiêu**.
+- Bản tự đánh giá ghi `source: 'file-import'` kèm tên file.
+- Trạng thái danh sách và nhãn tab: `Nộp trễ hạn - Chờ Quản lý`.
+- Màn Quản lý đọc được mục tiêu import và chấm bình thường.
+
+**`Không đánh giá`** chỉ xuất hiện khi **hết cửa sổ nộp trễ** mà vẫn thiếu mục tiêu và
+không có file nào được nộp. Mô hình: `stopped` cần đủ ba điều kiện — thiếu mục tiêu,
+`stepState('lm') === 'closed'`, và không có `lateSubmission`.
+
+**Nhắc**: nhân viên trễ hạn và Quản lý đang phụ trách sau cut-off 31/12/2026 đều nhận nhắc.
+Prototype không dựng inbox thông báo, chỉ hiện badge và banner trên màn.
+
+**Giới hạn của bản dựng**, phải thay khi làm thật:
+
+- Bản dựng **không đọc nội dung file Excel**. Nộp xong, hệ thống sinh sẵn một bộ điểm và
+  nhận xét mẫu để luồng đi tiếp được. Bản thật phải parse file và có bước đối soát.
+- File mẫu **kèm mục tiêu đã duyệt** mới có bản thật cho `y9` và `y10`. Nhân sự khác bấm
+  nút đó sẽ nhận mẫu trống.
 
 ### 27.2 Trả về để chỉnh sửa — chọn Opt 2
 
@@ -440,9 +489,10 @@ Giữ nguyên §14. Làm sau cùng của cụm màn Quản lý vì thuộc nhóm
 
 | Đợt | Nội dung | Enhancement | Trạng thái |
 |---|---|---|---|
-| 1 | Nền dùng chung: thang điểm, tab và journey, tourguide, popup chưa lưu | ENH-E13, E14, E15 | Đang làm |
-| 2 | Hoàn thiện màn Nhân viên `E-05` | ENH-E05, E03, E10, E02 | Chưa làm |
-| 3 | Màn Quản lý LM/LM2/HOD | ENH-E01, E02, E03, E10, E08 | Chưa làm |
+| 1 | Nền dùng chung: thang điểm, tab và journey, tourguide, popup chưa lưu | ENH-E13, E14, E15 | Xong |
+| 2 | Hoàn thiện màn Nhân viên `E-05` | ENH-E05, E03, E10, E02 | Xong |
+| 3 | Màn Quản lý LM/LM2/HOD: danh sách và màn chấm điểm | ENH-E01, E02, E03, E10 | Xong |
+| 3b | Còn lại của cụm Quản lý: duyệt điểm hiệu chuẩn, màn bàn giao khi đổi Quản lý, AI Copilot | ENH-E08 | Chưa làm |
 | 4 | Màn HR: HRBP, L&OD, TR, HRD | ENH-E06, E09 | Chưa làm |
 
 Trong mỗi đợt, dựng tình huống theo thứ tự: đúng hạn trước, rồi trễ hạn, thiếu mục tiêu,
@@ -597,3 +647,57 @@ Chốt ngày 17/09/2026.
   Không nhắc lại đang chờ ai ở đây — nhãn tab và dải quy trình đã nói rồi.
 - **Bỏ nhãn `Đã thay đổi sau Mid-Year`** trên thẻ mục tiêu. Kỳ cuối năm chấm trên mục tiêu
   hiện tại, lịch sử thay đổi không đổi cách chấm. Điều này **thay** phần badge ở §11.
+
+## 43. Mascot hướng dẫn của màn Nhân viên
+
+Chốt ngày 17/09/2026. Thay nút `Xem hướng dẫn` ở §40.4.
+
+- Mascot MoMo đứng ở **góc phải thanh tab**, thay hẳn nút `Xem hướng dẫn`.
+- Rê chuột hoặc focus thì đổi sang pose vẫy tay và hiện bóng thoại. Bấm thì chạy tourguide.
+- **Bóng thoại đổi theo tình trạng hồ sơ**, không phải một câu cố định: đang trong cửa sổ
+  nộp trễ, thiếu mục tiêu, quá hạn, đã nộp, hoặc đang ở bước tự đánh giá.
+- Mỗi thẻ của tourguide có hình mascot theo pose hợp nội dung bước đó.
+- Sáu pose nằm ở `assets/mascot/`: `idle`, `wave`, `run`, `cheer`, `wink`, `think`.
+- Khối `Lưu ý` vẫn giữ, nhưng **ẩn sau khi nhân viên đã nộp**: nội dung đó chỉ có nghĩa
+  trước khi tự đánh giá.
+
+## 44. Thanh Chế độ demo
+
+**Thanh ẩn mặc định** để bản dựng nhìn như sản phẩm thật khi trình bày hoặc chụp ảnh.
+
+Ba cách mở lại:
+
+| Cách | Dùng khi nào |
+|---|---|
+| Bấm viên **Demo** ở góc dưới bên phải | cách thông thường, luôn có khi thanh đang ẩn |
+| Nhấn phím **`D`** | bật tắt nhanh, không dùng được khi con trỏ đang ở trong ô nhập |
+| Thêm **`?demo=1`** vào URL | mở sẵn ngay khi tải trang, tiện cho deep link |
+
+Deep link đầy đủ: `E-05/index.html?demo=1&role=nv&date=2027-01-20&emp=y11`.
+
+## 45. Bộ kiểm thử
+
+| Lệnh | Phạm vi |
+|---|---|
+| `npm test` | ba màn Feedback: `E-04`, `H-05`, `M-04` |
+| `npm run test:yer` | luồng Đánh giá cuối năm: `YER-demo/yer-enhancements.test.js` |
+
+`yer-enhancements.test.js` nạp trực tiếp `assets/yer-data.js` và `assets/yer-model.js` trong `vm`,
+kèm `assets/employees-data.js` — thiếu file này thì `profile()` của `e1`..`e16` trả về null.
+Những luật đã khóa bằng test: thứ tự sáu giai đoạn của bảng tình huống, ba trạng thái mục tiêu
+của luồng nộp trễ, thai sản không vào luồng nộp trễ, hồ sơ đã nộp trễ chuyển sang chờ Quản lý,
+mascot thay nút hướng dẫn, ba file mẫu có thật, thanh demo ẩn nhưng viên Demo luôn mở được.
+
+## 46. Bảng điều hướng tình huống
+
+`YER-demo/index.html` gom **26 tình huống** theo sáu giai đoạn của quy trình:
+Điều kiện tham gia → Tự đánh giá → Quản lý trực tiếp → Quản lý cấp 2 → Trưởng đơn vị →
+Kết quả và phản hồi. Mỗi dòng đặt sẵn vai trò, nhân sự và ngày hệ thống.
+
+Ba bản dựng phụ để review từng phần:
+
+| File | Dùng để |
+|---|---|
+| `YER-demo/overdue-self-assessment.html` | bốn tình huống nộp trễ cạnh nhau |
+| `YER-demo/mascot-tour.html` | thử từng bước của tourguide |
+| `YER-demo/mascot-tour-v2.html` | mascot gắn trên chính màn `E-05` |

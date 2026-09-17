@@ -225,7 +225,7 @@
   }
 
   function mascotCopy(p){
-    if(!p.self && p.lateWindowOpen){
+    if(!p.self && p.lateWindowOpen && !p.maternity){
       return L('Bạn vẫn có thể nộp hồ sơ trong thời gian đánh giá của Quản lý trực tiếp. Mình sẽ hướng dẫn từng bước.',
                'You can still submit one late file with goals and self assessment during the manager window. I will guide you through it.');
     }
@@ -671,7 +671,8 @@
 
     /* Hết hạn Self nhưng còn trong timeline LM: mọi trạng thái goal đều được
        dùng luồng nộp một file riêng, không bị chặn thành Không đánh giá. */
-    if(!p.self && p.lateWindowOpen && !p.resigned){
+    // Thai sản không bắt buộc tự đánh giá (§12) nên không hiện màn nộp trễ cho họ.
+    if(!p.self && p.lateWindowOpen && !p.resigned && !p.maternity){
       root.innerHTML = lateUploadBlock(p);
       afterRender(p);
       return;
@@ -714,7 +715,8 @@
         L('Bạn có ngày nghỉ việc hiệu lực từ <strong>' + Y.fmt(p.resignFrom, lg()) + '</strong>. Vui lòng hoàn tất tự đánh giá trước ngày này.',
           'Your resignation takes effect on <strong>' + Y.fmt(p.resignFrom, lg()) + '</strong>. Please complete your self assessment before then.') + '</div></div>';
     }
-    if(!p.self && !editable && selfOpen === false){
+    // NV thai sản không thuộc luồng nộp trễ nên không báo cửa sổ nộp trễ đã đóng
+    if(!p.self && !editable && selfOpen === false && !p.maternity){
       html += '<div class="yer-note info"><i class="bx bx-info-circle"></i><div>' +
         L('Thời gian nộp trễ đã kết thúc cùng timeline của Quản lý trực tiếp vào ngày <strong>' + Y.fmt(Y.step('lm').to, lg()) + '</strong>.',
           'The late-submission window ended with the line-manager timeline on <strong>' + Y.fmt(Y.step('lm').to, lg()) + '</strong>.') + '</div></div>';
@@ -978,19 +980,32 @@
     }
   }
 
+  /* Nhãn trên tab của Nhân viên. Câu chữ riêng của vai này, nhưng **luật sinh ra
+     trạng thái lấy từ model**, không chép lại ở đây (DESIGN-SYSTEM.md §20.1, §20.3).
+     Chép lại là lệch: đã từng có lúc NV đã nghỉ việc vẫn hiện nhãn "Có thể nộp trễ". */
+  var TAB_LABEL = {
+    'out':        ['Ngoài kỳ đánh giá',        'Out of cycle'],
+    'not-open':   ['Chưa mở',                   'Not open yet'],
+    'resigned':   ['Đã nghỉ việc',               'Resigned'],
+    'late-upload':['Có thể nộp trễ',             'Late submission available'],
+    'noeval':     ['Không đánh giá',             'Not evaluated'],
+    'published':  ['Đã hoàn tất',                'Completed'],
+    'wait-tr':    ['Đã có kết quả của Quản lý', 'Manager result available'],
+    'wait-hod':   ['Đã có kết quả của Quản lý', 'Manager result available'],
+    'wait-lm2':   ['Đã có kết quả của Quản lý', 'Manager result available'],
+    'wait-lm':    ['Đang chờ Quản lý',          'Awaiting manager'],
+    'maternity':  ['Không yêu cầu tự đánh giá',  'Self assessment not required'],
+    'need-self':  ['Cần tự đánh giá',           'Self assessment needed'],
+    'no-self':    ['Không tự đánh giá',         'No self assessment']
+  };
+
   function yerTabState(p){
-    var s = S.session();
-    if(Y.cmp(s.date, Y.step('self').from) < 0) return L('Chưa mở','Not open yet');
-    if(p.lateSubmission && p.self) return L('Nộp trễ hạn - Chờ Quản lý','Submitted late - Awaiting manager');
-    if(!p.self && p.lateWindowOpen) return L('Có thể nộp trễ','Late submission available');
-    if(p.eligibility.reason === 'missing-goal') return L('Không đánh giá','Not evaluated');
-    if(p.published) return L('Đã hoàn tất','Completed');
+    var key = Y.status(p, 'vi').key;
+    // Hai trường hợp tab nói khác danh sách, vì tab nói việc của chính người đang xem
+    if(key === 'wait-lm' && p.lateSubmission) return L('Nộp trễ hạn - Chờ Quản lý','Submitted late - Awaiting manager');
     if(p.responseOpen) return L('Cần xem kết quả','Result ready for you');
-    if(p.lm) return L('Đã có kết quả của Quản lý','Manager result available');
-    if(p.self) return L('Đang chờ Quản lý','Awaiting manager');
-    if(p.maternity) return L('Không yêu cầu tự đánh giá','Self assessment not required');
-    if(Y.stepState('self', s.date) === 'open') return L('Cần tự đánh giá','Self assessment needed');
-    return L('Không tự đánh giá','No self assessment');
+    var pair = TAB_LABEL[key];
+    return pair ? L(pair[0], pair[1]) : '';
   }
 
   /* ── CSS cho trạng thái bước trong stepper ── */

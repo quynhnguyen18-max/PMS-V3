@@ -18,6 +18,9 @@ function loadYer() {
     }
   };
   const context = vm.createContext({ window, console, Date, Object, Array, String, Number, Math, JSON });
+  // Nap ca danh sach nhan su goc: yer-data.js chi them nguoi moi vao mang nay,
+  // nen thieu no thi cac ho so e1..e16 khong ton tai va profile() tra ve null.
+  vm.runInContext(fs.readFileSync(path.join(root, 'assets/employees-data.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'assets/yer-data.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), context);
   return window;
@@ -66,6 +69,21 @@ test('overdue self assessment keeps the late file route open for all three goal 
   assert.equal(w.PMSYer.status(afterLateWindow, 'vi').key, 'noeval');
 });
 
+test('maternity leave stays out of the late-file route', () => {
+  const w = loadYer();
+  // e4 nghi thai san, chua tu danh gia, dang trong timeline cua Quan ly truc tiep.
+  // YER-SPEC 12 va 33: thai san khong bat buoc tu danh gia nen khong bi doi nop file tre.
+  const maternity = w.PMSYer.profile('e4', '2027-01-25');
+  assert.equal(maternity.maternity, true);
+  assert.equal(maternity.self, null);
+  assert.equal(maternity.lateWindowOpen, true);
+  assert.equal(w.PMSYer.status(maternity, 'vi').key, 'maternity');
+
+  const source = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(source, /p\.lateWindowOpen && !p\.resigned && !p\.maternity/);
+  assert.match(source, /selfOpen === false && !p\.maternity/);
+});
+
 test('late submission moves directly to manager review with imported goals and self assessment', () => {
   const w = loadYer();
   const submitted = w.PMSYer.profile('y12', '2027-01-22');
@@ -102,11 +120,14 @@ test('late self-assessment templates are available for blank and approved-goal d
   });
 });
 
-test('demo controls stay hidden on the clean prototype unless explicitly opened', () => {
+test('demo controls stay hidden but the Demo pill is always reachable', () => {
   const source = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
   assert.match(source, /get\('demo'\) === '1'/);
   assert.match(source, /toggle\(showDemoOnLoad\)/);
   assert.doesNotMatch(source, /document\.body\.classList\.add\('pms-demo-on'\)/);
+  // Thanh an mac dinh, nhung vien Demo o goc phai luon hien de mo lai duoc
+  // ma khong can nho phim tat D hay them ?demo=1.
+  assert.match(source, /pill\.classList\.toggle\('show', !show\)/);
 });
 
 test('manager detail reads imported late goals and keeps review editable', () => {
