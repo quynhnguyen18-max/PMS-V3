@@ -249,7 +249,11 @@ button{font-family:inherit}
   function renderScenarios(){
     var s = S.session();
     var groups = window.PMS_YER_GROUPS || [];
-    var all = window.PMS_YER_SCENARIOS || [];
+    var all = (window.PMS_YER_SCENARIOS || []).slice();
+    var order = window.PMS_YER_SCENARIO_ORDER || [];
+    var rank = {};
+    order.forEach(function(id, i){ rank[id] = i; });
+    all.sort(function(a, b){ return (rank[a.id] == null ? 999 : rank[a.id]) - (rank[b.id] == null ? 999 : rank[b.id]); });
     document.getElementById('sc-note').textContent = all.length + ' ' + L('scNote');
 
     document.getElementById('sc-body').innerHTML = groups.map(function(g){
@@ -264,7 +268,7 @@ button{font-family:inherit}
           return '<button class="sc' + (on?' on':'') + '" data-open="' + sc.id + '">' +
             '<span class="sc-code">' + esc(sc.id) + '</span>' +
             '<span>' +
-              '<span class="sc-name">' + esc(lg()==='en'?sc.en:sc.vi) + '</span>' +
+              '<span class="sc-name">[' + esc(lg()==='en'?g.en:g.vi) + '] ' + esc(lg()==='en'?sc.en:sc.vi) + '</span>' +
               '<span class="sc-watch">' + esc(lg()==='en'?sc.wen:sc.wvi) + '</span>' +
               '<span class="sc-meta">' +
                 '<span class="badge b-role">' + esc(roleLabel(sc.role)) + '</span>' +

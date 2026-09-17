@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Demo Mascot Tour Guide - Đánh giá cuối năm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --z0:#fff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z900:#18181b;
+  --brand:#a50064;--brand-dark:#8b0055;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.22);
+  --ok:#15803d;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;--r:8px;--rsm:6px;--sw:232px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+
+/* demo controls */
+.demo-bar{position:sticky;top:0;z-index:80;height:42px;padding:0 16px;background:#27272a;color:#fff;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.16)}
+.demo-title{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px}.demo-title i{color:#ff8fc5;font-size:16px}
+.demo-note{font-size:11.5px;color:#d4d4d8}.demo-spacer{flex:1}
+.motion-label{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#e4e4e7;cursor:pointer}
+.motion-label input{accent-color:#f95396}
+.demo-reset{height:28px;padding:0 10px;border:1px solid #52525b;border-radius:6px;background:#3f3f46;color:#fff;font-size:11.5px;display:inline-flex;align-items:center;gap:5px}
+.demo-reset:hover{background:#52525b}
+
+/* shell */
+.app{display:flex;min-height:calc(100vh - 42px)}
+.sidebar{width:var(--sw);position:fixed;top:42px;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:9px;padding:16px;border-bottom:1px solid var(--z100)}
+.logo{width:28px;height:28px;background:var(--brand);border-radius:7px;color:#fff;display:grid;place-items:center;font-weight:800}
+.brand-name{font-size:13.5px;font-weight:700;color:var(--z900)}.brand-sub{font-size:10.5px;color:var(--z500)}
+.roles{margin:12px;padding:3px;background:var(--z100);border-radius:7px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.role{border:0;background:transparent;border-radius:5px;padding:6px 2px;font-size:10.5px;color:var(--z500)}.role.on{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.nav-label{padding:10px 16px 6px;font-size:9.5px;font-weight:700;color:var(--z400);letter-spacing:.6px}.nav-item{margin:0 8px;padding:8px 10px;border-radius:6px;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--z600)}.nav-item.on{background:var(--brand-muted);color:var(--brand);font-weight:600}.nav-item i{font-size:17px}
+.user{margin-top:auto;border-top:1px solid var(--z100);padding:13px 14px;display:flex;align-items:center;gap:8px}.avatar{width:30px;height:30px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:grid;place-items:center;font-size:11px;font-weight:700}.user-name{font-size:12px;font-weight:600;color:var(--z900)}.user-role{font-size:10.5px;color:var(--z500)}
+.workspace{margin-left:var(--sw);width:calc(100% - var(--sw));min-width:0}
+.topbar{height:52px;background:#fff;border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;color:var(--z600);font-size:12.5px}.topbar i{font-size:16px}.top-spacer{flex:1}.lang{display:flex;border:1px solid var(--z200);border-radius:6px;overflow:hidden}.lang span{padding:4px 8px}.lang .on{background:var(--brand);color:#fff}
+.page{max-width:1440px;margin:0 auto;padding:18px 22px 60px}.crumb{font-size:11.5px;color:var(--z500);margin-bottom:10px}.head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}.head h1{font-size:19px;line-height:1.3;color:var(--z900);letter-spacing:-.35px}.head p{font-size:12px;color:var(--z500);margin-top:3px}.emp-chip{padding:8px 11px;border:1px solid var(--z200);border-radius:var(--r);background:#fff;font-size:11.5px;color:var(--z600);line-height:1.55}.emp-chip strong{color:var(--z900)}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--z200);margin-bottom:16px}.tab{border:1px solid var(--z300);border-bottom-color:var(--z200);border-radius:6px 6px 0 0;background:#fff;color:var(--z600);padding:9px 15px;margin-bottom:-2px;font-size:12.5px;display:flex;align-items:center;gap:6px}.tab.on{color:var(--brand);font-weight:700;background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:#fdf7fa;box-shadow:inset 0 3px var(--brand)}.tab-state{font-size:9.5px;padding:1px 5px;border-radius:4px;background:#fff;border:1px solid var(--brand-ring)}
+
+/* mascot toolbar */
+.review-toolbar{min-height:36px;display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;position:relative}
+.mascot-entry{position:relative;margin-left:auto;display:flex;align-items:center;flex:none}
+.mascot-trigger{width:36px;height:36px;border:1px solid var(--brand-ring);border-radius:11px;background:linear-gradient(145deg,#fff 15%,#fff1f7);display:grid;place-items:center;padding:2px;box-shadow:0 2px 7px rgba(165,0,100,.10);position:relative;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.mascot-trigger:hover,.mascot-trigger:focus-visible{transform:translateY(-1px);box-shadow:0 5px 14px rgba(165,0,100,.16);border-color:var(--brand);outline:none}
+.mascot-trigger:focus-visible{box-shadow:0 0 0 3px var(--brand-ring),0 5px 14px rgba(165,0,100,.16)}
+.mascot-trigger img{width:31px;height:31px;object-fit:contain;display:block;transform-origin:50% 90%}
+.mascot-trigger.is-new img{animation:mascot-hello 1.25s ease-in-out 1}
+.mascot-dot{position:absolute;right:-2px;top:-2px;width:8px;height:8px;border:2px solid #fff;border-radius:50%;background:#f95396}
+.mascot-bubble{position:absolute;right:45px;top:-23px;width:264px;padding:11px 13px;border:1px solid var(--brand-ring);border-radius:12px;background:#fff;color:var(--z700);font-size:11.5px;line-height:1.45;box-shadow:0 10px 28px rgba(24,24,27,.13);opacity:0;transform:translateX(7px) scale(.98);transform-origin:right center;pointer-events:none;visibility:hidden;z-index:20;transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s}
+.mascot-bubble.show{opacity:1;transform:translateX(0) scale(1);visibility:visible;transition-delay:0s}.mascot-bubble strong{display:block;color:var(--z900);font-size:12.5px;margin-bottom:3px}.mascot-bubble:after{content:'';position:absolute;left:100%;top:27px;border:7px solid transparent;border-left-color:#fff}.bubble-kicker{font-size:9.5px;font-weight:700;letter-spacing:.35px;text-transform:uppercase;color:var(--brand);margin-bottom:3px}.bubble-state{display:inline-flex;margin-top:7px;padding:3px 7px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-size:10.5px;font-weight:700}
+.btn{height:32px;padding:0 12px;border:1px solid var(--z300);border-radius:6px;background:#fff;color:var(--z700);display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}.btn:hover{background:var(--z50);border-color:var(--z400)}.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}.btn.primary:hover{background:var(--brand-dark)}
+
+/* review content */
+.status-banner{display:flex;align-items:center;gap:10px;padding:9px 11px 9px 13px;margin-bottom:18px;border:1px solid var(--ok-bd);border-radius:var(--r);background:var(--ok-bg);position:relative;overflow:visible}.status-banner>i{font-size:20px;color:var(--ok)}.status-copy{min-width:0}.status-title{font-size:12.5px;font-weight:700;color:var(--z900)}.status-sub{font-size:11.5px;color:var(--z600)}
+.stepper{padding:13px 18px 18px;margin-bottom:18px;border:1px solid var(--z200);border-radius:var(--r);background:#fff;box-shadow:var(--shadow)}
+.stepper-head{display:flex;align-items:center;gap:6px;padding-bottom:18px;font-size:10.5px;font-weight:700;letter-spacing:.45px;text-transform:uppercase;color:var(--z500)}.stepper-head i:first-child{color:var(--brand);font-size:14px}.stepper-head .chev{margin-left:auto;color:var(--brand)}
+.steps{display:grid;grid-template-columns:repeat(5,1fr)}.step{text-align:center;position:relative;padding:0 7px}.step:before{content:'';position:absolute;top:12px;left:0;right:0;height:3px;background:var(--z200)}.step:first-child:before{left:50%}.step:last-child:before{right:50%}.circle{position:relative;z-index:1;margin:0 auto 7px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--z200);color:var(--z500);font-size:11px;font-weight:700;border:3px solid #fff;box-sizing:content-box}.step.current .circle{background:var(--brand);color:#fff}.step-name{font-size:12px;font-weight:600;color:var(--z800)}.step.current .step-name{color:var(--brand)}.step-domain{font-weight:400;color:var(--z500)}.step-date{font-size:11px;color:var(--z500);margin-top:2px}
+.info-note{display:flex;align-items:flex-start;gap:8px;padding:10px 13px;margin-bottom:18px;border:1px solid var(--z200);border-radius:var(--r);background:#fff;font-size:11.5px;color:var(--z600)}.info-note>i{color:var(--brand);font-size:16px;margin-top:1px}.info-note strong{color:var(--z800)}.info-note ul{padding-left:17px}.info-note li+li{margin-top:4px}.info-note a{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.review-card{border:1px solid var(--z200);border-radius:var(--r);background:#fff;overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px}.card-head{padding:10px 13px;border-bottom:1px solid var(--z200);background:var(--brand-muted);font-size:12.5px;font-weight:700;color:var(--z900);display:flex;align-items:center;gap:6px}.card-head i{color:var(--brand)}.goal-table{width:100%;border-collapse:collapse}.goal-table th{padding:8px 11px;background:var(--z50);border-bottom:1px solid var(--z200);font-size:9.5px;letter-spacing:.4px;color:var(--z500);text-align:left}.goal-table td{padding:11px;border-bottom:1px solid var(--z100);font-size:11.5px;vertical-align:top}.goal-table tr:last-child td{border-bottom:0}.goal-name{font-weight:600;color:var(--z900)}.goal-result{color:var(--z600);margin-top:2px}.score-select{width:58px;height:30px;border:1px solid var(--z300);border-radius:6px;background:#fff;text-align:center;color:var(--z700)}
+.card-head .section-state{margin-left:auto;padding:2px 7px;border:1px solid var(--brand-ring);border-radius:99px;background:#fff;color:var(--brand);font-size:9.5px;font-weight:700}.card-head .section-state.ok{border-color:#b8ead0;color:#16784b;background:#f1fcf6}.review-form{padding:13px}.review-prompt{font-size:11.5px;color:var(--z600);line-height:1.5;margin-bottom:10px}.review-prompt strong{color:var(--z900)}.review-fields{display:grid;grid-template-columns:190px 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:10px;font-weight:700;color:var(--z600);text-transform:uppercase;letter-spacing:.35px}.field select,.field textarea{width:100%;border:1px solid var(--z300);border-radius:6px;background:#fff;color:var(--z700);font:inherit;font-size:11.5px}.field select{height:34px;padding:0 9px}.field textarea{height:54px;padding:8px 9px;resize:none}.field textarea::placeholder{color:var(--z400)}
+.overall{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:13px}.overall-panel{border:1px solid var(--z200);border-radius:7px;padding:12px;background:var(--z50)}.overall-title{font-size:11.5px;font-weight:700;color:var(--z800);margin-bottom:8px}.overall-placeholder{font-size:11.5px;color:var(--z500)}.overall-panel.employee{background:#fff}.overall-panel .field+.field{margin-top:9px}
+
+/* tour */
+.tour-layer{display:none;position:fixed;inset:0;z-index:300}.tour-layer.open{display:block}.tour-catch{position:absolute;inset:0}.tour-spot{position:fixed;border:2px solid #f95396;border-radius:10px;box-shadow:0 0 0 9999px rgba(24,24,27,.54),0 0 0 5px rgba(249,83,150,.20);pointer-events:none;transition:top .25s ease,left .25s ease,width .25s ease,height .25s ease}.tour-card{position:fixed;width:340px;max-width:calc(100vw - 24px);padding:14px 15px;border:1px solid var(--z200);border-radius:12px;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.22);transition:top .25s ease,left .25s ease}.tour-card-top{display:flex;align-items:flex-start;gap:10px;padding-right:24px}.tour-mascot{width:52px;height:52px;object-fit:contain;flex:none;animation:tour-pop .38s ease-out 1}.tour-step{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--brand)}.tour-title{font-size:14px;font-weight:700;color:var(--z900);margin-top:1px}.tour-text{font-size:12px;line-height:1.55;color:var(--z600);margin-top:6px}.tour-close{position:absolute;right:9px;top:9px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:var(--z500)}.tour-close:hover{background:var(--z100);color:var(--z900)}.tour-foot{display:flex;align-items:center;gap:7px;margin-top:13px}.dots{display:flex;gap:4px;margin-right:auto}.dot{width:6px;height:6px;border-radius:99px;background:var(--z300);transition:width .2s ease}.dot.on{width:17px;background:var(--brand)}.tour-btn{height:30px;padding:0 10px;border:1px solid var(--z300);border-radius:6px;background:#fff;color:var(--z700);font-size:11.5px;font-weight:600}.tour-btn.primary{border-color:var(--brand);background:var(--brand);color:#fff}
+
+@keyframes mascot-hello{0%,100%{transform:translateY(0) rotate(0)}20%{transform:translateY(-2px) rotate(-2deg)}42%{transform:translateY(0) rotate(2deg)}64%{transform:translateY(-1px) rotate(-1deg)}82%{transform:translateY(0) rotate(1deg)}}
+@keyframes tour-pop{0%{opacity:0;transform:translateY(3px) scale(.96)}100%{opacity:1;transform:none}}
+body.motion-off *,body.motion-off *:before,body.motion-off *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+@media(max-width:900px){.sidebar{display:none}.workspace{margin-left:0;width:100%}.steps{overflow-x:auto;grid-template-columns:repeat(5,150px)}.emp-chip{display:none}.demo-note{display:none}}
+@media(max-width:620px){.page{padding:14px}.status-banner{align-items:flex-start}.status-banner .mascot-entry{margin-top:1px}.mascot-bubble{right:45px;left:auto;top:-18px;width:min(264px,calc(100vw - 84px));transform-origin:right center}.review-fields,.overall{grid-template-columns:1fr}.tour-card{width:calc(100vw - 24px)}}
+</style>
+</head>
+<body>
+<div class="demo-bar">
+  <div class="demo-title"><i class="bx bx-test-tube"></i>Demo riêng - Mascot Tour Guide</div>
+  <div class="demo-note">Motion chỉ chạy một lần, không lặp vô hạn</div>
+  <div class="demo-spacer"></div>
+  <label class="motion-label"><input type="checkbox" id="motion-toggle" checked/> Motion nhẹ</label>
+  <button class="demo-reset" id="reset-demo"><i class="bx bx-reset"></i>Chạy lại intro</button>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">M</div><div><div class="brand-name">MoMo HRM</div><div class="brand-sub">Performance Management</div></div></div>
+    <div class="roles"><button class="role on">Nhân viên</button><button class="role">Quản lý</button><button class="role">HR</button></div>
+    <div class="nav-label">MỤC TIÊU &amp; ĐÁNH GIÁ</div>
+    <a class="nav-item on" href="#"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá</a>
+    <a class="nav-item" href="#"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</a>
+    <div class="user"><div class="avatar">NT</div><div><div class="user-name">Nguyễn Văn Tú</div><div class="user-role">Nhân viên, Backend</div></div></div>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar"><i class="bx bx-home-alt-2"></i>&nbsp; Mục tiêu và Đánh giá cá nhân<div class="top-spacer"></div><div class="lang"><span class="on">VI</span><span>EN</span></div></header>
+    <main class="page">
+      <div class="crumb">Trang chủ / Mục tiêu và Đánh giá cá nhân</div>
+      <div class="head">
+        <div><h1>Mục tiêu và Đánh giá cá nhân</h1><p>Chu kỳ đánh giá hiệu suất 2026</p></div>
+        <div class="emp-chip"><strong>Nhân viên:</strong> Nguyễn Văn Tú (tu.nguyen)<br/><strong>Team:</strong> ITC - Backend<br/><strong>Quản lý trực tiếp:</strong> Lê Thị Thanh (thanh.le)</div>
+      </div>
+
+      <div class="tabs" id="demo-tabs">
+        <button class="tab">Mục tiêu <span class="tab-state">6</span></button>
+        <button class="tab">Đánh giá giữa năm <span class="tab-state">Đã hoàn tất</span></button>
+        <button class="tab on">Đánh giá cuối năm <span class="tab-state">Cần tự đánh giá</span></button>
+      </div>
+
+      <div class="review-toolbar">
+        <button class="btn" id="save-draft"><i class="bx bx-save"></i>Lưu nháp</button>
+        <button class="btn primary" id="submit-review"><i class="bx bx-send"></i>Gửi tự đánh giá</button>
+      </div>
+
+      <div class="status-banner"><i class="bx bx-edit-alt"></i><div class="status-copy"><div class="status-title">Bạn đang thực hiện Tự đánh giá cuối năm</div><div class="status-sub">Hạn chót: 18/01/2027. Màn hình không tự lưu nội dung.</div></div><div class="mascot-entry">
+        <button class="mascot-trigger is-new" id="mascot-trigger" type="button" aria-label="Mở hướng dẫn Year End Review" aria-describedby="mascot-help">
+          <img id="mascot-entry-img" src="../assets/mascot/wave.png" alt=""/>
+          <span class="mascot-dot" id="mascot-dot" aria-hidden="true"></span>
+        </button>
+        <div class="mascot-bubble" id="mascot-bubble" role="tooltip" aria-hidden="true">
+          <div class="bubble-kicker">Year End Review Tour Guide</div>
+          <strong>Xin chào, mình là tour guide của bạn!</strong>
+          <span id="bubble-copy">Mình sẽ đồng hành cùng bạn trong hành trình đánh giá cuối năm. Bấm vào mình để bắt đầu nhé.</span>
+          <span class="bubble-state" id="bubble-state">Bước 1/5 · Tự đánh giá</span>
+        </div>
+        <span id="mascot-help" hidden>Hướng dẫn theo trạng thái của màn Đánh giá cuối năm</span>
+      </div></div>
+
+      <section class="stepper" id="demo-stepper">
+        <div class="stepper-head"><i class="bx bx-directions"></i>Quy trình và Thời gian đánh giá cuối năm 2026 - bắt đầu 05/01/2027<i class="bx bx-chevron-up chev"></i></div>
+        <div class="steps">
+          <div class="step current"><div class="circle">1</div><div class="step-name">Tự đánh giá <span class="step-domain">(tu.nguyen)</span></div><div class="step-date">Hạn chót 18/01/2027</div></div>
+          <div class="step"><div class="circle">2</div><div class="step-name">Quản lý trực tiếp <span class="step-domain">(thanh.le)</span></div><div class="step-date">Hạn chót 01/02/2027</div></div>
+          <div class="step"><div class="circle">3</div><div class="step-name">Quản lý cấp 2 <span class="step-domain">(dang.nguyen)</span></div><div class="step-date">Hạn chót 15/02/2027</div></div>
+          <div class="step"><div class="circle">4</div><div class="step-name">Trưởng đơn vị <span class="step-domain">(anh.pham)</span></div><div class="step-date">Hạn chót 01/03/2027</div></div>
+          <div class="step"><div class="circle">5</div><div class="step-name">Công bố kết quả</div><div class="step-date">Hạn chót 30/03/2027</div></div>
+        </div>
+      </section>
+
+      <div class="info-note" id="demo-note"><i class="bx bx-info-circle"></i><div><strong>Lưu ý:</strong><ul><li>Kiểm tra <a href="#">Danh sách mục tiêu</a> trước khi tự đánh giá.</li><li>Bạn có thể xem lại kết quả <a href="#">Đánh giá giữa năm 2026</a> trước khi tiếp tục.</li></ul></div></div>
+
+      <section class="review-card" id="demo-goals">
+        <div class="card-head"><i class="bx bx-target-lock"></i>Mục tiêu công việc <span class="section-state">Đã chấm 1/2</span></div>
+        <table class="goal-table"><thead><tr><th>TÊN MỤC TIÊU</th><th>KẾT QUẢ CẦN ĐẠT</th><th>ĐIỂM NV</th></tr></thead><tbody>
+          <tr><td><div class="goal-name">Tối ưu API response time xuống dưới 200ms</div></td><td><div class="goal-result">95% request đạt response time dưới 200ms, đo qua APM dashboard.</div></td><td><select class="score-select" aria-label="Điểm mục tiêu"><option>—</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td></tr>
+          <tr><td><div class="goal-name">Triển khai monitoring cho toàn bộ microservices</div></td><td><div class="goal-result">100% microservices có dashboard và alert rule đầy đủ.</div></td><td><select class="score-select" aria-label="Điểm mục tiêu"><option selected>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td></tr>
+        </tbody></table>
+      </section>
+
+      <section class="review-card" id="demo-what">
+        <div class="card-head"><i class="bx bx-bar-chart-alt-2"></i>WHAT - Kết quả công việc <span class="section-state">Chưa hoàn tất</span></div>
+        <div class="review-form"><div class="review-prompt"><strong>Bạn đã đạt được những kết quả nào?</strong> Đối chiếu kết quả thực tế với từng mục tiêu và bổ sung dẫn chứng có thể kiểm chứng.</div><div class="review-fields"><div class="field"><label>Mức độ hoàn thành</label><select aria-label="Điểm WHAT"><option selected>Chọn mức đánh giá</option><option>Vượt kỳ vọng</option><option>Đạt kỳ vọng</option><option>Cần cải thiện</option></select></div><div class="field"><label>Minh chứng kết quả</label><textarea placeholder="Ví dụ: Kết quả, số liệu, phạm vi ảnh hưởng..."></textarea></div></div></div>
+      </section>
+
+      <section class="review-card" id="demo-how">
+        <div class="card-head"><i class="bx bx-group"></i>HOW - Năng lực và cách thức làm việc <span class="section-state">Chưa bắt đầu</span></div>
+        <div class="review-form"><div class="review-prompt"><strong>Bạn đã tạo ra kết quả bằng cách nào?</strong> Tự đánh giá hành vi, năng lực và sự phối hợp dựa trên ví dụ cụ thể.</div><div class="review-fields"><div class="field"><label>Mức độ thể hiện</label><select aria-label="Điểm HOW"><option selected>Chọn mức đánh giá</option><option>Vượt kỳ vọng</option><option>Đạt kỳ vọng</option><option>Cần cải thiện</option></select></div><div class="field"><label>Ví dụ hành vi</label><textarea placeholder="Ví dụ: Cách phối hợp, giải quyết vấn đề, thể hiện giá trị..."></textarea></div></div></div>
+      </section>
+
+      <section class="review-card" id="demo-development">
+        <div class="card-head"><i class="bx bx-trending-up"></i>DEVELOPMENT - Phát triển bản thân <span class="section-state">Chưa bắt đầu</span></div>
+        <div class="review-form"><div class="review-prompt"><strong>Bạn muốn phát triển điều gì trong chu kỳ tiếp theo?</strong> Chọn trọng tâm phát triển và hành động cụ thể để cùng quản lý trao đổi.</div><div class="review-fields"><div class="field"><label>Trọng tâm phát triển</label><select aria-label="Trọng tâm phát triển"><option selected>Chọn năng lực</option><option>Chuyên môn</option><option>Quản lý công việc</option><option>Phối hợp và ảnh hưởng</option></select></div><div class="field"><label>Kế hoạch hành động</label><textarea placeholder="Nêu hành động, nguồn lực hỗ trợ và mốc thời gian..."></textarea></div></div></div>
+      </section>
+
+      <section class="review-card" id="demo-overall">
+        <div class="card-head"><i class="bx bx-award"></i>Đánh giá toàn diện <span class="section-state">Chưa chọn rating</span></div>
+        <div class="overall"><div class="overall-panel employee"><div class="overall-title">Nhân viên tự đánh giá</div><div class="field"><label>Overall rating</label><select aria-label="Overall rating"><option selected>Chọn điểm tổng thể</option><option>5 - Outstanding</option><option>4 - Exceeds expectations</option><option>3 - Meets expectations</option><option>2 - Partially meets</option><option>1 - Does not meet</option></select></div><div class="field"><label>Nhận xét tổng kết</label><textarea placeholder="Tóm tắt kết quả nổi bật, cách thức đóng góp và ưu tiên phát triển..."></textarea></div></div><div class="overall-panel"><div class="overall-title">Quản lý trực tiếp đánh giá</div><div class="overall-placeholder">Mở sau khi bạn gửi tự đánh giá.</div></div></div>
+      </section>
+    </main>
+  </section>
+</div>
+
+<div class="tour-layer" id="tour-layer" aria-hidden="true">
+  <div class="tour-catch" id="tour-catch"></div>
+  <div class="tour-spot" id="tour-spot"></div>
+  <section class="tour-card" id="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+    <button class="tour-close" id="tour-close" aria-label="Bỏ qua hướng dẫn"><i class="bx bx-x"></i></button>
+    <div class="tour-card-top"><img class="tour-mascot" id="tour-mascot" alt=""/><div><div class="tour-step" id="tour-step"></div><div class="tour-title" id="tour-title"></div></div></div>
+    <div class="tour-text" id="tour-text"></div>
+    <div class="tour-foot"><div class="dots" id="tour-dots"></div><button class="tour-btn" id="tour-prev">Quay lại</button><button class="tour-btn primary" id="tour-next">Tiếp theo</button></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var A='../assets/mascot/';
+  var trigger=document.getElementById('mascot-trigger');
+  var entryImg=document.getElementById('mascot-entry-img');
+  var bubble=document.getElementById('mascot-bubble');
+  var dot=document.getElementById('mascot-dot');
+  var layer=document.getElementById('tour-layer');
+  var spot=document.getElementById('tour-spot');
+  var card=document.getElementById('tour-card');
+  var tourImg=document.getElementById('tour-mascot');
+  var currentState={phase:'self-assessment',phaseLabel:'Tự đánh giá',processStep:1,processTotal:5,deadline:'18/01/2027',goalsRated:1,goalsTotal:2};
+  var index=0,active=false,bubbleTimer=null;
+  document.getElementById('bubble-copy').textContent='Bạn đang ở bước '+currentState.phaseLabel+' và còn '+(currentState.goalsTotal-currentState.goalsRated)+' mục tiêu chưa chấm. Mình sẽ dẫn bạn hoàn tất từng phần.';
+  document.getElementById('bubble-state').textContent='Bước '+currentState.processStep+'/'+currentState.processTotal+' · '+currentState.phaseLabel;
+  var steps=currentState.phase==='self-assessment'?[
+    {sel:'#demo-stepper',pose:'wave.png',title:'Bạn đang ở bước 1/5 - Tự đánh giá',text:'Đây là việc bạn cần hoàn thành trước '+currentState.deadline+'. Sau khi gửi, hồ sơ sẽ chuyển sang Quản lý trực tiếp và bạn chỉ có thể xem lại nội dung.'},
+    {sel:'#demo-goals',pose:'think.png',title:'1. Xem lại và chấm từng mục tiêu',text:'Bạn đã chấm '+currentState.goalsRated+'/'+currentState.goalsTotal+' mục tiêu. Hãy đối chiếu kết quả thực tế, chỉ số và minh chứng trước khi chọn điểm cho mục tiêu còn lại.'},
+    {sel:'#demo-what',pose:'think.png',title:'2. WHAT - Bạn đã đạt được điều gì?',text:'Tóm tắt kết quả công việc, mức độ hoàn thành và tác động. Ưu tiên số liệu hoặc dẫn chứng cụ thể thay cho nhận xét chung.'},
+    {sel:'#demo-how',pose:'think.png',title:'3. HOW - Bạn đã làm điều đó như thế nào?',text:'Tự đánh giá năng lực, hành vi và cách phối hợp đã giúp bạn tạo ra kết quả. Mỗi nhận xét nên đi cùng một ví dụ thực tế.'},
+    {sel:'#demo-development',pose:'wink.png',title:'4. DEVELOPMENT - Chọn hướng phát triển',text:'Nêu năng lực muốn phát triển trong chu kỳ tiếp theo, hành động cụ thể và hỗ trợ bạn cần từ quản lý hoặc tổ chức.'},
+    {sel:'#demo-overall',pose:'think.png',title:'5. Chốt Overall rating',text:'Nhìn lại toàn bộ Goal, WHAT, HOW và DEVELOPMENT rồi chọn mức đánh giá tổng thể. Nhận xét tổng kết nên giải thích vì sao rating này phù hợp.'},
+    {sel:'#save-draft',pose:'wink.png',title:'Chưa chắc? Hãy lưu nháp để review lại',text:'Màn hình không tự lưu. Lưu nháp giúp giữ lại toàn bộ nội dung để bạn kiểm tra hoặc bổ sung minh chứng trước khi gửi.'},
+    {sel:'#submit-review',pose:'cheer.png',title:'Hoàn tất và gửi tự đánh giá',text:'Chỉ gửi khi tất cả phần bắt buộc đã hoàn thành. Sau khi gửi, hồ sơ chuyển sang Quản lý trực tiếp và nội dung của bạn chuyển sang chỉ xem.'}
+  ]:[];
+
+  function setEntryPose(name){entryImg.src=A+name;}
+  function hideBubble(){bubble.classList.remove('show');bubble.setAttribute('aria-hidden','true');clearTimeout(bubbleTimer);}
+  function showBubble(autoHide){
+    if(active)return;
+    clearTimeout(bubbleTimer);bubble.classList.add('show');bubble.setAttribute('aria-hidden','false');setEntryPose('wave.png');
+    trigger.classList.remove('is-new');void trigger.offsetWidth;trigger.classList.add('is-new');
+    if(autoHide)bubbleTimer=setTimeout(hideBubble,autoHide);
+  }
+  function showIntro(){
+    active=false;index=0;dot.hidden=false;setEntryPose('idle.png');hideBubble();
+    trigger.classList.remove('is-new');void trigger.offsetWidth;trigger.classList.add('is-new');
+    setTimeout(function(){if(!active)setEntryPose('idle.png');},1300);
+  }
+  function targetRect(){return document.querySelector(steps[index].sel).getBoundingClientRect();}
+  function place(){
+    if(!active)return;
+    var r=targetRect(),pad=7,visibleTop=Math.max(5,r.top-pad),visibleBottom=Math.min(window.innerHeight-5,r.bottom+pad);
+    spot.style.top=visibleTop+'px';spot.style.left=Math.max(5,r.left-pad)+'px';
+    spot.style.width=Math.min(window.innerWidth-10,r.width+pad*2)+'px';spot.style.height=Math.max(10,visibleBottom-visibleTop)+'px';
+    var cw=340,ch=card.offsetHeight||210,below=window.innerHeight-r.bottom;
+    var top=below>ch+22?r.bottom+13:Math.max(10,r.top-ch-13);
+    var left=Math.min(Math.max(12,r.left),window.innerWidth-cw-12);
+    top=Math.min(Math.max(10,top),Math.max(10,window.innerHeight-ch-10));
+    card.style.top=top+'px';card.style.left=left+'px';
+  }
+  function draw(){
+    var s=steps[index],target=document.querySelector(s.sel);
+    target.scrollIntoView({behavior:document.body.classList.contains('motion-off')?'auto':'smooth',block:'center'});
+    tourImg.src=A+s.pose;tourImg.classList.remove('tour-mascot');void tourImg.offsetWidth;tourImg.classList.add('tour-mascot');
+    document.getElementById('tour-step').textContent='Bước '+(index+1)+'/'+steps.length;
+    document.getElementById('tour-title').textContent=s.title;
+    document.getElementById('tour-text').textContent=s.text;
+    document.getElementById('tour-dots').innerHTML=steps.map(function(_,i){return '<span class="dot'+(i===index?' on':'')+'"></span>';}).join('');
+    document.getElementById('tour-prev').style.visibility=index?'visible':'hidden';
+    document.getElementById('tour-next').textContent=index===steps.length-1?'Xong':'Tiếp theo';
+    setTimeout(place,document.body.classList.contains('motion-off')?0:260);
+  }
+  function startTour(){hideBubble();active=true;index=0;dot.hidden=true;layer.classList.add('open');layer.setAttribute('aria-hidden','false');draw();}
+  function finish(){active=false;layer.classList.remove('open');layer.setAttribute('aria-hidden','true');setEntryPose('idle.png');trigger.focus();}
+  function next(){if(index===steps.length-1){finish();return;}index++;draw();}
+  function prev(){if(index>0){index--;draw();}}
+
+  trigger.addEventListener('click',startTour);
+  trigger.addEventListener('mouseenter',function(){showBubble(0);});
+  trigger.addEventListener('mouseleave',function(){if(!active){hideBubble();setEntryPose('idle.png');}});
+  trigger.addEventListener('focus',function(){showBubble(0);});
+  trigger.addEventListener('blur',function(){if(!active){hideBubble();setEntryPose('idle.png');}});
+  document.getElementById('tour-next').addEventListener('click',next);
+  document.getElementById('tour-prev').addEventListener('click',prev);
+  document.getElementById('tour-close').addEventListener('click',finish);
+  document.getElementById('tour-catch').addEventListener('click',finish);
+  document.getElementById('reset-demo').addEventListener('click',function(){finish();showIntro();showBubble(4200);});
+  document.getElementById('motion-toggle').addEventListener('change',function(){document.body.classList.toggle('motion-off',!this.checked);});
+  window.addEventListener('resize',place);window.addEventListener('scroll',place,true);
+  document.addEventListener('keydown',function(e){if(!active)return;if(e.key==='Escape')finish();if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){document.getElementById('motion-toggle').checked=false;document.body.classList.add('motion-off');}
+  showIntro();
+})();
+</script>
+</body>
+</html>

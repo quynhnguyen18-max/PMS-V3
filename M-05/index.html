@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>M-05 – Đánh giá cuối năm nhân viên | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════
+   TOKENS — shadcn / zinc system (identical to E-01)
+═══════════════════════════════ */
+:root{
+  --z0:#ffffff; --z50:#fafafa; --z100:#f4f4f5; --z200:#e4e4e7; --z300:#d4d4d8;
+  --z400:#a1a1aa; --z500:#71717a; --z600:#52525b; --z700:#3f3f46; --z800:#27272a; --z900:#18181b; --z950:#09090b;
+  --brand:#A50064; --brand-h:#8B0055; --brand-fg:#ffffff; --brand-muted:rgba(165,0,100,.07); --brand-ring:rgba(165,0,100,.2);
+  --what:#2563eb; --what-bg:#eff6ff; --what-bd:#bfdbfe;
+  --dev:#7c3aed;  --dev-bg:#f5f3ff;  --dev-bd:#ddd6fe;
+  --ok:#16a34a;   --ok-bg:#f0fdf4;   --ok-bd:#bbf7d0;
+  --warn:#d97706; --warn-bg:#fffbeb; --warn-bd:#fde68a;
+  --err:#dc2626;  --err-bg:#fef2f2;  --err-bd:#fecaca;
+  --info:#2563eb; --info-bg:#eff6ff; --info-bd:#bfdbfe;
+  --upd:#7c3aed;  --upd-bg:#f5f3ff;  --upd-bd:#ddd6fe;
+  --sw:232px; --nh:52px;
+  --r:8px; --rsm:6px; --rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--brand);text-decoration:none}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+
+/* ── SHELL ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+/* ── SPLIT SHELL (M-01d layout inside M-01 page) ── */
+.page-sticky-hd{position:sticky;top:0;background:var(--z50);z-index:10;padding-bottom:4px}
+.sp-shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100vh - 220px);border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);overflow:hidden}
+.sp-left{border-right:1px solid var(--z200);display:flex;flex-direction:column;background:var(--z0)}
+.sp-search-bar{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--z200)}
+.sp-sw{position:relative;flex:1}.sp-sw i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--z400);font-size:15px}
+.sp-si{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;outline:0;font-family:inherit}
+.sp-si:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.sp-emp-list{flex:1;overflow-y:auto}
+.sp-ei{position:relative;display:flex;align-items:center;gap:10px;padding:13px 12px;border-bottom:1px solid var(--z100);cursor:pointer;transition:var(--t)}
+.sp-ei:hover{background:var(--z50)}.sp-ei.on{background:var(--brand-muted)}
+.sp-ei.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand)}
+.sp-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--z100);border:1px solid var(--z200);font-size:11px;font-weight:700;color:var(--z700)}
+.sp-ec{min-width:0;flex:1}
+.sp-en{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-em{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.sp-ect{font-size:10.5px;color:var(--z500);white-space:nowrap;margin-top:2px}
+.sp-ect .pnd{color:var(--info)}.sp-ect .upd{color:var(--brand)}.sp-ect .ok{color:var(--ok)}
+.sp-foot{padding:10px 12px;border-top:1px solid var(--z200);font-size:11.5px;color:var(--z500)}
+.sp-right{display:flex;flex-direction:column;background:var(--z50);overflow-y:auto}
+.sp-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:12px 14px 6px;flex-shrink:0}
+.sp-hero{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);margin:0 14px 12px;flex-shrink:0}
+.sp-hero-av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--z100);color:var(--z800);font-size:16px;font-weight:700;flex-shrink:0}
+.sp-hero-info{min-width:0;flex:1}
+.sp-hero-name{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:17px;font-weight:700;color:var(--z900)}
+.sp-hero-login{font-size:12.5px;font-weight:400;color:var(--z500)}
+.sp-hero-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--z600);margin-top:3px}
+.sp-hdot{width:3px;height:3px;border-radius:50%;background:var(--z400)}
+.sp-hero-stats{display:flex;gap:8px;flex-wrap:wrap}
+.sp-sbox{min-width:90px;padding:8px 12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);text-align:center}
+.sp-sn{font-size:17px;font-weight:700;color:var(--z900);line-height:1.2;display:block}
+.sp-sl{font-size:11.5px;color:var(--z600);margin-top:2px}
+.sp-sbox.pnd{border-color:var(--info-bd);background:var(--info-bg)}.sp-sbox.pnd .sp-sn,.sp-sbox.pnd .sp-sl{color:var(--info)}
+.sp-sbox.upd{border-color:var(--brand-ring);background:var(--brand-muted)}.sp-sbox.upd .sp-sn,.sp-sbox.upd .sp-sl{color:var(--brand)}
+.sp-tbl-wrap{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);overflow:auto;box-shadow:var(--sh-sm);margin:0 14px 14px}
+.sp-tbl{width:100%;min-width:680px;border-collapse:collapse;table-layout:fixed}
+.sp-tbl th{padding:9px 8px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);text-align:left;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--z500)}
+.sp-tbl td{padding:10px 8px;border-bottom:1px solid var(--z200);vertical-align:middle;font-size:12px;color:var(--z800)}
+.sp-tbl tbody tr:last-child td{border-bottom:0}
+.sp-tbl tbody tr:hover{background:var(--z50)}
+.sp-type{display:flex;align-items:center;gap:5px;font-weight:500;white-space:nowrap;font-size:12px;color:var(--z900)}
+.sp-type i{font-size:15px;color:var(--brand)}
+.sp-tc-title{font-weight:500;color:var(--z900);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sp-tc-result{color:var(--z600);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sp-tc-date{white-space:nowrap;color:var(--z600)}
+.sp-acts{display:flex;align-items:center;gap:2px}
+.sp-ia{width:27px;height:27px;border:0;border-radius:var(--rxs);background:transparent;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--z500);transition:var(--t)}
+.sp-ia:hover{background:var(--z100);color:var(--z900)}
+.sp-ia.accent{color:var(--brand)}.sp-ia.accent:hover{background:var(--brand-muted);color:var(--brand)}
+.sp-ia.danger{color:var(--err)}.sp-ia.danger:hover{background:var(--err-bg)}
+.myr-sp-right{min-height:calc(100vh - 220px)}
+.myr-sp-frame{display:block;width:100%;min-height:calc(100vh - 275px);flex:1;border:0;background:var(--z50)}
+.myr-sp-toolbar{border-bottom:1px solid var(--z200);padding-bottom:12px;background:var(--z0)}
+
+/* ── SIDEBAR ── */
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t);letter-spacing:.1px}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.role-btn:hover:not(.on){background:var(--z100);border-color:var(--z400);color:var(--z700)}
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500);transition:var(--t)}
+.sb-item:hover i{color:var(--z600)}.sb-item.on i{color:var(--brand)}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0;background:var(--z0);position:sticky;bottom:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm);cursor:pointer;transition:var(--t)}
+.sb-user:hover{background:var(--z100)}
+
+/* ── AVATAR ── */
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:-.3px}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-sm{width:24px;height:24px;font-size:10px}
+.av-md{width:34px;height:34px;font-size:13px}
+.av-xs{width:20px;height:20px;font-size:9px}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);border:none;background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);cursor:pointer}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.notif-dot{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--err);border:1.5px solid var(--z0)}
+
+/* ── PAGE ── */
+.page{padding:20px 24px;flex:1}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z600);margin-bottom:10px}
+.breadcrumb a{color:var(--z600)}.breadcrumb a:hover{color:var(--z900)}.bc-sep{color:var(--z500)}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.page-sub{font-size:13px;color:var(--z600);margin-top:4px;line-height:1.4}
+
+/* Cycle row */
+.cycle-row{display:flex;align-items:center;gap:7px;margin-bottom:16px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:6px 12px;box-shadow:var(--sh-sm)}
+.cycle-row i{font-size:15px;color:var(--brand)}
+.cycle-lbl{font-size:13px;font-weight:500;color:var(--z700)}
+.cycle-sel{padding:4px 24px 4px 8px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);font-weight:500;background:var(--z0);cursor:pointer;outline:none;transition:var(--t);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23a1a1aa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+.cycle-sel:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+
+/* ── ROLE FILTER TABS ── */
+.role-tabs{display:flex;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);width:fit-content;box-shadow:var(--sh-sm);overflow:hidden;margin-bottom:14px}
+.role-tab{display:flex;align-items:center;gap:7px;padding:8px 16px;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--z500);cursor:pointer;transition:var(--t);font-family:inherit;border-right:1px solid var(--z200);white-space:nowrap}
+.role-tab:last-child{border-right:none}
+.role-tab:hover:not(.on){background:var(--z50);color:var(--z800)}
+.role-tab.on{background:var(--brand-muted);color:var(--brand);font-weight:600}
+.role-tab-badge{padding:0 6px;height:16px;line-height:16px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--z100);color:var(--z500)}
+.role-tab.on .role-tab-badge{background:rgba(165,0,100,.12);color:var(--brand)}
+.role-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.role-dot.direct{background:var(--brand)}
+.role-dot.indirect{background:var(--z400)}
+.role-dot.hod{background:var(--what)}
+/* ── Segmented role control ── */
+.role-seg-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.role-seg-lbl{font-size:13px;font-weight:600;color:var(--z700);white-space:nowrap}
+.role-seg{display:inline-flex;background:var(--z100);border-radius:var(--rsm);padding:2px;gap:1px;border:1px solid var(--z200)}
+.seg-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:4px;border:none;background:transparent;font-size:12.5px;font-weight:500;color:var(--z600);cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap}
+.seg-btn.on{background:var(--z0);color:var(--brand);font-weight:600;box-shadow:var(--sh-sm)}
+.seg-btn:not(.on):hover{background:var(--z200);color:var(--z800)}
+.seg-ro-badge{font-size:9.5px;font-weight:500;padding:1px 6px;border-radius:var(--rxs);background:var(--z200);color:var(--z500)}
+/* ── Direct/Indirect context bar ── */
+.ctx-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:8px 14px;border-radius:var(--rsm);border:1px solid;margin-bottom:12px}
+.ctx-bar.is-direct{background:var(--brand-muted);border-color:var(--brand-ring)}
+.ctx-bar.is-indirect{background:var(--z50);border-color:var(--z200)}
+.ctx-pills{display:inline-flex;gap:2px;flex-shrink:0}
+.ctx-pill{padding:3px 11px;border-radius:50px;font-size:11.5px;font-weight:600;border:1px solid transparent}
+.ctx-pill.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.ctx-pill.off{background:var(--z100);color:var(--z500);border-color:var(--z200)}
+.ctx-msg{font-size:12px;color:var(--z600);line-height:1.4;flex:1}
+.ctx-bar.is-direct .ctx-msg{color:var(--brand)}
+/* ── Icon action buttons ── */
+.ico-act{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:var(--z500);transition:var(--t)}
+.ico-act-approve{color:var(--brand)}
+.ico-act-approve:hover{background:var(--brand-muted);color:var(--brand)}
+.ico-act-view:hover{background:var(--z100);color:var(--z800)}
+/* ── Role main switcher (Direct / Indirect) ── */
+.role-sw-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.role-main-group{display:flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--r);padding:3px;gap:2px;box-shadow:var(--sh-sm)}
+.role-main-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 20px;border-radius:6px;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--z500);cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap}
+.role-main-btn i{font-size:16px}
+.role-main-btn:not(.on):hover{background:var(--z200);color:var(--z800)}
+.role-main-btn.on{background:var(--brand);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(165,0,100,.28)}
+/* Permission badge */
+.role-mode-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid}
+.role-mode-badge i{font-size:14px}
+.role-mode-badge.is-can-approve{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-bd)}
+.role-mode-badge.is-view-only{background:var(--z100);color:var(--z600);border-color:var(--z200)}
+/* Indirect sub-selector (LM2 / HOD) */
+.role-sub-group{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);margin-left:auto}
+.role-sub-lbl{font-size:11.5px;font-weight:500;color:var(--z500);white-space:nowrap}
+.role-sub-btn{padding:3px 13px;border-radius:var(--rxs);border:1px solid var(--z200);background:var(--z0);font-size:12px;font-weight:600;color:var(--z600);cursor:pointer;transition:var(--t);font-family:inherit}
+.role-sub-btn.on{background:var(--brand-muted);color:var(--brand);border-color:var(--brand-ring)}
+.role-sub-btn:not(.on):hover{background:var(--z100);color:var(--z800)}
+/* ── Filter row ── */
+.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 12px;box-shadow:var(--sh-sm)}
+.filter-shell{position:relative;margin-bottom:14px;z-index:30}
+.filter-toolbar{display:flex;align-items:center;gap:8px;min-height:30px}
+.filter-menu{position:relative}
+.filter-toggle{gap:6px}
+.filter-toggle[aria-expanded="true"]{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.filter-toggle .bx-chevron-down{font-size:15px;transition:transform var(--t)}
+.filter-toggle[aria-expanded="true"] .bx-chevron-down{transform:rotate(180deg)}
+.filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 5px;border-radius:50px;background:var(--brand);color:var(--z0);font-size:10px;font-weight:700}
+.filter-popover{position:absolute;top:calc(100% + 6px);left:0;width:min(620px,calc(100vw - 80px));padding:12px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg);z-index:40}
+.filter-popover.is-single{width:min(320px,calc(100vw - 80px))}
+.filter-popover-grid{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:8px}
+.filter-popover.is-single .filter-popover-grid{grid-template-columns:1fr}
+.filter-popover .f-combo{width:100%}
+.filter-popover-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--z200)}
+.filter-hint{font-size:11.5px;color:var(--z500)}
+.filter-clear{border:none;background:transparent;color:var(--brand);font:600 12px inherit;cursor:pointer;padding:3px 0}
+.filter-clear:hover{text-decoration:underline}
+.filter-clear:disabled{color:var(--z400);cursor:not-allowed;text-decoration:none}
+.fsearch-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
+.fsearch-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--z400);pointer-events:none}
+.fsearch{width:100%;padding:6px 10px 6px 30px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);background:var(--z0);outline:none;transition:var(--t);box-sizing:border-box}
+.fsearch:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.f-combo{flex:1;min-width:0;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);background:var(--z0);outline:none;transition:var(--t);box-sizing:border-box}
+.f-combo:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.f-combo::placeholder{color:var(--z400)}
+@media(max-width:720px){.filter-popover-grid{grid-template-columns:1fr}.filter-popover{width:min(360px,calc(100vw - 48px))}}
+.list-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.list-toolbar .filter-shell{margin-bottom:0}
+.list-toolbar #filter-row,.list-toolbar #myr-filter-row{display:flex;align-items:center}
+.split-view-btn[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.split-view-btn[aria-pressed="true"]:hover{background:var(--brand-h);border-color:var(--brand-h)}
+
+/* ── MID-YEAR REVIEW LIST ── */
+.myr-table-wrap{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-md);overflow:hidden}
+.myr-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.myr-table th{padding:9px 6px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);text-align:left;white-space:normal;overflow-wrap:break-word;line-height:1.3}
+.myr-table th.score,.myr-table td.score{text-align:center}
+.myr-table td{padding:10px 6px;border-bottom:1px solid var(--z200);font-size:13px;color:var(--z800);vertical-align:middle;overflow-wrap:break-word}
+.myr-table tbody tr{cursor:pointer;transition:background .08s}
+.myr-table tbody tr:hover{background:var(--z50)}
+.myr-table tbody tr:last-child td{border-bottom:0}
+.myr-emp{display:block;min-width:0}
+.myr-emp-info{min-width:0}
+.myr-emp-name{font-size:13px;font-weight:600;color:var(--z900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.myr-emp-meta{font-size:11.5px;color:var(--z500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.myr-emp-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.myr-status{display:inline-flex;align-items:center;justify-content:flex-start;max-width:100%;padding:3px 7px;border:1px solid;border-radius:50px;font-size:11.5px;font-weight:500;line-height:1.3;text-align:left}
+.myr-status.completed{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd)}
+.myr-status.incomplete{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
+.myr-status.pending{color:var(--z600);background:var(--z100);border-color:var(--z300)}
+.myr-score{font-size:13px;font-weight:700;color:var(--z900)}
+.myr-score.empty{font-weight:400;color:var(--z300)}
+.myr-final{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:25px;border-radius:var(--rsm);background:var(--z100);border:1px solid var(--z200);font-weight:700;color:var(--z900)}
+.myr-empty{padding:30px 16px;text-align:center;font-size:13px;color:var(--z500)}
+
+/* ── NOTICE BANNER ── */
+.notice-bar{display:flex;align-items:flex-start;gap:9px;padding:10px 14px;background:var(--z50);border:1px solid var(--z200);border-radius:var(--rsm);margin-bottom:14px;font-size:13px;color:var(--z600);line-height:1.5}
+.notice-bar>i{color:var(--z400);font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* ── EMPLOYEE LIST ── */
+.emp-list{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-md);overflow:hidden;width:100%}
+.emp-row{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--z200);cursor:pointer;transition:background .08s}
+.emp-row:last-child{border-bottom:none}
+.emp-row:hover{background:var(--z50)}
+.er-info{flex:1;min-width:0}
+.er-txt{flex:1;min-width:0}
+.er-name{font-size:14px;font-weight:600;color:var(--z900);line-height:1.3}
+.er-meta{font-size:12px;color:var(--z600);margin-top:2px;display:flex;align-items:center;gap:5px}
+.er-stats{display:flex;align-items:center;justify-content:flex-start;gap:6px;flex-shrink:0;width:220px}
+.er-stat{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--rxs);font-size:12px;font-weight:500;background:var(--z100);color:var(--z600);border:1px solid var(--z200);white-space:nowrap}
+.er-stat i{font-size:13px}
+.er-stat.what-s{background:var(--what-bg);color:var(--what);border-color:var(--what-bd)}
+.er-stat.dev-s{background:var(--dev-bg);color:var(--dev);border-color:var(--dev-bd)}
+.er-status{flex-shrink:0;width:170px;display:flex;align-items:center;justify-content:flex-start}
+.er-status-text{font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap}
+.er-status-text.action{color:var(--brand)}
+.er-status-text.pending{color:var(--info)}
+.er-status-text.setup{color:var(--z600)}
+.er-pending-empty{font-size:14px;color:var(--z300)}
+.er-action{flex-shrink:0;width:64px;display:flex;justify-content:center;align-items:center}
+.er-lm1{flex-shrink:0;width:155px;min-width:0}
+.er-lm2{flex-shrink:0;width:155px;min-width:0}
+.er-lm1-name{font-size:13px;font-weight:600;color:var(--z800);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.er-lm1-login{font-size:11.5px;color:var(--z500);margin-top:1px}
+.er-tags{display:flex;gap:5px;margin-top:3px;margin-bottom:2px;flex-wrap:wrap}
+.emp-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:1px 8px;border-radius:50px;border:1px solid;white-space:nowrap;line-height:1.6}
+.emp-tag-resigned{background:var(--err-bg);color:var(--err);border-color:var(--err-bd)}
+.emp-tag-maternity{background:var(--info-bg);color:var(--info);border-color:var(--info-bd)}
+
+/* ── BADGES (same as E-01) ── */
+.badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
+.b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}
+.b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok);display:inline-flex;align-items:center;gap:3px}
+.b-done i{font-size:13px;line-height:1}
+.b-action{color:var(--brand);background:transparent;border-color:var(--brand)}
+.b-warn{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
+.b-err{color:var(--brand);background:transparent;border-color:var(--brand)}
+.b-info{color:var(--z600);background:var(--z100);border-color:var(--z200)}
+.b-muted{color:var(--z600);background:var(--z100);border-color:var(--z200)}
+.b-what{color:var(--brand);background:var(--brand-muted);border-color:var(--brand)}
+.b-dev{color:var(--brand);background:var(--brand-muted);border-color:var(--brand)}
+.b-upd{color:var(--z600);background:var(--z100);border-color:var(--z200)}
+
+/* Prio pill (same as E-01) */
+.prio{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;white-space:nowrap}
+.prio-h{background:var(--z200);color:var(--z900);font-weight:600}
+.prio-m{background:var(--z100);color:var(--z600)}
+.prio-l{background:transparent;color:var(--z400)}
+
+/* ── EMP CHIP (same as E-01) ── */
+.emp-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh-sm);margin-bottom:16px}
+.ec-info{display:flex;flex-direction:column;gap:2px}
+.ec-line{font-size:12px;color:var(--z800);line-height:1.35}
+.ec-lbl{color:var(--z600);font-weight:500}
+.ec-dom{color:var(--z600);font-weight:400}
+
+/* ── GOALS SECTION ── */
+.gs-section{margin-bottom:16px}
+.gs-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--z50);border:1px solid var(--z200);border-top-left-radius:var(--r);border-top-right-radius:var(--r);border-bottom:none}
+.gs-ico{font-size:16px;color:var(--brand)}
+.gs-title{font-size:13px;font-weight:700;color:var(--z900)}
+.gs-cnt{padding:0 7px;height:18px;line-height:18px;border-radius:50px;font-size:10px;font-weight:700;background:var(--z200);color:var(--z600)}
+.gs-pending-tag{padding:0 8px;height:18px;line-height:16px;border-radius:50px;font-size:10px;font-weight:700;color:var(--brand);border:1px solid var(--brand-ring);background:var(--brand-muted)}
+
+/* ── GOAL ROW ── */
+.gr-list{border:1px solid var(--z200);border-radius:0 0 var(--r) var(--r);background:var(--z0);box-shadow:var(--sh);overflow:hidden}
+.gr-item{display:flex;align-items:stretch;border-bottom:1px solid var(--z200);transition:background .08s;cursor:pointer}
+.gr-item:last-child{border-bottom:none}
+.gr-item:hover{background:var(--z50)}
+.gr-bar{width:3px;flex-shrink:0}
+.gr-bar.what{background:var(--what)}
+.gr-bar.dev{background:var(--dev)}
+.gr-body{flex:1;padding:10px 14px;min-width:0}
+.gr-title{font-size:13.5px;font-weight:500;color:var(--z900);line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gr-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.gr-date{font-size:11.5px;color:var(--z500)}
+.gr-acts{display:flex;align-items:center;gap:2px;padding:8px 10px;flex-shrink:0;align-self:center}
+.gra{width:27px;height:27px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);font-size:16px;position:relative}
+.gra:hover{background:var(--z100);color:var(--z700)}
+.gra.accent{color:var(--brand)}.gra.accent:hover{background:var(--brand-muted);color:var(--brand)}
+.gra.danger{color:var(--err)}.gra.danger:hover{background:var(--err-bg);color:var(--err)}
+.gr-empty{padding:20px 14px;text-align:center;font-size:13px;color:var(--z400);font-style:italic}
+
+/* ── BUTTONS (same as E-01) ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
+.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}.btn-default:hover{background:var(--brand-h)}
+.btn-secondary{background:var(--z100);border-color:var(--z200);color:var(--z700)}.btn-secondary:hover{background:var(--z200)}
+.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}.btn-outline:hover{background:var(--z50);border-color:var(--z400)}
+.btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600}.btn-cta-outline:hover{background:var(--brand-muted)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}.btn-ghost:hover{background:var(--z100);color:var(--z900)}
+.btn-destructive{background:transparent;border-color:var(--err-bd);color:var(--err)}.btn-destructive:hover{background:var(--err-bg)}
+.btn-sm{padding:4px 10px;font-size:12.5px}
+.btn:disabled{background:var(--z100);border-color:var(--z200);color:var(--z400);cursor:not-allowed;pointer-events:none}
+
+/* ── FORM ── */
+.fg{margin-bottom:13px}
+.flbl{display:block;font-size:12.5px;font-weight:500;color:var(--z700);margin-bottom:4px}
+.req{color:var(--err);margin-left:2px}
+.fc{width:100%;padding:6px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13.5px;font-family:inherit;color:var(--z900);background:var(--z0);transition:var(--t);outline:none;line-height:1.5}
+.fc:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.fc::placeholder{color:var(--z400)}
+textarea.fc{resize:vertical}
+.fc.err{border-color:var(--err)}
+.ferr{font-size:11.5px;color:var(--err);margin-top:3px;display:none}
+.ferr.on{display:block}
+
+/* ── MODAL / DIALOG (same as E-01) ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.overlay.open{display:flex;animation:ov-in .15s ease}
+@keyframes ov-in{from{opacity:0}to{opacity:1}}
+.dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:dlg-in .18s ease}
+.dialog.md{max-width:640px}
+.dialog.sm{max-width:400px}
+@keyframes dlg-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.dlg-hd{padding:16px 20px 0;flex-shrink:0}
+.dlg-hd-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px}
+.dlg-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.dlg-title{font-size:15px;font-weight:600;color:var(--z900);flex:1;line-height:1.4;word-break:break-word}
+.dlg-close{width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--t);flex-shrink:0;cursor:pointer}
+.dlg-close:hover{background:var(--z100);color:var(--z700)}
+.dlg-tabs{display:flex;border-bottom:1px solid var(--z200);padding:0 20px;margin-top:8px}
+.dlg-tab{padding:7px 12px;font-size:13px;font-weight:400;color:var(--z500);border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--t);cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.dlg-tab:hover{color:var(--z700)}
+.dlg-tab.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.dlg-tab-n{padding:0 5px;height:15px;line-height:15px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--brand-muted);color:var(--brand)}
+.dlg-body{padding:16px 20px;overflow-y:auto;flex:1}
+.dlg-foot{padding:10px 20px 14px;border-top:1px solid var(--z100);display:flex;gap:7px;justify-content:flex-end;flex-shrink:0;align-items:center}
+.tpanel{display:none}.tpanel.on{display:block}
+
+/* ── DETAIL FIELDS (same as E-01) ── */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.dg.single{grid-template-columns:1fr}
+.df label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:3px}
+.df .dv{font-size:13.5px;color:var(--z700);font-weight:400;line-height:1.65}
+.divider{height:1px;background:var(--z100);margin:12px 0}
+.sec-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:block;margin-bottom:6px}
+.detail-row{padding:13px 0;border-bottom:1px solid var(--z200)}
+.detail-row:first-child{padding-top:2px}
+.detail-row:last-child{border-bottom:none;padding-bottom:2px}
+.detail-val{font-size:13.5px;color:var(--z700);line-height:1.65;background:var(--z50);border-radius:var(--rsm);padding:9px 12px;margin-top:6px;word-break:break-word}
+.detail-val p{margin:0}
+.detail-val p:not(:first-child){margin-top:10px}
+.detail-val strong{color:var(--z900);font-weight:600}
+.detail-val ul{margin:4px 0 0;padding-left:20px}
+.detail-val li{margin-bottom:3px}
+.detail-val li:last-child{margin-bottom:0}
+
+/* ── EDIT BANNER (same as E-01) ── */
+.edit-banner{display:flex;gap:9px;align-items:flex-start;padding:10px 13px;background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rsm);margin-bottom:14px}
+.edit-banner>i{color:var(--brand);font-size:17px;flex-shrink:0;margin-top:1px}
+.eb-lbl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);margin-bottom:2px}
+.eb-text{font-size:13px;color:var(--z700);line-height:1.5}
+
+/* ── COMMENTS (same as E-01) ── */
+.comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.ci{display:flex;gap:8px;align-items:flex-start}
+.ci.self{flex-direction:row-reverse}
+.ci-name{font-size:12px;font-weight:600;color:var(--z700);margin-bottom:2px}
+.ci.self .ci-name{text-align:right}
+.ci-bubble{max-width:76%;padding:8px 11px;font-size:13px;color:var(--z700);line-height:1.5}
+.ci:not(.self) .ci-bubble{background:var(--z50);border:1px solid var(--z200);border-radius:0 8px 8px 8px}
+.ci.self .ci-bubble{background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:8px 0 8px 8px}
+.ci-time{font-size:11px;color:var(--z500);margin-top:3px}
+.ci.self .ci-time{text-align:right}
+.cin-row{display:flex;gap:7px;align-items:flex-end;padding-top:12px;border-top:1px solid var(--z100)}
+.cin{flex:1;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;font-family:inherit;color:var(--z800);resize:none;min-height:50px;outline:none;transition:var(--t);line-height:1.5}
+.cin:focus{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}
+.cmt-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:28px 16px;color:var(--z500);font-size:13px;line-height:1.5}
+.cmt-empty>i{font-size:30px;color:var(--z400)}
+
+/* ── FLOATING TOOLTIP (same as E-01) ── */
+.floating-tip{position:fixed;background:var(--z700);color:#fff;font-size:12px;line-height:1.5;padding:5px 9px;border-radius:var(--rsm);max-width:180px;width:max-content;z-index:9999;display:none;box-shadow:var(--sh-lg);pointer-events:none}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--z800);color:#fff;font-size:13px;padding:8px 18px;border-radius:50px;box-shadow:var(--sh-lg);opacity:0;transition:all .22s ease;pointer-events:none;z-index:9999;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast i{font-size:15px}
+
+/* Separator */
+.sep{width:1px;height:14px;background:var(--z200);display:inline-block}
+
+/* ── EMPLOYEE TABLE HEADER ── */
+.emp-list-hdr{display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--brand-muted);border-bottom:1px solid var(--brand-ring);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);flex-shrink:0}
+.elh-info{flex:1}
+.elh-stats{flex-shrink:0;width:220px;text-align:left;white-space:nowrap}
+.elh-lm1{flex-shrink:0;width:155px;text-align:left;white-space:nowrap}
+.elh-lm2{flex-shrink:0;width:155px;text-align:left;white-space:nowrap}
+.elh-status{flex-shrink:0;width:170px;text-align:left;white-space:nowrap}
+.elh-action{flex-shrink:0;width:64px;text-align:center;white-space:nowrap}
+.elh-note{display:block;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--z700);margin-top:0}
+/* Employee name domain */
+.er-login{color:var(--z500);font-size:13px;font-weight:400}
+/* Role guide text */
+.role-guide{font-size:12.5px;color:var(--z700);margin-bottom:12px;line-height:1.55;display:flex;align-items:flex-start;gap:6px}
+.role-guide>i{color:var(--z500);font-size:15px;flex-shrink:0;margin-top:1px}
+.role-guide strong{color:var(--z700)}
+/* Role tabs label */
+.role-tabs-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z600);margin-bottom:7px;display:block}
+
+/* ── Primary cycle tabs (Mục tiêu / MYR / YER) ── */
+.cy-tabs{display:flex;gap:6px;border-bottom:2px solid var(--z200);margin-bottom:18px}
+.cy-tab-btn{padding:9px 16px;font-size:13px;font-weight:500;color:var(--z600);border:1px solid var(--z300);background:var(--z0);margin-bottom:-2px;cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border-radius:var(--rsm) var(--rsm) 0 0}
+.cy-tab-btn:not(.wip):not(.on):hover{color:var(--z900);background:var(--z100);border-color:var(--z400)}
+.cy-tab-btn.on{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}
+.cy-tab-btn.wip{color:var(--z400);background:var(--z50);border-style:dashed;cursor:not-allowed}
+.cy-tab-cnt{display:inline-flex;align-items:center;justify-content:center;padding:0 6px;min-width:18px;height:17px;border-radius:50px;font-size:10px;font-weight:700;background:var(--z200);color:var(--z600)}
+.cy-tab-btn.on .cy-tab-cnt{background:var(--z0);color:var(--brand)}
+.cy-tab-btn.has-active-label{position:relative}
+.cy-active-label{position:absolute;top:-6px;right:4px;height:13px;padding:0 4px;font-size:8px;font-weight:500;line-height:11px;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:50px;pointer-events:none}
+
+/* ── MYR PROCESS ── */
+.myr-process{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:16px 18px 14px;margin-bottom:14px}
+.myr-process-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:16px;display:flex;align-items:center;gap:5px}
+.myr-process-hd i{font-size:13px;color:var(--brand)}
+.myr-process-track{display:flex;align-items:flex-start;position:relative}
+.myr-process-track::before{content:'';position:absolute;top:13px;left:14px;right:14px;height:2px;background:var(--z200)}
+.myr-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;text-align:center;padding:0 4px}
+.myr-step-circle{width:28px;height:28px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.myr-step-label{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35;margin-top:9px}
+.myr-step-time{font-size:11px;color:var(--z500);margin-top:3px}
+.myr-step-meta{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:5px}
+.myr-step-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:1px 7px;border-radius:50px;letter-spacing:.1px}
+.myr-step-badge.required{color:var(--brand);background:var(--brand-muted);border:1px solid var(--brand-ring)}
+.myr-step-badge.optional{color:var(--z500);background:var(--z100);border:1px solid var(--z200);font-style:italic}
+.myr-info{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;margin-bottom:14px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);font-size:12.5px;color:var(--z700);line-height:1.5}
+.myr-info i{font-size:16px;color:var(--brand);margin-top:1px;flex-shrink:0}
+.myr-manager{font-size:12.5px;color:var(--z800);line-height:1.35}
+.myr-manager .er-login{display:block;margin-top:2px}
+.myr-rating-action{display:flex;align-items:center;justify-content:center;width:100%}
+.myr-rating-select{width:100%;min-width:0;max-width:78px;box-sizing:border-box;padding:4px 16px 4px 5px;border:1px solid var(--brand-ring);border-radius:var(--rsm);background:var(--z0);font-family:inherit;font-size:10.5px;font-weight:600;color:var(--z900)}
+.myr-rating-select:disabled{color:var(--z500);border-color:var(--z200);background:var(--z50);cursor:not-allowed}
+.myr-bulk-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.myr-bulk-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:50px;background:var(--brand);color:var(--z0);font-size:10.5px;font-weight:700}
+.myr-bulk-approve:disabled .myr-bulk-count{background:var(--z300);color:var(--z600)}
+.myr-check-cell{width:40px;text-align:center!important;vertical-align:middle!important;padding-left:8px!important;padding-right:8px!important}
+.myr-row-check{width:14px;height:14px;margin:0;accent-color:var(--brand);cursor:pointer}
+.myr-row-check:disabled{cursor:not-allowed;opacity:.45}
+.upload-guide-intro{font-size:13px;color:var(--z600);line-height:1.55;margin-bottom:14px}
+.upload-guide-steps{display:flex;flex-direction:column;gap:10px}
+.upload-guide-step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0)}
+.upload-guide-step.is-upload{border-color:var(--brand-ring);background:var(--brand-muted)}
+.upload-step-no{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--brand);color:#fff;font-size:12px;font-weight:700}
+.upload-step-title{font-size:13px;font-weight:600;color:var(--z900);line-height:1.4;margin:3px 0 4px}
+.upload-step-desc{font-size:12.5px;color:var(--z600);line-height:1.55}
+.upload-step-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.upload-column-name{display:inline-flex;align-items:center;padding:2px 7px;margin:0 2px;border-radius:var(--rxs);border:1px solid var(--brand-ring);background:var(--brand-muted);color:var(--brand);font-weight:600;white-space:nowrap}
+.upload-file-note{display:flex;align-items:flex-start;gap:6px;margin-top:7px;color:var(--z500);font-size:11.5px;line-height:1.45}
+.upload-file-note i{font-size:14px;margin-top:1px;flex-shrink:0}
+.myr-action-cell{text-align:center}
+.myr-action-btn{width:27px;height:27px;display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:var(--rxs);background:transparent;color:var(--z500);font-size:16px;cursor:pointer;transition:var(--t)}
+.myr-action-btn:hover{color:var(--z800);background:var(--z100)}
+.myr-action-btn.accent{color:var(--brand)}
+.myr-action-btn.accent:hover{color:var(--brand);background:var(--brand-muted)}
+
+/* ── View switcher ── */
+.view-sw{display:inline-flex;background:var(--z100);border:1px solid var(--z200);border-radius:var(--rsm);padding:2px;gap:2px}
+.view-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:none;background:transparent;border-radius:var(--rxs);font-size:12.5px;font-weight:500;color:var(--z500);cursor:pointer;font-family:inherit;transition:var(--t)}
+.view-btn:hover:not(.on){color:var(--z800)}
+.view-btn.on{background:var(--z0);color:var(--brand);box-shadow:var(--sh-sm)}
+.view-btn i{font-size:15px}
+
+/* ── Stat cards (Overview) ── */
+.stat-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;max-width:560px}
+.stat-card{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh-sm)}
+.stat-card.sc-brand{border-color:var(--brand-ring);background:var(--brand-muted)}
+.stat-card.sc-warn{border-color:var(--warn-bd);background:var(--warn-bg)}
+.sc-num{font-size:28px;font-weight:700;color:var(--z900);line-height:1;margin-bottom:5px}
+.sc-num.sc-brand{color:var(--brand)}
+.sc-num.sc-warn{color:var(--warn)}
+.sc-num.sc-ok{color:var(--ok)}
+.sc-lbl{font-size:12px;font-weight:600;color:var(--z700);line-height:1.35;margin-bottom:3px}
+.sc-hint{font-size:11.5px;color:var(--z400)}
+
+/* ── Focus list ── */
+.focus-list{background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.fl-hd{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--z50);border-bottom:1px solid var(--z200)}
+.fl-title{font-size:13px;font-weight:600;color:var(--z900)}
+.fl-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:20px;padding:0 6px;height:18px;border-radius:50px;font-size:10px;font-weight:700;background:var(--brand-muted);color:var(--brand)}
+.fl-note{font-size:11.5px;color:var(--z400);margin-left:auto}
+.fl-empty{padding:28px 16px;text-align:center;font-size:13px;color:var(--z500);line-height:1.6}
+.fl-done{padding:10px 16px;border-top:1px solid var(--z100);font-size:12.5px;color:var(--z500);display:flex;align-items:center;gap:6px;line-height:1.5}
+.fl-done i{font-size:14px;color:var(--ok);flex-shrink:0}
+.fl-done em{color:var(--z600);font-style:normal}
+
+/* ── Overview note line ── */
+.ov-note{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--z500);margin-bottom:12px}
+.ov-note i{font-size:14px;color:var(--z400)}
+.ov-note strong{color:var(--z700)}
+
+/* ── WIP tab panel placeholder ── */
+.wip-panel{padding:56px 24px;text-align:center;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r)}
+.wip-panel i.bx{font-size:40px;color:var(--z300);display:block;margin-bottom:14px}
+.wip-panel h3{font-size:15px;font-weight:600;color:var(--z600);margin-bottom:6px}
+.wip-panel p{font-size:13px;color:var(--z400);line-height:1.6}
+
+/* ── Calibration screen (Phê duyệt điểm hiệu chuẩn) ── */
+.calib-screen{position:fixed;left:var(--sw);top:0;right:0;bottom:0;z-index:300;background:var(--z50);display:flex;flex-direction:column}
+.calib-hd{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--z0);border-bottom:1px solid var(--z200);flex-shrink:0}
+.calib-hd-info{flex:1;min-width:0}
+.calib-hd-title{font-size:15px;font-weight:700;color:var(--z900)}
+.calib-hd-sub{font-size:11.5px;color:var(--z500);margin-top:1px}
+.calib-body{flex:1;overflow-y:auto;padding:16px 20px}
+.calib-upload-col{background:rgba(124,58,237,.06)!important;color:var(--upd)!important}
+.calib-upload-score{font-size:13px;font-weight:700;color:var(--upd);background:var(--upd-bg);border:1px solid var(--upd-bd);border-radius:var(--rxs);padding:1px 9px;display:inline-block}
+.calib-back{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:12.5px;font-weight:500;color:var(--z700);cursor:pointer}
+.calib-back:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
+.calib-info-note{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--z500);line-height:1.5;margin-bottom:14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:10px 13px}
+.calib-info-note i{flex-shrink:0;color:var(--upd);font-size:15px;margin-top:1px}
+.calib-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.calib-toolbar .filter-shell{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><span>M</span></div>
+    <div>
+      <div class="sb-name">MoMo <em>HRM</em></div>
+      <div class="sb-sub">Performance Management</div>
+    </div>
+  </div>
+
+  <div class="role-sw">
+    <button class="role-btn" onclick="location.href='../E-05/index.html'">Nhân viên</button>
+    <button class="role-btn on">Quản lý</button>
+    <button class="role-btn" onclick="location.href='../H-05/index.html'">HR</button>
+  </div>
+
+  <nav class="sb-nav">
+    <span class="sb-grp">Tổng quan</span>
+    <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
+    <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+    <div class="sb-item on"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
+    <div class="sb-item" onclick="location.href='../M-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của đội nhóm</div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av av-brand">LT</div>
+      <div>
+        <div class="sb-uname">Lê Thị Thanh</div>
+        <div class="sb-urole">Quản lý, ITC - Backend</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════ WORKSPACE ══════════ -->
+<div class="workspace">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <a href="/" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);padding:4px 8px;border-radius:var(--rsm);transition:var(--t);flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Home</a>
+    <span class="topbar-title" id="topbar-title">Mục tiêu và Đánh giá nhân viên</span>
+    <div class="topbar-right">
+      <span id="lang-slot" style="margin-right:6px"></span>
+      <button class="ico-btn" style="position:relative" title="Thông báo"><i class="bx bx-bell"></i><span class="notif-dot"></span></button>
+      <button class="ico-btn" title="Trợ giúp"><i class="bx bx-help-circle"></i></button>
+      <div class="av av-brand av-sm" style="cursor:pointer;margin-left:3px">LT</div>
+    </div>
+  </header>
+
+  <!-- ═══ VIEW: EMPLOYEE LIST ═══ -->
+  <main class="page" id="view-list">
+    <!-- STICKY HEADER: breadcrumb + title + tabs + role switcher -->
+    <div class="page-sticky-hd">
+    <div class="breadcrumb">
+      <a href="#">Trang chủ</a><span class="bc-sep"> / </span><span>Mục tiêu và Đánh giá nhân viên</span>
+    </div>
+
+    <div class="page-hd">
+      <div>
+        <h1 class="page-title">Mục tiêu và Đánh giá nhân viên</h1>
+        <div class="page-sub">Theo dõi và Quản lý mục tiêu của toàn bộ nhân viên đang phụ trách.</div>
+      </div>
+      <div class="cycle-row" style="margin-bottom:0;flex-shrink:0">
+        <i class="bx bx-calendar"></i>
+        <span class="cycle-lbl">Chu kỳ</span>
+        <select class="cycle-sel"><option>2026</option><option>2025</option></select>
+      </div>
+    </div>
+
+    <!-- ── Primary cycle tabs: Mục tiêu / MYR / YER ── -->
+    <div class="cy-tabs">
+      <button class="cy-tab-btn" id="cy-0" onclick="switchCycleTab(0)">
+        Mục tiêu nhân viên <span class="cy-tab-cnt" id="cy-0-cnt">0</span>
+      </button>
+      <button class="cy-tab-btn has-active-label" id="cy-1" onclick="switchCycleTab(1)">
+        Đánh giá giữa năm <span class="cy-active-label" id="cy-1-lbl">Đã công bố</span>
+      </button>
+      <button class="cy-tab-btn on has-active-label" id="cy-2" onclick="switchCycleTab(2)">
+        Đánh giá cuối năm <span class="cy-active-label" id="cy-2-lbl">—</span>
+      </button>
+    </div>
+    </div><!-- /page-sticky-hd -->
+
+    <!-- ── Panel: Mục tiêu ── -->
+    <div id="cy-panel-0" style="display:none">
+
+      <!-- Role switcher: Direct / Indirect + sub-selector -->
+      <div class="role-sw-row">
+        <div class="role-main-group">
+          <button class="role-main-btn on" id="tab-lm1" onclick="setRole('lm1')">
+            <i class="bx bx-user-check"></i><span>Direct reports</span>
+          </button>
+          <button class="role-main-btn" id="tab-indirect" onclick="if(S.role==='lm1')setRole('lm2')">
+            <i class="bx bx-sitemap"></i><span>Indirect reports</span>
+          </button>
+        </div>
+<div class="role-sub-group" id="role-sub-group" style="display:none">
+          <span class="role-sub-lbl">Vai trò:</span>
+          <button class="role-sub-btn on" id="tab-lm2" onclick="setRole('lm2')">LM2</button>
+          <button class="role-sub-btn" id="tab-hod" onclick="setRole('hod')">HOD</button>
+        </div>
+      </div>
+
+      <!-- Employee list view mode -->
+      <div class="list-toolbar">
+        <!-- Filter row (rendered by JS) -->
+        <div id="filter-row"></div>
+        <button class="btn btn-outline btn-sm split-view-btn" id="split-view-btn" type="button" aria-pressed="false" onclick="toggleSplitView()">
+          <i class="bx bx-columns"></i>Split View
+        </button>
+      </div>
+
+      <!-- Employee list -->
+      <div class="emp-list" id="emp-list"></div>
+      <!-- SPLIT SHELL: M-01d layout, shown when an employee is selected -->
+      <div id="split-shell" style="display:none">
+        <div class="sp-shell">
+          <aside class="sp-left">
+            <div class="sp-search-bar">
+              <div class="sp-sw"><i class="bx bx-search"></i><input class="sp-si" id="sp-search" placeholder="Tìm nhân viên..." oninput="renderSpList()"/></div>
+            </div>
+            <div class="sp-emp-list" id="sp-emp-list"></div>
+            <div class="sp-foot" id="sp-foot"></div>
+          </aside>
+          <section class="sp-right" id="sp-right">
+            <div class="sp-toolbar">
+              <button class="btn btn-outline btn-sm" onclick="openSpFullPage()"><i class="bx bx-link-external"></i>Mở toàn trang</button>
+            </div>
+            <div class="sp-hero" id="sp-hero"></div>
+            <div class="sp-tbl-wrap">
+              <table class="sp-tbl">
+                <colgroup><col style="width:12%"><col style="width:19%"><col style="width:22%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:104px"></colgroup>
+                <thead><tr><th>Loại mục tiêu</th><th>Tên mục tiêu</th><th>Kết quả cần đạt</th><th>Mức độ ưu tiên</th><th>Thời gian</th><th>Trạng thái</th><th>Chức năng</th></tr></thead>
+                <tbody id="sp-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Panel: Mid-Year Review ── -->
+    <div id="cy-panel-1" style="display:none">
+      <div class="myr-process">
+        <div class="myr-process-hd"><i class="bx bx-directions"></i>Quy trình đánh giá MYR 2026</div>
+        <div class="myr-process-track">
+          <div class="myr-step" data-phase="employee">
+            <div class="myr-step-circle">1</div>
+            <div class="myr-step-label">Nhân viên tự đánh giá</div>
+            <div class="myr-step-time">22/06 – 06/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge required">Bắt buộc</span></div>
+          </div>
+          <div class="myr-step" data-phase="lm1">
+            <div class="myr-step-circle">2</div>
+            <div class="myr-step-label">QLTT đánh giá</div>
+            <div class="myr-step-time">07/07 – 16/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge required">Bắt buộc</span></div>
+          </div>
+          <div class="myr-step" data-phase="lm2">
+            <div class="myr-step-circle">3</div>
+            <div class="myr-step-label">Quản lý cấp 2 đánh giá</div>
+            <div class="myr-step-time">17/07 – 21/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge optional">Khuyến khích</span></div>
+          </div>
+          <div class="myr-step" data-phase="hod">
+            <div class="myr-step-circle">4</div>
+            <div class="myr-step-label">HOD đánh giá</div>
+            <div class="myr-step-time">22/07 – 25/07/2026</div>
+            <div class="myr-step-meta"><span class="myr-step-badge optional">Khuyến khích</span></div>
+          </div>
+          <div class="myr-step" data-phase="publish">
+            <div class="myr-step-circle">5</div>
+            <div class="myr-step-label">Công bố kết quả</div>
+            <div class="myr-step-time">26/07/2026</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="myr-info">
+        <i class="bx bx-info-circle"></i>
+        <span>Kết quả cuối cùng của nhân viên là điểm của cấp quản lý cao nhất có tham gia đánh giá giữa năm.</span>
+      </div>
+
+      <div class="role-sw-row">
+        <div class="role-main-group">
+          <button class="role-main-btn on" id="myr-tab-lm1" onclick="setMyrRole('lm1')">
+            <i class="bx bx-user-check"></i><span>Direct reports</span>
+          </button>
+          <button class="role-main-btn" id="myr-tab-indirect" onclick="if(S.myrRole==='lm1')setMyrRole('lm2')">
+            <i class="bx bx-sitemap"></i><span>Indirect reports</span>
+          </button>
+        </div>
+        <div class="role-sub-group" id="myr-role-sub-group" style="display:none">
+          <span class="role-sub-lbl">Vai trò:</span>
+          <button class="role-sub-btn on" id="myr-tab-lm2" onclick="setMyrRole('lm2')">LM2</button>
+          <button class="role-sub-btn" id="myr-tab-hod" onclick="setMyrRole('hod')">HOD</button>
+        </div>
+      </div>
+
+      <div class="list-toolbar">
+        <div id="myr-filter-row"></div>
+        <button class="btn btn-outline btn-sm split-view-btn" id="myr-split-view-btn" type="button" aria-pressed="false" onclick="toggleMyrSplitView()">
+          <i class="bx bx-columns"></i>Split View
+        </button>
+      </div>
+      <div class="myr-table-wrap" id="myr-list-view">
+        <table class="myr-table">
+          <colgroup id="myr-colgroup">
+            <col style="width:23%"><col style="width:25%">
+            <col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%">
+          </colgroup>
+          <thead id="myr-thead">
+            <tr>
+              <th>Nhân viên</th>
+              <th>Trạng thái</th>
+              <th class="score">Điểm của NV</th>
+              <th class="score">Điểm của QLTT</th>
+              <th class="score">Điểm của QL cấp 2</th>
+              <th class="score">Điểm của HOD</th>
+              <th class="score">Điểm cuối cùng</th>
+            </tr>
+          </thead>
+          <tbody id="myr-tbody"></tbody>
+        </table>
+      </div>
+      <div id="myr-split-shell" style="display:none">
+        <div class="sp-shell">
+          <aside class="sp-left">
+            <div class="sp-search-bar">
+              <div class="sp-sw"><i class="bx bx-search"></i><input class="sp-si" id="myr-sp-search" placeholder="Tìm nhân viên..." oninput="renderMyrSpList()"/></div>
+            </div>
+            <div class="sp-emp-list" id="myr-sp-emp-list"></div>
+            <div class="sp-foot" id="myr-sp-foot"></div>
+          </aside>
+          <section class="sp-right myr-sp-right">
+            <div class="sp-toolbar myr-sp-toolbar">
+              <button class="btn btn-outline btn-sm" onclick="openMyrSpFullPage()"><i class="bx bx-link-external"></i>Mở toàn trang</button>
+            </div>
+            <iframe class="myr-sp-frame" id="myr-sp-frame" title="Chi tiết đánh giá của nhân viên"></iframe>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Panel: Đánh giá cuối năm ── nội dung do assets/yer-manager.js dựng ── -->
+    <div id="cy-panel-2"><div id="yer-mgr-root"></div></div>
+  </main>
+
+  <!-- ═══ VIEW: EMPLOYEE GOALS ═══ -->
+  <main class="page" id="view-goals" style="display:none">
+    <div class="breadcrumb">
+      <a href="#" onclick="goBack();return false;" style="display:inline-flex;align-items:center;gap:3px">
+        <i class="bx bx-chevron-left" style="font-size:16px"></i>Đội nhóm
+      </a>
+      <span class="bc-sep"> / </span>
+      <span id="brd-name">—</span>
+    </div>
+
+    <div class="page-hd" style="margin-bottom:14px">
+      <h1 class="page-title" id="gv-title">—</h1>
+      <div class="cycle-row" style="margin-bottom:0;flex-shrink:0">
+        <i class="bx bx-calendar"></i>
+        <span class="cycle-lbl">Chu kỳ</span>
+        <select class="cycle-sel"><option>2026</option><option>2025</option></select>
+      </div>
+    </div>
+
+    <!-- Employee chip -->
+    <div class="emp-chip" id="gv-chip"><!-- rendered by JS --></div>
+
+    <!-- Read-only notice for indirect -->
+    <div class="notice-bar" id="gv-readonly" style="display:none">
+      <i class="bx bx-lock-alt"></i>
+      <span>Nhân viên này không báo cáo trực tiếp cho bạn. Bạn có thể xem mục tiêu nhưng không thể duyệt hoặc yêu cầu cập nhật.</span>
+    </div>
+
+    <!-- Goals content -->
+    <div id="gv-content"><!-- rendered by JS --></div>
+  </main>
+
+</div><!-- /workspace -->
+</div><!-- /app -->
+
+<!-- ══════════ SCREEN: Phê duyệt điểm hiệu chuẩn (HOD only) ══════════ -->
+<div class="calib-screen" id="calib-screen" style="display:none">
+  <div class="calib-hd">
+    <button class="calib-back" onclick="closeCalibScreen()"><i class="bx bx-left-arrow-alt"></i> Quay lại</button>
+    <div class="calib-hd-info">
+      <div class="calib-hd-title">Phê duyệt điểm hiệu chuẩn</div>
+      <div class="calib-hd-sub">MYR 2026 - HOD - Indirect reports</div>
+    </div>
+    <button id="calib-approve-btn" class="btn btn-default btn-sm" disabled onclick="approveCalibRatings()">
+      <i class="bx bx-check-shield"></i> Duyệt điểm
+      <span id="calib-count" class="myr-bulk-count">0</span>
+    </button>
+  </div>
+  <div class="calib-body">
+    <div class="calib-info-note">
+      <i class="bx bx-info-circle"></i>
+      <span>Cột <strong style="color:var(--upd)">Điểm Upload</strong> là Điểm HRBP tải lên hệ thống. Bạn hãy tick chọn nhân viên và nhấn <strong>Duyệt điểm</strong> để phê duyệt.</span>
+    </div>
+    <div class="calib-toolbar" id="calib-toolbar-row"></div>
+    <div class="myr-table-wrap">
+      <table class="myr-table" style="table-layout:fixed">
+        <colgroup>
+          <col style="width:3%"><col style="width:18%"><col style="width:11%"><col style="width:11%">
+          <col style="width:6%"><col style="width:6%"><col style="width:7%">
+          <col style="width:8%"><col style="width:7%"><col style="width:7%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="myr-check-cell"><input id="calib-select-all" class="myr-row-check" type="checkbox" aria-label="Chọn tất cả" onchange="toggleAllCalibRows(this.checked)"></th>
+            <th>Nhân viên</th>
+            <th>Quản lý trực tiếp</th>
+            <th>Quản lý cấp 2</th>
+            <th class="score">Điểm của NV</th>
+            <th class="score">Điểm của QLTT</th>
+            <th class="score">Điểm của QL cấp 2</th>
+            <th class="score calib-upload-col">Điểm Upload</th>
+            <th class="score">Điểm của HOD</th>
+            <th class="score">Chức năng</th>
+          </tr>
+        </thead>
+        <tbody id="calib-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: Goal Detail ══════════ -->
+<div class="overlay" id="dlg-detail" onclick="if(event.target===this)closeOverlay('dlg-detail')">
+  <div class="dialog md">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div style="flex:1;min-width:0">
+          <div class="dlg-badges" id="det-badges" style="margin-bottom:0"><!-- rendered --></div>
+        </div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-detail')"><i class="bx bx-x"></i></button>
+      </div>
+      <div class="dlg-tabs">
+        <button class="dlg-tab on" id="dt-0" onclick="switchDlgTab(0)">Thông tin</button>
+        <button class="dlg-tab" id="dt-1" onclick="switchDlgTab(1)">Bình luận <span class="dlg-tab-n" id="dt-n">0</span></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+
+      <!-- Tab 0: Info -->
+      <div class="tpanel on" id="tp-0">
+        <!-- Edit banner shown when status = update -->
+        <div class="edit-banner" id="det-banner" style="display:none">
+          <i class="bx bx-message-square-edit"></i>
+          <div>
+            <span class="eb-lbl">Yêu cầu cập nhật từ quản lý</span>
+            <span class="eb-text" id="det-banner-txt">—</span>
+          </div>
+        </div>
+
+        <div class="detail-row" id="det-meta" style="padding-top:6px">
+          <!-- Metadata grid rendered by JS -->
+        </div>
+
+        <div class="detail-row">
+          <span class="sec-lbl">Tên mục tiêu</span>
+          <div class="detail-val" id="det-title">—</div>
+        </div>
+
+        <div class="detail-row">
+          <span class="sec-lbl">Kết quả cần đạt</span>
+          <div class="detail-val" id="det-result">—</div>
+        </div>
+      </div>
+
+      <!-- Tab 1: Comments -->
+      <div class="tpanel" id="tp-1">
+        <div class="comment-list" id="det-comments"><!-- rendered --></div>
+        <div class="cin-row">
+          <div class="av av-brand av-sm">LT</div>
+          <textarea class="cin" id="det-cin" rows="2" placeholder="Thêm bình luận..."></textarea>
+          <button class="btn btn-default btn-sm" onclick="addComment()"><i class="bx bx-send"></i></button>
+        </div>
+      </div>
+
+    </div>
+    <div class="dlg-foot" id="det-foot"><!-- rendered by JS --></div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: Request Update ══════════ -->
+<div class="overlay" id="dlg-request" onclick="if(event.target===this)closeOverlay('dlg-request')">
+  <div class="dialog sm">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div class="dlg-title">Yêu cầu cập nhật</div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-request')"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <div class="detail-row" style="padding-top:0;margin-bottom:4px">
+        <span class="sec-lbl">Mục tiêu</span>
+        <div style="font-size:13.5px;color:var(--z700);line-height:1.55;margin-top:4px" id="req-goal-name">—</div>
+      </div>
+      <div class="fg" style="padding-top:12px">
+        <label class="flbl">Nội dung yêu cầu <span class="req">*</span></label>
+        <textarea class="fc" id="req-note" rows="4" placeholder="Mô tả rõ điều nhân viên cần chỉnh sửa hoặc bổ sung…"></textarea>
+        <div class="ferr" id="req-err">Vui lòng nhập nội dung yêu cầu.</div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('dlg-request')">Huỷ</button>
+      <button class="btn btn-default" onclick="submitRequest()"><i class="bx bx-send"></i> Gửi yêu cầu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MYR Rating Upload Guide ══════════ -->
+<div class="overlay" id="dlg-myr-upload" onclick="if(event.target===this)closeOverlay('dlg-myr-upload')">
+  <div class="dialog">
+    <div class="dlg-hd">
+      <div class="dlg-hd-row">
+        <div class="dlg-title">Upload điểm đánh giá MYR</div>
+        <button class="dlg-close" onclick="closeOverlay('dlg-myr-upload')" aria-label="Đóng"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <div class="upload-guide-intro">Thực hiện lần lượt 3 bước dưới đây để cập nhật điểm hàng loạt cho nhân viên.</div>
+      <div class="upload-guide-steps">
+        <div class="upload-guide-step">
+          <div class="upload-step-no">1</div>
+          <div>
+            <div class="upload-step-title">Tải file template</div>
+            <div class="upload-step-desc">Tải danh sách nhân viên theo một trong hai định dạng dưới đây.</div>
+            <div class="upload-step-actions">
+              <button class="btn btn-outline btn-sm" onclick="downloadMyrRatingTemplate('xls')"><i class="bx bx-spreadsheet"></i> Tải Excel</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadMyrRatingTemplate('csv')"><i class="bx bx-download"></i> Tải CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="upload-guide-step">
+          <div class="upload-step-no">2</div>
+          <div>
+            <div class="upload-step-title">Điền điểm đánh giá</div>
+            <div class="upload-step-desc">Mở file vừa tải và điền điểm từ 1 đến 5, theo bước 0.5, vào cột <span class="upload-column-name" id="myr-upload-column">Điểm LM2</span>. Không thay đổi mã nhân viên hoặc cấu trúc các cột còn lại.</div>
+          </div>
+        </div>
+        <div class="upload-guide-step is-upload">
+          <div class="upload-step-no">3</div>
+          <div>
+            <div class="upload-step-title">Upload file đã điền điểm</div>
+            <div class="upload-step-desc" id="myr-upload-step-desc">Chọn file Excel hoặc CSV đã hoàn tất để cập nhật điểm LM2 lên hệ thống.</div>
+            <div class="upload-step-actions">
+              <button class="btn btn-default btn-sm" id="myr-upload-file-btn" onclick="document.getElementById('myr-rating-upload').click()"><i class="bx bx-upload"></i> Chọn file để upload</button>
+              <input id="myr-rating-upload" type="file" accept=".csv,.xls" hidden onchange="handleMyrRatingUpload(this)">
+            </div>
+            <div class="upload-file-note" id="myr-upload-timeline-note"><i class="bx bx-info-circle"></i><span>Chỉ có thể cập nhật điểm trong timeline đánh giá của vai trò hiện tại.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('dlg-myr-upload')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="bx bx-check-circle" style="color:#4ade80"></i><span id="toast-msg">—</span></div>
+
+<!-- Floating tooltip -->
+<div class="floating-tip" id="flt"></div>
+
+<script src="../assets/employees-data.js"></script>
+<script>
+/* ═══════════ DATA ═══════════ */
+const MGR = { name: 'Lê Thị Thanh', initials: 'LT', team: 'ITC - Backend', role: 'Quản lý trực tiếp' };
+
+const EMPS = window.PMS_EMPLOYEES;
+
+const MYR_DATA = window.PMS_MYR;
+
+const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
+const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'hod'; // DEMO: bypass phase lock
+
+/* ═══════════ STATE ═══════════ */
+const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', filterOpen:false, myrFilterOpen:false, splitView:false, myrSplitView:false, myrSelected:new Set() };
+
+/* ═══════════ HELPERS ═══════════ */
+function findEmp(id){ return EMPS.find(e=>e.id===id); }
+
+function visibleEmps(){
+  if(S.role==='lm1') return EMPS.filter(e=>e.lvl==='lm1');
+  if(S.role==='lm2') return EMPS.filter(e=>e.lvl==='lm2');
+  return EMPS.filter(e=>e.lvl==='hod');
+}
+
+function visibleMyrEmps(){
+  return EMPS.filter(e=>e.lvl===S.myrRole);
+}
+
+function pendingCnt(emp){ return emp.goals.filter(g=>g.status==='pending').length; }
+
+function employeeGoalStatus(emp,isDirect){
+  const pending=pendingCnt(emp);
+  const hasApproved=emp.goals.some(g=>g.status==='approved');
+  if(pending>0){
+    return {
+      text:isDirect?`Duyệt ${pending} mục tiêu`:`${pending} chờ duyệt`,
+      tone:isDirect?'action':'pending'
+    };
+  }
+  if(!hasApproved){
+    return {
+      text:isDirect?'Nhắc nhở thiết lập':'Chưa thiết lập',
+      tone:'setup'
+    };
+  }
+  return {text:'',tone:''};
+}
+
+function badgeSt(status){
+  if(status==='pending') return `<span class="badge b-action">Chờ duyệt</span>`;
+  if(status==='approved') return `<span class="badge b-ok">Đã duyệt</span>`;
+  if(status==='done') return `<span class="badge b-done"><i class="bx bx-check"></i>Hoàn thành</span>`;
+  if(status==='update') return `<span class="badge b-action">Cần cập nhật</span>`;
+  if(status==='draft') return `<span class="badge b-muted">Nháp</span>`;
+  return '';
+}
+function badgeType(t){
+  if(t==='what') return `<span class="badge b-muted">Mục tiêu công việc</span>`;
+  if(t==='dev')  return `<span class="badge b-muted">Mục tiêu phát triển</span>`;
+  return '';
+}
+function badgePrio(p){
+  if(p==='h') return `<span class="prio prio-h">Cao</span>`;
+  if(p==='m') return `<span class="prio prio-m">Trung bình</span>`;
+  if(p==='l') return `<span class="prio prio-l">Thấp</span>`;
+  return '';
+}
+
+/* ═══════════ CYCLE TABS (Mục tiêu / MYR / YER) ═══════════ */
+function switchCycleTab(n){
+  [0,1,2].forEach(i=>{
+    const btn=document.getElementById('cy-'+i);
+    if(btn) btn.classList.toggle('on',i===n);
+    const p=document.getElementById('cy-panel-'+i);
+    if(p) p.style.display=i===n?'block':'none';
+  });
+  if(n===2&&window.PMSYerManager){ window.PMSYerManager.render(); return; }
+  if(n===1){
+    renderMyrProcess();
+    renderMyrTableHeader();
+    renderMyrFilterRow();
+    renderMyrList();
+  }
+}
+
+function renderCycleBadge(){
+  const lm1Pend=EMPS.filter(e=>e.lvl==='lm1'&&!e.resigned&&!e.maternity&&e.goals.some(g=>g.status==='pending')).length;
+  const badge=document.getElementById('cy-0-cnt');
+  if(badge){ badge.textContent=lm1Pend; badge.style.display=lm1Pend>0?'':'none'; }
+}
+
+/* ═══════════ ROLE TABS ═══════════ */
+const ROLE_GUIDE = {
+  lm1: 'Đang xem Danh sách nhân viên <strong>báo cáo trực tiếp</strong>. Tại đây, bạn có thể xem xét và <strong>phê duyệt</strong> mục tiêu cho từng nhân viên.',
+  lm2: 'Đang xem Danh sách nhân viên <strong>của bộ phận</strong>. Tại đây, bạn có thể xem chi tiết mục tiêu của nhân viên. <span style="color:var(--z500)">(Không bao gồm nhân viên quản lý trực tiếp)</span>',
+  hod: 'Đang xem Danh sách nhân viên <strong>của Khối phòng ban</strong>. Tại đây, bạn có thể xem chi tiết mục tiêu của nhân viên. <span style="color:var(--z500)">(Không bao gồm nhân viên quản lý trực tiếp)</span>',
+};
+function setRole(r){
+  S.role=r; S.filterOpen=false; S.searchTerm=''; S.filterDiv=''; S.filterDept=''; S.filterTeam=''; S.filterLm1=''; S.filterLm2='';
+  // Main toggle buttons
+  const isDir=r==='lm1';
+  const mainLm1=document.getElementById('tab-lm1');
+  const mainInd=document.getElementById('tab-indirect');
+  if(mainLm1) mainLm1.classList.toggle('on',isDir);
+  if(mainInd) mainInd.classList.toggle('on',!isDir);
+  // Sub-selector (LM2 / HOD) — only when indirect
+  const subGrp=document.getElementById('role-sub-group');
+  if(subGrp){
+    subGrp.style.display=isDir?'none':'flex';
+    const subLm2=document.getElementById('tab-lm2');
+    const subHod=document.getElementById('tab-hod');
+    if(subLm2) subLm2.classList.toggle('on',r==='lm2');
+    if(subHod) subHod.classList.toggle('on',r==='hod');
+  }
+  renderFilterRow();
+  renderEmpList();
+  const _ss=document.getElementById('split-shell');
+  if(S.splitView&&_ss){
+    const first=filteredGoalEmps()[0];
+    if(first) openGoalPanel(first.id);
+    else{
+      S.splitView=false;
+      closeGoalPanel();
+      updateSplitViewButton();
+    }
+  }
+}
+
+function myrEligibility(emp){
+  const hasWhat=emp.goals.some(g=>g.type==='what'&&g.status==='approved');
+  const hasDev=emp.goals.some(g=>g.type==='dev'&&g.status==='approved');
+  if(hasWhat&&hasDev) return {eligible:true,text:'Đủ điều kiện tham gia MYR',tone:'eligible'};
+  if(!hasWhat&&!hasDev) return {eligible:false,text:'Thiếu mục tiêu công việc và phát triển',tone:'missing'};
+  if(!hasWhat) return {eligible:false,text:'Thiếu mục tiêu công việc',tone:'missing'};
+  return {eligible:false,text:'Thiếu mục tiêu phát triển',tone:'missing'};
+}
+
+function myrStatus(emp){
+  const eligibility=myrEligibility(emp);
+  const review=MYR_DATA[emp.id]||{};
+  if(!review.submitted) return {eligible:eligibility.eligible,text:'Chưa tự đánh giá',tone:'incomplete'};
+  if(visibleMyrScore(review,'hod')!=null) return {eligible:eligibility.eligible,text:'Hoàn thành',tone:'completed'};
+  if(visibleMyrScore(review,'lm2')!=null) return {eligible:eligibility.eligible,text:'Chờ HOD đánh giá',tone:'pending'};
+  if(visibleMyrScore(review,'lm1')!=null) return {eligible:eligibility.eligible,text:'Chờ QL Cấp 2 đánh giá',tone:'pending'};
+  return {eligible:eligibility.eligible,text:'Chờ QLTT đánh giá',tone:'pending'};
+}
+
+function formatMyrScore(value,finalScore){
+  if(value===null||value===undefined||value==='') return '<span class="myr-score empty">—</span>';
+  const text=String(value);
+  return finalScore
+    ?`<span class="myr-final">${text}</span>`
+    :`<span class="myr-score">${text}</span>`;
+}
+
+function myrPhaseIndex(phase){
+  return MYR_PHASES.indexOf(phase);
+}
+
+function renderMyrProcess(){
+  document.querySelectorAll('.myr-step').forEach(function(step){
+    step.classList.remove('done','active');
+    var oldTag=step.querySelector('.myr-step-tag');
+    if(oldTag) oldTag.remove();
+  });
+}
+
+function renderMyrTableHeader(){
+  const colgroup=document.getElementById('myr-colgroup');
+  const thead=document.getElementById('myr-thead');
+  if(!colgroup||!thead) return;
+  const selectionCol=S.myrRole==='lm1'?'':'<col style="width:3%">';
+  const selectionHeader=S.myrRole==='lm1'
+    ?''
+    :'<th class="myr-check-cell"><input id="myr-select-all" class="myr-row-check" type="checkbox" aria-label="Chọn tất cả nhân viên đủ điều kiện" title="Chọn tất cả nhân viên đủ điều kiện" onchange="toggleAllMyrRows(this.checked)"></th>';
+  const managerHeaders=S.myrRole==='lm2'
+    ?'<th>Quản lý trực tiếp</th>'
+    :S.myrRole==='hod'
+      ?'<th>Quản lý trực tiếp</th><th>Quản lý cấp 2</th>'
+      :'';
+  const roleColumns=S.myrRole==='lm1'
+    ?'<col style="width:24%"><col style="width:22%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:8%"><col style="width:11%"><col style="width:7%">'
+    :S.myrRole==='lm2'
+      ?'<col style="width:18%"><col style="width:15%"><col style="width:16%"><col style="width:7%"><col style="width:8%"><col style="width:9%"><col style="width:7%"><col style="width:10%"><col style="width:7%">'
+      :'<col style="width:14%"><col style="width:11%"><col style="width:11%"><col style="width:14%"><col style="width:7%"><col style="width:8%"><col style="width:10%"><col style="width:9%"><col style="width:8%"><col style="width:5%">';
+  colgroup.innerHTML=selectionCol+roleColumns;
+  thead.innerHTML='<tr>'+selectionHeader+'<th>Nhân viên</th>'+managerHeaders+'<th>Trạng thái</th>'+
+    '<th class="score">Điểm của NV</th><th class="score">Điểm của QLTT</th><th class="score">Điểm của QL cấp 2</th><th class="score">Điểm của HOD</th><th class="score">Điểm cuối cùng</th><th class="score">Chức năng</th></tr>';
+}
+
+function myrManagerCell(manager){
+  if(!manager) return '<td><span class="myr-score empty">—</span></td>';
+  return `<td><div class="myr-manager">${manager.name}<span class="er-login">(${manager.login})</span></div></td>`;
+}
+
+function visibleMyrScore(review,role){
+  if(role==='final') return MYR_CURRENT_PHASE==='publish'?review.final:null;
+  return myrPhaseIndex(MYR_CURRENT_PHASE)>=myrPhaseIndex(role)?review[role]:null;
+}
+
+function myrRatingOptions(selected){
+  return ['','1','1.5','2','2.5','3','3.5','4','4.5','5'].map(value=>{
+    const label=value===''?'Chọn điểm':value;
+    return `<option value="${value}"${String(selected??'')===value?' selected':''}>${label}</option>`;
+  }).join('');
+}
+
+function myrRatingCell(emp,review,role){
+  const previousRole=role==='hod'?'lm2':'lm1';
+  if(S.myrRole!==role) return formatMyrScore(visibleMyrScore(review,role),false);
+  const previousScore=visibleMyrScore(review,previousRole);
+  const predecessorComplete=review.submitted&&previousScore!==null&&previousScore!==undefined;
+  const canRate=S.myrRole===role&&review.submitted; // DEMO: bypass phase/predecessor lock
+  const selectedScore=visibleMyrScore(review,role);
+  const lockReason=MYR_CURRENT_PHASE!==role
+    ?'Chức năng mở trong timeline '+role.toUpperCase()+' đánh giá'
+    :'Chỉ mở sau khi bước '+previousRole.toUpperCase()+' đánh giá hoàn thành';
+  return `<div class="myr-rating-action">
+    <select class="myr-rating-select" aria-label="Điểm ${role.toUpperCase()}" title="${canRate?'Chọn điểm '+role.toUpperCase():lockReason}" ${canRate?'':'disabled'} onclick="event.stopPropagation()" onchange="setMyrRating('${emp.id}','${role}',this.value)">
+      ${myrRatingOptions(selectedScore)}
+    </select>
+  </div>`;
+}
+
+function setMyrRating(empId,role,value){
+  if(!MYR_DATA[empId]) return;
+  MYR_DATA[empId][role]=value===''?null:Number(value);
+}
+
+function canApproveMyrRating(empId){
+  if(S.myrRole==='lm1') return false; // DEMO: bypass phase check
+  const review=MYR_DATA[empId]||{};
+  const previousRole=S.myrRole==='hod'?'lm2':'lm1';
+  const previousScore=visibleMyrScore(review,previousRole);
+  return review.submitted&&previousScore!==null&&previousScore!==undefined;
+}
+
+function toggleMyrRow(empId,checked){
+  if(!canApproveMyrRating(empId)) return;
+  if(checked) S.myrSelected.add(empId);
+  else S.myrSelected.delete(empId);
+  updateMyrBulkControls();
+}
+
+function toggleAllMyrRows(checked){
+  document.querySelectorAll('.myr-row-check[data-emp-id]:not(:disabled)').forEach(input=>{
+    input.checked=checked;
+    if(checked) S.myrSelected.add(input.dataset.empId);
+    else S.myrSelected.delete(input.dataset.empId);
+  });
+  updateMyrBulkControls();
+}
+
+function updateMyrBulkControls(){
+  const eligibleInputs=[...document.querySelectorAll('.myr-row-check[data-emp-id]:not(:disabled)')];
+  const visibleIds=new Set(eligibleInputs.map(input=>input.dataset.empId));
+  [...S.myrSelected].forEach(id=>{if(!visibleIds.has(id)) S.myrSelected.delete(id);});
+  eligibleInputs.forEach(input=>{input.checked=S.myrSelected.has(input.dataset.empId);});
+  const selectedCount=S.myrSelected.size;
+  const bulkButton=document.getElementById('myr-bulk-approve');
+  const count=document.getElementById('myr-bulk-count');
+  if(bulkButton) bulkButton.disabled=selectedCount===0; // DEMO: bypass phase check
+  if(count) count.textContent=selectedCount;
+  const selectAll=document.getElementById('myr-select-all');
+  if(selectAll){
+    const checkedCount=eligibleInputs.filter(input=>input.checked).length;
+    selectAll.disabled=eligibleInputs.length===0;
+    selectAll.checked=eligibleInputs.length>0&&checkedCount===eligibleInputs.length;
+    selectAll.indeterminate=checkedCount>0&&checkedCount<eligibleInputs.length;
+  }
+}
+
+function approveSelectedMyrRatings(){
+  if(S.myrRole==='lm1') return; // DEMO: bypass phase check
+  const previousRole=S.myrRole==='hod'?'lm2':'lm1';
+  let updated=0;
+  [...S.myrSelected].forEach(empId=>{
+    if(!canApproveMyrRating(empId)) return;
+    MYR_DATA[empId][S.myrRole]=Number(MYR_DATA[empId][previousRole]);
+    updated++;
+  });
+  S.myrSelected.clear();
+  renderMyrList();
+  toast('Đã duyệt điểm '+previousRole.toUpperCase()+' cho '+updated+' nhân viên.');
+}
+
+function myrBulkActionsHtml(){
+  if(S.myrRole==='lm1') return '';
+  const previousRole=S.myrRole==='hod'?'LM2':'LM1';
+  const calibBtn=S.myrRole==='hod'?`<button class="btn btn-outline btn-sm" onclick="openCalibScreen()"><i class="bx bx-check-shield"></i> Duyệt điểm hiệu chuẩn</button>`:'';
+  return `<div class="myr-bulk-actions">
+    <button id="myr-bulk-approve" class="btn btn-cta-outline btn-sm myr-bulk-approve" disabled onclick="approveSelectedMyrRatings()"><i class="bx bx-check-double"></i> Duyệt điểm ${previousRole} <span id="myr-bulk-count" class="myr-bulk-count">0</span></button>
+    <button class="btn btn-default btn-sm" onclick="openMyrUploadGuide()"><i class="bx bx-upload"></i> Upload điểm</button>
+    ${calibBtn}
+  </div>`;
+}
+
+function openMyrUploadGuide(){
+  if(S.myrRole==='lm1') return;
+  const ratingRole=S.myrRole.toUpperCase();
+  document.getElementById('myr-upload-column').textContent='Điểm '+ratingRole;
+  document.getElementById('myr-upload-step-desc').textContent='Chọn file Excel hoặc CSV đã hoàn tất để cập nhật điểm '+ratingRole+' lên hệ thống.';
+  const canUpload=MYR_CURRENT_PHASE===S.myrRole;
+  const uploadButton=document.getElementById('myr-upload-file-btn');
+  uploadButton.disabled=!canUpload;
+  const note=document.getElementById('myr-upload-timeline-note');
+  note.querySelector('span').textContent=canUpload
+    ?'Hệ thống sẽ kiểm tra mã nhân viên và giá trị điểm trước khi cập nhật.'
+    :'Chưa đến timeline '+ratingRole+' đánh giá nên chức năng chọn file đang bị khóa.';
+  openOv('dlg-myr-upload');
+}
+
+function handleMyrRatingUpload(input){
+  const file=input.files&&input.files[0];
+  input.value='';
+  if(file) importMyrRatings(file);
+}
+
+function myrExportEscape(value){
+  return String(value==null?'':value).replace(/[&<>"']/g,function(char){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+  });
+}
+
+function myrTemplateRows(){
+  const role=S.myrRole;
+  const previousRole=role==='hod'?'lm2':'lm1';
+  return visibleMyrEmps().map(emp=>{
+    const review=MYR_DATA[emp.id]||{};
+    return [emp.id,emp.name,emp.login,review[previousRole]??'',review[role]??''];
+  });
+}
+
+function downloadMyrRatingTemplate(format){
+  const role=S.myrRole;
+  if(role==='lm1') return;
+  const previousRole=role==='hod'?'LM2':'LM1';
+  const ratingRole=role.toUpperCase();
+  const headers=['Mã nhân viên','Nhân viên','Tài khoản','Điểm '+previousRole,'Điểm '+ratingRole];
+  const rows=myrTemplateRows();
+  let blob,extension;
+  if(format==='csv'){
+    const csv=[headers].concat(rows).map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+    blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    extension='csv';
+  }else{
+    const html='<html><head><meta charset="utf-8"></head><body><table border="1"><thead><tr>'+
+      headers.map(value=>'<th>'+myrExportEscape(value)+'</th>').join('')+
+      '</tr></thead><tbody>'+
+      rows.map(row=>'<tr>'+row.map(value=>'<td>'+myrExportEscape(value)+'</td>').join('')+'</tr>').join('')+
+      '</tbody></table></body></html>';
+    blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+    extension='xls';
+  }
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download='template-diem-myr-'+role+'-2026.'+extension;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),0);
+}
+
+function parseMyrCsv(text){
+  const rows=[];
+  let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){
+    const char=text[i];
+    if(char==='"'){
+      if(quoted&&text[i+1]==='"'){cell+='"';i++;}
+      else quoted=!quoted;
+    }else if(char===','&&!quoted){row.push(cell);cell='';}
+    else if((char==='\n'||char==='\r')&&!quoted){
+      if(char==='\r'&&text[i+1]==='\n') i++;
+      row.push(cell);cell='';
+      if(row.some(value=>value!=='')) rows.push(row);
+      row=[];
+    }else cell+=char;
+  }
+  row.push(cell);
+  if(row.some(value=>value!=='')) rows.push(row);
+  return rows;
+}
+
+function parseMyrRatingFile(text,isExcel){
+  if(!isExcel) return parseMyrCsv(text.replace(/^\ufeff/,''));
+  const doc=new DOMParser().parseFromString(text,'text/html');
+  return Array.from(doc.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(cell=>cell.textContent.trim()));
+}
+
+function importMyrRatings(file){
+  if(!file||S.myrRole==='lm1') return;
+  if(MYR_CURRENT_PHASE!==S.myrRole){
+    toast('Chưa đến timeline '+S.myrRole.toUpperCase()+' đánh giá, chưa thể upload điểm.');
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const rows=parseMyrRatingFile(String(reader.result||''),/\.xls$/i.test(file.name));
+    if(rows.length<2){toast('File không có dữ liệu điểm hợp lệ.');return;}
+    let updated=0,skipped=0;
+    rows.slice(1).forEach(row=>{
+      const empId=String(row[0]||'').trim();
+      const value=String(row[4]||'').trim();
+      const review=MYR_DATA[empId];
+      const previousRole=S.myrRole==='hod'?'lm2':'lm1';
+      const score=Number(value);
+      if(!review||!review.submitted||review[previousRole]==null||value===''||!Number.isFinite(score)||score<1||score>5||!Number.isInteger(score*2)){
+        skipped++;
+        return;
+      }
+      review[S.myrRole]=score;
+      updated++;
+    });
+    renderMyrList();
+    closeOv('dlg-myr-upload');
+    toast('Đã cập nhật '+updated+' điểm'+(skipped?' - Bỏ qua '+skipped+' dòng chưa hợp lệ':'')+'.');
+  };
+  reader.readAsText(file,'utf-8');
+}
+
+function setMyrRole(role){
+  S.myrRole=role;
+  S.myrSelected.clear();
+  S.myrFilterOpen=false;
+  S.myrSearchTerm='';
+  S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
+  const direct=role==='lm1';
+  document.getElementById('myr-tab-lm1').classList.toggle('on',direct);
+  document.getElementById('myr-tab-indirect').classList.toggle('on',!direct);
+  document.getElementById('myr-role-sub-group').style.display=direct?'none':'flex';
+  document.getElementById('myr-tab-lm2').classList.toggle('on',role==='lm2');
+  document.getElementById('myr-tab-hod').classList.toggle('on',role==='hod');
+  renderMyrTableHeader();
+  renderMyrFilterRow();
+  renderMyrList();
+  if(S.myrSplitView){
+    const first=filteredMyrEmps()[0];
+    if(first) openMyrPanel(first.id);
+    else{
+      S.myrSplitView=false;
+      closeMyrPanel();
+      updateMyrSplitViewButton();
+    }
+  }
+}
+
+function activeFilterCount(scope){
+  const values=scope==='myr'
+    ?[S.myrSearchTerm,S.myrFilterDiv,S.myrFilterDept,S.myrFilterTeam,S.myrFilterLm1,S.myrFilterLm2]
+    :scope==='calib'
+    ?[calibSearchTerm,calibFilterLm1,calibFilterLm2]
+    :[S.searchTerm,S.filterDiv,S.filterDept,S.filterTeam,S.filterLm1,S.filterLm2];
+  return values.filter(value=>String(value||'').trim()).length;
+}
+
+function filterPopoverHtml(scope,fieldsHtml,isSingle){
+  const isMyr=scope==='myr';const isCalib=scope==='calib';
+  const open=isMyr?S.myrFilterOpen:(isCalib?calibFilterOpen:S.filterOpen);
+  const count=activeFilterCount(scope);
+  return `<div class="filter-menu">
+    <button class="btn btn-outline btn-sm filter-toggle" aria-expanded="${open}" aria-controls="${scope}-filter-popover" onclick="event.stopPropagation();toggleFilterPanel('${scope}')">
+      <i class="bx bx-filter-alt"></i> Bộ lọc
+      <span class="filter-count" id="${scope}-filter-count"${count?'':' hidden'}>${count}</span>
+      <i class="bx bx-chevron-down"></i>
+    </button>
+    ${open?`<div class="filter-popover${isSingle?' is-single':''}" id="${scope}-filter-popover">
+      <div class="filter-popover-grid">${fieldsHtml}</div>
+      <div class="filter-popover-foot">
+        <span class="filter-hint">Có thể chọn nhiều điều kiện</span>
+        <button class="filter-clear" id="${scope}-filter-clear" ${count?'':'disabled'} onclick="clearListFilters('${scope}')">Xóa bộ lọc</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function toggleFilterPanel(scope){
+  if(scope==='myr'){
+    S.myrFilterOpen=!S.myrFilterOpen;
+    renderMyrFilterRow();
+    updateMyrBulkControls();
+  }else if(scope==='calib'){
+    calibFilterOpen=!calibFilterOpen;
+    renderCalibToolbar();
+  }else{
+    S.filterOpen=!S.filterOpen;
+    renderFilterRow();
+  }
+}
+
+function updateFilterUi(scope){
+  const count=activeFilterCount(scope);
+  const badge=document.getElementById(scope+'-filter-count');
+  const clear=document.getElementById(scope+'-filter-clear');
+  if(badge){
+    badge.textContent=count;
+    badge.hidden=count===0;
+  }
+  if(clear) clear.disabled=count===0;
+}
+
+function clearListFilters(scope){
+  if(scope==='myr'){
+    S.myrSearchTerm='';
+    S.myrFilterDiv='';S.myrFilterDept='';S.myrFilterTeam='';S.myrFilterLm1='';S.myrFilterLm2='';
+    renderMyrFilterRow();
+    renderMyrList();
+  }else if(scope==='calib'){
+    calibSearchTerm='';calibFilterLm1='';calibFilterLm2='';
+    renderCalibToolbar();
+    renderCalibTable();
+  }else{
+    S.searchTerm='';
+    S.filterDiv='';S.filterDept='';S.filterTeam='';S.filterLm1='';S.filterLm2='';
+    renderFilterRow();
+    renderEmpList();
+  }
+}
+
+function renderMyrFilterRow(){
+  const el=document.getElementById('myr-filter-row');
+  if(!el) return;
+  const emps=visibleMyrEmps();
+  const divs=[...new Set(emps.map(e=>e.div))].sort();
+  const depts=[...new Set(emps.map(e=>e.dept))].sort();
+  const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
+  const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  let fields=`<input class="f-combo" list="myr-dl-emp" placeholder="Nhân viên" value="${S.myrSearchTerm}" oninput="S.myrSearchTerm=this.value;renderMyrList();updateFilterUi('myr')">
+    <datalist id="myr-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>`;
+  if(S.myrRole!=='lm1'){
+    fields+=`<input class="f-combo" list="myr-dl-div" placeholder="Division" value="${S.myrFilterDiv}" oninput="S.myrFilterDiv=this.value;renderMyrList();updateFilterUi('myr')">
+      <datalist id="myr-dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
+      <input class="f-combo" list="myr-dl-dept" placeholder="Department" value="${S.myrFilterDept}" oninput="S.myrFilterDept=this.value;renderMyrList();updateFilterUi('myr')">
+      <datalist id="myr-dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>`;
+    if(S.myrRole==='lm2'){
+      fields+=`<input class="f-combo" list="myr-dl-team" placeholder="Team" value="${S.myrFilterTeam}" oninput="S.myrFilterTeam=this.value;renderMyrList();updateFilterUi('myr')">
+        <datalist id="myr-dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>`;
+    }
+    fields+=`<input class="f-combo" list="myr-dl-lm1" placeholder="Quản lý trực tiếp" value="${S.myrFilterLm1}" oninput="S.myrFilterLm1=this.value;renderMyrList();updateFilterUi('myr')">
+      <datalist id="myr-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    if(S.myrRole==='hod'){
+      fields+=`<input class="f-combo" list="myr-dl-lm2" placeholder="Quản lý cấp 2" value="${S.myrFilterLm2}" oninput="S.myrFilterLm2=this.value;renderMyrList();updateFilterUi('myr')">
+        <datalist id="myr-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    }
+  }
+  el.innerHTML=`<div class="filter-shell"><div class="filter-toolbar">
+    ${myrBulkActionsHtml()}
+    ${filterPopoverHtml('myr',fields,S.myrRole==='lm1')}
+  </div></div>`;
+  updateMyrBulkControls();
+}
+
+function filteredMyrEmps(){
+  let emps=visibleMyrEmps();
+  if(S.myrSearchTerm){
+    const query=S.myrSearchTerm.toLowerCase();
+    emps=emps.filter(e=>(e.name+' '+e.login+' '+e.dept+' '+(e.team||'')).toLowerCase().includes(query));
+  }
+  if(S.myrFilterDiv){const q=S.myrFilterDiv.toLowerCase();emps=emps.filter(e=>e.div.toLowerCase().includes(q));}
+  if(S.myrFilterDept){const q=S.myrFilterDept.toLowerCase();emps=emps.filter(e=>e.dept.toLowerCase().includes(q));}
+  if(S.myrFilterTeam){const q=S.myrFilterTeam.toLowerCase();emps=emps.filter(e=>e.team&&e.team.toLowerCase().includes(q));}
+  if(S.myrFilterLm1){const q=S.myrFilterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
+  if(S.myrFilterLm2){const q=S.myrFilterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
+  emps=emps.slice().sort((a,b)=>{
+    const aStatus=myrStatus(a),bStatus=myrStatus(b);
+    const rank=s=>s.tone==='completed'?0:1;
+    return rank(aStatus)-rank(bStatus)||a.name.localeCompare(b.name,'vi');
+  });
+  return emps;
+}
+
+function renderMyrList(){
+  const tbody=document.getElementById('myr-tbody');
+  if(!tbody) return;
+  const emps=filteredMyrEmps();
+  if(!emps.length){
+    S.myrSelected.clear();
+    const colspan=S.myrRole==='lm1'?8:S.myrRole==='lm2'?10:11;
+    tbody.innerHTML=`<tr><td colspan="${colspan}"><div class="myr-empty">Không có nhân viên nào khớp.</div></td></tr>`;
+    updateMyrBulkControls();
+    return;
+  }
+  const visibleIds=new Set(emps.map(emp=>emp.id));
+  [...S.myrSelected].forEach(id=>{if(!visibleIds.has(id)||!canApproveMyrRating(id)) S.myrSelected.delete(id);});
+  tbody.innerHTML=emps.map(emp=>{
+    const status=myrStatus(emp);
+    const review=MYR_DATA[emp.id]||{};
+    const managerCells=S.myrRole==='lm2'
+      ?myrManagerCell(emp.mgr)
+      :S.myrRole==='hod'
+        ?myrManagerCell(emp.mgr)+myrManagerCell(emp.mgr2)
+        :'';
+    const employeeTags=(emp.resigned||emp.maternity)
+      ?`<div class="myr-emp-tags">${emp.resigned?'<span class="emp-tag emp-tag-resigned">Đã nộp đơn nghỉ việc</span>':''}${emp.maternity?'<span class="emp-tag emp-tag-maternity">Đang nghỉ thai sản</span>':''}</div>`
+      :'';
+    const canEvaluate=S.myrRole==='lm1';
+    const actionLabel=canEvaluate?'Xem & đánh giá':'Xem';
+    const actionIcon=canEvaluate?'bx-edit-alt':'bx-show';
+    const canApprove=canApproveMyrRating(emp.id);
+    const selectionCell=S.myrRole==='lm1'
+      ?''
+      :`<td class="myr-check-cell"><input class="myr-row-check" data-emp-id="${emp.id}" type="checkbox" aria-label="Chọn ${emp.name}" title="${canApprove?'Chọn để duyệt điểm':'Chưa đủ điều kiện duyệt điểm'}" ${S.myrSelected.has(emp.id)?'checked':''} ${canApprove?'':'disabled'} onclick="event.stopPropagation()" onchange="toggleMyrRow('${emp.id}',this.checked)"></td>`;
+    return `<tr onclick="openMyrDetail('${emp.id}')">
+      ${selectionCell}
+      <td>
+        <div class="myr-emp">
+          <div class="myr-emp-info">
+            <div class="myr-emp-name">${emp.name} <span class="er-login">(${emp.login})</span></div>
+            <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?` – ${emp.team}`:''} – ${emp.pos}</div>
+            ${employeeTags}
+          </div>
+        </div>
+      </td>
+      ${managerCells}
+      <td><span class="myr-status ${status.tone}">${status.text}</span></td>
+      <td class="score">${formatMyrScore(review.nv,false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'lm1'),false)}</td>
+      <td class="score">${myrRatingCell(emp,review,'lm2')}</td>
+      <td class="score">${myrRatingCell(emp,review,'hod')}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'final'),true)}</td>
+      <td class="myr-action-cell"><button class="myr-action-btn${canEvaluate?' accent':''}" aria-label="${actionLabel}" data-tip="${actionLabel}" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openMyrDetail('${emp.id}')"><i class="bx ${actionIcon}"></i></button></td>
+    </tr>`;
+  }).join('');
+  updateMyrBulkControls();
+}
+
+function openMyrDetail(empId){
+  const emp=findEmp(empId);
+  if(!emp) return;
+  if(S.myrSplitView){
+    openMyrPanel(empId);
+    return;
+  }
+  location.href=myrDetailUrl(empId,false);
+}
+
+function myrDetailUrl(empId,embedded){
+  const emp=findEmp(empId);
+  if(!emp) return '#';
+  const status=myrStatus(emp);
+  const review=MYR_DATA[emp.id]||{};
+  const params=new URLSearchParams({
+    emp:emp.id,
+    role:S.myrRole,
+    eligible:status.eligible?'1':'0',
+    submitted:review.submitted?'1':'0',
+    status:status.text,
+    phase:MYR_CURRENT_PHASE,
+    lm1:review.lm1===null?'':review.lm1,
+    lm2:review.lm2===null?'':review.lm2
+  });
+  if(embedded) params.set('embed','1');
+  return '../M-02/index.html?'+params.toString();
+}
+
+var _myrSpEmpId=null;
+
+function updateMyrSplitViewButton(){
+  const btn=document.getElementById('myr-split-view-btn');
+  if(btn) btn.setAttribute('aria-pressed',String(S.myrSplitView));
+}
+
+function toggleMyrSplitView(){
+  S.myrSplitView=!S.myrSplitView;
+  updateMyrSplitViewButton();
+  if(!S.myrSplitView){
+    closeMyrPanel();
+    return;
+  }
+  const first=filteredMyrEmps()[0];
+  if(!first){
+    S.myrSplitView=false;
+    updateMyrSplitViewButton();
+    toast('Không có nhân viên phù hợp để hiển thị Split View.');
+    return;
+  }
+  openMyrPanel(first.id);
+}
+
+function openMyrPanel(empId){
+  const emp=findEmp(empId);
+  if(!emp) return;
+  _myrSpEmpId=empId;
+  document.getElementById('myr-filter-row').style.display='none';
+  document.getElementById('myr-list-view').style.display='none';
+  document.getElementById('myr-split-shell').style.display='';
+  const search=document.getElementById('myr-sp-search');
+  if(search&&search.dataset.role!==S.myrRole){
+    search.value='';
+    search.dataset.role=S.myrRole;
+  }
+  renderMyrSpList();
+  const frame=document.getElementById('myr-sp-frame');
+  const src=myrDetailUrl(empId,true);
+  if(frame&&frame.getAttribute('src')!==src) frame.src=src;
+}
+
+function closeMyrPanel(){
+  _myrSpEmpId=null;
+  const shell=document.getElementById('myr-split-shell');
+  const list=document.getElementById('myr-list-view');
+  const filters=document.getElementById('myr-filter-row');
+  if(shell) shell.style.display='none';
+  if(list) list.style.display='';
+  if(filters) filters.style.display='';
+  const frame=document.getElementById('myr-sp-frame');
+  if(frame) frame.removeAttribute('src');
+}
+
+function renderMyrSpList(){
+  const search=document.getElementById('myr-sp-search');
+  const term=search?(search.value||'').toLowerCase():'';
+  const base=filteredMyrEmps();
+  const emps=term?base.filter(emp=>(emp.name+' '+emp.login+' '+emp.dept+' '+(emp.team||'')).toLowerCase().includes(term)):base;
+  const list=document.getElementById('myr-sp-emp-list');
+  if(!list) return;
+  list.innerHTML=emps.map(emp=>{
+    const status=myrStatus(emp);
+    const review=MYR_DATA[emp.id]||{};
+    const score=visibleMyrScore(review,S.myrRole);
+    return `<div class="sp-ei${emp.id===_myrSpEmpId?' on':''}" onclick="myrSpSelectEmp('${emp.id}')">
+      <div class="sp-ec">
+        <div class="sp-en">${emp.name}</div>
+        <div class="sp-em">${emp.dept}${emp.team?' - '+emp.team:''}</div>
+        <div class="sp-ect"><span class="${status.tone==='completed'?'ok':'upd'}">${status.text}</span>${score!==null&&score!==undefined?' - Điểm '+S.myrRole.toUpperCase()+': '+score:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const foot=document.getElementById('myr-sp-foot');
+  if(foot) foot.textContent=`Hiển thị ${emps.length} / ${base.length} nhân viên`;
+}
+
+function myrSpSelectEmp(empId){
+  _myrSpEmpId=empId;
+  renderMyrSpList();
+  const frame=document.getElementById('myr-sp-frame');
+  if(frame) frame.src=myrDetailUrl(empId,true);
+}
+
+function openMyrSpFullPage(){
+  if(_myrSpEmpId) location.href=myrDetailUrl(_myrSpEmpId,false);
+}
+
+function updateSplitViewButton(){
+  const btn=document.getElementById('split-view-btn');
+  if(!btn) return;
+  btn.setAttribute('aria-pressed',String(S.splitView));
+}
+
+function toggleSplitView(){
+  S.splitView=!S.splitView;
+  document.body.classList.toggle('split-mode',S.splitView);
+  if(!S.splitView){
+    closeGoalPanel();
+  }else{
+    const first=filteredGoalEmps()[0];
+    if(first) openGoalPanel(first.id);
+    else{
+      S.splitView=false;
+      document.body.classList.remove('split-mode');
+      toast('Không có nhân viên phù hợp để hiển thị Split View.');
+    }
+  }
+  updateSplitViewButton();
+}
+
+function renderFilterRow(){
+  const el=document.getElementById('filter-row');
+  if(!el) return;
+  const emps=visibleEmps();
+  const divs=[...new Set(emps.map(e=>e.div))].sort();
+  const depts=[...new Set(emps.map(e=>e.dept))].sort();
+  const teams=[...new Set(emps.filter(e=>e.team).map(e=>e.team))].sort();
+  const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  let fields=`<input class="f-combo" list="dl-emp" placeholder="Nhân viên" value="${S.searchTerm}" oninput="S.searchTerm=this.value;renderEmpList();updateFilterUi('goal')">
+    <datalist id="dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>`;
+  if(S.role!=='lm1'){
+    fields+=`<input class="f-combo" list="dl-div" placeholder="Division" value="${S.filterDiv}" oninput="S.filterDiv=this.value;renderEmpList();updateFilterUi('goal')">
+      <datalist id="dl-div">${divs.map(d=>`<option value="${d}">`).join('')}</datalist>
+      <input class="f-combo" list="dl-dept" placeholder="Department" value="${S.filterDept}" oninput="S.filterDept=this.value;renderEmpList();updateFilterUi('goal')">
+      <datalist id="dl-dept">${depts.map(d=>`<option value="${d}">`).join('')}</datalist>`;
+    if(S.role==='lm2'){
+      fields+=`<input class="f-combo" list="dl-team" placeholder="Team" value="${S.filterTeam}" oninput="S.filterTeam=this.value;renderEmpList();updateFilterUi('goal')">
+        <datalist id="dl-team">${teams.map(t=>`<option value="${t}">`).join('')}</datalist>`;
+    }
+    fields+=`<input class="f-combo" list="dl-lm1" placeholder="Quản lý trực tiếp" value="${S.filterLm1}" oninput="S.filterLm1=this.value;renderEmpList();updateFilterUi('goal')">
+      <datalist id="dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    if(S.role==='hod'){
+      fields+=`<input class="f-combo" list="dl-lm2" placeholder="Quản lý cấp 2" value="${S.filterLm2}" oninput="S.filterLm2=this.value;renderEmpList();updateFilterUi('goal')">
+        <datalist id="dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+    }
+  }
+  el.innerHTML=`<div class="filter-shell"><div class="filter-toolbar">
+    ${filterPopoverHtml('goal',fields,S.role==='lm1')}
+  </div></div>`;
+}
+
+/* ═══════════ RENDER: EMPLOYEE LIST ═══════════ */
+function filteredGoalEmps(){
+  const raw=visibleEmps();
+  // Sort: pending-action first → regular → resigned/maternity last
+  const sortKey=e=>(e.resigned||e.maternity)?2:e.goals.some(g=>g.status==='pending')?0:1;
+  let emps=raw.slice().sort((a,b)=>sortKey(a)-sortKey(b));
+  // Apply employee filter (partial text match for both LM1 text-search and LM2/HOD combo)
+  if(S.searchTerm){const q=S.searchTerm.toLowerCase();emps=emps.filter(e=>e.name.toLowerCase().includes(q)||e.login.toLowerCase().includes(q));}
+  // Apply division/dept/team filters (partial match supports both typing and dropdown)
+  if(S.filterDiv){const q=S.filterDiv.toLowerCase();emps=emps.filter(e=>e.div.toLowerCase().includes(q));}
+  if(S.filterDept){const q=S.filterDept.toLowerCase();emps=emps.filter(e=>e.dept.toLowerCase().includes(q));}
+  if(S.filterTeam){const q=S.filterTeam.toLowerCase();emps=emps.filter(e=>e.team&&e.team.toLowerCase().includes(q));}
+  if(S.filterLm1){const q=S.filterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
+  if(S.filterLm2){const q=S.filterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
+  return emps;
+}
+
+function renderEmpList(){
+  const emps=filteredGoalEmps();
+  const el=document.getElementById('emp-list');
+  if(!emps.length){ el.innerHTML='<div style="padding:24px;text-align:center;font-size:13px;color:var(--z500)">Không có nhân viên nào khớp.</div>'; return; }
+
+  // Table header — role-conditional
+  const isLm2=S.role==='lm2';
+  const isLm1=S.role==='lm1';
+  const isHod=S.role==='hod';
+  const hdr=isLm2
+    ?`<div class="emp-list-hdr">
+        <div class="elh-info">Nhân viên</div>
+        <div class="elh-lm1">Quản lý trực tiếp</div>
+        <div class="elh-stats">Mục tiêu đã duyệt</div>
+        <div class="elh-status">Trạng thái</div>
+        <div class="elh-action">Chức năng</div>
+      </div>`
+    :isHod
+      ?`<div class="emp-list-hdr">
+          <div class="elh-info">Nhân viên</div>
+          <div class="elh-lm1">Quản lý trực tiếp</div>
+          <div class="elh-lm2">Quản lý cấp 2</div>
+          <div class="elh-stats">Mục tiêu đã duyệt</div>
+          <div class="elh-status">Trạng thái</div>
+          <div class="elh-action">Chức năng</div>
+        </div>`
+    :isLm1
+      ?`<div class="emp-list-hdr">
+          <div class="elh-info">Nhân viên</div>
+          <div class="elh-stats">Mục tiêu đã duyệt</div>
+          <div class="elh-status">Quản lý cần làm</div>
+          <div class="elh-action">Chức năng</div>
+        </div>`
+      :`<div class="emp-list-hdr">
+          <div class="elh-info">Nhân viên</div>
+          <div class="elh-stats">Mục tiêu đã duyệt</div>
+          <div class="elh-action">Chức năng</div>
+        </div>`;
+
+  const rows=emps.map(emp=>{
+    const isRO=emp.lvl!=='lm1';
+    // Count approved goals by type (all roles show approved only)
+    const wAll=emp.goals.filter(g=>g.type==='what'&&g.status==='approved').length;
+    const dAll=emp.goals.filter(g=>g.type==='dev'&&g.status==='approved').length;
+    const pCnt=pendingCnt(emp);
+    const goalStatus=employeeGoalStatus(emp,isLm1);
+    const statusHtml=goalStatus.text
+      ?`<span class="er-status-text ${goalStatus.tone}">${goalStatus.text}</span>`
+      :'';
+
+    const lockIco=isRO?` <i class="bx bx-lock-alt" style="font-size:11px;color:var(--z400);margin-left:2px" title="Nhân viên gián tiếp — chỉ xem"></i>`:'';
+    const statusTags=
+      (emp.resigned?`<span class="emp-tag emp-tag-resigned">Đã nộp đơn nghỉ việc</span>`:'')+
+      (emp.maternity?`<span class="emp-tag emp-tag-maternity">Đang nghỉ thai sản</span>`:'');
+    const actionBtn=(!isRO&&pCnt>0)
+      ?`<button class="ico-act ico-act-approve" aria-label="Xem &amp; duyệt mục tiêu" data-tip="Xem &amp; duyệt mục tiêu" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();goToGoals('${emp.id}')"><i class="bx bx-check-double"></i></button>`
+      :`<button class="ico-act ico-act-view" aria-label="Xem mục tiêu" data-tip="Xem mục tiêu" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();goToGoals('${emp.id}')"><i class="bx bx-show"></i></button>`;
+
+    // Manager columns — LM2 view: LM1 col; HOD view: LM1 + LM2 cols
+    let lm1Cell='';
+    if(isLm2){
+      lm1Cell=emp.mgr
+        ?`<div class="er-lm1"><div class="er-lm1-name">${emp.mgr.name}</div><div class="er-lm1-login">(${emp.mgr.login})</div></div>`
+        :`<div class="er-lm1"><span class="er-pending-empty">—</span></div>`;
+    } else if(isHod){
+      const mgrCell=emp.mgr
+        ?`<div class="er-lm1"><div class="er-lm1-name">${emp.mgr.name}</div><div class="er-lm1-login">(${emp.mgr.login})</div></div>`
+        :`<div class="er-lm1"><span class="er-pending-empty">—</span></div>`;
+      const mgr2Cell=emp.mgr2
+        ?`<div class="er-lm2"><div class="er-lm1-name">${emp.mgr2.name}</div><div class="er-lm1-login">(${emp.mgr2.login})</div></div>`
+        :`<div class="er-lm2"><span class="er-pending-empty">—</span></div>`;
+      lm1Cell=mgrCell+mgr2Cell;
+    }
+
+    return `<div class="emp-row" data-eid="${emp.id}" onclick="goToGoals('${emp.id}')">
+      <div class="er-info">
+        <div class="er-name">${emp.name} <span class="er-login">(${emp.login})</span>${lockIco}</div>
+        ${statusTags?`<div class="er-tags">${statusTags}</div>`:''}
+        <div class="er-meta">${emp.div} – ${emp.dept}${emp.team?` – ${emp.team}`:''} – ${emp.pos}</div>
+      </div>
+      ${lm1Cell}
+      <div class="er-stats">
+        <span class="er-stat" title="Mục tiêu công việc đã duyệt"><i class="bx bx-target-lock"></i>${wAll} công việc</span>
+        ${dAll>0?`<span class="er-stat" title="Mục tiêu phát triển đã duyệt"><i class="bx bx-book-open"></i>${dAll} phát triển</span>`:''}
+      </div>
+      <div class="er-status">${statusHtml}</div>
+      <div class="er-action">${actionBtn}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=hdr+rows;
+}
+
+/* ═══════════ NAVIGATE: GOALS VIEW / SPLIT SHELL ═══════════ */
+var _spEmpId=null;
+
+function openGoalPanel(eid){
+  _spEmpId=eid;
+  // Hide normal content, show split shell
+  document.getElementById('filter-row').style.display='none';
+  document.getElementById('emp-list').style.display='none';
+  document.getElementById('split-shell').style.display='';
+  const search=document.getElementById('sp-search');
+  if(search&&search.dataset.role!==S.role){
+    search.value='';
+    search.dataset.role=S.role;
+  }
+  renderSpList();
+  renderSpDetail(eid);
+}
+
+function closeGoalPanel(){
+  _spEmpId=null;
+  document.getElementById('split-shell').style.display='none';
+  document.getElementById('filter-row').style.display='';
+  document.getElementById('emp-list').style.display='';
+}
+
+function renderSpList(){
+  const term=(document.getElementById('sp-search').value||'').toLowerCase();
+  const base=filteredGoalEmps();
+  const emps=term?base.filter(e=>(e.name+' '+e.login+' '+e.dept).toLowerCase().includes(term)):base;
+  document.getElementById('sp-emp-list').innerHTML=emps.map(emp=>{
+    const pnd=emp.goals.filter(g=>g.status==='pending').length;
+    const upd=emp.goals.filter(g=>g.status==='update').length;
+    const counts=(pnd?`<span class="pnd">${pnd} chờ duyệt</span>`:'')+
+                 (upd?(pnd?' - ':'')+`<span class="upd">${upd} cập nhật</span>`:'');
+    return `<div class="sp-ei${emp.id===_spEmpId?' on':''}" onclick="spSelectEmp('${emp.id}')">`+
+      `<div class="sp-av">${emp.ini}</div>`+
+      `<div class="sp-ec">`+
+        `<div class="sp-en">${emp.name}</div>`+
+        `<div class="sp-em">${emp.dept} - ${emp.pos}</div>`+
+        (counts?`<div class="sp-ect">${counts}</div>`:'')+
+      `</div></div>`;
+  }).join('');
+  document.getElementById('sp-foot').textContent=`Hiển thị ${emps.length} / ${base.length} nhân viên`;
+}
+
+function spSelectEmp(eid){
+  _spEmpId=eid;
+  renderSpList();
+  renderSpDetail(eid);
+}
+
+function renderSpDetail(eid){
+  const emp=findEmp(eid);
+  if(!emp)return;
+  const pnd=emp.goals.filter(g=>g.status==='pending').length;
+  const upd=emp.goals.filter(g=>g.status==='update').length;
+  // Hero
+  document.getElementById('sp-hero').innerHTML=
+    `<div class="sp-hero-av">${emp.ini}</div>`+
+    `<div class="sp-hero-info">`+
+      `<div class="sp-hero-name">${emp.name} <span class="sp-hero-login">(${emp.login})</span></div>`+
+      `<div class="sp-hero-meta"><span>${emp.div}</span><span class="sp-hdot"></span><span>${emp.dept}</span><span class="sp-hdot"></span><span>${emp.pos}</span></div>`+
+    `</div>`+
+    `<div class="sp-hero-stats">`+
+      `<div class="sp-sbox"><span class="sp-sn">${emp.goals.length}</span><span class="sp-sl">mục tiêu</span></div>`+
+      (pnd?`<div class="sp-sbox pnd"><span class="sp-sn">${pnd}</span><span class="sp-sl">chờ duyệt</span></div>`:'')+
+      (upd?`<div class="sp-sbox upd"><span class="sp-sn">${upd}</span><span class="sp-sl">đang cập nhật</span></div>`:'')+
+    `</div>`;
+  // Table rows
+  const prioMap={h:'<span class="prio prio-h">Cao</span>',m:'<span class="prio prio-m">Trung bình</span>',l:'<span class="prio prio-l">Thấp</span>'};
+  document.getElementById('sp-tbody').innerHTML=emp.goals.map(g=>{
+    const typeHtml=g.type==='what'
+      ?`<span class="sp-type"><i class="bx bx-target-lock"></i>Công việc</span>`
+      :`<span class="sp-type"><i class="bx bx-trending-up"></i>Phát triển</span>`;
+    const prioHtml=g.type==='what'&&g.prio?prioMap[g.prio]:`<span style="color:var(--z400)">—</span>`;
+    const evalPair=g.selfScore?`<div style="display:flex;gap:4px;margin-top:4px"><span style="padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)">NV ${g.selfScore}</span><span style="padding:1px 5px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z100);font-size:9.5px;font-weight:600;color:var(--z600)">QL ${g.managerScore}</span></div>`:'';
+    const isRO=emp.lvl!=='lm1';
+    let acts=`<button class="sp-ia" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
+    if(!isRO&&g.status==='pending'){
+      acts=
+        `<button class="sp-ia accent" aria-label="Duyệt" data-tip="Duyệt" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();spApprove('${g.id}')"><i class="bx bx-check-circle"></i></button>`+
+        `<button class="sp-ia" aria-label="Yêu cầu cập nhật" data-tip="Yêu cầu cập nhật" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();spReqUpdate('${g.id}')"><i class="bx bx-rotate-left"></i></button>`+
+        `<button class="sp-ia danger" aria-label="Từ chối" data-tip="Từ chối" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();spReject('${g.id}')"><i class="bx bx-x-circle"></i></button>`+
+        `<button class="sp-ia" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation()"><i class="bx bx-show"></i></button>`;
+    }
+    return `<tr>`+
+      `<td>${typeHtml}</td>`+
+      `<td><div class="sp-tc-title">${g.title}</div></td>`+
+      `<td><div class="sp-tc-result">${g.result}</div></td>`+
+      `<td>${prioHtml}</td>`+
+      `<td class="sp-tc-date">${g.s} – ${g.e}</td>`+
+      `<td>${badgeSt(g.status)}${evalPair}</td>`+
+      `<td><div class="sp-acts">${acts}</div></td>`+
+      `</tr>`;
+  }).join('');
+}
+
+function spApprove(gid){
+  const emp=findEmp(_spEmpId);if(!emp)return;
+  const g=emp.goals.find(x=>x.id===gid);
+  if(g){g.status='approved';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
+}
+function spReqUpdate(gid){
+  const emp=findEmp(_spEmpId);if(!emp)return;
+  const g=emp.goals.find(x=>x.id===gid);
+  if(g){g.status='update';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
+}
+function spReject(gid){
+  const emp=findEmp(_spEmpId);if(!emp)return;
+  const g=emp.goals.find(x=>x.id===gid);
+  if(g){g.status='draft';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
+}
+function openSpFullPage(){
+  if(_spEmpId) location.href='../M-01b/index.html?emp='+_spEmpId;
+}
+
+function goToGoals(eid){
+  const emp=findEmp(eid);
+  if(!emp) return;
+  if(S.splitView){
+    openGoalPanel(eid);
+    return;
+  }
+  const isReadOnly=emp.lvl!=='lm1';
+  location.href='../M-01b/index.html?emp='+eid+(isReadOnly?'&ro=1':'');
+  return;
+  S.empId=eid;
+
+  document.getElementById('topbar-title').textContent=emp.name+' — Mục tiêu';
+  document.getElementById('brd-name').textContent=emp.name;
+  document.getElementById('gv-title').textContent='Mục tiêu của '+emp.name;
+
+  document.getElementById('gv-chip').innerHTML=`
+    <div class="av av-brand av-md">${emp.ini}</div>
+    <div class="ec-info">
+      <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> ${emp.name} <span class="ec-dom">(${emp.login})</span></div>
+      <div class="ec-line"><span class="ec-lbl">Đơn vị:</span> ${emp.div} – ${emp.dept}</div>
+      <div class="ec-line"><span class="ec-lbl">Vị trí:</span> ${emp.pos}</div>
+    </div>`;
+
+  const isRO=emp.lvl!=='lm1';
+  document.getElementById('gv-readonly').style.display=isRO?'flex':'none';
+
+  renderGoals(emp);
+  document.getElementById('view-list').style.display='none';
+  document.getElementById('view-goals').style.display='block';
+}
+
+function goBack(){
+  S.empId=null;
+  document.getElementById('topbar-title').textContent='Mục tiêu và Đánh giá nhân viên';
+  document.getElementById('view-goals').style.display='none';
+  document.getElementById('view-list').style.display='block';
+}
+
+/* ═══════════ RENDER: GOALS ═══════════ */
+function renderGoals(emp){
+  const isRO=emp.lvl!=='lm1';
+  const ORDER={pending:0,update:1,draft:2,approved:3,done:4};
+  const sort=(a,b)=>(ORDER[a.status]??5)-(ORDER[b.status]??5);
+
+  const what=emp.goals.filter(g=>g.type==='what'&&g.status!=='draft').sort(sort);
+  const dev=emp.goals.filter(g=>g.type==='dev'&&g.status!=='draft').sort(sort);
+
+  const rowHtml=g=>{
+    const canAct=!isRO&&g.status==='pending';
+    const acts=canAct
+      ? `<div class="gr-acts">
+           <button class="gra accent" aria-label="Duyệt" data-tip="Duyệt" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();doApprove('${emp.id}','${g.id}')"><i class="bx bx-check-circle"></i></button>
+           <button class="gra" aria-label="Yêu cầu cập nhật" data-tip="Yêu cầu cập nhật" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openReq('${emp.id}','${g.id}')"><i class="bx bx-message-square-edit"></i></button>
+           <button class="gra" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDet('${emp.id}','${g.id}')"><i class="bx bx-show"></i></button>
+         </div>`
+      : `<div class="gr-acts">
+           <button class="gra" aria-label="Xem chi tiết" data-tip="Xem chi tiết" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openDet('${emp.id}','${g.id}')"><i class="bx bx-show"></i></button>
+         </div>`;
+    return `<div class="gr-item" onclick="openDet('${emp.id}','${g.id}')">
+      <div class="gr-bar ${g.type}"></div>
+      <div class="gr-body">
+        <div class="gr-title">${g.title}</div>
+        <div class="gr-meta">
+          ${badgeSt(g.status)}
+          ${g.type==='what'?badgePrio(g.prio):''}
+          <span class="gr-date">${g.s} – ${g.e}</span>
+        </div>
+      </div>
+      ${acts}
+    </div>`;
+  };
+
+  const sec=(goals,type,label,icon)=>{
+    if(!goals.length) return '';
+    const pCnt=goals.filter(g=>g.status==='pending').length;
+    return `<div class="gs-section">
+      <div class="gs-hd">
+        <i class="bx ${icon} gs-ico"></i>
+        <span class="gs-title">${label}</span>
+        <span class="gs-cnt">${goals.length}</span>
+        ${(!isRO&&pCnt>0)?`<span class="gs-pending-tag">${pCnt} chờ duyệt</span>`:''}
+      </div>
+      <div class="gr-list" id="grl-${type}">${goals.map(rowHtml).join('')}</div>
+    </div>`;
+  };
+
+  document.getElementById('gv-content').innerHTML=
+    sec(what,'what','Mục tiêu công việc','bx-target-lock')+
+    sec(dev,'dev','Mục tiêu phát triển','bx-book-open');
+}
+
+/* ═══════════ APPROVE ═══════════ */
+function doApprove(eid,gid){
+  const emp=findEmp(eid);
+  const g=emp&&emp.goals.find(x=>x.id===gid);
+  if(!g) return;
+  g.status='approved';
+  renderGoals(emp);
+  renderEmpList();
+  renderCycleBadge();
+  toast('Đã duyệt mục tiêu');
+}
+
+/* ═══════════ REQUEST UPDATE ═══════════ */
+function openReq(eid,gid){
+  const emp=findEmp(eid);
+  const g=emp&&emp.goals.find(x=>x.id===gid);
+  if(!g) return;
+  S.empId=eid; S.goalId=gid;
+  document.getElementById('req-goal-name').textContent=g.title;
+  document.getElementById('req-note').value='';
+  document.getElementById('req-err').classList.remove('on');
+  openOv('dlg-request');
+}
+
+function submitRequest(){
+  const note=document.getElementById('req-note').value.trim();
+  if(!note){ document.getElementById('req-err').classList.add('on'); return; }
+  const emp=findEmp(S.empId);
+  const g=emp&&emp.goals.find(x=>x.id===S.goalId);
+  if(!g) return;
+  g.status='update'; g.updNote=note;
+  renderGoals(emp);
+  renderEmpList();
+  renderCycleBadge();
+  closeOv('dlg-request');
+  toast('Đã gửi yêu cầu cập nhật');
+}
+
+/* ═══════════ DETAIL MODAL ═══════════ */
+function openDet(eid,gid){
+  const emp=findEmp(eid);
+  const g=emp&&emp.goals.find(x=>x.id===gid);
+  if(!g) return;
+  S.empId=eid; S.goalId=gid;
+  const isRO=emp.lvl!=='lm1';
+
+  // Status and goal type match the E-01 detail header.
+  document.getElementById('det-badges').innerHTML=
+    badgeSt(g.status)+' '+badgeType(g.type);
+
+  // Title
+  document.getElementById('det-title').textContent=g.title;
+
+  // Edit banner (if update status)
+  const bn=document.getElementById('det-banner');
+  if(g.status==='update'&&g.updNote){
+    bn.style.display='flex';
+    document.getElementById('det-banner-txt').textContent=g.updNote;
+  } else { bn.style.display='none'; }
+
+  // Result
+  document.getElementById('det-result').innerHTML='<p>'+g.result+'</p>';
+
+  // Required detail order: priority/from/to, then title and result.
+  const metaEl=document.getElementById('det-meta');
+  const prioLbl={h:'Cao',m:'Trung bình',l:'Thấp'}[g.prio]||'—';
+  if(g.type==='dev'){
+    metaEl.innerHTML=`<div class="dg" style="grid-template-columns:1fr 1fr;margin-bottom:0"><div class="df"><label>Từ ngày</label><div class="dv">${g.s}/2026</div></div><div class="df"><label>Đến ngày</label><div class="dv">${g.e}/2026</div></div></div>`;
+  } else {
+    metaEl.innerHTML=`<div class="dg" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0"><div class="df"><label>Mức độ ưu tiên</label><div class="dv">${prioLbl}</div></div><div class="df"><label>Từ ngày</label><div class="dv">${g.s}/2026</div></div><div class="df"><label>Đến ngày</label><div class="dv">${g.e}/2026</div></div></div>`;
+  }
+
+  // Comment count
+  const cmts=g.comments||[];
+  document.getElementById('dt-n').textContent=cmts.length;
+  renderCmts(g);
+
+  // Footer
+  const ft=document.getElementById('det-foot');
+  if(!isRO&&g.status==='pending'){
+    ft.innerHTML=`
+      <button class="btn btn-ghost btn-sm" onclick="closeOv('dlg-detail')">Đóng</button>
+      <button class="btn btn-cta-outline btn-sm" onclick="closeOv('dlg-detail');openReq('${eid}','${gid}')"><i class="bx bx-message-square-edit"></i> Yêu cầu cập nhật</button>
+      <button class="btn btn-default btn-sm" onclick="closeOv('dlg-detail');doApprove('${eid}','${gid}')"><i class="bx bx-check-circle"></i> Duyệt</button>`;
+  } else {
+    ft.innerHTML=`<button class="btn btn-ghost btn-sm" onclick="closeOv('dlg-detail')">Đóng</button>`;
+  }
+
+  switchDlgTab(0);
+  openOv('dlg-detail');
+}
+
+function renderCmts(g){
+  const cmts=g.comments||[];
+  const el=document.getElementById('det-comments');
+  if(!cmts.length){
+    el.innerHTML=`<div class="cmt-empty"><i class="bx bx-message-dots"></i><span>Chưa có bình luận nào.</span></div>`;
+    return;
+  }
+  el.innerHTML=cmts.map(c=>`
+    <div class="ci${c.self?' self':''}">
+      <div class="av av-brand av-sm">${c.ini}</div>
+      <div>
+        <div class="ci-name">${c.name}</div>
+        <div class="ci-bubble">${c.text}</div>
+        <div class="ci-time">${c.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function addComment(){
+  const emp=findEmp(S.empId);
+  const g=emp&&emp.goals.find(x=>x.id===S.goalId);
+  if(!g) return;
+  const txt=document.getElementById('det-cin').value.trim();
+  if(!txt) return;
+  g.comments=g.comments||[];
+  g.comments.push({self:true, name:MGR.name, ini:MGR.initials, text:txt, time:'Vừa xong'});
+  document.getElementById('det-cin').value='';
+  document.getElementById('dt-n').textContent=g.comments.length;
+  renderCmts(g);
+}
+
+function switchDlgTab(n){
+  S.dlgTab=n;
+  [0,1].forEach(i=>{
+    document.getElementById('dt-'+i).classList.toggle('on',i===n);
+    document.getElementById('tp-'+i).classList.toggle('on',i===n);
+  });
+}
+
+/* ═══════════ OVERLAY ═══════════ */
+function openOv(id){ document.getElementById(id).classList.add('open'); }
+function closeOv(id){ document.getElementById(id).classList.remove('open'); }
+// Expose for HTML inline handlers
+const closeOverlay=closeOv;
+
+/* ═══════════ TOAST ═══════════ */
+let _tt=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+/* ═══════════ FLOATING TOOLTIP ═══════════ */
+function tip(el,text){
+  const t=document.getElementById('flt');
+  t.textContent=text; t.style.display='block';
+  const r=el.getBoundingClientRect();
+  const gap=8;
+  let left=r.right+gap;
+  let top=r.top+(r.height-t.offsetHeight)/2;
+  if(left+t.offsetWidth>window.innerWidth-gap) left=r.left-t.offsetWidth-gap;
+  if(top<gap) top=gap;
+  if(top+t.offsetHeight>window.innerHeight-gap) top=window.innerHeight-t.offsetHeight-gap;
+  t.style.left=left+'px';
+  t.style.top=top+'px';
+}
+function hideTip(){ document.getElementById('flt').style.display='none'; }
+
+/* ═══════════ INIT ═══════════ */
+(function(){
+  renderCycleBadge();
+  renderFilterRow();
+  renderEmpList();
+  updateSplitViewButton();
+  updateMyrSplitViewButton();
+  const initialParams=new URLSearchParams(location.search);
+  if(initialParams.get('tab')==='myr'){
+    const initialRole=['lm1','lm2','hod'].includes(initialParams.get('role'))?initialParams.get('role'):'lm1';
+    setMyrRole(initialRole);
+    switchCycleTab(1);
+  }
+})();
+
+document.addEventListener('click',event=>{
+  const goalMenu=document.querySelector('#filter-row .filter-menu');
+  if(S.filterOpen&&goalMenu&&!goalMenu.contains(event.target)){
+    S.filterOpen=false;
+    renderFilterRow();
+  }
+  const myrMenu=document.querySelector('#myr-filter-row .filter-menu');
+  if(S.myrFilterOpen&&myrMenu&&!myrMenu.contains(event.target)){
+    S.myrFilterOpen=false;
+    renderMyrFilterRow();
+  }
+  const calibTb=document.getElementById('calib-toolbar-row');
+  if(calibTb){
+    const calibMenus=calibTb.querySelectorAll('.filter-menu');
+    if(calibFilterOpen&&calibMenus[0]&&!calibMenus[0].contains(event.target)){
+      calibFilterOpen=false;renderCalibToolbar();
+    }
+    if(calibDownloadOpen&&calibMenus[1]&&!calibMenus[1].contains(event.target)){
+      calibDownloadOpen=false;renderCalibToolbar();
+    }
+  }
+});
+
+/* ══════════════════════════════════════
+   CALIBRATION SCREEN (Phê duyệt điểm hiệu chuẩn)
+══════════════════════════════════════ */
+
+const CALIBRATION_DATA={
+  e8:{upload:3.5},
+  e9:{upload:4},
+  e10:{upload:3},
+  e11:{upload:4.5},
+  e12:{upload:4.5},
+};
+
+let calibSelected=new Set();
+let calibFilterOpen=false;
+let calibSearchTerm='';
+let calibFilterLm1='';
+let calibFilterLm2='';
+let calibDownloadOpen=false;
+
+function openCalibScreen(){
+  renderCalibTable();
+  document.getElementById('calib-screen').style.display='flex';
+}
+
+function closeCalibScreen(){
+  document.getElementById('calib-screen').style.display='none';
+  calibSelected.clear();
+  calibFilterOpen=false;calibSearchTerm='';calibFilterLm1='';calibFilterLm2='';calibDownloadOpen=false;
+  renderMyrList();
+}
+
+function filteredCalibEmps(){
+  let emps=visibleMyrEmps();
+  if(calibSearchTerm){const q=calibSearchTerm.toLowerCase();emps=emps.filter(e=>(e.name+' '+e.login).toLowerCase().includes(q));}
+  if(calibFilterLm1){const q=calibFilterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
+  if(calibFilterLm2){const q=calibFilterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
+  return emps;
+}
+
+function renderCalibToolbar(){
+  const el=document.getElementById('calib-toolbar-row');
+  if(!el) return;
+  const emps=visibleMyrEmps();
+  const lm1s=[...new Map(emps.filter(e=>e.mgr).map(e=>[e.mgr.login,e.mgr])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const lm2s=[...new Map(emps.filter(e=>e.mgr2).map(e=>[e.mgr2.login,e.mgr2])).values()].sort((a,b)=>a.name.localeCompare(b.name,'vi'));
+  const fields=`<input class="f-combo" list="calib-dl-emp" placeholder="Nhân viên" value="${calibSearchTerm}" oninput="calibSearchTerm=this.value;renderCalibTable();updateFilterUi('calib')">
+    <datalist id="calib-dl-emp">${emps.map(e=>`<option value="${e.name} (${e.login})">`).join('')}</datalist>
+    <input class="f-combo" list="calib-dl-lm1" placeholder="Quản lý trực tiếp" value="${calibFilterLm1}" oninput="calibFilterLm1=this.value;renderCalibTable();updateFilterUi('calib')">
+    <datalist id="calib-dl-lm1">${lm1s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>
+    <input class="f-combo" list="calib-dl-lm2" placeholder="Quản lý cấp 2" value="${calibFilterLm2}" oninput="calibFilterLm2=this.value;renderCalibTable();updateFilterUi('calib')">
+    <datalist id="calib-dl-lm2">${lm2s.map(m=>`<option value="${m.name} (${m.login})">`).join('')}</datalist>`;
+  const dlMenuHtml=`<div class="filter-menu">
+    <button class="btn btn-outline btn-sm filter-toggle" onclick="event.stopPropagation();calibDownloadOpen=!calibDownloadOpen;renderCalibToolbar()">
+      <i class="bx bx-download"></i> Tải xuống <i class="bx bx-chevron-down"></i>
+    </button>
+    ${calibDownloadOpen?`<div class="filter-popover is-single" style="min-width:150px">
+      <div class="filter-popover-grid" style="flex-direction:column;gap:2px;padding:4px 0">
+        <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;width:100%;padding:6px 10px;border-radius:4px" onclick="downloadCalibTable('excel')"><i class="bx bx-file"></i> Excel (.xlsx)</button>
+        <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;width:100%;padding:6px 10px;border-radius:4px" onclick="downloadCalibTable('csv')"><i class="bx bx-spreadsheet"></i> CSV (.csv)</button>
+      </div>
+    </div>`:''}
+  </div>`;
+  el.innerHTML=`<div class="filter-shell"><div class="filter-toolbar">${filterPopoverHtml('calib',fields,false)}${dlMenuHtml}</div></div>`;
+}
+
+function downloadCalibTable(fmt){
+  calibDownloadOpen=false;
+  renderCalibToolbar();
+  const emps=filteredCalibEmps();
+  const headers=['Nhân viên','Login','Quản lý TT','Quản lý cấp 2','Điểm NV','Điểm QLTT','Điểm QL2','Điểm Upload','Điểm HOD'];
+  const rows=emps.map(function(emp){
+    const review=MYR_DATA[emp.id]||{};
+    const calib=CALIBRATION_DATA[emp.id];
+    return [emp.name,emp.login,emp.mgr?emp.mgr.name:'',emp.mgr2?emp.mgr2.name:'',
+      review.nv!=null?review.nv:'',review.lm1!=null?review.lm1:'',review.lm2!=null?review.lm2:'',
+      calib&&calib.upload!=null?calib.upload:'',review.hod!=null?review.hod:''];
+  });
+  const csv=[headers].concat(rows).map(function(r){
+    return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
+  }).join('\n');
+  const ext=fmt==='excel'?'xlsx':'csv';
+  const mime=fmt==='excel'?'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'text/csv';
+  const a=document.createElement('a');
+  a.href='data:'+mime+';charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download='diem-hieu-chuan-myr2026.'+ext;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function renderCalibTable(){
+  calibSelected.clear();
+  updateCalibBulk();
+  renderCalibToolbar();
+  const emps=filteredCalibEmps();
+  const tbody=document.getElementById('calib-tbody');
+  if(!tbody) return;
+  tbody.innerHTML=emps.map(emp=>{
+    const review=MYR_DATA[emp.id]||{};
+    const calib=CALIBRATION_DATA[emp.id];
+    const hasUpload=calib&&calib.upload!=null;
+    const canSelect=hasUpload&&review.submitted;
+    const uploadCell=hasUpload
+      ?`<td class="score calib-upload-col"><span class="calib-upload-score">${calib.upload}</span></td>`
+      :`<td class="score calib-upload-col"><span class="myr-score empty">—</span></td>`;
+    const mgr1=emp.mgr?`<div class="myr-manager">${emp.mgr.name}<span class="er-login">(${emp.mgr.login})</span></div>`:'<span class="myr-score empty">—</span>';
+    const mgr2=emp.mgr2?`<div class="myr-manager">${emp.mgr2.name}<span class="er-login">(${emp.mgr2.login})</span></div>`:'<span class="myr-score empty">—</span>';
+    return `<tr onclick="openMyrDetail('${emp.id}')">
+      <td class="myr-check-cell"><input class="myr-row-check calib-row-check" data-emp-id="${emp.id}" type="checkbox"
+        aria-label="Chọn ${emp.name}" title="${canSelect?'Chọn để duyệt':'Chưa đủ điều kiện'}"
+        ${calibSelected.has(emp.id)?'checked':''}
+        ${canSelect?'':'disabled'}
+        onclick="event.stopPropagation()"
+        onchange="toggleCalibRow('${emp.id}',this.checked)"></td>
+      <td><div class="myr-emp-info">
+        <div class="myr-emp-name">${emp.name} <span class="er-login">(${emp.login})</span></div>
+        <div class="myr-emp-meta">${emp.div} – ${emp.dept}${emp.team?' – '+emp.team:''} – ${emp.pos}</div>
+      </div></td>
+      <td>${mgr1}</td>
+      <td>${mgr2}</td>
+      <td class="score">${formatMyrScore(review.nv,false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'lm1'),false)}</td>
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'lm2'),false)}</td>
+      ${uploadCell}
+      <td class="score">${formatMyrScore(visibleMyrScore(review,'hod'),false)}</td>
+      <td class="myr-action-cell"><button class="myr-action-btn" aria-label="Xem" data-tip="Xem" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onclick="event.stopPropagation();openMyrDetail('${emp.id}')"><i class="bx bx-show"></i></button></td>
+    </tr>`;
+  }).join('');
+  updateCalibSelectAll();
+}
+
+function toggleCalibRow(empId,checked){
+  if(checked) calibSelected.add(empId);
+  else calibSelected.delete(empId);
+  updateCalibBulk();
+  updateCalibSelectAll();
+}
+
+function toggleAllCalibRows(checked){
+  document.querySelectorAll('.calib-row-check:not(:disabled)').forEach(cb=>{
+    cb.checked=checked;
+    if(checked) calibSelected.add(cb.dataset.empId);
+    else calibSelected.delete(cb.dataset.empId);
+  });
+  updateCalibBulk();
+}
+
+function updateCalibBulk(){
+  const btn=document.getElementById('calib-approve-btn');
+  const ct=document.getElementById('calib-count');
+  if(btn) btn.disabled=calibSelected.size===0;
+  if(ct) ct.textContent=calibSelected.size;
+}
+
+function updateCalibSelectAll(){
+  const all=document.querySelectorAll('.calib-row-check:not(:disabled)');
+  const checked=document.querySelectorAll('.calib-row-check:not(:disabled):checked');
+  const sa=document.getElementById('calib-select-all');
+  if(!sa) return;
+  sa.checked=all.length>0&&checked.length===all.length;
+  sa.indeterminate=checked.length>0&&checked.length<all.length;
+}
+
+function approveCalibRatings(){
+  let updated=0;
+  [...calibSelected].forEach(id=>{
+    const calib=CALIBRATION_DATA[id];
+    if(calib&&calib.upload!=null){
+      if(!MYR_DATA[id]) MYR_DATA[id]={};
+      MYR_DATA[id].hod=calib.upload;
+      updated++;
+    }
+  });
+  calibSelected.clear();
+  renderCalibTable();
+  renderMyrList();
+  if(updated) toast(`Đã duyệt điểm hiệu chuẩn HOD cho ${updated} nhân viên.`);
+}
+</script>
+<script src="../assets/yer-data.js"></script>
+<script src="../assets/yer-store.js"></script>
+<script src="../assets/yer-model.js"></script>
+<script src="../assets/yer-i18n.js"></script>
+<script src="../assets/yer-ui.js"></script>
+<script src="../assets/yer-manager.js"></script>
+<script src="../assets/yer-demo.js"></script>
+</body>
+</html>

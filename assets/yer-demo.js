@@ -96,6 +96,7 @@
   function build() {
     css();
     var S = window.PMSStore;
+    var showDemoOnLoad = new URLSearchParams(window.location.search).get('demo') === '1';
     var patch = readDeepLink();
     if (!S.session().date) patch.date = patch.date || window.PMSYer.DEFAULT_DATE;
     if (Object.keys(patch).length) S.setSession(patch);
@@ -112,8 +113,29 @@
     function render() {
       var s = S.session();
       var lg = lang();
-      var scOf = {};
-      scenarios.forEach(function (x) { scOf[x.emp] = x; });
+      var groups = window.PMS_YER_GROUPS || [];
+      var order = window.PMS_YER_SCENARIO_ORDER || [];
+      var rank = {};
+      order.forEach(function(id, i){ rank[id] = i; });
+      var sortedScenarios = scenarios.slice().sort(function(a, b){
+        return (rank[a.id] == null ? 999 : rank[a.id]) - (rank[b.id] == null ? 999 : rank[b.id]);
+      });
+      var scOf = {}, groupOf = {};
+      groups.forEach(function(g){ groupOf[g.id] = g; });
+      sortedScenarios.forEach(function (x) { scOf[x.emp] = x; });
+      var scenarioOptions = groups.map(function(g){
+        var rows = sortedScenarios.filter(function(sc){ return sc.g === g.id; });
+        if(!rows.length) return '';
+        return '<optgroup label="' + label(g) + '">' + rows.map(function(sc){
+          var e = emps.filter(function(item){ return item.id === sc.emp; })[0];
+          return '<option value="' + sc.emp + '"' + (sc.emp === s.emp ? ' selected' : '') + '>' +
+            '[' + label(g) + '] ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
+        }).join('') + '</optgroup>';
+      }).join('');
+      var otherOptions = emps.filter(function(e){ return !scOf[e.id]; }).map(function(e){
+        return '<option value="' + e.id + '"' + (e.id === s.emp ? ' selected' : '') + '>' + e.name + '</option>';
+      }).join('');
+      if(otherOptions) scenarioOptions += '<optgroup label="' + (lg === 'en' ? 'Other profiles' : 'Hồ sơ khác') + '">' + otherOptions + '</optgroup>';
 
       bar.innerHTML =
         '<div class="dm-row">' +
@@ -124,11 +146,7 @@
             }).join('') + '</select>' +
           '</label>' +
           '<label>' + (lg === 'en' ? 'Person' : 'Nhân sự') +
-            '<select id="dm-emp">' + emps.map(function (e) {
-              var sc = scOf[e.id];
-              return '<option value="' + e.id + '"' + (e.id === s.emp ? ' selected' : '') + '>' +
-                e.name + (sc ? ' — ' + (lg === 'en' ? sc.en : sc.vi) : '') + '</option>';
-            }).join('') + '</select>' +
+            '<select id="dm-emp">' + scenarioOptions + '</select>' +
           '</label>' +
           '<div class="dm-spacer"></div>' +
           '<button id="dm-reset"><i class="bx bx-reset"></i> ' + (lg === 'en' ? 'Reset data' : 'Đặt lại dữ liệu') + '</button>' +
@@ -150,7 +168,9 @@
         S.setSession({ role: e.target.value }); render(); notify('role');
       });
       bar.querySelector('#dm-emp').addEventListener('change', function (e) {
-        S.setSession({ emp: e.target.value }); render(); notify('emp');
+        var sc = scOf[e.target.value];
+        S.setSession(sc ? { emp: sc.emp, role: sc.role, date: sc.date } : { emp: e.target.value });
+        render(); notify('emp');
       });
       bar.querySelector('#dm-date').addEventListener('input', function (e) {
         S.setSession({ date: dayValue(+e.target.value) }); render(); notify('date');
@@ -170,7 +190,6 @@
     }
 
     document.body.appendChild(bar);
-    document.body.classList.add('pms-demo-on');
 
     var pill = document.createElement('button');
     pill.id = 'pms-demo-pill';
@@ -185,7 +204,7 @@
     }
     function toggle(show) {
       bar.classList.toggle('hidden', !show);
-      pill.classList.toggle('show', !show);
+      pill.classList.toggle('show', showDemoOnLoad && !show);
       document.body.classList.toggle('pms-demo-on', show);
       syncPad();
     }
@@ -203,7 +222,7 @@
     // Thanh demo cũng phải cập nhật khi phiên bị đổi từ nơi khác (deep link, trang gọi setSession)
     S.subscribe(function (reason) { if (reason === 'session' || reason === 'reset' || reason === 'external') render(); });
     render();
-    syncPad();
+    toggle(showDemoOnLoad);
     notify('init');
   }
 

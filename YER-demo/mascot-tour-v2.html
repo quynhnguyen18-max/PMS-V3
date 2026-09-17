@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo V2 - Mascot trên màn E-05 gốc</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#fff;font-family:Inter,Arial,sans-serif}
+    #screen{display:block;width:100%;height:100%;border:0;background:#fff}
+    .guide-dock{position:fixed;left:calc(100vw - 56px);top:190px;z-index:1000;display:none;align-items:center;transition:top .22s ease,left .22s ease}
+    .guide-dock.ready{display:flex}
+    .guide-dock.touring{display:none!important}
+    .guide-trigger{position:relative;width:34px;height:34px;padding:2px;border:1px solid #efc5dc;border-radius:11px;background:linear-gradient(145deg,#fff 15%,#fff1f7);box-shadow:0 3px 11px rgba(65,18,47,.13);cursor:pointer;display:grid;place-items:center;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+    .guide-trigger:hover,.guide-trigger:focus-visible{transform:translateY(-1px);background:#fff;box-shadow:0 5px 16px rgba(165,0,100,.19);outline:none}
+    .guide-trigger:focus-visible{box-shadow:0 0 0 3px rgba(249,83,150,.22),0 6px 18px rgba(165,0,100,.20)}
+    .guide-trigger img{width:28px;height:28px;object-fit:contain;display:block;transform-origin:55% 90%}
+    .guide-trigger:hover img,.guide-trigger:focus-visible img{animation:hello .72s ease-in-out 1}
+    .guide-dot{position:absolute;left:-2px;top:-3px;width:8px;height:8px;border:2px solid #fff;border-radius:50%;background:#f95396}
+    .guide-bubble{position:absolute;right:42px;top:-8px;width:300px;padding:12px 14px;border:1px solid #efc5dc;border-radius:12px;background:#fff;color:#52525b;font-size:12px;line-height:1.5;box-shadow:0 12px 32px rgba(24,24,27,.16);opacity:0;visibility:hidden;pointer-events:none;transform:translateX(7px) scale(.985);transform-origin:right center;transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s}
+    .guide-dock:hover .guide-bubble,.guide-dock:focus-within .guide-bubble{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+    .guide-bubble:after{content:'';position:absolute;left:100%;top:23px;border:7px solid transparent;border-left-color:#fff}
+    .guide-kicker{font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#a50064;margin-bottom:3px}
+    .guide-title{font-size:13px;font-weight:750;color:#18181b;margin-bottom:3px}
+    .guide-state{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:99px;background:#fff1f7;color:#a50064;font-size:10.5px;font-weight:750}
+    .load-note{position:fixed;inset:0;display:grid;place-items:center;color:#71717a;font-size:13px;z-index:-1}
+    @keyframes hello{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-4deg) translateY(-1px)}65%{transform:rotate(3deg) translateY(0)}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+    @media(max-width:620px){.guide-dock{top:160px}.guide-bubble{right:42px;width:min(284px,calc(100vw - 64px))}}
+  </style>
+</head>
+<body>
+  <div class="load-note">Đang tải màn E-05 gốc…</div>
+  <iframe id="screen" src="../E-05/index.html" title="Màn hình Đánh giá cuối năm E-05"></iframe>
+
+  <div class="guide-dock" id="guide-dock">
+    <div class="guide-bubble" id="guide-bubble" role="tooltip">
+      <div class="guide-kicker">Year End Review Tour Guide</div>
+      <div class="guide-title">Xin chào, mình là tour guide của bạn!</div>
+      <div id="guide-copy">Mình sẽ hướng dẫn theo đúng trạng thái đang hiển thị trên màn hình này. Bấm vào mình để bắt đầu nhé.</div>
+      <div class="guide-state" id="guide-state">Đánh giá cuối năm</div>
+    </div>
+    <button class="guide-trigger" id="guide-trigger" type="button" aria-label="Bắt đầu hướng dẫn Đánh giá cuối năm" aria-describedby="guide-bubble">
+      <img id="guide-image" src="../assets/mascot/idle.png" alt="" />
+      <span class="guide-dot" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+    var frame=document.getElementById('screen');
+    var dock=document.getElementById('guide-dock');
+    var trigger=document.getElementById('guide-trigger');
+    var image=document.getElementById('guide-image');
+    var copy=document.getElementById('guide-copy');
+    var state=document.getElementById('guide-state');
+    var sourceGuide=null,observer=null,innerStyle=null;
+
+    function visible(el){return !!el&&el.getClientRects().length>0&&getComputedStyle(el).visibility!=='hidden';}
+
+    function syncState(doc){
+      /* Mascot đã được tích hợp vào E-05 gốc: wrapper cũ tự ẩn để không tạo hai nút. */
+      if(doc.getElementById('yer-mascot-guide')){
+        dock.classList.remove('ready');
+        return;
+      }
+      var tab=doc.getElementById('tab-yer');
+      var root=doc.getElementById('yer-root');
+      var active=tab&&tab.classList.contains('on')&&visible(root);
+      dock.classList.toggle('ready',!!active);
+      dock.classList.toggle('touring',!!doc.querySelector('.tg-catch'));
+      if(!active)return;
+
+      sourceGuide=doc.getElementById('yer-btn-guide');
+      var label=doc.getElementById('tablbl-yer');
+      var status=label&&label.textContent.trim()||'Đánh giá cuối năm';
+      state.textContent=status;
+      if(doc.getElementById('yer-btn-submit')){
+        copy.textContent='Bạn đang ở bước Tự đánh giá. Mình sẽ dẫn bạn xem lại mục tiêu, hoàn tất các phần đánh giá, lưu nháp và gửi đúng hạn.';
+      }else if(root.querySelector('.submit-banner')){
+        copy.textContent='Phần Tự đánh giá đã hoàn tất. Mình sẽ chỉ dẫn những nội dung bạn còn có thể xem hoặc thực hiện ở trạng thái hiện tại.';
+      }else{
+        copy.textContent='Mình sẽ hướng dẫn theo đúng trạng thái và các thao tác đang khả dụng trên màn hình này. Bấm vào mình để bắt đầu nhé.';
+      }
+    }
+
+    function place(doc){
+      if(!dock.classList.contains('ready'))return;
+      var tabs=doc.querySelector('.tabs');
+      if(!tabs)return;
+      var r=tabs.getBoundingClientRect();
+      var top=Math.min(Math.max(72,r.top+Math.max(0,(r.height-34)/2)),window.innerHeight-46);
+      var left=Math.min(window.innerWidth-46,Math.max(r.left,r.right-42));
+      dock.style.top=top+'px';dock.style.left=left+'px';
+    }
+
+    function install(){
+      var doc=frame.contentDocument;
+      if(!doc||!doc.body)return;
+      if(!innerStyle){
+        innerStyle=doc.createElement('style');
+        innerStyle.id='mascot-demo-v2-style';
+        innerStyle.textContent='#yer-btn-guide{display:none!important}';
+        doc.head.appendChild(innerStyle);
+      }
+      syncState(doc);place(doc);
+      if(observer)observer.disconnect();
+      observer=new MutationObserver(function(){syncState(doc);place(doc);});
+      observer.observe(doc.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+      frame.contentWindow.addEventListener('scroll',function(){place(doc);},{passive:true});
+      frame.contentWindow.addEventListener('resize',function(){place(doc);});
+    }
+
+    frame.addEventListener('load',function(){setTimeout(install,120);});
+    trigger.addEventListener('mouseenter',function(){image.src='../assets/mascot/wave.png';});
+    trigger.addEventListener('mouseleave',function(){image.src='../assets/mascot/idle.png';});
+    trigger.addEventListener('focus',function(){image.src='../assets/mascot/wave.png';});
+    trigger.addEventListener('blur',function(){image.src='../assets/mascot/idle.png';});
+    trigger.addEventListener('click',function(){
+      var doc=frame.contentDocument;
+      sourceGuide=doc&&doc.getElementById('yer-btn-guide');
+      trigger.blur();
+      if(sourceGuide){sourceGuide.click();image.src='../assets/mascot/cheer.png';}
+    });
+  })();
+  </script>
+</body>
+</html>

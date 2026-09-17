@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YER - Nhân viên quá hạn Tự đánh giá</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{--brand:#a50064;--pink:#f95396;--ink:#18181b;--muted:#71717a;--line:#e4e4e7;--soft:#fff1f7}
+    html,body{height:100%;margin:0;font-family:"Public Sans",Inter,Arial,sans-serif;background:#f8f8fa;color:var(--ink)}
+    body{display:grid;grid-template-rows:auto minmax(0,1fr)}
+    .review-bar{padding:9px 14px;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 9px rgba(24,24,27,.05);z-index:2}
+    .review-head{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+    .review-head i{padding:3px 7px;display:grid;place-items:center;border-radius:6px;background:var(--soft);color:var(--brand);font-style:normal;font-size:10px;font-weight:800;letter-spacing:.4px}
+    h1{font-size:13px;line-height:1.35;margin:0}
+    .sub{font-size:10.5px;line-height:1.4;color:var(--muted)}
+    .cases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .case{display:flex;align-items:center;gap:7px;text-align:left;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer;color:var(--ink)}
+    .case:hover{border-color:#efc5dc;background:#fffafd}
+    .case.on{border-color:var(--brand);background:var(--soft);box-shadow:0 0 0 1px var(--brand)}
+    .num{flex:0 0 auto;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:#f4f4f5;color:#52525b;font-size:10px;font-weight:800}
+    .case.on .num{background:var(--brand);color:#fff}
+    .case strong{display:block;font-size:11px;line-height:1.35}
+    iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+    @media(max-width:760px){.cases{grid-template-columns:1fr}.review-bar{padding:10px}.review-head{margin-bottom:8px}}
+  </style>
+</head>
+<body>
+  <header class="review-bar">
+    <div class="review-head">
+      <i>BẢN DỰNG</i>
+      <div><h1>Chọn tình huống để kiểm tra</h1>
+        <div class="sub">Thanh này chỉ dùng để chuyển tình huống, không hiển thị cho người dùng.</div></div>
+    </div>
+    <nav class="cases" aria-label="Chọn tình huống quá hạn">
+      <button class="case" data-path="../E-05/index.html?scenario=s23"><span class="num">1</span><strong>Nhân viên - Đủ mục tiêu</strong></button>
+      <button class="case on" data-path="../E-05/index.html?scenario=s24"><span class="num">2</span><strong>Nhân viên - Thiếu mục tiêu phát triển</strong></button>
+      <button class="case" data-path="../E-05/index.html?scenario=s25"><span class="num">3</span><strong>Nhân viên - Chưa có mục tiêu</strong></button>
+      <button class="case" data-path="../M-06/index.html?scenario=s26"><span class="num">4</span><strong>Quản lý - Đã nhận hồ sơ</strong></button>
+    </nav>
+  </header>
+  <iframe id="screen" src="../E-05/index.html?scenario=s24" title="Màn hình E-05 theo tình huống đã chọn"></iframe>
+  <script>
+    (function(){
+      var frame=document.getElementById('screen');
+      function hideInnerDemo(){
+        try{
+          var doc=frame.contentDocument;
+          var bar=doc && doc.getElementById('pms-demo');
+          var pill=doc && doc.getElementById('pms-demo-pill');
+          if(bar) bar.style.display='none';
+          if(pill) pill.style.display='none';
+          if(doc && doc.body){ doc.body.style.paddingBottom=''; doc.body.classList.remove('pms-demo-on'); }
+        }catch(e){}
+      }
+      frame.addEventListener('load',hideInnerDemo);
+      document.querySelectorAll('[data-path]').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          document.querySelectorAll('[data-path]').forEach(function(item){item.classList.remove('on');});
+          btn.classList.add('on');
+          frame.src=btn.dataset.path;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

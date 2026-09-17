@@ -225,7 +225,7 @@ Không lặp lại cụm "chuyển tab" trong tên nút vì dialog dùng chung c
 | 0 | Seed data, Demo Control, time machine, store, song ngữ, spec | nền | Xong |
 | 1 | Rating selector, tab, popup dữ liệu chưa lưu | 10, 11, 12 | Xong |
 | 2 | Màn Nhân viên `E-05`: tự đánh giá, xem kết quả, Employee Response, snapshot MYR, thai sản, xóa mục tiêu | 2, 3, 5, 8 | Xong |
-| 3 | Màn Quản lý gộp LM/LM2/HOD: chấm điểm, bulk, upload, duyệt, AI Copilot, wrap-up, lọc | 1, 6, 8, 9 | Chưa làm |
+| 3 | Màn Quản lý gộp LM/LM2/HOD: chấm điểm, bulk, upload, duyệt, AI Copilot, wrap-up, lọc | 1, 6, 8, 9 | Đang làm |
 | 4 | HRBP / L&OD / TR / HR Director: danh sách, chi tiết, export, proxy view, upload điểm cuối | 4, 7 | Chưa làm |
 
 Kèm theo: `YER-demo/index.html` (bảng điều hướng 22 tình huống) và `YER-DEMO-SCRIPT.md` (kịch bản trình bày) - làm ở cụm 4.
@@ -274,7 +274,8 @@ Quy ước riêng của màn Nhân viên:
 - Dải quy trình tên là **Quy trình và Thời gian đánh giá cuối năm 2026**, dạng gọn, **không đánh số**,
   chỉ 5 bước nhân viên cần biết: Tự đánh giá, Quản lý trực tiếp, Quản lý cấp 2, Trưởng đơn vị, Công bố kết quả.
   Hai bước nội bộ của HR (Total Reward tải điểm, HR Director duyệt) không hiển thị cho nhân viên.
-- **Không có khối Lưu ý** và **không có khối Kết quả kỳ giữa năm**.
+- **Có khối Lưu ý** ngay dưới dải quy trình (sửa ngày 16/09/2026, xem §40).
+  **Không có khối Kết quả kỳ giữa năm** — kết quả đó để ở tab Đánh giá giữa năm.
 - **Không có card Điểm cuối cùng riêng**. Sau khi nộp, banner trạng thái hiện **Điểm tự đánh giá**;
   sau khi công bố, banner hiện thêm **Kết quả cuối cùng** kèm tên mức. Banner luôn có nút tải PDF như màn MYR.
 - Ô nhận xét ở trạng thái chỉ xem giữ nguyên khung `ev-editor-wrap`, bỏ thanh công cụ, nền xám nhạt.
@@ -286,3 +287,313 @@ Quy ước dữ liệu ghi vào store:
 - `acts[emp].deletedGoals.ids` - danh sách mục tiêu đã xóa mềm.
 
 Khi gộp vào sản phẩm thật, toàn bộ tab này chuyển thẳng vào `E-01`, `E-05` chỉ là bản dựng để review.
+
+---
+
+# PHẦN II — ENHANCEMENT 2H2026
+
+> Nguồn: `YER Enhancement 2H2026.docx` (PMS Enhancement Proposal – 2H 2026).
+> Chốt ngày 16/09/2026. Phần này **đè lên** Phần I ở những chỗ ghi rõ "thay §x".
+
+## 25. Quy ước mã số
+
+File đề xuất đánh mã `E01`–`E15`. Repo đã dùng `E-01`, `E-05` làm **mã màn hình**, và
+Phần I dùng `Enh 1`–`Enh 12` làm mã yêu cầu. Ba bộ mã này khác nhau hoàn toàn.
+
+Để khỏi nhầm, từ đây mã của file đề xuất luôn viết đủ tiền tố **`ENH-E02`**, `ENH-E13`…
+Không viết tắt thành `E02`. Mã màn hình giữ nguyên dạng có gạch: `E-01`, `E-05`, `M-01`, `M-02`.
+
+## 26. Danh mục enhancement và màn hình bị chạm
+
+| Mã | Tên gọn | Nhóm | Màn hình |
+|---|---|---|---|
+| ENH-E13 | Thang điểm và cách chọn mức | Must | nền dùng chung |
+| ENH-E14 | User journey khi vào màn YER | Must | nền dùng chung |
+| ENH-E15 | Cảnh báo dữ liệu chưa lưu | Must | nền dùng chung |
+| ENH-E05 | Đóng băng mục tiêu trong kỳ YER | Must | `E-05`, màn Quản lý |
+| ENH-E03 | Điều hướng sang kết quả Mid-Year | Must | màn Quản lý |
+| ENH-E10 | Nghỉ thai sản | Must | `E-05`, màn Quản lý |
+| ENH-E02 | Nộp trễ và trả về gối đầu | Must | `E-05`, màn Quản lý |
+| ENH-E01 | Tự lọc danh sách nhân viên cần đánh giá | Must | màn Quản lý |
+| ENH-E06 | Báo cáo tổng hợp theo từng nhân viên | Must | màn HR |
+| ENH-E09 | Proxy View | Must | màn HR |
+| ENH-E08 | AI Performance Copilot | Should | màn Quản lý |
+
+## 27. ENH-E02 — Nộp trễ và trả về gối đầu
+
+Hai luồng riêng, không trộn vào nhau.
+
+### 27.1 Nhân viên nộp trễ bằng file import
+
+**Thay §5.** Trước đây thiếu mục tiêu là chặn hẳn, gắn `Không đánh giá` và dừng quy trình.
+Nay nhân viên trễ hạn **tự import một file gồm cả mục tiêu và nội dung tự đánh giá**.
+
+- Áp dụng cho cả nhân viên **chưa có mục tiêu nào trên hệ thống**.
+- Mục tiêu import vào thẳng, **không qua bước duyệt mục tiêu**. Nhân viên tự chịu trách nhiệm
+  bảo đảm mục tiêu đã thống nhất với Quản lý trước đó.
+- Cửa sổ nộp trễ nằm **trong timeline của bước Quản lý trực tiếp** (19/01 - 01/02/2027).
+- Hồ sơ gắn badge `Nộp trễ hạn`. Quản lý vào đánh giá bình thường.
+- `Không đánh giá` chỉ còn dành cho nhân viên **không nộp trễ và cũng không đủ mục tiêu**
+  khi hết cửa sổ nộp trễ.
+- Nhắc: nhân viên trễ hạn và Quản lý đang phụ trách sau cut-off 31/12/2026 đều nhận nhắc.
+  Prototype không dựng inbox thông báo, chỉ hiện badge và banner trên màn.
+
+### 27.2 Trả về để chỉnh sửa — chọn Opt 2
+
+- **Quản lý trực tiếp trả về cho Nhân viên.** Nhân viên sửa được **cả mục tiêu lẫn nội dung
+  tự đánh giá**, ràng buộc hoàn thành trong **24 giờ** kể từ lúc bị trả về.
+- **Quản lý cấp 2 trả về cho Quản lý trực tiếp**, cùng cách.
+- Deadline của từng vai **giữ nguyên**, không giãn ra vì có lần trả về.
+- Quá 24 giờ mà chưa nộp lại: hồ sơ quay về trạng thái trước khi trả về, quy trình đi tiếp.
+- Trạng thái mới: `Bị trả về để chỉnh sửa`, kèm tên người trả về và lý do.
+
+Không dựng Opt 1 (nhân viên tự sửa trong deadline của mình).
+
+## 28. ENH-E03 — Điều hướng sang kết quả Mid-Year
+
+**Thay §11.** Không dựng block snapshot đầy đủ. Thay bằng bản nhẹ:
+
+- Trong màn YER của Quản lý, thêm **một dòng hướng dẫn** điều hướng sang tab Mid-Year Review.
+- Dòng đó nêu **tên và domain của Quản lý đã chấm Mid-Year**, vì có thể khác Quản lý hiện tại.
+- Nhân viên không tham gia Mid-Year: dòng ghi `Không có kết quả Mid-Year`.
+- Bỏ: block collapse, điểm từng mục tiêu, 3 nhận xét nhóm, badge `Đã thay đổi sau Mid-Year`.
+- Màn Nhân viên vẫn không có khối này, giữ nguyên §24.
+
+## 29. ENH-E05 — Đóng băng mục tiêu trong kỳ YER
+
+- Nhân viên **gửi** tự đánh giá là khóa ngay nhóm nút mục tiêu kỳ 2026: `Thu hồi`, `Tạo mới`,
+  `Sửa`, `Xóa`. Không chờ hết deadline tự đánh giá.
+- Chỉ **lưu nháp** tự đánh giá thì mục tiêu chưa khóa: vẫn thu hồi được, Quản lý vẫn yêu cầu
+  cập nhật mục tiêu được.
+- Thu hồi mục tiêu khi đã chấm điểm cho mục tiêu đó: hiện dialog cảnh báo **mất điểm đã chấm**.
+- Thu hồi mục tiêu **không xóa** nhận xét đã ghi. Nhận xét 3 nhóm what, how, dev và nhận xét
+  toàn diện vẫn giữ nguyên trong bản nháp.
+- Kỳ 2027 không bị ảnh hưởng, đặt và thu hồi mục tiêu bình thường.
+
+## 30. ENH-E01 — Tự lọc danh sách nhân viên cần đánh giá
+
+- Mặc định chỉ hiện nhân viên `Đang làm việc` và đủ điều kiện YER, tự cập nhật theo HRM.
+- Đã có ngày nghỉ việc nhưng chưa nghỉ hẳn: vẫn trong danh sách, gắn badge
+  `Nghỉ việc từ dd/mm/yyyy`. **Không nhắc Quản lý** hoàn thành đánh giá với nhóm này.
+- Nghỉ hẳn: tự rời khỏi danh sách của Quản lý.
+- Tỷ lệ hoàn thành **không tính** nhân viên đã có ngày nghỉ việc. Điểm này **thay §5**,
+  vốn ghi là vẫn tính vào mẫu số.
+- Nhân viên đã có ngày nghỉ việc vẫn nhận nhắc cho tới khi nghỉ hẳn.
+
+## 31. ENH-E06 — Báo cáo tổng hợp theo từng nhân viên
+
+- HRBP tải được **báo cáo chi tiết từng nhân viên** cho cả kỳ Mid-Year và Year-End,
+  nội dung giống hệt bản của Quản lý ở §16.
+- Không thêm loại file mới, chỉ mở quyền và thêm điểm vào ở màn HR.
+
+## 32. ENH-E09 — Proxy View
+
+**Giữ nguyên §15**, kể cả cơ chế xin đồng ý 2 phút, chỉ báo `đang được xem`, tự thoát
+sau 15 phút. File đề xuất không phủ định các điều kiện này, chỉ không nhắc lại.
+Bổ sung từ file đề xuất: ghi rõ mục đích **chỉ để hỗ trợ vận hành**, không dùng để giám sát.
+
+## 33. ENH-E10 — Nghỉ thai sản
+
+Giữ §12, bổ sung:
+
+- Bước tự đánh giá chuyển trạng thái `Không yêu cầu (Nghỉ thai sản)`, **không tính là chưa
+  hoàn thành** trong tỷ lệ, không gửi nhắc.
+- Quản lý **import mục tiêu thay** nhân viên nghỉ thai sản, chỉ trong timeline bước Quản lý
+  đánh giá, và **không sửa được** mục tiêu nhân viên đã tạo và đã được duyệt.
+- Hai mốc nhắc: lúc nhân viên nộp đơn thai sản, và lúc mở kỳ đánh giá.
+- Màn hình hiện **hai khối hướng dẫn riêng**: một cho nhân viên thai sản, một cho Quản lý.
+
+## 34. ENH-E13 — Thang điểm
+
+Đã dựng ở cụm 1. Phần còn thiếu so với file đề xuất:
+
+- ⓘ định nghĩa phải tra lại được **ngay khi đang chọn điểm**, không đợi tới lúc gửi xong.
+- Định nghĩa hiện **bên cạnh** ô chọn, không đẩy xuống dòng dưới khi còn chỗ.
+- Helper text thang điểm hiện ngay tại màn đánh giá, không chỉ trong bảng chọn.
+
+## 35. ENH-E14 — User journey
+
+- Tab: 3 trạng thái `Đang xem` / `Bấm để mở` / `Chưa khả dụng`, phân biệt bằng **nhiều tín
+  hiệu cùng lúc**: nền, viền, độ đậm chữ, màu, con trỏ. Không chỉ bằng màu.
+- Wording: không dùng `Đang diễn ra`, `Đang hoạt động`. Dùng nhãn theo việc người dùng cần
+  làm, theo §18. Hai chỗ còn sót: `M-01` dòng 660 và `M-02` dòng 991.
+- Dải quy trình: mỗi bước **bấm được** để đọc giải thích, và phải có tín hiệu cho biết bấm được.
+- **Tourguide**: chạy tự động lần đầu vào tab, sau đó chỉ chạy khi bấm nút `Xem hướng dẫn`.
+  Ghi nhớ đã xem trong store theo từng vai.
+
+## 36. ENH-E15 — Cảnh báo dữ liệu chưa lưu
+
+Giữ nguyên bộ nút của §18: `Rời đi, không lưu` - `Tiếp tục chỉnh sửa` - `Lưu nháp`.
+File đề xuất ghi `Lưu nháp & Chuyển Tab` / `Ở lại` / `Không lưu & Chuyển Tab`, nhưng dialog
+này dùng chung cho cả đóng tab trình duyệt, đổi nhân viên và breadcrumb, nên không được
+gắn chữ "chuyển tab" vào tên nút. Thứ tự và phân cấp nút thì theo đúng file đề xuất:
+`Lưu nháp` là nút chính, `Tiếp tục chỉnh sửa` là phụ, `Rời đi, không lưu` là nhẹ nhất.
+
+Bổ sung: rating đổi giá trị cũng tính là dữ liệu chưa lưu. Không có thay đổi nào kể từ lần
+lưu gần nhất thì rời màn thẳng, không hiện dialog.
+
+## 37. ENH-E08 — AI Performance Copilot
+
+Giữ nguyên §14. Làm sau cùng của cụm màn Quản lý vì thuộc nhóm Should have.
+
+## 38. Thứ tự triển khai enhancement
+
+| Đợt | Nội dung | Enhancement | Trạng thái |
+|---|---|---|---|
+| 1 | Nền dùng chung: thang điểm, tab và journey, tourguide, popup chưa lưu | ENH-E13, E14, E15 | Đang làm |
+| 2 | Hoàn thiện màn Nhân viên `E-05` | ENH-E05, E03, E10, E02 | Chưa làm |
+| 3 | Màn Quản lý LM/LM2/HOD | ENH-E01, E02, E03, E10, E08 | Chưa làm |
+| 4 | Màn HR: HRBP, L&OD, TR, HRD | ENH-E06, E09 | Chưa làm |
+
+Trong mỗi đợt, dựng tình huống theo thứ tự: đúng hạn trước, rồi trễ hạn, thiếu mục tiêu,
+thai sản, đổi Quản lý, sắp nghỉ việc, auto-sync quá deadline.
+
+## 39. File đã tạo ở cụm 3
+
+Màn Quản lý của YER **không phải màn mới**. Nó là **tab Đánh giá cuối năm nằm trong chính
+`M-01` và `M-02`**, dùng lại nguyên ngôn ngữ thiết kế của tab Đánh giá giữa năm. Giống cách
+`E-05` là bản dựng của `E-01`, hai file dưới đây chỉ là bản dựng để review.
+
+| File | Vai trò |
+|---|---|
+| `M-05/index.html` | Bản sao `M-01` với tab Đánh giá cuối năm được bật và mở sẵn. Danh sách nhân viên cần đánh giá |
+| `M-06/index.html` | Bản sao `M-02` với tab Đánh giá cuối năm được bật và mở sẵn. Màn chấm điểm chi tiết |
+| `assets/yer-manager.js` | Render danh sách: dải quy trình, đổi phạm vi vai, tỷ lệ hoàn thành, bộ lọc, bảng điểm |
+| `assets/yer-manager-detail.js` | Render màn chấm điểm: 3 nhóm mục tiêu, cặp nhận xét, điểm toàn diện, phản hồi |
+
+### 39.1 Một màn, ba vai
+
+`M-06` dùng chung cho cả ba vai, khác nhau ở nội dung chứ không phải ở bố cục:
+
+| | Quản lý trực tiếp | Quản lý cấp 2 | Trưởng đơn vị |
+|---|---|---|---|
+| Điểm từng mục tiêu | nhập | chỉ xem | chỉ xem |
+| 3 nhận xét nhóm | nhập, bắt buộc | chỉ xem | chỉ xem |
+| Điểm toàn diện | nhập, bắt buộc | nhập, bắt buộc | nhập, bắt buộc |
+| Nhận xét toàn diện | bắt buộc | tùy chọn | tùy chọn |
+| Sửa sau khi gửi | **không** (§8) | được, tới hết deadline | được, tới hết deadline |
+| Cột điểm đọc thêm | — | của QLTT | của QLTT và QL cấp 2 |
+| Nút trả về | về nhân viên | về QLTT | — |
+
+### 39.2 Quy ước dữ liệu ghi vào store
+
+- `acts[emp].lmDraft` / `lm2Draft` / `hodDraft` — bản nháp theo từng vai, không tính là đã gửi.
+- `acts[emp].lm` / `lm2` / `hod` — bản đã gửi, có `at` nên model coi là đã submit.
+- `acts[emp].response.reply` — trả lời một lần của Quản lý.
+- `acts[emp].returned` — lần trả về gần nhất: ai trả về, lúc nào, hạn 24 giờ.
+
+### 39.3 Ghi chú
+
+- Điểm đã gửi đọc lại từ bản đã gửi chứ không từ bản nháp, vì gửi xong là nháp bị xóa.
+- Tỷ lệ hoàn thành dùng `PMSYer.completion`, không tự đếm lại trong màn (DESIGN-SYSTEM.md §20.1).
+- Khi gộp vào sản phẩm thật, hai tab này chuyển thẳng vào `M-01` và `M-02`.
+
+## 40. Dải quy trình và khối Lưu ý
+
+Chốt ngày 16/09/2026, thay phần dải quy trình ở §24 và §35.
+
+### 40.1 Dạng hiển thị
+
+Dải quy trình dùng **đúng dạng stepper của Mid-Year Review** trong `E-01`: vòng tròn có số
+thứ tự, đường nối ngang, nội dung căn giữa. Khác ở chỗ **gọn hơn**: vòng tròn 24px thay
+vì 28px, chữ nhỏ hơn một nấc, bỏ khoảng trống thừa.
+
+Mỗi bước gồm, theo thứ tự từ trên xuống:
+
+1. Số thứ tự trong vòng tròn. Bước đã qua tô xám đậm, bước đang mở tô hồng.
+2. Tên bước.
+3. Ngày, chỉ hạn chót.
+
+**Domain của người thực hiện nằm cùng dòng với tên vai**, trong **ngoặc đơn**, chữ nhạt hơn,
+để dải không cao thêm: `Quản lý trực tiếp (thanh.le)`.
+**Không đặt nhãn `Bắt buộc`** ở bất kỳ bước nào.
+
+**Thu gọn được.** Bấm vào tiêu đề dải là gập lại. Thu gọn rồi vẫn phải nói được kỳ đang
+ở đâu, bằng một dòng `Đang ở bước: <tên> (<domain>) - Hạn chót dd/mm/yyyy`.
+Trạng thái thu gọn nhớ theo từng màn trong store, đổi ngôn ngữ hay đổi ngày không mở lại.
+
+### 40.2 Domain của từng bước
+
+- Lấy qua `PMSYer.actors(p)`, màn hình **không tự ghép tên người** (DESIGN-SYSTEM.md §20.1).
+- Quản lý trực tiếp và cấp 2 lấy từ chính hồ sơ nhân viên; Trưởng đơn vị, Total Reward
+  và HR Director lấy từ `window.PMS_YER_ACTORS` trong `assets/yer-data.js`.
+- Bước **Công bố kết quả không có domain**, vì nó không gắn với một người cụ thể.
+- Ở **màn danh sách của Quản lý**, bước Tự đánh giá cũng không có domain: bước đó là việc
+  của cả danh sách chứ không của một người. Màn chi tiết thì có.
+
+### 40.3 Ngày hiển thị
+
+- **Mọi bước chỉ hiện hạn chót**, dạng `Hạn chót dd/mm/yyyy`. Không bước nào hiện ngày bắt đầu,
+  kể cả bước của chính người đang xem.
+- **Ngày bắt đầu của cả kỳ** đưa lên tiêu đề dải: `Quy trình và Thời gian đánh giá cuối
+  năm 2026 - bắt đầu 05/01/2027`.
+- Dùng chữ **`Hạn chót`**, không dùng `Hạn`.
+- Hộp giải thích khi bấm vào bước vẫn hiện đủ khoảng ngày.
+
+### 40.4 Những thứ KHÔNG đặt trong dải quy trình
+
+- **Dải quy trình chỉ để đọc.** Từng bước **không bấm được** và không mở popup giải thích.
+  Mọi thông tin cần biết đã nằm sẵn trên dải: tên bước, người phụ trách, hạn chót.
+  Chỉ còn tiêu đề dải là bấm được, để thu gọn.
+- **Không có dòng gợi ý** `Bấm vào từng bước để đọc thêm`.
+- **Nút `Xem hướng dẫn` đặt ngoài dải**: màn Nhân viên đặt cạnh `Lưu nháp` và
+  `Gửi tự đánh giá`; màn Quản lý đặt ở thanh công cụ của danh sách.
+- Khoảng cách tiêu đề tới hàng bước: **18px**.
+
+### 40.5 Khối Lưu ý của màn Nhân viên
+
+Nằm ngay dưới dải quy trình, dùng `info-note` giống tab Đánh giá giữa năm, hai gạch đầu dòng:
+
+1. Điều kiện tham gia. Cụm **Danh sách mục tiêu** là **liên kết thật**, bấm vào là chuyển
+   sang tab Mục tiêu ngay trong màn, không rời trang.
+2. Kết quả kỳ giữa năm. Có kết quả thì cụm **Đánh giá giữa năm** là liên kết sang tab đó.
+   Không tham gia kỳ giữa năm thì ghi thẳng `Không có kết quả Mid-Year 2026` và nói rõ
+   điều đó không ảnh hưởng tới kỳ cuối năm, **không để liên kết chết**.
+
+## 41. Ô bắt buộc điền và ⓘ định nghĩa mức điểm
+
+Chốt ngày 17/09/2026.
+
+### 41.1 Ô bắt buộc điền
+
+- **Bỏ nhãn `Bắt buộc`** ở góc panel.
+- Thay bằng **dấu sao đỏ** `*` đặt ngay sau nhãn của chính ô phải điền, kèm chữ
+  `bắt buộc` ở dạng chỉ trình đọc màn hình đọc được.
+- Áp cho: ba ô nhận xét nhóm, ô Điểm toàn diện, ô Nhận xét toàn diện.
+- Chỉ hiện khi ô đang sửa được. Đọc thôi thì không có dấu sao.
+
+### 41.2 ⓘ định nghĩa mức điểm
+
+**ⓘ chỉ xuất hiện sau khi đã gửi.** Trong lúc đang nhập, định nghĩa đã nằm sẵn ở ô ngay
+dưới ô chọn điểm nên thêm ⓘ là thừa. Điều này đúng với §4 và **thay** §34.
+
+### 41.3 Tên và định nghĩa mức điểm lẻ
+
+Lấy **nguyên văn** từ file đề xuất, không rút gọn:
+
+- Tên mức: `Giữa mức 1 - Không đạt yêu cầu và 2 - Hoàn thành một phần`,
+  chứ không phải `Giữa mức 1 và 2`.
+- Định nghĩa: `Hiệu quả công việc của nhân viên đã vượt trên các tiêu chí của mức X - …
+  và chưa đạt trọn vẹn các tiêu chí cần thiết của mức Y - …`
+
+### 41.4 Thanh công cụ soạn thảo
+
+**Bỏ ô chọn định dạng Normal / Tiêu đề** khỏi mọi ô nhận xét của kỳ cuối năm. Nhận xét
+đánh giá là văn xuôi ngắn, không cần cấp độ tiêu đề. Thanh công cụ còn B, I, U và danh sách.
+
+### 41.5 Khối Lưu ý
+
+- Cách khối bên dưới **18px**, không để dính vào bảng mục tiêu.
+  `.info-note` vốn chỉ được định nghĩa cho `#mpanel-myr` nên trong `#yer-root` phải khai lại.
+- Có kết quả giữa năm thì câu chữ bắt đầu bằng **`Bạn có thể xem lại kết quả Đánh giá giữa năm 2026…`**,
+  dùng tên kỳ tiếng Việt theo DESIGN-SYSTEM.md §10, không dùng `Mid-Year`.
+
+## 42. Banner sau khi gửi và nhãn mục tiêu
+
+Chốt ngày 17/09/2026.
+
+- Banner sau khi nhân viên gửi: tiêu đề **`Đã hoàn thành Tự đánh giá cuối năm`**,
+  dòng phụ chỉ còn **`Ngày gửi: dd/mm/yyyy`**. Sau khi công bố thì là `Ngày công bố: dd/mm/yyyy`.
+  Không nhắc lại đang chờ ai ở đây — nhãn tab và dải quy trình đã nói rồi.
+- **Bỏ nhãn `Đã thay đổi sau Mid-Year`** trên thẻ mục tiêu. Kỳ cuối năm chấm trên mục tiêu
+  hiện tại, lịch sử thay đổi không đổi cách chấm. Điều này **thay** phần badge ở §11.

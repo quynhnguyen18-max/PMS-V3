@@ -62,8 +62,14 @@
     }
     var goals = (emp.goals || []).filter(function (g) { return g.status === 'approved'; });
     var imported = (acts && acts.importedGoals) || (seed && seed.importedGoals);
-    var hasWhat = goals.some(function (g) { return g.type === 'what'; }) || imported;
-    var hasDev = goals.some(function (g) { return g.type === 'dev'; }) || imported;
+    var importedList = imported && imported.goals;
+    // Dữ liệu cũ dùng boolean cho luồng thai sản. File nộp trễ mới lưu rõ
+    // từng goal để cả màn NV và LM có thể đọc lại đúng nội dung đã import.
+    var importCoversAll = imported === true;
+    var hasWhat = goals.some(function (g) { return g.type === 'what'; }) || importCoversAll ||
+      !!(importedList && importedList.some(function (g) { return g.type === 'what'; }));
+    var hasDev = goals.some(function (g) { return g.type === 'dev'; }) || importCoversAll ||
+      !!(importedList && importedList.some(function (g) { return g.type === 'dev'; }));
     if (!hasWhat || !hasDev) {
       return { eligible: false, reason: 'missing-goal', missingWhat: !hasWhat, missingDev: !hasDev };
     }
@@ -88,6 +94,7 @@
     var response = merge(seed.response, acts.response);
     var wrapup = merge(seed.wrapup, acts.wrapup);
     var final = merge(seed.final, acts.final);
+    var lateSubmission = merge(seed.lateSubmission, acts.lateSubmission);
 
     // Sự kiện chỉ được coi là đã xảy ra nếu ngày hệ thống đã qua thời điểm đó
     function happened(block) { return block && block.at && cmp(now, block.at) >= 0; }
@@ -117,7 +124,11 @@
     // KHÔNG đồng bộ từ LM2 sang HOD
     var hodView = hodDone ? Object.assign({}, hod, { source: hod.source || 'manual' }) : null;
 
-    var stopped = !elig.eligible && elig.reason === 'missing-goal';
+    var lateView = happened(lateSubmission) ? lateSubmission : null;
+    // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: trong toàn bộ
+    // timeline của LM, NV còn một luồng riêng để import goal + self assessment.
+    var stopped = !elig.eligible && elig.reason === 'missing-goal' &&
+      stepState('lm', now) === 'closed' && !lateView;
     var noScoreAtAll = !selfDone && !lmView;
     if (stopped || (stepState('lm', now) === 'closed' && noScoreAtAll)) stopped = true;
 
@@ -150,6 +161,9 @@
       resignFrom: resignFrom,
       maternity: maternity,
       importedGoals: !!((acts && acts.importedGoals) || seed.importedGoals),
+      importedGoalData: (acts && acts.importedGoals) || seed.importedGoals || null,
+      lateSubmission: lateView,
+      lateWindowOpen: stepState('lm', now) === 'open',
       goalChangedAfterMyr: seed.goalChangedAfterMyr || [],
       mgrChange: seed.mgrChange || null,
       stopped: stopped,
@@ -179,13 +193,17 @@
     function t(vi, en) { return lang === 'en' ? en : vi; }
     if (!p) return { key: 'none', label: '', tone: 'muted' };
     if (p.eligibility.reason === 'late-onboard') return { key: 'out', label: t('Ngoài kỳ đánh giá', 'Out of cycle'), tone: 'muted' };
-    if (p.eligibility.reason === 'missing-goal') return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
     if (p.resigned) return { key: 'resigned', label: t('Đã nghỉ việc', 'Resigned'), tone: 'muted' };
+    if (!p.self && p.lateWindowOpen) return { key: 'late-upload', label: t('Cần nộp file trễ hạn', 'Late file submission needed'), tone: 'action' };
+    if (p.stopped) return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
+    if (p.eligibility.reason === 'missing-goal') return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
     if (p.published) return { key: 'published', label: t('Đã công bố kết quả', 'Results published'), tone: 'done' };
     if (p.hod) return { key: 'wait-tr', label: t('Chờ tải điểm cuối cùng', 'Awaiting final upload'), tone: 'muted' };
     if (p.lm2) return { key: 'wait-hod', label: t('Chờ HOD đánh giá', 'Awaiting HOD'), tone: 'action' };
     if (p.lm) return { key: 'wait-lm2', label: t('Chờ Quản lý cấp 2', 'Awaiting second-level manager'), tone: 'action' };
-    if (p.self) return { key: 'wait-lm', label: t('Chờ Quản lý trực tiếp', 'Awaiting line manager'), tone: 'action' };
+    if (p.self) return { key: 'wait-lm', label: p.lateSubmission
+      ? t('Nộp trễ hạn - Chờ Quản lý', 'Submitted late - Awaiting manager')
+      : t('Chờ Quản lý trực tiếp', 'Awaiting line manager'), tone: 'action' };
     if (p.maternity) return { key: 'maternity', label: t('Nghỉ thai sản - không yêu cầu tự đánh giá', 'Maternity leave - self assessment not required'), tone: 'muted' };
     if (stepState('self', p.now) === 'open') return { key: 'need-self', label: t('Cần tự đánh giá', 'Self assessment needed'), tone: 'action' };
     if (stepState('self', p.now) === 'future') return { key: 'not-open', label: t('Chưa mở', 'Not open yet'), tone: 'muted' };
@@ -216,9 +234,11 @@
     var lo = scaleItem(Math.floor(v)), hi = scaleItem(Math.floor(v) + 1);
     if (!isHalf) return lo ? (lang === 'en' ? lo.en : lo.vi) : '';
     if (!lo || !hi) return '';
+    // File đề xuất ghi rõ: 1.5 = giữa mức 1 - Không đạt yêu cầu và 2 - Hoàn thành một phần.
+    // Gọi đủ tên hai mức chính chứ không rút gọn còn con số.
     return lang === 'en'
-      ? 'Between ' + lo.en + ' and ' + hi.en
-      : 'Giữa mức ' + Math.floor(v) + ' và ' + (Math.floor(v) + 1);
+      ? 'Between ' + lo.v + ' - ' + lo.en + ' and ' + hi.v + ' - ' + hi.en
+      : 'Giữa mức ' + lo.v + ' - ' + lo.vi + ' và ' + hi.v + ' - ' + hi.vi;
   }
   function scoreDefinition(v, lang) {
     if (v == null) return '';
@@ -226,9 +246,12 @@
     var lo = scaleItem(Math.floor(v)), hi = scaleItem(Math.floor(v) + 1);
     if (!isHalf) return lo ? (lang === 'en' ? lo.den : lo.dvi) : '';
     if (!lo || !hi) return '';
+    // Nguyên văn ví dụ trong file đề xuất cho mức 3.5, áp cho mọi mức lẻ.
     return lang === 'en'
-      ? 'Performance exceeds the criteria of level ' + lo.v + ' - ' + lo.en + ' but does not fully meet level ' + hi.v + ' - ' + hi.en + '.'
-      : 'Hiệu quả công việc đã vượt trên các tiêu chí của mức ' + lo.v + ' - ' + lo.vi + ' nhưng chưa đạt trọn vẹn các tiêu chí của mức ' + hi.v + ' - ' + hi.vi + '.';
+      ? 'The employee performance exceeds the criteria of level ' + lo.v + ' - ' + lo.en +
+        ' and does not yet fully meet the criteria required for level ' + hi.v + ' - ' + hi.en + '.'
+      : 'Hiệu quả công việc của nhân viên đã vượt trên các tiêu chí của mức ' + lo.v + ' - ' + lo.vi +
+        ' và chưa đạt trọn vẹn các tiêu chí cần thiết của mức ' + hi.v + ' - ' + hi.vi + '.';
   }
 
   function escHtml(v) {
@@ -249,9 +272,10 @@
         escHtml(lang === 'en' ? item.en : item.vi) + '</strong>';
     }
     return lang === 'en'
-      ? 'Performance exceeds the criteria of ' + ref(lo) + ' but does not fully meet the criteria of ' + ref(hi) + '.'
-      : 'Hiệu quả công việc đã vượt trên các tiêu chí của ' + ref(lo) +
-        ' nhưng chưa đạt trọn vẹn các tiêu chí của ' + ref(hi) + '.';
+      ? 'The employee performance exceeds the criteria of ' + ref(lo) +
+        ' and does not yet fully meet the criteria required for ' + ref(hi) + '.'
+      : 'Hiệu quả công việc của nhân viên đã vượt trên các tiêu chí của ' + ref(lo) +
+        ' và chưa đạt trọn vẹn các tiêu chí cần thiết của ' + ref(hi) + '.';
   }
 
   /* ── Danh sách theo vai trò ─────────────────────────────── */
@@ -266,14 +290,34 @@
   }
 
   function completion(list) {
-    // NV đã nghỉ việc không tính; "Không đánh giá" vẫn nằm ở mẫu số
-    var pool = list.filter(function (p) { return !p.resigned; });
+    // ENH-E01 (YER-SPEC §30): NV đã có ngày nghỉ việc KHÔNG tính vào mẫu số, kể cả
+    // khi chưa tới ngày hiệu lực — vì hệ thống cũng không nhắc Quản lý về nhóm này.
+    // "Không đánh giá" thì vẫn nằm ở mẫu số (§5).
+    var pool = list.filter(function (p) { return !p.resigned && !p.resignFrom; });
     var done = pool.filter(function (p) { return !!p.lm; }).length;
     return { done: done, total: pool.length, pct: pool.length ? Math.round(done * 100 / pool.length) : 0 };
   }
 
+  /* ── Người thực hiện từng bước của một hồ sơ ──
+     Màn hình không tự ghép tên người, để ba màn không nói hai chuyện khác nhau.
+     Bước `publish` không có người thực hiện hiển thị (trả về null). */
+  function actors(p) {
+    var D = window.PMS_YER_ACTORS || {};
+    if (!p) return {};
+    return {
+      self: { name: p.emp.name, login: p.emp.login, ini: p.emp.ini },
+      lm: p.emp.mgr || D.lm || null,
+      lm2: p.emp.mgr2 || D.lm2 || null,
+      hod: D.hod || null,
+      tr: D.tr || null,
+      hrd: D.hrd || null,
+      publish: null
+    };
+  }
+
   window.PMSYer = {
     TL: TL,
+    actors: actors,
     today: today,
     fmt: fmt,
     addDays: addDays,

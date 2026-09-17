@@ -1,10 +1,12 @@
 /* ═══════════════════════════════════════════════════════════
    YER UI — component dùng chung cho mọi màn Đánh giá cuối năm
-   1. PMSUi.rating   — Enh 10: chọn điểm dạng hàng nút + định nghĩa thang điểm
-   2. PMSUi.tabs     — Enh 11: tab chu kỳ có trạng thái, hover, disabled
-   3. PMSUi.dirty    — Enh 12: cảnh báo dữ liệu chưa lưu khi rời màn
-   4. PMSUi.dialog / PMSUi.toast — primitive dùng chung
-   Spec: YER-SPEC.md muc 4, 18
+   1. PMSUi.rating   — Enh 10 / ENH-E13: ô chọn điểm kiểu MYR + tên mức + định nghĩa mức
+   2. PMSUi.tabs     — Enh 11 / ENH-E14: tab chu kỳ có trạng thái, hover, disabled
+   3. PMSUi.dirty    — Enh 12 / ENH-E15: cảnh báo dữ liệu chưa lưu khi rời màn
+   4. PMSUi.steps    — ENH-E14: dải quy trình, mỗi bước bấm được để đọc thêm
+   5. PMSUi.tour     — ENH-E14: tourguide có spotlight, nhớ đã xem theo vai
+   6. PMSUi.dialog / PMSUi.toast — primitive dùng chung
+   Spec: YER-SPEC.md muc 4, 18, 34, 35, 36
 ═══════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -40,53 +42,24 @@
 
   /* ═══ CSS ═══════════════════════════════════════════════ */
   var CSS = [
-    /* ── rating selector ── */
-    '.rt{display:block}',
-    '.rt-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}',
-    '.rt-lbl{font-size:12.5px;font-weight:500;color:var(--z700)}',
-    '.rt-req{color:#dc2626;margin-left:2px}',
-    '.rt-hint{font-size:11.5px;color:var(--z600);margin-left:auto}',
-    '.rt-pick{display:inline-flex;align-items:center;gap:9px;flex-wrap:wrap}',
-    '.rt-trg{display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 7px 0 10px;background:var(--z0);',
-    'border:1px solid var(--z300);border-radius:var(--rsm);cursor:pointer;font-family:inherit;transition:all .12s ease}',
-    '.rt-trg:hover{border-color:var(--z400);background:var(--z50)}',
-    '.rt-trg[aria-expanded="true"]{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}',
-    '.rt-trg:focus-visible{border-color:var(--brand);outline:2px solid var(--brand-ring);outline-offset:1px}',
-    '.rt-trg:disabled{background:var(--z100);border-color:var(--z200);cursor:not-allowed}',
-    '.rt-trg-v{font-size:13px;font-weight:700;color:var(--z900);font-variant-numeric:tabular-nums;min-width:22px}',
-    '.rt-trg.empty .rt-trg-v{color:var(--z400);font-weight:500}',
-    '.rt-trg i{font-size:15px;color:var(--z400)}',
-    '.rt-trg-name{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--z900)}',
-    '.rt-empty{font-size:12.5px;color:var(--z600)}',
-    '.rt-def{margin-top:9px;border:1px solid var(--z200);background:var(--z50);border-radius:var(--rsm);padding:9px 11px}',
-    '.rt-def-txt{font-size:12px;color:var(--z600);line-height:1.5}',
-    '.rt-def-txt strong,.rt-panel-def strong,.pms-tip-body strong{font-weight:600;color:var(--z900)}',
+    /* ── rating selector (ENH-E13) ──
+       Giữ nguyên ô <select> của Mid-Year Review trong E-01 (.sc-select cho điểm
+       từng mục tiêu, .op-select cho điểm toàn diện) để hai kỳ nhìn như nhau.
+       Phần thêm của kỳ cuối năm chỉ gồm TÊN MỨC và ĐỊNH NGHĨA MỨC. */
+    '.rt-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
+    '.rt-def{margin-top:8px;padding:8px 11px;border:1px solid var(--z200);border-radius:var(--rsm);',
+    'background:var(--z50);font-size:12px;color:var(--z600);line-height:1.5}',
+    '.rt-def strong,.pms-tip-body strong{font-weight:600}',
+    '.rt-def strong{color:var(--z900)}',
     '.pms-tip-body strong{color:#fff}',
-    '.rt-panel{position:fixed;z-index:1200;width:288px;background:var(--z0);border:1px solid var(--z200);',
-    'border-radius:var(--r);box-shadow:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);overflow:hidden}',
-    '.rt-panel-hd{padding:7px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;',
-    'color:var(--z500);background:var(--z50);border-bottom:1px solid var(--z200)}',
-    '.rt-panel-list{padding:4px}',
-    '.rt-row{display:grid;grid-template-columns:30px 1fr 16px;align-items:center;gap:8px;width:100%;text-align:left;',
-    'padding:6px 8px;border:0;border-radius:var(--rsm);background:transparent;cursor:pointer;font-family:inherit;transition:all .1s ease}',
-    '.rt-row:hover,.rt-row:focus-visible{background:var(--z100);outline:none}',
-    '.rt-row.on{background:var(--brand-muted)}',
-    '.rt-row-v{font-size:13px;font-weight:700;color:var(--z900);font-variant-numeric:tabular-nums;text-align:center}',
-    '.rt-row-n{font-size:12.5px;color:var(--z700);line-height:1.35}',
-    '.rt-row.half .rt-row-v{font-weight:600;color:var(--z600)}',
-    '.rt-row.half .rt-row-n{color:var(--z600);font-size:12px}',
-    '.rt-row.on .rt-row-v,.rt-row.on .rt-row-n{color:var(--brand)}',
-    '.rt-row i{font-size:15px;color:var(--brand);opacity:0}',
-    '.rt-row.on i{opacity:1}',
-    '.rt-panel-def{padding:9px 12px;font-size:12px;color:var(--z600);line-height:1.5;background:var(--z50);',
-    'border-top:1px solid var(--z200);max-height:118px;overflow:auto}',
-    '.rt-ro{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--z900)}',
-    '.rt-ro-score{font-weight:700;font-variant-numeric:tabular-nums}',
-    '.rt-ro-name{font-weight:500}',
+    '.rt-empty{font-size:12.5px;color:var(--z500)}',
     '.rt-i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;',
-    'border:1px solid var(--z300);color:var(--z500);font-size:11px;cursor:help;background:var(--z0)}',
+    'border:1px solid var(--z300);color:var(--z500);font-size:11px;cursor:help;background:var(--z0);flex:none}',
     '.rt-i:hover,.rt-i:focus-visible{border-color:var(--brand);color:var(--brand);outline:none}',
+    /* ô chỉ xem: dùng lại .ql-val / .ql-dash của E-01 nên không khai báo thêm */
     /* tooltip dùng chung */
+    '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;',
+    'clip:rect(0,0,0,0);white-space:nowrap;border:0}',
     '.pms-tip{position:relative;display:inline-flex}',
     '.pms-tip-body{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:60;',
     'background:var(--z900);color:#fff;font-size:12px;font-weight:500;line-height:1.45;padding:7px 10px;border-radius:6px;',
@@ -104,7 +77,8 @@
     '.yt-name i{font-size:15px}',
     '.yt-state{font-size:11px;font-weight:600;letter-spacing:.2px;color:var(--z500)}',
     '.yt-btn:not(.on):not(.off):hover{background:var(--z100);border-color:var(--z400)}',
-    '.yt-btn:not(.on):not(.off):hover .yt-name{color:var(--z900)}',
+    /* ENH-E14: tab bấm được phải nhận ra bằng nhiều tín hiệu, không chỉ bằng màu */
+    '.yt-btn:not(.on):not(.off):hover .yt-name{color:var(--z900);text-decoration:underline;text-underline-offset:3px}',
     '.yt-btn:focus-visible{outline:2px solid var(--brand-ring);outline-offset:2px}',
     '.yt-btn.on{background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);',
     'box-shadow:inset 0 3px 0 var(--brand)}',
@@ -113,6 +87,61 @@
     '.yt-btn.off{background:var(--z50);border-style:dashed;cursor:not-allowed}',
     '.yt-btn.off .yt-name,.yt-btn.off .yt-state{color:var(--z400)}',
     '.yt-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);flex:none}',
+
+    /* ── dải quy trình (ENH-E14) ───────────────────
+       Dạng stepper có số và đường nối, giống Mid-Year Review trong E-01 (.stepper-track,
+       .step-item, .step-circle) nhưng gọn hơn: vòng tròn 24px, chữ nhỏ hơn, bịt khoảng
+       trống thừa. Mỗi bước là một nút thật để đọc thêm. */
+    '.pst-hd{display:flex;align-items:center;gap:6px;width:100%;padding:0;border:0;background:transparent;',
+    'font-family:inherit;font-size:11px;font-weight:600;text-align:left;cursor:pointer;',
+    'text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:18px}',
+    '.pst-hd>i{font-size:13px;color:var(--brand)}',
+    '.pst-hd:hover{color:var(--z700)}',
+    '.pst-chev{margin-left:auto;font-size:16px;color:var(--z500);transition:transform .15s ease}',
+    '.pst-card.collapsed .pst-chev{transform:rotate(-90deg)}',
+    '.pst-card.collapsed .pst-hd{margin-bottom:0}',
+    '.pst-card.collapsed .pst-track{display:none}',
+    /* Thu gọn rồi vẫn phải nói được kỳ đang ở bước nào */
+    '.pst-now{display:none;margin-top:8px;font-size:12px;color:var(--z600);line-height:1.45}',
+    '.pst-card.collapsed .pst-now{display:block}',
+    '.pst-now strong{color:var(--z900);font-weight:600}',
+    '.pst-card{overflow-x:auto}',
+    '.pst-track{display:flex;align-items:flex-start;position:relative;min-width:max-content}',
+    '.pst-track::before{content:"";position:absolute;top:11px;left:14px;right:14px;height:2px;background:var(--z200);z-index:0}',
+    '.pst-step{flex:1 1 0;min-width:118px;display:flex;flex-direction:column;align-items:center;text-align:center;',
+    'position:relative;z-index:1;padding:0 4px 4px}',
+    '.pst-circle{width:24px;height:24px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:11px;',
+    'font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;transition:all .12s ease;',
+    'box-shadow:0 0 0 3px var(--z50)}',
+    '.pst-step.done .pst-circle{background:var(--z400);color:#fff}',
+    '.pst-step.open .pst-circle{background:var(--brand);color:#fff;box-shadow:0 0 0 3px var(--brand-muted)}',
+    '.pst-body{margin-top:7px;width:100%}',
+    '.pst-name{display:block;font-size:12px;font-weight:600;color:var(--z700);line-height:1.3}',
+    '.pst-step.open .pst-name{color:var(--brand)}',
+    '.pst-dom{font-size:11px;font-weight:400;color:var(--z500);white-space:nowrap}',
+    '.pst-date{display:block;font-size:11px;color:var(--z600);line-height:1.3;margin-top:2px;font-variant-numeric:tabular-nums}',
+
+    /* ── tourguide (ENH-E14) ─────────────────────────────
+       Spotlight làm bằng box-shadow tràn màn hình trên một ô rỗng đặt đúng
+       vị trí phần tử, nên không cần cắt DOM và không ảnh hưởng layout. */
+    '.tg-hole{position:fixed;z-index:1600;border-radius:var(--r);pointer-events:none;',
+    'box-shadow:0 0 0 9999px rgba(9,9,11,.55),0 0 0 2px var(--brand);transition:all .2s ease}',
+    '.tg-catch{position:fixed;inset:0;z-index:1595}',
+    '.tg-card{position:fixed;z-index:1610;width:330px;max-width:calc(100vw - 24px);background:var(--z0);',
+    'border:1px solid var(--z200);border-radius:var(--r);box-shadow:0 8px 30px rgba(0,0,0,.18);padding:14px 15px 12px}',
+    '.tg-head{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;align-items:start;padding-right:20px}',
+    '.tg-mascot{width:46px;height:46px;object-fit:contain;display:block;align-self:center}',
+    '.tg-step{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--brand)}',
+    '.tg-ti{font-size:14.5px;font-weight:600;color:var(--z900);margin:3px 0 5px}',
+    '.tg-tx{font-size:13px;color:var(--z600);line-height:1.55}',
+    '.tg-ft{display:flex;align-items:center;gap:7px;margin-top:13px}',
+    '.tg-dots{display:flex;gap:4px;margin-right:auto}',
+    '.tg-dot{width:6px;height:6px;border-radius:50%;background:var(--z300)}',
+    '.tg-dot.on{background:var(--brand);width:16px;border-radius:999px}',
+    '.tg-skip{position:absolute;top:10px;right:10px;width:24px;height:24px;display:inline-flex;align-items:center;',
+    'justify-content:center;border:0;background:transparent;color:var(--z500);border-radius:var(--rsm);cursor:pointer}',
+    '.tg-skip:hover{background:var(--z100);color:var(--z900)}',
+    '.tg-skip i{font-size:17px}',
 
     /* ── dialog ── */
     '.pms-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;',
@@ -154,23 +183,22 @@
     document.head.appendChild(s);
   }
 
-  /* ═══ 1. Rating selector ════════════════════════════════
-     Ô điểm trong lưới đánh giá chỉ rộng khoảng 64px (xem M-02), nên không thể
-     dàn cả thang điểm ra một hàng. Cách giải quyết: nút chọn gọn như cũ, nhưng
-     bảng chọn mở ra hiển thị TOÀN BỘ thang điểm kèm tên mức, không phải cuộn.
-     Điểm từng mục tiêu (step 'int'): chỉ số và tên mức, không định nghĩa, không ⓘ.
-     Điểm toàn diện (step 'half'): sau khi chọn mới hiện ô định nghĩa để đọc;
-     sau khi submit ô định nghĩa biến mất, chỉ còn số, tên mức và ⓘ.
+  /* ═══ 1. Rating selector ════════════════════════
+     Dùng đúng ô <select> của Mid-Year Review trong E-01, không dựng control riêng:
+     điểm từng mục tiêu là .sc-select (1-5), điểm toàn diện là .op-select (1-5 bước 0.5).
+     ENH-E13 chỉ thêm hai thứ mà MYR còn thiếu:
+       - TÊN MỨC hiện cạnh ô chọn, kể cả mức lẻ (MYR đang để trống mức .5).
+       - ĐỊNH NGHĨA MỨC hiện ngay sau khi chọn, và tra lại được ở ⓘ sau khi gửi.
      opts: { value, step:'int'|'half', readonly, disabled, compact,
-             label, required, hint, onChange }
-     - step 'int'  → điểm từng mục tiêu, 1..5
-     - step 'half' → điểm toàn diện, 1..5 bước 0.5
-     - compact     → chỉ hiện nút số, dùng trong ô bảng                        */
+             label, required, onChange }                                     */
+  var TONE = { 5: 'lbl-xs', 4: 'lbl-good', 3: 'lbl-ok', 2: 'lbl-need', 1: 'lbl-fail' };
+
   function rating(el, opts) {
     injectCss();
     opts = opts || {};
     var state = { value: opts.value == null ? null : Number(opts.value) };
-    var stepv = opts.step === 'half' ? 0.5 : 1;
+    var half = opts.step === 'half';
+    var stepv = half ? 0.5 : 1;
 
     function values() {
       var out = [], v;
@@ -178,147 +206,71 @@
       return out;
     }
     function isHalf(v) { return Math.abs(v % 1) > 0; }
+    function fmtNum(v) { return isHalf(v) ? v.toFixed(1) : String(v); }
     function nameOf(v) {
       return isHalf(v) ? (window.PMSYer ? window.PMSYer.scoreLabel(v, lang()) : '') : levelName(v);
     }
-    function fmtNum(v) { return isHalf(v) ? v.toFixed(1) : String(v); }
+    function toneOf(v) { return TONE[Math.floor(v)] || ''; }
 
-    function scaleHint() {
-      return stepv === 0.5
-        ? (lang() === 'en' ? 'Scale 1-5, steps of 0.5' : 'Thang điểm 1-5, bước 0.5')
-        : (lang() === 'en' ? 'Scale 1-5, whole numbers' : 'Thang điểm 1-5, số nguyên');
+    function nameTag(v) {
+      var n = nameOf(v);
+      if (!n) return '';
+      return '<span class="sc-lbl show ' + toneOf(v) + '">' + esc(n) + '</span>';
     }
-
     function tipHtml(v) {
       return '<span class="pms-tip"><span class="rt-i" tabindex="0" role="button" aria-label="' +
-        esc(lang() === 'en' ? 'Rating definition' : 'Định nghĩa thang điểm') + '">i</span>' +
+        esc(lang() === 'en' ? 'Rating definition' : 'Định nghĩa mức điểm') + '">i</span>' +
         '<span class="pms-tip-body" role="tooltip">' + definitionHtml(v) + '</span></span>';
     }
 
-    function withDef() { return stepv === 0.5; }
-
     function renderReadonly() {
-      if (state.value == null) { el.innerHTML = '<span class="rt-empty">—</span>'; return; }
-      // Sau khi gửi: điểm từng mục tiêu chỉ còn số; điểm toàn diện còn số, tên mức và ⓘ
-      if (!withDef()) {
-        el.innerHTML = '<span class="rt-ro"><span class="rt-ro-score">' + fmtNum(state.value) + '</span></span>';
+      if (state.value == null) {
+        el.innerHTML = opts.compact ? '<div class="ql-dash">—</div>' : '<span class="rt-empty">—</span>';
         return;
       }
-      el.innerHTML = '<span class="rt-ro"><span class="rt-ro-score">' + fmtNum(state.value) + '</span>' +
-        (opts.compact ? '' : '<span class="rt-ro-name">' + esc(nameOf(state.value)) + '</span>') +
-        tipHtml(state.value) + '</span>';
+      if (opts.compact) { el.innerHTML = '<div class="ql-val">' + fmtNum(state.value) + '</div>'; return; }
+      el.innerHTML = '<div class="rt-line"><span class="ql-val">' + fmtNum(state.value) + '</span>' +
+        nameTag(state.value) + (half ? tipHtml(state.value) : '') + '</div>';
     }
 
     function renderEditable() {
-      var hint = opts.hint || (withDef() ? scaleHint() : '');
-      var head = opts.label
-        ? '<div class="rt-hd"><span class="rt-lbl">' + esc(opts.label) +
-          (opts.required ? '<span class="rt-req">*</span>' : '') + '</span>' +
-          (hint ? '<span class="rt-hint">' + esc(hint) + '</span>' : '') + '</div>'
-        : '';
       var val = state.value;
-      // Ô định nghĩa chỉ xuất hiện với điểm toàn diện và chỉ sau khi đã chọn điểm
-      // Ô định nghĩa chỉ chứa nội dung định nghĩa, không lặp lại điểm và tên mức
-      var defBox = (withDef() && val != null)
-        ? '<div class="rt-def"><div class="rt-def-txt">' + definitionHtml(val) + '</div></div>'
+      var head = opts.label
+        ? '<span class="op-score-lbl">' + esc(opts.label) +
+          (opts.required ? '<span style="color:#dc2626;margin-left:2px">*</span>' : '') + '</span>'
         : '';
-      el.innerHTML = head +
-        '<div class="rt-pick">' +
-          '<button type="button" class="rt-trg' + (val == null ? ' empty' : '') + '"' +
-            (opts.disabled ? ' disabled' : '') + ' aria-haspopup="listbox" aria-expanded="false">' +
-            '<span class="rt-trg-v">' + (val == null ? '—' : fmtNum(val)) + '</span>' +
-            '<i class="bx bx-chevron-down"></i>' +
-          '</button>' +
-          (opts.compact ? '' :
-            '<span class="rt-trg-name">' + (val == null
-              ? '<span class="rt-empty">' + esc(lang() === 'en' ? 'No score yet' : 'Chưa chọn điểm') + '</span>'
-              : esc(nameOf(val))) + '</span>') +
-        '</div>' + defBox;
-      var trg = el.querySelector('.rt-trg');
-      if (trg && !opts.disabled) trg.addEventListener('click', function () { openPanel(trg); });
+      var sel = '<select class="' + (half ? 'op-select' : 'sc-select') + '"' +
+        (opts.disabled ? ' disabled' : '') +
+        ' aria-label="' + esc(opts.label || (lang() === 'en' ? 'Rating' : 'Điểm đánh giá')) + '">' +
+        '<option value="">—</option>' +
+        values().map(function (v) {
+          return '<option value="' + v + '"' + (val === v ? ' selected' : '') + '>' + fmtNum(v) + '</option>';
+        }).join('') + '</select>';
+
+      // Ô điểm trong lưới chỉ rộng 64px nên chỉ có chỗ cho ô chọn
+      if (opts.compact) { el.innerHTML = sel; bind(); return; }
+
+      // ⓘ chỉ xuất hiện sau khi đã gửi (nhánh renderReadonly). Đang nhập thì định nghĩa
+      // đã nằm sẵn ở ô ngay bên dưới nên thêm ⓘ là thừa.
+      el.innerHTML = '<div class="rt-line">' + head + sel +
+          (val == null ? '' : nameTag(val)) + '</div>' +
+        // Định nghĩa chỉ hiện với điểm toàn diện và chỉ sau khi đã chọn điểm
+        (half && val != null ? '<div class="rt-def">' + definitionHtml(val) + '</div>' : '');
+      bind();
     }
 
-    var panel = null, onDocClick = null, onKey = null, onScroll = null;
-
-    function closePanel() {
-      if (!panel) return;
-      panel.remove(); panel = null;
-      document.removeEventListener('mousedown', onDocClick, true);
-      document.removeEventListener('keydown', onKey, true);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll, true);
-      var trg = el.querySelector('.rt-trg');
-      if (trg) { trg.setAttribute('aria-expanded', 'false'); trg.focus(); }
-    }
-
-    function place(trg) {
-      var r = trg.getBoundingClientRect();
-      var h = panel.offsetHeight, w = panel.offsetWidth;
-      var below = window.innerHeight - r.bottom;
-      var top = below > h + 12 || r.top < h + 12 ? r.bottom + 5 : r.top - h - 5;
-      var left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
-      panel.style.top = Math.round(top) + 'px';
-      panel.style.left = Math.round(left) + 'px';
-    }
-
-    function openPanel(trg) {
-      if (panel) { closePanel(); return; }
-      var vals = values();
-      panel = document.createElement('div');
-      panel.className = 'rt-panel';
-      panel.setAttribute('role', 'listbox');
-      panel.innerHTML =
-        (withDef() ? '<div class="rt-panel-hd">' + esc(scaleHint()) + '</div>' : '') +
-        '<div class="rt-panel-list">' + vals.map(function (v) {
-          return '<button type="button" class="rt-row' + (isHalf(v) ? ' half' : '') +
-            (state.value === v ? ' on' : '') + '" role="option" aria-selected="' + (state.value === v) +
-            '" data-v="' + v + '">' +
-            '<span class="rt-row-v">' + fmtNum(v) + '</span>' +
-            '<span class="rt-row-n">' + esc(nameOf(v)) + '</span>' +
-            '<i class="bx bx-check"></i></button>';
-        }).join('') + '</div>' +
-        (withDef()
-          ? '<div class="rt-panel-def" id="rt-def-live">' +
-              (state.value != null ? definitionHtml(state.value)
-                : esc(lang() === 'en' ? 'Hover a level to read its definition.' : 'Rê chuột vào một mức để đọc định nghĩa.')) +
-            '</div>'
-          : '');
-      document.body.appendChild(panel);
-      place(trg);
-      trg.setAttribute('aria-expanded', 'true');
-
-      var live = panel.querySelector('#rt-def-live');
-      panel.querySelectorAll('.rt-row').forEach(function (row) {
-        row.addEventListener('mouseenter', function () { if (live) live.innerHTML = definitionHtml(Number(row.dataset.v)); });
-        row.addEventListener('focus', function () { if (live) live.innerHTML = definitionHtml(Number(row.dataset.v)); });
-        row.addEventListener('click', function () {
-          state.value = Number(row.dataset.v);
-          closePanel();
-          renderEditable();
-          if (opts.onChange) opts.onChange(state.value);
-          if (window.PMSUi && window.PMSUi.dirty) window.PMSUi.dirty.mark();
-        });
+    function bind() {
+      var sel = el.querySelector('select');
+      if (!sel || opts.disabled) return;
+      sel.addEventListener('change', function () {
+        state.value = sel.value === '' ? null : Number(sel.value);
+        renderEditable();
+        if (opts.onChange) opts.onChange(state.value);
+        if (window.PMSUi && window.PMSUi.dirty) window.PMSUi.dirty.mark();
       });
-
-      onDocClick = function (e) { if (!panel.contains(e.target) && !trg.contains(e.target)) closePanel(); };
-      onKey = function (e) {
-        if (e.key === 'Escape') { e.preventDefault(); closePanel(); return; }
-        var rows = [].slice.call(panel.querySelectorAll('.rt-row'));
-        var i = rows.indexOf(document.activeElement);
-        if (e.key === 'ArrowDown') { e.preventDefault(); (rows[i + 1] || rows[0]).focus(); }
-        if (e.key === 'ArrowUp') { e.preventDefault(); (rows[i - 1] || rows[rows.length - 1]).focus(); }
-      };
-      onScroll = function () { if (panel) place(trg); };
-      document.addEventListener('mousedown', onDocClick, true);
-      document.addEventListener('keydown', onKey, true);
-      window.addEventListener('scroll', onScroll, true);
-      window.addEventListener('resize', onScroll, true);
-
-      var sel = panel.querySelector('.rt-row.on') || panel.querySelector('.rt-row');
-      if (sel) sel.focus();
     }
 
-    function draw() { closePanel(); (opts.readonly ? renderReadonly : renderEditable)(); }
+    function draw() { (opts.readonly ? renderReadonly : renderEditable)(); }
     draw();
 
     return {
@@ -383,7 +335,205 @@
     };
   }
 
-  /* ═══ 3. Cảnh báo dữ liệu chưa lưu ══════════════════════ */
+  /* ═══ 3. Dải quy trình (ENH-E14) ══════════════════
+     Stepper có số và đường nối giống Mid-Year Review, nhưng gọn hơn và có thêm
+     domain người thực hiện. Bấm một bước thì mở hộp giải thích.
+     opts: {
+       title,
+       items: [{ key, name, domain, date, state:'done'|'open'|'todo', tag,
+                 who, what, you }]
+     }
+     Chủ màn tự quyết định chuỗi `date`: theo ENH-E14 chỉ bước tự đánh giá hiện
+     khoảng ngày, các bước còn lại chỉ hiện hạn chót.                              */
+  function steps(el, opts) {
+    injectCss();
+    opts = opts || {};
+    var items = opts.items || [];
+
+    // Nhớ trạng thái thu gọn theo từng màn, để đổi ngôn ngữ hay đổi ngày không mở lại.
+    var ckey = opts.collapseKey || 'default';
+    function readCollapsed() {
+      if (!window.PMSStore) return false;
+      var ui = window.PMSStore.admin('stepsCollapsed');
+      return !!(ui && ui[ckey]);
+    }
+    function saveCollapsed() {
+      if (!window.PMSStore) return;
+      var ui = Object.assign({}, window.PMSStore.admin('stepsCollapsed') || {});
+      ui[ckey] = collapsed;
+      window.PMSStore.setAdmin('stepsCollapsed', ui);
+    }
+    var collapsed = readCollapsed();
+
+    function nowLine() {
+      var en = lang() === 'en';
+      var cur = items.filter(function (it) { return it.state === 'open'; })[0];
+      if (!cur) return '';
+      return '<div class="pst-now">' + esc(en ? 'Currently at: ' : 'Đang ở bước: ') +
+        '<strong>' + esc(cur.name) + '</strong>' +
+        (cur.domain ? ' (' + esc(cur.domain) + ')' : '') +
+        (cur.date ? ' - ' + esc(cur.date) : '') + '</div>';
+    }
+
+    function draw() {
+      var en = lang() === 'en';
+      el.className = 'stepper-card pst-card' + (collapsed ? ' collapsed' : '');
+      el.innerHTML =
+        '<button type="button" class="stepper-hd pst-hd" aria-expanded="' + (!collapsed) + '">' +
+          '<i class="bx bx-directions"></i>' + esc(opts.title || '') +
+          '<i class="bx bx-chevron-down pst-chev" aria-hidden="true"></i>' +
+          '<span class="sr-only">' +
+            esc(collapsed ? (en ? 'Expand the process strip' : 'Mở rộng dải quy trình')
+                          : (en ? 'Collapse the process strip' : 'Thu gọn dải quy trình')) +
+          '</span>' +
+        '</button>' + nowLine() +
+        // Bước chỉ để đọc, không bấm được: mọi thông tin cần biết đã nằm sẵn trên dải.
+        '<div class="pst-track">' + items.map(function (it, i) {
+          return '<div class="pst-step ' + esc(it.state || 'todo') + '">' +
+            '<span class="pst-circle">' + (i + 1) + '</span>' +
+            '<span class="pst-body">' +
+              // Domain nằm cùng dòng với tên vai cho đỡ tốn chiều cao.
+              // Bước Công bố kết quả không gắn với người cụ thể nên không có domain.
+              '<span class="pst-name">' + esc(it.name) +
+                (it.domain ? ' <span class="pst-dom">(' + esc(it.domain) + ')</span>' : '') + '</span>' +
+              '<span class="pst-date">' + esc(it.date || '') + '</span>' +
+            '</span>' +
+          '</div>';
+        }).join('') + '</div>';
+
+      el.querySelector('.pst-hd').addEventListener('click', function () {
+        collapsed = !collapsed;
+        saveCollapsed();
+        draw();
+      });
+    }
+    draw();
+    return { el: el, setItems: function (list) { items = list; draw(); }, redraw: draw };
+  }
+
+  /* ═══ 4. Tourguide (ENH-E14) ════════════════════════════
+     items: [{ sel, title, text, place:'auto'|'top'|'bottom' }]
+     Bước nào không tìm thấy phần tử thì bỏ qua, để tour không chết khi màn
+     hình đổi theo vai hoặc theo ngày hệ thống.                              */
+  // Màn hình render lại nhiều lần (đổi ngôn ngữ, đổi nhân sự), nên phải chặn
+  // trường hợp hai tour cùng mở chồng lên nhau.
+  var tourSeenMem = {}, tourBusy = false;
+
+  function tourSeen(key) {
+    if (!key) return false;
+    if (window.PMSStore) {
+      var a = window.PMSStore.admin('tourSeen');
+      return !!(a && a[key]);
+    }
+    return !!tourSeenMem[key];
+  }
+  function markTourSeen(key) {
+    if (!key) return;
+    tourSeenMem[key] = true;
+    if (window.PMSStore) window.PMSStore.setAdmin('tourSeen', (function () { var o = {}; o[key] = true; return o; })());
+  }
+
+  function startTour(items, opts) {
+    injectCss();
+    opts = opts || {};
+    if (tourBusy) return;
+    var list = (items || []).filter(function (it) { return document.querySelector(it.sel); });
+    if (!list.length) return;
+    tourBusy = true;
+
+    var i = 0, hole, card, catcher;
+
+    function cleanup() {
+      tourBusy = false;
+      document.body.classList.remove('pms-tour-open');
+      [hole, card, catcher].forEach(function (n) { if (n) n.remove(); });
+      hole = card = catcher = null;
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+      document.removeEventListener('keydown', onKey, true);
+    }
+    function finish() { markTourSeen(opts.key); cleanup(); if (opts.onEnd) opts.onEnd(); }
+
+    function place() {
+      var it = list[i];
+      var node = document.querySelector(it.sel);
+      if (!node) { return; }
+      var r = node.getBoundingClientRect(), pad = 6;
+      hole.style.top = Math.max(4, r.top - pad) + 'px';
+      hole.style.left = Math.max(4, r.left - pad) + 'px';
+      hole.style.width = (r.width + pad * 2) + 'px';
+      hole.style.height = (r.height + pad * 2) + 'px';
+
+      var ch = card.offsetHeight, cw = card.offsetWidth;
+      var below = window.innerHeight - r.bottom;
+      var top = (it.place === 'top' || (it.place !== 'bottom' && below < ch + 24))
+        ? Math.max(8, r.top - ch - 12)
+        : Math.min(window.innerHeight - ch - 8, r.bottom + 12);
+      var left = Math.min(Math.max(12, r.left), window.innerWidth - cw - 12);
+      card.style.top = Math.round(top) + 'px';
+      card.style.left = Math.round(left) + 'px';
+    }
+
+    function draw() {
+      var en = lang() === 'en';
+      var it = list[i];
+      var node = document.querySelector(it.sel);
+      if (node && node.scrollIntoView) node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      card.innerHTML =
+        '<button type="button" class="tg-skip" data-go="end" aria-label="' +
+          esc(en ? 'Skip guide' : 'Bỏ qua hướng dẫn') + '"><i class="bx bx-x"></i></button>' +
+        '<div class="tg-head"><img class="tg-mascot" src="../assets/mascot/' + esc(it.pose || 'think.png') + '" alt="">' +
+        '<div><div class="tg-step">' + esc((en ? 'Step ' : 'Bước ') + (i + 1) + '/' + list.length) + '</div>' +
+        '<div class="tg-ti">' + esc(it.title) + '</div>' +
+        '<div class="tg-tx">' + esc(it.text) + '</div></div></div>' +
+        '<div class="tg-ft"><span class="tg-dots">' + list.map(function (_, k) {
+          return '<span class="tg-dot' + (k === i ? ' on' : '') + '"></span>';
+        }).join('') + '</span>' +
+        (i > 0 ? '<button type="button" class="pms-btn pms-btn-quiet" data-go="prev">' +
+          esc(en ? 'Back' : 'Quay lại') + '</button>' : '') +
+        '<button type="button" class="pms-btn pms-btn-default" data-go="next">' +
+          esc(i === list.length - 1 ? (en ? 'Done' : 'Xong') : (en ? 'Next' : 'Tiếp theo')) + '</button></div>';
+
+      card.querySelectorAll('[data-go]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var go = b.dataset.go;
+          if (go === 'end') { finish(); return; }
+          if (go === 'prev') { i--; draw(); place(); return; }
+          if (i === list.length - 1) { finish(); return; }
+          i++; draw(); place();
+        });
+      });
+      setTimeout(place, 0);
+      setTimeout(place, 280);
+    }
+
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); finish(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); if (i < list.length - 1) { i++; draw(); } else finish(); }
+      if (e.key === 'ArrowLeft' && i > 0) { e.preventDefault(); i--; draw(); }
+    }
+
+    catcher = document.createElement('div');
+    catcher.className = 'tg-catch';
+    catcher.addEventListener('click', function () { finish(); });
+    hole = document.createElement('div');
+    hole.className = 'tg-hole';
+    card = document.createElement('div');
+    card.className = 'tg-card';
+    card.setAttribute('role', 'dialog');
+    card.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.body.classList.add('pms-tour-open');
+    document.body.appendChild(catcher);
+    document.body.appendChild(hole);
+    document.body.appendChild(card);
+
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    document.addEventListener('keydown', onKey, true);
+    draw();
+  }
+
+  /* ═══ 5. Cảnh báo dữ liệu chưa lưu ══════════════════════ */
   var dirtyState = { on: false, onSaveDraft: null };
 
   function watchDirty(scope) {
@@ -426,7 +576,7 @@
     });
   }
 
-  /* ═══ 4. Dialog + toast ═════════════════════════════════ */
+  /* ═══ 6. Dialog + toast ═════════════════════════════════ */
   function dialog(opts) {
     injectCss();
     var ov = document.createElement('div');
@@ -437,7 +587,8 @@
           '<button type="button" class="pms-dlg-x" aria-label="' +
             esc(lang() === 'en' ? 'Close' : 'Đóng') + '"><i class="bx bx-x"></i></button>' +
           '<div class="pms-dlg-ti">' + esc(opts.title || '') + '</div>' +
-          '<div class="pms-dlg-tx">' + esc(opts.text || '') + '</div>' +
+          // opts.html chỉ dùng cho nội dung do chính prototype dựng, không nhận dữ liệu người nhập
+          '<div class="pms-dlg-tx">' + (opts.html != null ? opts.html : esc(opts.text || '')) + '</div>' +
         '</div>' +
         '<div class="pms-dlg-ft"></div>' +
       '</div>';
@@ -482,6 +633,20 @@
   window.PMSUi = {
     rating: rating,
     tabs: tabs,
+    steps: steps,
+    tour: {
+      start: function (items, opts) { startTour(items, opts); },
+      // chỉ chạy lần đầu của mỗi vai; sau đó người dùng tự bấm "Xem hướng dẫn"
+      auto: function (items, opts) {
+        opts = opts || {};
+        if (tourSeen(opts.key) || tourBusy) return;
+        // đánh dấu ngay để lần render kế tiếp trong lúc chờ không mở tour thứ hai
+        tourBusy = true;
+        setTimeout(function () { tourBusy = false; startTour(items, opts); }, opts.delay == null ? 400 : opts.delay);
+      },
+      seen: tourSeen,
+      markSeen: markTourSeen
+    },
     dialog: dialog,
     toast: toast,
     fullLabel: fullLabel,
