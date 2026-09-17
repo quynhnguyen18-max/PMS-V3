@@ -150,14 +150,15 @@
      những bước đang có và đang thực hiện được trên màn hình.                 */
   function tourItems(p){
     var items = [
-      { sel: '.tabs', pose: 'wave.png',
+      // Chỉ tô đúng tab Đánh giá cuối năm, không tô cả ba tab
+      { sel: '#tab-yer', pose: 'wave.png',
         title: L('Bạn đang ở Đánh giá cuối năm','You are in Year-End Review'),
         text:  L('Ba tab Mục tiêu, Đánh giá giữa năm và Đánh giá cuối năm thuộc cùng một chu kỳ. Nhãn trên tab cho biết việc bạn đang cần làm.',
                  'Goals, Mid-Year Review and Year-End Review belong to the same cycle. The tab label shows what currently needs your attention.') },
       { sel: '#yer-steps', pose: 'run.png',
-        title: L('Xác định bước hiện tại','Check the current step'),
-        text:  L('Dải quy trình cho biết hồ sơ đang ở bước nào, ai thực hiện và hạn chót của từng bước.',
-                 'The process strip shows the current stage, its owner and each deadline.') }
+        title: L('Hồ sơ của bạn đang ở đây','Where your profile stands'),
+        text:  L('Bước được tô hồng là bước đang mở. Mỗi bước ghi rõ ai phụ trách và hạn chót phải hoàn thành.',
+                 'The pink step is the one currently open. Each step names its owner and the date it must be completed by.') }
     ];
 
     if(!p.self && p.lateWindowOpen){
@@ -192,7 +193,7 @@
     } else {
       items = items.concat([
         { sel: '#yer-root .yer-sec-what', pose: 'think.png',
-          title: L('1. Xem lại Mục tiêu công việc','1. Review work goals'),
+          title: L('1. Đánh giá Mục tiêu công việc','1. Assess work goals'),
           text: L('Đọc lại kết quả cần đạt, chọn điểm cho từng mục tiêu và viết nhận xét tổng hợp cho phần WHAT.',
                   'Review the expected results, rate each goal and add your overall WHAT comment.') },
         { sel: '#yer-root .yer-sec-dev', pose: 'think.png',
@@ -200,10 +201,11 @@
           text: L('Đánh giá tiến độ phát triển năng lực, chọn điểm và nêu kết quả hoặc minh chứng nổi bật.',
                   'Assess your capability-development progress, select ratings and note key results or evidence.') },
         { sel: '#yer-root .yer-sec-how', pose: 'think.png',
-          title: L('3. Đánh giá HOW','3. Assess HOW'),
+          title: L('3. Đánh giá Mục tiêu hành vi','3. Assess behavioral goals'),
           text: L('Chấm từng giá trị cốt lõi và viết nhận xét về cách bạn đã thực hiện công việc trong năm.',
                   'Rate each core value and comment on how you worked throughout the year.') },
-        { sel: '#yer-root .overall-card', pose: 'wink.png',
+        // Chỉ tô ô của Nhân viên, không tô luôn ô của Quản lý
+        { sel: '#yer-root .yer-op-self', pose: 'wink.png',
           title: L('4. Hoàn tất đánh giá toàn diện','4. Complete the overall assessment'),
           text: L('Chọn điểm toàn diện và tóm tắt kết quả cả năm trước khi lưu hoặc gửi.',
                   'Choose an overall rating and summarize your year before saving or submitting.') },
@@ -224,26 +226,25 @@
     U.tour.start(tourItems(p || prof()), { key: 'yer-emp' });
   }
 
+  /* Tên bước hiện tại của chính người đang xem, dùng cho câu chữ của mascot. */
+  function mascotStep(p){
+    if(!p.self && p.lateWindowOpen && !p.maternity) return L('Nộp trễ hạn','Late submission');
+    if(p.eligibility.reason === 'missing-goal') return L('Chưa đủ điều kiện','Not eligible');
+    if(p.published) return L('Đã công bố kết quả','Results published');
+    if(p.responseOpen) return L('Xem kết quả của Quản lý','Read the manager result');
+    if(p.self) return L('Chờ Quản lý đánh giá','Awaiting manager review');
+    if(p.maternity) return L('Không yêu cầu tự đánh giá','Self assessment not required');
+    if(Y.stepState('self', S.session().date) === 'closed') return L('Quá hạn tự đánh giá','Self assessment overdue');
+    return L('Tự đánh giá','Self assessment');
+  }
+
+  /* Bóng thoại luôn theo một cấu trúc: đang ở bước nào, rồi mời đi tiếp.
+     Tên bước được làm nổi như một chip để đọc lướt là thấy. */
   function mascotCopy(p){
-    if(!p.self && p.lateWindowOpen && !p.maternity){
-      return L('Bạn vẫn có thể nộp hồ sơ trong thời gian đánh giá của Quản lý trực tiếp. Mình sẽ hướng dẫn từng bước.',
-               'You can still submit one late file with goals and self assessment during the manager window. I will guide you through it.');
-    }
-    if(p.eligibility.reason === 'missing-goal'){
-      return Y.stepState('self', S.session().date) === 'closed'
-        ? L('Hạn tự đánh giá đã qua và hồ sơ của bạn chưa đủ điều kiện. Mình sẽ giải thích trạng thái này.',
-            'The deadline has passed and your profile is not eligible. I can explain this status.')
-        : L('Hồ sơ đang thiếu goal bắt buộc. Mình sẽ chỉ bạn cần kiểm tra gì trước khi tự đánh giá.',
-            'Required goals are missing. I can show what to check before self assessment.');
-    }
-    if(p.self) return L('Bạn đã hoàn tất Tự đánh giá. Mình sẽ dẫn bạn xem trạng thái và nội dung hiện có.',
-                        'Your self assessment is complete. I can walk you through the current status and content.');
-    if(Y.stepState('self', S.session().date) === 'closed'){
-      return L('Bước Tự đánh giá đã quá hạn. Mình sẽ giải thích điều gì xảy ra tiếp theo.',
-               'The self-assessment step is overdue. I can explain what happens next.');
-    }
-    return L('Bạn đang ở bước Tự đánh giá. Mình sẽ dẫn bạn qua Goal, WHAT, Development, HOW, điểm toàn diện, lưu nháp và gửi.',
-             'You are at Self Assessment. I will guide you through goals, WHAT, Development, HOW, overall rating, draft and submit.');
+    return L('Bạn đang ở bước ','You are at ') +
+      '<span class="yer-mascot-step">' + esc(mascotStep(p)) + '</span>' +
+      L('. Mình sẽ dẫn bạn qua các việc cần hoàn thành nhé!',
+        '. I will walk you through what needs to be done.');
   }
 
   function mountMascotGuide(p){
@@ -255,10 +256,8 @@
     wrap.id = 'yer-mascot-guide';
     wrap.className = 'yer-mascot-guide';
     wrap.innerHTML = '<div class="yer-mascot-bubble" id="yer-mascot-bubble" role="tooltip">' +
-      '<div class="yer-mascot-kicker">Year End Review Tour Guide</div>' +
       '<div class="yer-mascot-title">' + L('Xin chào, mình là tour guide của bạn!','Hi, I am your tour guide!') + '</div>' +
-      '<div>' + esc(mascotCopy(p)) + '</div>' +
-      '<span class="yer-mascot-state">' + esc(yerTabState(p)) + '</span></div>' +
+      '<div>' + mascotCopy(p) + '</div></div>' +
       '<button type="button" class="yer-mascot-trigger" aria-label="' + esc(L('Bắt đầu hướng dẫn Đánh giá cuối năm','Start the Year-End Review guide')) + '" aria-describedby="yer-mascot-bubble">' +
       '<img src="../assets/mascot/idle.png" alt=""><span class="yer-mascot-dot" aria-hidden="true"></span></button>';
     tabs.appendChild(wrap);
@@ -270,6 +269,18 @@
     btn.addEventListener('focus', function(){ pose('wave.png'); });
     btn.addEventListener('blur', function(){ pose('idle.png'); });
     btn.addEventListener('click', function(){ btn.blur(); pose('cheer.png'); runTour(p); });
+
+    /* Cuộn xuống thì mascot rời thanh tab và bám sát mép phải màn hình,
+       để luôn gọi được hướng dẫn mà không phải cuộn ngược lên đầu trang. */
+    function syncStick(){
+      var r = tabs.getBoundingClientRect();
+      wrap.classList.toggle('stuck', r.bottom < 8);
+    }
+    window.removeEventListener('scroll', mountMascotGuide._stick, true);
+    mountMascotGuide._stick = syncStick;
+    window.addEventListener('scroll', syncStick, true);
+    window.addEventListener('resize', syncStick);
+    syncStick();
   }
 
   /* ── bàn giao từ Quản lý cũ (Enh 9) ──────────────────── */
@@ -386,7 +397,7 @@
   function overallCard(p, editable){
     var mineScore = p.self && p.self.overall ? p.self.overall.score : (draft.overall||{}).score;
     var mineCmt = p.self && p.self.overall ? p.self.overall.comment : (draft.overall||{}).comment;
-    var left = '<div class="overall-panel' + (editable ? ' editable-panel' : '') + '">' +
+    var left = '<div class="overall-panel yer-op-self' + (editable ? ' editable-panel' : '') + '">' +
       '<div class="op-hd"><i class="bx bx-user"></i>' + L('Nhân viên tự đánh giá','Employee self assessment') + '</div>' +
       '<div class="op-score-row"><span class="op-score-lbl">' + L('Điểm toàn diện:','Overall rating:') +
         (editable ? req() : '') + '</span>' +
@@ -1035,7 +1046,8 @@
       '.yer-mascot-guide:hover .yer-mascot-bubble,.yer-mascot-guide:focus-within .yer-mascot-bubble{opacity:1;visibility:visible;' +
         'transform:translate(0,-50%);transition-delay:0s}' +
       '.yer-mascot-bubble:after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);border:7px solid transparent;border-left-color:#fff}' +
-      '.yer-mascot-kicker{font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand);margin-bottom:3px}' +
+      '.yer-mascot-step{display:inline-block;padding:1px 8px;border-radius:99px;background:#fff1f7;color:var(--brand);font-weight:700;white-space:nowrap}' +
+      '.yer-mascot-guide.stuck{position:fixed;right:10px;top:50%;transform:translateY(-50%)}' +
       '.yer-mascot-title{font-size:13px;font-weight:700;color:var(--z900);margin-bottom:3px}' +
       '.yer-mascot-state{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:99px;background:#fff1f7;color:var(--brand);font-size:10.5px;font-weight:700}' +
       'body.pms-tour-open .yer-mascot-guide{display:none!important}' +

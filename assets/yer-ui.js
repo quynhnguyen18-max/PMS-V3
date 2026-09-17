@@ -94,7 +94,7 @@
        trống thừa. Mỗi bước là một nút thật để đọc thêm. */
     '.pst-hd{display:flex;align-items:center;gap:6px;width:100%;padding:0;border:0;background:transparent;',
     'font-family:inherit;font-size:11px;font-weight:600;text-align:left;cursor:pointer;',
-    'text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:18px}',
+    'text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:26px}',
     '.pst-hd>i{font-size:13px;color:var(--brand)}',
     '.pst-hd:hover{color:var(--z700)}',
     '.pst-chev{margin-left:auto;font-size:16px;color:var(--z500);transition:transform .15s ease}',
@@ -125,7 +125,10 @@
        Spotlight làm bằng box-shadow tràn màn hình trên một ô rỗng đặt đúng
        vị trí phần tử, nên không cần cắt DOM và không ảnh hưởng layout. */
     '.tg-hole{position:fixed;z-index:1600;border-radius:var(--r);pointer-events:none;',
-    'box-shadow:0 0 0 9999px rgba(9,9,11,.55),0 0 0 2px var(--brand);transition:all .2s ease}',
+    // KHÔNG cho toạ độ chạy transition: vùng sáng phải trùng đúng phần tử ngay lập tức.
+    // Để transition thì lúc đang chạy nó nằm giữa hai vị trí, và nếu trình duyệt tạm dừng
+    // hoạt ảnh thì nó kẹt hẳn ở bước trước.
+    'box-shadow:0 0 0 9999px rgba(9,9,11,.55),0 0 0 2px var(--brand)}',
     '.tg-catch{position:fixed;inset:0;z-index:1595}',
     '.tg-card{position:fixed;z-index:1610;width:330px;max-width:calc(100vw - 24px);background:var(--z0);',
     'border:1px solid var(--z200);border-radius:var(--r);box-shadow:0 8px 30px rgba(0,0,0,.18);padding:14px 15px 12px}',
@@ -478,7 +481,9 @@
       var en = lang() === 'en';
       var it = list[i];
       var node = document.querySelector(it.sel);
-      if (node && node.scrollIntoView) node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      // Cuộn tức thì, không dùng behavior:'smooth'. Cuộn mượt chạy bất đồng bộ nên
+      // place() đo toạ độ giữa chừng và vùng sáng nằm sai chỗ.
+      if (node && node.scrollIntoView) node.scrollIntoView({ block: 'center' });
       card.innerHTML =
         '<button type="button" class="tg-skip" data-go="end" aria-label="' +
           esc(en ? 'Skip guide' : 'Bỏ qua hướng dẫn') + '"><i class="bx bx-x"></i></button>' +
@@ -503,8 +508,9 @@
           i++; draw(); place();
         });
       });
-      setTimeout(place, 0);
-      setTimeout(place, 280);
+      // Đo ngay sau khi cuộn, rồi đo lại ở khung hình kế tiếp cho chắc
+      place();
+      requestAnimationFrame(place);
     }
 
     function onKey(e) {
