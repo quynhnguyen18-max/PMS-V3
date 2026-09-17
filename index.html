@@ -1,9 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="refresh" content="0;url=E-01/index.html"/>
-<script>location.replace('E-01/index.html');</script>
+<title>MoMo HRM — Performance Management</title>
+<!--
+  Điểm vào duy nhất của bản dựng.
+
+  Trỏ vào E-05 vì đó là màn Nhân viên đầy đủ nhất: giữ nguyên tab Mục tiêu và
+  Đánh giá giữa năm của E-01, và mở sẵn tab Đánh giá cuối năm. Từ đây đi tiếp
+  được bằng nút đổi vai trò ở sidebar: Quản lý sang M-05, HR sang H-05.
+  Đổi tình huống, vai trò và ngày hệ thống thì bấm viên Demo ở góc dưới phải.
+
+  Giữ lại query string để deep link đặt ở trang gốc vẫn chạy, ví dụ:
+  https://pms-v3.vercel.app/?demo=1&role=nv&date=2027-01-20&emp=y11
+-->
+<script>
+  location.replace('E-05/index.html' + location.search + location.hash);
+</script>
+<noscript><meta http-equiv="refresh" content="0;url=E-05/index.html"/></noscript>
 </head>
 <body></body>
 </html>

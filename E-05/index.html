@@ -898,7 +898,7 @@ label.ev-tb-btn{cursor:pointer}
 
   <div class="role-sw">
     <button class="role-btn on">Nhân viên</button>
-    <button class="role-btn" onclick="location.href='../M-05/index.html'">Quản lý</button>
+    <button class="role-btn" onclick="pmsGoRole('lm','../M-05/index.html')">Quản lý</button>
     <button class="role-btn" onclick="location.href='../H-05/index.html'">HR</button>
   </div>
 
@@ -3477,5 +3477,10 @@ document.addEventListener('DOMContentLoaded',initDemoData);
 <script src="../assets/yer-ui.js"></script>
 <script src="../assets/yer-employee.js"></script>
 <script src="../assets/yer-demo.js"></script>
+<script>
+/* Đổi vai trò ở sidebar: đặt vai vào phiên rồi mới chuyển trang,
+   nếu không màn đích sẽ mở bằng vai cũ và hiện khối rỗng. */
+function pmsGoRole(role, href){try{ if(window.PMSStore) window.PMSStore.setSession({ role: role }); }catch(e){}location.href = href;}
+</script>
 </body>
 </html>
