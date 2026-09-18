@@ -657,7 +657,7 @@ textarea.fc{resize:vertical}
         Mục tiêu nhân viên <span class="cy-tab-cnt" id="cy-0-cnt">0</span>
       </button>
       <button class="cy-tab-btn has-active-label" id="cy-1" onclick="switchCycleTab(1)">
-        Mid-Year Review <span class="cy-active-label">Đang hoạt động</span>
+        Đánh giá giữa năm <span class="cy-active-label">Đang hoạt động</span>
       </button>
       <button class="cy-tab-btn wip" id="cy-2" title="Chưa mở trong chu kỳ 2026">
         Đánh giá cuối năm
@@ -877,7 +877,7 @@ textarea.fc{resize:vertical}
     <button class="calib-back" onclick="closeCalibScreen()"><i class="bx bx-left-arrow-alt"></i> Quay lại</button>
     <div class="calib-hd-info">
       <div class="calib-hd-title">Phê duyệt điểm hiệu chuẩn</div>
-      <div class="calib-hd-sub">MYR 2026 · HOD · Indirect reports</div>
+      <div class="calib-hd-sub">MYR 2026 - HOD - Indirect reports</div>
     </div>
     <button id="calib-approve-btn" class="btn btn-default btn-sm" disabled onclick="approveCalibRatings()">
       <i class="bx bx-check-shield"></i> Duyệt điểm
@@ -1474,7 +1474,7 @@ function importMyrRatings(file){
     });
     renderMyrList();
     closeOv('dlg-myr-upload');
-    toast('Đã cập nhật '+updated+' điểm'+(skipped?' · Bỏ qua '+skipped+' dòng chưa hợp lệ':'')+'.');
+    toast('Đã cập nhật '+updated+' điểm'+(skipped?' - Bỏ qua '+skipped+' dòng chưa hợp lệ':'')+'.');
   };
   reader.readAsText(file,'utf-8');
 }
@@ -1782,8 +1782,8 @@ function renderMyrSpList(){
     return `<div class="sp-ei${emp.id===_myrSpEmpId?' on':''}" onclick="myrSpSelectEmp('${emp.id}')">
       <div class="sp-ec">
         <div class="sp-en">${emp.name}</div>
-        <div class="sp-em">${emp.dept}${emp.team?' · '+emp.team:''}</div>
-        <div class="sp-ect"><span class="${status.tone==='completed'?'ok':'upd'}">${status.text}</span>${score!==null&&score!==undefined?' · Điểm '+S.myrRole.toUpperCase()+': '+score:''}</div>
+        <div class="sp-em">${emp.dept}${emp.team?' - '+emp.team:''}</div>
+        <div class="sp-ect"><span class="${status.tone==='completed'?'ok':'upd'}">${status.text}</span>${score!==null&&score!==undefined?' - Điểm '+S.myrRole.toUpperCase()+': '+score:''}</div>
       </div>
     </div>`;
   }).join('');
@@ -2000,12 +2000,12 @@ function renderSpList(){
     const pnd=emp.goals.filter(g=>g.status==='pending').length;
     const upd=emp.goals.filter(g=>g.status==='update').length;
     const counts=(pnd?`<span class="pnd">${pnd} chờ duyệt</span>`:'')+
-                 (upd?(pnd?' · ':'')+`<span class="upd">${upd} cập nhật</span>`:'');
+                 (upd?(pnd?' - ':'')+`<span class="upd">${upd} cập nhật</span>`:'');
     return `<div class="sp-ei${emp.id===_spEmpId?' on':''}" onclick="spSelectEmp('${emp.id}')">`+
       `<div class="sp-av">${emp.ini}</div>`+
       `<div class="sp-ec">`+
         `<div class="sp-en">${emp.name}</div>`+
-        `<div class="sp-em">${emp.dept} · ${emp.pos}</div>`+
+        `<div class="sp-em">${emp.dept} - ${emp.pos}</div>`+
         (counts?`<div class="sp-ect">${counts}</div>`:'')+
       `</div></div>`;
   }).join('');

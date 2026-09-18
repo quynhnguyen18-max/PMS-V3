@@ -93,8 +93,6 @@
     'lm.approvePrev': ['Duyệt điểm cấp dưới', 'Approve previous level'],
     'lm.uploadScores': ['Tải điểm lên hệ thống', 'Upload scores'],
     'lm.aiSummary': ['Tóm tắt bằng AI', 'AI Summary'],
-    'lm.wrapupTask': ['Hoàn tất bàn giao đánh giá', 'Complete Performance Wrap-up'],
-    'lm.wrapupFromPrev': ['Bàn giao từ Quản lý trước', 'Wrap-up from previous manager'],
     'lm.importGoals': ['Import mục tiêu', 'Import goals'],
 
     /* ── sheet: hr (HRBP, L&OD, TR, HRD) ────────────────── */

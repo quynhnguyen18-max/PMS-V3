@@ -120,6 +120,12 @@ button{font-family:inherit}
 .guide-row i{font-size:15px;color:var(--brand);flex:none;margin-top:1px}
 .guide-row strong{color:var(--z900);font-weight:600}
 .empty-state{border:1px dashed var(--z300);background:var(--z50);border-radius:var(--rsm);padding:16px;text-align:center;color:var(--z600);font-size:12.5px}
+.flt{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 12px;border-bottom:1px solid var(--z200);margin-bottom:12px}
+.flt-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:50px;border:1px solid var(--z300);background:var(--z0);color:var(--z600);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--t)}
+.flt-btn:hover:not(.on){background:var(--z100);color:var(--z900)}
+.flt-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.flt-cnt{font-size:11px;font-weight:700;opacity:.72}
+.b-screen{color:var(--z700);background:var(--z50);border-color:var(--z300);font-weight:600}
 </style>
 </head>
 <body>
@@ -151,6 +157,7 @@ button{font-family:inherit}
         <i class="bx bx-list-check"></i><h2 id="hd-scenarios">Danh mục tình huống</h2>
         <span class="hd-note" id="sc-note">—</span>
       </div>
+      <div class="flt" id="sc-filter"></div>
       <div id="sc-body"></div>
     </div>
 
@@ -188,12 +195,14 @@ button{font-family:inherit}
   var LOCAL = {
     tbTitle:['YER 2026 — Bảng điều hướng tình huống','YER 2026 — Scenario navigator'],
     pageTitle:['Bảng điều hướng tình huống','Scenario navigator'],
-    pageSub:['Chọn một tình huống để đặt thanh demo dưới màn hình về đúng vai trò, đúng nhân sự và đúng ngày hệ thống. Panel bên phải cho biết hệ thống suy ra trạng thái gì tại thời điểm đó.',
-             'Pick a scenario to set the demo bar at the bottom to the matching role, person and system date. The right panel shows the state the system derives at that point in time.'],
+    pageSub:['Tình huống xếp theo vai trò. Bấm một tình huống để mở thẳng màn hình của vai đó, đúng nhân sự và đúng ngày hệ thống. Panel bên phải cho biết hệ thống suy ra trạng thái gì tại thời điểm đó.',
+             'Scenarios are grouped by role. Click one to open that role’s screen directly, with the right person and system date. The right panel shows the state the system derives at that point in time.'],
     hdTimeline:['Timeline kỳ đánh giá','Cycle timeline'],
     hdScenarios:['Danh mục tình huống','Scenario catalogue'],
     hdState:['Trạng thái tại ngày hệ thống','State at the system date'],
     scNote:['tình huống','scenarios'],
+    fltAll:['Tất cả vai trò','All roles'],
+    scEmpty:['Chưa có tình huống cho vai trò này','No scenarios for this role yet'],
     nowAt:['Đang ở','Now at'],
     stepOpen:['Đang mở','Open'], stepClosed:['Đã đóng','Closed'], stepFuture:['Chưa mở','Not open'],
     mgrCutoff:['Hạn chốt đổi Quản lý','Manager change cut-off'],
@@ -214,8 +223,8 @@ button{font-family:inherit}
     fLeaving:['Nghỉ việc từ','Leaving on'], fIneligible:['Không đủ điều kiện','Not eligible'],
     fMissingGoal:['Thiếu mục tiêu','Missing goals'], fLateOnboard:['Onboard sau hạn','Onboarded after cut-off'],
     fImported:['Mục tiêu do Quản lý import','Goals imported by manager'],
-    fMgrChange:['Đổi Quản lý','Manager changed'], fWrapDone:['Đã bàn giao','Wrap-up done'],
-    fWrapExpired:['Bàn giao hết hạn','Wrap-up expired'], fWrapSkipped:['Bỏ qua bàn giao','Wrap-up skipped'],
+    fMgrChange:['Đổi Quản lý','Manager changed'],
+    fGoalDone:['Mục tiêu đã chốt hoàn thành:','Goals assessed as complete:'],
     fGoalChanged:['Mục tiêu đổi sau Mid-Year','Goal changed after Mid-Year'],
     viewAs:['Đang xem với vai trò','Viewing as'],
     statusK:['Trạng thái','Status'],
@@ -246,15 +255,48 @@ button{font-family:inherit}
   }
 
   /* ── catalogue ────────────────────────────────────────── */
+  // Bộ tình huống xếp theo vai trò, nên bộ lọc cũng theo vai: người review
+  // thường duyệt hết phần của một vai rồi mới sang vai khác.
+  var filterGroup = 'all';
+
+  function sortedScenarios(){
+    var all = (window.PMS_YER_SCENARIOS || []).slice();
+    var rank = {};
+    (window.PMS_YER_SCENARIO_ORDER || []).forEach(function(id, i){ rank[id] = i; });
+    all.sort(function(a, b){ return (rank[a.id] == null ? 999 : rank[a.id]) - (rank[b.id] == null ? 999 : rank[b.id]); });
+    return all;
+  }
+
+  function screenLabel(key){
+    var sc = (window.PMS_YER_SCREENS || {})[key];
+    return sc ? (lg()==='en' ? sc.en : sc.vi) : '';
+  }
+
+  function renderFilter(){
+    var groups = window.PMS_YER_GROUPS || [];
+    var all = sortedScenarios();
+    function btn(id, name, n){
+      return '<button class="flt-btn' + (filterGroup===id?' on':'') + '" data-flt="' + id + '">' +
+        esc(name) + '<span class="flt-cnt">' + n + '</span></button>';
+    }
+    document.getElementById('sc-filter').innerHTML =
+      btn('all', L('fltAll'), all.length) +
+      groups.map(function(g){
+        return btn(g.id, lg()==='en'?g.en:g.vi, all.filter(function(x){ return x.g===g.id; }).length);
+      }).join('');
+    document.querySelectorAll('[data-flt]').forEach(function(b){
+      b.addEventListener('click', function(){ filterGroup = b.dataset.flt; renderFilter(); renderScenarios(); });
+    });
+  }
+
   function renderScenarios(){
     var s = S.session();
-    var groups = window.PMS_YER_GROUPS || [];
-    var all = (window.PMS_YER_SCENARIOS || []).slice();
-    var order = window.PMS_YER_SCENARIO_ORDER || [];
-    var rank = {};
-    order.forEach(function(id, i){ rank[id] = i; });
-    all.sort(function(a, b){ return (rank[a.id] == null ? 999 : rank[a.id]) - (rank[b.id] == null ? 999 : rank[b.id]); });
-    document.getElementById('sc-note').textContent = all.length + ' ' + L('scNote');
+    var groups = (window.PMS_YER_GROUPS || []).filter(function(g){
+      return filterGroup === 'all' || g.id === filterGroup;
+    });
+    var all = sortedScenarios();
+    var shown = all.filter(function(x){ return groups.some(function(g){ return g.id===x.g; }); });
+    document.getElementById('sc-note').textContent = shown.length + ' ' + L('scNote');
 
     document.getElementById('sc-body').innerHTML = groups.map(function(g){
       var rows = all.filter(function(x){ return x.g === g.id; });
@@ -264,29 +306,32 @@ button{font-family:inherit}
         '<span class="grp-cnt">' + rows.length + '</span></div>' +
         rows.map(function(sc){
           var e = emp(sc.emp);
-          var on = sc.emp === s.emp && sc.date === s.date;
+          var on = sc.emp === s.emp && sc.date === s.date && sc.role === s.role;
           return '<button class="sc' + (on?' on':'') + '" data-open="' + sc.id + '">' +
             '<span class="sc-code">' + esc(sc.id) + '</span>' +
             '<span>' +
-              '<span class="sc-name">[' + esc(lg()==='en'?g.en:g.vi) + '] ' + esc(lg()==='en'?sc.en:sc.vi) + '</span>' +
+              '<span class="sc-name">' + esc(lg()==='en'?sc.en:sc.vi) + '</span>' +
               '<span class="sc-watch">' + esc(lg()==='en'?sc.wen:sc.wvi) + '</span>' +
               '<span class="sc-meta">' +
-                '<span class="badge b-role">' + esc(roleLabel(sc.role)) + '</span>' +
                 '<span class="badge b-muted">' + esc(e ? e.name : sc.emp) + '</span>' +
                 '<span class="badge b-muted">' + esc(Y.fmt(sc.date, lg())) + '</span>' +
+                (sc.screen ? '<span class="badge b-screen">' + esc(screenLabel(sc.screen)) + '</span>' : '') +
               '</span>' +
             '</span>' +
             '<span class="sc-go"><i class="bx bx-right-arrow-alt"></i></span>' +
           '</button>';
         }).join('') + '</section>';
-    }).join('');
+    }).join('') || '<div class="empty-state">' + L('scEmpty') + '</div>';
 
     document.querySelectorAll('[data-open]').forEach(function(b){
       b.addEventListener('click', function(){
         var sc = (window.PMS_YER_SCENARIOS||[]).filter(function(x){ return x.id===b.dataset.open; })[0];
         if(!sc) return;
         S.setSession({ role: sc.role, emp: sc.emp, date: sc.date });
-        location.reload();
+        // Mở thẳng màn của vai đó thay vì chỉ đổi phiên rồi để người xem tự tìm đường
+        var screen = (window.PMS_YER_SCREENS || {})[sc.screen];
+        if (screen) location.href = '../' + screen.path + '?demo=1';
+        else location.reload();
       });
     });
   }
@@ -363,9 +408,8 @@ button{font-family:inherit}
     if(p.eligibility.reason === 'late-onboard') flags.push([L('fLateOnboard'),'b-muted']);
     if(p.importedGoals) flags.push([L('fImported'),'b-muted']);
     if(p.mgrChange) flags.push([L('fMgrChange') + ' ' + Y.fmt(p.mgrChange.at, lg()),'b-muted']);
-    if(p.wrapup && p.wrapup.status === 'done') flags.push([L('fWrapDone'),'b-ok']);
-    if(p.wrapup && p.wrapup.status === 'expired') flags.push([L('fWrapExpired'),'b-muted']);
-    if(p.wrapup && p.wrapup.status === 'skipped') flags.push([L('fWrapSkipped'),'b-muted']);
+    var doneN = Object.keys(p.completedGoals || {}).length;
+    if(doneN) flags.push([L('fGoalDone') + ' ' + doneN,'b-ok']);
     if(p.goalChangedAfterMyr.length) flags.push([L('fGoalChanged'),'b-muted']);
 
     var flagBox = flags.length
@@ -410,7 +454,7 @@ button{font-family:inherit}
     document.getElementById('lnk-comp').textContent = lg()==='en' ? 'Components' : 'Component nền tảng';
   }
 
-  function renderAll(){ renderChrome(); renderTimeline(); renderScenarios(); renderState(); renderGuide(); }
+  function renderAll(){ renderChrome(); renderTimeline(); renderFilter(); renderScenarios(); renderState(); renderGuide(); }
 
   I.mountToggle(document.getElementById('lang-slot'));
   I.onChange(renderAll);

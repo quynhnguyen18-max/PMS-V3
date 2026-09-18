@@ -209,24 +209,19 @@
     '</div></div>';
   }
 
-  /* ── bàn giao từ Quản lý cũ ──────────────────────────── */
-  function wrapupBlock(p) {
-    var w = p.wrapup;
-    if (!w || w.status !== 'done') return '';
-    var sc = w.sections || {};
-    var rows = [['achievements', L('Kết quả nổi bật', 'Key achievements')],
-                ['strengths', L('Điểm mạnh', 'Strengths')],
-                ['improvements', L('Cần cải thiện', 'Areas for improvement')],
-                ['notes', L('Ghi chú thêm', 'Additional notes')]];
-    return '<div class="rv-section"><div class="rv-section-hd"><i class="bx bx-transfer-alt"></i>' +
-      L('Bàn giao từ Quản lý trước', 'Wrap-up from the previous manager') +
-      '<span class="yer-hd-sub">' + esc(w.by ? w.by.name + ' (' + w.by.login + ')' : '') +
-        ' - ' + esc(Y.fmt(w.at, lg())) + '</span></div><div class="yer-wrap-body">' +
-      rows.map(function (r) {
-        if (!sc[r[0]]) return '';
-        return '<div class="yer-wrap-sec"><div class="yer-wrap-lbl">' + esc(r[1]) + '</div>' +
-          '<div class="yer-wrap-tx">' + esc(sc[r[0]]) + '</div></div>';
-      }).join('') + '</div></div>';
+  /* ── mục tiêu Quản lý trước đã đánh giá hoàn thành ──
+     Quản lý cũ không để lại bản bàn giao. Thứ họ để lại là điểm đã chốt, và Quản lý
+     hiện tại **không chấm lại** những mục tiêu đó. */
+  function doneChip() {
+    return '<span class="g-done-chip"><i class="bx bx-check-circle"></i>' +
+      L('Đã đánh giá hoàn thành', 'Assessed as complete') + '</span>';
+  }
+
+  function byLine(done) {
+    if (!done || !done.by) return '';
+    return '<div class="ql-by" title="' +
+      esc(L('Đánh giá bởi ', 'Assessed by ') + done.by.name + ' (' + done.by.login + ')') + '">' +
+      esc(done.by.login) + '</div>';
   }
 
   /* ── bảng mục tiêu ───────────────────────────────────── */
@@ -257,7 +252,9 @@
       });
     } else {
       rows = list.map(function (g) {
-        return { id: 'goal:' + g.id, name: g.title, result: g.result || '', prio: g.prio || '' };
+        // done: mục tiêu Quản lý trước đã đánh giá hoàn thành, Quản lý hiện tại không chấm lại
+        return { id: 'goal:' + g.id, name: g.title, result: g.result || '', prio: g.prio || '',
+                 done: (p.completedGoals || {})[g.id] || null };
       });
     }
 
@@ -284,16 +281,19 @@
         var key = r.id.split(':');
         var bucket = key[0] === 'how' ? 'how' : 'goal';
         var idx = key[1];
-        var selfVal = selfMap[idx];
-        var myVal = myMap[idx];
-        return '<tr><td><div class="g-name">' + esc(r.name) + '</div></td>' +
+        // Đã chốt hoàn thành thì cả hai cột đều lấy điểm đã chốt và đều chỉ xem
+        var selfVal = r.done ? r.done.self.score : selfMap[idx];
+        var myVal = r.done ? r.done.mgr.score : myMap[idx];
+        return '<tr' + (r.done ? ' class="g-row-done"' : '') +
+          '><td><div class="g-name">' + esc(r.name) + '</div>' +
+          (r.done ? doneChip() : '') + '</td>' +
           '<td><div class="g-result">' + esc(r.result) + '</div></td>' +
           (type === 'how' ? '' : '<td><div class="g-meta">' +
             (r.prio ? '<span class="prio prio-' + esc(r.prio) + '">' +
               esc(lg() === 'en' ? (PRIO[r.prio] || {}).en : (PRIO[r.prio] || {}).vi) + '</span>' : '') + '</div></td>') +
           '<td class="sc-cell">' + ratingCell('self:' + bucket + ':' + idx, selfVal == null ? null : selfVal, { readonly: true }) + '</td>' +
           '<td class="ql-cell">' + ratingCell('my:' + bucket + ':' + idx, myVal == null ? null : myVal,
-            { readonly: !(canEdit && isLm()) }) + '</td></tr>';
+            { readonly: r.done ? true : !(canEdit && isLm()) }) + byLine(r.done && r.done.mgr) + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
       commentPair(p, type, canEdit) + '</div>';
   }
@@ -430,7 +430,6 @@
 
     html += stoppedBlock(p) + lateBlock(p) + maternityBlock(p) + resignBlock(p);
     html += myrLine(p);
-    html += wrapupBlock(p);
 
     if (!p.stopped) {
       html += goalSection(p, 'what', canEdit);
@@ -685,9 +684,14 @@
       '.yer-op-hint{font-size:11.5px;color:var(--z500);line-height:1.45;margin:-6px 0 10px}' +
       '.yer-overall-grid{display:grid;gap:0}' +
       '.yer-overall-grid .overall-panel+.overall-panel{border-left:1px solid var(--z200)}' +
-      '.yer-wrap-body{padding:14px 16px;display:grid;gap:12px}' +
-      '.yer-wrap-lbl{font-size:11.5px;font-weight:600;color:var(--z500);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}' +
-      '.yer-wrap-tx{font-size:13px;color:var(--z800);line-height:1.55}' +
+      // Nhãn mục tiêu đã chốt hoàn thành và domain người chấm
+      '.g-done-chip{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:1px 8px;' +
+        'border-radius:50px;border:1px solid var(--ok-bd);background:var(--ok-bg);color:var(--ok);' +
+        'font-size:11px;font-weight:500;white-space:nowrap}' +
+      '.g-done-chip i{font-size:13px}' +
+      '.ql-by{margin-top:3px;font-size:10.5px;line-height:1.3;color:var(--z500);' +
+        'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+      '.rv-grid tbody tr.g-row-done{border-left:3px solid var(--ok)}' +
       '.yer-resp-body{padding:14px 16px}' +
       '.yer-resp-tx{font-size:13px;color:var(--z800);line-height:1.6;white-space:pre-wrap}' +
       '.yer-resp-reply{margin-top:12px;padding-top:12px;border-top:1px solid var(--z200)}' +

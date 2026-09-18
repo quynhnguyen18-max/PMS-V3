@@ -112,8 +112,10 @@
     var tags = [];
     // ENH-E01: hồ sơ đã nộp đơn nghỉ việc phải nhận ra ngay ở danh sách
     if (p.resignFrom && !p.resigned) {
-      tags.push('<span class="emp-tag emp-tag-resigned">' +
-        L('Nghỉ việc từ ', 'Leaving on ') + esc(Y.fmt(p.resignFrom, lg())) + '</span>');
+      // LWD = Last Working Day, dùng chung một cách gọi với màn của Nhân viên
+      tags.push('<span class="emp-tag emp-tag-resigned" title="' +
+        esc(L('Ngày làm việc cuối cùng', 'Last working day')) + '">LWD: ' +
+        esc(Y.fmt(p.resignFrom, lg())) + '</span>');
     }
     if (p.resigned) tags.push('<span class="emp-tag emp-tag-resigned">' + L('Đã nghỉ việc', 'Resigned') + '</span>');
     // ENH-E10: thai sản không bắt buộc tự đánh giá

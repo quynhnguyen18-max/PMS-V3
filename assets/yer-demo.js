@@ -78,13 +78,38 @@
     var patch = {};
     if (q.get('scenario')) {
       var sc = (window.PMS_YER_SCENARIOS || []).filter(function (s) { return s.id === q.get('scenario'); })[0];
-      if (sc) { patch.role = sc.role; patch.emp = sc.emp; patch.date = sc.date; }
+      if (sc) { patch.role = sc.role; patch.emp = sc.emp; patch.date = sc.date; patch.screen = sc.screen; }
     }
     if (q.get('role')) patch.role = q.get('role');
     if (q.get('emp')) patch.emp = q.get('emp');
     if (q.get('date')) patch.date = q.get('date');
     if (q.get('lang')) patch.lang = q.get('lang');
     return patch;
+  }
+
+  /* Mỗi vai làm việc trên một màn khác nhau, nên đổi vai mà ở nguyên màn cũ thì
+     người xem chỉ thấy màn trống. Thanh demo tự đưa sang đúng màn của vai đó. */
+  var DEFAULT_SCREEN = { nv: 'E-05', lm: 'M-05', lm2: 'M-05', hod: 'M-05' };
+
+  function screenPath(key) {
+    var sc = (window.PMS_YER_SCREENS || {})[key];
+    return sc ? sc.path : null;
+  }
+
+  function onScreen(path) {
+    return path && location.pathname.replace(/\\/g, '/').indexOf('/' + path) >= 0;
+  }
+
+  // Giữ lại demo=1 và lang khi chuyển màn, còn role/emp/date đã nằm trong phiên.
+  function goScreen(key) {
+    var path = screenPath(key);
+    if (!path || onScreen(path)) return false;
+    var q = new URLSearchParams(location.search);
+    var keep = new URLSearchParams();
+    keep.set('demo', '1');
+    if (q.get('lang')) keep.set('lang', q.get('lang'));
+    location.href = '../' + path + '?' + keep.toString();
+    return true;
   }
 
   function notify(reason) {
@@ -98,8 +123,11 @@
     var S = window.PMSStore;
     var showDemoOnLoad = new URLSearchParams(window.location.search).get('demo') === '1';
     var patch = readDeepLink();
+    var wantScreen = patch.screen; delete patch.screen;
     if (!S.session().date) patch.date = patch.date || window.PMSYer.DEFAULT_DATE;
     if (Object.keys(patch).length) S.setSession(patch);
+    // ?scenario=... mở đúng màn của tình huống, kể cả khi được dán vào màn khác
+    if (wantScreen && goScreen(wantScreen)) return;
 
     var bar = document.createElement('div');
     bar.id = 'pms-demo';
@@ -120,20 +148,24 @@
       var sortedScenarios = scenarios.slice().sort(function(a, b){
         return (rank[a.id] == null ? 999 : rank[a.id]) - (rank[b.id] == null ? 999 : rank[b.id]);
       });
-      var scOf = {}, groupOf = {};
-      groups.forEach(function(g){ groupOf[g.id] = g; });
-      sortedScenarios.forEach(function (x) { scOf[x.emp] = x; });
+      // Một nhân sự có thể xuất hiện ở nhiều tình huống của nhiều vai, nên dropdown
+      // định danh theo MÃ TÌNH HUỐNG chứ không theo mã nhân sự.
+      var scById = {}, usedEmp = {};
+      sortedScenarios.forEach(function (x) { scById[x.id] = x; usedEmp[x.emp] = true; });
+      var current = sortedScenarios.filter(function (x) {
+        return x.emp === s.emp && x.date === s.date && x.role === s.role;
+      })[0];
       var scenarioOptions = groups.map(function(g){
         var rows = sortedScenarios.filter(function(sc){ return sc.g === g.id; });
         if(!rows.length) return '';
         return '<optgroup label="' + label(g) + '">' + rows.map(function(sc){
           var e = emps.filter(function(item){ return item.id === sc.emp; })[0];
-          return '<option value="' + sc.emp + '"' + (sc.emp === s.emp ? ' selected' : '') + '>' +
-            '[' + label(g) + '] ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
+          return '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' +
+            sc.id + ' — ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
         }).join('') + '</optgroup>';
       }).join('');
-      var otherOptions = emps.filter(function(e){ return !scOf[e.id]; }).map(function(e){
-        return '<option value="' + e.id + '"' + (e.id === s.emp ? ' selected' : '') + '>' + e.name + '</option>';
+      var otherOptions = emps.filter(function(e){ return !usedEmp[e.id]; }).map(function(e){
+        return '<option value="emp:' + e.id + '"' + (!current && e.id === s.emp ? ' selected' : '') + '>' + e.name + '</option>';
       }).join('');
       if(otherOptions) scenarioOptions += '<optgroup label="' + (lg === 'en' ? 'Other profiles' : 'Hồ sơ khác') + '">' + otherOptions + '</optgroup>';
 
@@ -145,7 +177,7 @@
               return '<option value="' + r.key + '"' + (r.key === s.role ? ' selected' : '') + '>' + label(r) + '</option>';
             }).join('') + '</select>' +
           '</label>' +
-          '<label>' + (lg === 'en' ? 'Person' : 'Nhân sự') +
+          '<label>' + (lg === 'en' ? 'Scenario' : 'Tình huống') +
             '<select id="dm-emp">' + scenarioOptions + '</select>' +
           '</label>' +
           '<div class="dm-spacer"></div>' +
@@ -165,11 +197,19 @@
         '</div>';
 
       bar.querySelector('#dm-role').addEventListener('change', function (e) {
-        S.setSession({ role: e.target.value }); render(); notify('role');
+        S.setSession({ role: e.target.value });
+        if (goScreen(DEFAULT_SCREEN[e.target.value])) return;
+        render(); notify('role');
       });
       bar.querySelector('#dm-emp').addEventListener('change', function (e) {
-        var sc = scOf[e.target.value];
-        S.setSession(sc ? { emp: sc.emp, role: sc.role, date: sc.date } : { emp: e.target.value });
+        var v = String(e.target.value || '');
+        if (v.indexOf('emp:') === 0) {
+          S.setSession({ emp: v.slice(4) }); render(); notify('emp'); return;
+        }
+        var sc = scById[v.slice(3)];
+        if (!sc) return;
+        S.setSession({ emp: sc.emp, role: sc.role, date: sc.date });
+        if (goScreen(sc.screen || DEFAULT_SCREEN[sc.role])) return;
         render(); notify('emp');
       });
       bar.querySelector('#dm-date').addEventListener('input', function (e) {

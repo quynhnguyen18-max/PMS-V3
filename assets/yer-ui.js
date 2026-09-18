@@ -47,8 +47,16 @@
        từng mục tiêu, .op-select cho điểm toàn diện) để hai kỳ nhìn như nhau.
        Phần thêm của kỳ cuối năm chỉ gồm TÊN MỨC và ĐỊNH NGHĨA MỨC. */
     '.rt-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
-    '.rt-def{margin-top:8px;padding:8px 11px;border:1px solid var(--z200);border-radius:var(--rsm);',
-    'background:var(--z50);font-size:12px;color:var(--z600);line-height:1.5}',
+    /* Ô định nghĩa mức điểm: MỘT màu pastel duy nhất cho mọi mức điểm, viền đơn,
+       không vạch màu dày bên trái. Đây là thông tin giải thích chứ không phải trạng thái,
+       nên không đổi màu theo điểm cao thấp. Xanh nhạt để tách hẳn khỏi nền hồng của các
+       khối thao tác và khỏi vàng/đỏ/xanh lá của các chip trạng thái. */
+    '.rt-def{margin-top:10px;padding:11px 14px 12px;border:1px solid #d3e7f2;border-radius:var(--rsm);',
+    'background:#eaf5fb;font-size:12.5px;color:var(--z700);line-height:1.6}',
+    '.rt-def-hd{display:flex;align-items:center;gap:5px;margin-bottom:6px;',
+    'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#186a8e}',
+    '.rt-def-hd i{font-size:14px}',
+    '.rt-def p + p{margin-top:7px}',
     '.rt-def strong,.pms-tip-body strong{font-weight:600}',
     '.rt-def strong{color:var(--z900)}',
     '.pms-tip-body strong{color:#fff}',
@@ -220,6 +228,16 @@
       if (!n) return '';
       return '<span class="sc-lbl show ' + toneOf(v) + '">' + esc(n) + '</span>';
     }
+    /* Ô định nghĩa có tiêu đề riêng: không có nó thì đoạn chữ nằm trơ dưới ô nhận xét,
+       người đọc không biết đây là giải thích mức điểm hay là gợi ý viết nhận xét.
+       Tiêu đề chỉ dùng cho ô trên màn; tooltip đã có aria-label nên không lặp lại. */
+    function defPanel(v) {
+      return '<div class="rt-def">' +
+        '<div class="rt-def-hd"><i class="bx bx-info-circle"></i>' +
+        esc(lang() === 'en' ? 'What this rating means' : 'Ý nghĩa thang điểm') + '</div>' +
+        definitionHtml(v) + '</div>';
+    }
+
     function tipHtml(v) {
       return '<span class="pms-tip"><span class="rt-i" tabindex="0" role="button" aria-label="' +
         esc(lang() === 'en' ? 'Rating definition' : 'Định nghĩa mức điểm') + '">i</span>' +
@@ -255,10 +273,13 @@
 
       // ⓘ chỉ xuất hiện sau khi đã gửi (nhánh renderReadonly). Đang nhập thì định nghĩa
       // đã nằm sẵn ở ô ngay bên dưới nên thêm ⓘ là thừa.
+      // Định nghĩa chỉ hiện với điểm toàn diện và chỉ sau khi đã chọn điểm.
+      // opts.defInto cho phép màn hình đặt ô định nghĩa ở chỗ khác, ví dụ dưới ô nhận xét.
+      var defHtml = (half && val != null) ? defPanel(val) : '';
+      var defBox = opts.defInto ? document.querySelector(opts.defInto) : null;
       el.innerHTML = '<div class="rt-line">' + head + sel +
-          (val == null ? '' : nameTag(val)) + '</div>' +
-        // Định nghĩa chỉ hiện với điểm toàn diện và chỉ sau khi đã chọn điểm
-        (half && val != null ? '<div class="rt-def">' + definitionHtml(val) + '</div>' : '');
+          (val == null ? '' : nameTag(val)) + '</div>' + (defBox ? '' : defHtml);
+      if (defBox) defBox.innerHTML = defHtml;
       bind();
     }
 

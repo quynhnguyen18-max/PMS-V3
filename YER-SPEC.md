@@ -74,11 +74,31 @@ Mức .5 = vượt trên mức liền trước nhưng chưa đạt trọn vẹn 
 
 ## 5. Điều kiện tham gia
 
-- Onboard **trước 01/10/2026**. NV onboard sau ngày này ẩn hẳn khỏi danh sách YER.
+- Onboard **trước 01/10/2026**. NV onboard sau ngày này ẩn hẳn khỏi danh sách YER của Quản lý,
+  và **tab Đánh giá cuối năm trên màn của chính họ bị khóa** — nhãn tab là `Ngoài kỳ đánh giá`,
+  bấm vào không mở được, đang đứng ở tab đó thì bị đưa về tab Mục tiêu.
+  Màn hình suy điều này từ `status(p).key === 'out'`, không tự kiểm tra lại ngày onboard.
 - Có tối thiểu **1 mục tiêu công việc** và **1 mục tiêu phát triển** đã được duyệt.
 - Thiếu goal: chặn ngay ở màn tự đánh giá, gắn trạng thái **Không đánh giá**, dừng quy trình, KHÔNG upload được điểm CEO. Vẫn tính vào mẫu số tỷ lệ hoàn thành.
 - NV đã nghỉ việc: mặc định ẩn. Bật bộ lọc "Hiển thị nhân viên đã nghỉ việc" mới thấy, chỉ để tra cứu.
-- NV sắp nghỉ: hiện badge `Nghỉ việc từ dd/mm/yyyy`, deadline chung, phải chấm trước ngày hiệu lực. Qua ngày hiệu lực chưa chấm thì ẩn luôn.
+- NV sắp nghỉ: hiện badge ngày làm việc cuối cùng ở hai chỗ, với câu chữ khác nhau vì
+  chỗ rộng hẹp khác nhau:
+
+  | Chỗ | Câu chữ |
+  |---|---|
+  | Màn Nhân viên, **ngay dưới box thông tin nhân viên** ở header (`.emp-col`) | `Ngày làm việc cuối cùng: dd/mm/yyyy` |
+  | Dòng danh sách của Quản lý | `LWD: dd/mm/yyyy`, tooltip `Ngày làm việc cuối cùng` |
+
+  Trên màn Nhân viên **không mở ngoặc `(LWD)`**: tiếng Việt đã nói đủ nghĩa, thêm viết tắt
+  là lặp. Badge nằm ở header chứ không nằm trong tab, vì đây là thông tin nhân thân chứ
+  không thuộc kỳ đánh giá. Badge và box thông tin **rộng bằng nhau** (`.emp-col` dùng
+  `align-items:stretch`) để hai khối thẳng lề cả hai bên.
+
+  Ô này dùng chung cho mọi badge nhân thân (`.emp-badge`), xếp dọc theo thứ tự khai báo.
+  Sắp nghỉ việc dùng tông đỏ `--err`; nghỉ thai sản (§12) dùng tông hồng `--brand`.
+  Hai việc khác hẳn nhau nên không dùng chung một màu. Badge chỉ để nhận diện: **nhân viên vẫn tự đánh giá theo hạn
+  chung, không phải làm sớm**, và màn hình không dựng khối giục nào. Qua ngày hiệu lực
+  mà chưa chấm thì hồ sơ ẩn luôn.
 - Không tính NV đã nghỉ việc vào tỷ lệ hoàn thành.
 
 ## 6. Auto-sync quá deadline
@@ -144,6 +164,9 @@ LM2/HOD sửa điểm thoải mái tới hết deadline của mình.
 
 - Xác định theo trạng thái tại **ngày mở kỳ YER** (05/01/2027). Chỉ áp dụng cho thai sản, không mở rộng cho nghỉ ốm/nghỉ không lương.
 - NV thai sản **không bắt buộc** tự đánh giá, nhưng vẫn làm được nếu muốn.
+- Badge `Nghỉ thai sản tới ngày: dd/mm/yyyy` đặt ngay dưới box thông tin nhân viên,
+  cùng chỗ và cùng bề rộng với badge ngày làm việc cuối cùng ở §5. Dữ liệu không ghi hạn
+  thì badge chỉ ghi `Đang nghỉ thai sản`.
 - **Không đưa NV thai sản vào luồng nộp trễ của §27.1**: không hiện màn `Quá hạn tự đánh giá`,
   không báo cửa sổ nộp trễ đã đóng, nhãn tab giữ `Không yêu cầu tự đánh giá`.
 - Có goal thì LM đánh giá bình thường. Không có goal thì LM **import goal** rồi **approve**, sau đó đánh giá.
@@ -152,16 +175,100 @@ LM2/HOD sửa điểm thoải mái tới hết deadline của mình.
 - NV thai sản vẫn nhận final rating và response được.
 - NV đi làm lại sửa goal theo quy tắc chung của màn Mục tiêu.
 
-## 13. Đổi Quản lý và Wrap-up (Enh 9)
+## 13. Đổi Quản lý giữa kỳ (Enh 9)
 
-- Nguồn: HR masterlist. **Cut-off 31/12/2026** - sau ngày này LM đang là ai thì người đó chịu trách nhiệm đánh giá.
-- HRBP đổi reporting line, hệ thống tạo task `Hoàn tất bàn giao đánh giá` cho LM cũ, cấp quyền tạm đọc hồ sơ NV trong **48 giờ**.
-- 4 ô bắt buộc, chỉ text, không chấm điểm: Key Achievements, Strengths, Areas for Improvement, Additional Notes.
-- LM cũ xem được: goal hiện tại, tự đánh giá, feedback.
-- Quá 48h: task hết hạn, mất quyền, bỏ hẳn wrap-up, không chặn quy trình.
-- LM cũ đã nghỉ việc: bỏ qua.
-- Submit xong chuyển read-only. **NV thấy wrap-up ngay khi LM cũ submit.** LM hiện tại, HRBP, L&OD đều thấy.
+Chốt lại ngày 18/09/2026. **Không có bản bàn giao (wrap-up) nào cả.**
+Quy định cũ về task `Hoàn tất bàn giao đánh giá`, cửa sổ 48 giờ và bốn ô Key Achievements /
+Strengths / Areas for Improvement / Additional Notes **đã bỏ**, kèm toàn bộ UI của nó.
+
+- Nguồn: HR masterlist. **Cut-off 31/12/2026** - sau ngày này LM đang là ai thì người đó
+  chịu trách nhiệm đánh giá phần còn lại.
+- Thứ Quản lý cũ để lại là **điểm của những mục tiêu họ đã đánh giá hoàn thành**,
+  dùng chính tính năng đánh giá hoàn thành mục tiêu có sẵn ở màn Mục tiêu.
+- **Quản lý mới không chấm lại** những mục tiêu đó. Ô điểm của chúng khóa lại ở màn
+  chấm điểm, Quản lý mới chỉ chấm những mục tiêu còn trống.
+- Quản lý cũ nghỉ việc thì điểm họ đã chốt **vẫn giữ nguyên và vẫn ghi tên họ**.
 - Đổi qua công ty thành viên khác: không ràng buộc thêm về quyền xem.
+
+### 13.1 Mục tiêu đã đánh giá hoàn thành
+
+Chốt ngày 18/09/2026.
+
+**Việc chấm diễn ra ở tab Mục tiêu, không phải ở kỳ đánh giá.** Trình tự hai bước:
+
+1. **Nhân viên tự đánh giá trước** cho mục tiêu đó.
+2. **Quản lý đánh giá sau** và chốt hoàn thành.
+
+Sau khi chốt, sang tab **Đánh giá giữa năm** và **Đánh giá cuối năm** thì mục tiêu đó
+**chỉ hiển thị lại điểm đã chốt**:
+
+- **Khóa cả hai cột điểm.** Cả **Điểm NV** lẫn **Điểm QLTT** đều là ô chỉ xem — nhân viên
+  không chọn lại, Quản lý cũng không chấm lại.
+- Mục tiêu đã khóa **không tính vào ô bắt buộc điền** khi kiểm tra trước lúc gửi tự đánh giá:
+  không có ô để nhập thì không được đòi.
+- Khi nhân viên đổi Quản lý giữa kỳ, người chốt thường là **Quản lý cũ**, nên phải ghi
+  rõ ai chấm (xem bảng dưới).
+
+Dữ liệu: `completedGoals` trên hồ sơ, dạng
+
+```
+goalId -> {
+  self: { score, comment, at },            // nhân viên chấm trước
+  mgr:  { by, score, comment, at }         // quản lý chấm sau, `by` có thể là Quản lý cũ
+}
+```
+
+Áp đồng nhất ở **ba chỗ**: bảng mục tiêu của tab Đánh giá cuối năm, bảng mục tiêu của
+tab Đánh giá giữa năm, và màn chấm điểm của Quản lý `M-06`:
+
+| Chỗ | Hiển thị |
+|---|---|
+| Dòng mục tiêu | viền trái xanh lá 3px (`.g-row-done`) |
+| Cột **Điểm NV** | điểm chỉ xem, không có dropdown |
+| Dưới tên mục tiêu | chip xanh lá `Đã đánh giá hoàn thành` (`.g-done-chip`) |
+| Cột **Điểm QLTT** | điểm chỉ xem, dưới là **domain người chấm** 10.5px màu `--z500` (`.ql-by`) |
+| Popup chi tiết mục tiêu | dòng `Đã đánh giá hoàn thành bởi` với tên đầy đủ kèm domain |
+
+### 13.2 Hover và popup chi tiết mục tiêu
+
+Bảng mục tiêu của tab Đánh giá cuối năm dùng **đúng cơ chế của tab Đánh giá giữa năm**,
+không dựng kiểu UI riêng:
+
+- **Rê chuột** → tooltip `#goal-tip` hiện tên và kết quả cần đạt. Chỉ bật ở **hai cột đầu**:
+  `Tên mục tiêu` và `Kết quả cần đạt` (nhóm hành vi là `Giá trị cốt lõi` và `Mô tả`).
+  Treo vào cả dòng thì rê lên ô chọn điểm hay cột thời gian cũng bật tooltip, che mất
+  thứ người dùng đang định bấm.
+- **Bấm** vào dòng → popup `#goal-detail-overlay` `Chi tiết mục tiêu`.
+  Bấm vào ô chọn điểm, nút hay liên kết thì không mở popup.
+- Áp cho **cả ba nhóm**: Mục tiêu công việc, Mục tiêu phát triển và **Mục tiêu hành vi**.
+  Giá trị cốt lõi cũng là một nhóm mục tiêu, không được bỏ sót.
+- Dòng mục tiêu phải mang `data-name` và `data-result`; tooltip và popup chỉ đọc `data-*`
+  của dòng nên hai file không phải truyền gì cho nhau.
+- Mô tả nhiều ý (Giá trị cốt lõi có ba câu) nối bằng ký tự xuống dòng; tooltip và ô
+  `Kết quả cần đạt` của popup dùng `white-space:pre-line` để giữ đúng ngắt dòng.
+- Bảng dựng lại mỗi lần render nên phải gọi lại `window.bindReviewGoalRows(root)` sau
+  mỗi lần render, **không** gắn một lần lúc tải trang. Cờ `data-tipBound` chặn gắn trùng.
+
+Popup là **chính hộp thoại `#dlg-detail` của màn Mục tiêu**, mở bằng `openDetailFromRow(tr)`.
+Không dựng popup rút gọn riêng cho kỳ đánh giá — từng làm vậy và phải bỏ đi.
+
+| Phần | Lấy từ |
+|---|---|
+| Badge trạng thái | `Hoàn thành` nếu mục tiêu đã chốt, ngược lại `Đã duyệt` |
+| Badge loại | tiêu đề nhóm của chính bảng (`.rv-type`) |
+| Ưu tiên / Từ ngày / Đến ngày | ô `.prio` và `.g-meta` của dòng; **ẩn cả hàng** với Mục tiêu hành vi |
+| Khối hai lượt chấm | `renderEvalTab()` sẵn có, truyền một phần tử mang đúng `dataset` |
+| Tab **Bình luận** | **ẩn**: dòng của kỳ đánh giá không mang dữ liệu bình luận, hiện lại là gắn nhầm bình luận của mục tiêu khác |
+
+Mở từ màn Mục tiêu thì `openDetail()` **trả lại** tab Bình luận và hàng ưu tiên/thời gian,
+vì hai màn dùng chung một hộp thoại.
+
+Domain hai lượt chấm (`.ev-meta`) lấy từ `data-done-self-by` và `data-done-mgr-by`,
+không hardcode `tu.nguyen` / `thanh.le` nữa.
+
+Ở cột điểm chỉ ghi **domain**, không ghi tên đầy đủ: cột chỉ rộng khoảng 10% bảng, tên
+đầy đủ sẽ xuống dòng và làm rối bảng. Tên đầy đủ đặt ở `title` để rê chuột là thấy,
+và ở popup chi tiết nơi có đủ chỗ.
 
 ## 14. AI Performance Copilot (Enh 6)
 
@@ -186,7 +293,7 @@ LM2/HOD sửa điểm thoải mái tới hết deadline của mình.
 
 - Cho LM, HRBP, L&OD. Export được cả khi kỳ đang chạy.
 - **File tổng hợp (Excel)**: 1 dòng/NV, dùng cho bulk.
-- **File chi tiết (PDF)**: 1 file/NV - goal, nhận xét, response, wrap-up, snapshot MYR.
+- **File chi tiết (PDF)**: 1 file/NV - goal, nhận xét, response, snapshot MYR.
 - **Không** kèm điểm LM2/HOD. File của LM và của HRBP giống nhau. LM thấy cột final rating trước publish.
 
 ## 17. Xóa mục tiêu (Enh 3)
@@ -203,9 +310,49 @@ Nhãn trạng thái chỉ hiện ở tab **Đánh giá giữa năm** và **Đán
 Nhãn theo việc người dùng cần làm: `Cần tự đánh giá` / `Đang chờ Quản lý` / `Đã có kết quả của Quản lý` / `Đã hoàn tất` / `Không đánh giá` / `Chưa mở`.
 Tab chưa mở: viền đứt nét, tooltip `Bắt đầu từ dd/mm/yyyy`.
 
+### 18.1 Cách hiển thị ba trạng thái của tab
+
+Tab nghỉ **không để nền trắng**. Nền trang là `--z50` nên tab trắng chìm hẳn, đọc ra
+thành chữ trôi nổi chứ không ra hình cái tab.
+
+| Trạng thái | Nền | Viền | Chữ |
+|---|---|---|---|
+| Nghỉ | `--z100` | `--z300` liền | `--z700`, weight 600 |
+| Trỏ tới | `--z0` | `--z400` liền | `--z900` |
+| Đang chọn | `--brand-muted` | `--brand-ring` liền, kèm vạch `--brand` 3px ở đỉnh | `--brand`, weight 700 |
+| Khóa | `--z50` | `--z300` đứt nét | `--z400` |
+
+Đường kẻ chân dải tab dùng `--z300` (không phải `--z200`) để ra hình dải tab.
+Tab khóa nhạt hơn tab nghỉ là cố ý: nhìn là biết bấm không được.
+
+Nhãn trạng thái trên tab: 9.5px, cao 16px, đặt ở `top:-8px` để đứng trên mép trên
+của tab như một dải ruăng. Cỡ 8px cũ quá nhỏ và vắt nửa ra ngoài, trông như bị lọt khỏi tab.
+
+Cách hiển thị này áp cho cả `E-05` và `M-06`.
+
 Không auto-save. Có dữ liệu chưa lưu mà rời màn (đổi tab, đổi NV, breadcrumb, đóng tab trình duyệt, đổi kỳ) thì hiện dialog tiêu đề **Nội dung chưa được lưu**, có nút X đóng, 3 nút **cùng một hàng** căn phải:
 `Rời đi, không lưu` (viền xám) - `Tiếp tục chỉnh sửa` (viền xám) - `Lưu nháp` (nền hồng, nút chính).
 Không lặp lại cụm "chuyển tab" trong tên nút vì dialog dùng chung cho mọi cách rời màn.
+
+## 18.2 Tab Đánh giá giữa năm: hai lý do "không có kết quả"
+
+Chốt ngày 18/09/2026. Hai lý do khác hẳn nhau, cho ra **hai hành vi UI khác nhau**:
+
+| Lý do | Tab | Nhãn tab |
+|---|---|---|
+| Onboard **sau 01/04/2026** → không thuộc kỳ giữa năm | **Khóa**, bấm không vào được | `Không đánh giá` |
+| Thuộc kỳ nhưng không hoàn tất bước bắt buộc (NV không làm, hoặc không có kết quả của Quản lý) | **Vẫn mở**, chỉ xem | `Không có kết quả` |
+
+- Hạn onboard của kỳ giữa năm là `myrOnboardCutoff = 2026-04-01`, **khác** hạn của kỳ cuối năm
+  (`onboardCutoff = 2026-10-01` ở §5). Một người có thể thuộc kỳ cuối năm mà không thuộc
+  kỳ giữa năm — ví dụ onboard tháng 6.
+- Luật suy từ model qua `p.myrEligible`, màn hình không tự kiểm tra lại ngày onboard.
+- Đang đứng ở tab vừa bị khóa thì đưa về tab Mục tiêu, giống cách xử lý tab Đánh giá
+  cuối năm ở §5.
+- Hai tình huống demo để đối chiếu: `nv22` (khóa) và `nv18` (mở, không có kết quả).
+- Nhãn tab phân biệt hai trường hợp, nhưng **câu chữ trong khối Lưu ý thì không**:
+  cả hai đều dùng chung một câu ở §40.5c. Nhãn tab đã nói rõ lý do rồi, không cần
+  viết dài thêm một lần nữa trong Lưu ý.
 
 ## 19. Song ngữ
 
@@ -227,7 +374,7 @@ Không lặp lại cụm "chuyển tab" trong tên nút vì dialog dùng chung c
 | 0 | Seed data, Demo Control, time machine, store, song ngữ, spec | nền | Xong |
 | 1 | Rating selector, tab, popup dữ liệu chưa lưu | 10, 11, 12 | Xong |
 | 2 | Màn Nhân viên `E-05`: tự đánh giá, xem kết quả, Employee Response, snapshot MYR, thai sản, xóa mục tiêu | 2, 3, 5, 8 | Xong |
-| 3 | Màn Quản lý gộp LM/LM2/HOD: chấm điểm, bulk, upload, duyệt, AI Copilot, wrap-up, lọc | 1, 6, 8, 9 | Đang làm |
+| 3 | Màn Quản lý gộp LM/LM2/HOD: chấm điểm, bulk, upload, duyệt, AI Copilot, lọc | 1, 6, 8, 9 | Đang làm |
 | 4 | HRBP / L&OD / TR / HR Director: danh sách, chi tiết, export, proxy view, upload điểm cuối | 4, 7 | Chưa làm |
 
 Kèm theo: `YER-demo/index.html` (bảng điều hướng 22 tình huống) và `YER-DEMO-SCRIPT.md` (kịch bản trình bày) - làm ở cụm 4.
@@ -269,8 +416,8 @@ breadcrumb, emp-chip, chọn chu kỳ, tab bar, toolbar Lưu nháp / Gửi tự 
 | `assets/yer-employee.js` | Render toàn bộ nội dung tab End-Year Review theo dữ liệu và ngày hệ thống |
 
 Nội dung tab End-Year Review theo thứ tự: toolbar → banner trạng thái → dải quy trình →
-banner đặc thù (thiếu mục tiêu, thai sản, sắp nghỉ việc) → bàn giao từ Quản lý cũ →
-3 nhóm mục tiêu → Đánh giá toàn diện → Phản hồi của Nhân viên.
+banner đặc thù (thiếu mục tiêu, thai sản) → 3 nhóm mục tiêu →
+Đánh giá toàn diện → Phản hồi của Nhân viên.
 
 Quy ước riêng của màn Nhân viên:
 - Dải quy trình tên là **Quy trình và Thời gian đánh giá cuối năm 2026**, dạng gọn, **không đánh số**,
@@ -492,7 +639,7 @@ Giữ nguyên §14. Làm sau cùng của cụm màn Quản lý vì thuộc nhóm
 | 1 | Nền dùng chung: thang điểm, tab và journey, tourguide, popup chưa lưu | ENH-E13, E14, E15 | Xong |
 | 2 | Hoàn thiện màn Nhân viên `E-05` | ENH-E05, E03, E10, E02 | Xong |
 | 3 | Màn Quản lý LM/LM2/HOD: danh sách và màn chấm điểm | ENH-E01, E02, E03, E10 | Xong |
-| 3b | Còn lại của cụm Quản lý: duyệt điểm hiệu chuẩn, màn bàn giao khi đổi Quản lý, AI Copilot | ENH-E08 | Chưa làm |
+| 3b | Còn lại của cụm Quản lý: duyệt điểm hiệu chuẩn, AI Copilot | ENH-E08 | Chưa làm |
 | 4 | Màn HR: HRBP, L&OD, TR, HRD | ENH-E06, E09 | Chưa làm |
 
 Trong mỗi đợt, dựng tình huống theo thứ tự: đúng hạn trước, rồi trễ hạn, thiếu mục tiêu,
@@ -596,9 +743,105 @@ Nằm ngay dưới dải quy trình, dùng `info-note` giống tab Đánh giá g
 
 1. Điều kiện tham gia. Cụm **Danh sách mục tiêu** là **liên kết thật**, bấm vào là chuyển
    sang tab Mục tiêu ngay trong màn, không rời trang.
-2. Kết quả kỳ giữa năm. Có kết quả thì cụm **Đánh giá giữa năm** là liên kết sang tab đó.
-   Không tham gia kỳ giữa năm thì ghi thẳng `Không có kết quả Mid-Year 2026` và nói rõ
-   điều đó không ảnh hưởng tới kỳ cuối năm, **không để liên kết chết**.
+2. Kết quả kỳ giữa năm. Chỉ có hai câu, xem §40.5c. Câu có kết quả thì cụm
+   **Đánh giá giữa năm 2026** là liên kết sang tab đó; câu không có kết quả là chữ thường,
+   **không để liên kết chết**.
+
+##### 40.5a Logic hiển thị box thông tin
+
+Chốt ngày 18/09/2026. Hai nguyên tắc:
+
+1. **Không bao giờ hiện hai box thông tin cùng lúc.** Mọi nội dung mang tính thông tin
+   và hướng dẫn đều nằm trong một box duy nhất.
+2. **Vị trí box nói lên mức độ ưu tiên**, không phải loại nội dung. Trên dải quy trình
+   = việc đang chặn, phải xử trước. Dưới dải quy trình = đọc tham khảo.
+
+**Bảng trạng thái đầy đủ** (theo thứ tự ưu tiên, trạng thái nào đúng trước thì dùng cái đó):
+
+| # | Trạng thái hồ sơ | Box hiển thị | Vị trí | Nội dung |
+|---|---|---|---|---|
+| 1 | Đã gửi tự đánh giá (`p.self`) | **không box nào** | — | banner `Đã hoàn thành` thay thế |
+| 2 | Thiếu mục tiêu (`eligibility.reason === 'missing-goal'`) | khối cảnh báo `.yer-note.action`, nền hồng | **trên** dải quy trình | tiêu đề + thiếu gì + gạch đầu dòng Lưu ý + nút CTA |
+| 3 | Nghỉ thai sản | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | một dòng thai sản, xem §40.5b |
+| 4 | Các trường hợp còn lại | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | điều kiện mục tiêu + kết quả kỳ giữa năm |
+| 5 | Không còn gạch đầu dòng nào | **không box nào** | — | không dựng thẻ rỗng |
+
+Thứ tự khối trên màn ứng với từng trạng thái:
+
+```
+Thiếu mục tiêu:  cảnh báo → dải quy trình → các nhóm mục tiêu
+Đủ mục tiêu:    toolbar → dải quy trình → Lưu ý → các nhóm mục tiêu
+Đã gửi:         banner  → dải quy trình → các nhóm mục tiêu
+```
+
+**Chuyển trạng thái:** duyệt đủ mục tiêu thì khối cảnh báo biến mất và khối `Lưu ý`
+thế chỗ ở **dưới** dải quy trình. Lúc này `Lưu ý` hiện **đầy đủ** hai gạch đầu dòng:
+dòng về điều kiện mục tiêu chỉ bị lược khi nó nằm trong khối cảnh báo (vì trùng ý),
+còn khi đứng riêng thì vẫn cần — `noteList(p, { skipGoalRule: true })` chỉ dùng cho khối cảnh báo.
+
+**Vị trí này là chốt, không đổi.** Lý do giữ `Lưu ý` ở dưới dải quy trình:
+
+- Tab Đánh giá giữa năm trong cùng màn đã xếp `stepper-card` → `info-note`. Đưa lên trên
+  là hai tab lệch nhau ngay trong một màn hình.
+- Dải quy trình trả lời "tôi đang ở bước nào, hạn ngày nào" — thứ cần mỗi lần vào màn.
+  `Lưu ý` là hướng dẫn đọc một lần. Đẩy hướng dẫn lên trước là hạ cấp thông tin chính.
+- Giữ hai vị trí khác nhau thì nhân viên bị chặn và nhân viên bình thường nhìn ra khác nhau ngay.
+
+Câu chữ về kỳ giữa năm xem §40.5c.
+
+##### 40.5d Luôn giữ đủ ba khối mục tiêu
+
+Chốt ngày 18/09/2026. **Không được giấu khối Mục tiêu công việc hay Mục tiêu phát triển
+khi nhóm đó chưa có mục tiêu nào.** Tab luôn hiện đủ ba khối:
+Mục tiêu công việc → Mục tiêu phát triển → Mục tiêu hành vi.
+
+Nhóm chưa có mục tiêu thì giữ nguyên tiêu đề và hàng tiêu đề cột, thân bảng là **một dòng
+xám mờ** (`.g-none`): chữ `--z400`, in nghiêng, căn giữa, không viền không nền.
+
+Câu chữ: `Chưa có <tên nhóm viết thường> nào được Quản lý trực tiếp phê duyệt.`
+
+Áp cho mọi trường hợp thiếu mục tiêu, kể cả khi **chưa có mục tiêu nào** (cả hai nhóm
+đều trống). Lý do:
+
+- Giấu khối thì nhân viên không nhìn ra mình đang thiếu loại mục tiêu nào.
+- Hai hồ sơ cùng trạng thái lại có số khối khác nhau → bố cục nhảy giữa các nhân sự.
+- Khối trống còn là chỗ để nhân viên đối chiếu với khối cảnh báo ở trên.
+
+Ô nhận xét của nhóm vẫn hiện nhưng luôn **chỉ xem**: nhóm nào trống thì hồ sơ chắc chắn
+đang thiếu mục tiêu, mà thiếu mục tiêu thì không đủ điều kiện nên không nhập được gì.
+
+#### 40.5c Hai câu về kết quả kỳ giữa năm
+
+Chốt ngày 18/09/2026. **Chỉ có hai câu, không tự thêm biến thể:**
+
+| Khi nào | Câu chữ |
+|---|---|
+| Có kết quả kỳ giữa năm | `Bạn có thể xem lại kết quả [Đánh giá giữa năm 2026] của mình trước khi tự đánh giá cuối năm.` |
+| Thuộc kỳ nhưng chưa hoàn tất | `Bạn không có kết quả Đánh giá giữa năm 2026 vì chưa hoàn thành quy trình.` |
+| **Không thuộc kỳ giữa năm** (onboard sau 01/04/2026) | **không hiện dòng nào** |
+
+- Chỉ câu thứ nhất có **liên kết** sang tab Đánh giá giữa năm. Câu thứ hai là chữ thường,
+  không liên kết, không in đậm.
+- Người **không thuộc kỳ giữa năm** thì **bỏ hẳn dòng này**. Họ chưa bao giờ vào kỳ đó,
+  nhắc tới chỉ làm họ tưởng mình bỏ sót việc gì. Nhãn tab đã nói rõ rồi (§18.2).
+- Hệ quả: khối Lưu ý có thể không còn dòng nào — khi đó **không dựng thẻ rỗng**,
+  bỏ luôn cả box.
+
+### 40.5b Nhân viên nghỉ thai sản
+
+Khối Lưu ý **thay hẳn nội dung**, không phải thêm vào:
+
+- **Bỏ cả hai gạch đầu dòng ở trên.** Họ không phải tự đánh giá nên hai dòng đó
+  không dẫn tới việc gì.
+- Thông báo thai sản **nằm trong chính khối Lưu ý**, không dựng thành khối riêng ngay
+  bên dưới: hai khối liền nhau nói hai chuyện khác nhau nhìn rất rối.
+- Dùng đúng kết cấu `ul.yer-note-list > li` như các dòng Lưu ý khác. **Không bọc thêm
+  một ô nền hồng bên trong ô Lưu ý** và **không đặt icon riêng cho dòng này**: box lồng box
+  nhìn rất vô duyên, và ô Lưu ý đã có icon ⓘ của riêng nó.
+- Câu chữ: `Bạn đang nghỉ thai sản nên không bắt buộc thực hiện bước Tự đánh giá
+  cuối năm. Quản lý trực tiếp sẽ đánh giá theo quy trình của Công ty.`
+- Nhấn chữ: **nghỉ thai sản** đậm màu `--brand`; **không bắt buộc** và **Tự đánh giá**
+  chỉ đậm, giữ màu chữ thường.
 
 ## 41. Ô bắt buộc điền và ⓘ định nghĩa mức điểm
 
@@ -616,6 +859,29 @@ Chốt ngày 17/09/2026.
 
 **ⓘ chỉ xuất hiện sau khi đã gửi.** Trong lúc đang nhập, định nghĩa đã nằm sẵn ở ô ngay
 dưới ô chọn điểm nên thêm ⓘ là thừa. Điều này đúng với §4 và **thay** §34.
+
+### 41.2b Ô Ý nghĩa thang điểm
+
+Ô định nghĩa nằm dưới ô nhận xét toàn diện, là một **panel có tiêu đề riêng**:
+
+- Tiêu đề `Ý NGHĨA THANG ĐIỂM` (EN: `WHAT THIS RATING MEANS`), chữ hoa, kèm icon
+  `bx-info-circle`. Không có tiêu đề thì đoạn chữ nằm trơ dưới ô nhận xét và người đọc
+  không biết đây là giải thích mức điểm hay gợi ý viết nhận xét.
+- **MỘT màu pastel duy nhất cho mọi mức điểm**, viền đơn 1px đều bốn cạnh:
+
+  | Phần | Mã màu |
+  |---|---|
+  | Nền | `#eaf5fb` |
+  | Viền | `#d3e7f2` |
+  | Tiêu đề và icon | `#186a8e` |
+  | Nội dung | `--z700` |
+
+- **KHÔNG đổi màu theo điểm cao thấp và không có vạch màu dày bên trái.** Đây là thông tin
+  giải thích chứ không phải trạng thái; tô theo điểm thì điểm thấp ra một ô đỏ, đọc thành lỗi.
+- Chọn xanh nhạt để tách hẳn khỏi nền hồng của các khối thao tác, và khỏi vàng/đỏ/xanh lá
+  của các chip trạng thái.
+- Tooltip của ⓘ (nhánh chỉ xem) dùng lại đúng đoạn định nghĩa nhưng **không lặp tiêu đề**,
+  vì đã có `aria-label` nói rõ đây là định nghĩa mức điểm.
 
 ### 41.3 Tên và định nghĩa mức điểm lẻ
 
@@ -673,7 +939,27 @@ Ba cách mở lại:
 | Nhấn phím **`D`** | bật tắt nhanh, không dùng được khi con trỏ đang ở trong ô nhập |
 | Thêm **`?demo=1`** vào URL | mở sẵn ngay khi tải trang, tiện cho deep link |
 
-Deep link đầy đủ: `E-05/index.html?demo=1&role=nv&date=2027-01-20&emp=y11`.
+Deep link đầy đủ: `E-05/index.html?demo=1&role=nv&date=2027-01-20&emp=y11`,
+hoặc ngắn gọn `E-05/index.html?demo=1&scenario=nv11`.
+
+### 44.1 Thanh demo tự điều hướng
+
+Mỗi vai làm việc trên một màn khác nhau, nên đổi vai mà ở nguyên màn cũ thì người xem
+chỉ thấy màn trống. Thanh demo tự chuyển sang đúng màn:
+
+| Chọn | Đi tới |
+|---|---|
+| Vai **Nhân viên** | `E-05/index.html` |
+| Vai **Quản lý trực tiếp**, **Quản lý cấp 2**, **Trưởng đơn vị** | `M-05/index.html` |
+| Một **tình huống** | màn ghi ở trường `screen` của tình huống đó |
+
+`?demo=1` và `?lang=` được giữ lại khi chuyển màn; vai trò, nhân sự và ngày hệ thống
+đi theo phiên trong `localStorage` nên không cần đặt lại trên URL.
+
+Dropdown thứ hai của thanh demo định danh theo **mã tình huống** (`sc:<id>`) chứ
+không theo mã nhân sự: một người có thể xuất hiện ở nhiều tình huống của nhiều vai
+(ví dụ `e1` ở `nv16`, `lm02` và `hod02`). Nhóm cuối **Hồ sơ khác** (`emp:<id>`) dành cho
+nhân sự không thuộc tình huống nào, chỉ đổi hồ sơ chứ không đổi vai và ngày.
 
 ## 45. Bộ kiểm thử
 
@@ -684,15 +970,34 @@ Deep link đầy đủ: `E-05/index.html?demo=1&role=nv&date=2027-01-20&emp=y11`
 
 `yer-enhancements.test.js` nạp trực tiếp `assets/yer-data.js` và `assets/yer-model.js` trong `vm`,
 kèm `assets/employees-data.js` — thiếu file này thì `profile()` của `e1`..`e16` trả về null.
-Những luật đã khóa bằng test: thứ tự sáu giai đoạn của bảng tình huống, ba trạng thái mục tiêu
+Những luật đã khóa bằng test: bộ tình huống xếp theo bốn vai trò và mỗi tình huống
+nằm đúng nhóm vai của nó, mọi tình huống đều dựng được hồ sơ tại ngày hệ thống đã chọn,
+mười sáu tình huống của Nhân viên ra đúng trạng thái mong đợi, thiếu WHAT khác thiếu DEV
+ở dữ liệu chứ không chỉ khác câu chữ, nhân viên ngoài kỳ thì tab bị khóa, ba trạng thái mục tiêu
 của luồng nộp trễ, thai sản không vào luồng nộp trễ, hồ sơ đã nộp trễ chuyển sang chờ Quản lý,
 mascot thay nút hướng dẫn, ba file mẫu có thật, thanh demo ẩn nhưng viên Demo luôn mở được.
 
 ## 46. Bảng điều hướng tình huống
 
-`YER-demo/index.html` gom **26 tình huống** theo sáu giai đoạn của quy trình:
-Điều kiện tham gia → Tự đánh giá → Quản lý trực tiếp → Quản lý cấp 2 → Trưởng đơn vị →
-Kết quả và phản hồi. Mỗi dòng đặt sẵn vai trò, nhân sự và ngày hệ thống.
+`YER-demo/index.html` gom **37 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
+người review thường duyệt hết phần của một vai rồi mới sang vai khác. Hàng chip đầu bảng
+lọc theo vai; mỗi dòng đặt sẵn vai trò, nhân sự, ngày hệ thống và **màn hình sẽ mở**.
+
+| Nhóm | Mã | Số tình huống |
+|---|---|---|
+| Nhân viên | `nv01`–`nv21` | 21 |
+| Quản lý trực tiếp | `lm01`–`lm08` | 8 |
+| Quản lý cấp 2 | `lm2-01`–`lm2-04` | 4 |
+| Trưởng đơn vị | `hod01`–`hod04` | 4 |
+
+`nv01`–`nv16` là mười sáu tình huống chính của vai Nhân viên, đi theo đúng thứ tự câu chuyện:
+không đủ điều kiện → thai sản → LWD → đổi quản lý → ba biến thể còn hạn → bốn biến thể
+quá hạn → đã nộp → nộp trễ bằng file → ba bước chờ phía sau. `nv17`–`nv21` là các tình huống
+phụ: kỳ giữa năm và luồng phản hồi sau công bố.
+
+Ghi chú cho người review: **`nv08`–`nv11` dựng ra cùng một màn nộp trễ**. Quá hạn thì file
+thay cho toàn bộ nội dung, nên số mục tiêu đã duyệt chỉ đổi hộp thoại **Tải file mẫu**
+(có mục tiêu đã duyệt thì hỏi mẫu trống hay mẫu kèm mục tiêu; không có thì tải thẳng mẫu trống).
 
 Ba bản dựng phụ để review từng phần:
 

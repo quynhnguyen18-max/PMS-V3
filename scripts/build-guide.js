@@ -325,7 +325,7 @@ stepSlide({
   title: 'Tổng quan trang Mục tiêu & Đánh giá',
   bullets: [
     'Truy cập trang "Mục tiêu và Đánh giá cá nhân" từ sidebar.',
-    'Có 3 tab chính: Mục tiêu, Mid-Year Review, End-Year Review.',
+    'Có 3 tab chính: Mục tiêu, Đánh giá giữa năm, Đánh giá cuối năm.',
     'Tab Mục tiêu hiển thị 3 nhóm: Mục tiêu Công việc, Phát triển, Hành vi.',
     'Chọn Cột (board) hoặc Bảng (table) để xem theo cách khác nhau.',
     'Thông tin nhân viên và Quản lý trực tiếp hiển thị ở góc phải.',
@@ -382,16 +382,16 @@ stepSlide({
 // 8. Bước 5 – Tự đánh giá MYR
 stepSlide({
   stepNum: 5, stepTotal: 5,
-  title: 'Tự đánh giá Mid-Year Review (MYR)',
+  title: 'Tự đánh giá giữa năm (MYR)',
   bullets: [
-    'Nhấn tab "Mid-Year Review" (có badge "Đang hoạt động").',
+    'Nhấn tab "Đánh giá giữa năm" (có badge "Đang hoạt động").',
     'Xem quy trình 5 bước: NV tự đánh giá → QLTT → Cấp 2 → HOD → Kết quả.',
     'Điền điểm tự đánh giá (1–5) vào cột "Điểm NV" cho từng mục tiêu.',
     'Có thể "Lưu nháp" để lưu tạm nhiều lần trước khi gửi chính thức.',
     'Nhấn "Gửi tự đánh giá" để hoàn tất — không thể sửa sau khi gửi.',
   ],
   imgFile: 'e01-myr-selfeval.png',
-  notes: 'MYR self-assessment form – E-01, tab Mid-Year Review',
+  notes: 'MYR self-assessment form – E-01, tab Đánh giá giữa năm',
 });
 
 // 9. Section 2 header
@@ -432,7 +432,7 @@ stepSlide({
   stepNum: 3, stepTotal: 3,
   title: 'Đánh giá MYR cho nhân viên',
   bullets: [
-    'Nhấn tab "Mid-Year Review" trong trang Mục tiêu và Đánh giá nhân viên.',
+    'Nhấn tab "Đánh giá giữa năm" trong trang Mục tiêu và Đánh giá nhân viên.',
     'Xem danh sách nhân viên cùng trạng thái và điểm tự đánh giá (Điểm NV).',
     'Nhấn biểu tượng bút ✏️ trên hàng nhân viên để điền điểm QLTT.',
     'Điền điểm (1–5) và nhận xét cho từng mục tiêu của nhân viên.',

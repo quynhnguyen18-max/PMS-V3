@@ -120,6 +120,9 @@ input,select,textarea{font-family:inherit}
 .page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
 
+/* align-items:stretch để badge ngày làm việc cuối cùng rộng đúng bằng box thông tin
+   nhân viên, hai khối thẳng lề cả hai bên chứ không chỉ thẳng lề phải */
+.emp-col{display:flex;flex-direction:column;align-items:stretch;gap:7px;flex-shrink:0}
 .emp-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);flex-shrink:0}
 .ec-info{display:flex;flex-direction:column;gap:2px}
 .ec-line{font-size:12px;color:var(--z800);line-height:1.35}
@@ -135,16 +138,20 @@ input,select,textarea{font-family:inherit}
 .cycle-period{font-size:12px;color:var(--z500)}
 
 /* Tabs */
-.tabs{display:flex;gap:6px;border-bottom:2px solid var(--z200);margin-bottom:16px}
-.tab-btn{padding:9px 16px;font-size:13px;font-weight:500;color:var(--z600);border:1px solid var(--z300);background:var(--z0);margin-bottom:-2px;cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:6px;border-radius:var(--rsm) var(--rsm) 0 0}
+/* Tab chưa chọn phải nhìn ra được là tab: nền trắng trên nền trang --z50 làm tab chìm hẳn,
+   đọc ra thành chữ trôi nổi chứ không ra hình cái tab. Nên tab nghỉ có nền --z100 riêng,
+   viền --z300 và chữ --z700 đủ đậm; đường kẻ chân dải tab cũng đậm lên cho ra hình dải tab. */
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--z300);margin-bottom:16px}
+.tab-btn{padding:9px 16px;font-size:13px;font-weight:600;color:var(--z700);border:1px solid var(--z300);background:var(--z100);margin-bottom:-2px;cursor:pointer;transition:var(--t);font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:6px;border-radius:var(--rsm) var(--rsm) 0 0}
 .tab-btn i{font-size:15px}
-.tab-btn:not(.disabled):not(.on):hover{color:var(--z900);background:var(--z100);border-color:var(--z400);text-decoration:underline;text-underline-offset:3px}
+.tab-btn:not(.disabled):not(.on):hover{color:var(--z900);background:var(--z0);border-color:var(--z400);text-decoration:underline;text-underline-offset:3px}
 .tab-btn.on{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}
 .tab-btn.disabled{color:var(--z400);background:var(--z50);border-style:dashed;cursor:not-allowed}
-.tab-cnt{padding:0 5px;height:16px;line-height:16px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--z200);color:var(--z600)}
+.tab-cnt{padding:0 5px;height:16px;line-height:16px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--z300);color:var(--z700)}
 .tab-btn.on .tab-cnt{background:var(--z0);color:var(--brand)}
 .tab-btn.has-active-label{position:relative}
-.tabs .tab-active-label{position:absolute;top:-6px;right:4px;height:13px;padding:0 4px;font-size:8px;line-height:11px;color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd);border-radius:50px;pointer-events:none}
+/* Nhãn trạng thái 8px nằm vắt nửa ngoài mép trông như bị lọt ra ngoài tab. */
+.tabs .tab-active-label{position:absolute;top:-8px;right:5px;height:16px;padding:0 6px;font-size:9.5px;font-weight:600;line-height:14px;color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd);border-radius:50px;pointer-events:none}
 
 /* Toolbar */
 .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
@@ -674,6 +681,14 @@ textarea.fc{resize:vertical}
 .ql-cell{text-align:center;min-width:72px;background:var(--z50)}.rv-grid .ql-cell{vertical-align:middle}
 .ql-dash{color:var(--z400);font-size:18px;line-height:1}
 .ql-val{color:var(--z900);font-size:13px;font-weight:700}
+/* Ai là người đã chốt điểm này. Chỉ hiện domain cho gọn cột, tên đầy đủ ở tooltip. */
+.ql-by{margin-top:3px;font-size:10.5px;line-height:1.3;color:var(--z500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g-done-chip{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:1px 8px;border-radius:50px;border:1px solid var(--ok-bd);background:var(--ok-bg);color:var(--ok);font-size:11px;font-weight:500;white-space:nowrap}
+.g-done-chip i{font-size:13px}
+/* Ten nguoi khong viet hoa toan bo, du .g-det-lbl dat text-transform:uppercase */
+/* Ten nguoi xuong dong rieng: o hep thi de canh chip diem se bi chen chuc */
+/* Tên người không viết hoa toàn bộ, dù .g-det-lbl đặt text-transform:uppercase */
+.g-det-by{color:var(--z500);font-weight:400;text-transform:none}
 
 /* Status cell */
 .st-cell{text-align:center;min-width:110px}
@@ -683,7 +698,7 @@ textarea.fc{resize:vertical}
 .g-det-row td{padding:0}
 .g-det-inner{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--z50);padding:12px 16px;border-top:1px solid var(--z100)}
 .g-det-panel{background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:10px 12px}
-.g-det-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.g-det-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:flex;flex-wrap:wrap;align-items:center;gap:5px;row-gap:3px;margin-bottom:6px}
 .g-det-lbl i{font-size:13px;color:var(--brand)}
 .g-det-score{display:inline-flex;align-items:center;height:20px;padding:1px 7px;border-radius:var(--rxs);background:var(--z100);border:1px solid var(--z200);font-size:11px;font-weight:600;color:var(--z700);margin-left:4px}
 .g-det-txt{font-size:13px;color:var(--z700);line-height:1.55}
@@ -695,7 +710,9 @@ textarea.fc{resize:vertical}
 #goal-tip{position:fixed;z-index:9999;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);padding:11px 13px;font-size:12px;line-height:1.5;max-width:360px;max-height:min(400px,70vh);overflow-y:auto;pointer-events:auto;display:none;box-shadow:var(--sh-md)}
 #goal-tip .tt-name{font-size:13px;font-weight:600;color:var(--z900);line-height:1.45}
 #goal-tip .tt-sep{height:1px;background:var(--z200);margin:8px 0}
-#goal-tip .tt-result{font-size:12px;color:var(--z600);line-height:1.55}
+/* pre-line để mô tả nhiều ý (ví dụ Giá trị cốt lõi) giữ đúng ngắt dòng.
+   Nội dung một dòng không bị ảnh hưởng vì không có ký tự xuống dòng nào. */
+#goal-tip .tt-result{font-size:12px;color:var(--z600);line-height:1.55;white-space:pre-line}
 #goal-tip .tt-result p{margin:0 0 5px}
 #goal-tip .tt-result p:last-child{margin-bottom:0}
 #goal-tip .tt-result ul,#goal-tip .tt-result ol{margin:2px 0 5px 14px;padding:0}
@@ -854,10 +871,6 @@ label.ev-tb-btn{cursor:pointer}
 .yer-snap-tx{font-size:13px;color:var(--z900);line-height:1.55}
 .yer-snap-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .yer-snap-lbl{font-size:12.5px;font-weight:500;color:var(--z700)}
-.yer-wrap-sec{margin-bottom:12px}
-.yer-wrap-sec:last-child{margin-bottom:0}
-.yer-wrap-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:4px}
-.yer-wrap-tx{font-size:13px;color:var(--z900);line-height:1.6}
 .yer-hidden-score{display:inline-flex;align-items:center;gap:7px}
 .yer-hs-box{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:30px;border:1px dashed var(--z300);border-radius:var(--rsm);color:var(--z400);font-size:13px;background:var(--z50)}
 .yer-resp{border:1px solid var(--z200);border-radius:var(--rsm);padding:11px 12px;background:var(--z0);margin-bottom:10px}
@@ -867,11 +880,11 @@ label.ev-tb-btn{cursor:pointer}
 .yer-resp-meta{font-size:11.5px;color:var(--z600)}
 .yer-resp-tx{font-size:13px;color:var(--z900);line-height:1.6;white-space:pre-wrap}
 .yer-note{display:flex;gap:8px;padding:11px 13px;border-radius:var(--rsm);font-size:12.5px;line-height:1.55;border:1px solid;margin-bottom:14px}
-.yer-note i{font-size:16px;flex:none;margin-top:1px}
+.yer-note>i{font-size:16px;flex:none;margin-top:1px}
 .yer-note.info{background:var(--z50);border-color:var(--z200);color:var(--z700)}
-.yer-note.info i{color:var(--z500)}
+.yer-note.info>i{color:var(--z500)}
 .yer-note.action{background:var(--brand-muted);border-color:var(--brand-ring);color:var(--z800)}
-.yer-note.action i{color:var(--brand)}
+.yer-note.action>i{color:var(--brand)}
 .yer-note strong{color:var(--z900);font-weight:600}
 .yer-note .yn-cta{margin-left:auto;flex:none;align-self:center}
 .yer-sync-tag{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--z600);background:var(--z100);border:1px solid var(--z200);border-radius:var(--rxs);padding:1px 6px;height:20px}
@@ -951,13 +964,16 @@ label.ev-tb-btn{cursor:pointer}
     </div>
     <div class="page-hd">
       <h1 class="page-title">Mục tiêu và Đánh giá cá nhân</h1>
-      <div class="emp-chip">
-        <div class="av av-brand av-xs">NT</div>
-        <div class="ec-info">
-          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
-          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
-          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+      <div class="emp-col">
+        <div class="emp-chip">
+          <div class="av av-brand av-xs">NT</div>
+          <div class="ec-info">
+            <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
+            <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
+            <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+          </div>
         </div>
+        <!-- Badge ngày làm việc cuối cùng do assets/yer-employee.js dựng khi cần -->
       </div>
     </div>
 
@@ -974,7 +990,7 @@ label.ev-tb-btn{cursor:pointer}
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn" onclick="switchMainTab(0)">Mục tiêu<span class="tab-cnt" id="tabcnt-goals">6</span></button>
-      <button class="tab-btn has-active-label" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label" id="tablbl-myr">Đã hoàn tất</span></button>
+      <button class="tab-btn has-active-label" id="tab-myr" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label" id="tablbl-myr">Đã hoàn tất</span></button>
       <button class="tab-btn on has-active-label" id="tab-yer" onclick="switchMainTab(2)">Đánh giá cuối năm<span class="badge tab-active-label" id="tablbl-yer">—</span></button>
     </div>
 
@@ -1542,19 +1558,16 @@ label.ev-tb-btn{cursor:pointer}
           </thead>
           <tbody>
             <!-- Cao: g3 (Hoàn thành) -->
-            <tr class="g-row-done" data-name="Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms" data-result="Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.">
+            <tr class="g-row-done" data-done-self-by="tu.nguyen" data-done-mgr-by="dang.nguyen" data-done-self-score="4" data-done-self-at="10/03/2026" data-done-self-cmt="Hoàn thành sớm 2 tháng so với kế hoạch, P99 ổn định ở mức 85ms, không phát sinh sự cố trong suốt quá trình theo dõi." data-done-mgr-score="3" data-done-mgr-at="12/03/2026" data-done-mgr-cmt="Đạt các tiêu chí kỹ thuật đề ra, hệ thống vận hành ổn định trong kỳ đánh giá." data-name="Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms" data-result="Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.">
               <td><div class="g-name">Hoàn thiện hệ thống thanh toán real-time với độ trễ &lt; 100ms</div>
                 <button class="btn btn-outline btn-xs det-btn" onclick="toggleDet('det-g3',this)"><i class="bx bx-check-circle"></i>Đã đánh giá hoàn thành</button></td>
               <td><div class="g-result">Hệ thống xử lý 10,000 giao dịch/giây với độ trễ P99 dưới 100ms. Đo bằng Grafana monitoring dashboard trong 3 tháng liên tục từ Q2/2026.</div></td>
               <td><div class="g-meta"><span class="prio prio-h">Cao</span></div></td>
               <td><div class="g-meta">01/01 – 31/12</div></td>
-              <td class="sc-cell">
-                <select class="sc-select" aria-label="Điểm tự đánh giá">
-                  <option value="">—</option>
-                  <option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option>
-                </select>
-              </td>
-              <td class="ql-cell"><div class="ql-val">3</div></td>
+              <!-- Đã chốt hoàn thành thì khóa cả hai cột điểm, xem YER-SPEC.md §13.1 -->
+              <td class="sc-cell"><div class="ql-val">4</div></td>
+              <td class="ql-cell"><div class="ql-val">3</div>
+                <div class="ql-by" title="Đánh giá bởi Nguyễn Hải Đăng (dang.nguyen)">dang.nguyen</div></td>
             </tr>
             <tr id="det-g3" class="g-det-row" hidden>
               <td colspan="6">
@@ -1565,7 +1578,7 @@ label.ev-tb-btn{cursor:pointer}
                     <div class="g-det-time">10/03/2026</div>
                   </div>
                   <div class="g-det-panel">
-                    <div class="g-det-lbl"><i class="bx bx-user-check"></i>Quản lý trực tiếp <span class="g-det-score">QL 3</span></div>
+                    <div class="g-det-lbl"><i class="bx bx-user-check"></i>Quản lý trực tiếp <span class="g-det-by">Nguyễn Hải Đăng (dang.nguyen)</span> <span class="g-det-score">QL 3</span></div>
                     <div class="g-det-txt">Đạt các tiêu chí kỹ thuật đề ra, hệ thống vận hành ổn định trong kỳ đánh giá.</div>
                     <div class="g-det-time">12/03/2026</div>
                   </div>
@@ -2427,6 +2440,13 @@ function openDetail(el) {
     if (evalSection) evalSection.style.display = showEval ? 'block' : 'none';
     if (showEval) renderEvalTab(el);
   }
+  // Tab Bình luận có thể đã bị ẩn khi mở từ bảng đánh giá, trả lại ở đây
+  var cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
+  if (cmtTab) cmtTab.style.display = '';
+  // Hàng ưu tiên và thời gian cũng vậy
+  var dgRow = document.getElementById('d-date-grid');
+  if (dgRow && dgRow.closest('.detail-row')) dgRow.closest('.detail-row').style.display = '';
+
   openOverlay('dlg-detail');
   switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
 }
@@ -2506,14 +2526,14 @@ function renderEvalTab(el) {
     $('ev-self-view').style.display = 'block';
     $('ev-self-score-view').innerHTML = scoreHTML(el.dataset.evSelf);
     $('ev-self-cmt-view').textContent = el.dataset.evSelfCmt || '';
-    $('ev-self-meta').textContent = 'tu.nguyen';
+    $('ev-self-meta').textContent = el.dataset.evSelfBy || 'tu.nguyen';
     if (state === 'done') {
       $('ev-mgr-wait').style.display = 'none';
       $('ev-mgr-view').style.display = 'block';
       $('ev-mgr-card').classList.remove('locked');
       $('ev-mgr-score-view').innerHTML = scoreHTML(el.dataset.evMgr);
       $('ev-mgr-cmt-view').textContent = el.dataset.evMgrCmt || '';
-      $('ev-mgr-meta').textContent = 'thanh.le';
+      $('ev-mgr-meta').textContent = el.dataset.evMgrBy || 'thanh.le';
       $('ev-step-1').className = 'ev-step done';
       $('ev-step-2').className = 'ev-step done';
     } else {
@@ -2817,40 +2837,6 @@ function updateOpLbl() {
 }
 
 /* ── Goal detail popup ── */
-function openGoalDetail(tr) {
-  const name = tr.dataset.name || '';
-  const result = tr.dataset.result || '';
-  const prioEl = tr.querySelector('.prio');
-  const prio = prioEl ? prioEl.textContent.trim() : '';
-  const prioClass = prioEl ? Array.from(prioEl.classList).find(c => c.startsWith('prio-')) || '' : '';
-  const dateMeta = Array.from(tr.querySelectorAll('.g-meta')).find(m => !m.querySelector('.prio'));
-  const dateStr = dateMeta ? dateMeta.textContent.trim() : '';
-
-  document.getElementById('gd-name').textContent = name;
-  document.getElementById('gd-result').textContent = result;
-
-  const metaGrid = document.getElementById('gd-meta-grid');
-  if (prio || dateStr) {
-    metaGrid.style.display = '';
-    const gdPrio = document.getElementById('gd-prio');
-    gdPrio.textContent = prio;
-    gdPrio.className = 'prio ' + prioClass;
-    const addYear = d => /\d{4}/.test(d) ? d : d + '/2026';
-    if (dateStr && dateStr.includes('–')) {
-      const parts = dateStr.split('–');
-      document.getElementById('gd-date-from').textContent = addYear(parts[0].trim());
-      document.getElementById('gd-date-to').textContent = addYear(parts[1].trim());
-    } else {
-      document.getElementById('gd-date-from').textContent = '—';
-      document.getElementById('gd-date-to').textContent = '—';
-    }
-  } else {
-    metaGrid.style.display = 'none';
-  }
-
-  document.getElementById('goal-detail-overlay').classList.add('open');
-}
-function closeGoalDetail() { document.getElementById('goal-detail-overlay').classList.remove('open'); }
 
 /* ── Validation ── */
 function getValidationErrors() {
@@ -2936,7 +2922,7 @@ function showToast(msg) {
 
 /* ── Keyboard ── */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeConfirm(); closeValidate(); closeGoalDetail(); closeRecall(); }
+  if (e.key === 'Escape') { closeConfirm(); closeValidate(); closeRecall(); }
 });
 
 /* ── Det expand ── */
@@ -3030,21 +3016,98 @@ document.addEventListener('DOMContentLoaded', function initGoalInteractions() {
   tip.addEventListener('mouseenter', cancelHide);
   tip.addEventListener('mouseleave', hideNow);
 
-  // MYR tab: tr[data-name] rows — find matching goal-item for rich content
-  document.querySelectorAll('.rv-grid tbody tr[data-name]').forEach(tr => {
-    tr.addEventListener('mouseenter', e => {
-      const name = tr.dataset.name || '';
-      showGoalTip(name, e, findGoalItemByName(name), tr.dataset.result || '');
+  /* Mở đúng hộp thoại Chi tiết mục tiêu của màn Mục tiêu (#dlg-detail) từ một dòng
+     của bảng đánh giá. Dùng lại nguyên hộp thoại đó chứ không dựng popup riêng. */
+  function openDetailFromRow(tr) {
+    const d = tr.dataset;
+    const done = d.doneSelfScore != null || d.doneMgrScore != null;
+    const sec = tr.closest('.rv-section');
+    const typeEl = sec && (sec.querySelector('.rv-type') || sec.querySelector('.rv-section-hd'));
+
+    document.getElementById('d-type').textContent = typeEl ? typeEl.textContent.trim() : '';
+    const st = document.getElementById('d-status');
+    st.textContent = done ? 'Hoàn thành' : 'Đã duyệt';
+    st.className = 'badge b-ok';
+
+    document.getElementById('d-title').textContent = d.name || '';
+    const res = document.getElementById('d-result');
+    res.textContent = d.result || '—';
+    // Mô tả nhiều ý (Giá trị cốt lõi) giữ đúng ngắt dòng
+    res.style.whiteSpace = (d.result || '').indexOf('\n') >= 0 ? 'pre-line' : '';
+
+    // Ưu tiên và thời gian đọc thẳng từ các ô của chính dòng đó
+    const prioEl = tr.querySelector('.prio');
+    const dateMeta = Array.from(tr.querySelectorAll('.g-meta')).find(m => !m.querySelector('.prio'));
+    const dateStr = dateMeta ? dateMeta.textContent.trim() : '';
+    const parts = dateStr.split('–');
+    const grid = document.getElementById('d-date-grid');
+    const prioWrap = document.getElementById('d-prio-wrap');
+    // Giá trị cốt lõi không có ưu tiên lẫn thời gian nên ẩn cả hàng
+    grid.closest('.detail-row').style.display = (prioEl || dateStr) ? '' : 'none';
+    prioWrap.style.display = prioEl ? '' : 'none';
+    grid.style.gridTemplateColumns = prioEl ? '1fr 1fr 1fr' : '1fr 1fr';
+    if (prioEl) document.getElementById('d-prio').textContent = prioEl.textContent.trim();
+    document.getElementById('d-from').textContent = (parts[0] || '').trim() || '—';
+    document.getElementById('d-to').textContent = (parts[1] || '').trim() || '—';
+
+    /* Dòng của kỳ đánh giá không mang dữ liệu bình luận, nên ẩn hẳn tab Bình luận
+       thay vì hiện lại bình luận của một mục tiêu khác. */
+    const cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
+    if (cmtTab) cmtTab.style.display = 'none';
+
+    // Khối hai lượt chấm: dùng lại renderEvalTab, chỉ cần một phần tử mang đúng dataset
+    const evalSection = document.getElementById('d-eval-section');
+    evalSection.style.display = done ? 'block' : 'none';
+    if (done) {
+      const proxy = document.createElement('div');
+      proxy.dataset.eval = 'done';
+      proxy.dataset.evSelf = d.doneSelfScore || '';
+      proxy.dataset.evSelfCmt = d.doneSelfCmt || '';
+      proxy.dataset.evSelfBy = d.doneSelfBy || '';
+      proxy.dataset.evMgr = d.doneMgrScore || '';
+      proxy.dataset.evMgrCmt = d.doneMgrCmt || '';
+      proxy.dataset.evMgrBy = d.doneMgrBy || '';
+      renderEvalTab(proxy);
+    }
+
+    const cta = document.getElementById('d-foot-cta');
+    if (cta) { cta.style.display = 'none'; cta.onclick = null; }
+    openOverlay('dlg-detail');
+    switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
+  }
+
+  /* Cac bang danh gia: tr[data-name] — hover ra tooltip, click ra popup chi tiet.
+     Tab Đánh giá giữa năm là markup tĩnh nên gắn được ngay; tab Đánh giá cuối năm do JS
+     dựng sau nên phải gọi lại hàm này mỗi lần render (xem window.bindReviewGoalRows).
+     Cờ data-tipBound chặn gắn trùng khi gọi nhiều lần. */
+  function bindReviewGoalRows(scope) {
+    (scope || document).querySelectorAll('.rv-grid tbody tr[data-name]').forEach(tr => {
+      if (tr.dataset.tipBound) return;
+      tr.dataset.tipBound = '1';
+
+      /* Tooltip chỉ bật ở hai cột đầu — Tên mục tiêu và Kết quả cần đạt (hoặc Mô tả
+         với nhóm hành vi). Treo vào cả dòng thì rê chuột lên ô chọn điểm hay cột thời gian
+         cũng bật tooltip, che mất thứ người dùng đang định bấm. */
+      Array.prototype.slice.call(tr.cells, 0, 2).forEach(td => {
+        td.addEventListener('mouseenter', e => {
+          const name = tr.dataset.name || '';
+          showGoalTip(name, e, findGoalItemByName(name), tr.dataset.result || '');
+        });
+        td.addEventListener('mousemove',  positionTip);
+        td.addEventListener('mouseleave', scheduleHide);
+        td.addEventListener('wheel', wheelOnRow, { passive: false });
+      });
+
+      // Bấm thì vẫn tính trên cả dòng, trừ các ô điều khiển
+      tr.addEventListener('click', e => {
+        if (e.target.closest('.sc-select, .op-select, .det-btn, select, input, a, button')) return;
+        hideNow();
+        openDetailFromRow(tr);
+      });
     });
-    tr.addEventListener('mousemove',  positionTip);
-    tr.addEventListener('mouseleave', scheduleHide);
-    tr.addEventListener('wheel', wheelOnRow, { passive: false });
-    tr.addEventListener('click', e => {
-      if (e.target.closest('.sc-select, .det-btn, select, input')) return;
-      hideNow();
-      openGoalDetail(tr);
-    });
-  });
+  }
+  window.bindReviewGoalRows = bindReviewGoalRows;
+  bindReviewGoalRows();
 
   // Goals tab table view — col 2 (gt-name) or col 3 (gt-result)
   const gtBody = document.querySelector('#view-table .gtable tbody');
@@ -3164,6 +3227,8 @@ function downloadMyrPdf(){
 /* ── Main tab switch (Mục tiêu / MYR) ── */
 function switchMainTab(idx){
   var btns=document.querySelectorAll(".tabs .tab-btn");
+  // Tab đang khóa thì không mở được, ví dụ nhân viên không thuộc kỳ đánh giá
+  if(btns[idx] && btns[idx].classList.contains("disabled")) return;
   btns.forEach(function(b){b.classList.remove("on");});
   document.querySelectorAll(".main-panel").forEach(function(p){p.classList.remove("on");});
   if(btns[idx])btns[idx].classList.add("on");
@@ -3252,44 +3317,6 @@ document.addEventListener('DOMContentLoaded',initDemoData);
 </div>
 
 <!-- Goal detail popup -->
-<div class="overlay" id="goal-detail-overlay" onclick="if(event.target===this)closeGoalDetail()">
-  <div class="dialog">
-    <div class="dlg-hd">
-      <div class="dlg-hd-row">
-        <div style="flex:1"><div class="dlg-title">Chi tiết mục tiêu</div></div>
-        <button class="dlg-close" onclick="closeGoalDetail()"><i class="bx bx-x"></i></button>
-      </div>
-    </div>
-    <div class="dlg-body">
-      <div class="gd-meta-grid" id="gd-meta-grid">
-        <div class="gd-field">
-          <div class="gd-field-lbl">Mức độ ưu tiên</div>
-          <div class="gd-field-val"><span class="prio" id="gd-prio"></span></div>
-        </div>
-        <div class="gd-field">
-          <div class="gd-field-lbl">Từ ngày</div>
-          <div class="gd-field-val" id="gd-date-from"></div>
-        </div>
-        <div class="gd-field">
-          <div class="gd-field-lbl">Đến ngày</div>
-          <div class="gd-field-val" id="gd-date-to"></div>
-        </div>
-      </div>
-      <div class="gd-field" style="margin-bottom:12px">
-        <div class="gd-field-lbl">Tên mục tiêu</div>
-        <div class="gd-field-box" id="gd-name"></div>
-      </div>
-      <div class="gd-field">
-        <div class="gd-field-lbl">Kết quả cần đạt</div>
-        <div class="gd-field-box" id="gd-result"></div>
-      </div>
-    </div>
-    <div class="dlg-foot">
-      <button class="btn btn-outline btn-sm" onclick="closeGoalDetail()"><i class="bx bx-x"></i>Đóng</button>
-    </div>
-  </div>
-</div>
-
 <!-- Recall confirm overlay -->
 <div class="overlay" id="recall-overlay" onclick="if(event.target===this)closeRecall()">
   <div class="dialog sm">

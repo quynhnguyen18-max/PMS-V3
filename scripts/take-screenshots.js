@@ -64,7 +64,7 @@ async function clickByText(page, tag, text) {
   await shot(page, 'e01-goal-submit');
 
   // ─── E-01: MYR tab ───────────────────────────────────────────────────────
-  await clickByText(page, 'button', 'Mid-Year Review');
+  await clickByText(page, 'button', 'Đánh giá giữa năm');
   await wait(1000);
   await shot(page, 'e01-myr-overview');
 
@@ -97,7 +97,7 @@ async function clickByText(page, tag, text) {
   // ─── M-01: MYR evaluation tab ─────────────────────────────────────────────
   await page.goto(`${BASE}/M-01/index.html`, { waitUntil: 'networkidle0' });
   await wait(600);
-  await clickByText(page, 'button', 'Mid-Year Review');
+  await clickByText(page, 'button', 'Đánh giá giữa năm');
   await wait(800);
   await shot(page, 'm01-myr-tab');
 

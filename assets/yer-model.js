@@ -92,7 +92,6 @@
     var hod = merge(seed.hod, acts.hod);
     var hrbpUpload = merge(seed.hrbpUpload, acts.hrbpUpload);
     var response = merge(seed.response, acts.response);
-    var wrapup = merge(seed.wrapup, acts.wrapup);
     var final = merge(seed.final, acts.final);
     var lateSubmission = merge(seed.lateSubmission, acts.lateSubmission);
 
@@ -143,12 +142,6 @@
     // Quản lý chỉ được trả lời một lần, trả lời xong luồng khóa.
     var replyOpen = !!responseView && !replyView && !published;
 
-    var wrapupView = null;
-    if (wrapup) {
-      if (wrapup.status === 'done' && happened(wrapup)) wrapupView = wrapup;
-      else if (wrapup.status !== 'done') wrapupView = wrapup;
-    }
-
     return {
       id: empId,
       emp: emp,
@@ -159,7 +152,13 @@
       hidden: elig.reason === 'late-onboard' || (resigned && !emp.resignedVisible),
       resigned: resigned,
       resignFrom: resignFrom,
+      /* Đủ điều kiện tham gia kỳ GIỮA NĂM hay không — khác với điều kiện kỳ cuối năm ở trên
+         vì hai kỳ có hạn onboard khác nhau. Màn hình dùng cái này để khóa tab Đánh giá giữa năm. */
+      myrEligible: !hr.hired || cmp(hr.hired, TL.myrOnboardCutoff || '2026-04-01') < 0,
       maternity: maternity,
+      // Ngày kết thúc nghỉ chế độ, để màn hình hiện badge nhận diện. Có thể null khi
+      // dữ liệu chỉ đánh dấu đang nghỉ mà không ghi hạn.
+      maternityTo: maternity ? (hr.maternityTo || null) : null,
       importedGoals: !!((acts && acts.importedGoals) || seed.importedGoals),
       importedGoalData: (acts && acts.importedGoals) || seed.importedGoals || null,
       lateSubmission: lateView,
@@ -180,7 +179,10 @@
       responseOpen: responseOpen,
       replyOpen: replyOpen,
       threadLocked: !!replyView,
-      wrapup: wrapupView,
+      /* Mục tiêu đã được đánh giá hoàn thành: map goalId -> { by, score, comment, at }.
+         Đây là điểm chốt của Quản lý đang phụ trách tại thời điểm đó. Khi nhân viên đổi
+         Quản lý giữa kỳ, điểm này do Quản lý cũ chấm và **Quản lý mới không chấm lại**. */
+      completedGoals: seed.completedGoals || {},
       myr: (window.PMS_MYR || {})[empId] || null,
       myrSelf: (window.PMS_SELFEVAL || {})[empId] || null,
       myrLm: (window.PMS_LM1EVAL || {})[empId] || null
@@ -255,6 +257,20 @@
         ' và chưa đạt trọn vẹn các tiêu chí cần thiết của mức ' + hi.v + ' - ' + hi.vi + '.';
   }
 
+  /* Tách định nghĩa mức điểm thành hai đoạn cho dễ đọc: đoạn đầu nói về kỳ vọng
+     hiệu quả công việc, đoạn sau nói về Giá trị cốt lõi. Mức 1 không nhắc tới giá trị
+     cốt lõi nên chỉ có một đoạn. */
+  function splitDefinition(text, lang) {
+    var marker = lang === 'en' ? /core values?/i : /gi\u00e1 tr\u1ecb c\u1ed1t l\u00f5i/i;
+    var parts = String(text || '').split(/(?<=\.)\s+/);
+    var at = -1;
+    parts.forEach(function (sentence, k) { if (at < 0 && marker.test(sentence)) at = k; });
+    if (at < 0) return [String(text || '')];
+    var head = parts.slice(0, at).join(' ').trim();
+    var tail = parts.slice(at).join(' ').trim();
+    return head ? [head, tail] : [tail];
+  }
+
   function escHtml(v) {
     return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c];
@@ -264,7 +280,10 @@
   function scoreDefinitionHtml(v, lang) {
     if (v == null) return '';
     var isHalf = Math.abs(v % 1) > 0;
-    if (!isHalf) return escHtml(scoreDefinition(v, lang));
+    if (!isHalf) {
+      return splitDefinition(scoreDefinition(v, lang), lang)
+        .map(function (para) { return '<p>' + escHtml(para) + '</p>'; }).join('');
+    }
     var lo = scaleItem(Math.floor(v)), hi = scaleItem(Math.floor(v) + 1);
     if (!lo || !hi) return '';
     function ref(item) {
@@ -334,6 +353,7 @@
     scoreLabel: scoreLabel,
     scoreDefinition: scoreDefinition,
     scoreDefinitionHtml: scoreDefinitionHtml,
+    splitDefinition: splitDefinition,
     scaleItem: scaleItem,
     DEFAULT_DATE: DEFAULT_DATE
   };

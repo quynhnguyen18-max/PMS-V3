@@ -24,7 +24,8 @@
     cycle: 'YER 2026',
     cycleLabel: { vi: 'Đánh giá cuối năm 2026', en: 'Year-End Review 2026' },
     mgrCutoff: '2026-12-31',       // sau ngày này LM đang phụ trách là người đánh giá
-    onboardCutoff: '2026-10-01',   // onboard sau ngày này không thuộc kỳ
+    onboardCutoff: '2026-10-01',   // onboard sau ngày này không thuộc kỳ cuối năm
+    myrOnboardCutoff: '2026-04-01', // onboard sau ngày này không thuộc kỳ giữa năm
     steps: [
       { key: 'self',    from: '2027-01-05', to: '2027-01-18', vi: 'Tự đánh giá',            en: 'Self Assessment' },
       { key: 'lm',      from: '2027-01-19', to: '2027-02-01', vi: 'Quản lý trực tiếp',      en: 'Line Manager' },
@@ -104,6 +105,22 @@
     { id: 'y11', name: 'Lê Minh Châu', login: 'chau.le', ini: 'LC', div: 'PM', dept: 'Product', team: 'New Initiatives', pos: 'Business Analyst', lvl: 'lm1', goals: [
     ] },
     { id: 'y12', name: 'Phạm Thu Trang', login: 'trang.pham', ini: 'PT', div: 'OPS', dept: 'Operations', team: 'Service Quality', pos: 'Senior Operations Specialist', lvl: 'lm1', goals: [
+    ] },
+    // y13, y14 — thiếu Mục tiêu công việc đã duyệt (WHAT còn ở bản nháp), đã có Mục tiêu phát triển.
+    // Tách thành hai người để demo được cả hai thời điểm: còn hạn và quá hạn tự đánh giá.
+    { id: 'y13', name: 'Bùi Hải Yến', login: 'yen.bui', ini: 'BY', div: 'PM', dept: 'Product', team: 'Lending', pos: 'Business Analyst', lvl: 'lm1', goals: [
+      { id: 'yg34', type: 'what', title: 'Chuẩn hóa quy trình thẩm định hồ sơ vay', result: 'Rút ngắn thời gian thẩm định trung bình còn 2 giờ làm việc.', status: 'draft', s: '01/02', e: '31/12', prio: 'h', comments: [] },
+      { id: 'yg35', type: 'dev', title: 'Hoàn thành khóa phân tích rủi ro tín dụng', result: 'Hoàn thành khóa học và áp dụng vào 2 bộ tiêu chí thẩm định.', status: 'approved', s: '01/03', e: '30/11', prio: null, comments: [] }
+    ] },
+    // y15 — onboard 15/06/2026: sau hạn của kỳ giữa năm (01/04) nhưng trước hạn của
+    // kỳ cuối năm (01/10), nên chỉ tham gia kỳ cuối năm.
+    { id: 'y15', name: 'Võ Nhật Minh', login: 'minh.vo', ini: 'VM', div: 'ITC', dept: 'Backend', team: 'Growth', pos: 'Software Engineer', lvl: 'lm1', goals: [
+      { id: 'yg38', type: 'what', title: 'Xây dựng API thử nghiệm tính năng giới thiệu bạn bè', result: 'API phục vụ được 3 chiến dịch, độ trễ P95 dưới 150ms.', status: 'approved', s: '01/07', e: '31/12', prio: 'h', comments: [] },
+      { id: 'yg39', type: 'dev', title: 'Hoàn thành lộ trình onboarding kỹ thuật', result: 'Hoàn thành 6 module và tự nhận task mức trung bình sau 3 tháng.', status: 'approved', s: '01/07', e: '31/12', prio: null, comments: [] }
+    ] },
+    { id: 'y14', name: 'Đinh Gia Hân', login: 'han.dinh', ini: 'GH', div: 'OPS', dept: 'Operations', team: 'Merchant Support', pos: 'Operations Specialist', lvl: 'lm1', goals: [
+      { id: 'yg36', type: 'what', title: 'Giảm thời gian phản hồi yêu cầu của đối tác', result: 'Thời gian phản hồi trung bình dưới 3 giờ làm việc.', status: 'draft', s: '01/01', e: '31/12', prio: 'h', comments: [] },
+      { id: 'yg37', type: 'dev', title: 'Nâng cao kỹ năng vận hành công cụ hỗ trợ đối tác', result: 'Thành thạo và hướng dẫn lại cho 3 thành viên trong nhóm.', status: 'approved', s: '01/04', e: '30/11', prio: null, comments: [] }
     ] }
   ];
 
@@ -121,7 +138,8 @@
      mục tiêu phát triển được duyệt, bổ sung tại đây.
      Chỉ trang YER nạp file này nên màn Mục tiêu và MYR cũ không đổi.
      Cố ý KHÔNG bổ sung cho: y1 (tình huống thiếu mục tiêu),
-     e4 (thai sản - Quản lý phải import), y7 (ngoài kỳ đánh giá).           */
+     e4 (thai sản - Quản lý phải import), y7 (ngoài kỳ đánh giá).
+     y13 và y14 đã có sẵn mục tiêu phát triển được duyệt, cái thiếu là mục tiêu công việc.           */
   var SUPPLEMENT_GOALS = {
     e3:  { id: 'yg20', type: 'dev', title: 'Hoàn thành lộ trình Data Engineering nội bộ', result: 'Hoàn thành 7/7 module và nộp capstone dùng dữ liệu thực của nhóm.', status: 'approved', s: '01/01', e: '30/09', prio: null, comments: [] },
     e6:  { id: 'yg21', type: 'dev', title: 'Nâng cao năng lực kiến trúc frontend quy mô lớn', result: 'Hoàn thành 3 case study tái cấu trúc và trình bày nội bộ 1 buổi.', status: 'approved', s: '01/01', e: '31/12', prio: null, comments: [] },
@@ -157,7 +175,9 @@
     y7: { hired: '2026-10-15' },
     y8: { hired: '2016-09-12' },
     y9: { hired: '2020-04-06' }, y10: { hired: '2021-07-12' }, y11: { hired: '2022-03-21' },
-    y12: { hired: '2020-08-17' }
+    y12: { hired: '2020-08-17' },
+    y13: { hired: '2021-11-08' }, y14: { hired: '2019-05-20' },
+    y15: { hired: '2026-06-15' }
   };
 
   /* ── 4b. Dữ liệu kỳ giữa năm cho nhân sự mới ────────────
@@ -214,8 +234,8 @@
   // s02 — chưa tự đánh giá, vẫn còn hạn
   Y.e2 = { scenario: 's02' };
 
-  // s15 — đã nghỉ việc, mặc định ẩn khỏi danh sách
-  Y.e3 = { scenario: 's15' };
+  // e3 đã nghỉ việc nên hồ sơ tự ẩn khỏi danh sách. Không đặt tình huống demo:
+  // đã nghỉ thì không vào được màn Đánh giá cuối năm, không có gì để xem.
 
   // s09 — thai sản, không tự đánh giá, LM phải import goal rồi mới đánh giá được
   Y.e4 = {
@@ -330,50 +350,83 @@
       comments: { what: 'Bộ test case nạp rút hoàn thành 90% trước khi nghỉ chế độ.', dev: 'Đã chuyển đổi 30 test case sang Playwright và bàn giao tài liệu.', how: 'Bàn giao chủ động, hỗ trợ người tiếp nhận trong 2 tuần đầu.' } })
   };
 
-  // s11 — đổi quản lý trước hạn chốt, quản lý cũ đã bàn giao
+  // s11 — đổi quản lý trước hạn chốt, quản lý cũ đã chốt một số mục tiêu
   Y.y3 = {
     scenario: 's11',
     mgrChange: { at: '2026-11-20', from: { name: 'Nguyễn Hải Đăng', login: 'dang.nguyen', ini: 'ND' }, to: { name: LM.name, login: LM.login, ini: LM.ini } },
-    wrapup: ev('2026-11-21', { status: 'done', by: { name: 'Nguyễn Hải Đăng', login: 'dang.nguyen', ini: 'ND' }, expiresAt: '2026-11-22',
-      sections: {
-        achievements: 'Dẫn dắt việc tối ưu trang landing chiến dịch, conversion tăng từ 3.1% lên 3.6% trong giai đoạn tháng 1 đến tháng 10.',
-        strengths: 'Chủ động đề xuất giải pháp, làm việc tốt với nhóm marketing và có tư duy đo lường rõ ràng.',
-        improvements: 'Cần cải thiện việc ước lượng thời gian cho các hạng mục phụ thuộc nhiều bên.',
-        notes: 'Giai đoạn tháng 6 đến tháng 8 có hỗ trợ thêm cho dự án khác ngoài phạm vi mục tiêu cá nhân.'
-      } }),
+    /* Quản lý cũ KHÔNG để lại bản bàn giao. Thứ họ để lại là điểm của những mục tiêu
+       họ đã đánh giá hoàn thành. yg6 cố ý để trống để thấy một hồ sơ có cả mục tiêu đã khóa
+       và mục tiêu Quản lý mới phải chấm. */
+    completedGoals: {
+      yg5: {
+        self: { score: 4, at: '2026-11-14',
+          comment: 'Conversion trang landing đã tăng từ 3.1% lên 3.6%, đủ cơ sở đề nghị chốt hoàn thành.' },
+        mgr: { by: { name: 'Nguyễn Hải Đăng', login: 'dang.nguyen', ini: 'ND' }, score: 4, at: '2026-11-18',
+          comment: 'Đồng ý chốt hoàn thành. Kết quả đo được rõ ràng trong giai đoạn tôi phụ trách.' }
+      },
+      yg7: {
+        self: { score: 4, at: '2026-11-14',
+          comment: 'Bốn case study tối ưu hiệu năng đã hoàn thành và chia sẻ nội bộ.' },
+        mgr: { by: { name: 'Nguyễn Hải Đăng', login: 'dang.nguyen', ini: 'ND' }, score: 4, at: '2026-11-18',
+          comment: 'Nội dung chia sẻ có chất lượng, đủ điều kiện chốt hoàn thành.' }
+      }
+    },
     self: ev('2027-01-13', { overall: { score: 4, comment: 'Dù có thay đổi quản lý giữa năm, tôi vẫn duy trì tiến độ các mục tiêu đã cam kết.' },
       comments: { what: 'Conversion chiến dịch đạt 3.8%, vượt mục tiêu 20%.', dev: 'Hoàn thành 4 case study về performance và chia sẻ nội bộ.', how: 'Giữ nhịp làm việc ổn định trong giai đoạn chuyển giao.' } }),
-    lm: ev('2027-01-26', { overall: { score: 4, comment: 'Tiếp nhận từ tháng 11 và ghi nhận kết quả xuyên suốt năm dựa trên cả phần bàn giao của quản lý trước.' },
+    lm: ev('2027-01-26', { overall: { score: 4, comment: 'Tiếp nhận từ tháng 11. Mục tiêu Quản lý trước đã chốt hoàn thành thì giữ nguyên điểm, tôi chỉ chấm phần còn lại.' },
       comments: { what: 'Kết quả chiến dịch vượt mục tiêu, số liệu đo lường rõ ràng.', dev: 'Có đầu tư nghiêm túc vào năng lực chuyên môn.', how: 'Ổn định và hợp tác tốt trong giai đoạn chuyển giao.' } })
   };
 
-  // s12 — đổi quản lý nhưng quản lý cũ để quá 48 giờ
+  // s12 — đổi quản lý, quản lý cũ chỉ kịp chốt một mục tiêu
   Y.y4 = {
     scenario: 's12',
     mgrChange: { at: '2026-12-05', from: { name: 'Trương Mỹ Duyên', login: 'duyen.truong', ini: 'TD' }, to: { name: LM.name, login: LM.login, ini: LM.ini } },
-    wrapup: { status: 'expired', by: { name: 'Trương Mỹ Duyên', login: 'duyen.truong', ini: 'TD' }, expiresAt: '2026-12-07' },
+    completedGoals: {
+      yg8: {
+        self: { score: 4, at: '2026-12-01',
+          comment: 'Dashboard hành vi người dùng đã phục vụ ổn định 5 nhóm sản phẩm.' },
+        mgr: { by: { name: 'Trương Mỹ Duyên', login: 'duyen.truong', ini: 'TD' }, score: 4, at: '2026-12-03',
+          comment: 'Độ trễ luôn dưới 2 giờ, đạt yêu cầu đặt ra. Chốt hoàn thành.' }
+      }
+    },
     self: ev('2027-01-16', { overall: { score: 3.5, comment: 'Dashboard hành vi người dùng đã phục vụ ổn định cho các nhóm sản phẩm.' },
       comments: { what: 'Dashboard phục vụ 5 nhóm với độ trễ dưới 2 giờ.', dev: 'Chứng chỉ dbt hoàn thành đúng hạn.', how: 'Sẵn sàng hỗ trợ các nhóm khi có yêu cầu phân tích gấp.' } })
   };
 
-  // s13 — quản lý cũ đã nghỉ việc, bỏ qua bàn giao
+  // s13 — quản lý cũ đã nghỉ việc
   Y.y5 = {
     scenario: 's13',
     mgrChange: { at: '2026-12-12', from: { name: 'Đỗ Anh Kiệt', login: 'kiet.do', ini: 'DK', resigned: true }, to: { name: LM.name, login: LM.login, ini: LM.ini } },
-    wrapup: { status: 'skipped', reason: 'former-manager-resigned' },
+    /* Quản lý cũ đã nghỉ việc. Điểm họ đã chốt vẫn có giá trị và vẫn ghi tên họ:
+       nghỉ việc không xóa việc họ đã làm. */
+    completedGoals: {
+      yg10: {
+        self: { score: 4, at: '2026-12-05',
+          comment: 'Gói dịch vụ tiểu thương go-live đúng hạn và vượt mục tiêu kích hoạt.' },
+        mgr: { by: { name: 'Đỗ Anh Kiệt', login: 'kiet.do', ini: 'DK' }, score: 4, at: '2026-12-08',
+          comment: 'Kết quả vượt mục tiêu đăng ký từ đầu năm. Chốt hoàn thành.' }
+      },
+      yg11: {
+        self: { score: 4, at: '2026-12-05',
+          comment: 'Sáu buổi phỏng vấn merchant đã hoàn thành theo kế hoạch.' },
+        mgr: { by: { name: 'Đỗ Anh Kiệt', login: 'kiet.do', ini: 'DK' }, score: 4, at: '2026-12-08',
+          comment: 'Báo cáo insight đầy đủ theo quý, đủ điều kiện chốt.' }
+      }
+    },
     self: ev('2027-01-12', { overall: { score: 4, comment: 'Gói dịch vụ cho tiểu thương đã ra mắt đúng hạn và đạt mục tiêu kích hoạt.' },
       comments: { what: 'Đạt 8.400 merchant kích hoạt trong 60 ngày đầu, vượt mục tiêu 8.000.', dev: 'Chủ trì đủ 6 buổi phỏng vấn merchant theo kế hoạch.', how: 'Luôn lấy nhu cầu người dùng làm cơ sở cho quyết định sản phẩm.' } })
   };
 
-  // s14 — sắp nghỉ việc trong kỳ, phải hoàn tất trước ngày hiệu lực
+  // s14 — sắp nghỉ việc trong kỳ: chỉ để hiện badge LWD, vẫn tự đánh giá bình thường
   Y.y6 = {
     scenario: 's14',
     self: ev('2027-01-10', { overall: { score: 3.5, comment: 'Thời gian khôi phục sự cố đã giảm rõ rệt so với đầu năm nhờ bộ runbook mới.' },
       comments: { what: 'MTTR trung bình 18 phút trong 6 tháng cuối năm.', dev: 'Đã thi đậu CKA vào tháng 9.', how: 'Hỗ trợ nhanh và rõ ràng khi có sự cố.' } })
   };
 
-  // s21 — onboard sau hạn 01/10/2026, không thuộc kỳ đánh giá
-  Y.y7 = { scenario: 's21' };
+  // y7 onboard sau hạn 01/10/2026 nên bị lọc khỏi danh sách ngay từ model.
+  // Không đặt tình huống demo cho trường hợp này: nhân viên không đủ điều kiện
+  // thì không vào được màn Đánh giá cuối năm, không có gì để xem.
 
   // s22 — luồng chuẩn thứ hai, đang ở bước quản lý cấp 2
   Y.y8 = {
@@ -446,135 +499,187 @@
   Object.keys(MYR_SELF_NEW).forEach(function (id) { fillBlock(id, 'myrself', window.PMS_SELFEVAL[id]); });
   Object.keys(MYR_LM_NEW).forEach(function (id) { fillBlock(id, 'myrlm', window.PMS_LM1EVAL[id]); });
 
-  /* ── 7. Danh mục kịch bản demo ──────────────────────────── */
-  window.PMS_YER_GROUPS = [
-    { id: 'g0', vi: '01. Điều kiện tham gia',       en: '01. Eligibility' },
-    { id: 'g1', vi: '02. Tự đánh giá',              en: '02. Self assessment' },
-    { id: 'g2', vi: '03. Quản lý trực tiếp',        en: '03. Line manager' },
-    { id: 'g3', vi: '04. Quản lý cấp 2',            en: '04. Second-level manager' },
-    { id: 'g4', vi: '05. Trưởng đơn vị',            en: '05. Head of Department' },
-    { id: 'g5', vi: '06. Kết quả và phản hồi',      en: '06. Results and response' }
-  ];
+  /* ── 7. Danh mục kịch bản demo ──────────────────────
+     Gộp theo VAI TRÒ chứ không theo giai đoạn: người review thường xem hết
+     phần của một vai rồi mới sang vai khác, nên xếp theo vai dễ theo dõi hơn.
+     Mỗi tình huống chỉ rõ luôn màn hình cần mở để thanh demo tự điều hướng. */
+  window.PMS_YER_SCREENS = {
+    'E-05': { path: 'E-05/index.html', vi: 'Màn Nhân viên',       en: 'Employee screen' },
+    'M-05': { path: 'M-05/index.html', vi: 'Danh sách Quản lý',  en: 'Manager list' },
+    'M-06': { path: 'M-06/index.html', vi: 'Chi tiết nhân viên', en: 'Employee detail' }
+  };
 
-  // Thứ tự review: theo giai đoạn, sau đó từ luồng cơ bản tới ngoại lệ/quá hạn.
-  window.PMS_YER_SCENARIO_ORDER = [
-    's08','s21','s14','s15',
-    's02','s23','s24','s25','s10','s11','s18','s19',
-    's26','s03','s09','s12','s13','s04',
-    's22','s05',
-    's01','s07','s06',
-    's16','s17','s20'
+  window.PMS_YER_GROUPS = [
+    { id: 'r-nv',  role: 'nv',  vi: 'Nhân viên',           en: 'Employee' },
+    { id: 'r-lm',  role: 'lm',  vi: 'Quản lý trực tiếp',   en: 'Line Manager' },
+    { id: 'r-lm2', role: 'lm2', vi: 'Quản lý cấp 2',       en: 'Second-level Manager' },
+    { id: 'r-hod', role: 'hod', vi: 'Trưởng đơn vị',      en: 'Head of Department' }
   ];
 
   window.PMS_YER_SCENARIOS = [
-    { id: 's02', g: 'g1', emp: 'e2',  role: 'nv',  date: '2027-01-12',
-      vi: 'Chưa tự đánh giá, còn hạn', en: 'Self assessment pending, still open',
-      wvi: 'Màn nhân viên khi tới lượt mình - nhắc hạn và nút gửi tự đánh giá.',
-      wen: 'Employee view when it is their turn - deadline reminder and submit button.' },
-    { id: 's23', g: 'g1', emp: 'y9', role: 'nv', date: '2027-01-20',
-      vi: 'Nộp trễ - chờ tải file (đủ mục tiêu trên hệ thống)', en: 'Late submission - awaiting import (goals already complete)',
-      wvi: 'Trong thời gian đánh giá của Quản lý trực tiếp, nhân viên vẫn nộp một file gồm mục tiêu và nội dung tự đánh giá; mục tiêu trong file không qua bước duyệt.',
-      wen: 'During the manager window, the employee may still submit one file containing goals and self assessment; imported goals skip approval.' },
-    { id: 's24', g: 'g1', emp: 'y10', role: 'nv', date: '2027-01-20',
-      vi: 'Nộp trễ - chờ tải file (thiếu mục tiêu phát triển)', en: 'Late submission - awaiting import (one goal type missing)',
-      wvi: 'Nhân viên dùng file nộp trễ để bổ sung mục tiêu còn thiếu và gửi nội dung tự đánh giá trong thời gian đánh giá của Quản lý trực tiếp.',
-      wen: 'The late file supplies the missing goal and the self assessment during the manager window.' },
-    { id: 's25', g: 'g1', emp: 'y11', role: 'nv', date: '2027-01-20',
-      vi: 'Nộp trễ - chờ tải file (chưa có mục tiêu)', en: 'Late submission - awaiting import (no goals)',
-      wvi: 'Dù chưa có mục tiêu trên hệ thống, nhân viên vẫn được nộp một file đủ mục tiêu và nội dung tự đánh giá trong thời gian đánh giá của Quản lý trực tiếp.',
-      wen: 'Even with no goals in the system, the employee may submit a complete goals-and-self-assessment file during the manager window.' },
-    { id: 's01', g: 'g4', emp: 'e1',  role: 'lm',  date: '2027-02-20',
-      vi: 'Đã qua LM và LM2, chờ HOD', en: 'LM and LM2 done, awaiting HOD',
-      wvi: 'Lưới quản lý đủ bốn cột điểm, hồ sơ đi đúng thứ tự các bước.',
-      wen: 'Manager grid with all four score columns, profile moving through the steps in order.' },
-    { id: 's22', g: 'g3', emp: 'y8',  role: 'lm2', date: '2027-02-10',
-      vi: 'Đang chờ Quản lý cấp 2 chấm', en: 'Awaiting second-level manager',
-      wvi: 'Quản lý cấp 2 chỉ chấm điểm toàn diện, xem chi tiết của NV và LM để tham khảo.',
-      wen: 'The second-level manager scores only the overall rating, with employee and LM detail for reference.' },
-
-    { id: 's03', g: 'g2', emp: 'e13', role: 'lm',  date: '2027-01-29',
-      vi: 'Nhân viên không tự đánh giá, Quản lý vẫn chấm', en: 'No self assessment, LM still evaluates',
-      wvi: 'Cột điểm nhân viên để trống nhưng quy trình không dừng.',
-      wen: 'The employee score column stays empty but the process continues.' },
-    { id: 's26', g: 'g2', emp: 'y12', role: 'lm', date: '2027-01-22',
-      vi: 'Nhận hồ sơ nhân viên nộp trễ - tiếp tục đánh giá', en: 'Late employee file received - manager continues review',
-      wvi: 'Màn Quản lý có nhãn nộp trễ, đọc mục tiêu và nội dung tự đánh giá từ file, rồi chấm bình thường mà không duyệt mục tiêu.',
-      wen: 'The manager sees a late badge, reads imported goals and self assessment, and reviews normally without goal approval.' },
-    { id: 's04', g: 'g2', emp: 'e14', role: 'lm',  date: '2027-02-05',
-      vi: 'LM quá hạn - đồng bộ điểm từ NV', en: 'LM overdue - score synced from employee',
-      wvi: 'Badge HR system cạnh điểm của quản lý, không có nhận xét kèm theo.',
-      wen: 'HR system badge next to the manager score, with no comment attached.' },
-    { id: 's05', g: 'g3', emp: 'e15', role: 'lm2', date: '2027-02-20',
-      vi: 'LM2 quá hạn - đồng bộ điểm từ LM', en: 'LM2 overdue - score synced from LM',
-      wvi: 'Đồng bộ ở tầng thứ hai, vẫn dùng một nhãn HR system chung.',
-      wen: 'Second-level sync, still using one shared HR system label.' },
-    { id: 's06', g: 'g4', emp: 'e16', role: 'hod', date: '2027-03-05',
-      vi: 'HOD quá hạn - không đồng bộ', en: 'HOD overdue - no sync',
-      wvi: 'Hồ sơ giữ trạng thái Chờ HOD đánh giá, quy trình vẫn đi tiếp.',
-      wen: 'The profile stays in Awaiting HOD, and the process still moves on.' },
-
-    { id: 's08', g: 'g0', emp: 'y1',  role: 'nv',  date: '2027-01-10',
-      vi: 'Thiếu mục tiêu - Không đánh giá', en: 'Missing goals - Not evaluated',
-      wvi: 'Cảnh báo chặn ngay ở màn tự đánh giá và hướng nhân viên quay về tab Mục tiêu.',
-      wen: 'Blocking warning on the self assessment screen, pointing back to the Goals tab.' },
-    { id: 's21', g: 'g0', emp: 'y7',  role: 'lm',  date: '2027-01-20',
-      vi: 'Onboard sau 01/10 - ngoài kỳ', en: 'Onboarded after 01/10 - out of cycle',
-      wvi: 'Nhân sự này bị ẩn khỏi danh sách đánh giá.',
-      wen: 'This person is hidden from the review roster.' },
-    { id: 's14', g: 'g0', emp: 'y6',  role: 'lm',  date: '2027-01-25',
-      vi: 'Sắp nghỉ việc 15/02 - chấm sớm', en: 'Leaving on 15/02 - evaluate early',
-      wvi: 'Badge ngày nghỉ việc để quản lý biết phải hoàn tất trước ngày hiệu lực.',
-      wen: 'Leaving-date badge so the manager finishes before the effective date.' },
-    { id: 's15', g: 'g0', emp: 'e3',  role: 'lm',  date: '2027-01-25',
-      vi: 'Đã nghỉ việc - mặc định ẩn', en: 'Resigned - hidden by default',
-      wvi: 'Chỉ hiện khi bật bộ lọc nhân viên đã nghỉ việc, và chỉ để tra cứu.',
-      wen: 'Only visible when the resigned filter is on, and for lookup only.' },
-
-    { id: 's09', g: 'g2', emp: 'e4',  role: 'lm',  date: '2027-01-28',
-      vi: 'Thai sản - LM import mục tiêu', en: 'Maternity - LM imports goals',
-      wvi: 'Banner thai sản, không yêu cầu tự đánh giá, quản lý import mục tiêu rồi chấm.',
-      wen: 'Maternity banner, self assessment not required, manager imports goals then scores.' },
-    { id: 's10', g: 'g1', emp: 'y2',  role: 'nv',  date: '2027-01-16',
-      vi: 'Thai sản nhưng vẫn tự đánh giá', en: 'Maternity but self-assesses anyway',
-      wvi: 'Không bắt buộc nhưng nhân viên vẫn làm được nếu muốn.',
-      wen: 'Not required, but the employee can still complete it if they want to.' },
-    { id: 's11', g: 'g1', emp: 'y3',  role: 'nv',  date: '2027-01-27',
-      vi: 'Đổi Quản lý - có bàn giao', en: 'Manager changed - wrap-up completed',
-      wvi: 'Khối bàn giao của quản lý cũ, nhân viên thấy ngay khi được gửi.',
-      wen: 'Wrap-up block from the previous manager, visible to the employee once submitted.' },
-    { id: 's12', g: 'g2', emp: 'y4',  role: 'lm',  date: '2027-01-20',
-      vi: 'Đổi Quản lý - bàn giao hết hạn', en: 'Manager changed - wrap-up expired',
-      wvi: 'Quá 48 giờ thì không còn khối bàn giao, quy trình không bị chặn.',
-      wen: 'After 48 hours the wrap-up is gone and the process is not blocked.' },
-    { id: 's13', g: 'g2', emp: 'y5',  role: 'lm',  date: '2027-01-20',
-      vi: 'Quản lý cũ đã nghỉ việc', en: 'Former manager resigned',
-      wvi: 'Bỏ qua bước bàn giao hoàn toàn.',
-      wen: 'The wrap-up step is skipped entirely.' },
-
-    { id: 's16', g: 'g5', emp: 'e10', role: 'nv',  date: '2027-02-02',
-      vi: 'Đã phản hồi, chờ LM trả lời', en: 'Response sent, awaiting LM reply',
+    /* ── Nhân viên ── */
+    { id: 'nv01', g: 'r-nv', emp: 'y7', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Không đủ điều kiện tham gia', en: 'Not eligible for the cycle',
+      wvi: 'Onboard sau 01/10/2026 nên không thuộc kỳ: tab Đánh giá cuối năm bị khóa, không bấm vào được.',
+      wen: 'Onboarded after 01/10/2026 so the Year-End Review tab is locked and cannot be opened.' },
+    { id: 'nv02', g: 'r-nv', emp: 'y2', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Đang nghỉ thai sản', en: 'On maternity leave',
+      wvi: 'Banner thai sản: không bắt buộc tự đánh giá, nhưng vẫn làm được nếu muốn.',
+      wen: 'Maternity banner: self assessment is not required, but is still available if wanted.' },
+    { id: 'nv03', g: 'r-nv', emp: 'y6', role: 'nv', date: '2027-01-08', screen: 'E-05',
+      vi: 'Đã có ngày nghỉ việc ở tương lai', en: 'Leaving date already set',
+      wvi: 'Badge ngày làm việc cuối cùng nằm ngay dưới box thông tin nhân viên. Nhân viên vẫn tự đánh giá theo hạn chung, không phải làm sớm.',
+      wen: 'The last-working-day badge sits under the employee info box. The employee self-assesses on the normal deadline.' },
+    { id: 'nv04', g: 'r-nv', emp: 'y3', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Quản lý kỳ giữa năm khác kỳ cuối năm', en: 'Mid-Year manager differs from Year-End manager',
+      wvi: 'Mục tiêu Quản lý cũ đã chốt hoàn thành có nhãn riêng, điểm đã khóa và ghi domain người chấm ở cột Điểm QLTT.',
+      wen: 'Goals the previous manager already closed carry their own label; the score is locked and the assessor domain shows in the manager column.' },
+    { id: 'nv05', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Còn hạn, đủ mục tiêu, chưa làm', en: 'Window open, goals complete, not started',
+      wvi: 'Luồng chuẩn: nhắc hạn, form tự đánh giá mở đầy đủ và có nút gửi.',
+      wen: 'The standard flow: deadline reminder, the full self assessment form and a submit button.' },
+    { id: 'nv06', g: 'r-nv', emp: 'y13', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Còn hạn nhưng thiếu Mục tiêu công việc', en: 'Window open but work goal missing',
+      wvi: 'Khối cảnh báo thiếu mục tiêu dẫn về tab Mục tiêu; phần đã có vẫn hiển thị bên dưới.',
+      wen: 'A missing-goal warning points back to the Goals tab; existing goals still render below.' },
+    { id: 'nv07', g: 'r-nv', emp: 'y1', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Còn hạn nhưng thiếu Mục tiêu phát triển', en: 'Window open but development goal missing',
+      wvi: 'Cùng khối cảnh báo nhưng chỉ thiếu một loại mục tiêu, để đối chiếu với tình huống trên.',
+      wen: 'The same warning with only one goal type missing, to compare with the case above.' },
+    { id: 'nv08', g: 'r-nv', emp: 'y9', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Quá hạn, đủ mục tiêu, chưa làm', en: 'Past deadline, goals complete, not done',
+      wvi: 'Cửa sổ nộp trễ: nhân viên nộp một file gồm mục tiêu và nội dung tự đánh giá.',
+      wen: 'The late window: the employee submits one file with both goals and the self assessment.' },
+    { id: 'nv09', g: 'r-nv', emp: 'y14', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Quá hạn và thiếu Mục tiêu công việc', en: 'Past deadline and work goal missing',
+      wvi: 'File nộp trễ bù luôn mục tiêu còn thiếu, mục tiêu trong file không qua bước duyệt.',
+      wen: 'The late file also supplies the missing goal; imported goals skip the approval step.' },
+    { id: 'nv10', g: 'r-nv', emp: 'y10', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Quá hạn và thiếu Mục tiêu phát triển', en: 'Past deadline and development goal missing',
+      wvi: 'Giống trên nhưng thiếu loại mục tiêu còn lại.',
+      wen: 'Same as above but with the other goal type missing.' },
+    { id: 'nv11', g: 'r-nv', emp: 'y11', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Quá hạn và chưa có mục tiêu nào', en: 'Past deadline with no goals at all',
+      wvi: 'Dù trên hệ thống chưa có mục tiêu nào, nhân viên vẫn còn đúng một đường là nộp file.',
+      wen: 'With no goals in the system at all, the late file is the only remaining route.' },
+    { id: 'nv12', g: 'r-nv', emp: 'e14', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Đã nộp, chờ Quản lý trực tiếp', en: 'Submitted, awaiting Line Manager',
+      wvi: 'Nội dung chuyển sang chỉ xem, dải quy trình chuyển sang bước Quản lý trực tiếp.',
+      wen: 'The content becomes read-only and the stepper moves to the Line Manager step.' },
+    { id: 'nv13', g: 'r-nv', emp: 'y12', role: 'nv', date: '2027-01-25', screen: 'E-05',
+      vi: 'Đã nộp trễ bằng file, chờ Quản lý', en: 'Late file submitted, awaiting manager',
+      wvi: 'Mục tiêu và điểm đều đến từ file nhân viên tự tải lên sau hạn.',
+      wen: 'Both goals and scores come from the file the employee uploaded after the deadline.' },
+    { id: 'nv14', g: 'r-nv', emp: 'e15', role: 'nv', date: '2027-02-05', screen: 'E-05',
+      vi: 'Xong Quản lý trực tiếp, chờ Quản lý cấp 2', en: 'LM done, awaiting second-level manager',
+      wvi: 'Nhân viên thấy điểm từng mục tiêu của quản lý, nhưng chưa thấy điểm toàn diện.',
+      wen: 'The employee sees the manager per-goal scores but not the overall rating.' },
+    { id: 'nv15', g: 'r-nv', emp: 'e16', role: 'nv', date: '2027-02-20', screen: 'E-05',
+      vi: 'Xong Quản lý cấp 2, chờ Trưởng đơn vị', en: 'LM2 done, awaiting Head of Department',
+      wvi: 'Dải quy trình đã qua hai bước quản lý, màn nhân viên không đổi thêm gì.',
+      wen: 'The stepper has passed both manager steps; the employee screen itself does not change.' },
+    { id: 'nv16', g: 'r-nv', emp: 'e1', role: 'nv', date: '2027-02-25', screen: 'E-05',
+      vi: 'Xong Trưởng đơn vị, chờ điểm cuối cùng', en: 'HOD done, awaiting the final rating',
+      wvi: 'Bước cuối trước khi công bố: điểm cuối cùng chưa được tải lên hệ thống.',
+      wen: 'The last step before publication: the final rating has not been uploaded yet.' },
+    { id: 'nv17', g: 'r-nv', emp: 'e5', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Mục tiêu đổi sau kỳ giữa năm', en: 'Goal changed after Mid-Year',
+      wvi: 'Khối kỳ giữa năm có đường dẫn mở đúng mục tiêu đã thay đổi.',
+      wen: 'The Mid-Year block links straight to the goal that changed.' },
+    { id: 'nv18', g: 'r-nv', emp: 'e6', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Thuộc kỳ giữa năm nhưng không có kết quả', en: 'In the Mid-Year cycle but with no result',
+      wvi: 'Không hoàn tất bước bắt buộc nên không có kết quả, nhưng tab Đánh giá giữa năm **vẫn mở xem lại được**. Nhãn tab là Không có kết quả.',
+      wen: 'The required step was never completed so there is no result, but the Mid-Year tab still opens for viewing. The tab label reads No result.' },
+    { id: 'nv22', g: 'r-nv', emp: 'y15', role: 'nv', date: '2027-01-12', screen: 'E-05',
+      vi: 'Không thuộc kỳ giữa năm - tab bị khóa', en: 'Outside the Mid-Year cycle - tab locked',
+      wvi: 'Onboard 15/06/2026, sau hạn 01/04 của kỳ giữa năm nên tab Đánh giá giữa năm **bị khóa, bấm không vào được**, nhãn tab là Không đánh giá. Đối chiếu với nv18 để thấy hai lý do khác nhau cho ra hai UI khác nhau.',
+      wen: 'Onboarded 15/06/2026, after the 01/04 Mid-Year cut-off, so the Mid-Year tab is locked. Compare with nv18 to see the two different reasons.' },
+    { id: 'nv19', g: 'r-nv', emp: 'e10', role: 'nv', date: '2027-02-02', screen: 'E-05',
+      vi: 'Đã gửi phản hồi, chờ quản lý trả lời', en: 'Response sent, awaiting manager reply',
       wvi: 'Nội dung phản hồi chuyển chỉ xem, quản lý còn đúng một lượt trả lời.',
       wen: 'The response becomes read-only and the manager has exactly one reply left.' },
-    { id: 's17', g: 'g5', emp: 'e11', role: 'nv',  date: '2027-02-10',
-      vi: 'LM đã trả lời - luồng khóa', en: 'LM replied - thread locked',
+    { id: 'nv20', g: 'r-nv', emp: 'e11', role: 'nv', date: '2027-02-10', screen: 'E-05',
+      vi: 'Quản lý đã trả lời, luồng đã khóa', en: 'Manager replied, thread locked',
       wvi: 'Sau lượt trả lời của quản lý, nhân viên không phản hồi tiếp được.',
       wen: 'After the manager reply the employee cannot respond again.' },
-
-    { id: 's18', g: 'g1', emp: 'e5',  role: 'nv',  date: '2027-01-30',
-      vi: 'Mục tiêu đổi sau kỳ giữa năm', en: 'Goal changed after Mid-Year',
-      wvi: 'Badge Đã thay đổi sau Mid-Year và đường dẫn mở đúng mục tiêu trong snapshot.',
-      wen: 'Changed after Mid-Year badge with a link to that goal inside the snapshot.' },
-    { id: 's19', g: 'g1', emp: 'e6',  role: 'nv',  date: '2027-01-20',
-      vi: 'Không có dữ liệu kỳ giữa năm', en: 'No Mid-Year data',
-      wvi: 'Khối snapshot hiện empty state thay vì biến mất.',
-      wen: 'The snapshot block shows an empty state instead of disappearing.' },
-    { id: 's07', g: 'g4', emp: 'e9',  role: 'hod', date: '2027-02-22',
-      vi: 'HRBP tải điểm hộ, chờ HOD duyệt', en: 'HRBP uploaded scores, awaiting HOD approval',
-      wvi: 'Điểm chưa duyệt nằm ở màn phê duyệt riêng, không hiện ở lưới chính của HOD.',
-      wen: 'Unapproved scores sit in the approval screen, not in the main HOD grid.' },
-    { id: 's20', g: 'g5', emp: 'e12', role: 'nv',  date: '2027-04-02',
-      vi: 'Đã công bố - điểm cuối khác HOD', en: 'Published - final differs from HOD',
+    { id: 'nv21', g: 'r-nv', emp: 'e12', role: 'nv', date: '2027-04-02', screen: 'E-05',
+      vi: 'Đã công bố, điểm cuối khác điểm HOD', en: 'Published, final differs from HOD',
       wvi: 'Nhân viên chỉ thấy điểm cuối cùng, không bao giờ thấy điểm toàn diện của quản lý.',
-      wen: 'The employee only sees the final rating and never the manager overall rating.' }
+      wen: 'The employee only ever sees the final rating, never the manager overall rating.' },
+
+    /* ── Quản lý trực tiếp ── */
+    { id: 'lm01', g: 'r-lm', emp: 'y6', role: 'lm', date: '2027-01-25', screen: 'M-05',
+      vi: 'Danh sách có đủ ba nhóm cần lưu ý', en: 'Roster showing all three flags at once',
+      wvi: 'Cùng một danh sách có nhân viên thai sản, nhân viên có badge LWD và nhóm phải nộp trễ.',
+      wen: 'One roster with a maternity case, an LWD badge and the people who must submit late.' },
+    { id: 'lm02', g: 'r-lm', emp: 'e1', role: 'lm', date: '2027-03-20', screen: 'M-06',
+      vi: 'Một hồ sơ đi qua đủ các bước', en: 'One profile through every step',
+      wvi: 'Xem lại cả chuỗi: điểm nhân viên, điểm quản lý, cấp 2, trưởng đơn vị và điểm cuối cùng.',
+      wen: 'The full chain: employee, manager, second-level, head of department and the final rating.' },
+    { id: 'lm03', g: 'r-lm', emp: 'e4', role: 'lm', date: '2027-01-22', screen: 'M-06',
+      vi: 'Nhân viên thai sản - quản lý import mục tiêu', en: 'Maternity case - manager imports goals',
+      wvi: 'Không yêu cầu tự đánh giá, quản lý tải mục tiêu lên rồi mới chấm được.',
+      wen: 'Self assessment is not required; the manager imports the goals before scoring.' },
+    { id: 'lm04', g: 'r-lm', emp: 'e13', role: 'lm', date: '2027-01-29', screen: 'M-06',
+      vi: 'Nhân viên không tự đánh giá', en: 'Employee skipped the self assessment',
+      wvi: 'Cột điểm nhân viên để trống nhưng quy trình không dừng, quản lý vẫn chấm.',
+      wen: 'The employee column stays empty but the process continues and the manager still scores.' },
+    { id: 'lm05', g: 'r-lm', emp: 'y12', role: 'lm', date: '2027-01-25', screen: 'M-06',
+      vi: 'Nhận hồ sơ nhân viên nộp trễ', en: 'Late employee file received',
+      wvi: 'Nhãn nộp trễ, mục tiêu đọc từ file và không phải qua bước duyệt mục tiêu.',
+      wen: 'A late badge, goals read from the file, and no goal approval step required.' },
+    { id: 'lm06', g: 'r-lm', emp: 'y4', role: 'lm', date: '2027-01-20', screen: 'M-06',
+      vi: 'Đổi Quản lý - một mục tiêu đã chốt', en: 'Manager changed - one goal already closed',
+      wvi: 'Quản lý mới chỉ chấm những mục tiêu còn lại; ô điểm của mục tiêu đã chốt không sửa được.',
+      wen: 'The new manager only rates the remaining goals; the closed goal score cannot be edited.' },
+    { id: 'lm07', g: 'r-lm', emp: 'y5', role: 'lm', date: '2027-01-20', screen: 'M-06',
+      vi: 'Quản lý cũ đã nghỉ việc', en: 'Former manager has resigned',
+      wvi: 'Điểm Quản lý cũ đã chốt vẫn giữ nguyên và vẫn ghi tên họ; nghỉ việc không xóa việc họ đã làm.',
+      wen: 'Scores the former manager closed stay valid and keep their name; resigning does not erase their work.' },
+    { id: 'lm08', g: 'r-lm', emp: 'e14', role: 'lm', date: '2027-02-05', screen: 'M-05',
+      vi: 'Quá hạn - hệ thống đồng bộ điểm', en: 'Overdue - score synced by the system',
+      wvi: 'Badge HR system cạnh điểm của quản lý, không có nhận xét kèm theo.',
+      wen: 'An HR system badge next to the manager score, with no comment attached.' },
+
+    /* ── Quản lý cấp 2 ── */
+    { id: 'lm2-01', g: 'r-lm2', emp: 'y8', role: 'lm2', date: '2027-02-10', screen: 'M-06',
+      vi: 'Đang chờ chấm điểm toàn diện', en: 'Awaiting the overall rating',
+      wvi: 'Quản lý cấp 2 chỉ chấm điểm toàn diện, điểm từng mục tiêu chỉ để tham khảo.',
+      wen: 'The second-level manager scores only the overall rating; per-goal scores are reference only.' },
+    { id: 'lm2-02', g: 'r-lm2', emp: 'e13', role: 'lm2', date: '2027-02-10', screen: 'M-06',
+      vi: 'Hồ sơ không có điểm nhân viên', en: 'Profile with no employee rating',
+      wvi: 'Nhân viên không tự đánh giá nhưng hồ sơ vẫn đi lên tới cấp 2 bình thường.',
+      wen: 'The employee skipped the self assessment, yet the profile still reaches the second level.' },
+    { id: 'lm2-03', g: 'r-lm2', emp: 'y12', role: 'lm2', date: '2027-02-10', screen: 'M-06',
+      vi: 'Hồ sơ có mục tiêu nhập từ file', en: 'Profile with goals imported from a file',
+      wvi: 'Mục tiêu đến từ file nộp trễ của nhân viên, không qua bước duyệt mục tiêu.',
+      wen: 'Goals come from the employee late file and never went through goal approval.' },
+    { id: 'lm2-04', g: 'r-lm2', emp: 'e15', role: 'lm2', date: '2027-02-20', screen: 'M-05',
+      vi: 'Quá hạn - đồng bộ điểm từ quản lý', en: 'Overdue - score synced from the manager',
+      wvi: 'Đồng bộ ở tầng thứ hai, vẫn dùng chung một nhãn HR system.',
+      wen: 'Second-level sync, still using the same shared HR system label.' },
+
+    /* ── Trưởng đơn vị ── */
+    { id: 'hod01', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-02-20', screen: 'M-06',
+      vi: 'Đang chờ Trưởng đơn vị chấm', en: 'Awaiting the Head of Department',
+      wvi: 'Bước chấm cuối cùng trong chuỗi quản lý, trước khi Total Reward tải điểm.',
+      wen: 'The last scoring step in the manager chain, before Total Reward uploads the final rating.' },
+    { id: 'hod02', g: 'r-hod', emp: 'e1', role: 'hod', date: '2027-02-20', screen: 'M-05',
+      vi: 'Lưới điểm toàn đơn vị', en: 'Department-wide score grid',
+      wvi: 'Lưới đủ bốn cột điểm để theo dõi phân bổ và độ lệch giữa các tầng.',
+      wen: 'The four-column grid used to watch the distribution and the gaps between levels.' },
+    { id: 'hod03', g: 'r-hod', emp: 'e9', role: 'hod', date: '2027-02-22', screen: 'M-05',
+      vi: 'HRBP tải điểm hộ - chờ duyệt', en: 'HRBP uploaded scores - awaiting approval',
+      wvi: 'Điểm chưa duyệt nằm ở màn phê duyệt riêng, không hiện ở lưới chính.',
+      wen: 'Unapproved scores sit in their own approval screen, not in the main grid.' },
+    { id: 'hod04', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-03-05', screen: 'M-05',
+      vi: 'Quá hạn - không đồng bộ', en: 'Overdue - no sync',
+      wvi: 'Hồ sơ giữ trạng thái Chờ Trưởng đơn vị, quy trình vẫn đi tiếp sang bước sau.',
+      wen: 'The profile stays in Awaiting HOD and the process still moves on to the next step.' }
   ];
+
+  // Thứ tự review chính là thứ tự khai báo ở trên: theo vai trò, trong mỗi vai
+  // thì đi từ điều kiện tham gia → luồng chuẩn → ngoại lệ → kết quả.
+  window.PMS_YER_SCENARIO_ORDER =
+    window.PMS_YER_SCENARIOS.map(function (sc) { return sc.id; });
 })();
