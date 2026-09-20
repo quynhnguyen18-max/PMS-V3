@@ -380,8 +380,8 @@ test('active media campaigns expose current and all-poster downloads only inside
   const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
   assert.match(html,/function downloadCurrentMediaPoster\(\)/);
   assert.match(html,/function downloadAllMediaPosters\(\)/);
-  assert.match(html,/Tải poster này/);
-  assert.match(html,/Tải tất cả/);
+  assert.match(html,/Chỉ poster này/);
+  assert.match(html,/Tất cả poster/);
   assert.match(html,/FeedbackModel\.campaignStatus\(MEDIA_STATE\.campaign,MEDIA_NOW\)!=='active'/);
 });
 
@@ -484,10 +484,15 @@ test('personal feedback keeps a balanced two-column layout on laptop and large m
 
   assert.match(html,/@media \(min-width:961px\) and \(max-width:1279px\)\{[\s\S]*?\.page\{[^}]*max-width:none[^}]*padding:20px 20px/);
   assert.match(html,/@media \(min-width:961px\) and \(max-width:1279px\)\{[\s\S]*?\.fb-rail\{width:260px/);
-  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.page\{[^}]*max-width:1360px[^}]*width:100%/);
-  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-main\{max-width:820px/);
-  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-rail\{width:300px/);
-  assert.doesNotMatch(html,/@media \(max-width:768px\)|@media \(max-width:767px\)/);
+  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.page\{[^}]*max-width:none[^}]*width:100%/);
+  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-main\{max-width:none/);
+  assert.match(html,/@media \(min-width:1280px\)\{[\s\S]*?\.fb-rail\{width:320px/);
+  // man hinh sieu rong moi cap ben canh, de dong phan hoi khong dai qua
+  assert.match(html,/@media \(min-width:1700px\)\{[\s\S]*?\.page\{max-width:1680px;margin:0 auto/);
+  // Bậc thang 2 cột chỉ nằm ở 960 / 1280 / 1700. Breakpoint 768px là của khung chung
+  // (sidebar, topbar, nút ở đầu trang) nên không được đụng tới .fb-layout hay .fb-rail.
+  const mobileShell=html.slice(html.indexOf('@media (max-width:768px){'),html.indexOf('/* rail cards */'));
+  assert.doesNotMatch(mobileShell,/\.fb-layout\{|\.fb-rail\{/);
 });
 
 test('HR requests lead the action queue, stay anonymous in the list and land in given feedback', () => {
