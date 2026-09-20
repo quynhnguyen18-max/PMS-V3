@@ -71,8 +71,62 @@
 .dl-meta{display:block;margin-top:1px;color:var(--z500);font-size:11px}
 .dl-empty{padding:12px;border:1px dashed var(--z200);border-radius:6px;color:var(--z500);font-size:12px;text-align:center}
 .dl-note{display:flex;gap:6px;align-items:flex-start;margin-top:12px;font-size:11px;line-height:1.5;color:var(--z500)}
-.dl-note i{font-size:14px;margin-top:1px}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 96px 112px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 96px 112px}.report-cell{font-size:12px;color:var(--z600)}.report-none{color:var(--z400)}.hr-report-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:11px 13px;border:1px solid var(--brand-ring);border-radius:8px;background:var(--brand-muted)}.hr-report-banner-text{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--z700)}.hr-report-banner-text i{font-size:18px;color:var(--brand);margin-top:1px}.hr-report-banner-copy{display:flex;flex-direction:column;gap:2px}.hr-report-banner-title{font-size:12.5px;font-weight:700;color:var(--z900)}.hr-report-banner-copy b{color:var(--brand)}.hr-report-banner-btn{flex:none;color:var(--brand)!important;border-color:var(--brand)!important}.hr-report-banner-btn:hover{background:#fff!important}.feedback-content-group{display:flex;flex-direction:column;gap:8px}.feedback-content-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 1px 0;font-size:12.5px;font-weight:700;color:var(--z900)}.feedback-content-title span:last-child{font-size:11px;font-weight:500;color:var(--z500)}.feedback-card-list{display:flex;flex-direction:column;gap:9px}.employee-list-header>div{white-space:nowrap}.metric-cell{font-size:12px;color:var(--z700)}.emp-tag{display:inline-flex;align-items:center;margin-left:6px;padding:1px 8px;border:1px solid;border-radius:50px;font-size:10px;font-weight:500;line-height:1.6;white-space:nowrap}.emp-tag-resigned{border-color:#fecaca;background:#fef2f2;color:var(--err)}.emp-tag-maternity{border-color:#bfdbfe;background:#eff6ff;color:#2563eb}
-.dialog-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;vertical-align:2px}.dialog-actions{display:flex;gap:4px}.privacy-banner{display:none}.split-shell{display:none;grid-template-columns:310px minmax(0,1fr);height:calc(100vh - 230px);min-height:480px;max-height:720px;border:1px solid var(--z200);border-radius:8px;background:#fff;overflow:hidden}.split-shell.open{display:grid}.split-list{border-right:1px solid var(--z200);overflow-y:auto}.split-person{width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px}.split-person:hover,.split-person.on{background:var(--z50)}.split-person.on{box-shadow:inset 3px 0 var(--brand)}.split-pane{min-width:0;min-height:0;max-height:720px;display:flex;flex-direction:column}.split-pane-head{padding:14px 16px;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;gap:10px;flex:0 0 auto}.split-pane-title{font-size:14px;font-weight:700;color:var(--z900)}.split-employee-name{cursor:help}.split-overview{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:7px}.split-overview-item{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--z600)}.split-overview-item i{font-size:14px;color:var(--z500)}.split-hr-report{border:0;background:transparent;padding:0;color:var(--brand);font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:5px}.split-hr-report:hover{text-decoration:underline}.split-hr-report i{font-size:14px}.split-badge-summary{display:flex;align-items:center;gap:10px;min-height:25px;margin-top:8px}.split-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.split-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}.view-hidden{display:none}
+.dl-note i{font-size:14px;margin-top:1px}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 96px 112px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 96px 112px}.report-cell{font-size:12px;color:var(--z600)}.report-none{color:var(--z400)}/* Kết quả từ HR: MỘT dòng, đứng cố định ở đầu thân popup. Nội dung không đọc được tại đây
+   nên dòng này chỉ làm hai việc - báo có bao nhiêu, và dẫn sang màn chi tiết. Vì chỉ là lối đi
+   nên dùng xám trung tính, không lấy hồng của việc cần làm. */
+.hr-line{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--brand-ring);border-radius:7px;background:var(--brand-muted);font-size:12px;color:var(--z700)}
+.hr-line>i{font-size:16px;color:var(--brand);flex:none}
+.hr-line b{color:var(--z900);font-weight:600}
+.hr-line-link{margin-left:auto;display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;padding:0;color:var(--brand);font-size:11.5px;font-weight:600;white-space:nowrap;cursor:pointer}
+.hr-line-link:hover{text-decoration:underline}
+.hr-line-link i{font-size:14px}
+/* Lối vào AI Summary: mascot đứng ở khoảng trống giữa tiêu đề và nhóm nút. Phải đứng NGOÀI
+   dòng chữ tiêu đề - nhét một control cao 34px vào giữa dòng chữ 15px sẽ đội dòng lên và
+   đẩy tiêu đề sát mép trên popup. Mở popup là mascot nhún kèm một lời mời; bấm rồi thì lời
+   mời biến mất, mascot đứng yên, và từ đó rê chuột mới hiện tên. */
+.ai-entry{position:relative;display:flex;align-items:center;gap:8px;flex:none;padding:2px;border:0;border-radius:8px;background:transparent;cursor:pointer;transition:background .12s ease}
+/* display:flex của class này ĐÈ lên display:none mà trình duyệt gán cho thuộc tính hidden,
+   nên phải nói lại cho rõ: hidden là biến mất hẳn. */
+.ai-entry[hidden]{display:none}
+.ai-entry:hover{background:var(--brand-muted)}
+.ai-entry img{width:34px;height:34px;object-fit:contain;display:block;transition:transform .12s ease}
+.ai-entry:hover img{transform:translateY(-2px)}
+@keyframes ai-entry-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.ai-entry.bob img{animation:ai-entry-bob 2.6s ease-in-out infinite}
+.ai-entry.bob:hover img{animation:none}
+@media(prefers-reduced-motion:reduce){.ai-entry.bob img{animation:none}}
+/* Lời mời và tên không bao giờ cùng xuất hiện: lời mời đang hiện thì nó đã nói đủ.
+   Cả hai đều nằm BÊN TRÁI mascot, trong lòng header - xổ xuống dưới là che mất dòng
+   kết quả HR ngay bên dưới. Lời mời chiếm chỗ thật trong hàng nên dòng tên nhân viên
+   tự co lại; tên chỉ hiện lúc rê chuột nên để nổi, không đẩy layout. */
+.ai-entry-cta{flex:none;padding:5px 10px;border-radius:7px;background:#fff;color:var(--brand);border:1px solid var(--brand-ring);font-size:10.5px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(165,0,100,.10)}
+.ai-entry-tip{position:absolute;top:50%;right:calc(100% + 8px);transform:translateY(-50%);z-index:30;padding:4px 9px;border-radius:5px;background:var(--z900);color:#fff;font-size:10.5px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
+.ai-entry:hover .ai-entry-tip,.ai-entry:focus-visible .ai-entry-tip{opacity:1}
+.ai-entry.inviting .ai-entry-tip{display:none}
+.ai-entry:not(.inviting) .ai-entry-cta{display:none}
+/* Header của popup phản hồi: nới rộng cho chữ thở, hai dòng tách nhau rõ hơn. */
+/* Ghim chiều cao: lời mời biến mất sau khi bấm, không ghim thì header tụt xuống vài pixel
+     ngay lúc người dùng đang nhìn vào đó. */
+#feedbackDialog .dialog-head{padding:18px 22px 16px;gap:14px;min-height:70px}
+#feedbackDialog .dialog-title{line-height:1.4}
+/* Lời mời chiếm chỗ thật trong hàng, nên dòng tên nhân viên phải CẮT bớt chứ không
+     được xuống dòng - xuống dòng là header cao vọt lên rồi tụt xuống khi bấm. */
+#feedbackDialog .dialog-heading{min-width:0}
+#feedbackDialog .dialog-sub{margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dialog-ai-summary-head{align-items:flex-start}
+.dialog-ai-summary-mascot{width:20px;height:20px;object-fit:contain;display:block}
+.dialog-ai-summary-note{margin-top:4px;font-size:11px;font-weight:400;color:var(--z600)}.feedback-content-group{display:flex;flex-direction:column;gap:8px}.feedback-content-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 1px 0;font-size:12.5px;font-weight:700;color:var(--z900)}.feedback-content-title span:last-child{font-size:11px;font-weight:500;color:var(--z500)}.feedback-card-list{display:flex;flex-direction:column;gap:9px}.employee-list-header>div{white-space:nowrap}.metric-cell{font-size:12px;color:var(--z700)}.emp-tag{display:inline-flex;align-items:center;margin-left:6px;padding:1px 8px;border:1px solid;border-radius:50px;font-size:10px;font-weight:500;line-height:1.6;white-space:nowrap}.emp-tag-resigned{border-color:#fecaca;background:#fef2f2;color:var(--err)}.emp-tag-maternity{border-color:#bfdbfe;background:#eff6ff;color:#2563eb}
+.dialog-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:5px;border-radius:20px;background:var(--z100);color:var(--z600);font-size:10px;vertical-align:2px}.dialog-actions{display:flex;gap:4px}.privacy-banner{display:none}.split-shell{display:none;grid-template-columns:310px minmax(0,1fr);height:calc(100vh - 230px);min-height:480px;max-height:720px;border:1px solid var(--z200);border-radius:8px;background:#fff;overflow:hidden}.split-shell.open{display:grid}.split-list{border-right:1px solid var(--z200);overflow-y:auto}.split-person{width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--z100);background:#fff;text-align:left;display:flex;align-items:center;gap:9px}.split-person:hover,.split-person.on{background:var(--z50)}.split-person.on{box-shadow:inset 3px 0 var(--brand)}.split-pane{min-width:0;min-height:0;max-height:720px;display:flex;flex-direction:column}.split-pane-head{padding:14px 16px;border-bottom:1px solid var(--z100);display:flex;align-items:flex-start;gap:10px;flex:0 0 auto}.split-pane-title{font-size:14px;font-weight:700;color:var(--z900)}.split-employee-name{cursor:help}.split-overview{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:7px}.split-overview-item{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--z600)}.split-overview-item i{font-size:14px;color:var(--z500)}.split-hr-report{border:0;background:transparent;padding:0;color:var(--brand);font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:5px}.split-hr-report:hover{text-decoration:underline}.split-hr-report i{font-size:14px}/* Nửa phải hàng tiêu đề để dành cho mascot và lời mời, nên huy hiệu giá trị nằm dưới
+   dòng "N phản hồi đã nhận" như cũ. */
+.split-pane-heading{flex:1;min-width:0}
+.split-badge-summary{display:flex;align-items:center;gap:10px;min-height:25px;margin-top:8px}
+.split-pane-head .ai-entry{align-self:flex-start;margin-left:auto;margin-top:-3px;padding:0}
+.split-pane-head .ai-entry img{width:30px;height:30px}
+/* Khung hẹp thì bỏ lời mời, giữ mascot: chen thêm một bong bóng dài vào hàng tiêu đề
+   hẹp sẽ ép tên nhân viên xuống dòng. Dùng container query nên đo theo bề rộng của
+   chính khung phải, không phải bề rộng cửa sổ. */
+.split-pane{container-type:inline-size}
+@container (max-width:560px){.split-pane-head .ai-entry-cta{display:none}}.split-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.split-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}.view-hidden{display:none}
 .split-badge-item{position:relative;cursor:help}.split-badge-tip{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:30;padding:4px 8px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease}.split-badge-tip::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.split-badge-item:hover .split-badge-tip{opacity:1}
 .pms-tooltip{position:relative;display:inline-flex;cursor:help}.fb-sender{gap:4px;align-items:baseline}.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
 .pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
@@ -248,7 +302,7 @@
 
       <div class="list-head"><div class="result-title" id="listTitle">Direct reports</div><span class="result-count" id="resultCount">0 nhân viên</span><div class="list-actions"><button type="button" class="btn btn-outline" id="headerDownload" aria-label="Tải phản hồi đã nhận" title="Tải phản hồi đã nhận" onclick="openDownloadDialog()"><i class="bx bx-download"></i></button><label class="search"><i class="bx bx-search"></i><input id="searchInput" placeholder="Tìm theo tên hoặc domain…" oninput="renderEmployees()"/></label><div class="filter-menu" id="filterMenu" style="display:none"><button class="btn btn-outline filter-toggle" id="filterToggle" onclick="toggleFilterPanel()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="filterCount">0</span></button><div class="filter-popover" id="filterPopover"><div class="filter-popover-grid"><select class="filter-select" id="filterDivision" onchange="renderEmployees()"></select><select class="filter-select" id="filterDepartment" onchange="renderEmployees()"></select><select class="filter-select" id="filterTeam" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager2" onchange="renderEmployees()"></select></div><div class="filter-popover-foot"><button class="btn btn-outline" onclick="clearFilters()">Xóa bộ lọc</button></div></div></div><button class="btn btn-outline" id="splitViewButton" aria-pressed="false" onclick="toggleSplitView()"><i class="bx bx-columns"></i> Split View</button></div></div>
       <div id="listView"><div class="employee-list" id="employeeList"></div></div>
-      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div style="flex:1"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button class="icon-btn" id="splitDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
+      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div class="split-pane-heading"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button type="button" class="ai-entry" id="splitAiEntry" hidden onclick="toggleSplitAiSummary()" aria-expanded="false" aria-controls="splitAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">Bấm xem tóm tắt nhanh</span><img src="../assets/mascot/think.png" alt=""/><span class="ai-entry-tip">AI Summary</span></button><button class="icon-btn" id="splitDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
       </section>
 
       <section class="mode-panel" id="requestModePanel" role="tabpanel" aria-labelledby="requestsModeTab" hidden>
@@ -278,7 +332,7 @@
 
 <div class="overlay" id="feedbackDialog" onclick="if(event.target===this)closeFeedback()">
   <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
-    <header class="dialog-head"><div class="dialog-heading"><div class="dialog-title" id="dialogTitle">Phản hồi đã nhận <span class="dialog-count" id="dialogCount">0</span></div><div class="dialog-sub" id="dialogSub"></div></div><div class="dialog-actions"><button class="icon-btn" id="dialogDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" id="openTabButton" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button><button class="close" onclick="closeFeedback()" aria-label="Đóng">×</button></div></header>
+    <header class="dialog-head"><div class="dialog-heading"><div class="dialog-title" id="dialogTitle">Phản hồi đã nhận <span class="dialog-count" id="dialogCount">0</span></div><div class="dialog-sub" id="dialogSub"></div></div><button type="button" class="ai-entry" id="dialogAiEntry" hidden onclick="toggleDialogAiSummary()" aria-expanded="false" aria-controls="dialogAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">Bấm xem tóm tắt nhanh</span><img src="../assets/mascot/think.png" alt=""/><span class="ai-entry-tip">AI Summary</span></button><div class="dialog-actions"><button class="icon-btn" id="dialogDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" id="openTabButton" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button><button class="close" onclick="closeFeedback()" aria-label="Đóng">×</button></div></header>
     <div class="dialog-body" id="dialogBody"></div>
     <footer class="dialog-foot"><button class="btn btn-outline" onclick="closeFeedback()">Đóng</button></footer>
   </section>
@@ -379,7 +433,7 @@
   </section>
 </div>
 
-<div class="dialog-overlay" id="downloadDialog" role="dialog" aria-modal="true" aria-labelledby="downloadDialogTitle" onclick="if(event.target===this)closeDownloadDialog()"><section class="confirm-dialog share-dialog"><div class="confirm-title" id="downloadDialogTitle">Tải phản hồi đã nhận</div><p class="confirm-copy">Tệp chỉ gồm những phản hồi bạn đang được xem trong phạm vi quản lý này.</p><div id="downloadSettings"></div><div class="dl-note"><i class="bx bx-info-circle"></i><span>Báo cáo do HR chia sẻ được tách thành sheet riêng, có ghi rõ nguồn là chương trình của HR.</span></div><div class="confirm-actions"><button class="btn btn-primary" type="button" id="downloadConfirm" onclick="confirmDownload()"><i class="bx bx-download"></i> Tải xuống</button></div></section></div><div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
+<div class="dialog-overlay" id="downloadDialog" role="dialog" aria-modal="true" aria-labelledby="downloadDialogTitle" onclick="if(event.target===this)closeDownloadDialog()"><section class="confirm-dialog share-dialog"><div class="confirm-title" id="downloadDialogTitle">Tải phản hồi đã nhận</div><p class="confirm-copy">Tệp chỉ gồm những phản hồi bạn đang được xem trong phạm vi quản lý này.</p><div id="downloadSettings"></div><div class="dl-note"><i class="bx bx-info-circle"></i><span>Kết quả do HR chia sẻ được tách thành sheet riêng, có ghi rõ nguồn là chương trình của HR.</span></div><div class="confirm-actions"><button class="btn btn-primary" type="button" id="downloadConfirm" onclick="confirmDownload()"><i class="bx bx-download"></i> Tải xuống</button></div></section></div><div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
 
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
@@ -415,7 +469,7 @@ function mergeStoredRequestState(seed,stored){
 }
 function loadRequestStore(){const storage=requestStorage(),seeded=ManagerRequestSeed.create(EMPLOYEES),loaded=ManagerRequestStorage.load(storage,REQUEST_STORAGE_KEY,()=>seeded),seedById=new Map(seeded.map(request=>[request.id,request])),merged=loaded.map(request=>{const seed=seedById.get(request.id);return seed?mergeStoredRequestState(seed,request):request;}),known=new Set(merged.map(request=>request.id));seeded.forEach(request=>{if(!known.has(request.id))merged.push(request);});ManagerRequestStorage.save(storage,REQUEST_STORAGE_KEY,merged);return ManagerRequestModel.createStore(merged);}
 function persistRequestStore(){return ManagerRequestStorage.save(requestStorage(),REQUEST_STORAGE_KEY,REQUEST_STORE.requests);}
-const STATE={scope:'lm1',selectedId:null,splitView:false,filterOpen:false,contentMode:'feedback',requestView:'list',requestLimit:10,requestStatusFilter:'all',requestFilterOpen:false,dialogAiCollapsed:false,splitAiCollapsed:false};
+const STATE={scope:'lm1',selectedId:null,splitView:false,filterOpen:false,contentMode:'feedback',requestView:'list',requestLimit:10,requestStatusFilter:'all',requestFilterOpen:false,dialogAiCollapsed:true,splitAiCollapsed:true};
 
 function employeesInScope(){ return EMPLOYEES.filter(emp=>emp.lvl===STATE.scope); }
 function visibleFeedbackForManager(employeeId){
@@ -427,9 +481,9 @@ function managerCell(manager){ return manager ? `<div class="manager-meta"><stro
 function roleClass(){ return STATE.scope==='lm1'?'cols-direct':STATE.scope==='lm2'?'cols-lm2':'cols-hod'; }
 function hrReportCount(login){ return (typeof FeedbackReportView!=='undefined')?FeedbackReportView.countFor(login,'managers'):0; }
 function employeeHeader(){
-  if(STATE.scope==='lm1') return `<div class="employee-list-header cols-direct"><div>Nhân viên</div><div>Phản hồi đã nhận</div><div class="report-col-head">Báo cáo HR</div><div>Chức năng</div></div>`;
-  if(STATE.scope==='lm2') return `<div class="employee-list-header cols-lm2"><div>Nhân viên</div><div>Quản lý trực tiếp</div><div>Phản hồi đã nhận</div><div class="report-col-head">Báo cáo HR</div><div>Chức năng</div></div>`;
-  return `<div class="employee-list-header cols-hod"><div>Nhân viên</div><div>Quản lý trực tiếp</div><div>Quản lý cấp 2</div><div>Phản hồi đã nhận</div><div class="report-col-head">Báo cáo HR</div><div>Chức năng</div></div>`;
+  if(STATE.scope==='lm1') return `<div class="employee-list-header cols-direct"><div>Nhân viên</div><div>Phản hồi đã nhận</div><div class="report-col-head">Kết quả từ HR</div><div>Chức năng</div></div>`;
+  if(STATE.scope==='lm2') return `<div class="employee-list-header cols-lm2"><div>Nhân viên</div><div>Quản lý trực tiếp</div><div>Phản hồi đã nhận</div><div class="report-col-head">Kết quả từ HR</div><div>Chức năng</div></div>`;
+  return `<div class="employee-list-header cols-hod"><div>Nhân viên</div><div>Quản lý trực tiếp</div><div>Quản lý cấp 2</div><div>Phản hồi đã nhận</div><div class="report-col-head">Kết quả từ HR</div><div>Chức năng</div></div>`;
 }
 function optionList(values,label){ return `<option value="">${label}</option>`+[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi')).map(value=>`<option value="${value}">${value}</option>`).join(''); }
 function managerOptions(people,label){
@@ -490,7 +544,7 @@ function renderDownloadSettings(){
   const list=downloadableEmployees(),some=DOWNLOAD_STATE.scope==='some';
   const rows=list.map(emp=>{
     const on=DOWNLOAD_STATE.ids.indexOf(emp.id)>=0,count=visibleFeedbackForManager(emp.id).length,reports=hrReportCount(emp.login);
-    const meta=[count?`${count} phản hồi`:'',reports?`${reports} báo cáo HR`:''].filter(Boolean).join(' - ');
+    const meta=[count?`${count} phản hồi`:'',reports?`${reports} kết quả từ HR`:''].filter(Boolean).join(' - ');
     return `<label class="dl-person${on?' on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleDownloadPerson('${emp.id}')"/><span class="avatar">${emp.ini}</span><span class="dl-info"><span class="dl-name">${emp.name}<span class="domain">(${emp.login})</span></span><span class="dl-meta">${meta}</span></span></label>`;
   }).join('');
   const block=list.length?`<div class="dl-list">${rows}</div>`:'<div class="dl-empty">Chưa có phản hồi nào để tải trong phạm vi này.</div>';
@@ -518,7 +572,7 @@ function downloadFeedback(ids){
   const reports=picked.reduce((sum,emp)=>sum+hrReportCount(emp.login),0);
   const who=picked.length===1?picked[0].name:`${picked.length} nhân viên`;
   const parts=[`${feedback} phản hồi`];
-  if(reports)parts.push(`${reports} báo cáo HR ở sheet riêng`);
+  if(reports)parts.push(`${reports} kết quả từ HR ở sheet riêng`);
   toast(`Đang chuẩn bị tệp cho ${who} — ${parts.join(' - ')}.`);
 }
 function currentEmployees(){
@@ -550,7 +604,7 @@ function renderEmployees(){
       <div class="metric metric-cell">${visible}</div>
       <div class="metric report-cell">${hrReports||'<span class="report-none">–</span>'}</div>
       <div class="row-actions">
-        <button class="row-action" aria-label="Xem phản hồi" title="${hasDetails?'Xem phản hồi và báo cáo':'Chưa có phản hồi hoặc báo cáo HR được chia sẻ'}" onclick="event.stopPropagation();${hasDetails?`openFeedback('${emp.id}')`:''}" ${hasDetails?'':'disabled'}><i class="bx bx-show"></i></button>
+        <button class="row-action" aria-label="Xem phản hồi" title="${hasDetails?'Xem phản hồi và kết quả từ HR':'Chưa có phản hồi hoặc kết quả từ HR được chia sẻ'}" onclick="event.stopPropagation();${hasDetails?`openFeedback('${emp.id}')`:''}" ${hasDetails?'':'disabled'}><i class="bx bx-show"></i></button>
         <button class="row-action" aria-label="Tải phản hồi của ${emp.name}" title="${hasDetails?`Tải phản hồi của ${emp.name}`:'Chưa có gì để tải'}" onclick="event.stopPropagation();${hasDetails?`downloadFeedback([&quot;${emp.id}&quot;])`:''}" ${hasDetails?'':'disabled'}><i class="bx bx-download"></i></button>
       </div>
     </article>`;
@@ -564,16 +618,26 @@ function employeeAiSummaryHTML(employee,feedback){
   const summary=ManagerAiSummary.create(employee,feedback);
   if(!summary.available)return '';
   const list=items=>`<ul class="dialog-ai-summary-list">${items.map(item=>`<li>${item}</li>`).join('')}</ul>`;
-  return `<section class="dialog-ai-summary ${STATE.dialogAiCollapsed?'collapsed':''}" id="dialogAiSummary"><header class="dialog-ai-summary-head"><div class="dialog-ai-summary-brand"><i class="bx bx-sparkles"></i><span>AI Summary</span></div><div class="dialog-ai-summary-actions"><span class="dialog-ai-summary-updated">Cập nhật: ${summary.updatedAt}</span><button type="button" class="dialog-ai-summary-toggle" onclick="toggleDialogAiSummary()" aria-expanded="${!STATE.dialogAiCollapsed}" aria-label="${STATE.dialogAiCollapsed?'Mở AI Summary':'Thu gọn AI Summary'}"><i class="bx ${STATE.dialogAiCollapsed?'bx-chevron-down':'bx-chevron-up'}"></i></button></div></header><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(summary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(summary.opportunities)}</section></div></section>`;
+  /* Khối tự khai phạm vi ngay ở tên: người đọc không phải suy đoán bản tổng hợp này
+     lấy dữ liệu từ đâu, và câu cuối nói rõ nó KHÔNG đụng tới kết quả của HR. */
+  /* Chỉ giữ tên và một câu phạm vi đặt ngay dưới tên: ngày cập nhật và số phản hồi là thứ
+     người đọc không dùng để quyết định gì, để lại chỉ làm loãng. Đóng bằng dấu ✕ cho cùng
+     một nghĩa với mọi chỗ đóng khác trên màn. */
+  return `<section class="dialog-ai-summary" id="dialogAiSummary" ${STATE.dialogAiCollapsed?'hidden':''}><header class="dialog-ai-summary-head"><div><div class="dialog-ai-summary-brand"><img class="dialog-ai-summary-mascot" src="../assets/mascot/think.png" alt=""/><span>AI Summary</span></div><div class="dialog-ai-summary-note">Không bao gồm kết quả từ chương trình của HR</div></div><button type="button" class="dialog-ai-summary-toggle" onclick="toggleDialogAiSummary()" aria-label="Đóng AI Summary"><i class="bx bx-x"></i></button></header><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(summary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(summary.opportunities)}</section></div></section>`;
 }
 function toggleDialogAiSummary(){
   STATE.dialogAiCollapsed=!STATE.dialogAiCollapsed;
-  const summary=document.getElementById('dialogAiSummary'); if(!summary)return;
-  summary.classList.toggle('collapsed',STATE.dialogAiCollapsed);
-  const button=summary.querySelector('.dialog-ai-summary-toggle');
-  button.setAttribute('aria-expanded',String(!STATE.dialogAiCollapsed));
-  button.setAttribute('aria-label',STATE.dialogAiCollapsed?'Mở AI Summary':'Thu gọn AI Summary');
-  button.innerHTML=`<i class="bx ${STATE.dialogAiCollapsed?'bx-chevron-down':'bx-chevron-up'}"></i>`;
+  const summary=document.getElementById('dialogAiSummary'),entry=document.getElementById('dialogAiEntry');
+  if(entry){
+    /* Đã bấm là thôi mời gọi. Đang mở thì mascot thu lại - khối tóm tắt đã mang sẵn tên
+       và mascot nhỏ của nó; đóng lại thì mascot quay ra làm lối vào. */
+    entry.classList.remove('inviting','bob');
+    entry.hidden=!STATE.dialogAiCollapsed;
+    entry.setAttribute('aria-expanded',String(!STATE.dialogAiCollapsed));
+  }
+  if(!summary)return;
+  summary.hidden=STATE.dialogAiCollapsed;
+  if(!STATE.dialogAiCollapsed)summary.scrollIntoView({block:'nearest'});
 }
 // Split View dùng lại đúng visual AI Summary của popup (class .dialog-ai-summary),
 // nhưng id/collapse-state/toggle riêng để hai ngữ cảnh không đụng nhau.
@@ -581,35 +645,62 @@ function splitAiSummaryHTML(employee,feedback){
   const summary=ManagerAiSummary.create(employee,feedback);
   if(!summary.available)return '';
   const list=items=>`<ul class="dialog-ai-summary-list">${items.map(item=>`<li>${item}</li>`).join('')}</ul>`;
-  return `<section class="dialog-ai-summary ${STATE.splitAiCollapsed?'collapsed':''}" id="splitAiSummary"><header class="dialog-ai-summary-head"><div class="dialog-ai-summary-brand"><i class="bx bx-sparkles"></i><span>AI Summary</span></div><div class="dialog-ai-summary-actions"><span class="dialog-ai-summary-updated">Cập nhật: ${summary.updatedAt}</span><button type="button" class="dialog-ai-summary-toggle" onclick="toggleSplitAiSummary()" aria-expanded="${!STATE.splitAiCollapsed}" aria-label="${STATE.splitAiCollapsed?'Mở AI Summary':'Thu gọn AI Summary'}"><i class="bx ${STATE.splitAiCollapsed?'bx-chevron-down':'bx-chevron-up'}"></i></button></div></header><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(summary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(summary.opportunities)}</section></div></section>`;
+  /* Cùng một khuôn với popup: tên, câu phạm vi ngay dưới tên, đóng bằng dấu ✕. */
+  return `<section class="dialog-ai-summary" id="splitAiSummary" ${STATE.splitAiCollapsed?'hidden':''}><header class="dialog-ai-summary-head"><div><div class="dialog-ai-summary-brand"><img class="dialog-ai-summary-mascot" src="../assets/mascot/think.png" alt=""/><span>AI Summary</span></div><div class="dialog-ai-summary-note">Không bao gồm kết quả từ chương trình của HR</div></div><button type="button" class="dialog-ai-summary-toggle" onclick="toggleSplitAiSummary()" aria-label="Đóng AI Summary"><i class="bx bx-x"></i></button></header><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(summary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(summary.opportunities)}</section></div></section>`;
 }
 function toggleSplitAiSummary(){
   STATE.splitAiCollapsed=!STATE.splitAiCollapsed;
-  const summary=document.getElementById('splitAiSummary'); if(!summary)return;
-  summary.classList.toggle('collapsed',STATE.splitAiCollapsed);
-  const button=summary.querySelector('.dialog-ai-summary-toggle');
-  button.setAttribute('aria-expanded',String(!STATE.splitAiCollapsed));
-  button.setAttribute('aria-label',STATE.splitAiCollapsed?'Mở AI Summary':'Thu gọn AI Summary');
-  button.innerHTML=`<i class="bx ${STATE.splitAiCollapsed?'bx-chevron-down':'bx-chevron-up'}"></i>`;
+  const summary=document.getElementById('splitAiSummary'),entry=document.getElementById('splitAiEntry');
+  if(entry){
+    /* Đang mở thì mascot thu lại: khối tóm tắt đã mang sẵn tên và mascot nhỏ của nó,
+       để thêm một con ở hàng tiêu đề là hai lối vào cho cùng một thứ đang mở sẵn.
+       Đóng lại thì mascot quay ra, nhưng thôi mời gọi vì người dùng đã biết nó ở đâu. */
+    entry.classList.remove('inviting','bob');
+    entry.hidden=!STATE.splitAiCollapsed;
+    entry.setAttribute('aria-expanded',String(!STATE.splitAiCollapsed));
+  }
+  if(!summary)return;
+  summary.hidden=STATE.splitAiCollapsed;
 }
 function openFeedback(employeeId){
   const emp=EMPLOYEES.find(item=>item.id===employeeId); if(!emp)return;
   const items=visibleFeedbackForManager(employeeId);
   STATE.selectedId=employeeId;
-  STATE.dialogAiCollapsed=false;
+  /* Mặc định đóng: bản tổng hợp do máy sinh là thứ tra cứu khi cần, không phải thứ chen
+     trước phản hồi do người viết. Nút trong tiêu đề nháy để mời, không tự bung. */
+  STATE.dialogAiCollapsed=true;
   document.getElementById('dialogCount').textContent=items.length;
   document.getElementById('dialogSub').textContent=FEEDBACK_STORE.employeeMeta(emp);
   const hrCount=hrReportCount(emp.login);
-  const hrBanner=hrCount?`<section class="hr-report-banner"><div class="hr-report-banner-text"><i class="bx bx-bar-chart-alt-2"></i><div class="hr-report-banner-copy"><div class="hr-report-banner-title">Báo cáo phản hồi từ HR</div><div><b>${hrCount}</b> báo cáo đã được HR chia sẻ với Quản lý</div></div></div><button class="btn btn-outline hr-report-banner-btn" onclick="openFeedbackTab('${emp.id}',true)"><i class="bx bx-show"></i> Xem báo cáo HR</button></section>`:'';
+  /* Một dòng là đủ: tiêu đề đã mang sẵn số lượng, nên dòng metadata "N báo cáo đã được
+     chia sẻ với Quản lý" chỉ nói lại đúng thứ vừa đọc. */
+  const hrLine=hrCount?`<div class="hr-line"><i class="bx bx-bar-chart-alt-2"></i><span>Kết quả phản hồi được chia sẻ từ HR <b>(${hrCount})</b></span><button type="button" class="hr-line-link" onclick="openFeedbackTab('${emp.id}',true)">Xem chi tiết <i class="bx bx-link-external"></i></button></div>`:'';
   const sortedItems=items.slice().sort((a,b)=>b.date.split('/').reverse().join('').localeCompare(a.date.split('/').reverse().join(''))),summary=employeeAiSummaryHTML(emp,items);
-  const feedbackContent=items.length?`${summary?`<section class="feedback-content-group"><div class="feedback-content-title"><span>Tổng hợp phản hồi đã nhận</span><span>Từ ${items.length} phản hồi</span></div>${summary}</section>`:''}<section class="feedback-content-group"><div class="feedback-content-title"><span>Phản hồi đã nhận</span><span>${items.length} phản hồi</span></div><div class="feedback-card-list">${sortedItems.map(item=>feedbackCard(item,emp)).join('')}</div></section>`:'<div class="empty">Chưa có phản hồi nào được chia sẻ với quản lý.</div>';
-  document.getElementById('dialogBody').innerHTML=hrBanner+feedbackContent;
+  /* KHÔNG lặp lại nhãn "Phản hồi đã nhận" trong thân popup: tiêu đề ở header đã nói rồi,
+     và số đếm cũng nằm sẵn ở đó. Thứ tự cố định: dòng kết quả HR - bản tổng hợp AI (khi mở)
+     - danh sách phản hồi. */
+  const feedbackContent=items.length
+    ? `${summary}<div class="feedback-card-list">${sortedItems.map(item=>feedbackCard(item,emp)).join('')}</div>`
+    : '<div class="empty">Chưa có phản hồi nào được chia sẻ với quản lý.</div>';
+  document.getElementById('dialogBody').innerHTML=hrLine+feedbackContent;
+  const entry=document.getElementById('dialogAiEntry');
+  entry.hidden=!summary||!STATE.dialogAiCollapsed;
+  entry.setAttribute('aria-expanded','false');
+  /* Mỗi lần mở popup lại mời một lần: người xem có thể là quản lý khác, hoặc chính họ nhưng
+     đã quên. Lời mời chỉ mất khi họ thật sự bấm vào. */
+  entry.classList.toggle('bob',!!summary);
+  entry.classList.toggle('inviting',!!summary);
   document.getElementById('feedbackDialog').classList.add('open');
   syncViewerDownloadLabels();
 }
 function openFeedbackTab(employeeId=STATE.selectedId,report=false){if(!employeeId)return;const cycle=document.getElementById('cycle').value;window.open(`feedback-detail.html?employee=${encodeURIComponent(employeeId)}&cycle=${encodeURIComponent(cycle)}${report?'&report=1':''}`,'_blank','noopener');}
 function toggleSplitView(){STATE.splitView=!STATE.splitView;document.getElementById('listView').classList.toggle('view-hidden',STATE.splitView);document.getElementById('splitShell').classList.toggle('open',STATE.splitView);document.getElementById('splitViewButton').setAttribute('aria-pressed',String(STATE.splitView));renderEmployees();}
-function selectSplitEmployee(employeeId){STATE.selectedId=employeeId;renderEmployees();syncViewerDownloadLabels();}
+function selectSplitEmployee(employeeId){
+  /* Đổi người là về trạng thái đóng: bản tóm tắt của người trước không được ở lại mở sẵn
+     cho người sau, và mascot phải quay ra để còn bấm. */
+  STATE.splitAiCollapsed=true;
+  STATE.selectedId=employeeId;renderEmployees();syncViewerDownloadLabels();
+}
 function splitBadgeSummaryHTML(feedback){
   const counts={};
   feedback.forEach(item=>{if(item.requestSource==='hr'||item.source==='hr')return;(item.cv||[]).forEach(value=>{counts[value]=(counts[value]||0)+1;});});
@@ -622,16 +713,26 @@ function renderSplitView(items){
   if(!STATE.splitView)return;
   if(!items.length){document.getElementById('splitEmployeeList').innerHTML='<div class="empty">Không có nhân viên.</div>';document.getElementById('splitFeedbackPane').innerHTML='';return;}
   if(!items.some(emp=>emp.id===STATE.selectedId))STATE.selectedId=(items.find(emp=>visibleFeedbackForManager(emp.id).length||hrReportCount(emp.login))||items[0]).id;
-  document.getElementById('splitEmployeeList').innerHTML=items.map(emp=>{const feedbackCount=visibleFeedbackForManager(emp.id).length,hrCount=hrReportCount(emp.login);return `<button class="split-person ${emp.id===STATE.selectedId?'on':''}" onclick="selectSplitEmployee('${emp.id}')"><span class="avatar">${emp.ini}</span><span style="min-width:0"><span class="emp-name" style="display:block">${emp.name} <span class="emp-domain">(${emp.login})</span></span><span class="emp-meta" style="display:block">${feedbackCount} phản hồi đã nhận${hrCount?` - ${hrCount} báo cáo HR`:''}</span></span></button>`;}).join('');
+  document.getElementById('splitEmployeeList').innerHTML=items.map(emp=>{const feedbackCount=visibleFeedbackForManager(emp.id).length,hrCount=hrReportCount(emp.login);return `<button class="split-person ${emp.id===STATE.selectedId?'on':''}" onclick="selectSplitEmployee('${emp.id}')"><span class="avatar">${emp.ini}</span><span style="min-width:0"><span class="emp-name" style="display:block">${emp.name} <span class="emp-domain">(${emp.login})</span></span><span class="emp-meta" style="display:block">${feedbackCount} phản hồi đã nhận${hrCount?` - ${hrCount} kết quả từ HR`:''}</span></span></button>`;}).join('');
   const emp=items.find(item=>item.id===STATE.selectedId),feedback=visibleFeedbackForManager(emp.id);
   document.getElementById('splitEmployeeLabel').textContent=emp.name;
   const employeeTooltip=document.getElementById('splitEmployeeTooltip');
   employeeTooltip.textContent=[emp.dept,emp.pos].filter(Boolean).join(' - ');
   const hrCount=hrReportCount(emp.login);
-  document.getElementById('splitOverview').innerHTML=`<span class="split-overview-item"><i class="bx bx-message-square-dots"></i>${feedback.length} phản hồi đã nhận</span>${hrCount?`<button class="split-hr-report" onclick="openFeedbackTab('${emp.id}',true)"><i class="bx bx-bar-chart-alt-2"></i>${hrCount} báo cáo HR đã chia sẻ</button>`:''}`;
+  document.getElementById('splitOverview').innerHTML=`<span class="split-overview-item"><i class="bx bx-message-square-dots"></i>${feedback.length} phản hồi đã nhận</span>${hrCount?`<button class="split-hr-report" onclick="openFeedbackTab('${emp.id}',true)"><i class="bx bx-bar-chart-alt-2"></i>${hrCount} kết quả từ HR</button>`:''}`;
   document.getElementById('splitBadgeSummary').innerHTML=splitBadgeSummaryHTML(feedback);
   const summary=splitAiSummaryHTML(emp,feedback);
-  document.getElementById('splitFeedbackPane').innerHTML=feedback.length?`${summary?`<section class="feedback-content-group"><div class="feedback-content-title"><span>Tổng hợp phản hồi đã nhận</span><span>Từ ${feedback.length} phản hồi</span></div>${summary}</section>`:''}<section class="feedback-content-group"><div class="feedback-content-title"><span>Phản hồi đã nhận</span><span>${feedback.length} phản hồi</span></div><div class="feedback-card-list">${feedback.map((item,index)=>feedbackCard(item,emp,{senderTooltipPlacement:index===0?'bottom':'top'})).join('')}</div></section>`:'<div class="empty">Chưa có phản hồi.</div>';
+  /* Không lặp nhãn: hàng tiêu đề đã nói "Phản hồi của X" và "N phản hồi đã nhận".
+     Thứ tự cố định: bản tổng hợp (khi mở) rồi tới danh sách phản hồi. */
+  document.getElementById('splitFeedbackPane').innerHTML=feedback.length
+    ? `${summary}<div class="feedback-card-list">${feedback.map((item,index)=>feedbackCard(item,emp,{senderTooltipPlacement:index===0?'bottom':'top'})).join('')}</div>`
+    : '<div class="empty">Chưa có phản hồi.</div>';
+  const splitEntry=document.getElementById('splitAiEntry');
+  splitEntry.hidden=!summary||!STATE.splitAiCollapsed;
+  splitEntry.setAttribute('aria-expanded',String(!STATE.splitAiCollapsed));
+  /* Đổi người là mời lại: mỗi nhân viên có một bản tổng hợp riêng. Đang mở sẵn thì thôi. */
+  splitEntry.classList.toggle('bob',!!summary&&STATE.splitAiCollapsed);
+  splitEntry.classList.toggle('inviting',!!summary&&STATE.splitAiCollapsed);
 }
 function closeFeedback(){document.getElementById('feedbackDialog').classList.remove('open')}
 

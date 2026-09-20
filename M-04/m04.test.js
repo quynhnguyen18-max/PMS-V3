@@ -358,9 +358,12 @@ test('managers can download received feedback per employee or in bulk, within th
   assert.match(html, /return currentEmployees\(\)\.filter\(emp=>visibleFeedbackForManager\(emp\.id\)\.length\|\|hrReportCount\(emp\.login\)\)/);
   assert.match(html, /function downloadFeedback\(ids\)\{[\s\S]{0,200}currentEmployees\(\)\.filter/);
 
-  // báo cáo HR đi kèm nhưng tách sheet riêng, và nói rõ điều đó trong hộp thoại
-  assert.match(html, /báo cáo HR ở sheet riêng/);
-  assert.match(html, /Báo cáo do HR chia sẻ được tách thành sheet riêng/);
+  /* Kết quả từ HR đi kèm nhưng tách sheet riêng, và nói rõ điều đó trong hộp thoại.
+     Một đối tượng chỉ được gọi bằng MỘT tên trên mọi màn (DESIGN-SYSTEM §19.17): HR chia sẻ
+     "kết quả" nên màn quản lý cũng gọi là kết quả, không gọi là báo cáo. */
+  assert.match(html, /kết quả từ HR ở sheet riêng/);
+  assert.match(html, /Kết quả do HR chia sẻ được tách thành sheet riêng/);
+  assert.doesNotMatch(html, /báo cáo HR|Báo cáo HR|Báo cáo phản hồi từ HR/);
 
   // nút header nằm trên thanh tab nên phải tự đổi phạm vi theo tab đang mở
   // ba nơi xem phản hồi của một người đều tải được ngay tại chỗ, không cần quay về bảng
@@ -505,23 +508,60 @@ test('employee feedback popup prepends the shared AI summary when enough feedbac
   assert.match(renderer, /if\(!summary\.available\)return ''/);
   assert.match(renderer, /Điểm mạnh/);
   assert.match(renderer, /Cơ hội phát triển/);
-  assert.match(renderer, /Cập nhật: \$\{summary\.updatedAt\}/);
+  // ngày cập nhật và số phản hồi đã bỏ: người đọc không dùng chúng để quyết định gì
+  assert.doesNotMatch(renderer, /Cập nhật|updatedAt|dialog-ai-summary-scope/);
   assert.match(opener, /employeeAiSummaryHTML\(emp,items\)/);
   assert.ok(opener.indexOf('employeeAiSummaryHTML(emp,items)') < opener.indexOf('feedbackCard(item,emp)'));
 });
 
-test('employee popup AI summary is collapsible and the table keeps only the eye action', () => {
+/* Bản tổng hợp do máy sinh không chen trước phản hồi do người viết: mặc định ẩn hẳn,
+   mở bằng một nút icon đặt trong TIÊU ĐỀ popup - tiêu đề là nhãn của danh sách phản hồi,
+   nên vị trí đó tự nói lên "tổng hợp của đúng danh sách này". */
+test('the popup AI summary stays closed behind one icon in the dialog title', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   const renderer = html.match(/function employeeAiSummaryHTML\(employee,feedback\)\{[\s\S]*?\n\}/)?.[0] || '';
+  const opener = html.match(/function openFeedback\(employeeId\)\{[\s\S]*?\n\}/)?.[0] || '';
   const employeeRenderer = html.match(/function renderEmployees\(\)\{[\s\S]*?\n\}/)?.[0] || '';
-  assert.match(renderer, /aria-expanded="\$\{!STATE\.dialogAiCollapsed\}"/);
-  assert.match(renderer, /toggleDialogAiSummary\(\)/);
-  assert.match(html, /function toggleDialogAiSummary\(\)/);
+  // nút nằm ngay sau số đếm trong tiêu đề, không lẫn vào cụm nút cửa sổ (tải / mở tab / đóng)
+  assert.match(html, /<div class="dialog-sub" id="dialogSub"><\/div><\/div><button type="button" class="ai-entry" id="dialogAiEntry" hidden/);
+  assert.doesNotMatch(html, /ai-trigger-wrap/);
+  assert.doesNotMatch(renderer, /bx-sparkles/);   // icon này không có trong Boxicons 2.1.4
+  assert.match(html, /aria-controls="dialogAiSummary" aria-label="AI Summary"/);
+  assert.match(html, /<img src="\.\.\/assets\/mascot\/think\.png" alt=""\/>/);
+  // lời mời hiện khi mở popup, tên chỉ hiện khi rê chuột - hai thứ không bao giờ cùng lúc
+  assert.match(html, /<span class="ai-entry-cta">Bấm xem tóm tắt nhanh<\/span>/);
+  assert.match(html, /<span class="ai-entry-tip">AI Summary<\/span>/);
+  assert.match(html, /\.ai-entry\.inviting \.ai-entry-tip\{display:none\}/);
+  assert.match(html, /\.ai-entry:not\(\.inviting\) \.ai-entry-cta\{display:none\}/);
+  // mặc định đóng, và khối chỉ hiện khi mở
+  assert.match(opener, /STATE\.dialogAiCollapsed=true;/);
+  assert.match(renderer, /id="dialogAiSummary" \$\{STATE\.dialogAiCollapsed\?'hidden':''\}/);
+  assert.match(html, /summary\.hidden=STATE\.dialogAiCollapsed;/);
+  // khối tự khai phạm vi, và nói rõ không đụng tới kết quả của HR
+  // tên + một câu phạm vi ngay dưới tên, không chèn thêm số liệu nào khác
+  assert.match(renderer, /<div class="dialog-ai-summary-brand"><img class="dialog-ai-summary-mascot"/);
+  // bỏ icon ⓘ: dòng ghi chú phải thẳng lề trái với tên ở trên và nhãn "Điểm mạnh" ở dưới
+  assert.match(renderer, /<div class="dialog-ai-summary-note">Không bao gồm/);
+  assert.doesNotMatch(renderer, /dialog-ai-summary-note"><i/);
+  // lời mời nằm cùng hàng, bên trái mascot - xổ xuống là che mất dòng kết quả HR
+  assert.match(html, /\.ai-entry-cta\{flex:none/);
+  assert.match(html, /<span class="ai-entry-cta">Bấm xem tóm tắt nhanh<\/span><img src=/);
+  assert.match(renderer, /aria-label="Đóng AI Summary"><i class="bx bx-x">/);
+  assert.match(renderer, /Không bao gồm kết quả từ chương trình của HR/);
+  // mascot nhún để mời gọi, đứng yên khi máy đã tắt hiệu ứng chuyển động
+  assert.match(html, /\.ai-entry\.bob img\{animation:ai-entry-bob 2\.6s ease-in-out infinite\}/);
+  assert.match(html, /@media\(prefers-reduced-motion:reduce\)\{\.ai-entry\.bob img\{animation:none\}\}/);
+  // mỗi lần mở popup lại mời một lần, và lời mời chỉ mất khi người dùng thật sự bấm
+  assert.match(html, /entry\.classList\.toggle\('inviting',!!summary\);/);
+  assert.match(html, /entry\.classList\.remove\('inviting','bob'\);/);
   assert.doesNotMatch(employeeRenderer, /bx-sparkles|AI Summary/);
   assert.match(employeeRenderer, /bx-show/);
 });
 
-test('split view prepends the same AI summary as the popup, with its own collapse state', () => {
+/* Split View là chế độ lướt: đổi người liên tục. Bản tổng hợp máy sinh mà bung sẵn thì
+   mỗi lần đổi người nó lại đẩy phản hồi của người viết xuống dưới màn hình, nên ở đây cũng
+   đóng mặc định và mở bằng đúng con mascot như popup. */
+test('split view hides the AI summary behind the same mascot entry as the popup', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   const renderer = html.match(/function splitAiSummaryHTML\(employee,feedback\)\{[\s\S]*?\n\}/)?.[0] || '';
   const splitRenderer = html.match(/function renderSplitView\(items\)\{[\s\S]*?\n\}/)?.[0] || '';
@@ -530,14 +570,34 @@ test('split view prepends the same AI summary as the popup, with its own collaps
   assert.match(renderer, /id="splitAiSummary"/);
   assert.match(renderer, /Điểm mạnh/);
   assert.match(renderer, /Cơ hội phát triển/);
-  assert.match(renderer, /aria-expanded="\$\{!STATE\.splitAiCollapsed\}"/);
+  assert.match(renderer, /id="splitAiSummary" \$\{STATE\.splitAiCollapsed\?'hidden':''\}/);
   assert.match(renderer, /toggleSplitAiSummary\(\)/);
   assert.match(html, /function toggleSplitAiSummary\(\)/);
-  assert.match(html, /splitAiCollapsed:false/);
-  // summary phải đứng trước feedback card trong pane và có nhãn ngữ cảnh rõ ràng.
-  assert.match(splitRenderer, /Tổng hợp phản hồi đã nhận/);
-  assert.match(splitRenderer, /Phản hồi đã nhận/);
+  assert.match(html, /splitAiCollapsed:true\}/);
+  // cùng khuôn với popup: mascot, câu phạm vi dưới tên, đóng bằng dấu ✕
+  assert.match(renderer, /<img class="dialog-ai-summary-mascot" src="\.\.\/assets\/mascot\/think\.png"/);
+  assert.match(renderer, /<div class="dialog-ai-summary-note">Không bao gồm kết quả từ chương trình của HR<\/div>/);
+  assert.match(renderer, /aria-label="Đóng AI Summary"><i class="bx bx-x">/);
+  assert.doesNotMatch(renderer, /bx-sparkles|Cập nhật/);
+  // lối vào là mascot ở góc phải hàng tiêu đề, kèm lời mời như popup
+  assert.match(html, /<button type="button" class="ai-entry" id="splitAiEntry" hidden/);
+  assert.match(html, /<span class="ai-entry-cta">Bấm xem tóm tắt nhanh<\/span><img src="\.\.\/assets\/mascot\/think\.png"/);
+  // mascot neo vào hàng trên cùng, thành một cụm với nhóm nút - không lơ lửng giữa khoảng trắng
+  assert.match(html, /\.split-pane-head \.ai-entry\{align-self:flex-start;margin-left:auto/);
+  // mở bản tóm tắt thì mascot thu lại, đóng thì quay ra
+  assert.match(html, /splitEntry\.hidden=!summary\|\|!STATE\.splitAiCollapsed;/);
+  assert.match(html, /entry\.hidden=!STATE\.splitAiCollapsed;/);
+  assert.match(html, /entry\.hidden=!summary\|\|!STATE\.dialogAiCollapsed;/);
+  assert.match(html, /entry\.hidden=!STATE\.dialogAiCollapsed;/);
+  // khung hẹp thì bỏ lời mời chứ không ép tên nhân viên xuống dòng
+  assert.match(html, /@container \(max-width:560px\)\{\.split-pane-head \.ai-entry-cta\{display:none\}\}/);
+  // huy hiệu giá trị trả về dưới dòng "N phản hồi đã nhận" để nhường chỗ cho mascot
+  assert.match(html, /<div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"><\/div><\/div><button type="button" class="ai-entry"/);
+  // thân khung không lặp lại nhãn đã có ở hàng tiêu đề
+  assert.doesNotMatch(splitRenderer, /feedback-content-title|Tổng hợp phản hồi đã nhận/);
   assert.ok(splitRenderer.indexOf('splitAiSummaryHTML(emp,feedback)') < splitRenderer.indexOf('feedback.map'));
+  // đổi người là mời lại, trừ khi đang mở sẵn
+  assert.match(splitRenderer, /splitEntry\.classList\.toggle\('inviting',!!summary&&STATE\.splitAiCollapsed\);/);
 });
 
 test('manager feedback separates HR reports from received-feedback evidence', () => {
@@ -546,10 +606,22 @@ test('manager feedback separates HR reports from received-feedback evidence', ()
   const opener = html.match(/function openFeedback\(employeeId\)\{[\s\S]*?\n\}/)?.[0] || '';
   const splitRenderer = html.match(/function renderSplitView\(items\)\{[\s\S]*?\n\}/)?.[0] || '';
   assert.doesNotMatch(html, /report-badge/);
-  assert.match(opener, /Báo cáo phản hồi từ HR/);
-  assert.match(opener, /Tổng hợp phản hồi đã nhận/);
-  assert.match(opener, /Phản hồi đã nhận/);
-  assert.match(splitRenderer, /báo cáo HR đã chia sẻ/);
+  /* Kết quả từ HR: MỘT dòng cố định ở đầu thân popup, chỉ đếm số và dẫn sang màn chi tiết -
+     nội dung không đọc được tại đây nên không dựng thành banner hai dòng. */
+  assert.match(opener, /const hrLine=hrCount\?`<div class="hr-line">/);
+  assert.match(opener, /Kết quả phản hồi được chia sẻ từ HR <b>\(\$\{hrCount\}\)<\/b>/);
+  // dòng này là lối đi sang màn khác nên dùng hồng nhạt của thông tin
+  assert.match(html, /\.hr-line\{[^}]*border:1px solid var\(--brand-ring\)[^}]*background:var\(--brand-muted\)/);
+  assert.match(opener, /class="hr-line-link" onclick="openFeedbackTab\('\$\{emp\.id\}',true\)">Xem chi tiết/);
+  assert.doesNotMatch(opener, /báo cáo đã được HR chia sẻ với Quản lý/);
+  // thứ tự cố định: dòng HR - bản tổng hợp (khi mở) - danh sách phản hồi
+  assert.match(opener, /innerHTML=hrLine\+feedbackContent;/);
+  assert.match(opener, /`\$\{summary\}<div class="feedback-card-list">/);
+  /* Nhãn "Phản hồi đã nhận" chỉ xuất hiện MỘT lần, ở tiêu đề popup: lặp lại trong thân là
+     bắt người đọc xác nhận hai lần cùng một chuyện. */
+  assert.doesNotMatch(opener, /feedback-content-title|Tổng hợp phản hồi đã nhận/);
+  assert.match(splitRenderer, /\$\{hrCount\} kết quả từ HR<\/button>/);
+  assert.doesNotMatch(detail, /báo cáo HR|Báo cáo phản hồi từ HR|Chi tiết báo cáo/);
   assert.match(splitRenderer, /openFeedbackTab\('\$\{emp\.id\}',true\)/);
   assert.match(detail, /\.detail-tabs\{[^}]*padding:3px[^}]*border:1px solid var\(--z200\)[^}]*background:var\(--z100\)/);
   assert.match(detail, /\.detail-tab\.on\{[^}]*background:var\(--z0\)[^}]*color:var\(--brand\)/);
