@@ -625,41 +625,21 @@ test('thanks tooltip follows the design-system metadata separator rule (no middo
   assert.match(mark, /<em>- \$\{r\.role\}<\/em>/);
 });
 
-test('both guide styles show together so reviewers can compare and drop one', () => {
+test('the compose box is left empty — the STAR guide lives only in the bulb tip', () => {
   const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
-  assert.match(html, /<div class="ta-guide" id="giveGuide">/);
+  // Ô soạn trả về ô trống: không còn lớp phủ hướng dẫn chìm trong ô.
+  assert.doesNotMatch(html, /ta-guide|giveGuide|tg-prompt|tg-tip|guide-on|syncGiveGuide/);
+  // Textarea chỉ còn placeholder gốc, không aria-describedby, không handler focus/blur.
+  assert.match(html, /<textarea class="compose-ta" id="giveTA" placeholder="[^"]+"\s+oninput="onGiveInput\(\)"><\/textarea>/);
+  // Hướng dẫn STAR / STAR-AR vẫn còn nguyên, nhưng chỉ ở bảng mẹo của nút bóng đèn.
   assert.match(html, /<div class="tip-pop" id="writeTip"/);
-  // không còn cơ chế tách chế độ — cả hai cùng chạy trên một màn
   assert.doesNotMatch(html, /guide-inbox|guide-tip|applyGuideMode|GUIDE_MODE_KEY/);
-});
-
-test('style A keeps the STAR guide inside the compose box without clipping on any background', () => {
-  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
-  const from = html.indexOf('<div class="ta-guide" id="giveGuide">');
-  const guide = html.slice(from, html.indexOf('</div>', html.indexOf('tg-tip"><span class="tg-tip-l">2.', from)));
-  assert.match(guide, /<p class="tg-prompt" aria-hidden="true">Bạn muốn phản hồi điều gì\?/);
-  // cùng cách xuống dòng và in đậm với bảng chi tiết
-  assert.match(guide, /<span class="tg-tip-l">1\. Để <b>ghi nhận<\/b> - dùng Mô hình <b>STAR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
-  assert.match(guide, /<span class="tg-tip-l">2\. Để <b>góp ý xây dựng<\/b> - dùng Mô hình <b>STAR-AR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
-  assert.match(html, /\.tg-tip-l\{display:block;color:var\(--z500\)\}/);
-  assert.doesNotMatch(guide, /\u00B7/);
-  // dòng mời viết đậm nhất, mẹo lùi xuống làm phụ chú — tránh bị đọc thành infobox
-  assert.match(html, /\.tg-prompt\{margin:0;font-size:13px;line-height:1\.6;color:var\(--z500\)\}/);
-  assert.match(html, /\.tg-tip\{margin:0 0 5px;font-size:11px;line-height:1\.5;color:var\(--z400\)\}/);
-  // bấm vào ô là ẩn, rời ô mà còn trống thì hiện lại
-  assert.match(html, /const hide=document\.activeElement===ta \|\| ta\.value\.trim\(\)!==''/);
-  assert.match(html, /onfocus="syncGiveGuide\(\)" onblur="syncGiveGuide\(\)"/);
-  assert.match(html, /function syncGive\(\)\{\s*syncGiveGuide\(\);/);
-  // LUÔN căn trái dù nền quy định căn giữa
-  assert.match(html, /\.ta-guide\{[^}]*text-align:left/);
-  assert.match(html, /padding:var\(--ta-pad,30px 22px\);text-align:left\}/);
-  // nới cao CHỈ khi chưa chọn nền — chọn nền rồi thì .compose-ta.has-bg đã cho 170px
-  assert.match(html, /\.ta-wrap \.compose-ta:not\(\.has-bg\)\{min-height:146px\}/);
-  // biến của nền đặt trên khung bọc để lớp phủ (anh em của textarea) kế thừa được
+  // Ô trở lại đúng chiều cao gốc 88px: bỏ hướng dẫn chìm thì không cần nới cao nữa.
+  assert.doesNotMatch(html, /min-height:146px/);
+  assert.match(html, /\.compose-ta\{width:100%;min-height:88px/);
+  // biến của nền vẫn đặt trên khung bọc để textarea kế thừa
   assert.match(html, /const wrap=ta\.closest\('\.ta-wrap'\)\|\|ta;/);
   assert.match(html, /wrap\.style\.setProperty\('--ta-fg', b\.fg\|\|'#fff'\)/);
-  assert.doesNotMatch(html, /ta\.style\.setProperty\('--ta-fg'/);
-  assert.match(html, /aria-describedby="giveGuideTip"/);
 });
 
 test('style B is an icon-only bulb that blinks on open and names itself on hover', () => {

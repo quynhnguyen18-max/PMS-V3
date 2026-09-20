@@ -596,36 +596,12 @@ input,select,textarea{font-family:inherit}
 /* textarea */
 .compose-ta{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);font-size:13px;color:var(--z800);line-height:1.6;resize:vertical;background:var(--z0)}
 .compose-ta:focus{outline:2px solid var(--brand-ring);outline-offset:1px;border-color:var(--brand)}
-/* ── Hướng dẫn STAR / STAR-AR chìm trong ô soạn phản hồi ──────────────────
-   Lớp phủ không nhận chuột nên bấm vào đâu cũng là bấm vào textarea.
-   Ô soạn cao sẵn đủ chứa hướng dẫn nên khi ẩn đi không bị nhảy layout.
-   Placeholder gốc bị làm trong suốt lúc hướng dẫn hiện, và trở lại khi ô được focus. */
-/* ══ HAI CÁCH HIỂN THỊ HƯỚNG DẪN — CÙNG HIỆN để sếp review rồi chọn bỏ một ══
-   A: hướng dẫn chìm ngay trong ô, đọc được liền, mất khi bấm vào ô.
-   B: nút bóng đèn cạnh nhãn, bấm ra bảng chi tiết dưới ô, ở lại trong lúc gõ. */
+/* ── Khung bọc ô soạn phản hồi ────────────────────────────────────────────
+   Ô để TRỐNG: hướng dẫn STAR / STAR-AR chỉ còn ở nút bóng đèn cạnh nhãn,
+   không phủ chữ gợi ý nào vào trong ô nữa. Khung bọc vẫn giữ lại vì biến của
+   nền được đặt ở đây và nó lo trạng thái hover cho textarea. */
 .ta-wrap{position:relative}
 .ta-wrap:hover .compose-ta:not(:focus):not(.has-bg){border-color:var(--z400)}
-/* Chỉ nới cao khi CHƯA chọn nền — chọn nền rồi thì .compose-ta.has-bg đã cho 170px,
-   đè lên nó là hướng dẫn bị cắt mất dòng cuối. */
-.ta-wrap .compose-ta:not(.has-bg){min-height:146px}
-.compose-ta.guide-on::placeholder,.compose-ta.guide-on.has-bg::placeholder{color:transparent}
-.ta-guide{position:absolute;inset:0;padding:10px 12px;pointer-events:none;color:var(--z400);text-align:left;
-  font-size:11.5px;line-height:1.5;transition:opacity .14s ease}
-.ta-guide.hide{opacity:0}
-/* Dòng mời viết là thứ đậm nhất trong ô để mắt hiểu "đây là chỗ gõ";
-   phần mẹo lùi xuống --z400 và 11px thành phụ chú, tránh bị đọc thành infobox. */
-.tg-prompt{margin:0;font-size:13px;line-height:1.6;color:var(--z500)}
-.tg-tip{margin:0 0 5px;font-size:11px;line-height:1.5;color:var(--z400)}
-.tg-tip:last-child{margin-bottom:0}
-/* Cùng cách xuống dòng với bảng chi tiết: tên mô hình một dòng, công thức dòng dưới. */
-.tg-tip-l{display:block;color:var(--z500)}
-.tg-tip b{font-weight:700;color:var(--z500)}
-#giveGuideTip{margin-top:7px}
-/* Chọn nền: mượn màu chữ của nền và bám padding của nền, nhưng LUÔN căn trái. */
-.compose-ta.has-bg+.ta-guide{color:var(--ta-fg,#fff);opacity:.92;text-shadow:0 1px 2px rgba(255,255,255,.75);
-  padding:var(--ta-pad,30px 22px);text-align:left}
-.compose-ta.has-bg.ta-dark+.ta-guide{text-shadow:0 1px 3px rgba(0,0,0,.5)}
-.compose-ta.has-bg+.ta-guide .tg-prompt,.compose-ta.has-bg+.ta-guide .tg-tip{color:inherit}
 /* ── Mẹo viết phản hồi ────────────────────────────────────────────────────
    Nằm cuối hàng nhãn "Nội dung phản hồi" — hàng này vốn bỏ trống bên phải nên
    không tốn thêm dòng nào. Bảng mẹo mở ra ngay dưới ô soạn và ở lại trong lúc
@@ -1169,18 +1145,7 @@ input,select,textarea{font-family:inherit}
           <div class="type-guide" id="typeGuide" style="display:none"></div>
           <div class="ta-wrap">
             <textarea class="compose-ta" id="giveTA" placeholder="Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?"
-              aria-describedby="giveGuideTip" oninput="onGiveInput()" onfocus="syncGiveGuide()" onblur="syncGiveGuide()"></textarea>
-            <!-- CÁCH A: hướng dẫn chìm trong ô. Dòng đầu trùng placeholder thật nên ẩn khỏi
-                 screen reader; phần mẹo nối vào ô qua aria-describedby để vẫn nghe được khi gõ. -->
-            <div class="ta-guide" id="giveGuide">
-              <p class="tg-prompt" aria-hidden="true">Bạn muốn phản hồi điều gì? Ghi nhận, cảm ơn, hay góp ý?</p>
-              <div id="giveGuideTip">
-                <p class="tg-tip"><span class="tg-tip-l">1. Để <b>ghi nhận</b> - dùng Mô hình <b>STAR</b>:</span>
-                  [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Kết quả tích cực đạt được].</p>
-                <p class="tg-tip"><span class="tg-tip-l">2. Để <b>góp ý xây dựng</b> - dùng Mô hình <b>STAR-AR</b>:</span>
-                  [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Hệ quả] + [Đề xuất cách làm tốt hơn] + [Kết quả tốt hơn nếu đổi cách làm].</p>
-              </div>
-            </div>
+              oninput="onGiveInput()"></textarea>
           </div>
           <div class="tip-pop" id="writeTip" role="dialog" aria-label="Mẹo viết phản hồi hiệu quả" hidden>
             <div class="tip-pop-h">Mẹo viết phản hồi hiệu quả</div>
@@ -2837,14 +2802,6 @@ function setGVis(v){
   syncGive();
 }
 
-/* CÁCH A — hướng dẫn chìm trong ô: chỉ hiện khi ô trống VÀ không được focus. */
-function syncGiveGuide(){
-  const ta=document.getElementById('giveTA'),guide=document.getElementById('giveGuide');
-  if(!ta||!guide) return;
-  const hide=document.activeElement===ta || ta.value.trim()!=='';
-  guide.classList.toggle('hide',hide);
-  ta.classList.toggle('guide-on',!hide);
-}
 /* Bảng mẹo viết phản hồi: mở/đóng bằng nút cạnh nhãn, đóng khi bấm ra ngoài hoặc Esc.
    Cố ý KHÔNG tự đóng khi người dùng gõ — mẹo phải còn đó trong lúc viết mới có ích. */
 function toggleWriteTip(force){
@@ -2883,7 +2840,6 @@ document.addEventListener('keydown',event=>{
   if(pop && !pop.hidden){ event.stopPropagation(); toggleWriteTip(false); }
 },true);
 function syncGive(){
-  syncGiveGuide();
   const text=document.getElementById('giveTA').value.trim();
   document.getElementById('aiBtn').disabled = !text;
   const ok = G.recipient && text && G.vis;
