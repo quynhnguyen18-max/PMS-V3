@@ -680,6 +680,8 @@ function openCreatedRequest(requestId){closeRequestDialog();location.href=`reque
 
 /* ═══════ D3 / MR-1 — quản lý tạo yêu cầu phản hồi cho direct reports ═══════ */
 const MANAGER={name:'Lê Thị Thanh',login:'thanh.le',ini:'LT'};
+/* Module tim cảm ơn cần biết ai đang xem để phân biệt tim của mình với tim của quản lý trước. */
+ManagerThanks.setViewer({name:MANAGER.name,dom:MANAGER.login});
 const MAX_REVIEWERS=20;
 const REQUEST_STORE=loadRequestStore();
 const REQUEST_FORM={designees:[],reviewers:[],personalize:false,questions:{}};

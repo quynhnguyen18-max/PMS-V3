@@ -622,7 +622,31 @@ test('thanks tooltip follows the design-system metadata separator rule (no middo
   assert.ok(from > 0, 'phải tìm được hàm dựng dấu tim');
   const mark = html.slice(from, html.indexOf('function receivedThxRows(', from));
   assert.doesNotMatch(mark, /\u00B7/);
-  assert.match(mark, /<em>- \$\{r\.role\}<\/em>/);
+  assert.match(mark, /<em>- \$\{label\.role\}<\/em>/);
+});
+
+/* R8: tim thuộc về NGƯỜI đã thả. Đổi quản lý thì tim cũ giữ nguyên tên người cũ và
+   dòng chú thích không được nhận họ là quản lý trực tiếp đương nhiệm nữa. */
+test('a heart from a former manager keeps that name and never claims the current role', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  // câu chữ do model dùng chung quyết định, màn hình KHÔNG viết lại luật
+  assert.match(html, /<script src="\.\.\/M-04\/manager-thanks\.js"><\/script>/);
+  assert.match(html, /const label=ManagerThanks\.thankerLabel\(r\);/);
+  assert.doesNotMatch(html, /role:'quản lý trực tiếp của bạn'/);
+  assert.doesNotMatch(html, /role:`quản lý trực tiếp của \$\{f\.who\.name\}`/);
+  // tab "Đã nhận": đối chiếu người đã thả tim với quản lý hiện tại của mình
+  assert.match(html, /if\(f\.mgrThx\) rows\.push\(\{name:f\.mgrThx\.name,dom:f\.mgrThx\.dom,mgr:true,of:'bạn',\s*\n\s*current:f\.mgrThx\.dom===SELF_MGR\.dom\}\);/);
+  // tab "Đã cho": đối chiếu với quản lý hiện tại của NGƯỜI NHẬN
+  assert.match(html, /current:!f\.who\.mgr\|\|f\.mgrThx\.dom===f\.who\.mgr\.dom/);
+  // dữ liệu mẫu ghi đích danh người thả tim, và dựng sẵn một case đã đổi quản lý
+  assert.doesNotMatch(html, /mgrThx:true/);
+  assert.match(html, /mgrThx:\{name:'Đỗ Quang Huy', dom:'huy\.do'\}/);
+  assert.match(html, /mgr:\{name:'Trịnh Thu Hà', dom:'ha\.trinh'\}/);
+  // chính chuỗi câu chữ, lấy từ model dùng chung với M-04
+  const thanks = require('../M-04/manager-thanks.js');
+  assert.deepEqual(thanks.thankerLabel({self:true}), {who:'Bạn', role:''});
+  assert.deepEqual(thanks.thankerLabel({name:'Đỗ Quang Huy', dom:'huy.do', mgr:true, of:'bạn', current:false}),
+    {who:'Đỗ Quang Huy (huy.do)', role:'quản lý cũ của bạn'});
 });
 
 test('the compose box is left empty — the STAR guide lives only in the bulb tip', () => {

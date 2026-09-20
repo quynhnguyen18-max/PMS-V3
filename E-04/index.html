@@ -857,6 +857,7 @@ input,select,textarea{font-family:inherit}
   <script src="../H-05/feedback-report-view.js"></script>
   <!-- Luật đóng yêu cầu của quản lý: dùng chung đúng bảng lý do với M-04, không tự đặt tên mã riêng. -->
   <script src="../M-04/manager-request-model.js"></script>
+  <script src="../M-04/manager-thanks.js"></script>
   <style>.hr-report-card{display:block;text-decoration:none;border:1px solid var(--brand-ring,rgba(165,0,100,.2));background:var(--brand-muted,rgba(165,0,100,.07));transition:box-shadow .12s,border-color .12s}.hr-report-card:hover{border-color:var(--brand,#a50064);box-shadow:0 3px 12px rgba(165,0,100,.12)}.hr-report-card .rail-title{color:var(--brand,#a50064)}.hr-report-sub{margin-top:5px;font-size:11.5px;color:var(--z600,#52525b);display:flex;align-items:center;justify-content:space-between;gap:8px}.hr-report-sub .go{color:var(--brand,#a50064);font-weight:600}</style>
 </head>
 <body>
@@ -1367,9 +1368,9 @@ function initials(name){ return String(name||'').trim().split(/\s+/).slice(-2).m
 /* kind: received | given | request ; cycle theo mục 6b */
 const FEED = [
   // ── RECEIVED ──
-  /* mgrThx: quản lý trực tiếp của mình (SELF_MGR) đã thả tim cảm ơn người cho phản hồi.
+  /* mgrThx: quản lý đã thả tim cảm ơn người cho phản hồi, ghi đích danh người thả.
      Chỉ có thể xảy ra với phản hồi được chia sẻ tới cấp quản lý. */
-  { kind:'received', id:'rcv-1', opened:true, thanked:false, mgrThx:true, cycle:'2026', date:'14/03/2026', ts:20260314, vis:'manager',
+  { kind:'received', id:'rcv-1', opened:true, thanked:false, mgrThx:{name:'Lê Thị Thanh', dom:'thanh.le'}, cycle:'2026', date:'14/03/2026', ts:20260314, vis:'manager',
     who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
     body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi'] },
@@ -1379,7 +1380,9 @@ const FEED = [
     q:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.',
     cv:['Khách hàng là trung tâm'] },
-  { kind:'received', id:'rcv-3', opened:true, thanked:true, mgrThx:true, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager', backgroundId:'letter',
+  /* Tú đổi quản lý giữa năm: tim này là của quản lý CŨ nên giữ nguyên tên người đó,
+     và quản lý mới (Lê Thị Thanh) không thả thêm được trên chính phản hồi này. */
+  { kind:'received', id:'rcv-3', opened:true, thanked:true, mgrThx:{name:'Đỗ Quang Huy', dom:'huy.do'}, cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager', backgroundId:'letter',
     who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
     body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội'] },
@@ -1430,12 +1433,15 @@ const FEED = [
     body:'Mai làm việc rất chủ động trong dự án Design System. Bạn không chỉ hoàn thành phần component được giao mà còn chủ động chuẩn hoá tài liệu Storybook, giúp cả team dùng lại dễ dàng hơn nhiều.',
     cv:['Tinh thần đồng đội','Thực thi xuất sắc'], vis:'receiver' },
   /* mgrThx: quản lý trực tiếp của NGƯỜI NHẬN phản hồi đã thả tim cảm ơn mình. */
-  { kind:'given', id:'gvn-2', cycle:'2026', date:'18/05/2026', ts:20260518, thankedAt:'19/05/2026', mgrThx:{name:'Đỗ Quang Huy'},
-    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
+  { kind:'given', id:'gvn-2', cycle:'2026', date:'18/05/2026', ts:20260518, thankedAt:'19/05/2026', mgrThx:{name:'Đỗ Quang Huy', dom:'huy.do'},
+    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer',
+      mgr:{name:'Đỗ Quang Huy', dom:'huy.do'}},
     body:'Cảm ơn Lan đã hỗ trợ dựng bộ regression test cho payment module rất kỹ. Nhờ vậy đợt release vừa rồi mình phát hiện sớm được 2 lỗi nghiêm trọng trước khi lên production.',
     cv:['Khách hàng là trung tâm'], vis:'manager' },
-  { kind:'given', id:'gvn-3', cycle:'2026', date:'02/06/2026', ts:20260602, mgrThx:{name:'Phan Anh Tuấn'},
-    who:{name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps – Platform Engineer'},
+  { kind:'given', id:'gvn-3', cycle:'2026', date:'02/06/2026', ts:20260602, mgrThx:{name:'Phan Anh Tuấn', dom:'tuan.phan'},
+    /* Hằng đã đổi quản lý sau đó, nên tim của Phan Anh Tuấn đọc thành "quản lý cũ của Hằng". */
+    who:{name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps – Platform Engineer',
+      mgr:{name:'Trịnh Thu Hà', dom:'ha.trinh'}},
     body:'Đợt migration vừa rồi Hằng phản hồi rất nhanh mỗi khi có cảnh báo hạ tầng, kể cả ngoài giờ, nhờ vậy team không bị block ở bước chuyển dữ liệu. Nếu lần sau mình thống nhất trước kênh báo sự cố thì sẽ đỡ mất thời gian tìm đúng người.',
     cv:['Tinh thần đồng đội'], vis:'manager' },
   { kind:'given', id:'gvn-4', cycle:'2026', date:'20/06/2026', ts:20260620,
@@ -1791,31 +1797,40 @@ function heartPairSvg(){
     +`<path class="h-cut" d="${HEART_PATH}" transform="translate(0,3) scale(0.78)"/>`
     +`<path class="h-rcv" d="${HEART_PATH}" transform="translate(0,3) scale(0.78)"/></svg>`;
 }
-/* rows: [{name, role, mgr}] — người nhận trước, quản lý sau. target: người được cảm ơn. */
+/* rows: [{name, dom, self, mgr, of, current}] — người nhận trước, quản lý sau.
+   target: người được cảm ơn. Câu chữ từng dòng do ManagerThanks.thankerLabel() quyết định,
+   dùng CHUNG với màn quản lý M-04 (R8) — không viết lại luật ở đây.
+   Một tim hay hai tim đều dùng cùng một cấu trúc: tiêu đề rồi mỗi người một dòng. */
 function thxMark(rows,target,extra){
   if(!rows.length) return '';
-  const both=rows.length===2;
-  const art=both?heartPairSvg():heartSvg(rows[0].mgr?'mgr':'rcv');
-  const tip=both
-    ? `<span class="thx-tip"><span class="thx-tip-title">Đã cảm ơn ${target}</span>`
-      +rows.map(r=>`<span class="thx-tip-row ${r.mgr?'mgr':'rcv'}"><span class="thx-tip-dot"></span><span>${r.name}${r.role?` <em>- ${r.role}</em>`:''}</span></span>`).join('')
-      +`</span>`
-    : `<span class="thx-tip"><span class="thx-tip-row ${rows[0].mgr?'mgr':'rcv'}"><span class="thx-tip-dot"></span>`
-      +`<span>${rows[0].name}${rows[0].role?` (${rows[0].role})`:''} đã cảm ơn ${target}</span></span></span>`;
+  const art=rows.length===2?heartPairSvg():heartSvg(rows[0].mgr?'mgr':'rcv');
+  const tip=`<span class="thx-tip"><span class="thx-tip-title">Đã cảm ơn ${target}</span>`
+    +rows.map(r=>{
+      const label=ManagerThanks.thankerLabel(r);
+      return `<span class="thx-tip-row ${r.mgr?'mgr':'rcv'}"><span class="thx-tip-dot"></span>`
+        +`<span>${label.who}${label.role?` <em>- ${label.role}</em>`:''}</span></span>`;
+    }).join('')
+    +`</span>`;
   return `<span class="fb-badge-wrap thx-mark${extra?' '+extra:''}" tabindex="0">${art}${tip}</span>`;
 }
-/* Tab "Đã nhận": tim của mình + tim của quản lý mình, cùng cảm ơn người cho phản hồi. */
+/* Tab "Đã nhận": tim của mình + tim của quản lý mình, cùng cảm ơn người cho phản hồi.
+   mgrThx ghi ĐÍCH DANH người đã thả tim, nên khi mình đổi quản lý thì tim cũ vẫn mang tên
+   người cũ; "còn là quản lý trực tiếp hay không" suy ra bằng cách so với quản lý hiện tại. */
 function receivedThxRows(f,thanked){
   const rows=[];
-  if(thanked) rows.push({name:'Bạn',role:'',mgr:false});
-  if(f.mgrThx) rows.push({name:SELF_MGR.name,role:'quản lý trực tiếp của bạn',mgr:true});
+  if(thanked) rows.push({self:true});
+  if(f.mgrThx) rows.push({name:f.mgrThx.name,dom:f.mgrThx.dom,mgr:true,of:'bạn',
+    current:f.mgrThx.dom===SELF_MGR.dom});
   return rows;
 }
-/* Tab "Đã cho": tim của người nhận + tim của quản lý trực tiếp của họ, cùng cảm ơn mình. */
+/* Tab "Đã cho": tim của người nhận + tim của quản lý họ, cùng cảm ơn mình.
+   who.mgr là quản lý trực tiếp HIỆN TẠI của người nhận — khác người đã thả tim tức là họ
+   cũng đã đổi quản lý, và dòng chú thích phải ghi "quản lý cũ của …". */
 function givenThxRows(f){
   const rows=[];
-  if(f.thankedAt) rows.push({name:f.who.name,role:'',mgr:false});
-  if(f.mgrThx) rows.push({name:f.mgrThx.name,role:`quản lý trực tiếp của ${f.who.name}`,mgr:true});
+  if(f.thankedAt) rows.push({name:f.who.name,dom:f.who.dom});
+  if(f.mgrThx) rows.push({name:f.mgrThx.name,dom:f.mgrThx.dom,mgr:true,of:f.who.name,
+    current:!f.who.mgr||f.mgrThx.dom===f.who.mgr.dom});
   return rows;
 }
 

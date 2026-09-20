@@ -19,7 +19,7 @@
     'mai.tran':{dept:'Product',team:'Design',pos:'Product Designer'}
   };
   const BASE=[
-    {id:'f1',thankedByReceiver:true,employeeId:'e1',cycle:'2026',sender:{name:'Trương Minh Đức',dom:'duc.truong',ini:'TĐ'},date:'05/06/2026',visibility:'manager',body:'Tú xử lý incident production rất chắc chắn, phối hợp rõ ràng với các team liên quan và luôn giữ được sự bình tĩnh khi có áp lực.',cv:['Thực thi xuất sắc','Tinh thần đồng đội']},
+    {id:'f1',thankedByReceiver:true,thankedByManager:{name:'Đỗ Quang Huy',dom:'huy.do'},employeeId:'e1',cycle:'2026',sender:{name:'Trương Minh Đức',dom:'duc.truong',ini:'TĐ'},date:'05/06/2026',visibility:'manager',body:'Tú xử lý incident production rất chắc chắn, phối hợp rõ ràng với các team liên quan và luôn giữ được sự bình tĩnh khi có áp lực.',cv:['Thực thi xuất sắc','Tinh thần đồng đội']},
     {id:'f2',employeeId:'e1',cycle:'2026',sender:{name:'Lê Thành Nam',dom:'nam.le',ini:'LN'},date:'14/03/2026',visibility:'receiver',body:'Tú là một trong những backend developer chắc tay nhất team.',cv:['Không ngừng học hỏi']},
     {id:'f3',employeeId:'e1',cycle:'2026',sender:{name:'Hoàng Thị Lan',dom:'lan.hoang',ini:'HL'},date:'22/04/2026',visibility:'manager',question:'Bạn đánh giá thế nào về phần trình bày roadmap kỹ thuật Q1?',body:'Tú giải thích vấn đề kỹ thuật rõ ràng kể cả với người không chuyên. Các ví dụ trực quan giúp business team hiểu nhanh lý do cần refactor.',cv:['Khách hàng là trung tâm']},
     {id:'f4',thankedByReceiver:true,employeeId:'e2',cycle:'2026',sender:{name:'Nguyễn Quốc Bảo',dom:'bao.nguyen',ini:'NB'},date:'18/05/2026',visibility:'manager',body:'Mai chủ động chuẩn hóa tài liệu Storybook và hỗ trợ các team áp dụng Design System rất hiệu quả.',cv:['Tinh thần đồng đội','Thực thi xuất sắc']},
@@ -73,11 +73,13 @@
     const senderTipClass=options.senderTooltipPlacement==='top'?' pms-tooltip-top':'';
     const sender=senderMeta?`<span class="fb-sender pms-tooltip" tabindex="0">${senderLabel}<span class="pms-tooltip-content${senderTipClass}" role="tooltip">${senderMeta}</span></span>`:senderLabel;
     const thanks=thanksApi();
-    const state=thanks?thanks.stateFor(item):{receiver:!!item.thankedByReceiver,manager:false};
-    const mark=thanks?thanks.markHTML(state,item.sender.name):'';
+    const state=thanks?thanks.stateFor(item):{receiver:!!item.thankedByReceiver,manager:false,other:null};
+    const mark=thanks?thanks.markHTML(state,item.sender.name,false,{employeeName:employee&&employee.name}):'';
     /* Thanh "Cảm ơn" nằm ở chân card, đúng vị trí và cách thể hiện của màn nhân viên E-04.
-       Đã thả tim rồi thì thanh biến mất, chỉ còn dấu tim trên dòng tên. */
-    const thankBar=(thanks&&!state.manager&&options.canThank!==false)?thanks.barHTML(item.id,item.sender.name):'';
+       Đã thả tim rồi thì thanh biến mất, chỉ còn dấu tim trên dòng tên.
+       Theo R8, tim của quản lý TRƯỚC cũng làm thanh biến mất: mỗi phản hồi chỉ nhận
+       một tim từ phía quản lý, nên quản lý mới không thả thêm được. */
+    const thankBar=(thanks&&thanks.canThank(state)&&options.canThank!==false)?thanks.barHTML(item.id,item.sender.name):'';
     return `<article class="feedback-card" data-thx-receiver="${state.receiver?'1':'0'}">${badges?`<div class="cv-icons">${badges}</div>`:''}<div class="fb-head"><div class="avatar">${item.sender.ini}</div><div><div class="fb-line">${sender}${mark}</div><div class="fb-date">${item.date}</div></div></div>${item.question?`<div class="qa"><div class="qa-q q-collapse"><p class="qa-text q-text"><span class="q-label">Câu hỏi:</span> ${item.question}</p><button class="q-more" type="button" onclick="toggleQuestion(this)" hidden>Xem thêm</button></div><div class="qa-a"><p class="fb-body">${item.body}</p></div></div>`:`<p class="fb-body">${item.body}</p>`}${thankBar}</article>`;
   }
   function coreValueIcon(value){return CV_ICON[value]||'';}

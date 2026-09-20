@@ -192,6 +192,7 @@ const THANKS_STORE=ManagerThanks.use(ManagerThanks.createStore(window.localStora
 function thankFeedback(id,button){const who=ManagerThanks.thank(id,button);if(who)detailToast(`Đã gửi lời cảm ơn tới ${who}.`);}
 const CV_ORDER=['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'];
 const CURRENT_MANAGER={name:'Lê Thị Thanh',login:'thanh.le',ini:'LT'};
+ManagerThanks.setViewer({name:CURRENT_MANAGER.name,dom:CURRENT_MANAGER.login});
 let AI_COLLAPSED=false;
 
 function employeeChipHTML(employee){

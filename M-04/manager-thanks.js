@@ -6,7 +6,12 @@
      • dấu tim nằm ngay sau tên người gửi trên dòng đầu card, không chiếm dòng riêng
      • một tim = một người cảm ơn, hai tim chồng lệch = cả hai
      • tim của người nhận phản hồi dùng hồng MoMo #A50064, tim của quản lý dùng hồng +1 #F95396
-     • rê chuột ra MỘT ô liệt kê ai đã cảm ơn, không hiện thời gian */
+     • rê chuột ra MỘT ô liệt kê ai đã cảm ơn, không hiện thời gian
+
+   R8 của Scope & Rules: tim thuộc về NGƯỜI đã thả chứ không thuộc về chức danh. Nhân viên
+   đổi quản lý thì tim của quản lý cũ ở lại nguyên tên người đó, và mỗi phản hồi chỉ nhận
+   MỘT tim từ phía quản lý — quản lý mới không thả thêm. thankerLabel() giữ luật câu chữ này
+   cho cả M-04 lẫn E-04, không màn nào được tự viết lại. */
 (function(root,factory){
   const api=factory();
   if(typeof module==='object'&&module.exports)module.exports=api;
@@ -61,22 +66,39 @@
   function tipRow(kind,label,role){
     return `<span class="thx-tip-row ${kind}"><span class="thx-tip-dot"></span><span>${label}${role?` <em>- ${role}</em>`:''}</span></span>`;
   }
-  /* state = {receiver:boolean, manager:boolean} — "manager" là chính người đang xem màn M-04.
-     senderName = người đã cho phản hồi; luôn nêu tên họ trong ô chú thích, cùng cấu trúc
-     "… đã cảm ơn <người cho phản hồi>" mà màn nhân viên E-04 đang dùng. */
-  function markHTML(state,senderName,pop){
-    const receiver=!!(state&&state.receiver),manager=!!(state&&state.manager);
-    if(!receiver&&!manager)return '';
+  /* Một dòng "ai đã cảm ơn". Danh tính luôn là `Tên (domain)` — chỉ chính người đang xem mới
+     là "Bạn" — và chức danh CHỈ được nêu khi còn đúng ở thời điểm đọc: đã đổi quản lý thì ghi
+     "quản lý cũ của …", không nhận là quản lý trực tiếp nữa.
+     person = {name, dom, self, mgr, of, current, role} */
+  function thankerLabel(person){
+    const p=person||{};
+    const who=p.self?'Bạn':`${p.name||''}${p.dom?` (${p.dom})`:''}`.trim();
+    let role=p.role||'';
+    if(p.mgr&&!p.self)role=`${p.current===false?'quản lý cũ':'quản lý trực tiếp'} của ${p.of||'nhân viên'}`;
+    return {who,role};
+  }
+  /* state = {receiver, manager, other} — "manager" là chính người đang xem màn M-04,
+     "other" là quản lý khác (thường là quản lý cũ của nhân viên) đã thả tim từ trước; theo R8
+     hai cái này không bao giờ cùng có. senderName = người đã cho phản hồi.
+     Một cấu trúc chú thích DUY NHẤT cho mọi trường hợp — tiêu đề "Đã cảm ơn <người cho phản hồi>"
+     rồi mỗi người một dòng — để một tim và hai tim không đọc ra hai kiểu câu khác nhau.
+     options = {employeeName} — tên nhân viên, dùng cho câu "quản lý cũ của …". */
+  function markHTML(state,senderName,pop,options){
+    const opts=options||{};
+    const receiver=!!(state&&state.receiver),mine=!!(state&&state.manager);
+    const other=(!mine&&state&&state.other)?state.other:null;
+    if(!receiver&&!mine&&!other)return '';
     const who=escapeAttr(senderName||'người đã phản hồi');
-    const both=receiver&&manager;
-    const art=both?pairHTML():heartHTML(receiver?'rcv':'mgr');
-    const tip=both
-      ? `<span class="thx-tip"><span class="thx-tip-title">Đã cảm ơn ${who}</span>`
-        +tipRow('rcv','Nhân viên','người nhận phản hồi')
-        +tipRow('mgr','Bạn','quản lý trực tiếp')+`</span>`
-      : `<span class="thx-tip">`
-        +tipRow(receiver?'rcv':'mgr',`${receiver?'Nhân viên':'Bạn'} đã cảm ơn ${who}`,'')
-        +`</span>`;
+    const art=(receiver&&(mine||other))?pairHTML():heartHTML(receiver?'rcv':'mgr');
+    let rows=receiver?tipRow('rcv','Nhân viên','người nhận phản hồi'):'';
+    if(mine)rows+=tipRow('mgr','Bạn','');
+    else if(other){
+      /* Người đang xem M-04 chính là quản lý trực tiếp đương nhiệm của nhân viên này,
+         nên tim mang tên người khác chỉ có thể là của quản lý trước đó. */
+      const label=thankerLabel({name:other.name,dom:other.dom,mgr:true,current:false,of:opts.employeeName});
+      rows+=tipRow('mgr',escapeAttr(label.who),escapeAttr(label.role));
+    }
+    const tip=`<span class="thx-tip"><span class="thx-tip-title">Đã cảm ơn ${who}</span>${rows}</span>`;
     return `<span class="thx-mark${pop?' pop':''}" tabindex="0">${art}${tip}</span>`;
   }
   /* Thanh cảm ơn ở chân card — GIỮ ĐÚNG cách màn nhân viên E-04 làm:
@@ -91,12 +113,23 @@
   }
 
   /* ── Hành vi trên trình duyệt ─────────────────────────────────────────── */
-  let ACTIVE=null;
+  let ACTIVE=null,VIEWER=null;
   function use(store){ACTIVE=store||null;return ACTIVE;}
   function active(){return ACTIVE;}
+  /* Trang khai báo người đang xem để module phân biệt được "tim của mình" với
+     "tim của quản lý trước" khi dữ liệu đã ghi sẵn một lượt cảm ơn. */
+  function setViewer(person){VIEWER=person||null;return VIEWER;}
+  function viewer(){return VIEWER;}
   function stateFor(item){
-    return {receiver:!!(item&&item.thankedByReceiver),manager:!!(ACTIVE&&item&&ACTIVE.has(item.id))};
+    const by=(item&&item.thankedByManager)||null;
+    const own=!!(by&&VIEWER&&by.dom&&by.dom===VIEWER.dom);
+    return {receiver:!!(item&&item.thankedByReceiver),
+      manager:own||!!(ACTIVE&&item&&ACTIVE.has(item.id)),
+      other:(by&&!own)?by:null};
   }
+  /* R8: một phản hồi chỉ nhận một tim từ phía quản lý. Đã có tim của quản lý trước thì
+     quản lý mới không thả thêm — luật nằm ở đây để card và nút cùng đọc một chỗ. */
+  function canThank(state){return !!state&&!state.manager&&!state.other;}
   function flyHearts(anchor){
     if(typeof document==='undefined'||!anchor)return;
     if(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -143,5 +176,6 @@
     return senderName||'người đã phản hồi';
   }
 
-  return {STORAGE_KEY,createStore,markHTML,barHTML,heartHTML,pairHTML,use,active,stateFor,thank,flyHearts};
+  return {STORAGE_KEY,createStore,markHTML,barHTML,heartHTML,pairHTML,thankerLabel,
+    use,active,setViewer,viewer,stateFor,canThank,thank,flyHearts};
 });
