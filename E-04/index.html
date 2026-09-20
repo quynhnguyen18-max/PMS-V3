@@ -256,7 +256,12 @@ input,select,textarea{font-family:inherit}
 .qrow-main{flex:1;min-width:0}
 .qrow-t{font-size:12.5px;color:var(--z900);line-height:1.4}
 .qrow-t b{font-weight:600}
-.qrow-sub{font-size:11.5px;color:var(--z500);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Dòng 2 của yêu cầu HR: tên chương trình co lại khi hẹp, khối lượng luôn đọc được
+   vì đó mới là thứ giúp người dùng quyết định trả lời ngay hay để lát nữa. */
+.qrow-sub{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--z500);margin-top:1px;min-width:0}
+.qrow-sub-ctx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-effort{display:inline-flex;align-items:center;gap:4px;flex:none;color:var(--z600);white-space:nowrap}
+.q-effort i{font-size:13px;color:var(--z500)}
 .qrow-t .q-pre{color:var(--z500);font-weight:400}
 /* Chip "quá hạn" đã đủ báo trễ hạn; viền đỏ dày làm dòng thường nặng ngang dòng của HR. */
 .due{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--z500);flex-shrink:0;white-space:nowrap}
@@ -1617,6 +1622,15 @@ function tsFromDMYSafe(value){
   const [day,month,year]=String(value||'').split('/').map(Number);
   return day&&month&&year?Date.UTC(year,month-1,day):0;
 }
+/* Khối lượng bộ câu hỏi — chỉ yêu cầu của HR mới có bộ câu hỏi nhiều câu;
+   yêu cầu của đồng nghiệp hay quản lý chỉ một câu nên hiện ra là thừa. */
+function queueEffort(q){
+  return isHrQueueRequest(q)?FeedbackProgramModel.answerEffort(q.questions):null;
+}
+function effortChip(q){
+  const effort=queueEffort(q);
+  return effort?`<span class="q-effort"><i class="bx bx-list-ul"></i>${effort.label}</span>`:'';
+}
 function queueRowHTML(q){
   const headline = isHrQueueRequest(q)
     ? `<span class="q-pre">Yêu cầu phản hồi của</span> <b>HR</b> <span class="q-pre">cho</span> <b>${q.feedbackReceiver.name}</b>`
@@ -1629,7 +1643,7 @@ function queueRowHTML(q){
     <div class="av ${hr?'av-hr':'av-brand'} av-sm">${hr?'HR':q.ini}</div>
     <div class="qrow-main">
       <div class="qrow-t">${headline}</div>
-      ${hr?`<div class="qrow-sub">${q.context}</div>`:''}
+      ${hr?`<div class="qrow-sub"><span class="qrow-sub-ctx">${q.context}</span>${effortChip(q)}</div>`:''}
     </div>
     <span class="due ${q.urgency}"><i class="bx ${dueIcon}"></i>${q.due}</span>
     <button class="btn btn-default btn-sm" onclick="openReply('${q.id}')">Trả lời</button>
@@ -3195,7 +3209,8 @@ function openReply(id){
       ${(item.about==='other'||isHrQueueRequest(item))
         ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${isHrQueueRequest(item)?item.feedbackReceiver.name:item.aboutName} <span class="mi-dom">(${isHrQueueRequest(item)?item.feedbackReceiver.domain:item.aboutDom})</span></span></div>` : ''}
       <div class="mi"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
-      <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">· ${item.due}</span></span></div>
+      <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">- ${item.due}</span></span></div>
+      ${queueEffort(item)?`<div class="mi"><span class="mi-l">Bộ câu hỏi</span><span class="mi-v">${queueEffort(item).label}</span></div>`:''}
     </div>`;
   document.getElementById('replyAsk').innerHTML=renderReplyPrompt(item);
   document.getElementById('replyForm').style.display='';

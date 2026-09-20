@@ -517,7 +517,7 @@ test('HR requests lead the action queue, stay anonymous in the list and land in 
   assert.doesNotMatch(html,/\.qrow\.over\{/);
   /* Avatar mang chữ HR nên không lặp nhãn HR trước tiêu đề; dòng chương trình chỉ dành cho yêu cầu HR. */
   assert.doesNotMatch(html,/q-hr-tag/);
-  assert.match(html,/\$\{hr\?`<div class="qrow-sub">\$\{q\.context\}<\/div>`:''\}/);
+  assert.match(html,/\$\{hr\?`<div class="qrow-sub"><span class="qrow-sub-ctx">\$\{q\.context\}<\/span>\$\{effortChip\(q\)\}<\/div>`:''\}/);
 
   /* Bộ câu hỏi đã trả lời gộp thành một card trong "Phản hồi đã cho". */
   assert.match(html,/function cardGivenHrProgram\(f\)/);
@@ -623,6 +623,36 @@ test('thanks tooltip follows the design-system metadata separator rule (no middo
   const mark = html.slice(from, html.indexOf('function receivedThxRows(', from));
   assert.doesNotMatch(mark, /\u00B7/);
   assert.match(mark, /<em>- \$\{label\.role\}<\/em>/);
+});
+
+/* Người được hỏi phải biết trước "mất bao lâu" mới chủ động xếp được thời gian,
+   thay vì mở ticket ra mới biết có bao nhiêu câu. */
+test('HR requests tell how many questions they hold and how long they take', () => {
+  const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
+  const model = require('../H-05/feedback-program-model.js');
+  // luật ước tính nằm ở model, màn hình chỉ đọc
+  assert.match(html, /FeedbackProgramModel\.answerEffort\(q\.questions\)/);
+  assert.doesNotMatch(html, /Math\.ceil\([^)]*\/\s*60\)/);
+  // chỉ yêu cầu HR mới có bộ câu hỏi nhiều câu; yêu cầu một câu không hiện gì
+  assert.match(html, /return isHrQueueRequest\(q\)\?FeedbackProgramModel\.answerEffort\(q\.questions\):null;/);
+  assert.equal(model.answerEffort([]), null);
+  assert.equal(model.answerEffort(null), null);
+  // câu tự luận 40 giây, câu chấm điểm 15 giây, làm tròn LÊN phút
+  const open15 = Array.from({length:15}, () => ({type:'open_text'}));
+  assert.deepEqual(model.answerEffort(open15), {count:15, minutes:10, label:'15 câu hỏi - ~10 phút'});
+  assert.deepEqual(model.answerEffort([{type:'open_text'}]), {count:1, minutes:1, label:'1 câu hỏi - ~1 phút'});
+  assert.equal(model.answerEffort(Array.from({length:4}, () => ({type:'rating'}))).minutes, 1);
+  assert.equal(model.answerEffort(Array.from({length:5}, () => ({type:'rating'}))).minutes, 2);
+  // DESIGN-SYSTEM 19.0: tách metadata bằng " - ", không dùng middot
+  assert.doesNotMatch(model.answerEffort(open15).label, /\u00B7/);
+  // hai chỗ hiển thị: hàng đợi bên ngoài và khối thông tin trong popup trả lời
+  assert.match(html, /<span class="q-effort"><i class="bx bx-list-ul"><\/i>\$\{effort\.label\}<\/span>/);
+  assert.match(html, /<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{queueEffort\(item\)\.label\}<\/span>/);
+  // dòng hạn phản hồi trong popup cũng phải bỏ middot
+  assert.doesNotMatch(html, /<span class="mi-due \$\{item\.urgency\}">·/);
+  // tên chương trình co lại, khối lượng luôn đọc được
+  assert.match(html, /\.qrow-sub-ctx\{overflow:hidden;text-overflow:ellipsis;white-space:nowrap\}/);
+  assert.match(html, /\.q-effort\{display:inline-flex;align-items:center;gap:4px;flex:none/);
 });
 
 /* R8: tim thuộc về NGƯỜI đã thả. Đổi quản lý thì tim cũ giữ nguyên tên người cũ và

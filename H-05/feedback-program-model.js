@@ -339,6 +339,20 @@
     const last=dateTimeFromDMY(history.at(-1)),current=dateTimeFromDMY(now);
     return Boolean(current)&&(!last||current-last>=24*60*60*1000);
   }
+  /* ── Khối lượng của một bộ câu hỏi ───────────────────────────────────────
+     Người được hỏi cần biết trước "mất bao lâu" để còn chủ động xếp thời gian,
+     thay vì mở ra mới biết có 15 câu. Ước tính TỐI THIỂU: câu tự luận 40 giây,
+     câu chấm điểm 15 giây, làm tròn LÊN phút để con số không hứa ít hơn thực tế.
+     Luật nằm ở model vì cả hàng đợi lẫn popup trả lời của E-04 đều đọc nó. */
+  const SECONDS_PER_QUESTION={rating:15,open_text:40};
+  function answerEffort(questions){
+    const list=Array.isArray(questions)?questions.filter(Boolean):[];
+    if(!list.length)return null;
+    const seconds=list.reduce((total,question)=>
+      total+(SECONDS_PER_QUESTION[question.type]||SECONDS_PER_QUESTION.open_text),0);
+    const minutes=Math.max(1,Math.ceil(seconds/60));
+    return {count:list.length,minutes,label:`${list.length} câu hỏi - ~${minutes} phút`};
+  }
   function remindEligibleProgramAssignments(campaign,participants,now){
     let sent=0;
     (participants||[]).flatMap(item=>item.assignments||[]).forEach(assignment=>{
@@ -348,5 +362,5 @@
     });
     return sent;
   }
-  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments};
+  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort};
 });
