@@ -611,21 +611,17 @@ test('feedback detail tab mirrors the personal feedback screen: feedback, core-v
   assert.match(html, /function railCVHTML\(feedback\)/);
   assert.match(html, /CV_ORDER=\['Đổi mới','Tinh thần đồng đội','Không ngừng học hỏi','Khách hàng là trung tâm','Thực thi xuất sắc'\]/);
   assert.match(html, /ManagerFeedbackData\.coreValueIcon\(value\)/);
-  // bố cục 3 panel: nhân viên · phản hồi · giá trị
-  assert.match(html, /grid-template-columns:260px minmax\(0,1fr\) 300px/);
-  assert.match(html, /class="side-left"[\s\S]*id="personCard"[\s\S]*class="main-col"[\s\S]*class="rail"/);
-  assert.match(html, /function personCardHTML\(employee\)/);
-  // panel trái chứa domain, phòng ban, team, vị trí
-  assert.match(html, /\['Phòng ban',employee\.dept\],\['Team',employee\.team\],\['Vị trí',employee\.pos\]/);
-  // domain chỉ xuất hiện dưới tên, không lặp thành một dòng riêng
-  assert.doesNotMatch(html, /\['Domain',employee\.login\]/);
-  assert.match(html, /class="person-domain">\$\{employee\.login\}/);
+  // bố cục 2 panel: phản hồi + giá trị. Thông tin nhân viên nằm ở header
+  // dưới dạng emp-chip dùng chung (DESIGN-SYSTEM.md §5), không còn panel trái riêng.
+  assert.match(html, /\.layout\{display:grid;grid-template-columns:minmax\(0,1fr\) 300px/);
+  assert.match(html, /function employeeChipHTML\(employee\)/);
+  assert.match(html, /class="emp-chip"[\s\S]*class="ec-dom">\(\$\{employee\.login\}\)/);
+  assert.doesNotMatch(html, /class="side-left"|function personCardHTML\(/);
   // header không còn dòng metadata
   assert.doesNotMatch(html, /id="meta"/);
-  // header + 2 panel bên freeze khi cuộn; cột giữa cuộn nội dung
+  // topbar + header freeze khi cuộn; cột giá trị bám theo
   assert.match(html, /\.top\{[^}]*position:sticky;top:0/);
   assert.match(html, /\.head\{position:sticky;top:52px/);
-  assert.match(html, /\.side-left\{position:sticky;top:108px\}/);
   assert.match(html, /\.rail\{[^}]*position:sticky;top:108px\}/);
 });
 
@@ -666,7 +662,7 @@ test('employee list follows the manager table-list pattern with role-dependent h
   assert.doesNotMatch(html, /Phản hồi có thể xem/);
   assert.doesNotMatch(html, /Phản hồi gần nhất/);
   assert.match(html, /class="metric metric-cell">\$\{visible\}<\/div>/);
-  assert.match(html, /\.cols-direct\{grid-template-columns:minmax\(280px,1fr\) 130px 92px\}/);
+  assert.match(html, /\.cols-direct\{grid-template-columns:minmax\(280px,1fr\) 130px 96px 112px\}/);
   assert.match(html, /\.employee-list-header>div\{white-space:nowrap\}/);
   assert.doesNotMatch(html, /phản hồi riêng tư không hiển thị/);
 });
