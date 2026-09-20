@@ -460,6 +460,9 @@ input,select,textarea{font-family:inherit}
 /* dòng 2 của header — thay chỗ dòng phòng ban cũ */
 .fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
 .fb-meta-date{font-size:11.5px;color:var(--z500)}
+.fb-meta-closed{font-size:11.5px;font-weight:500;color:var(--z600)}
+.fb-history-link{border:0;background:transparent;padding:0;text-decoration:underline;text-underline-offset:2px}
+.fb-history-link:hover{color:var(--brand)}
 /* Dòng "Yêu cầu phản hồi của ..." là metadata nên đi cùng hàng ngày tháng và phạm vi xem. */
 .fb-req-by{font-size:11.5px;color:var(--z500)}
 .fb-req-by b{color:var(--z700);font-weight:600}
@@ -503,6 +506,9 @@ input,select,textarea{font-family:inherit}
 /* ── REQUEST CARD ── */
 .req-title{font-size:13.5px;font-weight:600;color:var(--z900);line-height:1.4}
 .req-actions{display:flex;gap:7px;margin-top:12px}
+.fb-card-hr .req-actions{justify-content:flex-end}
+.btn-outline-brand{border-color:var(--brand);background:var(--z0);color:var(--brand)}
+.btn-outline-brand:hover{background:var(--brand-muted)}
 
 /* status chips */
 .chip{display:inline-flex;align-items:center;gap:3px;height:19px;padding:0 7px;border-radius:var(--rxs);font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
@@ -559,9 +565,12 @@ input,select,textarea{font-family:inherit}
 .mi-dom{font-size:12px;font-weight:400;color:var(--z500)}
 .mi-due{font-size:11.5px;font-weight:600;color:var(--z500)}
 .mi-due.soon{color:var(--warn)}.mi-due.over{color:var(--err)}
-#dlg-reply #replyDialog.hr-structured-reply .dlg-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;row-gap:10px}
+/* Cột thứ ba ôm sát nội dung: khối thông tin vốn bỏ trống hẳn một mảng bên phải,
+   nên khối lượng bộ câu hỏi vào đó thay vì đẻ thêm một hàng. */
+#dlg-reply #replyDialog.hr-structured-reply .dlg-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:24px;row-gap:10px}
 #dlg-reply #replyDialog.hr-structured-reply .mi{min-width:0}
-@media(max-width:520px){#dlg-reply #replyDialog.hr-structured-reply .dlg-meta{grid-template-columns:1fr}}
+#dlg-reply #replyDialog.hr-structured-reply .mi-sent{grid-column:1}
+@media(max-width:520px){#dlg-reply #replyDialog.hr-structured-reply .dlg-meta{grid-template-columns:1fr}#dlg-reply #replyDialog.hr-structured-reply .mi-sent{grid-column:auto}}
 /* câu hỏi chung ở đầu popup */
 .qshared{width:100%;border:0;padding:7px 12px 8px;background:var(--brand-muted);border-radius:10px;margin-bottom:14px}
 .rv-h{font-size:12px;font-weight:600;color:var(--z600);margin-bottom:2px}
@@ -826,9 +835,24 @@ input,select,textarea{font-family:inherit}
 .vis-locked{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}
 .vis-locked>i{font-size:16px;color:var(--z500);margin-top:1px;flex-shrink:0}
 .vis-locked .vc-note{margin-top:7px;color:var(--z500);font-size:11.5px;font-style:italic;line-height:1.45}
-.hr-identity-setting{display:flex;align-items:flex-start;gap:6px;margin-top:9px;padding:8px 10px;border-left:2px solid var(--brand);background:var(--brand-muted);font-size:12px;line-height:1.45;color:var(--z700)}
-.hr-identity-setting i{margin-top:1px;color:var(--brand);font-size:15px;flex:0 0 auto}
-.hr-identity-setting strong{color:var(--brand);font-weight:700}
+/* Lời ngỏ và consent cùng là thông tin cần đọc trước khi trả lời: dùng một info-box thống nhất. */
+.reply-ask.hr-info-block,.vis-locked.hr-info-block{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:0;border-left:3px solid var(--brand);border-radius:0 var(--rsm) var(--rsm) 0;background:var(--brand-muted)}
+.reply-ask.hr-info-block{margin-bottom:10px}
+.hr-info-block>i{font-size:16px;color:var(--brand);margin-top:1px;flex:0 0 auto}
+.hr-info-block>div{min-width:0;flex:1}
+.hr-info-block .vc-t{font-size:12.5px;font-weight:600;color:var(--z900);line-height:1.45}
+.hr-info-block .reply-ask-ctx{margin:0 0 6px;font-size:12.5px;font-weight:600;color:var(--z900);line-height:1.45}
+.hr-info-block .reply-ask-lbl{margin-bottom:4px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);line-height:1.45}
+.hr-info-block .reply-ask-q,.hr-info-block .vc-d{margin-top:0;font-size:12px;color:var(--z700);line-height:1.5}
+.hr-info-block .vc-d{margin-top:4px}
+.hr-info-block .vc-d b{color:var(--z800)}
+.hr-info-meta{margin-top:2px;font-size:11.5px;font-weight:400;color:var(--z600);line-height:1.45}
+.hr-consent-check{display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;font-size:12px;font-weight:600;color:var(--z900);cursor:pointer}
+.hr-consent-check input{width:14px;height:14px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--brand)}
+.hr-consent-copy{display:block;text-align:left}
+.hr-consent-copy>b,.hr-consent-copy>span{display:block}
+.hr-consent-copy>span{margin-top:1px;text-wrap:pretty}
+.hr-consent-copy+.hr-consent-copy{margin-top:4px}
 .hr-reply-questions{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
 .hr-reply-question{padding:12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0)}
 .hr-reply-question-label{display:flex;align-items:baseline;gap:8px;margin-bottom:9px;font-size:13px;font-weight:600;line-height:1.5;color:var(--z800)}
@@ -837,6 +861,20 @@ input,select,textarea{font-family:inherit}
 .hr-rating{display:flex;gap:6px;flex-wrap:wrap}
 .hr-rating button{width:34px;height:34px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z0);font-size:13px;font-weight:600;color:var(--z600)}
 .hr-rating button:hover,.hr-rating button.on{border-color:var(--brand);background:var(--brand-muted);color:var(--brand)}
+#dlg-reply .hr-reply-question,#dlg-hr-response .hr-reply-question{padding:0 0 12px;border:0;border-bottom:1px solid var(--z100);border-radius:0}
+#dlg-reply .hr-reply-question:last-child,#dlg-hr-response .hr-reply-question:last-child{padding-bottom:0;border-bottom:0}
+/* Tab trong dialog dùng đúng component đã chuẩn hoá tại DS 10/16 và H-05. */
+.dlg-tabs{display:flex;gap:6px;padding:10px 20px 0;border-bottom:2px solid var(--z200);flex:0 0 auto}
+.dlg-tabs[hidden]{display:none}
+.dlg-tab{display:inline-flex;align-items:center;gap:6px;margin-bottom:-2px;padding:8px 14px;border:1px solid var(--z300);border-radius:var(--rsm) var(--rsm) 0 0;background:var(--z0);color:var(--z600);font-size:12.5px;font-weight:500;transition:var(--t)}
+.dlg-tab i{font-size:15px}.dlg-tab:not(.on):hover{border-color:var(--z400);background:var(--z100);color:var(--z900)}
+.dlg-tab.on{border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);background:var(--brand-muted);color:var(--brand);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}
+.dlg-tab-cnt{height:16px;padding:0 5px;border-radius:var(--rxs);background:var(--z200);color:var(--z600);font-size:10px;font-weight:700;line-height:16px}.dlg-tab.on .dlg-tab-cnt{background:var(--z0);color:var(--brand)}
+#dlg-hr-response .hr-response-head-main{min-width:0;flex:1}
+#dlg-hr-response #hrResponseHeaderMeta .hr-response-meta{margin-top:12px;margin-bottom:0}
+.hr-response-version .hr-version-name,.hr-response-version .hr-version-time{font-size:12.5px;line-height:1.45}
+.hr-response-version .hr-version-name{font-weight:600;color:var(--z900)}
+.hr-response-version .hr-version-time{font-weight:400;color:var(--z600)}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
@@ -1059,7 +1097,7 @@ input,select,textarea{font-family:inherit}
     <div class="dlg-body" style="display:flex;flex-direction:column;gap:8px">
       <!-- Dòng dẫn nhập để trần, không đóng khung: bỏ vào khung là thành một ô viền nữa,
            lẫn với các ô yêu cầu ngay bên dưới. -->
-      <p class="closed-note">Những yêu cầu này đã được đóng, bạn không cần trả lời nữa. Danh sách giữ lại để bạn tra cứu khi cần.</p>
+      <p class="closed-note">Các yêu cầu được đóng trước khi bạn gửi phản hồi. Danh sách được lưu lại để bạn tra cứu.</p>
       <div id="closedList" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
     <div class="dlg-foot">
@@ -1283,6 +1321,7 @@ input,select,textarea{font-family:inherit}
     <div class="dlg-body">
       <div id="replyForm">
         <div class="reply-ask" id="replyAsk"></div>
+        <div class="field" id="replyHrConsent" hidden></div>
 
         <div class="field" id="replySingleAnswerField">
           <label class="field-label">Phản hồi của bạn<span class="req-star">*</span></label>
@@ -1311,6 +1350,24 @@ input,select,textarea{font-family:inherit}
         <button class="btn btn-default btn-sm" id="replySend" disabled onclick="submitReply()"><i class="bx bx-send"></i> Gửi phản hồi</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Xem lại, chỉnh sửa và lịch sử câu trả lời cho yêu cầu HR.
+     Dùng nguyên dialog, metadata, question block và button hierarchy của E-04. -->
+<div class="overlay" id="dlg-hr-response" onclick="if(event.target===this)closeOverlay('dlg-hr-response')">
+  <div class="dialog lg">
+    <div class="dlg-hd">
+      <div class="hr-response-head-main">
+        <div class="dlg-title" id="hrResponseTitle">Câu trả lời đã gửi</div>
+        <div class="dlg-sub" id="hrResponseSub"></div>
+        <div id="hrResponseHeaderMeta"></div>
+      </div>
+      <button class="dlg-close" onclick="closeOverlay('dlg-hr-response')">&#x2715;</button>
+    </div>
+    <div class="dlg-tabs" id="hrResponseTabs" role="tablist"></div>
+    <div class="dlg-body" id="hrResponseBody"></div>
+    <div class="dlg-foot" id="hrResponseFoot"></div>
   </div>
 </div>
 
@@ -1408,6 +1465,23 @@ const FEED = [
     program:'Khảo sát năng lực hợp tác nửa đầu 2026 - ITC',
     requester:{name:'Lê Minh Thu', dom:'minhthu.le', ini:'LT'},
     who:{name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC – Mobile – iOS Engineer'},
+    identityVisibility:'named', requestStatus:'collecting', expiresAt:'18/11/2026',
+    responseVersions:[
+      {version:1,submittedAt:'18/06/2026 10:20',consentedAt:'18/06/2026 10:20',answers:[
+        {questionId:'q1',question:'Đâu là điểm mạnh nổi bật của Trần Văn Khoa khi phối hợp trong nửa đầu năm?',type:'open_text',value:'Khoa nắm chắc phần mobile và chủ động cảnh báo rủi ro tích hợp.'},
+        {questionId:'q2',question:'Bạn ghi nhận Trần Văn Khoa đã tạo ảnh hưởng tích cực nào đến tiến độ hoặc chất lượng công việc?',type:'open_text',value:'Bạn hỗ trợ tài liệu tích hợp để nhóm mới nắm công việc nhanh hơn.'},
+        {questionId:'q3',question:'Một cơ hội phát triển cụ thể nào sẽ giúp Trần Văn Khoa làm việc hiệu quả hơn?',type:'open_text',value:'Khoa có thể chia sẻ sớm hơn khi phạm vi công việc thay đổi.'},
+        {questionId:'q4',question:'Nêu một ví dụ cụ thể về cách Trần Văn Khoa hỗ trợ đồng đội trong kỳ vừa qua.',type:'open_text',value:'Khoa hỗ trợ nhóm backend làm rõ luồng đồng bộ dữ liệu offline.'},
+        {questionId:'q5',question:'Bạn có đề xuất gì thêm cho chương trình phát triển của Trần Văn Khoa?',type:'open_text',required:false,value:''}
+      ]},
+      {version:2,submittedAt:'20/06/2026 15:40',consentedAt:'20/06/2026 15:40',answers:[
+        {questionId:'q1',question:'Đâu là điểm mạnh nổi bật của Trần Văn Khoa khi phối hợp trong nửa đầu năm?',type:'open_text',value:'Khoa nắm rất chắc phần mobile và luôn chủ động cảnh báo sớm các rủi ro tích hợp. Trong đợt phát hành tháng 5, bạn phát hiện lệch schema giữa app và service trước khi lên staging nên cả nhóm không phải rollback.'},
+        {questionId:'q2',question:'Bạn ghi nhận Trần Văn Khoa đã tạo ảnh hưởng tích cực nào đến tiến độ hoặc chất lượng công việc?',type:'open_text',value:'Bạn chủ động viết lại tài liệu tích hợp cho phần thanh toán, nhờ vậy hai bạn mới vào nhóm tự làm được mà không phải hỏi lại nhiều.'},
+        {questionId:'q3',question:'Một cơ hội phát triển cụ thể nào sẽ giúp Trần Văn Khoa làm việc hiệu quả hơn?',type:'open_text',value:'Khoa có thể chia sẻ sớm hơn khi thấy phạm vi công việc phình ra, thay vì tự gánh rồi báo lại lúc gần đến hạn.'},
+        {questionId:'q4',question:'Nêu một ví dụ cụ thể về cách Trần Văn Khoa hỗ trợ đồng đội trong kỳ vừa qua.',type:'open_text',value:'Buổi review kiến trúc tháng 6, bạn dành gần một buổi ngồi cùng nhóm backend để làm rõ luồng đồng bộ dữ liệu offline.'},
+        {questionId:'q5',question:'Bạn có đề xuất gì thêm cho chương trình phát triển của Trần Văn Khoa?',type:'open_text',required:false,value:''}
+      ]}
+    ],
     hrAnswers:[
       {question:'Đâu là điểm mạnh nổi bật của Trần Văn Khoa khi phối hợp trong nửa đầu năm?',
        answer:'Khoa nắm rất chắc phần mobile và luôn chủ động cảnh báo sớm các rủi ro tích hợp. Trong đợt phát hành tháng 5, bạn phát hiện lệch schema giữa app và service trước khi lên staging nên cả nhóm không phải rollback.'},
@@ -1420,6 +1494,20 @@ const FEED = [
       {question:'Bạn có đề xuất gì thêm cho chương trình phát triển của Trần Văn Khoa?', answer:''}
     ],
     body:'', cv:[] },
+  { kind:'given', id:'gvn-hr-closed-1', cycle:'2026', date:'18/08/2026', ts:20260818, requestSource:'hr', vis:'hr',
+    requestId:'program-s14-long.pham-tu.nguyen',programId:'s14',assignmentId:'long.pham:tu.nguyen',
+    program:'Phản hồi giữa kỳ nhóm Backend - ITC',
+    requester:{name:'Lê Minh Thu',dom:'minhthu.le',ini:'LT'},
+    who:{name:'Phạm Thành Long',dom:'long.pham',ini:'PL',org:'Data - Analytics'},
+    identityVisibility:'named',requestStatus:'closed',closedAt:'22/08/2026',closeReason:'HR đóng yêu cầu',expiresAt:'31/10/2026',
+    responseVersions:[{version:1,submittedAt:'18/08/2026 14:10',consentedAt:'18/08/2026 14:10',answers:[
+      {questionId:'q1',question:'Bạn ghi nhận điều gì về cách phối hợp trong nhóm Backend của Long?',type:'open_text',value:'Long chủ động làm rõ yêu cầu dữ liệu và hỗ trợ team kiểm tra lại các giả định trước khi triển khai.'},
+      {questionId:'q2',question:'Một điều Long có thể cải thiện trong lần phối hợp tiếp theo?',type:'open_text',value:'Có thể cập nhật sớm hơn khi phát hiện thay đổi phạm vi để nhóm chủ động điều chỉnh kế hoạch.'}
+    ]}],
+    hrAnswers:[
+      {question:'Bạn ghi nhận điều gì về cách phối hợp trong nhóm Backend của Long?',answer:'Long chủ động làm rõ yêu cầu dữ liệu và hỗ trợ team kiểm tra lại các giả định trước khi triển khai.'},
+      {question:'Một điều Long có thể cải thiện trong lần phối hợp tiếp theo?',answer:'Có thể cập nhật sớm hơn khi phát hiện thay đổi phạm vi để nhóm chủ động điều chỉnh kế hoạch.'}
+    ],body:'',cv:[] },
   /* Trả lời yêu cầu của quản lý trực tiếp: cùng cách hiển thị với bộ câu hỏi của HR,
      chỉ khác là không có dòng mục tiêu — chỉ câu hỏi và câu trả lời. */
   { kind:'given', id:'gvn-mgr-1', cycle:'2026', date:'02/08/2026', ts:20260802, requestSource:'manager', vis:'mgr-request',
@@ -1534,12 +1622,15 @@ const MEDIA_STATE={campaign:null,posterIndex:0,insights:[],viewedCampaignIds:new
 /* Yêu cầu đã đóng KHÔNG còn là thông báo đọc-một-lần-rồi-mất: nó là lịch sử, phải tra
    lại được bất cứ lúc nào. Vì vậy bỏ hẳn cơ chế đánh dấu đã xem; thay vào đó tách ra
    khỏi ô "Cần bạn phản hồi" và cho một popup riêng để tra cứu. */
+function hasHrResponseRecord(programId,assignmentId){
+  return FEED.some(item=>item.kind==='given'&&item.requestSource==='hr'&&item.programId===programId&&item.assignmentId===assignmentId);
+}
 function hrQueueFromProgram(programId,reviewerId){
   const raw=FeedbackProgramData.programById(programId),program=raw&&FeedbackProgramModel.normalizeCampaign(raw),detail=raw&&FeedbackProgramData.detailForProgram(raw);
   if(!program||!detail)return [];
   const requester=program.requestedBy||{name:'Nhân sự',domain:'',initials:'HR'};
   return (detail.participants||[]).flatMap(participant=>(participant.assignments||[])
-    .filter(assignment=>assignment.status!=='submitted'&&(assignment.reviewer.id===reviewerId||assignment.reviewer.domain===reviewerId))
+    .filter(assignment=>assignment.status!=='submitted'&&(assignment.reviewer.id===reviewerId||assignment.reviewer.domain===reviewerId)&&!hasHrResponseRecord(program.id,assignment.id))
     .map(assignment=>({
       id:`program-${program.id}-${participant.employee.id}-${assignment.reviewer.id}`,
       programId:program.id,assignmentId:assignment.id,program,requestSource:'hr',cycle:String(program.createdAt||'').slice(-4)||'2026',
@@ -2001,6 +2092,18 @@ function unreadItems(items){ return items.filter(f=>f.kind==='received' && !fbSt
    phần đầu nêu chương trình và người nhận, phần thân mở rộng tại chỗ để xem đủ các cặp câu hỏi - trả lời. */
 /* Trả lời cả một bộ câu hỏi — dùng chung cho yêu cầu của HR và của quản lý trực tiếp.
    Khác biệt duy nhất: yêu cầu của quản lý KHÔNG hiện dòng mục tiêu, chỉ câu hỏi và câu trả lời. */
+function hrResponseVersions(record){
+  if(Array.isArray(record&&record.responseVersions)&&record.responseVersions.length)return record.responseVersions;
+  const answers=(record&&record.hrAnswers||[]).map((pair,index)=>({questionId:`q${index+1}`,question:pair.question,type:'open_text',value:pair.answer||''}));
+  return answers.length?[{version:1,submittedAt:`${record.date||''} 00:00`,consentedAt:`${record.date||''} 00:00`,answers}]:[];
+}
+function hrResponseLatest(record){const versions=hrResponseVersions(record);return versions[versions.length-1]||null;}
+function hrResponseClosed(record){return record&&record.requestStatus==='closed';}
+function hrResponseCanEdit(record){
+  if(!record||record.requestSource!=='hr'||hrResponseClosed(record)||record.identityVisibility!=='named')return false;
+  const expires=dateFromDMY(record.expiresAt),today=dateFromDMY(todayDMY());
+  return !expires||!today||today<=expires;
+}
 function cardGivenHrProgram(f){
   const isHr=f.requestSource!=='manager';
   const requester=f.requester||{name:'HR',ini:'HR'};
@@ -2019,9 +2122,13 @@ function cardGivenHrProgram(f){
   const requesterText = isHr
     ? `HR${requester.name?` - ${requester.name}`:''}${dom(requester.dom)}`
     : `${requester.name}${dom(requester.dom)}`;
+  const latest=isHr?hrResponseLatest(f):null,date=latest?String(latest.submittedAt||f.date).split(' ')[0]:f.date;
+  const dateHTML=isHr?`<button class="fb-meta-date fb-history-link" type="button" onclick="openHrResponseRecord('${f.id}')" aria-label="Xem lịch sử chỉnh sửa ngày ${date}">${date}</button>`:`<span class="fb-meta-date">${date}</span>`;
+  const closedHTML=isHr&&hrResponseClosed(f)?`<span class="fb-meta-closed">Đã đóng ${escapeHTML(f.closedAt||'')}</span>`:'';
   const meta = `<div class="fb-meta">
       <span class="fb-req-by">Yêu cầu phản hồi của <b>${requesterText}</b></span>
-      <span class="fb-meta-date">${f.date}</span>
+      ${dateHTML}
+      ${closedHTML}
       ${visIcon(f.vis,'sender')}
     </div>${isHr&&f.program?`<div class="fb-sub-line">${f.program}</div>`:''}`;
   return `<div class="fb-card${isHr?' fb-card-hr':''}" data-kind="given" data-fb="${f.id||''}">
@@ -2031,12 +2138,100 @@ function cardGivenHrProgram(f){
       ${first?feedbackPair(first.question,answerHTML(first)):''}
       ${more}
     </div>
+    ${isHr&&hrResponseCanEdit(f)?`<div class="req-actions"><button class="btn btn-outline-brand btn-sm" type="button" onclick="openHrResponseRecord('${f.id}',true)"><i class="bx bx-edit-alt"></i> Chỉnh sửa câu trả lời</button></div>`:''}
   </div>`;
 }
 function toggleHrGiven(button){
   const card=button.closest('.fb-card'),open=card.classList.toggle('hr-given-open');
   button.setAttribute('aria-expanded',String(open));
   button.textContent=open?'Thu gọn':'Xem thêm';
+}
+let HR_RESPONSE_VIEW={id:'',tab:'history',editing:false,historyOnly:true,answers:{},consent:false};
+function hrResponseRecord(id){return FEED.find(item=>item.id===id&&item.kind==='given'&&item.requestSource==='hr');}
+function hrResponseQuestions(record){
+  const latest=hrResponseLatest(record);
+  return (latest&&latest.answers||[]).map((answer,index)=>({
+    id:answer.questionId||`q${index+1}`,text:answer.question||'',type:answer.type==='rating'?'rating':'open_text',
+    ratingScale:Number(answer.ratingScale)||5,required:answer.required!==false
+  }));
+}
+function hrResponseAnswerMap(record){
+  const latest=hrResponseLatest(record);
+  return Object.fromEntries((latest&&latest.answers||[]).map((answer,index)=>[answer.questionId||`q${index+1}`,answer.value||'']));
+}
+function hrPrivacyNoticeHTML(identityVisibility,checked,onchange,inputId=''){
+  const anonymous=identityVisibility==='anonymous';
+  const identityCopy=anonymous
+    ? '<b>Bảo mật danh tính:</b> <span>Câu trả lời của bạn được ẩn danh hoàn toàn. Không ai có thể biết người gửi phản hồi này là ai.</span>'
+    : '<b>Hiển thị danh tính:</b> <span>Tên và thông tin của bạn sẽ được hiển thị kèm theo nội dung phản hồi này.</span>';
+  return `<div class="vis-locked hr-info-block"><i class="bx bx-shield-quarter"></i><div><div class="vc-t">Thông báo về Bảo mật & xử lý dữ liệu</div><div class="vc-d hr-consent-copy">${identityCopy}</div><div class="vc-d hr-consent-copy"><b>Xử lý & chia sẻ dữ liệu:</b> <span>Thông tin bạn cung cấp sẽ được HR tổng hợp, phân tích và chia sẻ tới các bên liên quan.</span></div><label class="hr-consent-check"><input type="checkbox"${inputId?` id="${inputId}"`:''} ${checked?'checked':''} onchange="${onchange}"/><span>Tôi đã đọc và đồng ý</span></label></div></div>`;
+}
+function hrResponseIdentityHTML(record){
+  return `<div class="field">${hrPrivacyNoticeHTML(record.identityVisibility,HR_RESPONSE_VIEW.consent,'setHrResponseConsent(this.checked)')}</div>`;
+}
+function hrResponseMetaHTML(record){
+  return `<div class="dlg-meta hr-response-meta"><div class="mi"><span class="mi-l">HR yêu cầu</span><span class="mi-v">${escapeHTML(record.requester&&record.requester.name||'HR')} <span class="mi-dom">(${escapeHTML(record.requester&&record.requester.dom||'')})</span></span></div><div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${escapeHTML(record.who&&record.who.name||'')} <span class="mi-dom">(${escapeHTML(record.who&&record.who.dom||'')})</span></span></div><div class="mi"><span class="mi-l">Trạng thái</span><span class="mi-v">${hrResponseClosed(record)?`Đã đóng ${record.closedAt||''}`:`Còn hiệu lực đến ${record.expiresAt||'90 ngày từ ngày tạo'}`}</span></div></div>`;
+}
+function hrResponseQuestionsHTML(record,editing){
+  const questions=hrResponseQuestions(record),answers=HR_RESPONSE_VIEW.answers;
+  return `<div class="field"><div class="hr-reply-questions">${questions.map((question,index)=>{const value=answers[question.id]||'';const control=question.type==='rating'?`<div class="hr-rating">${Array.from({length:question.ratingScale},(_,score)=>score+1).map(score=>`<button type="button" ${editing?'': 'disabled'} class="${Number(value)===score?'on':''}" onclick="setHrResponseRating('${question.id}',${score})">${score}</button>`).join('')}</div>`:`<textarea class="compose-ta" ${editing?'':'readonly'} oninput="setHrResponseAnswer('${question.id}',this.value)">${escapeHTML(value)}</textarea>`;return `<section class="hr-reply-question"><div class="hr-reply-question-label"><span class="hr-reply-question-num">Câu ${index+1}</span><span>${escapeHTML(question.text)}${question.required?'<span class="hr-reply-required">*</span>':''}</span></div>${control}</section>`}).join('')}</div></div>`;
+}
+function hrResponseVersionAnswersHTML(version){
+  const rows=(version.answers||[]).map(answer=>`<div class="crow-q"><b>${escapeHTML(answer.question||'Câu hỏi')}</b><br>${escapeHTML(answer.type==='rating'&&answer.value?`${answer.value}/${answer.ratingScale||5}`:answer.value||'Không trả lời')}</div>`);
+  return rows.length?`<div class="crow-rest">${rows.join('')}</div><button class="crow-toggle" type="button" onclick="toggleHrResponseVersion(this)" aria-expanded="false">Xem chi tiết câu trả lời</button>`:'';
+}
+function toggleHrResponseVersion(button){const row=button.closest('.crow'),open=row.classList.toggle('crow-open');button.setAttribute('aria-expanded',String(open));button.textContent=open?'Thu gọn':'Xem chi tiết câu trả lời';}
+function hrResponseHistoryHTML(record){
+  const versions=[...hrResponseVersions(record)].reverse();
+  return `<div class="field"><div style="display:flex;flex-direction:column;gap:8px">${versions.map(version=>`<article class="crow hr-response-version"><div class="crow-main"><div class="crow-t"><span class="hr-version-name">Phiên bản ${version.version}</span><span class="hr-version-time"> - ${escapeHTML(version.submittedAt||'')}</span></div>${hrResponseVersionAnswersHTML(version)}</div></article>`).join('')}</div></div>`;
+}
+function setHrResponseTab(tab){
+  const record=hrResponseRecord(HR_RESPONSE_VIEW.id);if(!record)return;
+  HR_RESPONSE_VIEW.tab=tab==='edit'&&!HR_RESPONSE_VIEW.historyOnly&&hrResponseCanEdit(record)?'edit':'history';
+  HR_RESPONSE_VIEW.editing=HR_RESPONSE_VIEW.tab==='edit';
+  renderHrResponseRecord();
+}
+function renderHrResponseRecord(){
+  const record=hrResponseRecord(HR_RESPONSE_VIEW.id);if(!record)return;
+  const canEdit=hrResponseCanEdit(record),editing=canEdit&&HR_RESPONSE_VIEW.tab==='edit';
+  HR_RESPONSE_VIEW.editing=editing;
+  document.getElementById('hrResponseTitle').textContent=editing?'Chỉnh sửa câu trả lời':'Lịch sử chỉnh sửa';
+  document.getElementById('hrResponseSub').textContent=record.program||'';
+  document.getElementById('hrResponseHeaderMeta').innerHTML=hrResponseMetaHTML(record);
+  const tabs=document.getElementById('hrResponseTabs');
+  const showTabs=canEdit&&!HR_RESPONSE_VIEW.historyOnly;
+  tabs.hidden=!showTabs;
+  tabs.innerHTML=showTabs?`<button class="dlg-tab${editing?' on':''}" type="button" role="tab" aria-selected="${editing}" onclick="setHrResponseTab('edit')"><i class="bx bx-edit-alt"></i>Chỉnh sửa câu trả lời</button><button class="dlg-tab${editing?'':' on'}" type="button" role="tab" aria-selected="${!editing}" onclick="setHrResponseTab('history')"><i class="bx bx-history"></i>Lịch sử chỉnh sửa<span class="dlg-tab-cnt">${hrResponseVersions(record).length}</span></button>`:'';
+  document.getElementById('hrResponseBody').innerHTML=editing?`${hrResponseIdentityHTML(record)}${hrResponseQuestionsHTML(record,true)}`:hrResponseHistoryHTML(record);
+  const foot=document.getElementById('hrResponseFoot');
+  foot.style.display=editing?'flex':'none';
+  foot.innerHTML=editing?`<div style="display:flex;gap:7px;margin-left:auto"><button class="btn btn-default btn-sm" id="saveHrResponse" onclick="saveHrResponseEdit()" disabled><i class="bx bx-save"></i> Lưu và gửi điều chỉnh</button></div>`:'';
+  if(editing)syncHrResponseEdit();
+}
+function openHrResponseRecord(id,editing=false){
+  const record=hrResponseRecord(id);if(!record)return;
+  const canEdit=hrResponseCanEdit(record),tab=editing&&canEdit?'edit':'history';
+  HR_RESPONSE_VIEW={id,tab,editing:tab==='edit',historyOnly:!editing,answers:hrResponseAnswerMap(record),consent:false};
+  renderHrResponseRecord();openOverlay('dlg-hr-response');
+}
+function setHrResponseConsent(value){HR_RESPONSE_VIEW.consent=Boolean(value);syncHrResponseEdit();}
+function setHrResponseAnswer(questionId,value){HR_RESPONSE_VIEW.answers[questionId]=value;syncHrResponseEdit();}
+function setHrResponseRating(questionId,value){if(!HR_RESPONSE_VIEW.editing)return;HR_RESPONSE_VIEW.answers[questionId]=value;renderHrResponseRecord();}
+function syncHrResponseEdit(){
+  const record=hrResponseRecord(HR_RESPONSE_VIEW.id),button=document.getElementById('saveHrResponse');if(!record||!button)return;
+  const ready=hrResponseQuestions(record).filter(question=>question.required).every(question=>String(HR_RESPONSE_VIEW.answers[question.id]||'').trim());
+  button.disabled=!(ready&&HR_RESPONSE_VIEW.consent);
+}
+function saveHrResponseEdit(){
+  const record=hrResponseRecord(HR_RESPONSE_VIEW.id);if(!record||!hrResponseCanEdit(record)||!HR_RESPONSE_VIEW.consent)return;
+  const questions=hrResponseQuestions(record),versions=hrResponseVersions(record),stamp=nowDMYTime();
+  record.responseVersions=[...versions,{version:versions.length+1,submittedAt:stamp,consentedAt:stamp,answers:questions.map(question=>({questionId:question.id,question:question.text,type:question.type,ratingScale:question.ratingScale,required:question.required,value:HR_RESPONSE_VIEW.answers[question.id]||''}))}];
+  syncHrResponseCard(record);record.date=stamp.split(' ')[0];record.ts=tsFrom(record.date);
+  HR_RESPONSE_VIEW.tab='history';HR_RESPONSE_VIEW.editing=false;HR_RESPONSE_VIEW.consent=false;renderAll();renderHrResponseRecord();toast('Đã lưu phiên bản điều chỉnh mới.');
+}
+function syncHrResponseCard(record){
+  const latest=hrResponseLatest(record);
+  record.hrAnswers=(latest&&latest.answers||[]).map(answer=>({question:answer.question,answer:answer.type==='rating'&&answer.value?`${answer.value}/${answer.ratingScale||5}`:String(answer.value||'')}));
 }
 function cardGiven(f){
   if((f.requestSource==='hr'||f.requestSource==='manager')&&(f.hrAnswers||[]).length)return cardGivenHrProgram(f);
@@ -3172,18 +3367,11 @@ function submitRequest(){
 }
 
 /* ═══════ TRẢ LỜI YÊU CẦU (UC-R) ═══════ */
-let RV={item:null, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, _stage:null};
+let RV={item:null, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, consent:false, _stage:null};
 function escapeHTML(value){return String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
 function hrQuestionAnswered(question){return question.type==='rating'?Number(RV.answers[question.id])>0:Boolean(String(RV.answers[question.id]||'').trim());}
 function hrAnswerReady(item){const questions=item.questions||[];return questions.filter(question=>question.required).every(hrQuestionAnswered)&&questions.some(hrQuestionAnswered);}
 function hrResponseAnswers(item){return (item.questions||[]).map(question=>question.type==='rating'?{questionId:question.id,score:Number(RV.answers[question.id])}:{questionId:question.id,body:String(RV.answers[question.id]||'').trim()});}
-function hrAudienceCopy(item){
-  const audience=item.resultAudience||FeedbackProgramModel.resultAudience(item.program,item.feedbackReceiver.id);
-  if(!audience.released)return {title:'Hiện tại chỉ HR xem được kết quả phản hồi này',detail:'HR sẽ chủ động quyết định khi nào và chia sẻ kết quả với ai sau khi tổng hợp chương trình.'};
-  const labels={recipients:'người nhận phản hồi',managers:'các cấp quản lý',others:'người khác do HR chỉ định'};
-  const names=(audience.audiences||[]).map(key=>labels[key]).filter(Boolean);
-  return {title:`HR đã chia sẻ kết quả với ${names.join(', ')||'người được chỉ định'}`,detail:'Phạm vi người xem do HR thiết lập cho chương trình và không thể thay đổi khi bạn trả lời.'};
-}
 function renderHrReplyQuestions(item){
   const holder=document.getElementById('replyStructuredFields');
   if(!isHrQueueRequest(item)){holder.hidden=true;holder.innerHTML='';return;}
@@ -3200,23 +3388,25 @@ function setHrReplyAnswer(questionId,value){RV.answers[questionId]=value;syncRep
 function setHrReplyRating(questionId,score){RV.answers[questionId]=score;renderHrReplyQuestions(RV.item);syncReply();}
 function renderReplyPrompt(item){
   const ctxLine=`<div class="reply-ask-ctx"><i class="bx bx-folder-open"></i>${escapeHTML(item.context)}</div>`;
-  if(isHrQueueRequest(item))return `${ctxLine}<div class="reply-ask-lbl">Lời ngỏ từ HR</div><div class="reply-ask-q">${escapeHTML(item.program.invitationMessage||'HR mời bạn dành thời gian cung cấp góc nhìn cụ thể và xây dựng cho chương trình này.')}</div>`;
+  if(isHrQueueRequest(item))return `<i class="bx bx-folder-open"></i><div><div class="reply-ask-ctx">${escapeHTML(item.context)}</div><div class="reply-ask-lbl">Lời ngỏ từ HR</div><div class="reply-ask-q">${escapeHTML(item.program.invitationMessage||'HR mời bạn dành thời gian cung cấp góc nhìn cụ thể và xây dựng cho chương trình này.')}</div></div>`;
   return `${item.question?ctxLine:''}<div class="reply-ask-lbl">Câu hỏi</div><div class="reply-ask-q">${itemQuestion(item)}</div>`;
 }
 
 function openReply(id){
   const item=QUEUE.find(x=>x.id===id); if(!item) return;
-  RV={item, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, _stage:null};
+  RV={item, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, consent:false, _stage:null};
   document.getElementById('replyDialog').classList.toggle('hr-structured-reply',isHrQueueRequest(item));
+  document.getElementById('replyAsk').classList.toggle('hr-info-block',isHrQueueRequest(item));
+  const effort=queueEffort(item),effortText=effort?`${effort.count} câu hỏi - ${effort.minutes} phút trả lời`:'';
   // header thống nhất: tiêu đề cố định + khối thông tin giống popup "Yêu cầu của tôi"
   document.getElementById('replySub').innerHTML=`
     <div class="dlg-meta">
       <div class="mi"><span class="mi-l">Người yêu cầu</span><span class="mi-v">${item.from} <span class="mi-dom">(${item.dom})</span></span></div>
       ${(item.about==='other'||isHrQueueRequest(item))
         ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${isHrQueueRequest(item)?item.feedbackReceiver.name:item.aboutName} <span class="mi-dom">(${isHrQueueRequest(item)?item.feedbackReceiver.domain:item.aboutDom})</span></span></div>` : ''}
-      <div class="mi"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
+      <div class="mi mi-sent"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
       <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">- ${item.due}</span></span></div>
-      ${queueEffort(item)?`<div class="mi"><span class="mi-l">Bộ câu hỏi</span><span class="mi-v">${queueEffort(item).label}</span></div>`:''}
+      ${effort?`<div class="mi mi-effort"><span class="mi-l">Bộ câu hỏi</span><span class="mi-v">${effortText}</span></div>`:''}
     </div>`;
   document.getElementById('replyAsk').innerHTML=renderReplyPrompt(item);
   document.getElementById('replyForm').style.display='';
@@ -3242,23 +3432,15 @@ function openReply(id){
 
 /* visibility theo ngữ cảnh */
 function renderReplyVis(item){
-  const el=document.getElementById('replyVisField');
+  const el=document.getElementById('replyVisField'),hrConsent=document.getElementById('replyHrConsent');
   if(isHrQueueRequest(item)){
     RV.vis='hr';
-    const audience=hrAudienceCopy(item),anonymous=item.identityVisibility==='anonymous',identity=anonymous
-      ? 'Khi HR chia sẻ kết quả, danh tính của bạn không được hiển thị.'
-      : 'Khi HR chia sẻ kết quả, tên của bạn được hiển thị cùng nội dung phản hồi.';
-    el.innerHTML=`
-      <label class="field-label">Ai có thể xem kết quả phản hồi này?</label>
-      <div class="vis-locked">
-        <i class="bx bx-shield-quarter"></i>
-        <div>
-          <div class="vc-t">${audience.title}</div>
-          <div class="vc-d">${audience.detail}</div>
-          <div class="hr-identity-setting"><i class="bx ${anonymous?'bx-user-x':'bx-user-check'}"></i><span>Danh tính người cho phản hồi: <strong>${anonymous?'Ẩn danh':'Hiển thị tên'}</strong><br>${identity}</span></div>
-        </div>
-      </div>`;
+    el.innerHTML='';
+    el.hidden=true;
+    hrConsent.hidden=false;
+    hrConsent.innerHTML=hrPrivacyNoticeHTML(item.identityVisibility,RV.consent,'setReplyConsent(this.checked)','replyConsent');
   } else if(item.about==='other'){   // UC3 — quản lý yêu cầu → mặc định shared, không đổi
+    hrConsent.hidden=true;hrConsent.innerHTML='';el.hidden=false;
     RV.vis='shared';
     el.innerHTML=`
       <label class="field-label">Ai có thể xem phản hồi này?</label>
@@ -3271,6 +3453,7 @@ function renderReplyVis(item){
         </div>
       </div>`;
   } else {   // UC1 — đồng nghiệp yêu cầu → tự chọn
+    hrConsent.hidden=true;hrConsent.innerHTML='';el.hidden=false;
     el.innerHTML=`
       <label class="field-label">Ai có thể xem phản hồi này?<span class="req-star">*</span></label>
       <div class="vis-opts">
@@ -3279,6 +3462,7 @@ function renderReplyVis(item){
       </div>`;
   }
 }
+function setReplyConsent(value){RV.consent=Boolean(value);syncReply();}
 function setReplyVis(v){
   RV.vis=v;
   document.getElementById('rvisR').classList.toggle('on',v==='receiver');
@@ -3363,7 +3547,7 @@ function toggleReplyCv(name){ const i=RV.cvs.indexOf(name); if(i>=0)RV.cvs.splic
 
 function syncReply(){
   if(isHrQueueRequest(RV.item)){
-    document.getElementById('replySend').disabled=!hrAnswerReady(RV.item);
+    document.getElementById('replySend').disabled=!(hrAnswerReady(RV.item)&&RV.consent);
     return;
   }
   const text=document.getElementById('replyTA').value.trim();
@@ -3371,23 +3555,39 @@ function syncReply(){
   const visOk = RV.item.about==='other' ? true : !!RV.vis;
   document.getElementById('replySend').disabled=!(text && visOk);
 }
+function hrRequestExpiresAt(item){
+  const created=dateFromDMY(item&&item.program&&item.program.createdAt||item&&item.sent);if(!created)return '';
+  created.setUTCDate(created.getUTCDate()+90);const pad=value=>String(value).padStart(2,'0');return `${pad(created.getUTCDate())}/${pad(created.getUTCMonth()+1)}/${created.getUTCFullYear()}`;
+}
+function openHrGivenFromSuccess(recordId){
+  closeOverlay('dlg-reply');setFilter('given');
+  setTimeout(()=>{const card=document.querySelector(`[data-fb="${recordId}"]`);if(!card)return;card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('flash');setTimeout(()=>card.classList.remove('flash'),1600)},40);
+}
 function submitReply(){
   const item=RV.item;
   const isHr=isHrQueueRequest(item),cv=isHr?[]:RV.cvs,answers=isHr?hrResponseAnswers(item):[];
+  if(isHr&&!RV.consent){toast('Xác nhận đồng thuận trước khi gửi phản hồi.');return;}
   delete DRAFTS.reply[item.id];   // đã gửi → bỏ nháp
   const idx=QUEUE.findIndex(q=>q.id===item.id);
   if(idx>=0) QUEUE.splice(idx,1);
   const target = isHr?item.feedbackReceiver.name:(item.about==='other' ? item.aboutName : item.from);
   const targetDom = isHr?item.feedbackReceiver.domain:(item.about==='other' ? item.aboutDom : item.dom);
-  if(isHr)FEED.unshift({
-    kind:'given', id:`given-hr-${Date.now()}`, cycle:item.cycle, date:todayDMY(), ts:Number(todayDMY().split('/').reverse().join('')),
+  const hrRecordId=isHr?`given-hr-${Date.now()}`:'';
+  if(isHr){
+    const stamp=nowDMYTime(),versionAnswers=(item.questions||[]).map(question=>({questionId:question.id,question:question.text,type:question.type,ratingScale:question.ratingScale,required:question.required,value:question.type==='rating'?Number(RV.answers[question.id])||'':String(RV.answers[question.id]||'').trim()}));
+    FEED.unshift({
+    kind:'given', id:hrRecordId, requestId:item.id, programId:item.programId, assignmentId:item.assignmentId,
+    cycle:item.cycle, date:todayDMY(), ts:Number(todayDMY().split('/').reverse().join('')),
     requestSource:'hr', program:item.context,
     /* item.from có dạng "HR - Lê Minh Thu"; card chỉ cần tên người để tự ghép lại nhãn. */
     requester:{name:String(item.from||'').replace(/^HR\s*-\s*/,''), dom:item.dom||'', ini:item.ini||'HR'},
     who:{name:target, dom:targetDom, ini:initials(target), org:ORG_BY_DOM[targetDom]||''},
+    identityVisibility:item.identityVisibility||'anonymous',requestStatus:'collecting',expiresAt:hrRequestExpiresAt(item),
+    responseVersions:[{version:1,submittedAt:stamp,consentedAt:stamp,answers:versionAnswers}],
     hrAnswers:(item.questions||[]).map(question=>({question:question.text,answer:question.type==='rating'?(RV.answers[question.id]?`${RV.answers[question.id]}/${question.ratingScale||5}`:''):String(RV.answers[question.id]||'').trim()})),
     body:'', cv:[], vis:'hr'
   });
+  }
   if(!isHr)FEED.unshift(FeedbackModel.createGivenResponse({
     id:`given-${Date.now()}`, cycle:item.cycle, date:todayDMY(), requestId:item.id,
     recipient:{name:target, dom:targetDom, ini:item.about==='other' ? initials(target) : item.ini, org:ORG_BY_DOM[targetDom] || ''},
@@ -3395,7 +3595,7 @@ function submitReply(){
     vis:item.about==='other' ? 'manager' : RV.vis, cv, requestSource:item.requestSource
   }));
   const visTxt = isHr
-    ? 'Chỉ HR xem được ở thời điểm hiện tại'
+    ? (item.identityVisibility==='anonymous'?'Ẩn danh người cho phản hồi':'Ghi nhận danh tính người cho phản hồi')
     : item.about==='other'
     ? `${item.from} và ${item.aboutName}`
     : (RV.vis==='manager' ? `${item.from} và quản lý của họ` : `Chỉ ${item.from}`);
@@ -3406,13 +3606,13 @@ function submitReply(){
       <div class="give-ok">
       <div class="give-ok-ic"><i class="bx bx-check"></i></div>
       <div class="give-ok-t">Đã gửi phản hồi</div>
-      <div class="give-ok-d">${isHr?`Cảm ơn bạn đã hoàn thành ${answers.length} câu trả lời cho ${target}. Kết quả được lưu trong chương trình HR và chỉ HR quyết định việc chia sẻ.`:`Cảm ơn bạn đã dành thời gian phản hồi cho ${target}. Sau khi gửi, phản hồi không thể chỉnh sửa.`}</div>
+      <div class="give-ok-d">${isHr?`Cảm ơn bạn đã hoàn thành ${answers.length} câu trả lời cho ${target}. Câu trả lời được lưu tại tab “Đã cho”; bạn có thể mở lại và xem lịch sử bất cứ lúc nào.`:`Cảm ơn bạn đã dành thời gian phản hồi cho ${target}. Sau khi gửi, phản hồi không thể chỉnh sửa.`}</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
         <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt} xem được</div>
         ${RV.aiUsed?'<div class="give-ok-note"><i class="bx bx-magic"></i>Có hỗ trợ từ AI</div>':''}
         ${cv.length?`<div class="give-ok-note"><i class="bx bx-medal"></i>${cv.join(', ')}</div>`:''}
       </div>
-      <div style="margin-top:18px"><button class="btn btn-default btn-sm" onclick="closeOverlay('dlg-reply')"><i class="bx bx-check"></i> Xong</button></div>
+      <div style="margin-top:18px;display:flex;justify-content:center;gap:8px"><button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-reply')">Đóng</button>${isHr?`<button class="btn btn-default btn-sm" onclick="openHrGivenFromSuccess('${hrRecordId}')"><i class="bx bx-right-arrow-alt"></i> Xem tại Đã cho</button>`:''}</div>
     </div>`;
   renderAll();
 }

@@ -191,9 +191,9 @@ test('employee feedback renders HR request items from the shared structured prog
   assert.match(html,/feedbackReceiver:participant\.employee/);
   assert.match(html,/questions:detail\.questions\|\|\[\]/);
   assert.match(html,/function renderHrReplyQuestions\(item\)/);
-  assert.match(html,/Hiện tại chỉ HR xem được kết quả phản hồi này/);
-  assert.match(html,/Danh tính người cho phản hồi: <strong>/);
-  assert.match(html,/#dlg-reply #replyDialog\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(html,/Thông báo về Bảo mật & xử lý dữ liệu/);
+  assert.match(html,/Bảo mật danh tính:<\/b>/);
+  assert.match(html,/#dlg-reply #replyDialog\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(html,/classList\.toggle\('hr-structured-reply',isHrQueueRequest\(item\)\)/);
   assert.equal((html.match(/id="replyDialog"/g)||[]).length,1);
   assert.ok(html.indexOf('id="replyDialog"')>html.indexOf('id="dlg-reply"'));
@@ -421,8 +421,9 @@ test('answering a line-manager request shows one question and is always shared',
   // HR ghi rõ người nào của HR, quản lý ghi họ tên; cả hai đều kèm domain
   assert.match(html,/const requesterText = isHr\s*\?\s*`HR\$\{requester\.name\?` - \$\{requester\.name\}`:''\}\$\{dom\(requester\.dom\)\}`/);
   assert.match(html,/:\s*`\$\{requester\.name\}\$\{dom\(requester\.dom\)\}`;/);
-  // ngày và phạm vi xem đi cùng hàng metadata đó
-  assert.match(html,/<span class="fb-meta-date">\$\{f\.date\}<\/span>\s*\$\{visIcon\(f\.vis,'sender'\)\}/);
+  // ngày và phạm vi xem đi cùng hàng metadata đó; ngày của phản hồi HR là lối vào history
+  assert.match(html,/const dateHTML=isHr\?`<button class="fb-meta-date fb-history-link"[\s\S]{0,180}openHrResponseRecord\('\$\{f\.id\}'\)[\s\S]{0,120}>\$\{date\}<\/button>`:`<span class="fb-meta-date">\$\{date\}<\/span>`/);
+  assert.match(html,/\$\{dateHTML\}\s*\$\{closedHTML\}\s*\$\{visIcon\(f\.vis,'sender'\)\}/);
   assert.match(html,/const more=\(!isHr\)\?'':rest\.length/);           // không có "Xem thêm"
   assert.match(html,/\$\{isHr\?`<div class="hr-given-count"/);          // không có dòng đếm câu hỏi
   assert.match(html,/\$\{isHr&&f\.program\?`<div class="fb-sub-line"/); // không có dòng mục tiêu
@@ -526,7 +527,7 @@ test('HR requests lead the action queue, stay anonymous in the list and land in 
   /* Dùng lại đúng cặp câu hỏi - câu trả lời chuẩn của màn, không tự chế khối riêng. */
   assert.match(html,/feedbackPair\(pair\.question,answerHTML\(pair\)\)/);
   assert.doesNotMatch(html,/hr-given-q\{/);
-  assert.match(html,/if\(isHr\)FEED\.unshift\(\{/);
+  assert.match(html,/function submitReply\(\)[\s\S]{0,1200}FEED\.unshift\(\{/);
 });
 
 test('closed requests leave the action queue and live in their own history dialog', () => {
@@ -549,8 +550,107 @@ test('closed requests leave the action queue and live in their own history dialo
   // lối vào là một dòng mảnh ở chân thẻ, không phải thẻ riêng ở cột phải
   assert.match(html,/class="hist-link" onclick="openClosedQueue\(\)"><i class="bx bx-archive"><\/i>Yêu cầu đã đóng/);
   assert.match(html,/\.hist-link\{[^}]*border:0;border-top:1px solid var\(--z100\)/);
-  // hết việc nhưng còn lịch sử thì thẻ vẫn phải hiện, không thì mất lối vào tra cứu
+  // Chỉ yêu cầu đóng trước khi trả lời nằm ở popup; phản hồi đã gửi tiếp tục lưu tại "Đã cho".
   assert.match(html,/if\(!items\.length && !closed\.length\)\{ sec\.style\.display='none'; return; \}/);
+  assert.doesNotMatch(html,/closedAnswered|closedHrResponses|closedHrResponseRowHTML/);
+  assert.match(html,/Yêu cầu đã đóng<span class="n">\$\{closed\.length\}<\/span>/);
+});
+
+test('submitted HR answers stay in Given with review, edit and durable version history', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  // Lời ngỏ đứng trước consent; consent dùng đúng nội dung bảo mật/xử lý dữ liệu đã duyệt.
+  assert.match(html,/id="replyAsk"[\s\S]{0,500}id="replyHrConsent"/);
+  assert.match(html,/Thông báo về Bảo mật & xử lý dữ liệu/);
+  assert.match(html,/Bảo mật danh tính:<\/b> <span>Câu trả lời của bạn được ẩn danh hoàn toàn\. Không ai có thể biết người gửi phản hồi này là ai\.<\/span>/);
+  assert.match(html,/Hiển thị danh tính:<\/b> <span>Tên và thông tin của bạn sẽ được hiển thị kèm theo nội dung phản hồi này\.<\/span>/);
+  assert.match(html,/Xử lý & chia sẻ dữ liệu:<\/b> <span>Thông tin bạn cung cấp sẽ được HR tổng hợp, phân tích và chia sẻ tới các bên liên quan\.<\/span>/);
+  assert.match(html,/class="hr-consent-check"/);
+  assert.doesNotMatch(html,/Thông tin sử dụng kết quả phản hồi/);
+  assert.match(html,/hrAnswerReady\(RV\.item\)&&RV\.consent/);
+
+  // Đã cho vẫn là nơi lưu; history mở từ ngày trả lời, không thêm button history ở cuối card.
+  assert.match(html,/Xem tại Đã cho/);
+  assert.match(html,/function openHrGivenFromSuccess\(recordId\)/);
+  assert.match(html,/fb-meta-date fb-history-link/);
+  assert.doesNotMatch(html,/Xem lại & lịch sử/);
+  assert.doesNotMatch(html,/hrResponseVersionMeta/);
+  assert.match(html,/Chỉnh sửa câu trả lời/);
+  assert.match(html,/btn btn-outline-brand btn-sm/);
+  assert.match(html,/\.fb-card-hr \.req-actions\{justify-content:flex-end\}/);
+  assert.match(html,/const closedHTML=isHr&&hrResponseClosed\(f\)\?`<span class="fb-meta-closed">Đã đóng \$\{escapeHTML\(f\.closedAt\|\|''\)\}<\/span>`:''/);
+  assert.match(html,/\.fb-meta-closed\{font-size:11\.5px;font-weight:500;color:var\(--z600\)\}/);
+
+  // Editing is limited to named, still-active HR responses and creates a new immutable version.
+  assert.match(html,/record\.identityVisibility!=='named'/);
+  assert.match(html,/today<=expires/);
+  assert.match(html,/record\.responseVersions=\[\.\.\.versions,\{version:versions\.length\+1/);
+  assert.match(html,/Lịch sử chỉnh sửa/);
+  assert.match(html,/Xem chi tiết câu trả lời/);
+  assert.match(html,/<span class="hr-version-name">Phiên bản \$\{version\.version\}<\/span><span class="hr-version-time"> - \$\{escapeHTML\(version\.submittedAt\|\|''\)\}<\/span>/);
+  assert.match(html,/\.hr-response-version \.hr-version-name,\.hr-response-version \.hr-version-time\{font-size:12\.5px;line-height:1\.45\}/);
+  assert.match(html,/class="crow hr-response-version"><div class="crow-main">/);
+  assert.doesNotMatch(html,/class="crow"><div class="av av-gray av-sm"><i class="bx bx-history"><\/i><\/div><div class="crow-main"><div class="crow-t"><b>Phiên bản/);
+  assert.match(html,/id="hrResponseTabs" role="tablist"/);
+  assert.match(html,/class="dlg-tab\$\{editing\?' on':''\}"/);
+  assert.match(html,/historyOnly:!editing/);
+  assert.match(html,/const showTabs=canEdit&&!HR_RESPONSE_VIEW\.historyOnly/);
+  assert.match(html,/tabs\.hidden=!showTabs/);
+  assert.match(html,/tabs\.innerHTML=showTabs\?/);
+  assert.match(html,/> Lưu và gửi điều chỉnh<\/button>/);
+  assert.doesNotMatch(html,/> Lưu điều chỉnh<\/button>/);
+  assert.match(html,/\.dlg-tabs\[hidden\]\{display:none\}/);
+  assert.match(html,/HR_RESPONSE_VIEW\.tab='history'/);
+  assert.doesNotMatch(html,/cancelHrResponseEdit|>Huỷ<\/button>/);
+  assert.match(html,/<div class="dlg-sub" id="hrResponseSub"><\/div>\s*<div id="hrResponseHeaderMeta"><\/div>/);
+  assert.match(html,/#dlg-hr-response #hrResponseHeaderMeta \.hr-response-meta\{margin-top:12px;margin-bottom:0\}/);
+  assert.match(html,/document\.getElementById\('hrResponseHeaderMeta'\)\.innerHTML=hrResponseMetaHTML\(record\)/);
+  assert.match(html,/editing\?`\$\{hrResponseIdentityHTML\(record\)\}\$\{hrResponseQuestionsHTML\(record,true\)\}`:hrResponseHistoryHTML\(record\)/);
+  assert.doesNotMatch(html,/<label class="field-label">\$\{editing\?'Điều chỉnh câu trả lời':'Câu trả lời hiện tại'\}<\/label>/);
+  assert.doesNotMatch(html,/Đã xác nhận đồng ý/);
+
+  // The implementation reuses established prototype components instead of adding a parallel UI system.
+  assert.match(html,/class="req-actions"/);
+  assert.match(html,/class="crow"/);
+  assert.match(html,/class="vis-locked hr-info-block"/);
+  assert.match(html,/class="dlg-tabs"/);
+  assert.doesNotMatch(html,/\.response-history-|\.submitted-ticket-/);
+});
+
+test('HR reply popup keeps the approved two-row metadata and lighter question hierarchy', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  // Hàng 1: người yêu cầu/phản hồi về. Hàng 2: ngày gửi/hạn/bộ câu hỏi.
+  assert.match(html,/\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(html,/\.hr-structured-reply \.mi-sent\{grid-column:1\}/);
+  assert.match(html,/class="mi mi-sent"><span class="mi-l">Ngày gửi/);
+  assert.match(html,/const effort=queueEffort\(item\),effortText=effort\?`\$\{effort\.count\} câu hỏi - \$\{effort\.minutes\} phút trả lời`/);
+  assert.match(html,/<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{effortText\}<\/span>/);
+
+  // Bỏ card viền lồng nhau ở từng câu, nhưng giữ textarea/rating control để nhận biết vùng nhập.
+  assert.match(html,/#dlg-reply \.hr-reply-question,#dlg-hr-response \.hr-reply-question\{padding:0 0 12px;border:0;border-bottom:1px solid var\(--z100\)/);
+  assert.match(html,/class="compose-ta"/);
+});
+
+test('HR invitation and consent use the approved information hierarchy', () => {
+  const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+
+  // Cả hai khối dùng chung shell, nền, viền trái, spacing và type scale.
+  assert.match(html,/\.reply-ask\.hr-info-block,\.vis-locked\.hr-info-block\{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:0;border-left:3px solid var\(--brand\);border-radius:0 var\(--rsm\) var\(--rsm\) 0;background:var\(--brand-muted\)\}/);
+  assert.match(html,/\.hr-info-block>i\{font-size:16px;color:var\(--brand\)/);
+  assert.match(html,/\.hr-info-block \.reply-ask-ctx\{margin:0 0 6px;font-size:12\.5px;font-weight:600;color:var\(--z900\)/);
+  assert.match(html,/\.hr-info-block \.reply-ask-lbl\{margin-bottom:4px;font-size:10\.5px;font-weight:600;text-transform:uppercase;letter-spacing:\.4px;color:var\(--brand\)/);
+  assert.match(html,/\.hr-info-block \.vc-t\{font-size:12\.5px;font-weight:600;color:var\(--z900\)/);
+  assert.match(html,/\.hr-info-block \.reply-ask-q,\.hr-info-block \.vc-d\{margin-top:0;font-size:12px;color:var\(--z700\)/);
+  assert.match(html,/\.hr-consent-copy\{display:block;text-align:left\}/);
+  assert.match(html,/\.hr-consent-copy>b,\.hr-consent-copy>span\{display:block\}/);
+
+  // Tên chương trình đứng trước nhãn Lời ngỏ; checkbox consent nằm cuối sau khi đã đọc nội dung.
+  assert.match(html,/replyAsk'\)\.classList\.toggle\('hr-info-block',isHrQueueRequest\(item\)\)/);
+  assert.match(html,/class="vis-locked hr-info-block"><i class="bx bx-shield-quarter"/);
+  assert.match(html,/class="bx bx-folder-open"><\/i><div><div class="reply-ask-ctx">\$\{escapeHTML\(item\.context\)\}<\/div><div class="reply-ask-lbl">Lời ngỏ từ HR<\/div>/);
+  assert.match(html,/Xử lý & chia sẻ dữ liệu:[\s\S]{0,320}<label class="hr-consent-check">[\s\S]{0,220}<span>Tôi đã đọc và đồng ý<\/span>/);
+  assert.doesNotMatch(html,/Tôi đã đọc và đồng ý:/);
 });
 
 test('closed request history carries who, when sent, when closed and the question', () => {
@@ -601,7 +701,7 @@ test('closed request history carries who, when sent, when closed and the questio
 
   /* Dòng dẫn nhập để TRẦN, không đóng khung: thêm một khung viền nữa là lẫn với các ô
      yêu cầu ngay bên dưới. */
-  assert.match(html,/<p class="closed-note">Những yêu cầu này đã được đóng, bạn không cần trả lời nữa\. Danh sách giữ lại để bạn tra cứu khi cần\.<\/p>/);
+  assert.match(html,/<p class="closed-note">Các yêu cầu được đóng trước khi bạn gửi phản hồi\. Danh sách được lưu lại để bạn tra cứu\.<\/p>/);
   assert.match(html,/\.closed-note\{margin:0 0 4px;color:var\(--z800\);font-size:12\.5px;line-height:1\.55\}/);
   assert.doesNotMatch(html,/\.closed-note\{[^}]*border/);
 
@@ -652,12 +752,15 @@ test('HR requests tell how many questions they hold and how long they take', () 
      ngoặc đơn thay vì gạch ngang, vì tên chương trình thường đã chứa sẵn một dấu gạch. */
   assert.match(html, /<span class="q-effort">\(\$\{effort\.label\}\)<\/span>/);
   assert.doesNotMatch(html, /q-effort"><i class="bx/);
-  assert.match(html, /<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{queueEffort\(item\)\.label\}<\/span>/);
+  assert.match(html, /<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{effortText\}<\/span>/);
   // dòng hạn phản hồi trong popup cũng phải bỏ middot
   assert.doesNotMatch(html, /<span class="mi-due \$\{item\.urgency\}">·/);
   // tên chương trình co lại, khối lượng luôn đọc được
   assert.match(html, /\.qrow-sub-ctx\{overflow:hidden;text-overflow:ellipsis;white-space:nowrap\}/);
   assert.match(html, /\.q-effort\{flex:none;color:var\(--z600\);white-space:nowrap\}/);
+  /* Khối thông tin có ba cột: hàng 1 là hai người, hàng 2 là ngày gửi, hạn và khối lượng. */
+  assert.match(html, /\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(html, /\.hr-structured-reply \.mi-sent\{grid-column:1\}/);
 });
 
 /* R8: tim thuộc về NGƯỜI đã thả. Đổi quản lý thì tim cũ giữ nguyên tên người cũ và
