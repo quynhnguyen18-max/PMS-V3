@@ -639,20 +639,25 @@ test('HR requests tell how many questions they hold and how long they take', () 
   assert.equal(model.answerEffort(null), null);
   // câu tự luận 40 giây, câu chấm điểm 15 giây, làm tròn LÊN phút
   const open15 = Array.from({length:15}, () => ({type:'open_text'}));
-  assert.deepEqual(model.answerEffort(open15), {count:15, minutes:10, label:'15 câu hỏi - ~10 phút'});
-  assert.deepEqual(model.answerEffort([{type:'open_text'}]), {count:1, minutes:1, label:'1 câu hỏi - ~1 phút'});
+  assert.deepEqual(model.answerEffort(open15), {count:15, minutes:10, label:'15 câu hỏi, khoảng 10 phút'});
+  assert.deepEqual(model.answerEffort([{type:'open_text'}]), {count:1, minutes:1, label:'1 câu hỏi, khoảng 1 phút'});
+  // không để dấu ngã đứng cạnh dấu gạch ngang - hai ký hiệu sát nhau đọc rất rối
+  assert.doesNotMatch(model.answerEffort(open15).label, /~|-/);
   assert.equal(model.answerEffort(Array.from({length:4}, () => ({type:'rating'}))).minutes, 1);
   assert.equal(model.answerEffort(Array.from({length:5}, () => ({type:'rating'}))).minutes, 2);
   // DESIGN-SYSTEM 19.0: tách metadata bằng " - ", không dùng middot
   assert.doesNotMatch(model.answerEffort(open15).label, /\u00B7/);
-  // hai chỗ hiển thị: hàng đợi bên ngoài và khối thông tin trong popup trả lời
-  assert.match(html, /<span class="q-effort"><i class="bx bx-list-ul"><\/i>\$\{effort\.label\}<\/span>/);
+  /* Hai chỗ hiển thị: hàng đợi bên ngoài và khối thông tin trong popup trả lời.
+     Hàng đợi KHÔNG kèm icon - dòng đó đã có avatar HR và icon đồng hồ của hạn - và dùng
+     ngoặc đơn thay vì gạch ngang, vì tên chương trình thường đã chứa sẵn một dấu gạch. */
+  assert.match(html, /<span class="q-effort">\(\$\{effort\.label\}\)<\/span>/);
+  assert.doesNotMatch(html, /q-effort"><i class="bx/);
   assert.match(html, /<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{queueEffort\(item\)\.label\}<\/span>/);
   // dòng hạn phản hồi trong popup cũng phải bỏ middot
   assert.doesNotMatch(html, /<span class="mi-due \$\{item\.urgency\}">·/);
   // tên chương trình co lại, khối lượng luôn đọc được
   assert.match(html, /\.qrow-sub-ctx\{overflow:hidden;text-overflow:ellipsis;white-space:nowrap\}/);
-  assert.match(html, /\.q-effort\{display:inline-flex;align-items:center;gap:4px;flex:none/);
+  assert.match(html, /\.q-effort\{flex:none;color:var\(--z600\);white-space:nowrap\}/);
 });
 
 /* R8: tim thuộc về NGƯỜI đã thả. Đổi quản lý thì tim cũ giữ nguyên tên người cũ và

@@ -351,7 +351,9 @@
     const seconds=list.reduce((total,question)=>
       total+(SECONDS_PER_QUESTION[question.type]||SECONDS_PER_QUESTION.open_text),0);
     const minutes=Math.max(1,Math.ceil(seconds/60));
-    return {count:list.length,minutes,label:`${list.length} câu hỏi - ~${minutes} phút`};
+    /* "N câu hỏi - ~M phút" có dấu gạch ngang đứng sát dấu ngã, đọc rối mắt.
+       Viết thẳng bằng chữ, và chữ "khoảng" cũng nói rõ đây là ước tính. */
+    return {count:list.length,minutes,label:`${list.length} câu hỏi, khoảng ${minutes} phút`};
   }
   function remindEligibleProgramAssignments(campaign,participants,now){
     let sent=0;

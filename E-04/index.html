@@ -256,12 +256,13 @@ input,select,textarea{font-family:inherit}
 .qrow-main{flex:1;min-width:0}
 .qrow-t{font-size:12.5px;color:var(--z900);line-height:1.4}
 .qrow-t b{font-weight:600}
-/* Dòng 2 của yêu cầu HR: tên chương trình co lại khi hẹp, khối lượng luôn đọc được
-   vì đó mới là thứ giúp người dùng quyết định trả lời ngay hay để lát nữa. */
-.qrow-sub{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--z500);margin-top:1px;min-width:0}
+/* Dòng 2 của yêu cầu HR: tên chương trình chiếm phần lớn chiều ngang và cắt bằng "…"
+   khi dài - tên đầy đủ đọc được ngay trong popup trả lời. Khối lượng bộ câu hỏi đứng
+   ngay sau đó và KHÔNG bao giờ bị cắt, vì đó mới là thứ giúp người đọc quyết định trả
+   lời ngay hay để lát nữa. */
+.qrow-sub{display:flex;align-items:baseline;gap:5px;font-size:11.5px;color:var(--z500);margin-top:1px;min-width:0}
 .qrow-sub-ctx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.q-effort{display:inline-flex;align-items:center;gap:4px;flex:none;color:var(--z600);white-space:nowrap}
-.q-effort i{font-size:13px;color:var(--z500)}
+.q-effort{flex:none;color:var(--z600);white-space:nowrap}
 .qrow-t .q-pre{color:var(--z500);font-weight:400}
 /* Chip "quá hạn" đã đủ báo trễ hạn; viền đỏ dày làm dòng thường nặng ngang dòng của HR. */
 .due{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--z500);flex-shrink:0;white-space:nowrap}
@@ -1629,7 +1630,12 @@ function queueEffort(q){
 }
 function effortChip(q){
   const effort=queueEffort(q);
-  return effort?`<span class="q-effort"><i class="bx bx-list-ul"></i>${effort.label}</span>`:'';
+  /* KHÔNG kèm icon: hàng này đã có avatar HR và icon đồng hồ của hạn, thêm nữa là rối.
+     Đứng ở dòng 2 chứ không phải cụm bên phải, để dòng 1 đủ rộng cho tên người nhận
+     mà không bị xuống dòng. Ngoặc đơn chứ KHÔNG phải dấu gạch ngang: tên chương trình
+     thường đã có sẵn một dấu gạch ("… giữa kỳ 2026 - ITC"), thêm dấu nữa là hai gạch
+     nằm cạnh nhau trong cùng một dòng. */
+  return effort?`<span class="q-effort">(${effort.label})</span>`:'';
 }
 function queueRowHTML(q){
   const headline = isHrQueueRequest(q)
