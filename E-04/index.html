@@ -454,6 +454,9 @@ input,select,textarea{font-family:inherit}
 /* dòng 2 của header — thay chỗ dòng phòng ban cũ */
 .fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
 .fb-meta-date{font-size:11.5px;color:var(--z500)}
+/* Dòng "Yêu cầu phản hồi của ..." là metadata nên đi cùng hàng ngày tháng và phạm vi xem. */
+.fb-req-by{font-size:11.5px;color:var(--z500)}
+.fb-req-by b{color:var(--z700);font-weight:600}
 /* huy hiệu giá trị cốt lõi — góc trên bên phải card */
 .fb-react{position:absolute;top:12px;right:15px;display:flex;align-items:center;gap:5px}
 .fb-react .fb-badge-img{width:24px;height:24px}
@@ -1429,6 +1432,7 @@ const FEED = [
   /* Một lần trả lời bộ câu hỏi của HR: gộp cả bộ vào một card, câu không bắt buộc có thể bỏ trống. */
   { kind:'given', id:'gvn-hr-1', cycle:'2026', date:'20/06/2026', ts:20260620, requestSource:'hr', vis:'hr',
     program:'Khảo sát năng lực hợp tác nửa đầu 2026 - ITC',
+    requester:{name:'Lê Minh Thu', dom:'minhthu.le', ini:'LT'},
     who:{name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC – Mobile – iOS Engineer'},
     hrAnswers:[
       {question:'Đâu là điểm mạnh nổi bật của Trần Văn Khoa khi phối hợp trong nửa đầu năm?',
@@ -2009,15 +2013,19 @@ function cardGivenHrProgram(f){
     ? `<div class="hr-given-rest">${rest.map(pair=>feedbackPair(pair.question,answerHTML(pair))).join('')}</div>
        <button class="hr-given-toggle" type="button" onclick="toggleHrGiven(this)" aria-expanded="false">Xem thêm</button>`
     : '';
-  return `<div class="fb-card fb-card-hr" data-kind="given" data-fb="${f.id||''}">
-    <div class="fb-head">
-      <div class="fb-av ${isHr?'fb-av-hr':''}">${isHr?'HR':requester.ini}</div>
-      <div class="fb-head-main">
-        <div class="fb-line"><span class="fb-who">Yêu cầu phản hồi của ${isHr?'HR':`${requester.name} <span class="fb-sender-dom">(${requester.dom})</span>`} cho ${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span></span></div>
-        ${isHr?`<div class="fb-sub-line">${f.program||''}</div>`:cardMeta(f.vis,f.date,'sender')}
-      </div>
-      ${isHr?cardMeta(f.vis,f.date,'sender'):''}
-    </div>
+  /* Dòng 1 giữ đúng cấu trúc chung của mọi card: người cho → người nhận.
+     Việc "đây là trả lời cho yêu cầu của ai" là METADATA, nên xuống dòng 2. */
+  const dom = value => value ? ` <span class="fb-sender-dom">(${value})</span>` : '';
+  const requesterText = isHr
+    ? `HR${requester.name?` - ${requester.name}`:''}${dom(requester.dom)}`
+    : `${requester.name}${dom(requester.dom)}`;
+  const meta = `<div class="fb-meta">
+      <span class="fb-req-by">Yêu cầu phản hồi của <b>${requesterText}</b></span>
+      <span class="fb-meta-date">${f.date}</span>
+      ${visIcon(f.vis,'sender')}
+    </div>${isHr&&f.program?`<div class="fb-sub-line">${f.program}</div>`:''}`;
+  return `<div class="fb-card${isHr?' fb-card-hr':''}" data-kind="given" data-fb="${f.id||''}">
+    ${cardHead(SELF, f.who, meta)}
     <div class="hr-given-body">
       ${isHr?`<div class="hr-given-count"><i class="bx bx-list-check"></i>Đã trả lời ${answers.filter(pair=>pair.answer).length}/${answers.length} câu hỏi</div>`:''}
       ${first?feedbackPair(first.question,answerHTML(first)):''}
@@ -3382,6 +3390,8 @@ function submitReply(){
   if(isHr)FEED.unshift({
     kind:'given', id:`given-hr-${Date.now()}`, cycle:item.cycle, date:todayDMY(), ts:Number(todayDMY().split('/').reverse().join('')),
     requestSource:'hr', program:item.context,
+    /* item.from có dạng "HR - Lê Minh Thu"; card chỉ cần tên người để tự ghép lại nhãn. */
+    requester:{name:String(item.from||'').replace(/^HR\s*-\s*/,''), dom:item.dom||'', ini:item.ini||'HR'},
     who:{name:target, dom:targetDom, ini:initials(target), org:ORG_BY_DOM[targetDom]||''},
     hrAnswers:(item.questions||[]).map(question=>({question:question.text,answer:question.type==='rating'?(RV.answers[question.id]?`${RV.answers[question.id]}/${question.ratingScale||5}`:''):String(RV.answers[question.id]||'').trim()})),
     body:'', cv:[], vis:'hr'

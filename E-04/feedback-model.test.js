@@ -414,14 +414,22 @@ test('answering a line-manager request shows one question and is always shared',
   });
 
   // card trên màn nhân viên phải bám đúng luật đó
-  // tên kèm domain cho cả quản lý lẫn người nhận, đúng quy ước .fb-sender-dom của feed
-  assert.ok(html.includes('cho ${f.who.name} <span class="fb-sender-dom">(${f.who.dom})</span>'));
-  assert.ok(html.includes('${requester.name} <span class="fb-sender-dom">(${requester.dom})</span>'));
-  // ngày + chế độ chia sẻ nằm ở dòng 2 trong .fb-head-main, giống card đã cho thường
-  assert.ok(html.includes(":cardMeta(f.vis,f.date,'sender')}"));
+  /* Dòng 1 dùng CHUNG cấu trúc với mọi card khác: người cho → người nhận, qua cardHead().
+     "Trả lời cho yêu cầu của ai" là metadata nên nằm ở dòng 2, không chiếm dòng đầu. */
+  assert.match(html,/return `<div class="fb-card\$\{isHr\?' fb-card-hr':''\}" data-kind="given"[\s\S]{0,80}\$\{cardHead\(SELF, f\.who, meta\)\}/);
+  assert.match(html,/<span class="fb-req-by">Yêu cầu phản hồi của <b>\$\{requesterText\}<\/b><\/span>/);
+  // HR ghi rõ người nào của HR, quản lý ghi họ tên; cả hai đều kèm domain
+  assert.match(html,/const requesterText = isHr\s*\?\s*`HR\$\{requester\.name\?` - \$\{requester\.name\}`:''\}\$\{dom\(requester\.dom\)\}`/);
+  assert.match(html,/:\s*`\$\{requester\.name\}\$\{dom\(requester\.dom\)\}`;/);
+  // ngày và phạm vi xem đi cùng hàng metadata đó
+  assert.match(html,/<span class="fb-meta-date">\$\{f\.date\}<\/span>\s*\$\{visIcon\(f\.vis,'sender'\)\}/);
   assert.match(html,/const more=\(!isHr\)\?'':rest\.length/);           // không có "Xem thêm"
   assert.match(html,/\$\{isHr\?`<div class="hr-given-count"/);          // không có dòng đếm câu hỏi
-  assert.match(html,/\$\{isHr\?`<div class="fb-sub-line"/);             // không có dòng mục tiêu
+  assert.match(html,/\$\{isHr&&f\.program\?`<div class="fb-sub-line"/); // không có dòng mục tiêu
+  // dữ liệu phải biết người của HR là ai, cả seed lẫn card sinh ra sau khi trả lời
+  assert.match(html,/requester:\{name:'Lê Minh Thu', dom:'minhthu\.le', ini:'LT'\}/);
+  assert.ok(html.includes("requester:{name:String(item.from||'')"));
+  assert.ok(html.includes("dom:item.dom||'', ini:item.ini||'HR'}"));
   assert.match(html,/v==='mgr-request'[\s\S]{0,80}Quản lý và nhân viên đều xem được các phản hồi theo yêu cầu này/);
 
   // dữ liệu mẫu: đúng 1 câu hỏi mỗi demo, và chia sẻ đúng chế độ
