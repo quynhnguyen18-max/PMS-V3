@@ -191,7 +191,7 @@ CONTINUOUS FEEDBACK
 | **VP1** | **Private by default** | Mọi feedback mặc định là Private. Feedback Giver phải chủ động chọn Shared |
 | **VP2** | **Giver owns visibility** | Chỉ Feedback Giver được chọn phạm vi. Không ai thay đổi được sau khi gửi, kể cả Feedback Receiver và quản lý |
 | **VP3** | **Named audience before sending** | Trước khi gửi, hệ thống hiển thị đúng tên những người sẽ xem được. Không dùng mô tả chung như "quản lý của bạn" |
-| **VP4** | **Audience fixed at send time** | Danh sách người xem được xác định từ Org Matrix tại thời điểm gửi và giữ nguyên sau đó. Thay đổi cơ cấu tổ chức về sau không mở thêm quyền xem |
+| **VP4** | **Audience fixed at send time — chuỗi quản lý bàn giao theo nhân viên** | Những CÁ NHÂN được chỉ định đích danh (Requester, người được HR chia sẻ kết quả) chốt tại thời điểm gửi và không mở thêm về sau. Riêng quyền xem của chuỗi quản lý gắn với VAI TRÒ, không gắn với con người: feedback là dữ liệu đi cùng nhân viên, nên nhân viên đổi Line Manager thì LM mới kế thừa toàn bộ feedback Shared trước đó như một phần bàn giao (R7) |
 | **VP5** | **Receiver always has access** | Feedback Receiver luôn xem được feedback về mình, trừ trường hợp cấu hình khác trong UC5 Tier 2 |
 
 ## 10. Access Principles
@@ -240,6 +240,8 @@ CONTINUOUS FEEDBACK
 | **R4** | L&OD không nhìn thấy nhân sự khối HR ở mọi ô chọn người |
 | **R5** | HRBP chỉ nhìn thấy nhân sự thuộc BU được phân công |
 | **R6** | Không ai thay đổi được visibility của feedback do người khác viết |
+| **R7** | Feedback **Shared** đi theo nhân viên. Nhân viên đổi Line Manager thì LM mới xem được TOÀN BỘ feedback Shared trước đó, kể cả feedback gửi trong thời gian LM cũ phụ trách — đây là bàn giao dữ liệu theo nhân viên, không phải cấp thêm quyền cho một cá nhân (VP4) |
+| **R8** | Tương tác đã ghi nhận (tim cảm ơn của quản lý) thuộc về NGƯỜI đã thực hiện, không thuộc về chức danh: tim của LM cũ được giữ lại và luôn hiển thị đúng tên người đã thả. Mỗi feedback chỉ nhận MỘT tim từ phía quản lý — LM mới không thả thêm trên feedback mà LM cũ đã cảm ơn |
 
 ---
 
@@ -321,7 +323,7 @@ CONTINUOUS FEEDBACK
 - Content accepted in EN, VN or mixed.
 - Cannot give feedback to a departed employee.
 - Rate limit: max 10 feedback per day per Employee; max 3 feedback per week to the same Feedback Receiver.
-- When Shared is selected, the named audience is Line Manager + all Indirect Managers of the Feedback Receiver, resolved at send time.
+- When Shared is selected, the named audience is Line Manager + all Indirect Managers of the Feedback Receiver, resolved at send time. Tên hiển thị trước khi gửi là chuỗi quản lý tại thời điểm đó; nếu Feedback Receiver đổi quản lý về sau thì quản lý mới kế thừa quyền xem theo R7.
 
 ---
 
@@ -453,7 +455,7 @@ CONTINUOUS FEEDBACK
 |:--:|---|---|
 | 1 | Feedback Receiver có được xem kết quả UC3 / UC5 không, và ở thời điểm nào | Requester xem trước và chủ động release. Feedback Receiver luôn được thông báo là có request đang diễn ra |
 | 2 | Phạm vi Indirect Manager xem feedback **Shared** — toàn bộ chuỗi quản lý hay giới hạn số cấp | Toàn bộ chuỗi theo Org Matrix, và hiển thị đủ tên cho Feedback Giver trước khi gửi |
-| 3 | Nhân viên đổi quản lý — quản lý mới có xem được feedback Shared trước đó không | Không. Danh sách người xem được chốt tại thời điểm gửi (VP4) |
+| 3 | Nhân viên đổi quản lý — quản lý mới có xem được feedback Shared trước đó không | **Đã chốt 20/09/2026: Có.** Feedback là dữ liệu đi cùng nhân viên nên đổi LM là bàn giao đầy đủ: LM mới xem được toàn bộ feedback Shared trước đó (VP4, R7). Tim cảm ơn của LM cũ giữ nguyên tên người đã thả và LM mới không thả thêm trên cùng một feedback (R8). *Rule cũ — audience chốt cứng tại thời điểm gửi — không còn áp dụng cho chuỗi quản lý.* |
 | 4 | Với UC5, Line Manager của Participant có được xem kết quả không | Không mặc định. HR Team (HRBP + L&OD) cấu hình khi tạo chương trình, và Invited Giver được biết trước |
 | 5 | Bảng phân công HRBP ↔ BU | Cần xác nhận đã có và đủ chính xác trước Phase 3 |
 | 6 | Rule loại trừ khối HR cho L&OD | Cần xác nhận nguồn dữ liệu đánh dấu khối HR trong Org Matrix |
