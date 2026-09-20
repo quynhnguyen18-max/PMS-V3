@@ -1553,6 +1553,17 @@ test('a heart left by the previous manager keeps that name and blocks the new ma
   }
 });
 
+test('the design system documents where the thanks rule lives and what it says', () => {
+  const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
+  // §20.1: model nào sở hữu luật nào — thiếu dòng này là màn sau lại chép luật vào chính nó
+  assert.match(designSystem, /\| `M-04\/manager-thanks\.js` \| tim cảm ơn: ai đã thả/);
+  // §19: câu chữ chốt ở tài liệu, không để mỗi màn tự đặt
+  assert.match(designSystem, /Tim cảm ơn — danh tính người đã thả/);
+  assert.match(designSystem, /quản lý cũ của \[tên\]/);
+  assert.match(designSystem, /Mỗi phản hồi chỉ nhận MỘT tim từ phía quản lý/);
+  assert.match(designSystem, /ManagerThanks\.thankerLabel\(\)/);
+});
+
 test('the thanker label is the one place that decides how a heart names its owner', () => {
   const thanks = require('./manager-thanks.js');
   assert.deepEqual(thanks.thankerLabel({self:true}), {who:'Bạn', role:''});

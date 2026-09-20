@@ -42,7 +42,7 @@ Hai lựa chọn duy nhất, do **Feedback Giver** quyết định:
 | **VP1** | Private là mặc định |
 | **VP2** | Chỉ Feedback Giver chọn phạm vi. Không ai đổi được sau khi gửi |
 | **VP3** | Hệ thống hiển thị **đúng tên** người sẽ xem được, trước khi gửi |
-| **VP4** | Danh sách người xem được chốt tại thời điểm gửi. Thay đổi cơ cấu tổ chức sau đó không mở thêm quyền |
+| **VP4** | Cá nhân được chỉ định đích danh thì chốt tại thời điểm gửi. Quyền xem của chuỗi quản lý đi theo VAI TRÒ — nhân viên đổi Line Manager là bàn giao, quản lý mới xem được toàn bộ feedback Shared trước đó |
 | **VP5** | Feedback Receiver luôn xem được feedback về mình, trừ cấu hình riêng trong Program |
 
 ---
@@ -67,7 +67,7 @@ Ranh giới module xác định theo **initiator + permission scope + output typ
 | **Feedback Composer** *(intention → draft → AI suggest → visibility)* | M1, M2, M3 Tier 1 |
 | **Request Item engine** *(fan-out, deadline, reminder, decline)* | M1, M2, M3 Tier 1 |
 | **Scope filter service** *(lọc người theo Org Matrix)* | M1, M2, M3 |
-| **Audience resolver** *(dựng danh sách người xem, chốt tại thời điểm gửi)* | Toàn hệ thống |
+| **Audience resolver** *(dựng danh sách người xem: cá nhân chốt tại thời điểm gửi, chuỗi quản lý đọc theo Org Matrix hiện hành)* | Toàn hệ thống |
 
 **M3 Tier 2 và M4 không dùng chung** — có object riêng, vòng đời riêng, response form riêng.
 
