@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite --port 5173 --open",
-    "test": "node --test E-04/feedback-model.test.js H-05/h05.test.js M-04/m04.test.js",
+    "test": "node --test assets/org-chain.test.js E-04/feedback-model.test.js H-05/h05.test.js H-05/result-sharing.test.js M-04/m04.test.js",
     "test:yer": "node --test --test-isolation=none YER-demo/yer-enhancements.test.js"
   },
   "devDependencies": {

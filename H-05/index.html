@@ -229,7 +229,7 @@ a{text-decoration:none;color:inherit}
           <div class="side-title">Cần chú ý</div>
           <button class="attn warn summary-row" data-f="due_soon" onclick="setFilter('due_soon')"><span class="summary-marker a-dot"></span><span class="s-lbl">Sắp đến hạn (≤3 ngày)</span><span class="s-num" id="pnl-duesoon">0</span></button>
           <button class="attn err summary-row" data-f="overdue" onclick="setFilter('overdue')"><span class="summary-marker a-dot"></span><span class="s-lbl">Quá hạn</span><span class="s-num" id="pnl-overdue">0</span></button>
-          <button class="attn info summary-row" data-f="need_report" onclick="setFilter('need_report')"><span class="summary-marker a-dot"></span><span class="s-lbl">Chờ tạo báo cáo</span><span class="s-num" id="pnl-report">0</span></button>
+          <button class="attn info summary-row" data-f="need_report" onclick="setFilter('need_report')"><span class="summary-marker a-dot"></span><span class="s-lbl">Chờ tạo kết quả</span><span class="s-num" id="pnl-report">0</span></button>
         </div>
         <div class="side-hint" id="sideHint"></div>
       </div>
@@ -302,10 +302,10 @@ function actions(c){
     return `${FeedbackProgramModel.campaignStatus(c,TODAY).state==='complete'?'':`<button class="btn btn-outline btn-sm" onclick="${stop}remind('${c.id}')" ${canRemind?'':'disabled'} title="${remindTitle}"><i class="bx bx-bell"></i> Nhắc</button>`}<button class="btn btn-outline btn-sm" onclick="${stop}closeCampaign('${c.id}')"><i class="bx bx-lock"></i> Đóng</button>`;
   }
   if(c.report==='none')
-    return `<button class="btn btn-primary btn-sm" onclick="${stop}makeReport('${c.id}')"><i class="bx bx-bar-chart-alt-2"></i> Tạo báo cáo</button>`;
+    return `<button class="btn btn-primary btn-sm" onclick="${stop}makeReport('${c.id}')"><i class="bx bx-bar-chart-alt-2"></i> Tạo kết quả</button>`;
   if(c.report==='made')
     return `<button class="btn btn-outline btn-sm" onclick="${stop}openReport('${c.id}')">Xem</button><button class="btn btn-primary btn-sm" onclick="${stop}publish('${c.id}')"><i class="bx bx-share-alt"></i> Publish</button>`;
-  return `<button class="btn btn-outline btn-sm" onclick="${stop}openReport('${c.id}')"><i class="bx bx-show"></i> Xem báo cáo</button>`;
+  return `<button class="btn btn-outline btn-sm" onclick="${stop}openReport('${c.id}')"><i class="bx bx-show"></i> Xem kết quả</button>`;
 }
 
 function render(){
@@ -331,7 +331,7 @@ function render(){
   document.getElementById('pnl-report').textContent=DATA.filter(needReport).length;
   document.querySelectorAll('.attn').forEach(b=>b.classList.toggle('on',b.dataset.f===FILTER));
   const hint=document.getElementById('sideHint');
-  const special={due_soon:'sắp đến hạn',overdue:'quá hạn',need_report:'chờ tạo báo cáo'};
+  const special={due_soon:'sắp đến hạn',overdue:'quá hạn',need_report:'chờ tạo kết quả'};
   if(special[FILTER]){hint.classList.add('on');hint.innerHTML=`Đang lọc: <b>${special[FILTER]}</b> - <a onclick="setFilter('all')">Xem tất cả</a>`;}
   else hint.classList.remove('on');
 
@@ -373,9 +373,9 @@ function reminderParticipants(campaign){
 }
 function canRemindCampaign(campaign){return reminderParticipants(campaign).flatMap(participant=>participant.assignments||[]).some(assignment=>FeedbackProgramModel.canRemindProgramAssignment(campaign,assignment,NOW));}
 function remind(id){const campaign=find(id);if(!campaign)return;const participants=reminderParticipants(campaign),count=FeedbackProgramModel.remindEligibleProgramAssignments(campaign,participants,NOW);if(Array.isArray(campaign.detailParticipants))save();else render();toast(count?`Đã nhắc ${count} người chưa trả lời đủ điều kiện`:'Hiện chưa có ai đủ điều kiện để nhắc');}
-function closeCampaign(id){const c=find(id);if(!c)return;c.status='closed';c.report='none';save();toast('Đã đóng chương trình — giờ bạn có thể tạo báo cáo');}
-function makeReport(id){const c=find(id);if(!c)return;c.report='made';save();toast('AI đã tạo báo cáo cho từng người nhận');}
-function publish(id){const c=find(id);if(!c)return;c.report='published';save();toast('Đã chia sẻ báo cáo tới quản lý (và ghi vào hồ sơ nhân viên)');}
+function closeCampaign(id){const c=find(id);if(!c)return;c.status='closed';c.report='none';save();toast('Đã đóng chương trình — giờ bạn có thể tạo kết quả');}
+function makeReport(id){const c=find(id);if(!c)return;c.report='made';save();toast('AI đã tạo kết quả cho từng người nhận');}
+function publish(id){const c=find(id);if(!c)return;c.report='published';save();toast('Đã chia sẻ kết quả tới quản lý (và ghi vào hồ sơ nhân viên)');}
 function delCampaign(id){DATA=DATA.filter(c=>c.id!==id);save();toast('Đã xoá bản nháp');}
 function openDetail(id){const c=find(id);if(c&&c.status==='draft'){location.href=`create-campaign.html?id=${encodeURIComponent(c.id)}`;return;}if(c){location.href=`../H-06/index.html?id=${encodeURIComponent(c.id)}`;}}
 function openReport(id){location.href=`../H-06/index.html?id=${encodeURIComponent(id)}`;}

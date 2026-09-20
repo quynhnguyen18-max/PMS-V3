@@ -54,6 +54,90 @@
   const AUDIENCE_KEYS=['recipients','managers','others'];
   function uniqueStrings(list){return [...new Set((Array.isArray(list)?list:[]).map(item=>String(item||'').trim()).filter(Boolean))];}
   /* audience gio la multi-select; van nhan du lieu cu dang chuoi audience don de khong vo ban ghi da luu. */
+  /* ── Chia sẻ kết quả: ai nhận, và nhận bằng cách nào ──────────────────────
+     HR chọn người nhận THEO CẤP - quản lý trực tiếp / cấp 2 / trưởng đơn vị -
+     chứ không phải một khối "các cấp quản lý" chung chung, vì mỗi cấp là một
+     con người cụ thể có domain. Ba cấp có thể trỏ về cùng một người; đó là
+     thông tin thật của tổ chức nên vẫn giữ đủ ba lựa chọn.
+
+     AI CŨNG nhận email thông báo - đó là mặc định nên không cần nói ra. Thứ phải
+     nói rõ là ai KHÔNG mở được kết quả trên hệ thống:
+       trong chuỗi quản lý của nhân viên → mở kết quả trên hệ thống như bình thường
+       ngoài chuỗi                       → chỉ đọc được file kết quả đính kèm email
+     Một người có thể vừa mở được trên hệ thống kết quả của nhân viên họ quản lý, vừa
+     chỉ đọc qua file email kết quả của người họ không quản lý, trong cùng một lượt
+     chia sẻ - nên ghi chú bám theo TỪNG NHÂN VIÊN, không dán cho cả con người đó. */
+  const MANAGER_LEVELS=['lm','upper','hod'];
+  const RECIPIENT_ROLES=['recipient','lm','upper','hod','other'];
+  const RECIPIENT_ROLE_LABEL={recipient:'Người nhận phản hồi',lm:'Quản lý trực tiếp',
+    upper:'Quản lý cấp 2',hod:'Trưởng đơn vị',other:'Người khác'};
+  /* Chỉ ca ngoại lệ mới có ghi chú; xem được trên hệ thống là mặc định nên để rỗng. */
+  const CHANNEL_NOTE={system:'',emailOnly:'Ngoài phạm vi quản lý - nhận file kết quả qua email, không xem trên hệ thống'};
+  function orgChain(chain){
+    if(chain)return chain;
+    return (typeof globalThis!=='undefined'&&globalThis.OrgChain)?globalThis.OrgChain:null;
+  }
+  /* Ghi lại HR đã chọn gì. Dữ liệu cũ chỉ có audiences dạng khối nên quy đổi:
+     "managers" = cả ba cấp, "others" = danh sách tên rời chưa có domain. */
+  function normalizeShareTargets(source){
+    const src=source||{};
+    const legacy=normalizeAudiences(src);
+    const levels=Array.isArray(src.managerLevels)?src.managerLevels
+      :(legacy.includes('managers')?MANAGER_LEVELS:[]);
+    const toRecipient=src.toRecipient===undefined?legacy.includes('recipients'):!!src.toRecipient;
+    const rawExtra=Array.isArray(src.extraViewers)?src.extraViewers
+      :uniqueStrings(src.additionalViewerNames).map(name=>({name,domain:''}));
+    const extraViewers=rawExtra
+      .map(item=>({domain:String((item&&item.domain)||'').trim(),name:String((item&&item.name)||'').trim()}))
+      .filter(item=>item.domain||item.name);
+    return {toRecipient,managerLevels:MANAGER_LEVELS.filter(level=>levels.includes(level)),extraViewers};
+  }
+  /* Người này xem được kết quả của nhân viên kia trên hệ thống, hay chỉ nhận email. */
+  function shareChannelFor(viewerDomain,participantId,chain){
+    const org=orgChain(chain);
+    if(String(viewerDomain||'').trim()===String(participantId||'').trim())return 'system';
+    return org&&org.isInChain(viewerDomain,participantId)?'system':'emailOnly';
+  }
+  /* Danh sách người nhận thật sự của một lượt chia sẻ, gộp theo từng con người:
+     mỗi người biết mình giữ vai nào, xem được kết quả của ai, và nhận email của ai. */
+  function resolveShareRecipients(participantIds,targets,chain){
+    const org=orgChain(chain),ids=uniqueStrings(participantIds),picked=normalizeShareTargets(targets);
+    const byPerson=new Map();
+    const add=(domain,name,role,participantId,channel)=>{
+      const key=String(domain||'').trim()||`ten:${name}`;
+      if(!key||key==='ten:')return;
+      const entry=byPerson.get(key)||{domain:String(domain||'').trim(),name:'',roles:[],system:[],emailOnly:[]};
+      if(!entry.name&&name)entry.name=name;
+      if(!entry.domain&&domain)entry.domain=String(domain).trim();
+      if(role&&!entry.roles.includes(role))entry.roles.push(role);
+      const bucket=channel==='system'?entry.system:entry.emailOnly;
+      if(participantId&&!bucket.includes(participantId))bucket.push(participantId);
+      byPerson.set(key,entry);
+    };
+    const nameOf=domain=>{const found=org&&org.person(domain);return found?found.name:domain;};
+    ids.forEach(participantId=>{
+      if(picked.toRecipient)add(participantId,nameOf(participantId),'recipient',participantId,'system');
+      picked.managerLevels.forEach(level=>{
+        const found=org?org.chainFor(participantId).find(entry=>entry.role===level):null;
+        if(found)add(found.domain,found.name,level,participantId,'system');
+      });
+      picked.extraViewers.forEach(viewer=>{
+        const channel=viewer.domain?shareChannelFor(viewer.domain,participantId,org):'email';
+        add(viewer.domain,viewer.name||nameOf(viewer.domain),'other',participantId,channel);
+      });
+    });
+    return [...byPerson.values()].map(entry=>({
+      ...entry,
+      roles:RECIPIENT_ROLES.filter(role=>entry.roles.includes(role)),
+      channel:entry.emailOnly.length?(entry.system.length?'mixed':'emailOnly'):'system'
+    })).sort((a,b)=>RECIPIENT_ROLES.indexOf(a.roles[0])-RECIPIENT_ROLES.indexOf(b.roles[0])
+      ||String(a.name).localeCompare(String(b.name),'vi'));
+  }
+  function recipientRoleLabel(role){return RECIPIENT_ROLE_LABEL[role]||'';}
+  /* 'mixed' cũng có ghi chú, vì trong lượt đó vẫn có nhân viên người này không mở được. */
+  function channelNote(channel){return channel==='system'?'':CHANNEL_NOTE.emailOnly;}
+  function isEmailOnly(entry){return !!(entry&&entry.emailOnly&&entry.emailOnly.length);}
+
   function normalizeAudiences(source){
     const set=new Set(uniqueStrings(source&&source.audiences).filter(item=>AUDIENCE_KEYS.includes(item)));
     const legacy=source&&source.audience;
@@ -64,14 +148,31 @@
     }
     return AUDIENCE_KEYS.filter(key=>set.has(key));
   }
+  /* Một dòng lịch sử phải tự trả lời được: ai chia sẻ, chia sẻ kết quả của ai,
+     cho ai, và người đó xem trên hệ thống hay chỉ nhận qua email. */
+  function normalizeSharePerson(value){
+    const source=value||{};
+    return {domain:String(source.domain||'').trim(),name:String(source.name||'').trim()};
+  }
+  function normalizeLogRecipient(value){
+    const source=value||{};
+    const system=uniqueStrings(source.system),emailOnly=uniqueStrings(source.emailOnly||source.email);
+    return {...normalizeSharePerson(source),
+      roles:RECIPIENT_ROLES.filter(role=>(Array.isArray(source.roles)?source.roles:[]).includes(role)),
+      system,emailOnly,
+      channel:emailOnly.length?(system.length?'mixed':'emailOnly'):'system'};
+  }
   function normalizeShareLogEntry(entry){
     const source=entry||{};
     return {
       at:String(source.at||'').trim(),
+      by:normalizeSharePerson(source.by),
       audiences:normalizeAudiences(source),
+      targets:normalizeShareTargets(source),
       additionalViewerNames:uniqueStrings(source.additionalViewerNames),
       contentLevel:['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail',
       participantIds:uniqueStrings(source.participantIds),
+      recipients:(Array.isArray(source.recipients)?source.recipients:[]).map(normalizeLogRecipient),
       note:String(source.note||'').trim()
     };
   }
@@ -84,10 +185,19 @@
     const contentLevel=['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail';
     const log=(Array.isArray(source.log)?source.log:[]).map(normalizeShareLogEntry).filter(entry=>entry.at||entry.audiences.length||entry.additionalViewerNames.length);
     const resolvedMode=mode==='shared_selected'&&participantIds.length?'shared_selected':mode==='shared_all'?'shared_all':'not_shared';
+    /* Dữ liệu mới để trong source.targets, dữ liệu cũ nằm phẳng ngay trên resultSharing. */
+    const targets=normalizeShareTargets(source.targets||source);
+    /* Hai cách mô tả cùng một việc phải luôn khớp nhau: khối audiences kiểu cũ được
+       suy lại từ targets, để những màn chưa chuyển sang chọn theo cấp vẫn đọc đúng. */
+    const derived=[targets.toRecipient&&'recipients',targets.managerLevels.length&&'managers',
+      targets.extraViewers.length&&'others'].filter(Boolean);
+    const audiencesNow=AUDIENCE_KEYS.filter(key=>audiences.includes(key)||derived.includes(key));
     return {
       mode:resolvedMode,
       participantIds:resolvedMode==='shared_selected'?participantIds:[],
-      audiences:resolvedMode==='not_shared'?[]:audiences,
+      audiences:resolvedMode==='not_shared'?[]:audiencesNow,
+      targets:resolvedMode==='not_shared'
+        ?{toRecipient:false,managerLevels:[],extraViewers:[]}:targets,
       additionalViewerNames:resolvedMode==='not_shared'?[]:additionalViewerNames,
       contentLevel:resolvedMode==='not_shared'?'':contentLevel,
       note:resolvedMode==='not_shared'?'':String(source.note||'').trim(),
@@ -193,12 +303,32 @@
     const item=normalizeCampaign(campaign),released=isResultShared(item,participantId);
     return {released,audiences:released?item.resultSharing.audiences:[],identityVisibility:item.identityVisibility};
   }
-  function canViewProgramResult(campaign,participantId,viewer){
+  /* viewer có thể là nhóm cũ ('hr' | 'recipients' | 'managers' | 'others') hoặc
+     DOMAIN của một người. Với domain, quyền xem bám theo chuỗi quản lý: ngoài
+     chuỗi thì dù có trong danh sách chia sẻ cũng chỉ nhận email, không mở màn. */
+  function canViewProgramResult(campaign,participantId,viewer,chain){
     if(viewer==='hr')return true;
     const audience=resultAudience(campaign,participantId);
-    return audience.released&&audience.audiences.includes(viewer);
+    if(!audience.released)return false;
+    if(AUDIENCE_KEYS.includes(viewer))return audience.audiences.includes(viewer);
+    const item=normalizeCampaign(campaign);
+    const found=resolveShareRecipients([participantId],item.resultSharing.targets,chain)
+      .find(entry=>entry.domain===String(viewer||'').trim());
+    return !!found&&found.system.includes(String(participantId||'').trim());
   }
   /* Cho phep chia se nhieu lan: cong don nguoi xem + pham vi, va ghi mot dong log cho moi lan chia se. */
+  /* Chia sẻ nhiều lần thì người xem CỘNG DỒN, không thay thế lần trước. */
+  function mergeShareTargets(existing,incoming){
+    const before=normalizeShareTargets(existing),after=normalizeShareTargets(incoming);
+    const extra=new Map();
+    [...before.extraViewers,...after.extraViewers].forEach(viewer=>
+      extra.set(viewer.domain||`ten:${viewer.name}`,viewer));
+    return {
+      toRecipient:before.toRecipient||after.toRecipient,
+      managerLevels:MANAGER_LEVELS.filter(level=>before.managerLevels.includes(level)||after.managerLevels.includes(level)),
+      extraViewers:[...extra.values()]
+    };
+  }
   function shareResults(campaign,participantIds,sharedAt,options){
     const item=normalizeCampaign(campaign);
     const existing=normalizeResultSharing(item.resultSharing);
@@ -213,9 +343,17 @@
     const mergedIds=[...new Set([...existing.participantIds,...incomingIds])];
     const contentLevel=['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail';
     const stamp=String(sharedAt||'').trim();
-    const entry={at:stamp,audiences:incomingAudiences,additionalViewerNames:incomingNames,contentLevel,participantIds:shareAll?[]:incomingIds,note:String(source.note||'').trim()};
+    /* Chụp lại người nhận ngay lúc chia sẻ: tổ chức đổi về sau thì lịch sử vẫn
+       phải kể đúng ai đã nhận cái gì, bằng kênh nào. */
+    const targetsNow=normalizeShareTargets(source.targets||source);
+    const idsForRecipients=shareAll?(mergedIds.length?mergedIds:incomingIds):incomingIds;
+    const entry={at:stamp,by:normalizeSharePerson(source.by),audiences:incomingAudiences,
+      targets:targetsNow,additionalViewerNames:incomingNames,contentLevel,
+      participantIds:shareAll?[]:incomingIds,
+      recipients:resolveShareRecipients(idsForRecipients,targetsNow,source.chain),
+      note:String(source.note||'').trim()};
     const log=[...existing.log,entry];
-    return {...item,resultSharing:normalizeResultSharing({mode,participantIds:mergedIds,audiences:mergedAudiences,additionalViewerNames:mergedNames,contentLevel,note:String(source.note||'').trim(),sharedAt:stamp,sharedBy:'hr',log})};
+    return {...item,resultSharing:normalizeResultSharing({mode,participantIds:mergedIds,audiences:mergedAudiences,targets:mergeShareTargets(existing.targets,targetsNow),additionalViewerNames:mergedNames,contentLevel,note:String(source.note||'').trim(),sharedAt:stamp,sharedBy:'hr',log})};
   }
   function lockPendingAssignments(assignments){
     return (Array.isArray(assignments)?assignments:[]).map(assignment=>assignment&&assignment.status==='pending'?{...assignment,status:'locked'}:assignment);
@@ -364,5 +502,5 @@
     });
     return sent;
   }
-  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort};
+  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort,MANAGER_LEVELS,RECIPIENT_ROLES,RECIPIENT_ROLE_LABEL,CHANNEL_NOTE,normalizeShareTargets,mergeShareTargets,resolveShareRecipients,shareChannelFor,recipientRoleLabel,channelNote,isEmailOnly};
 });

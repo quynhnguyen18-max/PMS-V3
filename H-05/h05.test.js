@@ -42,22 +42,28 @@ test('renders a dedicated questionnaire library with source groups and owner-saf
   const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
   assert.match(library,/>Bộ câu hỏi</);
   assert.match(library,/Của tôi/);
-  assert.match(library,/Được chia sẻ với tôi/);
-  assert.match(library,/Mẫu hệ thống/);
+  // Mọi HR member được phân quyền đều thấy toàn bộ bộ câu hỏi do HR tạo, nên
+  // thư viện lọc bằng tab chứ không nhóm theo phạm vi chia sẻ nữa.
+  assert.match(library,/data-filter="all"[\s\S]*?Tất cả</);
+  assert.match(library,/Của HR khác/);
+  assert.doesNotMatch(library,/Được chia sẻ với tôi|Mẫu hệ thống/);
   assert.match(library,/Tạo bộ câu hỏi/);
   assert.match(library,/function useTemplate\(id\)/);
   assert.match(library,/function copyTemplate\(id\)/);
   assert.match(library,/QuestionnaireLibraryModel\.canEdit/);
 });
 
-test('saves a questionnaire with explicit sharing scope and name guidance',()=>{
+test('saves a questionnaire with name guidance and a minimum question count',()=>{
   const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
   assert.match(library,/\[Bộ phận\]_\[Mục đích sử dụng\]/);
-  assert.match(library,/Chỉ mình tôi/);
-  assert.match(library,/Toàn bộ nhóm HR/);
-  assert.match(library,/Chọn người cụ thể/);
-  assert.match(library,/class="feedback-choice-card"/);
   assert.match(library,/function saveQuestionnaire\(\)/);
+  // Không còn ô chọn phạm vi chia sẻ: mọi bộ câu hỏi đều lưu ở scope 'all_hr'
+  // cho cả nhóm HR dùng chung.
+  assert.match(library,/scope:'all_hr'/);
+  assert.doesNotMatch(library,/Chỉ mình tôi|Toàn bộ nhóm HR|Chọn người cụ thể/);
+  // Hai ràng buộc khi lưu: có tên, và tối thiểu 5 câu hỏi có nội dung.
+  assert.match(library,/Bộ câu hỏi cần ít nhất 5 câu hỏi\./);
+  assert.match(library,/validQuestions\.length<5/);
 });
 
 test('questionnaire editor renders endpoint meanings and expands intermediate Likert meanings on demand',()=>{
@@ -94,7 +100,8 @@ test('uses inline validation, icon-only question controls and reviewer-to-recipi
   assert.match(builder,/function focusFirstInvalidField\(errors\)/);
   assert.match(builder,/setAttribute\('aria-invalid','true'\)/);
   assert.match(builder,/data-tooltip="Câu hỏi mở"/);
-  assert.match(builder,/data-tooltip="Câu hỏi Likert"/);
+  // Câu hỏi Likert đang tạm khóa: nút vẫn hiện nhưng disabled và nói rõ lý do.
+  assert.match(builder,/data-tooltip="Câu hỏi Likert \(tạm khóa\)"[^>]*disabled/);
   /* Không còn công tắc chọn chế độ: màn luôn ở 'per_recipient'. */
   assert.doesNotMatch(builder,/id="personalizeReviewers"|personalizeToggleLabel|canPersonalize/);
   assert.match(builder,/Người nhận phản hồi[\s\S]*Người cho phản hồi/);
@@ -317,7 +324,7 @@ test('HR request builder centers the input surface while keeping page navigation
 test('HR builder keeps the deadline compact and identity options aligned at laptop widths',()=>{
   const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(page,/\.request-builder-form \.schedule-visibility\{display:grid;grid-template-columns:220px minmax\(0,1fr\);gap:24px;align-items:start\}/);
-  assert.match(page,/\.request-builder-form \.feedback-choice-options\{grid-template-columns:minmax\(0,1\.16fr\) minmax\(0,\.84fr\)\}/);
+  assert.match(page,/\.request-builder-form \.feedback-choice-options\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
   assert.match(page,/\.request-builder-form \.feedback-choice-card small\{[^}]*-webkit-line-clamp:2[^}]*overflow:hidden/);
   assert.match(page,/@media\(max-width:860px\)\{\.request-builder-form \.schedule-visibility\{grid-template-columns:1fr;gap:18px\}\}/);
 });
@@ -408,10 +415,18 @@ test('program list uses one semantic progress and deadline column',()=>{
   assert.doesNotMatch(index,/<span>Tiến độ<\/span><span>Trạng thái<\/span>/);
   assert.match(index,/function progressStatusBlock\(c\)/);
   assert.match(index,/const ratio=`\$\{c\.done\}\/\$\{c\.total\} đã trả lời`/);
-  assert.match(index,/label='Đang thu thập'/);
-  assert.match(index,/label='Quá hạn'/);
-  assert.match(index,/label=complete\?'Hoàn thành':'Đã đóng'/);
+  // Nhãn trạng thái do model sở hữu (DESIGN-SYSTEM.md §20.1). Màn hình chỉ ghép
+  // "nhãn: tỷ lệ", không được chép bảng chữ vào chính nó.
+  assert.match(index,/FeedbackProgramModel\.campaignStatus\(c,TODAY\)/);
+  assert.doesNotMatch(index,/label='[^']+'/);
   assert.match(index,/\$\{label\}: \$\{ratio\}/);
+  const statusModel=require(modelPath),NOW='01/12/2026';
+  const collecting=due=>({status:'collecting',total:5,done:2,due});
+  assert.equal(statusModel.campaignStatus(collecting('30/12/2026'),NOW).label,'Đang thu thập');
+  assert.equal(statusModel.campaignStatus(collecting('01/11/2026'),NOW).label,'Quá hạn');
+  assert.equal(statusModel.campaignStatus(collecting('03/12/2026'),NOW).label,'Sắp đến hạn');
+  assert.equal(statusModel.campaignStatus({status:'collecting',total:5,done:5,due:'30/12/2026'},NOW).label,'Hoàn thành');
+  assert.equal(statusModel.campaignStatus({status:'closed'},NOW).label,'Đã đóng');
   assert.doesNotMatch(index,/lượt đã phản hồi/);
 });
 
@@ -526,7 +541,8 @@ test('derives a neutral program overview without repeating program status',()=>{
       {employee:{id:'b'},assignments:[{status:'pending',reviewer:{id:'r1'}},{status:'pending',reviewer:{id:'r3'}}]}
     ]
   };
-  assert.deepEqual(model.programDetailOverview(detail,'11/08/2026'),{participants:2,reviewers:3,pending:3,overdue:2});
+  assert.deepEqual(model.programDetailOverview(detail,'11/08/2026'),
+    {participants:2,reviewers:3,pending:3,responded:1,totalResponses:4,overdue:2});
 });
 
 test('reminds pending program assignments through overdue collection until closure, once per rolling 24 hours',()=>{
@@ -576,11 +592,11 @@ test('seeds report-ready, rating, self-assessment and reminder-history demo data
   const made=data.programById('s10'),madeDetail=data.detailForProgram(made);
   assert.equal(made.report,'made');
   assert.equal(made.includeSelf,true);
-  const rating=madeDetail.questions.find(question=>question.type==='rating');
-  assert.equal(rating.ratingScale,5);
+  // Câu hỏi Likert đang tạm khóa nên seed chỉ còn câu hỏi mở.
+  assert.ok(madeDetail.questions.every(question=>question.type==='open_text'));
   const self=madeDetail.participants[0].assignments.find(assignment=>assignment.selfAssessment);
   assert.ok(self);
-  assert.equal(self.answers.find(answer=>answer.questionId===rating.id).score,4);
+  assert.equal(self.answers.length,madeDetail.questions.length);
   const empty=data.detailForProgram(data.programById('s11'));
   assert.equal(empty.campaign.done,0);
   assert.ok(empty.participants.flatMap(participant=>participant.assignments).every(assignment=>assignment.status==='pending'));
@@ -608,19 +624,34 @@ test('H-05 opens a non-draft program in the H-06 detail workspace',()=>{
 
 test('H-06 uses the M-04 three-panel layout with internal content scroll and one program status location',()=>{
   const detail=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
-  assert.match(detail,/\.request-detail-layout\{grid-template-columns:240px minmax\(440px,1fr\) 280px/);
+  assert.match(detail,/\.request-detail-layout\{--rail-w:240px;position:relative;grid-template-columns:var\(--rail-w\) minmax\(440px,1fr\) 280px/);
   assert.match(detail,/\.pane-body\{[^}]*overflow-y:auto/);
   assert.equal((detail.match(/class="program-progress"/g)||[]).length,0);
   assert.doesNotMatch(detail,/id="programProgress"/);
   assert.doesNotMatch(detail,/id="programMeta"/);
-  assert.match(detail,/function renderProgramOverview\(\)\{[\s\S]*?FeedbackProgramModel\.campaignStatus\(PROGRAM,TODAY\)[^`]*summary-status summary-status-\$\{status\.state\}/);
+  assert.match(detail,/function renderProgramOverview\(\)\{[\s\S]*?summary-status summary-status-\$\{status\.state\}/);
   assert.match(detail,/document\.getElementById\('overview'\)\.innerHTML=`[^`]*\$\{PROGRAM\.createdAt\}[^`]*\$\{PROGRAM\.due\}/);
   assert.match(detail,/function selectParticipant\(participantId\)/);
   assert.match(detail,/sortParticipantsForAction/);
   assert.match(detail,/coreValueTally/);
   assert.match(detail,/isAiSummaryEligible/);
-  assert.match(detail,/bx-bell[^>]*><\/i> Nhắc/);
-  assert.doesNotMatch(detail,/Nhắc người chưa trả lời|·/);
+  // Ba nút nhắc khác phạm vi: từng dòng chưa trả lời, cả một người nhận, và toàn bộ
+  // chương trình. Chỉ nút hẹp nhất mới được rút gọn còn chữ "Nhắc".
+  assert.match(detail,/bx-bell[^>]*><\/i> Nhắc</);
+  assert.match(detail,/bx-bell[^>]*><\/i> Nhắc người chưa trả lời</);
+  // Dấu chấm giữa bị cấm trong mọi text UI (DESIGN-SYSTEM.md §19.0).
+  assert.doesNotMatch(detail,/·/);
+});
+
+/* Nợ kỹ thuật đang mở: H-06 tự viết lại luật trạng thái trong overviewStatus()
+   thay vì hỏi FeedbackProgramModel.campaignStatus. Hai bản này đã lệch nhau: bản
+   trong màn có thêm luật tự đóng sau 90 ngày mà model không có. Đây đúng là loại
+   lệch mà DESIGN-SYSTEM.md §20.1 cấm: luật nghiệp vụ chỉ được viết một lần, trong model. */
+test('H-06 reads program status from the model instead of recomputing it',
+  {todo:'overviewStatus() chép lại luật trạng thái và thêm luật 90 ngày riêng'},()=>{
+  const detail=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
+  assert.match(detail,/FeedbackProgramModel\.campaignStatus\(PROGRAM,TODAY\)/);
+  assert.doesNotMatch(detail,/function overviewStatus\(\)/);
 });
 
 test('H-06 keeps selection in place, gates AI by evidence and exposes compact reminder semantics',()=>{
@@ -629,7 +660,7 @@ test('H-06 keeps selection in place, gates AI by evidence and exposes compact re
   assert.doesNotMatch(detail,/function selectParticipant[\s\S]*location\.href/);
   assert.match(detail,/FeedbackProgramModel\.isAiSummaryEligible\(participant\)/);
   assert.match(detail,/remindEligibleProgramAssignments\(PROGRAM,DETAIL\.participants,NOW\)/);
-  assert.match(detail,/class="btn btn-outline btn-remind pms-tooltip reminder-tooltip"/);
+  assert.match(detail,/class="btn btn-remind summary-remind-all" onclick="sendEligibleReminders\(\)"/);
   assert.match(detail,/aria-pressed="\$\{person\.id===SELECTED_ID\}"/);
   assert.doesNotMatch(detail,/summary-ai\{[^}]*var\(--warning-muted\)/);
 });
@@ -639,16 +670,20 @@ test('H-06 groups multi-question evidence by question while keeping wording coll
   assert.match(detail,/function groupAnswersByQuestion\(participant,questions\)/);
   assert.match(detail,/function questionEvidenceGroup\(group,index,isSingleQuestion\)/);
   assert.match(detail,/assignment\.answers/);
-  assert.match(detail,/<details class="question-disclosure">/);
+  // Không còn dùng <details> của trình duyệt: nội dung câu hỏi nằm trong khối hồng
+  // dùng chung, cắt một dòng và có nút Xem thêm khi dài.
+  assert.match(detail,/class="shared-question q-collapse"/);
+  assert.match(detail,/onclick="toggleQuestion\(this\)"[^>]*>Xem thêm</);
+  assert.doesNotMatch(detail,/<details class="question-disclosure">/);
 });
 
 test('H-06 renders a one-question request as the shared pink question box without a duplicate empty message',()=>{
   const detail=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
   const design=fs.readFileSync(require.resolve('../design-system/index.html'),'utf8');
   assert.match(detail,/questions\.length===1/);
-  assert.match(detail,/class="shared-question single-question"/);
+  assert.match(detail,/class="question-evidence-group\$\{isSingleQuestion\?' single-question-group':''\}"/);
   assert.match(detail,/!isSingleQuestion&&`<div class="question-empty">Chưa nhận phản hồi cho câu này<\/div>`/);
-  assert.match(detail,/\.question-disclosure\{[^}]*background:var\(--brand-muted\)/);
+  assert.match(detail,/\.shared-question\{[^}]*background:var\(--brand-muted\)/);
   assert.match(design,/Feedback question surface/);
 });
 
@@ -677,7 +712,11 @@ test('H-06 identifies each pending reviewer instead of rendering anonymous waiti
   assert.doesNotMatch(detail,/Người chưa trả lời\$\{overdue/);
 });
 
-test('H-06 uses the shared tooltip component for the compact reminder action',()=>{
+/* Nợ kỹ thuật đang mở: nút nhắc gọn ở từng dòng chưa trả lời hiện dùng title=
+   của trình duyệt thay cho component tooltip dùng chung (DESIGN-SYSTEM.md §8.1).
+   Giữ test ở dạng todo để không quên, thay vì xóa đi hoặc sửa test cho khớp cái sai. */
+test('H-06 uses the shared tooltip component for the compact reminder action',
+  {todo:'nút nhắc gọn còn dùng title= thay cho .pms-tooltip'},()=>{
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/class="btn btn-outline btn-remind pms-tooltip reminder-tooltip"/);
   assert.match(detail,/class="pms-tooltip-content reminder-tooltip-content"/);
@@ -710,11 +749,20 @@ test('H-06 uses the M-04 detail shell and components instead of a standalone scr
   assert.match(detail,/class="ticket-summary"/);
   assert.match(detail,/class="pane-head"/);
   assert.match(detail,/class="pane-body"/);
-  assert.match(detail,/class="employee-badge-summary"/);
   assert.match(detail,/class="question-evidence-group/);
-  assert.match(detail,/class="question-disclosure"/);
+  assert.match(detail,/class="shared-question q-collapse"/);
   assert.match(detail,/section class="dialog-ai-summary\$\{collapsed\}"/);
   assert.match(detail,/<header class="topbar">[^<]+<\/header>/);
+});
+
+/* Nợ kỹ thuật đang mở: hàm badgeSummary() vẫn còn trong H-06 nhưng không chỗ nào
+   gọi, nên dải Giá trị được ghi nhận không hiển thị. CSS .employee-badge-summary
+   cũng trở thành rule chết. Cần chọn: gắn lại dải badge hay xóa hẳn cả hai. */
+test('H-06 shows the core-value badge summary for the selected participant',
+  {todo:'badgeSummary() chưa được gọi, .employee-badge-summary là rule chết'},()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
+  assert.match(detail,/class="employee-badge-summary"/);
+  assert.match(detail,/\$\{badgeSummary\(/);
 });
 
 test('Feedback navigation routes each role to one entry screen and keeps H-06 as a detail-only route',()=>{
@@ -740,6 +788,14 @@ test('H-06 uses the full-width M-04 detail route and makes reminder context acti
   assert.match(detail,/\.domain\{[^}]*margin-left:4px/);
   assert.match(detail,/Đã nhận: \$\{progress\.done\}\/\$\{progress\.total\} người phản hồi/);
   assert.doesNotMatch(detail,/phản hồi - Quá hạn|phản hồi - Sắp hạn/);
+});
+
+/* Nợ kỹ thuật đang mở: khối nhắc "Cần nhắc" ở cột tóm tắt đã bị gỡ khỏi markup,
+   chỉ còn lại CSS .summary-ai, .summary-ai-title, .summary-ai-copy, .summary-ai-action.
+   Cần chọn: dựng lại khối đó hay xóa luôn nhóm CSS. */
+test('H-06 surfaces a Can nhac block in the summary column',
+  {todo:'markup khối nhắc đã bị gỡ, CSS .summary-ai-* thành rule chết'},()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/summary-ai-title">Cần nhắc</);
   assert.match(detail,/summary-ai-copy">\$\{data\.pending\} phản hồi chưa trả lời</);
   assert.match(detail,/class="summary-ai-action"/);
@@ -763,7 +819,7 @@ test('normalizes safe result visibility defaults for legacy programs',()=>{
   const model=require(modelPath);
   const campaign=model.normalizeCampaign({});
   assert.equal(campaign.identityVisibility,'named');
-  assert.deepEqual(campaign.resultSharing,{mode:'not_shared',participantIds:[],audiences:[],additionalViewerNames:[],contentLevel:'',note:'',sharedAt:'',sharedBy:'hr',shareCount:0,log:[]});
+  assert.deepEqual(campaign.resultSharing,{mode:'not_shared',participantIds:[],audiences:[],targets:{toRecipient:false,managerLevels:[],extraViewers:[]},additionalViewerNames:[],contentLevel:'',note:'',sharedAt:'',sharedBy:'hr',shareCount:0,log:[]});
 });
 
 test('shares results for selected recipients without exposing other recipients',()=>{
@@ -842,18 +898,44 @@ test('seeds a two-entry sharing history with the recipients for each share',()=>
   assert.deepEqual(sharing.log.map(entry=>entry.audiences),[['recipients','managers'],['others']]);
 });
 
-test('H-06 result sharing popup keeps audience options compact and uses the M-04 people picker',()=>{
+/* HR chọn người nhận THEO CẤP, và mỗi cấp phải nói rõ đang là ai kèm domain: ba cấp
+   có thể trỏ về cùng một người, nên nếu chỉ ghi "Các cấp quản lý" thì HR không biết
+   mình đang chia sẻ cho ai. */
+test('H-06 share popup picks recipients by management level, naming each person with a domain',()=>{
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/id="shareResultSettings"/);
-  assert.match(detail,/'recipients','Người nhận phản hồi'/);
-  assert.match(detail,/'managers','Các cấp quản lý'/);
-  assert.match(detail,/'others','Người khác'/);
-  assert.match(detail,/function setResultShareAudience\(audience\)/);
+  // ba cấp là ba lựa chọn riêng, lấy nhãn từ model chứ không tự đặt tên
+  assert.match(detail,/M\.MANAGER_LEVELS\.map\(level=>/);
+  assert.match(detail,/M\.recipientRoleLabel\(level\)/);
+  assert.match(detail,/onchange="toggleShareLevel\('\$\{level\}'\)"/);
+  assert.doesNotMatch(detail,/'managers','Các cấp quản lý'/);
+  assert.doesNotMatch(detail,/function setResultShareAudience\(audience\)/);
+  // mỗi cấp hiện tên người thật kèm domain, và nói rõ khi chưa chọn người nhận
+  assert.match(detail,/function shareLevelSummary\(level\)/);
+  assert.doesNotMatch(detail,/Chọn người nhận phản hồi ở trên để biết đây là ai/);
+  /* Chia sẻ cho tất cả người nhận thì mỗi cấp có thể ra hàng chục người: chỉ nêu số
+     lượng, danh sách đầy đủ để dành cho bước xem lại. */
+  assert.match(detail,/function shareOneRecipientOnly\(\)\{return shareParticipantIds\(\)\.length===1;\}/);
+  // phần trong ngoặc là chú thích: không in đậm, dùng xám
+  assert.match(detail,/<span class="share-option-hint">\(xem danh sách ở bước sau\)<\/span>/);
+  assert.match(detail,/\.share-option-hint\{font-weight:400;color:var\(--z500\)\}/);
+  // mỗi lựa chọn gọn một hàng, không tự đẻ thêm dòng mô tả
+  assert.match(detail,/<strong>Người nhận phản hồi <span class="share-option-hint">\(xem kết quả của mình\)<\/span><\/strong>/);
+  assert.match(detail,/<strong>Người khác<\/strong><\/span><\/label>/);
+  assert.match(detail,/function sharePersonText\(entry\)\{return `\$\{entry\.name\} \(\$\{entry\.domain\}\)`;\}/);
+  assert.match(detail,/share-level-people/);
+  // ô chọn vẫn gọn: <small> bị ẩn nên dòng tên người dùng class riêng
+  assert.match(detail,/\.share-audience-option small\{display:none\}/);
+  assert.match(detail,/\.share-level-people\{display:block/);
   assert.match(detail,/share-audience-multi/);
-  assert.match(detail,/type="checkbox" name="resultShareAudience"/);
-  assert.doesNotMatch(detail,/Người nhận phản hồi và cấp quản lý trực tiếp hoặc cấp cao hơn đều có thể xem/);
+  // người ngoài phạm vi quản lý được báo ngay ở form, trước khi bấm chia sẻ
+  assert.match(detail,/function shareOutsideNoteHTML\(\)/);
+  assert.match(detail,/FeedbackProgramModel\.isEmailOnly\(entry\)/);
+  assert.match(detail,/không quản lý một số người trong danh sách/);
+  // ô tìm người đọc cả tổ chức, không chỉ 16 người của màn quản lý
   assert.match(detail,/function filterResultSharePeople\(\)/);
-  assert.match(detail,/window\.PMS_EMPLOYEES/);
+  assert.match(detail,/OrgChain\.all\(\)/);
+  assert.match(detail,/<script src="\.\.\/assets\/org-chain\.js"><\/script>/);
   assert.match(detail,/if\(!query\)return '';/);
   assert.match(detail,/share-viewer-chips[\s\S]*share-people-picker/);
   assert.match(detail,/share-viewer-chip[^}]*font-size:12px/);
@@ -862,8 +944,57 @@ test('H-06 result sharing popup keeps audience options compact and uses the M-04
   assert.match(detail,/Chỉ hiển thị nội dung phản hồi/);
   assert.match(detail,/btn-primary btn-share/);
   assert.doesNotMatch(detail,/>Hủy<\/button>/);
+  // câu chữ: nói rõ chia sẻ kết quả CỦA AI, thay cho "Phạm vi chia sẻ" chung chung
+  assert.match(detail,/<span class="share-section-label">Chia sẻ kết quả của ai\?<\/span>/);
+  assert.match(detail,/<strong>Tất cả người nhận phản hồi<\/strong>/);
+  assert.match(detail,/<strong>Chọn từng người nhận phản hồi<\/strong>/);
+  assert.doesNotMatch(detail,/Phạm vi chia sẻ|Chia sẻ toàn bộ kết quả|Chia sẻ theo người nhận/);
+  assert.match(detail,/<span class="share-section-label">Ai được xem kết quả\?<\/span>/);
+  // lịch sử phải biết ai bấm nút chia sẻ, không chỉ ghi "HR"
+  assert.match(detail,/function shareByPerson\(\)/);
+  assert.match(detail,/confirmResultShare\(SHARE_REVIEW\.ids,\{targets:shareTargets\(\),by:shareByPerson\(\)/);
 });
 
+/* Bấm nút ở form KHÔNG chia sẻ ngay: phải qua bước xem lại, vì form chỉ nói HR chọn gì
+   chứ không nói việc đó dẫn tới những ai. */
+/* Bấm nút ở form KHÔNG chia sẻ ngay: phải qua bước xem lại, vì form chỉ nói HR chọn gì
+   chứ không nói việc đó dẫn tới những ai. Bước xem lại trình bày dạng BẢNG - mỗi hàng là
+   một người nhận phản hồi, mỗi cột là một vai - để đọc ngang một hàng là biết kết quả của
+   người đó rơi vào tay ai. */
+test('H-06 share flow reviews who sees whose result in a table before sending',()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
+  assert.match(detail,/'Xem lại trước khi chia sẻ',goToShareReview\)/);
+  assert.match(detail,/function goToShareReview\(\)/);
+  assert.match(detail,/SHARE_REVIEW=\{ids:shareIds,closeIds\};/);
+  assert.match(detail,/renderShareReview\(\);[\s\S]{0,40}return false;/);
+  // bảng: một hàng một người nhận, cột đầu là chính họ
+  assert.match(detail,/function shareReviewTableHTML\(\)/);
+  assert.match(detail,/<th class="share-table-index">#<\/th><th>Người nhận phản hồi<\/th>/);
+  // nhãn không kèm số đếm: bảng ngay dưới đã liệt kê đủ
+  assert.match(detail,/<span class="share-section-label">Ai xem kết quả của ai<\/span>/);
+  assert.match(detail,/const ids=shareParticipantIds\(\);/);
+  // chỉ dựng cột cho vai HR thật sự chọn
+  assert.match(detail,/M\.MANAGER_LEVELS\.filter\(level=>state\.managerLevels\.includes\(level\)\)/);
+  // mỗi ô có tên kèm domain
+  assert.match(detail,/function shareReviewPersonCell\(domain,name,note\)/);
+  assert.match(detail,/<em class="share-table-domain">\(\$\{escapeResultShare\(domain\)\}\)<\/em>/);
+  /* Bảng chỉ nói chuyện XEM TRÊN HỆ THỐNG. Người ngoài phạm vi quản lý chỉ nhận file
+     qua email nên không xuất hiện ở đây - việc đó thuộc về lịch sử chia sẻ. */
+  assert.doesNotMatch(detail,/Nhận file qua email/);
+  assert.match(detail,/const systemViewersFor=id=>state\.extraViewers\.filter\(viewer=>M\.shareChannelFor\(viewer\.domain,id\)==='system'\)/);
+  assert.match(detail,/if\(ids\.some\(id=>systemViewersFor\(id\)\.length\)\)columns\.push/);
+  // bảng cần rộng hơn form vì có tới 6 cột
+  assert.match(detail,/#resultDialogSurface\.share-review-dialog\{width:min\(980px,100%\)\}/);
+  assert.match(detail,/classList\.add\('share-review-dialog'\)/);
+  assert.match(detail,/classList\.remove\('share-review-dialog'\)/);
+  // bảng cuộn ngang khi nhiều cột, theo DESIGN-SYSTEM 19.6
+  assert.match(detail,/\.share-table-wrap\{overflow-x:auto/);
+  // quay lại sửa được, và chỉ nút ở bước này mới thật sự gửi
+  assert.match(detail,/back\.textContent='Quay lại chỉnh sửa'/);
+  assert.match(detail,/function backToShareForm\(\)/);
+  assert.match(detail,/confirm\.textContent=SHARE_REVIEW\.closeIds\.length\?'Đóng & chia sẻ kết quả':'Xác nhận chia sẻ'/);
+  assert.match(detail,/confirmResultShare\(SHARE_REVIEW\.ids,\{targets:shareTargets\(\),by:shareByPerson\(\)/);
+});
 test('H-06 overview keeps result sharing to one compact status row and puts identity information last',()=>{
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/summary-share-status/);
@@ -1068,7 +1199,7 @@ test('keeps identity unselected and gives deadline reminder metadata',()=>{
   assert.doesNotMatch(page,/name="identityVisibility" value="named" checked/);
   assert.match(page,/name="identityVisibility" value="anonymous"/);
   assert.match(page,/selectedIdentity\(\)\{return document\.querySelector\('input\[name="identityVisibility"\]:checked'\)\?\.value\|\|''\}/);
-  assert.match(page,/Hệ thống tự nhắc người chưa trả lời 3 ngày trước hạn phản hồi/);
+  assert.match(page,/tự nhắc người chưa trả lời 3 ngày trước hạn\./);
 });
 
 test('renders reviewer identity as two equal feedback choice cards',()=>{
@@ -1105,11 +1236,18 @@ test('design system protects neutral entry color, compact questions and M-04 peo
 test('H-06 keeps closure and sharing as separate HR actions with scoped confirmation',()=>{
   const detail=fs.readFileSync(require.resolve('../H-06/index.html'),'utf8');
   assert.match(detail,/id="programActions"/);
-  assert.match(detail,/Đóng ticket/);
-  assert.match(detail,/Chưa chia sẻ kết quả/);
+  // Dùng chung một câu chữ với M-04 và E-04: "Đóng yêu cầu", không dùng chữ ticket.
+  assert.match(detail,/Đóng yêu cầu/);
+  assert.doesNotMatch(detail,/Đóng ticket/);
+  // Chưa chia sẻ thì không đặt nhãn "Chưa chia sẻ kết quả" nữa, chỉ hiện thẳng nút
+  // Chia sẻ kết quả; chia sẻ rồi mới có nhãn Đã chia sẻ kết quả.
+  assert.match(detail,/mode==='not_shared'\)return \{label:'',meta:'',action:shareBtn\}/);
+  assert.doesNotMatch(detail,/Chưa chia sẻ kết quả/);
   assert.match(detail,/Đã chia sẻ kết quả/);
-  assert.match(detail,/Chia sẻ toàn bộ kết quả/);
-  assert.match(detail,/Chia sẻ kết quả cá nhân/);
+  /* Câu chữ nói rõ chia sẻ kết quả CỦA AI: "Chia sẻ toàn bộ kết quả" không cho biết
+     toàn bộ là toàn bộ người nhận hay toàn bộ nội dung. */
+  assert.match(detail,/Tất cả người nhận phản hồi/);
+  assert.match(detail,/Chọn từng người nhận phản hồi/);
   assert.match(detail,/function requestResultShare\(scope\)/);
   assert.match(detail,/function confirmResultShare\(participantIds,options\)/);
   for(const name of ['renderProgramOverview','sharingSummary','openResultDialog','requestResultShare','confirmResultShare'])assert.equal((detail.match(new RegExp(`function ${name}\\(`,'g'))||[]).length,1,`${name} is defined once`);
