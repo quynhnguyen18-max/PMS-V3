@@ -20,6 +20,7 @@ test('keeps request questionnaires independent from visible library templates',(
   assert.equal(model.canUse(source,'lod-1'),true);
   assert.equal(model.canEdit(source,'lod-1'),false);
   assert.equal(model.canDelete(source,'lod-1'),false);
+  assert.equal(model.visibleTo({...source,scope:'personal',sharedWithIds:[]},'lod-1'),false);
   assert.notEqual(requestQuestions,source.questions);
   assert.equal(source.questions[0].text,'Điều gì đang làm tốt?');
 });
@@ -38,15 +39,25 @@ test('copies a shared questionnaire into the recipient personal library',()=>{
   assert.equal(model.canEdit(copy,'lod-1'),true);
 });
 
+test('records questionnaire scope and selected-audience changes in version history',()=>{
+  const model=require(questionnaireModelPath);
+  const base={id:'tpl-1',name:'HRBP_Khảo sát',ownerId:'hrbp-1',ownerName:'Lê Thuỳ Anh',questions:[]};
+  const scopeChange=model.diffTemplates({...base,scope:'personal'},{...base,scope:'all_hr'});
+  assert.deepEqual(scopeChange[0],{label:'Đổi phạm vi chia sẻ',before:'Chỉ mình tôi',after:'Toàn bộ HRBP và L&OD Team'});
+
+  const audienceChange=model.diffTemplates({...base,scope:'selected_hr',sharedWithIds:['lod-1']},{...base,scope:'selected_hr',sharedWithIds:['lod-1','hrbp-2']});
+  assert.deepEqual(audienceChange[0],{label:'Cập nhật người được chia sẻ',before:'1 người HR',after:'2 người HR'});
+});
+
 test('renders a dedicated questionnaire library with source groups and owner-safe actions',()=>{
   const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
   assert.match(library,/>Bộ câu hỏi</);
   assert.match(library,/Của tôi/);
-  // Mọi HR member được phân quyền đều thấy toàn bộ bộ câu hỏi do HR tạo, nên
-  // thư viện lọc bằng tab chứ không nhóm theo phạm vi chia sẻ nữa.
   assert.match(library,/data-filter="all"[\s\S]*?Tất cả</);
-  assert.match(library,/Của HR khác/);
-  assert.doesNotMatch(library,/Được chia sẻ với tôi|Mẫu hệ thống/);
+  assert.match(library,/data-filter="shared"[\s\S]*?Được chia sẻ với tôi/);
+  assert.doesNotMatch(library,/Của HR khác/);
+  assert.match(library,/QuestionnaireLibraryModel\.visibleTo\(item,CURRENT_HR\.id\)/);
+  assert.match(library,/<span>Phạm vi<\/span>/);
   assert.match(library,/Tạo bộ câu hỏi/);
   assert.match(library,/function useTemplate\(id\)/);
   assert.match(library,/function copyTemplate\(id\)/);
@@ -57,11 +68,14 @@ test('saves a questionnaire with name guidance and a minimum question count',()=
   const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
   assert.match(library,/\[Bộ phận\]_\[Mục đích sử dụng\]/);
   assert.match(library,/function saveQuestionnaire\(\)/);
-  // Không còn ô chọn phạm vi chia sẻ: mọi bộ câu hỏi đều lưu ở scope 'all_hr'
-  // cho cả nhóm HR dùng chung.
-  assert.match(library,/scope:'all_hr'/);
-  assert.doesNotMatch(library,/Chỉ mình tôi|Toàn bộ nhóm HR|Chọn người cụ thể/);
-  // Hai ràng buộc khi lưu: có tên, và tối thiểu 5 câu hỏi có nội dung.
+  assert.match(library,/Chỉ mình tôi/);
+  assert.match(library,/Toàn bộ HRBP và L&amp;OD Team/);
+  assert.doesNotMatch(library,/Chọn người cụ thể/);
+  assert.equal((library.match(/data-scope=/g)||[]).length,2);
+  assert.match(library,/scope:editorScope/);
+  assert.match(library,/validScope=Boolean\(editorScope\)/);
+  assert.match(library,/sharedWithIds:\[\]/);
+  // Ba ràng buộc khi lưu: có tên, tối thiểu 5 câu hỏi và chọn một trong hai phạm vi.
   assert.match(library,/Bộ câu hỏi cần ít nhất 5 câu hỏi\./);
   assert.match(library,/validQuestions\.length<5/);
 });
@@ -79,12 +93,16 @@ test('questionnaire editor renders endpoint meanings and expands intermediate Li
 test('request builder groups library templates and protects unsaved questions from replacement',()=>{
   const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(builder,/questionnaire-library-model\.js/);
-  assert.match(builder,/TEMPLATE_ROLE_ORDER=\['HRBP','L&OD'\]/);
   assert.match(builder,/function templatePickerGroups\(\)/);
+  assert.match(builder,/label:'Bộ câu hỏi của tôi'/);
+  assert.match(builder,/items\.filter\(item=>item\.ownerId===CURRENT_HR\.id\)/);
+  assert.match(builder,/label:'Được chia sẻ với tôi'/);
+  assert.match(builder,/items\.filter\(item=>item\.ownerId!==CURRENT_HR\.id\)/);
+  assert.doesNotMatch(builder,/TEMPLATE_ROLE_ORDER|group\.role/);
   assert.match(builder,/id="templatePickerModal"/);
   assert.match(builder,/localeCompare\(b\.name,'vi'\)/);
   assert.doesNotMatch(builder,/Mẫu hệ thống/);
-  assert.doesNotMatch(builder,/Phạm vi chia sẻ/);
+  assert.match(builder,/QuestionnaireLibraryModel\.visibleTo\(item,CURRENT_HR\.id\)/);
   assert.match(builder,/Tên chương trình phản hồi/);
   assert.match(builder,/Nhập mục tiêu của yêu cầu phản hồi và lời nhắn gửi đến các bên liên quan/);
   assert.match(builder,/id="invitationInlineError"/);
@@ -123,12 +141,28 @@ test('saves request questions through an explicit named questionnaire popup',()=
   const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
   assert.match(builder,/id="templateSaveModal"/);
   assert.match(builder,/Tên bộ câu hỏi/);
-  assert.doesNotMatch(builder,/Chỉ mình tôi/);
+  assert.match(builder,/Chỉ mình tôi/);
+  assert.match(builder,/Toàn bộ HRBP và L&amp;OD Team/);
   assert.doesNotMatch(builder,/Chọn người cụ thể/);
+  assert.equal((builder.match(/<input type="radio" name="templateSaveScope"/g)||[]).length,2);
   assert.match(builder,/function confirmSaveRequestTemplate\(\)/);
-  assert.match(builder,/scope:'all_hr'/);
+  assert.match(builder,/scope:templateSaveScope/);
+  assert.match(builder,/sharedWithIds:\[\]/);
+  assert.doesNotMatch(builder,/templateSaveAudience|TEMPLATE_AUDIENCE|saveScopeSpecific/);
   assert.match(builder,/history:\[\{version:1/);
   assert.match(builder,/QuestionnaireLibraryModel\.cloneForRequest\(\{questions\}\)/);
+});
+
+test('documents the current two-scope questionnaire rule and legacy compatibility',()=>{
+  const markdown=fs.readFileSync(path.resolve(__dirname,'../DESIGN-SYSTEM.md'),'utf8');
+  const showcase=fs.readFileSync(path.resolve(__dirname,'../design-system/index.html'),'utf8');
+  for(const source of [markdown,showcase]){
+    assert.match(source,/Toàn bộ HRBP và L(?:&|&amp;)OD Team/);
+    assert.match(source,/selected_hr[^\n]*dữ liệu cũ/);
+    assert.match(source,/Bộ câu hỏi của tôi/);
+    assert.match(source,/Được chia sẻ với tôi/);
+  }
+  assert.doesNotMatch(markdown,/cho chọn đủ ba phạm vi/);
 });
 
 test('normalizes legacy questions to the open_text contract',()=>{
@@ -1613,8 +1647,37 @@ test('questionnaire library rows open on click and keep action icons aligned',()
   /* Bốn ô cố định, hàng không sửa được vẫn chừa chỗ để icon gióng thẳng cột. */
   assert.match(library,/\.row-actions\{display:grid;grid-template-columns:repeat\(4,28px\);justify-content:start/);
   /* Cột chức năng rộng đúng 4 ô icon để tiêu đề gióng thẳng icon đầu tiên. */
-  assert.match(library,/minmax\(200px,1fr\) 124px;/);
+  assert.match(library,/minmax\(145px,\.72fr\) 124px;/);
   assert.match(library,/\.library-head \.h-r\{text-align:left\}/);
   assert.match(library,/\.icon-slot\{display:block;width:28px;height:28px\}/);
   assert.match(library,/<span class="icon-slot" aria-hidden="true"><\/span><span class="icon-slot" aria-hidden="true"><\/span>/);
+});
+
+test('questionnaire library lets HR download the whole library or one template as Excel-friendly CSV',()=>{
+  const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
+  assert.match(library,/class="page-actions"[\s\S]*?onclick="downloadAllTemplates\(\)"[\s\S]*?Tải xuống[\s\S]*?onclick="openEditor\(\)"[\s\S]*?Tạo bộ câu hỏi/);
+  assert.match(library,/id="downloadOverlay"/);
+  assert.match(library,/data-download-mode="all"[\s\S]*?Toàn bộ thư viện/);
+  assert.match(library,/data-download-mode="single"[\s\S]*?Từng bộ riêng biệt/);
+  assert.match(library,/id="downloadTemplateSelect"/);
+  assert.match(library,/function downloadWholeLibrary\(\)/);
+  assert.match(library,/function downloadTemplate\(id\)/);
+  assert.match(library,/function confirmDownload\(\)/);
+  assert.match(library,/text\/csv;charset=utf-8/);
+  assert.match(library,/const csv='\\uFEFF'/);
+  assert.match(library,/\['STT','Câu hỏi','Loại câu hỏi','Bắt buộc'\]/);
+  assert.match(library,/id="detailFoot"[\s\S]*?downloadTemplate\('\$\{item\.id\}'\)[\s\S]*?Tải xuống/);
+  assert.doesNotMatch(library,/data-tooltip="Tải xuống"/);
+  assert.match(library,/\.btn:has\(>i\.bx-download\)\{[^}]*width:34px;[^}]*font-size:0/);
+  assert.match(library,/\.btn:has\(>i\.bx-download\)::after\{[^}]*content:'Tải xuống';[^}]*font-size:11px/);
+  assert.match(library,/\.btn:has\(>i\.bx-download\):hover::after,\.btn:has\(>i\.bx-download\):focus-visible::after/);
+  assert.match(library,/#downloadOverlay \.dialog-foot \.btn-primary\{width:auto;padding:0 12px;font-size:12\.5px\}/);
+  assert.match(library,/#downloadOverlay \.dialog-foot \.btn-primary::after\{display:none\}/);
+  assert.match(library,/#detailFoot \.btn:has\(>i\.bx-download\)\{width:auto;padding:0 12px;font-size:12\.5px\}/);
+  assert.match(library,/#detailFoot \.btn:has\(>i\.bx-download\)::after\{display:none\}/);
+  assert.match(library,/\.download-single\{margin-top:16px\}/);
+  assert.doesNotMatch(library,/Chọn tải toàn bộ thư viện hoặc một bộ câu hỏi riêng biệt\./);
+  assert.doesNotMatch(library,/Tải một file tổng hợp tất cả bộ câu hỏi bạn được phép xem\./);
+  assert.doesNotMatch(library,/Chọn một bộ câu hỏi cụ thể để tải xuống\./);
+  assert.match(library,/#downloadTemplateSelect\{font-family:inherit;font-size:13px;font-weight:400\}/);
 });

@@ -100,7 +100,8 @@
   function canEdit(template,userId){const normalized=normalize(template);return !normalized.isSystem&&normalized.ownerId===userId;}
   function canDelete(template,userId){return canEdit(template,userId);}
 
-  const SCOPE_LABELS={personal:'Chỉ người tạo',all_hr:'Nhóm HRBP và L&OD',selected_hr:'HR được chọn'};
+  /* selected_hr chỉ còn để đọc dữ liệu cũ; UI tạo/sửa mới chỉ dùng personal hoặc all_hr. */
+  const SCOPE_LABELS={personal:'Chỉ mình tôi',all_hr:'Toàn bộ HRBP và L&OD Team',selected_hr:'HR được chọn'};
   function scopeText(template){
     const normalized=normalize(template);
     if(normalized.scope==='selected_hr')return `${SCOPE_LABELS.selected_hr} (${normalized.sharedWithIds.length})`;
@@ -111,6 +112,11 @@
   function diffTemplates(previous,next){
     const before=normalize(previous),after=normalize(next),changes=[];
     if(before.name!==after.name)changes.push({label:'Đổi tên bộ câu hỏi',before:before.name,after:after.name});
+    if(before.scope!==after.scope){
+      changes.push({label:'Đổi phạm vi chia sẻ',before:scopeText(before),after:scopeText(after)});
+    }else if(before.scope==='selected_hr'&&before.sharedWithIds.slice().sort().join('|')!==after.sharedWithIds.slice().sort().join('|')){
+      changes.push({label:'Cập nhật người được chia sẻ',before:`${before.sharedWithIds.length} người HR`,after:`${after.sharedWithIds.length} người HR`});
+    }
     const beforeQuestions=before.questions,afterQuestions=after.questions;
     const shared=Math.min(beforeQuestions.length,afterQuestions.length);
     for(let index=0;index<shared;index++){
