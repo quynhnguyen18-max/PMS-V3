@@ -144,6 +144,65 @@ test('sharing again adds viewers instead of replacing the previous round', () =>
   assert.deepEqual(second.resultSharing.log[0].recipients.map(item => item.domain), ['thanh.le']);
 });
 
+/* Ghi xong rồi đọc lại mới là chuyện thật: chương trình được lưu vào localStorage
+   và nạp lại qua normalizeCampaign. Nếu bước chuẩn hóa dòng log đọc thiếu
+   `targets` thì lịch sử vẫn có ngày tháng nhưng mất sạch người được chia sẻ. */
+test('a saved share still knows its audience after the program is loaded again', () => {
+  const shared = model.shareResults(campaignWith({mode: 'not_shared'}), [], '11/08/2026', {
+    by: {domain: 'anh.le', name: 'Lê Thuỳ Anh'},
+    targets: {toRecipient: true, managerLevels: ['lm', 'upper'], extraViewers: [{domain: 'chau.ly'}]},
+    contentLevel: 'summary_detail'
+  });
+  // đi qua đúng đường mà màn hình đi: lưu thành chuỗi rồi nạp lại
+  const reloaded = model.normalizeCampaign(JSON.parse(JSON.stringify(shared)));
+  const [entry] = reloaded.resultSharing.log;
+  assert.equal(entry.targets.toRecipient, true, 'chia sẻ cho chính người nhận không được rơi mất');
+  assert.deepEqual(entry.targets.managerLevels, ['lm', 'upper']);
+  assert.deepEqual(entry.targets.extraViewers, [{domain: 'chau.ly', name: ''}]);
+  // màn nào còn đọc theo nhóm kiểu cũ cũng phải thấy đúng
+  assert.deepEqual(entry.audiences, ['recipients', 'managers', 'others']);
+});
+
+/* ═══ Đóng, mở lại và mốc tự đóng 90 ngày ═══ */
+
+test('a request that collected every answer counts as closed', () => {
+  const full = {id:'p4', goal:'Khảo sát', status:'collecting', createdAt:'01/08/2026', due:'20/08/2026', total:4, done:4};
+  assert.equal(model.campaignCloseReason(full, '11/08/2026'), 'no-active-ticket');
+  assert.equal(model.isCampaignClosed(full, '11/08/2026'), true, 'đủ phản hồi là tự đóng, không còn gì để thu');
+  // nhãn vẫn là Hoàn thành vì nói được nhiều hơn "Đã đóng": đóng vì thu đủ
+  assert.equal(model.campaignStatus(full, '11/08/2026').label, 'Hoàn thành');
+  assert.equal(model.canReopenCampaign(full, '11/08/2026'), false, 'tự đóng thì không mở lại');
+  // cùng bộ mã lý do với yêu cầu của quản lý
+  const manager = require('../M-04/manager-request-model.js');
+  assert.deepEqual(Object.keys(model.CAMPAIGN_CLOSE_REASON_TEXT || {}).sort(),
+    ['expired', 'manual', 'no-active-ticket']);
+  assert.equal(typeof manager.canReopenRequest, 'function');
+});
+
+test('a request closes itself 90 days after it was created', () => {
+  const fresh = {id:'p2', goal:'Khảo sát', status:'collecting', createdAt:'01/08/2026', due:'20/08/2026'};
+  assert.equal(model.isCampaignClosed(fresh, '11/08/2026'), false);
+  // đúng 90 ngày vẫn còn mở, qua 90 ngày mới tự đóng
+  assert.equal(model.isCampaignClosed(fresh, '30/10/2026'), false);
+  assert.equal(model.isCampaignClosed(fresh, '31/10/2026'), true);
+  assert.equal(model.campaignStatus(fresh, '31/10/2026').label, 'Đã đóng');
+  // nháp thì không bị mốc này chạm tới
+  assert.equal(model.isCampaignClosed({...fresh, status:'draft'}, '31/10/2026'), false);
+  assert.equal(model.isCampaignClosed({...fresh, status:'closed'}, '11/08/2026'), true);
+});
+
+test('reopening stops at a shared result and at the auto-close date', () => {
+  const closed = {id:'p3', goal:'Khảo sát', status:'closed', createdAt:'01/08/2026', due:'20/08/2026',
+    resultSharing:{mode:'not_shared'}};
+  assert.equal(model.canReopenCampaign(closed, '11/08/2026'), true);
+  // quá hạn tự đóng thì nút mở lại chỉ hứa suông, nên không cho
+  assert.equal(model.canReopenCampaign(closed, '31/10/2026'), false);
+  // chia sẻ kết quả là chốt vĩnh viễn
+  const shared = model.shareResults(closed, ['tu.nguyen'], '11/08/2026', {targets:{toRecipient:true}});
+  assert.equal(model.canReopenCampaign(shared, '11/08/2026'), false);
+  assert.deepEqual(model.reopenCampaign(shared).status, 'closed');
+});
+
 /* ═══ Câu chữ ═══ */
 
 test('the wording for roles and channels lives in one place', () => {

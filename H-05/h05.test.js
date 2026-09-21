@@ -972,17 +972,22 @@ test('H-06 share flow reviews who sees whose result in a table before sending',(
   assert.match(detail,/<th class="share-table-index">#<\/th><th>Người nhận phản hồi<\/th>/);
   // nhãn không kèm số đếm: bảng ngay dưới đã liệt kê đủ
   assert.match(detail,/<span class="share-section-label">Ai xem kết quả của ai<\/span>/);
-  assert.match(detail,/const ids=shareParticipantIds\(\);/);
+  assert.match(detail,/shareAudienceTableHTML\(\{ids:shareParticipantIds\(\),toRecipient:state\.toRecipient/);
   // chỉ dựng cột cho vai HR thật sự chọn
-  assert.match(detail,/M\.MANAGER_LEVELS\.filter\(level=>state\.managerLevels\.includes\(level\)\)/);
+  assert.match(detail,/M\.MANAGER_LEVELS\.filter\(level=>\(plan\.managerLevels\|\|\[\]\)\.includes\(level\)\)/);
   // mỗi ô có tên kèm domain
   assert.match(detail,/function shareReviewPersonCell\(domain,name,note\)/);
   assert.match(detail,/<em class="share-table-domain">\(\$\{escapeResultShare\(domain\)\}\)<\/em>/);
-  /* Bảng chỉ nói chuyện XEM TRÊN HỆ THỐNG. Người ngoài phạm vi quản lý chỉ nhận file
-     qua email nên không xuất hiện ở đây - việc đó thuộc về lịch sử chia sẻ. */
-  assert.doesNotMatch(detail,/Nhận file qua email/);
-  assert.match(detail,/const systemViewersFor=id=>state\.extraViewers\.filter\(viewer=>M\.shareChannelFor\(viewer\.domain,id\)==='system'\)/);
-  assert.match(detail,/if\(ids\.some\(id=>systemViewersFor\(id\)\.length\)\)columns\.push/);
+  /* Bảng review phải kể đủ người HR vừa chọn. Kênh hệ thống/email được nói ở dòng
+     Cách xem, không được biến một lựa chọn có thật thành "Không có". */
+  const reviewTable=detail.slice(detail.indexOf('function shareAudienceTableHTML('),detail.indexOf('function shareReviewHTML('));
+  // bỏ chú thích ra rồi mới soi: ta chặn CHỮ HIỆN RA trong bảng, không chặn lời giải thích
+  assert.doesNotMatch(reviewTable.replace(/\/\*[\s\S]*?\*\//g,''),/qua email/);
+  // Người khác xuất hiện ở mọi hàng được chia sẻ, kể cả khi hàng đó nhận file qua email
+  assert.match(detail,/shareAudienceTableHTML\(\{ids:shareParticipantIds\(\)[^}]*\}\)/);
+  assert.doesNotMatch(detail,/includeEmailViewers/);
+  assert.match(detail,/const viewersFor=id=>extraViewers\.filter\(viewer=>viewer\.domain\|\|viewer\.name\)/);
+  assert.match(detail,/if\(ids\.some\(id=>viewersFor\(id\)\.length\)\)columns\.push/);
   // bảng cần rộng hơn form vì có tới 6 cột
   assert.match(detail,/#resultDialogSurface\.share-review-dialog\{width:min\(980px,100%\)\}/);
   assert.match(detail,/classList\.add\('share-review-dialog'\)/);
@@ -1001,13 +1006,107 @@ test('H-06 overview keeps result sharing to one compact status row and puts iden
   assert.match(detail,/Lịch sử chia sẻ kết quả/);
   assert.match(detail,/function openShareHistory\(\)/);
   assert.match(detail,/function shareLogEntries\(sharing\)/);
-  assert.match(detail,/function shareEntryRecipientText\(entry\)/);
   assert.match(detail,/Lần \$\{index\+1\}:/);
-  assert.match(detail,/Kết quả của ai được chia sẻ/);
-  assert.match(detail,/Người được chia sẻ/);
   const pending=detail.lastIndexOf('<span>Phản hồi đang chờ</span>');
   const identity=detail.lastIndexOf('<span>Danh tính người cho phản hồi</span>');
   assert.ok(pending>-1&&identity>pending);
+});
+
+/* Lịch sử phải trả lời được "ai chia sẻ kết quả của ai, cho ai, xem bằng cách nào".
+   Thứ chung cho cả lần chia sẻ - gồm CẢ cách xem, vì cách xem đi theo vai trò chứ
+   không theo từng người - nói đúng một lần ở đầu thẻ. Bảng chỉ giữ phần riêng là
+   người được chia sẻ và vai trò của họ. */
+test('H-06 share history says the common facts once and reuses the review table',()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
+  // phần chung của một lần chia sẻ: khi nào, ai bấm, nội dung gì, xem cách nào
+  assert.match(detail,/function shareHistoryCardHTML\(entry,index\)/);
+  assert.match(detail,/<dt>Người chia sẻ<\/dt>/);
+  assert.match(detail,/<dt>Nội dung chia sẻ<\/dt>/);
+  assert.match(detail,/<dt>Cách xem kết quả<\/dt>/);
+  assert.match(detail,/entry\.by&&entry\.by\.domain\?shareHistoryName\(entry\.by\.domain,entry\.by\.name\):'HR'/);
+  /* Bảng đã nói kết quả của ai rơi vào tay ai, nên phần chung không lặp lại danh
+     sách người nhận - đó chính là thứ gây rối mắt ở bản trước. */
+  assert.doesNotMatch(detail,/<dt>Kết quả của<\/dt>/);
+  assert.doesNotMatch(detail,/function shareEntryRecipientText/);
+  // giờ đứng cạnh "Lần N", không dạt sang mép phải
+  assert.match(detail,/\.share-history-head\{display:flex;align-items:baseline;gap:8px/);
+  assert.match(detail,/function shareStamp\(\)/);
+  assert.match(detail,/`\$\{TODAY\} \$\{pad\(now\.getHours\(\)\)\}:\$\{pad\(now\.getMinutes\(\)\)\}`/);
+  assert.match(detail,/at:shareStamp\(\)/);
+  // MỘT hàm dựng bảng cho cả bước xem lại lẫn lịch sử
+  assert.match(detail,/function shareAudienceTableHTML\(plan\)/);
+  assert.match(detail,/function shareReviewTableHTML\(\)\{[\s\S]{0,220}shareAudienceTableHTML\(\{ids:shareParticipantIds\(\)/);
+  assert.match(detail,/function shareHistoryTableHTML\(entry\)[\s\S]{0,900}return shareAudienceTableHTML\(\{ids,toRecipient:targets\.toRecipient/);
+  assert.match(detail,/<th class="share-table-index">#<\/th><th>Người nhận phản hồi<\/th>/);
+  // cách xem viết chung một câu theo vai trò, không lặp lại ở từng hàng
+  assert.match(detail,/function shareHistoryChannelText\(entry\)/);
+  assert.match(detail,/if\(hasEmail&&hasSystem\)return 'Cấp quản lý xem trên hệ thống, người khác không thuộc phạm vi quản lý nhân viên xem file đính kèm gửi qua email';/);
+  assert.match(detail,/if\(hasEmail\)return 'Người khác không thuộc phạm vi quản lý nhân viên xem file đính kèm gửi qua email';/);
+  assert.match(detail,/return 'Cấp quản lý xem trên hệ thống';/);
+  assert.doesNotMatch(detail,/share-channel-system|share-channel-email|share-channel-why|share-table-channel/);
+  /* Chương trình chia sẻ trước khi có mảng log chỉ có dữ liệu phẳng. Dòng dựng tạm
+     phải mang theo targets và note, nếu không lịch sử cũ mất bảng lẫn ghi chú. */
+  assert.match(detail,/targets:sharing\.targets/);
+  assert.match(detail,/note:sharing\.note\}\]/);
+  /* Cả review và lịch sử đều kể "ai đã nhận kết quả", nên người chỉ nhận file qua
+     email cũng đứng trong cột `Người khác`; hai chỗ dùng chung đúng một hàm dựng. */
+  assert.doesNotMatch(detail,/includeEmailViewers/);
+  assert.match(detail,/const viewersFor=id=>extraViewers\.filter\(viewer=>viewer\.domain\|\|viewer\.name\)/);
+  assert.doesNotMatch(detail,/Người nhận file qua email/);
+  assert.doesNotMatch(detail,/function shareHistoryEmailViewers/);
+  // câu chữ nội dung chia sẻ viết một lần, dùng chung với bước xem lại
+  assert.match(detail,/function shareContentText\(level\)/);
+  assert.match(detail,/const content=shareContentText\(RESULT_SHARE_STATE\.contentLevel\);/);
+  // bảng nhiều cột nên popup phải rộng bằng bước xem lại
+  assert.match(detail,/share-history-dialog\{width:min\(980px,100%\)\}/);
+});
+
+/* Ổ khóa và dấu đã-chia-sẻ trong danh sách người nhận phải đọc ra được NGHĨA.
+   Bug đã gặp: chương trình đóng rồi mà hàng nào chưa đủ phản hồi vẫn trông như
+   đang mở, vì luật khóa chỉ nhìn tiến độ và cờ đóng tay của từng người. */
+test('H-06 rail lock states name their own reason and follow the closed program',()=>{
+  const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
+  /* Mỗi lý do đóng một câu riêng - không dùng chung một chữ "Đã đóng". Bộ mã lý do
+     dùng chung với yêu cầu của quản lý (manual / no-active-ticket / expired). */
+  assert.match(detail,/manual:'HR đã đóng yêu cầu của người nhận này',\s*\n?\s*program:'HR đã đóng yêu cầu',\s*\n?\s*'no-active-ticket':'Đã nhận đủ phản hồi nên tự đóng',\s*\n?\s*expired:'Quá 90 ngày kể từ ngày tạo nên tự đóng'/);
+  assert.match(detail,/title="\$\{recipientLockTitle\(lockKind\)\}"/);
+  assert.match(detail,/title="\$\{recipientLockTitle\(kind\)\}"/);
+  assert.doesNotMatch(detail,/person-lock" title="Đã đóng"/);
+  /* Yêu cầu đã đóng thì KHÔNG ai còn thu thập, kể cả người chưa đủ phản hồi; và
+     "đã đóng" phải hỏi model (gồm cả luật tự đóng sau 90 ngày), không tự tính lại. */
+  assert.match(detail,/if\(participant\.closed\)return 'manual';/);
+  assert.match(detail,/const reason=FeedbackProgramModel\.campaignCloseReason\(PROGRAM,TODAY\);/);
+  assert.match(detail,/if\(FeedbackProgramModel\.isCampaignClosed\(PROGRAM,TODAY\)\)return\{state:'closed'/);
+  assert.doesNotMatch(detail,/age!==null&&age>90/);
+  /* Nhận đủ phản hồi cũng là đã đóng: không còn ai để chờ thì không còn gì để thu. */
+  assert.match(detail,/return \(prog\.total>0&&prog\.done>=prog\.total\)\?'no-active-ticket':null;/);
+  // đã chia sẻ là trạng thái mạnh hơn, hiện dấu check đôi thay cho ổ khóa
+  assert.match(detail,/shared\?`<i class="bx bx-check-double person-shared" title="Đã chia sẻ kết quả">/);
+  // chỉ ca HR đóng tay mới mở lại được theo từng người
+  assert.match(detail,/if\(kind==='manual'&&!shared\)parts\.push\(`<button class="btn btn-outline btn-share" type="button" onclick="reopenParticipant/);
+});
+
+/* Dữ liệu mẫu phải kể được câu chuyện chia sẻ nhiều lần cho nhiều đối tượng khác
+   nhau - nếu seed chỉ có một lần thì không ai soi ra lỗi của màn lịch sử. */
+test('seed programs demo repeated sharing with a different audience each round',()=>{
+  const data=require('./feedback-program-data.js');
+  const model=require('./feedback-program-model.js');
+  const program=model.normalizeCampaign(data.programById('s6'));
+  const log=program.resultSharing.log;
+  assert.equal(log.length,3,'s6 là demo ba lần chia sẻ');
+  assert.ok(log.every(entry=>/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/.test(entry.at)),'mỗi lần phải có cả giờ');
+  assert.ok(log.every(entry=>entry.by.domain&&entry.by.name),'phải biết đích danh HR nào bấm nút');
+  // mỗi lần một đối tượng khác: người nhận + LM, rồi đủ ba cấp, rồi người ngoài phạm vi
+  assert.deepEqual(log[0].targets.managerLevels,['lm']);
+  assert.equal(log[0].targets.toRecipient,true);
+  assert.deepEqual(log[1].targets.managerLevels,['lm','upper','hod']);
+  assert.deepEqual(log[2].targets.extraViewers,[{domain:'chau.ly',name:'Lý Minh Châu'}]);
+  assert.equal(log[2].targets.managerLevels.length,0,'lần cuối chỉ có người ngoài phạm vi quản lý');
+  // hai lần trong cùng một ngày ở s9 chỉ phân biệt được nhờ giờ
+  const s9=model.normalizeCampaign(data.programById('s9')).resultSharing.log;
+  assert.equal(s9.length,2);
+  assert.notEqual(s9[0].at,s9[1].at);
+  assert.ok(s9.every(entry=>entry.at.startsWith('22/01/2026')));
 });
 
 test('design system documents the required result-sharing audience and identity context',()=>{

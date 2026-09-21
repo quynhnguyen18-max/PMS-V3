@@ -164,11 +164,18 @@
   }
   function normalizeShareLogEntry(entry){
     const source=entry||{};
+    /* Dữ liệu mới để trong source.targets, dữ liệu cũ nằm phẳng ngay trên entry -
+       đọc thiếu source.targets thì mọi lần chia sẻ mới bị xóa sạch người nhận. */
+    const targets=normalizeShareTargets(source.targets||source);
+    /* Màn nào còn đọc theo audiences kiểu cũ vẫn phải thấy đúng, nên suy lại từ targets. */
+    const derived=[targets.toRecipient&&'recipients',targets.managerLevels.length&&'managers',
+      targets.extraViewers.length&&'others'].filter(Boolean);
+    const audiences=normalizeAudiences(source);
     return {
       at:String(source.at||'').trim(),
       by:normalizeSharePerson(source.by),
-      audiences:normalizeAudiences(source),
-      targets:normalizeShareTargets(source),
+      audiences:AUDIENCE_KEYS.filter(key=>audiences.includes(key)||derived.includes(key)),
+      targets,
       additionalViewerNames:uniqueStrings(source.additionalViewerNames),
       contentLevel:['summary','summary_detail'].includes(source.contentLevel)?source.contentLevel:'summary_detail',
       participantIds:uniqueStrings(source.participantIds),
@@ -347,7 +354,10 @@
        phải kể đúng ai đã nhận cái gì, bằng kênh nào. */
     const targetsNow=normalizeShareTargets(source.targets||source);
     const idsForRecipients=shareAll?(mergedIds.length?mergedIds:incomingIds):incomingIds;
-    const entry={at:stamp,by:normalizeSharePerson(source.by),audiences:incomingAudiences,
+    /* Dòng lịch sử ghi cả giờ để phân biệt hai lần chia sẻ trong cùng một ngày, còn
+       sharedAt giữ nguyên dạng ngày vì các màn báo cáo đang sắp xếp theo ngày. */
+    const entryAt=String(source.at||stamp).trim();
+    const entry={at:entryAt,by:normalizeSharePerson(source.by),audiences:incomingAudiences,
       targets:targetsNow,additionalViewerNames:incomingNames,contentLevel,
       participantIds:shareAll?[]:incomingIds,
       recipients:resolveShareRecipients(idsForRecipients,targetsNow,source.chain),
@@ -363,9 +373,15 @@
     return {...item,status:'closed',closedAt:String(closedAt||'').trim(),assignments:lockPendingAssignments(item.assignments)};
   }
   /* Yeu cau da dong van mo lai duoc, MIEN LA chua chia se ket qua. Sau khi chia se thi chot vinh vien. */
-  function canReopenCampaign(campaign){
+  /* Mở lại được khi và chỉ khi: HR đóng tay, chưa chia sẻ kết quả, và chưa quá hạn
+     tự đóng. Quá 90 ngày là mốc hệ thống tự đóng nên không mở lại - nếu cho mở thì
+     bấm xong màn hình vẫn ghi "Đã đóng", nút hứa một việc nó không làm được. */
+  function canReopenCampaign(campaign,today){
     const item=campaign||{};
-    return item.status==='closed'&&normalizeResultSharing(item.resultSharing).mode==='not_shared';
+    if(normalizeResultSharing(item.resultSharing).mode!=='not_shared')return false;
+    if(campaignCloseReason(item,today)!=='manual')return false;
+    const age=daysBetween(today,item.createdAt);
+    return !(age!==null&&age>AUTO_CLOSE_DAYS);
   }
   function reopenCampaign(campaign){
     const item=normalizeCampaign(campaign);
@@ -378,11 +394,34 @@
     return left!==null&&left>=0&&left<=3;
   }
   function needsReport(campaign){return Boolean(campaign&&campaign.status==='closed'&&campaign.report==='none');}
+  /* ── Vì sao một yêu cầu ngừng thu thập ───────────────────────────────────
+     Ba lý do, dùng CHUNG bộ mã với yêu cầu của quản lý ở `manager-request-model.js`
+     (`manual` / `no-active-ticket` / `expired`) - một sự việc thì một bộ mã, chỉ khác
+     câu chữ vì khác người đọc. Hai lý do sau là hệ thống tự đóng nên không mở lại được.
+     Nhận đủ phản hồi cũng là ĐÓNG: không còn ai để chờ thì không còn gì để thu. */
+  const AUTO_CLOSE_DAYS=90;
+  const CAMPAIGN_CLOSE_REASON_TEXT={
+    manual:'HR đã chủ động đóng',
+    'no-active-ticket':'Đã nhận đủ phản hồi',
+    expired:'Quá 90 ngày kể từ ngày tạo'
+  };
+  function campaignCloseReason(campaign,today){
+    const item=campaign||{};
+    if(item.status==='draft')return null;
+    if(item.status==='closed')return 'manual';
+    if(Number(item.total)>0&&Number(item.done)>=Number(item.total))return 'no-active-ticket';
+    const age=daysBetween(today,item.createdAt);
+    return (age!==null&&age>AUTO_CLOSE_DAYS)?'expired':null;
+  }
+  function campaignCloseReasonText(reason){return CAMPAIGN_CLOSE_REASON_TEXT[reason]||'';}
+  function isCampaignClosed(campaign,today){return Boolean(campaignCloseReason(campaign,today));}
+  /* `Hoàn thành` cũng là một trạng thái ĐÃ ĐÓNG, chỉ khác nhãn vì nói được nhiều hơn:
+     không phải đóng giữa chừng mà đóng vì đã thu đủ. */
   function campaignStatus(campaign,today){
-    const item=campaign||{},complete=Number(item.total)>0&&Number(item.done)>=Number(item.total);
-    if(item.status==='closed')return {state:'closed',label:'Đã đóng',icon:'bx-lock-alt'};
+    const item=campaign||{},reason=campaignCloseReason(item,today);
     if(item.status==='draft')return {state:'draft',label:'Nháp',icon:'bx-circle'};
-    if(complete)return {state:'complete',label:'Hoàn thành',icon:'bx-check-circle'};
+    if(reason==='no-active-ticket')return {state:'complete',label:'Hoàn thành',icon:'bx-check-circle'};
+    if(reason)return {state:'closed',label:'Đã đóng',icon:'bx-lock-alt'};
     if(isOverdue(item,today))return {state:'overdue',label:'Quá hạn',icon:'bx-error-circle'};
     if(isDueSoon(item,today))return {state:'due_soon',label:'Sắp đến hạn',icon:'bx-time-five'};
     return {state:'collecting',label:'Đang thu thập',icon:'bx-loader-circle'};
@@ -502,5 +541,5 @@
     });
     return sent;
   }
-  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort,MANAGER_LEVELS,RECIPIENT_ROLES,RECIPIENT_ROLE_LABEL,CHANNEL_NOTE,normalizeShareTargets,mergeShareTargets,resolveShareRecipients,shareChannelFor,recipientRoleLabel,channelNote,isEmailOnly};
+  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,isCampaignClosed,campaignCloseReason,CAMPAIGN_CLOSE_REASON_TEXT,campaignCloseReasonText,AUTO_CLOSE_DAYS,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort,MANAGER_LEVELS,RECIPIENT_ROLES,RECIPIENT_ROLE_LABEL,CHANNEL_NOTE,normalizeShareTargets,mergeShareTargets,resolveShareRecipients,shareChannelFor,recipientRoleLabel,channelNote,isEmailOnly};
 });

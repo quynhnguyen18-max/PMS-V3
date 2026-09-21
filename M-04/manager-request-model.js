@@ -229,6 +229,22 @@
     if(!openRecipientsForClose(request).length){request.closedManually=true;request.closedAt=closedAt||'';}
     return request;
   }
+  /* Mở lại được CHỈ KHI quản lý tự đóng. Quá 90 ngày và "không còn ai có thể phản hồi"
+     là hệ thống tự đóng - bấm mở lại cũng đóng lại ngay, nút sẽ hứa suông. Cùng luật
+     với `FeedbackProgramModel.canReopenCampaign` bên HR. */
+  function canReopenRequest(request,todayDMY){return closeReason(request,todayDMY)==='manual';}
+  /* Vì sao RIÊNG người nhận này ngừng thu thập - cùng bộ mã với cả yêu cầu. */
+  function recipientCloseReason(request,employeeId,todayDMY){
+    const rows=assignmentsOfRecipient(request,employeeId);
+    if(!rows.length)return null;
+    if(rows.some(function(item){return item.closedManually;}))return 'manual';
+    const reason=closeReason(request,todayDMY);
+    if(reason)return reason;
+    return rows.every(function(item){return item.status==='done'||item.closedByResignation;})?'no-active-ticket':null;
+  }
+  function canReopenRecipient(request,employeeId,todayDMY){
+    return recipientCloseReason(request,employeeId,todayDMY)==='manual'&&!closeReason(request,todayDMY);
+  }
   function reopenRequest(request){
     if(!request)return request;
     ((request.assignments)||[]).forEach(function(item){delete item.closedManually;delete item.closedAt;});
@@ -416,5 +432,5 @@
     };
   }
 
-  return {dateFromDMY,reviewerNoticeText,closeReasonShort,closeReasonCodes,closeRequestManually,closeRecipients,reopenRequest,reopenRecipient,openRecipientsForClose,isRecipientClosed,assignmentsOfRecipient,applyResignation,applyResignationAll,isTicketClosed,activeAssignments,closeReason,closeReasonText,closeManually,isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
+  return {dateFromDMY,reviewerNoticeText,closeReasonShort,canReopenRequest,recipientCloseReason,canReopenRecipient,closeReasonCodes,closeRequestManually,closeRecipients,reopenRequest,reopenRecipient,openRecipientsForClose,isRecipientClosed,assignmentsOfRecipient,applyResignation,applyResignationAll,isTicketClosed,activeAssignments,closeReason,closeReasonText,closeManually,isCountedAssignment,isWithinRemindWindow,remindWindowEnd,tsFromDMY,fmtDMY,maxDueDate,dueRange,validateDueDate,automaticReminderDate,dateTimeFromDMY,reminderHistory,normalizeGoal,directReports,isEligibleDesignee,buildAssignments,previewCount,createRequest,summarize,byEmployee,isOverdue,isClosed,daysOverdue,requestStatus,compareRequestsForAction,sortRequestsForAction,canRemindAssignment,remindAssignment,remindPending,createStore};
 });

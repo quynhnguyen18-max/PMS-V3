@@ -110,13 +110,14 @@ let CLOSE_STATE={scope:'all',ids:[]};
 /* Mở lại cho từng người nhận — đối xứng với phạm vi "đóng theo người nhận". */
 function renderRecipientActions(){
   const box=document.getElementById('recipientActions');if(!box)return;
-  const closedByHand=ManagerRequestModel.assignmentsOfRecipient(request,selectedEmployeeId).some(item=>item.closedManually);
-  const closed=ManagerRequestModel.isRecipientClosed(request,selectedEmployeeId);
+  const reason=ManagerRequestModel.recipientCloseReason(request,selectedEmployeeId,todayDMY());
+  const closedByHand=ManagerRequestModel.canReopenRecipient(request,selectedEmployeeId,todayDMY());
+  const closed=ManagerRequestModel.isRecipientClosed(request,selectedEmployeeId)||Boolean(reason);
   /* Giống H-06: ổ khoá + Mở lại chỉ hiện khi yêu cầu có từ 2 người nhận trở lên;
      một người nhận thì thao tác đã nằm ở cấp yêu cầu rồi. */
   const multi=ManagerRequestModel.byEmployee(request,todayDMY()).length>=2;
   box.innerHTML=multi?[
-    closed?`<span class="ticket-lock" title="Đã đóng"><i class="bx bx-lock-alt"></i></span>`:'',
+    closed?`<span class="ticket-lock" title="${ManagerRequestModel.closeReasonShort(reason)}"><i class="bx bx-lock-alt"></i></span>`:'',
     closedByHand?`<button type="button" class="btn btn-outline btn-share" onclick="reopenClosedRecipient('${selectedEmployeeId}')"><i class="bx bx-lock-open-alt"></i> Mở lại</button>`:''
   ].join(''):'';
 }
@@ -127,7 +128,7 @@ function renderRequestActions(){
   const canClose=!closedManually&&lifecycle!=='closed'&&ManagerRequestModel.openRecipientsForClose(request).length>0;
   box.innerHTML=[
     canClose?'<button type="button" class="btn" onclick="openCloseDialog()"><i class="bx bx-lock-alt"></i> Đóng yêu cầu</button>':'',
-    closedManually?'<button type="button" class="btn" onclick="reopenWholeRequest()"><i class="bx bx-lock-open-alt"></i> Mở lại yêu cầu</button>':''
+    ManagerRequestModel.canReopenRequest(request,todayDMY())?'<button type="button" class="btn" onclick="reopenWholeRequest()"><i class="bx bx-lock-open-alt"></i> Mở lại yêu cầu</button>':''
   ].join('');
 }
 function openCloseDialog(){CLOSE_STATE={scope:'all',ids:[]};renderCloseSettings();document.getElementById('closeDialog').classList.add('open');}
@@ -207,8 +208,9 @@ function render(){applyResignationRules();
   renderTicketSummary(stat,rows);
   if(!rows.some(row=>row.employeeId===selectedEmployeeId))selectedEmployeeId=rows[0]?.employeeId;
   renderRecipientActions();
-  document.getElementById('requestEmployeeRail').innerHTML=rows.map(row=>{const person=employees.find(item=>item.id===row.employeeId);return `<button class="person ${row.employeeId===selectedEmployeeId?'on':''}" onclick="selectEmployee('${row.employeeId}')"><span class="avatar">${person?.ini||''}</span><span><span class="identity pms-tooltip" tabindex="0"><span class="identity-text">${person?.name||row.employeeName} <span class="domain">(${person?.login||''})</span></span><span class="pms-tooltip-content pms-tooltip-top" role="tooltip">${railOrg(person)}</span></span><span class="small">${row.done}/${row.total} phản hồi đã nhận</span>${resignedTag(person||{login:row.employeeId})}</span>${ManagerRequestModel.isRecipientClosed(request,row.employeeId)?`<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>`:''}</button>`;}).join('');
-  const employee=employees.find(item=>item.id===selectedEmployeeId),assignments=request.assignments.filter(item=>item.employeeId===selectedEmployeeId),done=assignments.filter(item=>item.status==='done'),pending=assignments.filter(item=>item.status!=='done');
+  document.getElementById('requestEmployeeRail').innerHTML=rows.map(row=>{const person=employees.find(item=>item.id===row.employeeId);return `<button class="person ${row.employeeId===selectedEmployeeId?'on':''}" onclick="selectEmployee('${row.employeeId}')"><span class="avatar">${person?.ini||''}</span><span><span class="identity pms-tooltip" tabindex="0"><span class="identity-text">${person?.name||row.employeeName} <span class="domain">(${person?.login||''})</span></span><span class="pms-tooltip-content pms-tooltip-top" role="tooltip">${railOrg(person)}</span></span><span class="small">${row.done}/${row.total} phản hồi đã nhận</span>${resignedTag(person||{login:row.employeeId})}</span>${ManagerRequestModel.isRecipientClosed(request,row.employeeId)?`<i class="bx bx-lock-alt person-lock" title="${ManagerRequestModel.closeReasonShort(ManagerRequestModel.recipientCloseReason(request,row.employeeId,todayDMY()))}"></i>`:''}</button>`;}).join('');
+  const employee=employees.find(item=>item.id===selectedEmployeeId),assignments=request.assignments.filter(item=>item.employeeId===selectedEmployeeId),done=assignments.filter(item=>item.status==='done'),pending=assignments.filter(item=>item.status!=='done');
+
   if(!employee){document.getElementById('requestResponseFeed').innerHTML='<div class="empty">Chọn một nhân viên để xem chi tiết.</div>';return;}
   document.getElementById('employeeTitle').textContent=`Phản hồi đã nhận của ${employee?.name||''}`;
   document.getElementById('employeeBadgeSummary').innerHTML=employeeBadgeSummary(assignments);

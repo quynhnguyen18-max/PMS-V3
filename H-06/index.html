@@ -55,9 +55,9 @@
 .share-notice>i{flex:none;margin-top:1px;color:var(--warning);font-size:15px}
 .share-info-box{display:flex;gap:9px;align-items:flex-start;padding:10px 11px;border:1px solid var(--brand-ring);border-radius:7px;background:var(--brand-muted)}.share-info-box>i{flex:none;margin-top:1px;color:var(--brand);font-size:16px}.share-info-title{color:var(--z800);font-size:11.5px;font-weight:600;margin-bottom:2px}.share-info-box p{margin:0;color:var(--z600);font-size:11.5px;line-height:1.5}@media(max-width:560px){.confirm-dialog.share-dialog{width:100%}.share-viewer-entry{align-items:stretch;flex-direction:column}.share-viewer-entry .btn{justify-content:center}}
 .confirm-dialog.share-dialog{width:min(560px,100%)}.confirm-actions .btn-primary{height:30px;padding:0 10px;border-color:var(--brand);background:var(--brand);color:#fff;font-size:11.5px;font-weight:600}.confirm-actions .btn-primary:hover{background:#8d0056;border-color:#8d0056}.share-audience-option{align-items:center;min-height:38px;padding:8px 10px}.share-audience-option input{margin-top:0}.share-audience-option small{display:none}.share-audience-option strong{font-size:12px}.share-people-picker{position:relative}.share-viewer-suggestions{position:absolute;z-index:80;top:calc(100% + 4px);left:0;right:0;max-height:178px;overflow-y:auto;border:1px solid var(--z200);border-radius:6px;background:#fff;box-shadow:0 8px 20px rgba(24,24,27,.12)}.share-viewer-suggestion{width:100%;padding:8px 10px;border:0;border-bottom:1px solid var(--z100);background:#fff;color:var(--z700);font:inherit;font-size:12px;text-align:left}.share-viewer-suggestion:last-child{border-bottom:0}.share-viewer-suggestion:hover{background:var(--z50)}.share-viewer-suggestion strong{font-weight:600;color:var(--z900)}.share-viewer-suggestion .domain{margin-left:4px;font-size:12px}.share-viewer-empty{padding:8px 10px;color:var(--z500);font-size:11.5px}.share-viewer-chips{margin-top:7px}
-.confirm-dialog.share-history-dialog{width:min(640px,100%)}/* Bước xem lại là một bảng 5-6 cột, hẹp như form thì cột cuối bị cắt. Dùng selector
+.confirm-dialog.share-history-dialog{width:min(980px,100%)}/* Bước xem lại là một bảng 5-6 cột, hẹp như form thì cột cuối bị cắt. Dùng selector
    kèm id vì .share-dialog còn được nới/thu ở nhiều chỗ phía dưới trong cùng file. */
-#resultDialogSurface.share-review-dialog{width:min(980px,100%)}#resultDialogSurface.share-review-dialog .confirm-title{margin-bottom:10px}#resultDialogSurface.share-review-dialog .confirm-copy{margin-top:0}#resultDialogSurface.share-review-dialog .share-section{margin-top:12px}#resultDialogSurface.share-review-dialog .share-section-label{margin-bottom:6px}.share-history-link{padding:0;border:0;background:transparent;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}.share-history-link:hover{color:var(--brand-h,#8b0055)}.share-log-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.share-log-row{display:flex;gap:6px;font-size:12px;color:var(--z700)}.share-log-turn{flex:none;color:var(--z600);font-weight:600}.share-log-when{color:var(--z600);font-variant-numeric:tabular-nums}.share-history-list{display:flex;flex-direction:column;gap:10px}.share-history-card{padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:var(--z50)}.share-history-turn{margin-bottom:6px;color:var(--z900);font-size:12px;font-weight:700}.share-history-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}.share-history-dl dt{color:var(--z500);font-size:11px}.share-history-dl dd{margin:0;color:var(--z900);font-size:12px}
+#resultDialogSurface.share-review-dialog{width:min(980px,100%)}#resultDialogSurface.share-review-dialog .confirm-title{margin-bottom:10px}#resultDialogSurface.share-review-dialog .confirm-copy{margin-top:0}#resultDialogSurface.share-review-dialog .share-section{margin-top:12px}#resultDialogSurface.share-review-dialog .share-section-label{margin-bottom:6px}.share-history-link{padding:0;border:0;background:transparent;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}.share-history-link:hover{color:var(--brand-h,#8b0055)}.share-log-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.share-log-row{display:flex;gap:6px;font-size:12px;color:var(--z700)}.share-log-turn{flex:none;color:var(--z600);font-weight:600}.share-log-when{color:var(--z600);font-variant-numeric:tabular-nums}.share-history-list{display:flex;flex-direction:column;gap:10px}.share-history-card{padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:var(--z50)}.share-history-turn{margin-bottom:6px;color:var(--z900);font-size:12px;font-weight:700}.share-history-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.share-history-when{color:var(--z600);font-size:11.5px;font-variant-numeric:tabular-nums}.share-history-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px}.share-history-plain{color:var(--z700);font-size:12px}.share-history-note{margin-top:8px;color:var(--z700);font-size:11.5px;line-height:1.5}.share-history-note span{display:block;color:var(--z500);font-size:11px}.share-history-dl dt{color:var(--z500);font-size:11px}.share-history-dl dd{margin:0;color:var(--z900);font-size:12px}
 .summary-share{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-top:14px;padding:10px 0 0;border:0;border-top:1px solid var(--z200);border-radius:0;background:transparent}.summary-share-status{font-size:11.5px;font-weight:600;color:var(--z800)}.share-status-done{color:var(--brand)}.summary-share-meta{margin-top:3px;color:var(--z500);font-size:10.5px;line-height:1.45}.share-meta-list{margin:5px 0 0;padding-left:15px;display:grid;gap:3px}.share-meta-list li{line-height:1.4}.summary-share-action{margin:0}.summary-share-action .btn-share{height:30px;font-size:11.5px;width:100%;justify-content:center}
 .share-extra-viewers{margin-top:7px}.share-viewer-chips{margin:0 0 6px}.share-viewer-chip{gap:7px;padding:4px 6px 4px 5px;border-color:var(--brand-ring);background:var(--brand-muted);color:var(--z700);font-size:12px}.share-viewer-avatar{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:9px;font-weight:700;flex:none}.share-viewer-chip button{width:18px;height:18px;border-radius:50%;font-size:13px}.share-viewer-chip button:hover{background:#fff;color:var(--err)}
 .rating-answer,.self-assessment-tag{display:inline-flex;align-items:center;min-height:22px;margin-top:6px;padding:2px 6px;border:1px solid var(--z200);border-radius:4px;background:var(--z50);color:var(--z600);font-size:10.5px;font-weight:600;line-height:1.35}.rating-answer{color:var(--brand);border-color:var(--brand-ring);background:var(--brand-muted)}.self-assessment-tag{margin:0 0 0 6px;vertical-align:middle;font-weight:500}
@@ -135,7 +135,7 @@ function reviewerAvatar(reviewer){return isAnon()?`<div class="avatar avatar-ano
 function reviewerIdentity(reviewer){return isAnon()?`<span class="identity-text identity-anon">Ẩn danh</span>`:`<span class="pms-tooltip" tabindex="0"><span class="identity-text">${reviewer.name}<span class="domain">(${reviewer.domain})</span></span><span class="pms-tooltip-content pms-tooltip-top">${personTooltip(reviewer)}</span></span>${resignedTag(reviewer)}`;}
 function questionAnswerRecord(item){const reviewer=item.assignment.reviewer,rating=item.question.type==='rating'?`<span class="rating-answer">${item.answer.score}/${item.question.ratingScale}</span>`:'',self=item.assignment.selfAssessment?'<span class="self-assessment-tag">Tự đánh giá</span>':'';return `<article class="question-response">${reviewerAvatar(reviewer)}<div class="question-response-main"><div class="question-response-head"><div><div class="fb-line">${reviewerIdentity(reviewer)}${self}</div><div class="fb-date">${item.assignment.submittedAt}</div></div></div>${rating}${item.answer.body?`<p class="fb-body">${item.answer.body}</p>`:''}</div></article>`;}
 function questionEvidenceGroup(group,index,isSingleQuestion){const count=group.answers.length,label=isSingleQuestion?'Câu hỏi':`Câu ${index+1}`,question=`<div class="shared-question q-collapse"><div class="question-head"><p class="question-text q-text"><span class="q-label">${label}:</span> ${group.question.text}${group.question.required?'<span class="q-required-star" title="Câu hỏi bắt buộc">*</span>':''}</p>${isSingleQuestion?'':`<span class="question-response-count">${count} phản hồi</span>`}</div><button class="q-more" type="button" onclick="toggleQuestion(this)" hidden>Xem thêm</button></div>`,answerContent=count?group.answers.map(questionAnswerRecord).join(''):!isSingleQuestion&&`<div class="question-empty">Chưa nhận phản hồi cho câu này</div>`;return `<section class="question-evidence-group${isSingleQuestion?' single-question-group':''}">${question}<div class="question-answers">${answerContent||''}</div></section>`;}
-function renderParticipantList(){document.getElementById('participantCount').textContent=`Nhân viên nhận phản hồi (${ORDERED.length})`;document.getElementById('participantList').innerHTML=ORDERED.map(participant=>{const person=participant.employee,meta=progressMeta(participant),shared=FeedbackProgramModel.isResultShared(PROGRAM,person.id),lockKind=recipientLockKind(participant);return `<button class="person${person.id===SELECTED_ID?' on':''}" aria-pressed="${person.id===SELECTED_ID}" onclick="selectParticipant('${person.id}')"><span class="avatar">${initials(person)}</span><span class="person-info"><span class="identity pms-tooltip" tabindex="0"><span class="identity-text">${person.name}<span class="domain">(${person.domain})</span></span><span class="pms-tooltip-content pms-tooltip-top">${personTooltip(person)}</span></span><span class="small">${meta.text}</span>${resignedTag(person)}</span>${shared?`<i class="bx bx-check-double person-shared" title="Đã chia sẻ kết quả"></i>`:lockKind?`<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>`:''}</button>`;}).join('');}
+function renderParticipantList(){document.getElementById('participantCount').textContent=`Nhân viên nhận phản hồi (${ORDERED.length})`;document.getElementById('participantList').innerHTML=ORDERED.map(participant=>{const person=participant.employee,meta=progressMeta(participant),shared=FeedbackProgramModel.isResultShared(PROGRAM,person.id),lockKind=recipientLockKind(participant);return `<button class="person${person.id===SELECTED_ID?' on':''}" aria-pressed="${person.id===SELECTED_ID}" onclick="selectParticipant('${person.id}')"><span class="avatar">${initials(person)}</span><span class="person-info"><span class="identity pms-tooltip" tabindex="0"><span class="identity-text">${person.name}<span class="domain">(${person.domain})</span></span><span class="pms-tooltip-content pms-tooltip-top">${personTooltip(person)}</span></span><span class="small">${meta.text}</span>${resignedTag(person)}</span>${shared?`<i class="bx bx-check-double person-shared" title="Đã chia sẻ kết quả"></i>`:lockKind?`<i class="bx bx-lock-alt person-lock" title="${recipientLockTitle(lockKind)}"></i>`:''}</button>`;}).join('');}
 function badgeSummary(participant){if(isHrProgram())return '';const tally=FeedbackProgramModel.coreValueTally(participant);return Object.entries(tally).map(([id,count])=>`<span class="employee-badge-item pms-tooltip" tabindex="0"><img src="../Core value with BG/${BADGE_ICON[id]||'Constant_.png'}" alt=""/><span>${count}</span><span class="pms-tooltip-content pms-tooltip-top">${BADGE_LABEL[id]||id}</span></span>`).join('');}
 function aiSummary(participant){const collapsed=AI_SUMMARY_COLLAPSED?' collapsed':'';const ready=FeedbackProgramModel.isAiSummaryEligible(participant)&&participant.aiSummary;const toggle=`<span class="dialog-ai-summary-toggle"><i class="bx ${AI_SUMMARY_COLLAPSED?'bx-chevron-down':'bx-chevron-up'}"></i></span>`;if(!ready)return `<section class="dialog-ai-summary${collapsed}" id="employeeAiSummary"><button class="dialog-ai-summary-head" onclick="collapseAiSummary()" aria-expanded="${!AI_SUMMARY_COLLAPSED}" aria-label="${AI_SUMMARY_COLLAPSED?'Mở AI Summary':'Thu gọn AI Summary'}"><div class="dialog-ai-summary-brand"><i class="bx bx-sparkles"></i><span>AI Summary</span></div><div class="dialog-ai-summary-actions">${toggle}</div></button><div class="dialog-ai-summary-empty"><i class="bx bx-layer"></i><span>Cần ít nhất 2 phản hồi để tạo AI Summary.</span></div></section>`;const list=items=>`<ul class="dialog-ai-summary-list">${items.map(item=>`<li>${item}</li>`).join('')}</ul>`;return `<section class="dialog-ai-summary${collapsed}" id="employeeAiSummary"><button class="dialog-ai-summary-head" onclick="collapseAiSummary()" aria-expanded="${!AI_SUMMARY_COLLAPSED}" aria-label="${AI_SUMMARY_COLLAPSED?'Mở AI Summary':'Thu gọn AI Summary'}"><div class="dialog-ai-summary-brand"><i class="bx bx-sparkles"></i><span>AI Summary</span></div><div class="dialog-ai-summary-actions"><span class="dialog-ai-summary-updated">Cập nhật: 11/08/2026</span>${toggle}</div></button><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(participant.aiSummary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(participant.aiSummary.opportunities)}</section></div></section>`;}
 function pendingRows(participant){return participant.assignments.filter(item=>item.status!=='submitted').map(assignment=>{const reviewer=assignment.reviewer,locked=assignment.status==='locked',resigned=isResignedPerson(reviewer),canRemind=canRemindAssignment(assignment),remindTitle=canRemind?'Gửi lời nhắc thủ công':remindBlockReason(assignment,resigned);return `<div class="pending"><div class="pending-head">${isAnon()?`<span class="identity"><span class="identity-text identity-anon">Ẩn danh</span></span>`:`<span class="identity pms-tooltip" tabindex="0"><span class="identity-text">${reviewer.name}<span class="domain">(${reviewer.domain})</span></span><span class="pms-tooltip-content pms-tooltip-top">${personTooltip(reviewer)}</span></span>${resignedTag(reviewer)}`}<div class="pending-actions"><span class="pending-tag"><i class="bx ${assignment.excludedByResignation?'bx-user-x':locked?'bx-lock-alt':'bx-time-five'}"></i>${assignment.excludedByResignation?'Ngừng thu thập':locked?'Đóng':'Chưa trả lời'}</span>${locked||isAnon()?'':`<button class="btn btn-pending-remind" onclick="remindOneAssignment('${assignment.id}')" ${canRemind?'':'disabled'} title="${remindTitle}"><i class="bx bx-bell"></i> Nhắc</button>`}</div></div>${reminderMeta(assignment)}</div>`;}).join('');}
@@ -143,13 +143,36 @@ function reminderMeta(assignment){if(isResignedPerson(assignment&&assignment.rev
 function autoRemindDate(){const parts=String(PROGRAM.due||'').split('/');if(parts.length!==3)return PROGRAM.due||'';const date=new Date(+parts[2],+parts[1]-1,+parts[0]);date.setDate(date.getDate()-3);const pad=value=>String(value).padStart(2,'0');return `${pad(date.getDate())}/${pad(date.getMonth()+1)}/${date.getFullYear()}`;}
 function remindOneAssignment(assignmentId){const assignment=DETAIL.participants.flatMap(item=>item.assignments||[]).find(item=>item.id===assignmentId);if(!assignment||!canRemindAssignment(assignment))return;assignment.manualReminderHistory=[...(assignment.manualReminderHistory||[]),NOW];toast('Đã gửi lời nhắc.');renderDetail();}
 function persistProgramState(){if(!SAVED_PROGRAM)return;let saved=[];try{saved=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');}catch(error){saved=[];}localStorage.setItem(STORE_KEY,JSON.stringify(saved.map(item=>item.id===PROGRAM.id?{...PROGRAM,detailParticipants:DETAIL.participants}:item)));}
-function renderProgramActions(){const actions=document.getElementById('programActions');if(!actions)return;const parts=[];if(PROGRAM.status==='collecting')parts.push(`<button class="btn btn-outline btn-share" type="button" onclick="requestTicketClosure()"><i class="bx bx-lock-alt"></i> Đóng yêu cầu</button>`);if(PROGRAM.status==='closed'&&!programHasShare())parts.push(`<button class="btn btn-outline btn-share" type="button" onclick="reopenProgram()"><i class="bx bx-lock-open-alt"></i> Mở lại</button>`);actions.innerHTML=parts.join('');}
-function recipientLockKind(participant){if(!participant)return null;const prog=FeedbackProgramModel.participantProgress(participant);if(prog.total>0&&prog.done>=prog.total)return 'complete';if(participant.closed)return 'manual';return null;}
+function renderProgramActions(){const actions=document.getElementById('programActions');if(!actions)return;const parts=[];if(PROGRAM.status==='collecting')parts.push(`<button class="btn btn-outline btn-share" type="button" onclick="requestTicketClosure()"><i class="bx bx-lock-alt"></i> Đóng yêu cầu</button>`);if(FeedbackProgramModel.canReopenCampaign(PROGRAM,TODAY))parts.push(`<button class="btn btn-outline btn-share" type="button" onclick="reopenProgram()"><i class="bx bx-lock-open-alt"></i> Mở lại</button>`);actions.innerHTML=parts.join('');}
+/* Icon ở mép phải mỗi hàng nói đúng MỘT chuyện: yêu cầu này còn thu thập được không.
+   Đã chia sẻ kết quả là trạng thái CUỐI - yêu cầu tự đóng và không mở lại được - nên
+   hiện dấu check, không hiện ổ khóa. Ổ khóa chỉ dành cho ca ĐÃ ĐÓNG MÀ CHƯA CHIA SẺ,
+   tức còn mở lại được: HR đóng tay, hoặc quá 90 ngày kể từ ngày tạo nên tự đóng.
+   Nhận đủ phản hồi KHÔNG phải là đóng: không còn ai để chờ nhưng yêu cầu vẫn mở, và
+   dòng tiến độ 4/4 đã nói điều đó rồi. */
+const RECIPIENT_LOCK_TITLE={
+  manual:'HR đã đóng yêu cầu của người nhận này',
+  program:'HR đã đóng yêu cầu',
+  'no-active-ticket':'Đã nhận đủ phản hồi nên tự đóng',
+  expired:'Quá 90 ngày kể từ ngày tạo nên tự đóng'
+};
+function recipientLockKind(participant){
+  if(!participant)return null;
+  /* Đóng tay theo từng người đứng trước, vì chỉ ca đó mới mở lại riêng được. */
+  if(participant.closed)return 'manual';
+  const reason=FeedbackProgramModel.campaignCloseReason(PROGRAM,TODAY);
+  if(reason==='manual')return 'program';
+  if(reason)return reason;
+  /* Người này đã thu đủ tuy cả chương trình vẫn còn mở. */
+  const prog=FeedbackProgramModel.participantProgress(participant);
+  return (prog.total>0&&prog.done>=prog.total)?'no-active-ticket':null;
+}
+function recipientLockTitle(kind){return RECIPIENT_LOCK_TITLE[kind]||'Đã đóng';}
 function isRecipientClosed(participant){return Boolean(recipientLockKind(participant));}
-function renderParticipantActions(participant){const target=document.getElementById('participantActions');if(!target)return;const id=participant.employee.id,multi=(DETAIL.participants||[]).length>=2,shared=FeedbackProgramModel.isResultShared(PROGRAM,id),closed=isRecipientClosed(participant),hasPending=participant.assignments.some(item=>item.status!=='submitted'&&item.status!=='locked'),canRemind=participant.assignments.some(canRemindAssignment),parts=[];if(shared&&multi){parts.push('<span class="ticket-status shared"><i class="bx bx-check-circle"></i>Đã chia sẻ kết quả</span>');}else if(closed&&multi){const kind=recipientLockKind(participant);parts.push(`<span class="ticket-lock" title="Đã đóng"><i class="bx bx-lock-alt"></i></span>`);if(kind==='manual'&&!shared)parts.push(`<button class="btn btn-outline btn-share" type="button" onclick="reopenParticipant('${id}')"><i class="bx bx-lock-open-alt"></i> Mở lại</button>`);}else if(hasPending&&!isAnon()){parts.push(`<button class="btn btn-remind" type="button" onclick="remindParticipant('${id}')" ${canRemind?'':'disabled'}><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`);}target.innerHTML=parts.join('');}
+function renderParticipantActions(participant){const target=document.getElementById('participantActions');if(!target)return;const id=participant.employee.id,multi=(DETAIL.participants||[]).length>=2,shared=FeedbackProgramModel.isResultShared(PROGRAM,id),closed=isRecipientClosed(participant),hasPending=participant.assignments.some(item=>item.status!=='submitted'&&item.status!=='locked'),canRemind=participant.assignments.some(canRemindAssignment),parts=[];if(shared&&multi){parts.push('<span class="ticket-status shared"><i class="bx bx-check-circle"></i>Đã chia sẻ kết quả</span>');}else if(closed&&multi){const kind=recipientLockKind(participant);parts.push(`<span class="ticket-lock" title="${recipientLockTitle(kind)}"><i class="bx bx-lock-alt"></i></span>`);if(kind==='manual'&&!shared)parts.push(`<button class="btn btn-outline btn-share" type="button" onclick="reopenParticipant('${id}')"><i class="bx bx-lock-open-alt"></i> Mở lại</button>`);}else if(hasPending&&!isAnon()){parts.push(`<button class="btn btn-remind" type="button" onclick="remindParticipant('${id}')" ${canRemind?'':'disabled'}><i class="bx bx-bell"></i> Nhắc người chưa trả lời</button>`);}target.innerHTML=parts.join('');}
 function reopenParticipant(id){const participant=DETAIL.participants.find(item=>item.employee.id===id);if(!participant||FeedbackProgramModel.isResultShared(PROGRAM,id))return;participant.closed=false;delete participant.closedAt;participant.assignments=(participant.assignments||[]).map(assignment=>assignment.status==='locked'?{...assignment,status:'pending'}:assignment);if(PROGRAM.status==='closed'){PROGRAM={...PROGRAM,status:'collecting'};delete PROGRAM.closedAt;}persistProgramState();renderDetail();toast('Đã mở lại yêu cầu cho người nhận này.');}
 function programHasShare(){const mode=(PROGRAM.resultSharing||{}).mode;return Boolean(mode&&mode!=='not_shared');}
-function reopenProgram(){if(programHasShare())return;PROGRAM={...PROGRAM,status:'collecting'};delete PROGRAM.closedAt;DETAIL.participants.forEach(participant=>{participant.closed=false;delete participant.closedAt;participant.assignments=(participant.assignments||[]).map(assignment=>assignment.status==='locked'?{...assignment,status:'pending'}:assignment);});persistProgramState();renderDetail();toast('Đã mở lại toàn bộ yêu cầu.');}
+function reopenProgram(){if(!FeedbackProgramModel.canReopenCampaign(PROGRAM,TODAY))return;PROGRAM={...PROGRAM,status:'collecting'};delete PROGRAM.closedAt;DETAIL.participants.forEach(participant=>{participant.closed=false;delete participant.closedAt;participant.assignments=(participant.assignments||[]).map(assignment=>assignment.status==='locked'?{...assignment,status:'pending'}:assignment);});persistProgramState();renderDetail();toast('Đã mở lại toàn bộ yêu cầu.');}
 function closeResultDialog(){PENDING_DIALOG=null;document.getElementById('resultDialog').classList.remove('open');}
 let CLOSE_STATE={scope:'all',ids:[]};let SHARE_AFTER_CLOSE=false;
 function afterCloseFlow(message){renderDetail();if(SHARE_AFTER_CLOSE){SHARE_AFTER_CLOSE=false;setTimeout(()=>showCloseSuccessThenShare(message),0);}else{toast(message);}}
@@ -220,6 +243,9 @@ const CURRENT_HR={name:'Lê Thuỳ Anh',domain:'anh.le',role:'HRBP'};
 /* Người bấm nút chia sẻ - lịch sử phải kể được ai đã chia sẻ, không chỉ "HR". Người tạo
    chương trình và người chia sẻ có thể là hai HR khác nhau, nên lấy người đang đăng nhập. */
 function shareByPerson(){return {domain:CURRENT_HR.domain,name:CURRENT_HR.name};}
+/* Ngày của prototype là ngày giả lập, nhưng giờ thì lấy đồng hồ thật - hai lần chia
+   sẻ trong cùng một ngày phải phân biệt được bằng giờ. */
+function shareStamp(){const now=new Date(),pad=value=>String(value).padStart(2,'0');return `${TODAY} ${pad(now.getHours())}:${pad(now.getMinutes())}`;}
 function shareTargets(){
   const state=RESULT_SHARE_STATE;
   return {toRecipient:state.toRecipient,managerLevels:state.managerLevels.slice(),extraViewers:state.extraViewers.slice()};
@@ -278,10 +304,22 @@ function shareReviewPersonText(domain){
   const person=(typeof OrgChain!=='undefined')?OrgChain.person(domain):null;
   return person?`${person.name} (${person.domain})`:domain;
 }
+/* Một người phải đọc ra một cái tên trong cùng màn này. Bản ghi trong chương trình
+   được ưu tiên vì đó là tên đang hiện ở rail bên trái; dữ liệu nhân sự chung chỉ
+   dùng cho người ngoài danh sách tham gia (quản lý, người khác). */
+function sharePersonName(domain,fallback){
+  const participant=(DETAIL.participants||[]).find(item=>item.employee.domain===domain||item.employee.id===domain);
+  if(participant)return participant.employee.name;
+  const person=(typeof OrgChain!=='undefined')?OrgChain.person(domain):null;
+  return fallback||(person?person.name:'')||domain;
+}
 function shareReviewInitials(domain){
   const person=(typeof OrgChain!=='undefined')?OrgChain.person(domain):null;
   return person?person.ini:String(domain||'').slice(0,2).toUpperCase();
 }
+/* Nội dung chia sẻ chỉ có hai mức, và câu chữ phải giống nhau ở bước xem lại lẫn
+   lịch sử - viết một lần ở đây để hai chỗ không trôi khỏi nhau. */
+function shareContentText(level){return level==='summary'?'Chỉ kết quả tổng hợp bởi AI':'Kết quả tổng hợp bởi AI và nội dung chi tiết từng phản hồi';}
 function shareReviewPersonCell(domain,name,note){
   return `<div class="share-table-person"><span class="share-table-name">${escapeResultShare(name||domain)}</span>`
     +`<em class="share-table-domain">(${escapeResultShare(domain)})</em>`
@@ -291,46 +329,56 @@ function shareReviewPersonCell(domain,name,note){
    Đọc ngang một hàng là biết kết quả của người đó rơi vào tay những ai - thứ mà danh
    sách phẳng không nói được khi chia sẻ cho nhiều người cùng lúc.
    Chỉ dựng cột cho vai HR thật sự chọn: cột trống chỉ làm người đọc phân vân
-   "mình có chia sẻ cho họ không". */
-function shareReviewTableHTML(){
-  const M=FeedbackProgramModel,state=RESULT_SHARE_STATE,ids=shareParticipantIds();
-  const levels=M.MANAGER_LEVELS.filter(level=>state.managerLevels.includes(level));
+   "mình có chia sẻ cho họ không".
+   MỘT hàm dựng cho cả bước xem lại lẫn lịch sử: hai chỗ kể cùng một chuyện thì phải
+   nhìn giống nhau, và sửa một lần là cả hai cùng đổi. */
+function shareAudienceTableHTML(plan){
+  const M=FeedbackProgramModel,ids=plan.ids||[],extraViewers=plan.extraViewers||[];
+  const levels=M.MANAGER_LEVELS.filter(level=>(plan.managerLevels||[]).includes(level));
   const columns=levels.map(level=>({key:level,label:M.recipientRoleLabel(level)}));
-  /* Chỉ đưa vào bảng những người khác THẬT SỰ mở được kết quả trên hệ thống. Người
-     ngoài phạm vi quản lý chỉ nhận file qua email - việc đó thuộc về lịch sử chia sẻ,
-     đưa lên bảng này chỉ làm người đọc tưởng họ xem được trên màn. */
-  const systemViewersFor=id=>state.extraViewers.filter(viewer=>M.shareChannelFor(viewer.domain,id)==='system');
-  if(ids.some(id=>systemViewersFor(id).length))columns.push({key:'other',label:'Người khác'});
+  /* Người khác mà HR đã chọn thì luôn đứng trong bảng, kể cả người chỉ nhận file qua
+     email. Trước đây bảng xem lại lọc bỏ họ nên cùng một người vừa được chọn lại hiện
+     "Không có" ở vài hàng - HR tưởng mình chọn hụt. Cách xem đã được nói một lần ở
+     dòng chung, nên trong ô không ghi lại. */
+  const viewersFor=id=>extraViewers.filter(viewer=>viewer.domain||viewer.name);
+  if(ids.some(id=>viewersFor(id).length))columns.push({key:'other',label:'Người khác'});
   const head=`<tr><th class="share-table-index">#</th><th>Người nhận phản hồi</th>`
     +columns.map(column=>`<th>${escapeResultShare(column.label)}</th>`).join('')+`</tr>`;
   const rows=ids.map((id,index)=>{
     const chain=(typeof OrgChain!=='undefined')?OrgChain.chainFor(id):[];
-    const person=(typeof OrgChain!=='undefined')?OrgChain.person(id):null;
-    const subject=shareReviewPersonCell(id,person?person.name:id,'')
-      +(state.toRecipient?'<span class="share-table-self">Tự xem kết quả của mình</span>':'');
+    const subject=shareReviewPersonCell(id,sharePersonName(id),'')
+      +(plan.toRecipient?'<span class="share-table-self">Tự xem kết quả của mình</span>':'');
     const cells=columns.map(column=>{
       if(column.key==='other'){
-        const viewers=systemViewersFor(id);
-        return `<td>${viewers.length?viewers.map(viewer=>shareReviewPersonCell(viewer.domain,viewer.name,'')).join(''):'<span class="share-table-empty">Không có</span>'}</td>`;
+        const viewers=viewersFor(id);
+        return `<td>${viewers.length?viewers.map(viewer=>shareReviewPersonCell(viewer.domain,sharePersonName(viewer.domain,viewer.name),'')).join(''):'<span class="share-table-empty">Không có</span>'}</td>`;
       }
       const found=chain.find(entry=>entry.role===column.key);
-      return `<td>${found?shareReviewPersonCell(found.domain,found.name,''):'<span class="share-table-empty">Không có</span>'}</td>`;
+      return `<td>${found?shareReviewPersonCell(found.domain,sharePersonName(found.domain,found.name),''):'<span class="share-table-empty">Không có</span>'}</td>`;
     }).join('');
     return `<tr><td class="share-table-index">${index+1}</td><td>${subject}</td>${cells}</tr>`;
   }).join('');
   return `<div class="share-table-wrap"><table class="share-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
 }
+function shareReviewTableHTML(){
+  const state=RESULT_SHARE_STATE;
+  return shareAudienceTableHTML({ids:shareParticipantIds(),toRecipient:state.toRecipient,
+    managerLevels:state.managerLevels,extraViewers:state.extraViewers});
+}
 function shareReviewHTML(){
   const ids=shareParticipantIds();
-  const content=RESULT_SHARE_STATE.contentLevel==='summary'
-    ?'Chỉ kết quả tổng hợp bởi AI'
-    :'Kết quả tổng hợp bởi AI và nội dung chi tiết từng phản hồi';
+  const content=shareContentText(RESULT_SHARE_STATE.contentLevel);
   const note=RESULT_SHARE_STATE.note.trim()
     ?`<section class="share-section"><span class="share-section-label">Ghi chú của HR</span><div class="share-review-text">${escapeResultShare(RESULT_SHARE_STATE.note.trim())}</div></section>`:'';
   /* Không nhắc lại cảnh báo đóng yêu cầu: form ở bước trước đã nói, và nút xác nhận
      vẫn ghi rõ "Đóng & chia sẻ kết quả". */
+  /* Bảng nói AI xem kết quả của ai; dòng này nói XEM BẰNG CÁCH NÀO. Dùng chung đúng
+     một hàm với lịch sử để hai bước không kể hai câu chuyện khác nhau. */
+  const channel=shareChannelText(ids,shareTargets());
+  const channelBlock=channel?`<section class="share-section"><span class="share-section-label">Cách xem kết quả</span>`
+    +`<div class="share-review-text">${escapeResultShare(channel)}</div></section>`:'';
   return `<section class="share-section"><span class="share-section-label">Ai xem kết quả của ai</span>`
-    +`${shareReviewTableHTML()}</section>`
+    +`${shareReviewTableHTML()}</section>${channelBlock}`
     +`<section class="share-section"><span class="share-section-label">Nội dung chia sẻ</span>`
     +`<div class="share-review-text">${content}</div></section>${note}`;
 }
@@ -343,7 +391,7 @@ function renderShareReview(){
   confirm.textContent=SHARE_REVIEW.closeIds.length?'Đóng & chia sẻ kết quả':'Xác nhận chia sẻ';
   PENDING_DIALOG=()=>{
     if(SHARE_REVIEW.closeIds.length)closeRecipientsQuietly(SHARE_REVIEW.closeIds);
-    confirmResultShare(SHARE_REVIEW.ids,{targets:shareTargets(),by:shareByPerson(),
+    confirmResultShare(SHARE_REVIEW.ids,{targets:shareTargets(),by:shareByPerson(),at:shareStamp(),
       contentLevel:RESULT_SHARE_STATE.contentLevel,note:RESULT_SHARE_STATE.note});
   };
   if(!document.getElementById('resultDialogCancel')){
@@ -463,14 +511,86 @@ function setShareScopeMode(mode){RESULT_SHARE_STATE.scopeMode=mode;renderResultS
 function toggleShareRecipient(id){const index=RESULT_SHARE_STATE.recipientIds.indexOf(id);if(index>=0)RESULT_SHARE_STATE.recipientIds.splice(index,1);else RESULT_SHARE_STATE.recipientIds.push(id);renderResultShareSettings();}
 function shareScopeSectionHTML(){if(RESULT_SHARE_STATE.scope!=='all')return '';const some=RESULT_SHARE_STATE.scopeMode==='some',list=shareableRecipients();const openInList=list.filter(item=>!isRecipientClosed(item)).length,notice=openInList>0?`<div class="share-notice"><i class="bx bx-error-circle"></i><span>Các yêu cầu chưa đóng sẽ tự động đóng lại (ngừng thu thập phản hồi) sau khi chọn chia sẻ kết quả. Các yêu cầu này sẽ không thể mở lại.</span></div>`:'';const rows=list.map(participant=>{const person=participant.employee,on=RESULT_SHARE_STATE.recipientIds.includes(person.id),closed=isRecipientClosed(participant);return `<label class="close-recipient${on?' on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleShareRecipient('${person.id}')"/><span class="avatar">${initials(person)}</span><span class="cr-info"><span class="cr-name">${person.name}<span class="domain">(${person.domain})</span></span><span class="cr-meta${closed?'':' cr-meta-open'}">${closed?'Đã đóng':'Chưa đóng - sẽ đóng khi chia sẻ'}</span></span></label>`;}).join('');const listBlock=list.length?`<div class="close-recipient-list">${rows}</div>`:`<div class="close-empty">Tất cả kết quả đã được chia sẻ.</div>`;return `${notice}<section class="share-section"><span class="share-section-label">Chia sẻ kết quả của ai?</span><div class="share-audience-options"><label class="share-audience-option${!some?' on':''}"><input type="radio" name="shareScope" ${!some?'checked':''} onchange="setShareScopeMode('all')"/><span><strong>Tất cả người nhận phản hồi</strong><small>Yêu cầu nào chưa đóng sẽ được đóng nốt trước khi chia sẻ.</small></span></label><label class="share-audience-option${some?' on':''}"><input type="radio" name="shareScope" ${some?'checked':''} onchange="setShareScopeMode('some')"/><span><strong>Chọn từng người nhận phản hồi</strong><small>Chỉ chia sẻ kết quả của những người được chọn.</small></span></label></div></section><section class="share-section share-recipient-section${some?'':' hidden'}"><span class="share-section-label">Chọn người nhận cần chia sẻ</span>${listBlock}</section>`;}
 function confirmResultShare(participantIds,options){const existing=PROGRAM.resultSharing||{};let ids=participantIds;if(participantIds.length&&existing.mode==='shared_selected'){ids=[...new Set([...(existing.participantIds||[]),...participantIds])];}PROGRAM=FeedbackProgramModel.shareResults(PROGRAM,ids,TODAY,options);persistProgramState();renderDetail();toast('Đã chia sẻ kết quả.');}
-function contentLevelLabel(level){return level==='summary'?'Chỉ chia sẻ kết quả tổng hợp bởi AI':'Chia sẻ kết quả tổng hợp bởi AI và Nội dung chi tiết từng phản hồi';}
-function shareEntryRecipientText(entry){const ids=entry.participantIds||[];if(!ids.length)return 'Tất cả người nhận phản hồi';const byId=new Map((DETAIL.participants||[]).map(participant=>[participant.employee.id,participant.employee]));return ids.map(id=>{const person=byId.get(id);return person?`${person.name}${person.domain?` (${person.domain})`:''}`:id;}).join(', ');}
 function otherViewerText(names){return (names||[]).map(name=>{const person=(window.PMS_EMPLOYEES||[]).find(item=>item.name===name),domain=person&&(person.login||person.domain);return `${person&&person.name||name}${domain?` (${domain})`:''}`;}).join(', ');}
 function shareEntryAudienceText(entry){const groups=audiencesCopy((entry.audiences||[]).filter(key=>key!=='others'));const others=(entry.audiences||[]).includes('others')&&(entry.additionalViewerNames||[]).length?`Người khác: ${otherViewerText(entry.additionalViewerNames)}`:'';return [groups,others].filter(Boolean).join(' - ')||'—';}
-function shareLogEntries(sharing){return (sharing.log&&sharing.log.length)?sharing.log:[{at:sharing.sharedAt,audiences:sharing.audiences,additionalViewerNames:sharing.additionalViewerNames,contentLevel:sharing.contentLevel,participantIds:sharing.participantIds}];}
+/* Chương trình chia sẻ từ trước khi có mảng log chỉ lưu dữ liệu phẳng trên
+   resultSharing. Dòng lịch sử dựng tạm phải mang theo ĐỦ thứ mà thẻ cần - nhất là
+   targets và note - nếu không, lịch sử cũ mất bảng người được chia sẻ và mất ghi chú. */
+function shareLogEntries(sharing){return (sharing.log&&sharing.log.length)?sharing.log:[{at:sharing.sharedAt,audiences:sharing.audiences,targets:sharing.targets,additionalViewerNames:sharing.additionalViewerNames,contentLevel:sharing.contentLevel,participantIds:sharing.participantIds,note:sharing.note}];}
 function sharingSummary(){const sharing=PROGRAM.resultSharing||{};const shareBtn='<button class="btn btn-outline-brand btn-share" type="button" onclick="openShareFlow()">Chia sẻ kết quả</button>';if(sharing.mode==='not_shared')return {label:'',meta:'',action:shareBtn};const entries=shareLogEntries(sharing);const rows=entries.map((entry,index)=>`<li class="share-log-row"><span class="share-log-turn">Lần ${index+1}:</span><span class="share-log-when">${entry.at||'—'}</span></li>`).join('');return {label:`<button type="button" class="share-history-link" onclick="openShareHistory()">Lịch sử chia sẻ kết quả</button>`,meta:`<ul class="share-log-list">${rows}</ul>`,action:shareBtn};}
-function openShareHistory(){const sharing=PROGRAM.resultSharing||{};if(!sharing.mode||sharing.mode==='not_shared')return;const entries=shareLogEntries(sharing);openResultDialog('Lịch sử chia sẻ kết quả','','Đóng',()=>true);document.getElementById('resultDialogSurface').classList.add('share-history-dialog');document.getElementById('resultDialogConfirm').className='btn btn-outline';const cards=entries.map((entry,index)=>`<div class="share-history-card"><div class="share-history-turn">Lần ${index+1}</div><dl class="share-history-dl"><dt>Thời gian chia sẻ</dt><dd>${escapeResultShare(entry.at||'—')}</dd><dt>Kết quả của ai được chia sẻ</dt><dd>${escapeResultShare(shareEntryRecipientText(entry))}</dd><dt>Người được chia sẻ</dt><dd>${escapeResultShare(shareEntryAudienceText(entry))}</dd><dt>Nội dung chia sẻ</dt><dd>${escapeResultShare(contentLevelLabel(entry.contentLevel))}</dd></dl></div>`).join('');document.getElementById('shareResultSettings').innerHTML=`<div class="share-history-list">${cards}</div>`;}
-function overviewStatus(){const dt=FeedbackProgramModel.daysBetween,age=dt(TODAY,PROGRAM.createdAt);if(age!==null&&age>90)return{state:'closed',label:'Đã đóng',icon:'bx-lock-alt'};const assignments=(DETAIL.participants||[]).flatMap(item=>item.assignments||[]),responded=assignments.filter(item=>item.status==='submitted').length;if(assignments.length>0&&responded>=assignments.length)return{state:'complete',label:'Hoàn thành',icon:'bx-check-circle'};const overdue=dt(TODAY,PROGRAM.due);if(overdue!==null&&overdue>0)return{state:'overdue',label:'Quá hạn',icon:'bx-error-circle'};const left=dt(PROGRAM.due,TODAY);if(left!==null&&left>=0&&left<=3)return{state:'due_soon',label:'Sắp đến hạn',icon:'bx-time-five'};return{state:'collecting',label:'Đang thu thập',icon:'bx-loader-circle'};}
+/* ── Lịch sử chia sẻ ─────────────────────────────────────────────────────
+   Một lần chia sẻ có những thứ chung cho cả lần (khi nào, ai bấm, nội dung gì,
+   kết quả của ai, xem bằng cách nào) và thứ khác nhau theo từng người được chia
+   sẻ (họ là ai, giữ vai gì). Thứ chung nói ĐÚNG MỘT LẦN ở đầu thẻ, bảng chỉ giữ
+   phần riêng - nhắc lại cùng một câu ở mọi hàng chỉ làm rối mắt.
+   Cách xem cũng là thứ chung: cách xem đi theo VAI TRÒ chứ không theo từng người,
+   nên viết một câu cho cả lần thay vì một cột trong bảng. */
+function shareHistoryName(domain,name){
+  /* Người nhận phản hồi phải đọc đúng cái tên đang hiện ở rail bên trái. Dữ liệu
+     nhân sự chung và danh sách người tham gia có chỗ ghi tên lệch nhau, nên bản
+     ghi trong chương trình được ưu tiên - một người, một tên trong cùng màn. */
+  const participant=(DETAIL.participants||[]).find(item=>item.employee.domain===domain||item.employee.id===domain);
+  const person=(typeof OrgChain!=='undefined')?OrgChain.person(domain):null;
+  const label=(participant&&participant.employee.name)||name||(person?person.name:'');
+  /* Bản ghi cũ chỉ lưu tên, chưa lưu domain - thiếu thì thôi, không in ngoặc rỗng. */
+  if(!domain)return label||'—';
+  return `${label||domain} (${domain})`;
+}
+function shareAllParticipantIds(){return (DETAIL.participants||[]).map(item=>item.employee.id);}
+/* Cách xem là câu CHUNG của cả lần chia sẻ, vì nó đi theo VAI TRÒ chứ không theo
+   từng người: ai nằm trong phạm vi quản lý thì mở kết quả thẳng trên hệ thống, ai
+   ngoài phạm vi đó chỉ nhận file đính kèm qua email. Chỉ nhắc vế email khi lần đó
+   thật sự có người như vậy - không dọa suông. */
+function shareChannelText(ids,targets){
+  const hasSystem=targets.toRecipient||(targets.managerLevels||[]).length>0;
+  const hasEmail=(targets.extraViewers||[]).some(viewer=>
+    ids.some(id=>FeedbackProgramModel.shareChannelFor(viewer.domain,id)!=='system'));
+  if(!hasSystem&&!hasEmail)return '';
+  if(hasEmail&&hasSystem)return 'Cấp quản lý xem trên hệ thống, người khác không thuộc phạm vi quản lý nhân viên xem file đính kèm gửi qua email';
+  if(hasEmail)return 'Người khác không thuộc phạm vi quản lý nhân viên xem file đính kèm gửi qua email';
+  return 'Cấp quản lý xem trên hệ thống';
+}
+function shareHistoryChannelText(entry){
+  return shareChannelText(shareHistoryParticipantIds(entry),shareHistoryTargets(entry));
+}
+function shareHistoryTargets(entry){return (entry&&entry.targets)||{toRecipient:false,managerLevels:[],extraViewers:[]};}
+function shareHistoryParticipantIds(entry){
+  const ids=(entry&&entry.participantIds)||[];
+  return ids.length?ids:shareAllParticipantIds();
+}
+function shareHistoryTableHTML(entry){
+  const targets=shareHistoryTargets(entry),ids=shareHistoryParticipantIds(entry);
+  /* Không chọn gì thì mới không có bảng - còn lại, kể cả lần chỉ chia sẻ cho người
+     ngoài phạm vi quản lý, bảng vẫn là chỗ liệt kê ai đã nhận kết quả của ai. */
+  if(!targets.toRecipient&&!(targets.managerLevels||[]).length&&!(targets.extraViewers||[]).length)
+    return `<div class="share-history-plain">${escapeResultShare(shareEntryAudienceText(entry))}</div>`;
+  return shareAudienceTableHTML({ids,toRecipient:targets.toRecipient,
+    managerLevels:targets.managerLevels,extraViewers:targets.extraViewers});
+}
+/* Bảng đã nói kết quả của ai rơi vào tay ai, nên phần chung không lặp lại danh sách
+   người nhận nữa - chỉ giữ những thứ bảng KHÔNG nói được. */
+function shareHistoryCardHTML(entry,index){
+  const by=entry.by&&entry.by.domain?shareHistoryName(entry.by.domain,entry.by.name):'HR';
+  const channel=shareHistoryChannelText(entry);
+  const channelRow=channel?`<dt>Cách xem kết quả</dt><dd>${escapeResultShare(channel)}</dd>`:'';
+  const note=entry.note?`<div class="share-history-note"><span>Ghi chú của HR</span>${escapeResultShare(entry.note)}</div>`:'';
+  return `<div class="share-history-card"><div class="share-history-head">`
+    +`<span class="share-history-turn">Lần ${index+1}</span><span class="share-history-when">${escapeResultShare(entry.at||'—')}</span></div>`
+    +`<dl class="share-history-dl"><dt>Người chia sẻ</dt><dd>${escapeResultShare(by)}</dd>`
+    +`<dt>Nội dung chia sẻ</dt><dd>${escapeResultShare(shareContentText(entry.contentLevel))}</dd>`
+    +`${channelRow}</dl>`
+    +`${shareHistoryTableHTML(entry)}${note}</div>`;
+}
+function openShareHistory(){
+  const sharing=PROGRAM.resultSharing||{};
+  if(!sharing.mode||sharing.mode==='not_shared')return;
+  const entries=shareLogEntries(sharing);
+  openResultDialog('Lịch sử chia sẻ kết quả','','Đóng',()=>true);
+  document.getElementById('resultDialogSurface').classList.add('share-history-dialog');
+  document.getElementById('resultDialogConfirm').className='btn btn-outline';
+  document.getElementById('shareResultSettings').innerHTML=`<div class="share-history-list">${entries.map(shareHistoryCardHTML).join('')}</div>`;
+}
+function overviewStatus(){const dt=FeedbackProgramModel.daysBetween;if(FeedbackProgramModel.isCampaignClosed(PROGRAM,TODAY))return{state:'closed',label:'Đã đóng',icon:'bx-lock-alt'};const assignments=(DETAIL.participants||[]).flatMap(item=>item.assignments||[]),responded=assignments.filter(item=>item.status==='submitted').length;if(assignments.length>0&&responded>=assignments.length)return{state:'complete',label:'Hoàn thành',icon:'bx-check-circle'};const overdue=dt(TODAY,PROGRAM.due);if(overdue!==null&&overdue>0)return{state:'overdue',label:'Quá hạn',icon:'bx-error-circle'};const left=dt(PROGRAM.due,TODAY);if(left!==null&&left>=0&&left<=3)return{state:'due_soon',label:'Sắp đến hạn',icon:'bx-time-five'};return{state:'collecting',label:'Đang thu thập',icon:'bx-loader-circle'};}
 function renderProgramOverview(){const data=FeedbackProgramModel.programDetailOverview(DETAIL,TODAY),eligible=DETAIL.participants.flatMap(item=>item.assignments||[]).some(canRemindAssignment),percent=data.totalResponses?Math.round(data.responded/data.totalResponses*100):0,status=overviewStatus(),closed=PROGRAM.status==='closed',sharing=sharingSummary();document.getElementById('overview').innerHTML=`<div class="summary-title">Tổng quan chương trình</div><div class="summary-status summary-status-${status.state}"><i class="bx ${status.icon}"></i>${status.label}</div><div class="summary-progress"><div class="summary-progress-head"><span>Tiến độ phản hồi</span><strong>${data.responded}/${data.totalResponses} đã trả lời</strong></div><div class="summary-progress-track"><span class="summary-progress-fill" style="width:${percent}%"></span></div></div><div class="summary-list"><div class="summary-row"><span>Ngày tạo</span><strong>${PROGRAM.createdAt}</strong></div><div class="summary-row"><span>Hạn phản hồi</span><strong>${PROGRAM.due}</strong></div><div class="summary-row"><span>Nhân viên nhận phản hồi</span><strong>${data.participants}</strong></div><div class="summary-row"><span>Người cho phản hồi</span><strong>${data.reviewers}</strong></div><div class="summary-row"><span>Phản hồi đang chờ</span><strong>${data.pending}</strong></div><div class="summary-row"><span>Danh tính người cho phản hồi</span><strong>${PROGRAM.identityVisibility==='anonymous'?'Ẩn danh':'Hiển thị danh tính'}</strong></div></div><section class="summary-share">${sharing.label||sharing.meta?`<div><div class="summary-share-status">${sharing.label}</div>${sharing.meta?`<div class="summary-share-meta">${sharing.meta}</div>`:''}</div>`:''}${sharing.action?`<div class="summary-share-action">${sharing.action}</div>`:''}</section>${data.pending&&!closed&&!isAnon()?`<button class="btn btn-remind summary-remind-all" onclick="sendEligibleReminders()" ${eligible?'':'disabled'}><i class="bx bx-bell"></i> Nhắc toàn bộ người chưa trả lời</button>`:''}`;}
 renderDetail();
 </script>

@@ -81,9 +81,17 @@ test('request detail rail matches H-06: custom tooltip, lock icon and a draggabl
   assert.ok(detail.includes('.pane-actions{display:flex;align-items:center;gap:7px}'));
   assert.ok(hr.includes('.pane-actions{display:flex;align-items:center;gap:7px}'));
 
-  // ổ khoá cho người nhận đã đóng — cùng markup với H-06
-  assert.ok(detail.includes('<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>'));
-  assert.ok(hr.includes('<i class="bx bx-lock-alt person-lock" title="Đã đóng"></i>'));
+  /* Ổ khoá cho người nhận đã đóng — cùng icon và cùng class với H-06. Riêng phần
+     CHỮ trong tooltip thì H-06 nêu đích danh lý do (HR đóng tay / chương trình đã
+     đóng / đã đủ phản hồi) vì ở đó một ổ khoá có ba nghĩa. M-04 còn dùng chung một
+     chữ "Đã đóng"; khi nào M-04 phân biệt được lý do thì đưa về cùng một kiểu. */
+  assert.ok(detail.includes('title="${ManagerRequestModel.closeReasonShort(ManagerRequestModel.recipientCloseReason(request,row.employeeId,todayDMY()))}"'));
+  assert.ok(hr.includes('<i class="bx bx-lock-alt person-lock" title="${recipientLockTitle(lockKind)}"></i>'));
+  // cùng bộ mã lý do ở hai màn: quản lý tự đóng / không còn ai phản hồi / quá 90 ngày
+  assert.match(hr, /'no-active-ticket':'[^']+',\s*\n?\s*expired:'[^']+'/);
+  const managerModel=fs.readFileSync(path.join(__dirname,'manager-request-model.js'),'utf8');
+  assert.match(managerModel, /function canReopenRequest\(request,todayDMY\)\{return closeReason\(request,todayDMY\)==='manual';\}/);
+  assert.match(managerModel, /function recipientCloseReason\(request,employeeId,todayDMY\)/);
   assert.ok(detail.includes('.person-lock{align-self:center;flex:none;font-size:15px;color:var(--z500)}'));
   assert.ok(hr.includes('.person-lock{align-self:center;flex:none;font-size:15px;color:var(--z500)}'));
 
@@ -1508,8 +1516,10 @@ test('§20 design system ghi rõ nguyên tắc đồng bộ giữa các màn hì
   assert.match(designSystem, /Luật nghiệp vụ chỉ được viết MỘT lần, trong file model/);
   assert.match(designSystem, /Một sự việc — một bộ mã — nhiều câu chữ/);
   assert.match(designSystem, /Ticket bị khoá khi đóng vẫn nằm trong mẫu số/);
-  /* Mở lại: HR chốt sau khi chia sẻ, quản lý thì không — khác nhau có chủ đích, phải ghi rõ. */
-  assert.match(designSystem, /mở lại được \*\*chừng nào chưa chia sẻ kết quả\*\*/);
+  /* Mở lại: chỉ ca tự đóng tay mới mở lại được, ở CẢ HAI vai —
+     khác nhau có chủ đích, phải ghi rõ cả điều kiện lẫn nơi viết luật. */
+  assert.match(designSystem, /mở lại được khi \*\*HR tự đóng\*\*, \*\*chưa chia sẻ kết quả\*\* và \*\*chưa quá 90 ngày/);
+  assert.match(designSystem, /FeedbackProgramModel\.canReopenCampaign\(campaign,today\)/);
 });
 
 /* ═══ Quản lý thả tim cảm ơn phản hồi nhân viên nhận được ═══
