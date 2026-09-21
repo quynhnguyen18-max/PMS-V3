@@ -51,6 +51,19 @@
       reviewerIds:reviewerIds.filter(reviewerId=>reviewerId!==participant.id)
     }));
   }
+  function copyReviewerMappings(mappings,sourceParticipantId,targetParticipantIds){
+    const normalized=normalizeReviewerMappings(mappings),sourceId=String(sourceParticipantId||'').trim();
+    const source=normalized.find(mapping=>mapping.participantId===sourceId);
+    if(!source)return normalized;
+    const byParticipant=new Map(normalized.map(mapping=>[mapping.participantId,mapping]));
+    uniqueIds(targetParticipantIds).filter(targetId=>targetId!==sourceId).forEach(targetId=>{
+      byParticipant.set(targetId,{
+        participantId:targetId,
+        reviewerIds:source.reviewerIds.filter(reviewerId=>reviewerId!==targetId)
+      });
+    });
+    return [...byParticipant.values()];
+  }
   const AUDIENCE_KEYS=['recipients','managers','others'];
   function uniqueStrings(list){return [...new Set((Array.isArray(list)?list:[]).map(item=>String(item||'').trim()).filter(Boolean))];}
   /* audience gio la multi-select; van nhan du lieu cu dang chuoi audience don de khong vo ban ghi da luu. */
@@ -541,5 +554,5 @@
     });
     return sent;
   }
-  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,isCampaignClosed,campaignCloseReason,CAMPAIGN_CLOSE_REASON_TEXT,campaignCloseReasonText,AUTO_CLOSE_DAYS,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort,MANAGER_LEVELS,RECIPIENT_ROLES,RECIPIENT_ROLE_LABEL,CHANNEL_NOTE,normalizeShareTargets,mergeShareTargets,resolveShareRecipients,shareChannelFor,recipientRoleLabel,channelNote,isEmailOnly};
+  return {isCountedAssignment,countedAssignments,isWithinRemindWindow,dateFromDMY,daysBetween,normalizeQuestion,normalizeReviewerMappings,normalizeAssignmentMode,expandReviewerMappings,copyReviewerMappings,normalizeResultSharing,normalizeCampaign,participantPool,reviewerPool,buildAssignments,validateLaunch,isResultShared,resultAudience,canViewProgramResult,shareResults,canShareResults,lockPendingAssignments,closeCampaign,canReopenCampaign,reopenCampaign,normalizeAudiences,isOverdue,isDueSoon,needsReport,isCampaignClosed,campaignCloseReason,CAMPAIGN_CLOSE_REASON_TEXT,campaignCloseReasonText,AUTO_CLOSE_DAYS,campaignStatus,campaignViewState,matchesFilter,sortCampaigns,dateTimeFromDMY,participantProgress,participantViewState,compareParticipantsForAction,sortParticipantsForAction,coreValueTally,isAiSummaryEligible,programDetailOverview,canRemindProgramAssignment,remindEligibleProgramAssignments,answerEffort,MANAGER_LEVELS,RECIPIENT_ROLES,RECIPIENT_ROLE_LABEL,CHANNEL_NOTE,normalizeShareTargets,mergeShareTargets,resolveShareRecipients,shareChannelFor,recipientRoleLabel,channelNote,isEmailOnly};
 });

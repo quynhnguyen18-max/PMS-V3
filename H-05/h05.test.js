@@ -213,6 +213,36 @@ test('expands shared reviewers to every recipient and excludes self review',()=>
   ]);
 });
 
+test('copies one recipient reviewer list to every selected recipient and excludes self review',()=>{
+  const model=require(modelPath);
+  const source=[
+    {participantId:'a',reviewerIds:['r1','b']},
+    {participantId:'b',reviewerIds:['r2']},
+    {participantId:'c',reviewerIds:['r3']}
+  ];
+  const copied=model.copyReviewerMappings(source,'a',['b','c','a','c']);
+  assert.deepEqual(copied,[
+    {participantId:'a',reviewerIds:['r1','b']},
+    {participantId:'b',reviewerIds:['r1']},
+    {participantId:'c',reviewerIds:['r1','b']}
+  ]);
+  assert.deepEqual(source[1].reviewerIds,['r2']);
+});
+
+test('offers consistent bulk and selected-recipient copy modes',()=>{
+  const builder=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
+  const design=fs.readFileSync(require.resolve('../design-system/index.html'),'utf8');
+  assert.match(builder,/function applyMappingCopyAll\(sourceParticipantId\)/);
+  assert.match(builder,/function applyMappingCopyChoice\(sourceParticipantId\)/);
+  assert.match(builder,/FeedbackProgramModel\.copyReviewerMappings/);
+  assert.match(builder,/Sao chép và áp dụng cho tất cả người nhận/);
+  assert.match(builder,/Sao chép và áp dụng theo người nhận sau/);
+  assert.match(builder,/type="radio" name="copyMode-/);
+  assert.match(builder,/copy-target-list[^>]*\$\{selected\?'':'hidden'\}/);
+  assert.match(builder,/\.mapping-reviewer-head \.pms-tooltip-content\{right:0;left:auto/);
+  assert.match(design,/Sao chép và áp dụng cho tất cả người nhận/);
+});
+
 test('requires explicit identity visibility for a newly authored request',()=>{
   const model=require(modelPath);
   const result=model.validateLaunch({
@@ -916,9 +946,19 @@ test('HR builder owns requester, identity and release messaging for structured p
   const builder=fs.readFileSync(path.join(__dirname,'create-campaign.html'),'utf8');
   assert.match(builder,/requestedBy:CURRENT_HR/);
   assert.match(builder,/Khi HR chia sẻ kết quả tới Quản lý và\/hoặc Nhân viên, danh tính người cho phản hồi sẽ được:/);
+  const programLabel=builder.indexOf('for="progName">Tên chương trình phản hồi');
+  const programHint=builder.indexOf('Tên hiển thị cho tất cả người tham gia và người được chia sẻ kết quả.');
+  const programInput=builder.indexOf('id="progName"');
+  const invitation=builder.indexOf('for="invitationMessage">Lời ngỏ');
+  const questionnaire=builder.indexOf('id="tplSel"');
+  assert.ok(programLabel<programHint&&programHint<programInput);
+  assert.ok(programInput<invitation&&invitation<questionnaire);
+  assert.match(builder,/class="field-section program-intro-section"/);
+  assert.match(builder,/\.program-intro-section\{display:grid;gap:16px\}/);
   /* Dòng lưu ý dưới "Lời ngỏ" có icon (i) đứng đầu để nhận ra ngay là thông tin,
      không phải hướng dẫn nhập. */
-  assert.ok(builder.includes('<div class="field-hint field-hint-info"><i class="bx bx-info-circle"></i><span>Người cho và nhận phản hồi sẽ được thông báo về yêu cầu phản hồi đã tạo. Tuy nhiên, Báo cáo kết quả cuối cùng chỉ hiển thị khi HR chọn chia sẻ.</span></div>'));
+  assert.ok(builder.includes('<div class="field-hint field-hint-info"><i class="bx bx-info-circle"></i><span>Tất cả người cho và nhận phản hồi, Quản lý trực tiếp của người nhận phản hồi sẽ nhận được thông báo về chương trình do HR tạo.</span></div>'));
+  assert.doesNotMatch(builder,/Tên hiển thị cho HR và người tham gia trong danh sách chương trình/);
   assert.match(builder,/\.field-hint-info\{display:flex;align-items:flex-start;gap:6px\}/);
   assert.doesNotMatch(builder,/người cho phản hồi nhận Request Item của mình/);
   assert.doesNotMatch(builder,/quản lý trực tiếp của người nhận đã được gửi thông báo/);
