@@ -508,6 +508,24 @@ input,select,textarea{font-family:inherit}
 /* Bố cục so sánh NV / Quản lý song song */
 .ev-cards.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
 .ev-cards.compare .ev-card{margin-bottom:0}
+/* Mở từ bảng đánh giá (`openDetailFromRow`) thì hộp thoại chỉ để **xem lại**:
+   bỏ dải hai bước, bỏ nhãn lặp ý với tiêu đề ô, bỏ chân hộp thoại.
+   Bọc trong .from-review để màn Mục tiêu — nơi còn thao tác — giữ nguyên. */
+#dlg-detail.from-review .ev-steps{display:none}
+#dlg-detail.from-review .ev-cmt-lbl{display:none}
+#dlg-detail.from-review .dlg-foot{display:none}
+#dlg-detail.from-review .ev-card-hd{color:var(--brand)}
+#dlg-detail.from-review .ev-who-ico{color:var(--brand)}
+#dlg-detail.from-review .ev-meta strong{color:var(--z700);font-weight:700}
+/* Không có chân hộp thoại thì nội dung sát mép dưới, nhìn như bị cụt */
+#dlg-detail.from-review .dlg-body{padding-bottom:24px}
+/* Mục tiêu hành vi chỉ để đọc, không có bình luận nên không chia tab.
+   Bỏ dải tab thì phải trả đường kẻ ngăn cho chính phần đầu hộp thoại. */
+/* Không có dải tab thì phần đầu tự mang đường kẻ ngăn; không có chân hộp thì nới đáy */
+#dlg-how .dlg-hd{padding-bottom:13px;border-bottom:1px solid var(--z200)}
+#dlg-how .dlg-body{padding-bottom:24px}
+/* Ghi chú chỉ phục vụ màn Mục tiêu; mở từ bảng Đánh giá cuối năm thì bỏ đi. */
+#dlg-how.from-review .info-note{display:none}
 .ev-card-hd-row{display:flex;align-items:center;gap:6px;margin-bottom:9px}
 .ev-card-hd-row .ev-card-hd{margin-bottom:0}
 .ev-who-ico{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--z200);color:var(--z600)}
@@ -683,6 +701,10 @@ textarea.fc{resize:vertical}
 .ql-val{color:var(--z900);font-size:13px;font-weight:700}
 /* Ai là người đã chốt điểm này. Chỉ hiện domain cho gọn cột, tên đầy đủ ở tooltip. */
 .ql-by{margin-top:3px;font-size:10.5px;line-height:1.3;color:var(--z500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Ở mục tiêu đã đánh giá hoàn thành, domain QLTT là metadata nằm dưới điểm.
+   Tách metadata khỏi luồng căn giữa để điểm NV và điểm QLTT luôn cùng một hàng. */
+.g-row-done .ql-cell{position:relative}
+.g-row-done .ql-cell>.ql-by{position:absolute;top:calc(50% + 10px);left:6px;right:6px;margin-top:0}
 .g-done-chip{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:1px 8px;border-radius:50px;border:1px solid var(--ok-bd);background:var(--ok-bg);color:var(--ok);font-size:11px;font-weight:500;white-space:nowrap}
 .g-done-chip i{font-size:13px}
 /* Ten nguoi khong viet hoa toan bo, du .g-det-lbl dat text-transform:uppercase */
@@ -788,6 +810,8 @@ label.ev-tb-btn{cursor:pointer}
 .sb-info{flex:1;min-width:180px}
 .sb-title{font-size:13px;font-weight:700;color:var(--ok);line-height:1.3}
 .sb-sub{font-size:12.5px;color:var(--z600);margin-top:3px;line-height:1.4}
+.yer-next-step{display:flex;align-items:center;gap:4px;margin-top:4px;font-size:11.5px;line-height:1.4;color:var(--z600)}
+.yer-next-step strong{color:var(--z800);font-weight:600}
 .sb-score-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0}
 .sb-score-lbl{font-size:12.5px;color:var(--z600);white-space:nowrap}
 .sb-score-val{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
@@ -883,7 +907,7 @@ label.ev-tb-btn{cursor:pointer}
 .yer-note>i{font-size:16px;flex:none;margin-top:1px}
 .yer-note.info{background:var(--z50);border-color:var(--z200);color:var(--z700)}
 .yer-note.info>i{color:var(--z500)}
-.yer-note.action{background:var(--brand-muted);border-color:var(--brand-ring);color:var(--z800)}
+.yer-note.action{background:#FFF7FB;border-color:#F0D7E5;color:var(--z800)}
 .yer-note.action>i{color:var(--brand)}
 .yer-note strong{color:var(--z900);font-weight:600}
 .yer-note .yn-cta{margin-left:auto;flex:none;align-self:center}
@@ -2078,7 +2102,7 @@ label.ev-tb-btn{cursor:pointer}
         </div>
         <div class="cmt-empty" id="d-cmt-empty" style="display:none">
           <i class="bx bx-message-square-dots"></i>
-          <span>Chưa có bình luận. Mục tiêu cần được gửi cho quản lý trước khi có thể trao đổi.</span>
+          <span id="d-cmt-empty-txt">Chưa có bình luận. Mục tiêu cần được gửi cho quản lý trước khi có thể trao đổi.</span>
         </div>
         <div class="cin-row" id="d-cmt-input">
           <div class="av av-brand av-sm" style="flex-shrink:0;margin-bottom:2px">NT</div>
@@ -2098,29 +2122,31 @@ label.ev-tb-btn{cursor:pointer}
 <!-- ══════════════════════════════
      DIALOG: CHI TIẾT MỤC TIÊU HÀNH VI
 ══════════════════════════════ -->
+<!-- Mục tiêu hành vi chỉ để đọc: không nhãn trạng thái, không chia tab, không chân hộp thoại.
+     Cả tab Mục tiêu và tab Đánh giá cuối năm đều mở đúng hộp thoại này. -->
 <div class="overlay" id="dlg-how">
-  <div class="dialog sm">
+  <div class="dialog md">
     <div class="dlg-hd">
       <div class="dlg-hd-row">
         <div style="flex:1;min-width:0">
-          <div class="dlg-badges" style="margin-bottom:3px"><span class="badge b-muted">Giá trị cốt lõi</span></div>
-          <div class="dlg-title" id="dh-name" style="font-size:15px">—</div>
+          <div class="dlg-badges" style="margin-bottom:0"><span class="badge b-muted">Mục tiêu hành vi</span></div>
         </div>
         <button class="dlg-close" onclick="closeOverlay('dlg-how')"><i class="bx bx-x"></i></button>
       </div>
     </div>
     <div class="dlg-body">
-      <div style="margin-bottom:14px">
-        <span class="sec-lbl">Mô tả</span>
-        <div class="result-blk" id="dh-desc">—</div>
+      <div class="detail-row" style="padding-top:6px">
+        <span class="sec-lbl">Tên mục tiêu</span>
+        <div class="detail-val" id="dh-name">—</div>
       </div>
-      <div class="info-note">
+      <div class="detail-row">
+        <span class="sec-lbl">Mô tả</span>
+        <div class="detail-val" id="dh-desc">—</div>
+      </div>
+      <div class="info-note" style="margin-top:14px">
         <i class="bx bx-info-circle"></i>
         <span>Giá trị cốt lõi cố định cho toàn bộ MoMoers, được đánh giá trong Kỳ giữa năm (MYR) và cuối năm (YER)</span>
       </div>
-    </div>
-    <div class="dlg-foot">
-      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dlg-how')">Đóng</button>
     </div>
   </div>
 </div>
@@ -2440,7 +2466,8 @@ function openDetail(el) {
     if (evalSection) evalSection.style.display = showEval ? 'block' : 'none';
     if (showEval) renderEvalTab(el);
   }
-  // Tab Bình luận có thể đã bị ẩn khi mở từ bảng đánh giá, trả lại ở đây
+  // Mở từ màn Mục tiêu thì trả hộp thoại về đầy đủ: tab Bình luận, dải bước, chân hộp
+  document.getElementById('dlg-detail').classList.remove('from-review');
   var cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
   if (cmtTab) cmtTab.style.display = '';
   // Hàng ưu tiên và thời gian cũng vậy
@@ -2451,8 +2478,17 @@ function openDetail(el) {
   switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
 }
 function openHow(el) {
-  document.getElementById('dh-name').textContent = el.querySelector('.how-name').textContent.trim();
-  document.getElementById('dh-desc').textContent = el.dataset.desc || '—';
+  showHow(el.querySelector('.how-name').textContent.trim(), el.dataset.desc, false);
+}
+/* Dùng chung cho cả thẻ ở tab Mục tiêu và dòng ở bảng Đánh giá cuối năm. */
+function showHow(name, desc, fromReview) {
+  var dlg = document.getElementById('dlg-how');
+  dlg.classList.toggle('from-review', !!fromReview);
+  document.getElementById('dh-name').textContent = name || '—';
+  var dd = document.getElementById('dh-desc');
+  dd.textContent = desc || '—';
+  // Mô tả nhiều ý thì giữ ngắt dòng, một đoạn liền thì không đổi gì
+  dd.style.whiteSpace = String(desc || '').indexOf('\n') >= 0 ? 'pre-line' : '';
   openOverlay('dlg-how');
 }
 function switchTab(i, btn) {
@@ -3020,6 +3056,9 @@ document.addEventListener('DOMContentLoaded', function initGoalInteractions() {
      của bảng đánh giá. Dùng lại nguyên hộp thoại đó chứ không dựng popup riêng. */
   function openDetailFromRow(tr) {
     const d = tr.dataset;
+    // Mục tiêu hành vi có hộp thoại riêng của nó, dùng lại luôn thay vì cắt gọt hộp này
+    if (d.kind === 'how') { showHow(d.name, d.result, true); return; }
+
     const done = d.doneSelfScore != null || d.doneMgrScore != null;
     const sec = tr.closest('.rv-section');
     const typeEl = sec && (sec.querySelector('.rv-type') || sec.querySelector('.rv-section-hd'));
@@ -3050,10 +3089,18 @@ document.addEventListener('DOMContentLoaded', function initGoalInteractions() {
     document.getElementById('d-from').textContent = (parts[0] || '').trim() || '—';
     document.getElementById('d-to').textContent = (parts[1] || '').trim() || '—';
 
-    /* Dòng của kỳ đánh giá không mang dữ liệu bình luận, nên ẩn hẳn tab Bình luận
-       thay vì hiện lại bình luận của một mục tiêu khác. */
+    /* Mục tiêu hành vi chỉ để đọc thông tin, không có bình luận → bỏ luôn dải tab.
+       Hai nhóm còn lại giữ cả hai tab; tab Bình luận hiện ô trống vì dòng của kỳ
+       đánh giá chưa mang dữ liệu bình luận riêng. */
     const cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
-    if (cmtTab) cmtTab.style.display = 'none';
+    if (cmtTab) cmtTab.style.display = '';
+    const cmtCount = document.getElementById('d-cmt-count');
+    if (cmtCount) cmtCount.style.display = 'none';
+    document.getElementById('d-comments').style.display = 'none';
+    document.getElementById('d-cmt-input').style.display = 'none';
+    document.getElementById('d-cmt-empty').style.display = 'flex';
+    document.getElementById('d-cmt-empty-txt').textContent =
+      'Chưa có bình luận nào cho mục tiêu này.';
 
     // Khối hai lượt chấm: dùng lại renderEvalTab, chỉ cần một phần tử mang đúng dataset
     const evalSection = document.getElementById('d-eval-section');
@@ -3068,10 +3115,20 @@ document.addEventListener('DOMContentLoaded', function initGoalInteractions() {
       proxy.dataset.evMgrCmt = d.doneMgrCmt || '';
       proxy.dataset.evMgrBy = d.doneMgrBy || '';
       renderEvalTab(proxy);
+      /* Cú pháp riêng của màn đánh giá: ghi luôn ai chấm và chấm khi nào,
+         thay cho dòng chỉ có domain của màn Mục tiêu. */
+      const metaLine = (by, at) => {
+        if (!by && !at) return '';
+        // Domain in đậm cho dễ nhìn, phần còn lại giữ chữ thường
+        return 'Đánh giá bởi <strong>' + (by || '—') + '</strong>' + (at ? ' - ' + at : '');
+      };
+      document.getElementById('ev-self-meta').innerHTML = metaLine(d.doneSelfBy, d.doneSelfAt);
+      document.getElementById('ev-mgr-meta').innerHTML = metaLine(d.doneMgrBy, d.doneMgrAt);
     }
 
     const cta = document.getElementById('d-foot-cta');
     if (cta) { cta.style.display = 'none'; cta.onclick = null; }
+    document.getElementById('dlg-detail').classList.add('from-review');
     openOverlay('dlg-detail');
     switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
   }

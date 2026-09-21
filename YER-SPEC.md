@@ -258,10 +258,47 @@ Không dựng popup rút gọn riêng cho kỳ đánh giá — từng làm vậy
 | Badge loại | tiêu đề nhóm của chính bảng (`.rv-type`) |
 | Ưu tiên / Từ ngày / Đến ngày | ô `.prio` và `.g-meta` của dòng; **ẩn cả hàng** với Mục tiêu hành vi |
 | Khối hai lượt chấm | `renderEvalTab()` sẵn có, truyền một phần tử mang đúng `dataset` |
-| Tab **Bình luận** | **ẩn**: dòng của kỳ đánh giá không mang dữ liệu bình luận, hiện lại là gắn nhầm bình luận của mục tiêu khác |
+| Tab **Bình luận** | **giữ**, nhưng hiện ô trống `Chưa có bình luận nào cho mục tiêu này.` — dòng của kỳ đánh giá chưa mang dữ liệu bình luận riêng |
 
-Mở từ màn Mục tiêu thì `openDetail()` **trả lại** tab Bình luận và hàng ưu tiên/thời gian,
-vì hai màn dùng chung một hộp thoại.
+**Hộp thoại mở từ bảng đánh giá chỉ để XEM LẠI**, không thao tác. `openDetailFromRow()`
+gắn cờ `.from-review` lên `#dlg-detail`, mọi khác biệt đều bọc trong cờ này để màn
+Mục tiêu — nơi còn chấm điểm thật — giữ nguyên:
+
+| Phần | Khi mở từ bảng đánh giá |
+|---|---|
+| Dải `① Nhân viên tự đánh giá → ② Quản lý đánh giá` | **ẩn** — ở đây không ai thực hiện bước nào nữa |
+| Tiêu đề `NHÂN VIÊN TỰ ĐÁNH GIÁ` / `QUẢN LÝ ĐÁNH GIÁ` | màu `--brand` |
+| Nhãn `ĐÁNH GIÁ CỦA NHÂN VIÊN` / `CỦA QUẢN LÝ` | **ẩn** — lặp ý với tiêu đề ô ngay trên |
+| Dòng người chấm | `Đánh giá bởi **domain** - dd/mm/yyyy`, domain in đậm |
+| Chân hộp thoại (nút `Đóng`) | **ẩn** — đóng bằng dấu × hoặc bấm ra ngoài |
+| Số đếm trên tab Bình luận | **ẩn** — chưa có số thật để đếm |
+| Khoảng trống đáy hộp thoại | 24px thay vì 16px — không có chân hộp thì nội dung sát mép, nhìn như bị cụt |
+
+**Mục tiêu hành vi dùng hộp thoại riêng `#dlg-how`**, không dùng `#dlg-detail`.
+Dòng mục tiêu hành vi mang `data-kind="how"`; `openDetailFromRow()` thấy cờ này thì
+gọi thẳng `showHow(name, desc)` rồi thoát.
+
+`#dlg-how` dùng chung cho **cả tab Mục tiêu và tab Đánh giá cuối năm**. Giá trị cốt lõi
+là bộ cố định của Công ty, không qua bước nhân viên tạo rồi quản lý duyệt và không có
+bình luận, nên hộp thoại này:
+
+- dùng kích thước `dialog md`, đồng nhất với popup chi tiết các mục tiêu khác;
+- chỉ có badge `Mục tiêu hành vi`, **không có nhãn trạng thái** (`Đã duyệt` / `Hoàn thành`);
+- **không chia tab**, phần đầu tự mang đường kẻ ngăn;
+- thân gồm hai ô `Tên mục tiêu` và `Mô tả`, tên nằm trong ô chứ không làm tiêu đề;
+- **không có chân hộp thoại**, đáy nới 24px; đóng bằng dấu × hoặc bấm ra ngoài;
+- khi mở từ màn **Mục tiêu**, giữ dòng ghi chú `Giá trị cốt lõi cố định cho toàn bộ
+  MoMoers, được đánh giá trong Kỳ giữa năm (MYR) và cuối năm (YER)` ở cuối;
+- khi mở từ màn **Đánh giá cuối năm**, `showHow(..., true)` gắn `.from-review` và ẩn
+  dòng ghi chú; `openHow()` của màn Mục tiêu gọi `showHow(..., false)` để hiện lại.
+
+Với mục tiêu đã đánh giá hoàn thành, domain người chấm ở cột QLTT là metadata nằm dưới
+điểm. `.ql-by` được đặt tuyệt đối trong `.g-row-done .ql-cell` để không tham gia vào
+luồng căn giữa; nhờ đó điểm NV và điểm QLTT luôn nằm cùng một hàng.
+
+Mở từ màn Mục tiêu thì `openDetail()` **gỡ cờ** và trả lại đầy đủ: dải bước, nhãn ô,
+chân hộp thoại, số đếm bình luận và hàng ưu tiên/thời gian — vì hai màn dùng chung
+một hộp thoại.
 
 Domain hai lượt chấm (`.ev-meta`) lấy từ `data-done-self-by` và `data-done-mgr-by`,
 không hardcode `tu.nguyen` / `thanh.le` nữa.
@@ -477,8 +514,11 @@ Hai luồng riêng, không trộn vào nhau.
 **Thay §5.** Trước đây thiếu mục tiêu là chặn hẳn, gắn `Không đánh giá` và dừng quy trình.
 Nay nhân viên trễ hạn **tự nộp một file gồm cả mục tiêu và nội dung tự đánh giá**.
 
-**Cửa sổ nộp trễ** trùng đúng timeline bước Quản lý trực tiếp (19/01 - 01/02/2027).
-Mô hình: `lateWindowOpen = stepState('lm') === 'open'`.
+**Cửa sổ nộp trễ** mở từ khi bắt đầu bước Quản lý trực tiếp và đóng lúc **18:00, trước
+hạn QLTT 3 ngày**. Với timeline hiện tại, nhân viên hoàn thành chậm nhất lúc 18:00 ngày
+29/01/2027; prototype mô phỏng theo ngày nên `lateWindowOpen` còn hiệu lực hết 29/01 và
+đóng từ 30/01. Mô hình: `lateWindowOpen = stepState('lm') === 'open' && now <=
+addDays(step('lm').to, -3)`.
 
 **Ai thấy màn nộp trễ.** Mọi nhân viên chưa tự đánh giá trong cửa sổ này, **bất kể tình
 trạng mục tiêu**. Ba trường hợp đều vào cùng một luồng:
@@ -498,20 +538,44 @@ trạng mục tiêu**. Ba trường hợp đều vào cùng một luồng:
 
 **Giao diện màn nộp trễ** thay toàn bộ nội dung tab, không phải một khối phụ:
 
-1. Badge `Quá hạn tự đánh giá` và **đếm ngược số ngày còn lại** tới hạn chót của Quản lý,
-   tính cả ngày cuối.
-2. Ba bước: **Tải file mẫu** → **Điền tự đánh giá** → **Tải lên và nộp**.
-3. Ô chọn file, chỉ nhận `.xlsx` hoặc `.xls`, một file duy nhất.
-4. **Ô tích xác nhận bắt buộc**: mục tiêu trong file đã thống nhất với Quản lý trước đó.
-   Chưa tích thì không nộp được.
-5. Dòng nhắc: nộp xong không sửa và không thu hồi được.
+1. Vùng header dùng nền rose-neutral rất nhạt `#FFF7FB`, viền `#F0D7E5`; badge `Quá hạn tự đánh giá`, tiêu đề
+   `Nộp bổ sung hồ sơ Đánh giá cuối năm` và metadata `Bạn cần hoàn thành trước 18:00
+   ngày dd/mm/yyyy, tức 3 ngày trước hạn đánh giá của Quản lý trực tiếp.` Ngày được tính
+   tự động bằng hạn QLTT trừ 3 ngày. Ô đếm ngược dùng chính hạn nộp sớm này và tính cả
+   ngày cuối; không dùng hạn QLTT làm hạn gửi của nhân viên.
+2. Luồng thao tác gồm **ba hàng bước MECE theo chiều dọc**. Mỗi hàng gồm `nhãn bước →
+   nội dung và action liền kề`; nút không bị đẩy sang mép phải tạo khoảng trống lớn:
+   - **Bước 1 — Tải xuống Template và điền thông tin theo đúng định dạng**: không có
+     mô tả phụ; CTA `Tải Template` nằm trong thẻ;
+   - **Bước 2 — Điền đủ Mục tiêu đã thống nhất với Quản lý trực tiếp và hoàn thiện phần
+     Tự đánh giá**: không có mô tả lặp lại; ghi rõ business rule `Quản lý không duyệt lại
+     mục tiêu trên hệ thống với trường hợp nhân viên trễ hạn Tự đánh giá.`;
+   - **Bước 3 — Tải lên tập tin đã điền thông tin**: không hiện mô tả định dạng hoặc
+     khối `Chưa chọn file`; nút luôn giữ nhãn `Chọn file`, dùng icon upload và đặt ngay
+     cạnh tiêu đề. Sau khi chọn, tên file hiện thành một dòng trạng thái gọn kèm icon
+     thùng rác để xóa file; icon có tooltip và nhãn hỗ trợ truy cập nhưng không hiện text
+     `Xóa file`. Không dựng card riêng. Input vẫn chỉ nhận `.xlsx` hoặc `.xls`, một file duy nhất.
+3. CTA `Gửi Quản lý trực tiếp` nằm ở góc phải cuối khối, luôn dùng đúng màu primary
+   `--brand` để nhận ra hành động chính; không chuyển thành nút xám khi chưa có file.
+   Bấm khi chưa chọn file thì hiện validation yêu cầu chọn file. Khi đã có file, CTA mở
+   popup xác nhận gồm đúng hai ý: mục tiêu đã thống nhất với Quản lý trực tiếp; sau khi
+   gửi Tự đánh giá không thể thu hồi hoặc chỉnh sửa bất cứ nội dung nào. Popup có tiêu đề
+   `Gửi nội dung Tự Đánh giá cuối năm`, nút `Kiểm tra lại` và CTA `Xác nhận và Gửi`.
+   Gửi thành công thì cập nhật dữ liệu, báo thành công và chuyển sang giao diện hồ sơ đã gửi.
+4. Icon của từng bước là phần tử trình bày màu xám, đặt **trước** nhãn `Bước 1`…`Bước 3`
+   và **không phải button**. Mọi action đều dùng button có nhãn rõ ràng; không dùng icon
+   đơn lẻ làm CTA.
+5. Badge quá hạn dùng cùng hệ màu thương hiệu với header rose-neutral: nền `#FCEBF5`,
+   viền `#F0D7E5`, chữ/icon `--brand`; không dùng màu đỏ/cam khác hệ.
 
 **File mẫu.** Bấm `Tải file mẫu`:
 
-- Chưa có mục tiêu đã duyệt → chỉ có mẫu trống.
-- Có mục tiêu đã duyệt → hỏi chọn **Mẫu trống** hay **Kèm mục tiêu đã duyệt**.
+- Chưa có mục tiêu đã duyệt → tải ngay mẫu trống.
+- Có mục tiêu đã duyệt → tải ngay file đã điền sẵn **toàn bộ mục tiêu được duyệt**.
+- Không mở popup chọn loại file; hệ thống tự xác định nội dung theo dữ liệu mục tiêu hiện có.
 
-File nằm ở `assets/templates/`, bản dựng có ba file: mẫu trống, bản của `y9`, bản của `y10`.
+File nằm ở `assets/templates/`, bản dựng có bốn file: mẫu trống và các bản đã điền sẵn
+của `y9`, `y10`, `y14` — đủ cho toàn bộ tình huống nộp trễ hiện có.
 
 **Sau khi nộp**, hồ sơ chuyển thẳng sang bước Quản lý trực tiếp:
 
@@ -522,7 +586,7 @@ File nằm ở `assets/templates/`, bản dựng có ba file: mẫu trống, b�
 
 **`Không đánh giá`** chỉ xuất hiện khi **hết cửa sổ nộp trễ** mà vẫn thiếu mục tiêu và
 không có file nào được nộp. Mô hình: `stopped` cần đủ ba điều kiện — thiếu mục tiêu,
-`stepState('lm') === 'closed'`, và không có `lateSubmission`.
+đã qua `lateSubmissionDeadline`, và không có `lateSubmission`.
 
 **Nhắc**: nhân viên trễ hạn và Quản lý đang phụ trách sau cut-off 31/12/2026 đều nhận nhắc.
 Prototype không dựng inbox thông báo, chỉ hiện badge và banner trên màn.
@@ -531,8 +595,8 @@ Prototype không dựng inbox thông báo, chỉ hiện badge và banner trên m
 
 - Bản dựng **không đọc nội dung file Excel**. Nộp xong, hệ thống sinh sẵn một bộ điểm và
   nhận xét mẫu để luồng đi tiếp được. Bản thật phải parse file và có bước đối soát.
-- File mẫu **kèm mục tiêu đã duyệt** mới có bản thật cho `y9` và `y10`. Nhân sự khác bấm
-  nút đó sẽ nhận mẫu trống.
+- Prototype dùng file Excel dựng sẵn theo từng hồ sơ demo. Bản thật cần sinh file động từ
+  toàn bộ mục tiêu đã duyệt của nhân viên tại thời điểm tải.
 
 ### 27.2 Trả về để chỉnh sửa — chọn Opt 2
 
@@ -761,7 +825,7 @@ Chốt ngày 18/09/2026. Hai nguyên tắc:
 | # | Trạng thái hồ sơ | Box hiển thị | Vị trí | Nội dung |
 |---|---|---|---|---|
 | 1 | Đã gửi tự đánh giá (`p.self`) | **không box nào** | — | banner `Đã hoàn thành` thay thế |
-| 2 | Thiếu mục tiêu (`eligibility.reason === 'missing-goal'`) | khối cảnh báo `.yer-note.action`, nền hồng | **trên** dải quy trình | tiêu đề + thiếu gì + gạch đầu dòng Lưu ý + nút CTA |
+| 2 | Thiếu mục tiêu (`eligibility.reason === 'missing-goal'`) | khối cảnh báo `.yer-note.action`, nền rose-neutral rất nhạt `#FFF7FB`, viền `#F0D7E5`, icon màu thương hiệu | **trên** dải quy trình | tiêu đề + thiếu gì + gạch đầu dòng Lưu ý + CTA outline theo màu thương hiệu, không dùng nút hồng đặc |
 | 3 | Nghỉ thai sản | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | một dòng thai sản, xem §40.5b |
 | 4 | Các trường hợp còn lại | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | điều kiện mục tiêu + kết quả kỳ giữa năm |
 | 5 | Không còn gạch đầu dòng nào | **không box nào** | — | không dựng thẻ rỗng |
@@ -909,8 +973,10 @@ Lấy **nguyên văn** từ file đề xuất, không rút gọn:
 Chốt ngày 17/09/2026.
 
 - Banner sau khi nhân viên gửi: tiêu đề **`Đã hoàn thành Tự đánh giá cuối năm`**,
-  dòng phụ chỉ còn **`Ngày gửi: dd/mm/yyyy`**. Sau khi công bố thì là `Ngày công bố: dd/mm/yyyy`.
-  Không nhắc lại đang chờ ai ở đây — nhãn tab và dải quy trình đã nói rồi.
+  dòng phụ **`Ngày gửi: dd/mm/yyyy`**. Sau khi công bố thì là `Ngày công bố: dd/mm/yyyy`.
+  Với hồ sơ gửi trễ đang chờ QLTT, **không dùng badge `Nộp trễ hạn`**; thêm một dòng
+  tiến độ gọn: `Tiếp theo: Chờ Quản lý trực tiếp đánh giá - domain`. Dòng này tự ẩn khi
+  Quản lý trực tiếp đã hoàn tất hoặc kết quả đã công bố.
 - **Bỏ nhãn `Đã thay đổi sau Mid-Year`** trên thẻ mục tiêu. Kỳ cuối năm chấm trên mục tiêu
   hiện tại, lịch sử thay đổi không đổi cách chấm. Điều này **thay** phần badge ở §11.
 

@@ -23,7 +23,8 @@
   }
   function addDays(v, n) {
     var t = d(v); t.setDate(t.getDate() + n);
-    return t.toISOString().slice(0, 10);
+    function pad(value) { return String(value).padStart(2, '0'); }
+    return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
   }
 
   function step(key) {
@@ -34,6 +35,12 @@
     if (cmp(now, s.from) < 0) return 'future';
     if (cmp(now, s.to) > 0) return 'closed';
     return 'open';
+  }
+  function lateSubmissionDeadline() {
+    return addDays(step('lm').to, -3);
+  }
+  function lateWindowOpen(now) {
+    return stepState('lm', now) === 'open' && cmp(now, lateSubmissionDeadline()) <= 0;
   }
   function currentStep(now) {
     now = now || today();
@@ -124,12 +131,14 @@
     var hodView = hodDone ? Object.assign({}, hod, { source: hod.source || 'manual' }) : null;
 
     var lateView = happened(lateSubmission) ? lateSubmission : null;
-    // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: trong toàn bộ
-    // timeline của LM, NV còn một luồng riêng để import goal + self assessment.
+    var lateOpen = lateWindowOpen(now);
+    var lateClosed = cmp(now, lateSubmissionDeadline()) > 0;
+    // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: NV còn một luồng riêng
+    // để import goal + self assessment tới hạn nộp bổ sung (hạn QLTT trừ 3 ngày).
     var stopped = !elig.eligible && elig.reason === 'missing-goal' &&
-      stepState('lm', now) === 'closed' && !lateView;
+      lateClosed && !lateView;
     var noScoreAtAll = !selfDone && !lmView;
-    if (stopped || (stepState('lm', now) === 'closed' && noScoreAtAll)) stopped = true;
+    if (stopped || (lateClosed && noScoreAtAll)) stopped = true;
 
     var finalView = happened({ at: final && final.uploadedAt }) ? final : null;
     var published = !!(final && final.publishedAt && cmp(now, final.publishedAt) >= 0);
@@ -162,7 +171,8 @@
       importedGoals: !!((acts && acts.importedGoals) || seed.importedGoals),
       importedGoalData: (acts && acts.importedGoals) || seed.importedGoals || null,
       lateSubmission: lateView,
-      lateWindowOpen: stepState('lm', now) === 'open',
+      lateWindowOpen: lateOpen,
+      lateSubmissionDeadline: lateSubmissionDeadline(),
       goalChangedAfterMyr: seed.goalChangedAfterMyr || [],
       mgrChange: seed.mgrChange || null,
       stopped: stopped,
@@ -344,6 +354,8 @@
     cmp: cmp,
     step: step,
     stepState: stepState,
+    lateSubmissionDeadline: lateSubmissionDeadline,
+    lateWindowOpen: lateWindowOpen,
     currentStep: currentStep,
     profile: profile,
     status: status,

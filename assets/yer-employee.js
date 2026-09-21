@@ -383,7 +383,8 @@
          chi tiết như hai nhóm kia. Mô tả nối bằng xuống dòng vì ba ý là ba câu riêng;
          tooltip dùng white-space:pre-line nên giữ đúng ngắt dòng. */
       var cvName = lg()==='en'?cv.en:cv.vi;
-      return '<tr data-name="' + esc(cvName) + '" data-result="' + esc(cv.lines.join('\n')) + '">' +
+      // data-kind="how": popup dựa vào đây để bỏ tab, vì nhóm này không có bình luận
+      return '<tr data-kind="how" data-name="' + esc(cvName) + '" data-result="' + esc(cv.lines.join('\n')) + '">' +
         '<td><div class="g-name">' + esc(cvName) + '</div></td>' +
         '<td><div class="g-result yer-cv-desc">' + cv.lines.map(function(t){ return esc(t); }).join('<br>') + '</div></td>' +
         '<td class="sc-cell"><div data-rt="how:' + i + '" data-val="' + (selfScore==null?'':selfScore) +
@@ -535,6 +536,12 @@
     var sub = p.published
       ? L('Ngày công bố: ','Published on: ') + Y.fmt(p.final.publishedAt, lg())
       : L('Ngày gửi: ','Submitted on: ') + Y.fmt(p.self.at, lg());
+    var mgr = (p.emp && p.emp.mgr) || {};
+    var next = (p.lateSubmission && !p.lm && !p.published)
+      ? '<div class="yer-next-step"><span>' + L('Tiếp theo:','Next:') + '</span><strong>' +
+          L('Chờ Quản lý trực tiếp đánh giá','Awaiting line manager review') + '</strong>' +
+          (mgr.login ? '<span> - ' + esc(mgr.login) + '</span>' : '') + '</div>'
+      : '';
 
     var scores = '<div class="sb-score-wrap"><span class="sb-score-lbl">' + L('Điểm tự đánh giá:','Self rating:') +
       '</span><span class="sb-score-val">' + (sc == null ? '—' : sc) + '</span></div>';
@@ -546,9 +553,8 @@
     return '<div class="submit-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
       '<div class="sb-info"><div class="sb-title">' +
         (p.published ? L('Đã công bố kết quả đánh giá cuối năm 2026','Year-End Review 2026 result published')
-                     : L('Đã hoàn thành Tự đánh giá cuối năm','Year-end self assessment completed')) +
-        (p.lateSubmission ? '<span class="yer-late-inline"><i class="bx bx-time-five"></i>' + L('Nộp trễ hạn','Submitted late') + '</span>' : '') + '</div>' +
-      '<div class="sb-sub">' + esc(sub) + '</div></div>' + scores +
+                     : L('Đã hoàn thành Tự đánh giá cuối năm','Year-end self assessment completed')) + '</div>' +
+      '<div class="sb-sub">' + esc(sub) + '</div>' + next + '</div>' + scores +
       '<div class="sb-actions"><button class="btn btn-outline sb-icon-action" type="button" id="yer-pdf" ' +
         'aria-label="' + esc(L('Tải kết quả PDF','Download PDF')) + '" title="' + esc(L('Tải kết quả PDF','Download PDF')) + '">' +
         '<i class="bx bxs-file-pdf"></i></button></div></div>';
@@ -613,7 +619,7 @@
      Đây là luồng riêng chỉ mở trong timeline của LM. Một file duy nhất,
      goal đi thẳng vào hồ sơ và không phát sinh bước phê duyệt goal. */
   function lateDaysLeft(p){
-    return Math.max(0, Math.floor(Y.cmp(Y.step('lm').to, p.now) / 86400000) + 1);
+    return Math.max(0, Math.floor(Y.cmp(Y.lateSubmissionDeadline(), p.now) / 86400000) + 1);
   }
 
   function lateApprovedGoals(p){
@@ -622,83 +628,65 @@
     });
   }
 
-  function downloadLateTemplate(p, includeApproved){
+  function downloadLateTemplate(p){
     var id = p.emp && p.emp.id;
+    var approved = lateApprovedGoals(p);
     var filled = {
       y9: 'YER-2026-Nguyen-Mai-Anh.xlsx',
-      y10: 'YER-2026-Tran-Quoc-Huy.xlsx'
+      y10: 'YER-2026-Tran-Quoc-Huy.xlsx',
+      y14: 'YER-2026-Dinh-Gia-Han.xlsx'
     };
-    var fileName = includeApproved && filled[id]
-      ? filled[id]
-      : 'YER-2026-Mau-tu-danh-gia.xlsx';
+    var hasApproved = approved.length > 0;
+    var fileName = hasApproved ? filled[id] : 'YER-2026-Mau-tu-danh-gia.xlsx';
+    if(!fileName){
+      U.toast(L('Chưa có file mẫu cho hồ sơ này. Vui lòng liên hệ HR.','No template is available for this profile. Please contact HR.'));
+      return;
+    }
     var link = document.createElement('a');
     link.href = '../assets/templates/' + fileName;
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
     link.remove();
-    U.toast(includeApproved && filled[id]
-      ? L('Đã tải file mẫu kèm mục tiêu đã duyệt','Downloaded the template with approved goals')
+    U.toast(hasApproved
+      ? L('Đã tải Template kèm toàn bộ mục tiêu đã duyệt','Downloaded the template with all approved goals')
       : L('Đã tải file mẫu trống','Downloaded the blank template'));
-  }
-
-  function chooseLateTemplate(p){
-    var approved = lateApprovedGoals(p);
-    if(!approved.length){
-      U.dialog({
-        title:L('Tải file mẫu trống','Download blank template'),
-        text:L('Hệ thống chưa có mục tiêu đã duyệt. Bạn sẽ tự điền mục tiêu và nội dung tự đánh giá trong file mẫu.',
-               'There are no approved goals. Add your goals and self assessment to the blank template.'),
-        buttons:[
-          { label:L('Hủy','Cancel'), variant:'quiet' },
-          { label:L('Tải file mẫu','Download template'), variant:'default', icon:'bx-download', act:function(){ downloadLateTemplate(p, false); } }
-        ]
-      });
-      return;
-    }
-    U.dialog({
-      title:L('Chọn nội dung file mẫu','Choose template content'),
-      text:L('Hệ thống có ' + approved.length + ' mục tiêu đã duyệt. Bạn muốn tải kèm các mục tiêu này hay dùng mẫu trống?',
-             'The system has ' + approved.length + ' approved goal(s). Download them in the template or use a blank template?'),
-      buttons:[
-        { label:L('Mẫu trống','Blank template'), variant:'quiet', icon:'bx-file-blank', act:function(){ downloadLateTemplate(p, false); } },
-        { label:L('Kèm mục tiêu đã duyệt','Include approved goals'), variant:'default', icon:'bx-download', act:function(){ downloadLateTemplate(p, true); } }
-      ]
-    });
   }
 
   function lateUploadBlock(p){
     var selected = lateFileDraft && lateFileDraft.name;
+    var deadline = Y.fmt(Y.lateSubmissionDeadline(), lg());
     return stepper() +
       '<section class="yer-late-upload" aria-labelledby="yer-late-title">' +
         '<div class="yer-late-head"><div>' +
           '<span class="yer-late-badge"><i class="bx bx-time-five"></i>' + L('Quá hạn tự đánh giá','Self-assessment deadline passed') + '</span>' +
-          '<h2 id="yer-late-title">' + L('Hoàn tất hồ sơ để Quản lý trực tiếp đánh giá','Complete your file for line-manager review') + '</h2>' +
-          '<p>' + L('Bạn vẫn được nộp trong thời gian đánh giá của Quản lý trực tiếp, đến hết <strong>' + Y.fmt(Y.step('lm').to, lg()) + '</strong>.',
-                    'You may still submit during the line-manager review window, through <strong>' + Y.fmt(Y.step('lm').to, lg()) + '</strong>.') + '</p>' +
+          '<h2 id="yer-late-title">' + L('Nộp bổ sung hồ sơ Đánh giá cuối năm','Submit your late Year-End Review file') + '</h2>' +
+          '<p>' + L('Bạn cần hoàn thành trước <strong>18:00 ngày ' + deadline + '</strong>, tức 3 ngày trước hạn đánh giá của Quản lý trực tiếp.',
+                    'Complete this by <strong>18:00 on ' + deadline + '</strong>, three days before your line manager\'s review deadline.') + '</p>' +
         '</div><div class="yer-late-count"><strong>' + lateDaysLeft(p) + '</strong><span>' + L('ngày còn lại','days left') + '</span></div></div>' +
-        '<ol class="yer-late-steps">' +
-          '<li><span>1</span><div><strong>' + L('Tải file mẫu','Download template') + '</strong><p>' + L('Chọn mẫu trống hoặc kèm mục tiêu đã duyệt.','Choose a blank template or include approved goals.') + '</p></div></li>' +
-          '<li><span>2</span><div><strong>' + L('Điền tự đánh giá','Complete self assessment') + '</strong><p>' + L('Hoàn tất điểm, nhận xét và minh chứng trong file.','Complete ratings, comments and evidence in the file.') + '</p></div></li>' +
-          '<li><span>3</span><div><strong>' + L('Tải lên và nộp','Upload and submit') + '</strong><p>' + L('Xác nhận mục tiêu đã thống nhất với Quản lý trực tiếp.','Confirm that the goals were aligned with your line manager.') + '</p></div></li>' +
+        '<ol class="yer-late-flow">' +
+          '<li class="yer-late-step">' +
+            '<div class="yer-late-step-head"><span class="yer-late-step-icon" aria-hidden="true"><i class="bx bx-download"></i></span><span class="yer-late-step-no">' + L('Bước 1','Step 1') + '</span></div>' +
+            '<div class="yer-late-step-copy"><div class="yer-late-step-line"><strong class="yer-late-step-title">' + L('Tải xuống Template và điền thông tin theo đúng định dạng','Download the template and complete it in the required format') + '</strong>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="yer-late-template"><i class="bx bx-download"></i>' + L('Tải Template','Download template') + '</button></div></div>' +
+          '</li>' +
+          '<li class="yer-late-step yer-late-step-info">' +
+            '<div class="yer-late-step-head"><span class="yer-late-step-icon" aria-hidden="true"><i class="bx bx-edit-alt"></i></span><span class="yer-late-step-no">' + L('Bước 2','Step 2') + '</span></div>' +
+            '<div class="yer-late-step-copy"><strong class="yer-late-step-title">' + L('Điền đủ Mục tiêu đã thống nhất với Quản lý trực tiếp và hoàn thiện phần Tự đánh giá','Complete the goals agreed with your line manager and finish the self assessment') + '</strong>' +
+            '<span class="yer-late-step-note"><i class="bx bx-info-circle"></i>' + L('Quản lý không duyệt lại mục tiêu trên hệ thống với trường hợp nhân viên trễ hạn Tự đánh giá.','Goals are not reapproved in the system when an employee submits a late self assessment.') + '</span></div>' +
+          '</li>' +
+          '<li class="yer-late-step">' +
+            '<div class="yer-late-step-head"><span class="yer-late-step-icon" aria-hidden="true"><i class="bx bx-cloud-upload"></i></span><span class="yer-late-step-no">' + L('Bước 3','Step 3') + '</span></div>' +
+            '<div class="yer-late-step-copy"><div class="yer-late-step-line"><strong class="yer-late-step-title">' + L('Tải lên tập tin đã điền thông tin','Upload the completed file') + '</strong>' +
+            '<input type="file" id="yer-late-file" accept=".xlsx,.xls" hidden>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="yer-late-choose"><i class="bx bx-cloud-upload"></i>' + L('Chọn file','Choose file') + '</button></div>' +
+            '<div class="yer-late-selected" id="yer-late-selected"' + (selected ? '' : ' hidden') + '>' +
+              '<span class="yer-late-selected-name"><i class="bx bx-check-circle"></i><span id="yer-late-file-name">' + (selected ? esc(selected) : '') + '</span></span>' +
+              '<button type="button" class="yer-late-remove" id="yer-late-remove" aria-label="' + L('Xóa file','Remove file') + '" title="' + L('Xóa file','Remove file') + '"><i class="bx bx-trash" aria-hidden="true"></i></button>' +
+            '</div></div>' +
+          '</li>' +
         '</ol>' +
-        '<div class="yer-late-note"><i class="bx bx-info-circle"></i>' + L('Mục tiêu trong file không cần duyệt lại. Sau khi bạn nộp, Quản lý trực tiếp sẽ tiếp tục đánh giá.','Goals in the file do not require another approval. Your line manager can continue the review after submission.') + '</div>' +
-        '<div class="yer-late-file' + (selected ? ' has-file' : '') + '" id="yer-late-file-box">' +
-          '<input type="file" id="yer-late-file" accept=".xlsx,.xls" hidden>' +
-          '<div class="yer-late-file-icon"><i class="bx ' + (selected ? 'bx-check' : 'bx-cloud-upload') + '"></i></div>' +
-          '<div class="yer-late-file-copy"><strong id="yer-late-file-name">' + (selected ? esc(selected) : L('Chọn file đánh giá cuối năm','Choose the year-end review file')) + '</strong>' +
-          '<span id="yer-late-file-meta">' + (selected ? L('Đã chọn file - sẵn sàng để nộp','File selected - ready to submit') : L('Định dạng Excel .xlsx hoặc .xls - một file duy nhất','Excel .xlsx or .xls - one file only')) + '</span></div>' +
-          '<div class="yer-late-file-actions">' +
-            '<button type="button" class="btn btn-quiet btn-sm" id="yer-late-template"><i class="bx bx-download"></i>' + L('Tải file mẫu','Download template') + '</button>' +
-            '<button type="button" class="btn btn-outline btn-sm" id="yer-late-choose"><i class="bx bx-folder-open"></i>' + (selected ? L('Đổi file','Replace file') : L('Chọn file','Choose file')) + '</button>' +
-          '</div>' +
-        '</div>' +
-        '<label class="yer-late-confirm"><input type="checkbox" id="yer-late-align"> <span>' +
-          L('Tôi xác nhận các mục tiêu trong file đã được thống nhất với Quản lý trực tiếp trước đó.',
-            'I confirm that the goals in this file were previously aligned with my line manager and I am responsible for the submitted content.') +
-        '</span></label>' +
-        '<div class="yer-late-actions"><span><i class="bx bx-lock-alt"></i>' + L('Sau khi nộp, bạn không thể sửa hoặc thu hồi file.','After submitting, you cannot edit or withdraw the file.') + '</span>' +
-          '<button type="button" class="btn btn-default" id="yer-late-submit"><i class="bx bx-send"></i>' + L('Nộp hồ sơ','Submit file') + '</button></div>' +
+        '<div class="yer-late-footer"><button type="button" class="btn btn-default" id="yer-late-submit"><i class="bx bx-send"></i>' + L('Gửi Quản lý trực tiếp','Send to line manager') + '</button></div>' +
       '</section>';
   }
 
@@ -780,7 +768,7 @@
         /* Gộp luôn các gạch đầu dòng Lưu ý vào đây. Tách thành hai box rồi để dải quy trình
            chen vào giữa thì rối mắt, mà hai box lại nói trùng chuyện mục tiêu đã duyệt. */
         noteList(p, { skipGoalRule: true }) +
-        '</div><button class="btn btn-default btn-sm yn-cta" id="yer-go-goals"><i class="bx bx-target-lock"></i>' +
+        '</div><button class="btn btn-cta-outline btn-sm yn-cta" id="yer-go-goals"><i class="bx bx-target-lock"></i>' +
         (overdueMissing ? L('Xem danh sách mục tiêu','View goal list') : L('Tới tab Mục tiêu','Go to Goals')) + '</button></div>';
       // KHÔNG dừng ở đây: nhân viên có thể đã có Mục tiêu công việc và chỉ thiếu Mục tiêu
       // phát triển. Phần đã có vẫn phải hiện ra để họ biết mình đang ở đâu,
@@ -853,9 +841,18 @@
     if(sb) sb.addEventListener('click', function(){ collectEditors(); submitSelf(p); });
     var lateChoose = el('yer-late-choose');
     var lateInput = el('yer-late-file');
+    var lateRemove = el('yer-late-remove');
     var lateTemplate = el('yer-late-template');
-    if(lateTemplate) lateTemplate.addEventListener('click', function(){ chooseLateTemplate(p); });
-    if(lateChoose && lateInput) lateChoose.addEventListener('click', function(){ lateInput.click(); });
+    if(lateTemplate) lateTemplate.addEventListener('click', function(){ downloadLateTemplate(p); });
+    if(lateChoose && lateInput) lateChoose.addEventListener('click', function(){
+      lateInput.value = '';
+      lateInput.click();
+    });
+    if(lateRemove) lateRemove.addEventListener('click', function(){
+      lateFileDraft = null;
+      if(lateInput) lateInput.value = '';
+      updateLateFileUi();
+    });
     if(lateInput) lateInput.addEventListener('change', function(){
       if(!lateInput.files || !lateInput.files[0]) return;
       var file = lateInput.files[0];
@@ -879,17 +876,12 @@
   }
 
   function updateLateFileUi(){
-    var box = el('yer-late-file-box');
+    var selected = el('yer-late-selected');
     var name = el('yer-late-file-name');
-    var meta = el('yer-late-file-meta');
     var choose = el('yer-late-choose');
-    if(!box || !lateFileDraft) return;
-    box.classList.add('has-file');
-    var icon = box.querySelector('.yer-late-file-icon i');
-    if(icon) icon.className = 'bx bx-check';
-    if(name) name.textContent = lateFileDraft.name;
-    if(meta) meta.textContent = L('Đã chọn file - sẵn sàng để nộp','File selected - ready to submit');
-    if(choose) choose.innerHTML = '<i class="bx bx-folder-open"></i>' + L('Đổi file','Replace file');
+    if(selected) selected.hidden = !lateFileDraft;
+    if(name) name.textContent = lateFileDraft ? lateFileDraft.name : '';
+    if(choose) choose.innerHTML = '<i class="bx bx-cloud-upload"></i>' + L('Chọn file','Choose file');
   }
 
   function submitLate(p){
@@ -899,20 +891,13 @@
         buttons:[{ label:L('Đã hiểu','Got it'), variant:'default' }] });
       return;
     }
-    var ack = el('yer-late-align');
-    if(!ack || !ack.checked){
-      U.dialog({ title:L('Cần xác nhận mục tiêu đã thống nhất','Goal alignment confirmation required'),
-        text:L('Vui lòng xác nhận các mục tiêu trong file đã được thống nhất với Quản lý trực tiếp trước khi nộp.','Confirm that the goals in the file were aligned with your line manager before submission.'),
-        buttons:[{ label:L('Đã hiểu','Got it'), variant:'default' }] });
-      return;
-    }
     U.dialog({
-      title:L('Nộp hồ sơ trễ hạn?','Submit the late file?'),
-      text:L('Mục tiêu và nội dung tự đánh giá sẽ được ghi nhận cùng lúc. Mục tiêu không qua bước duyệt; hồ sơ chuyển ngay sang Quản lý trực tiếp và bạn không thể sửa hoặc thu hồi.',
-             'Goals and self assessment will be recorded together. Goals skip approval; the profile moves directly to your line manager and cannot be edited or withdrawn.'),
+      title:L('Gửi nội dung Tự Đánh giá cuối năm','Submit Year-End Self Assessment'),
+      html:L('<div>Bạn xác nhận các mục tiêu trong file đã được thống nhất với Quản lý trực tiếp.</div><div style="margin-top:10px">Sau khi gửi Tự đánh giá, bạn không thể thu hồi hoặc chỉnh sửa bất cứ nội dung nào.</div>',
+             '<div>You confirm that the goals in the file were agreed with your line manager.</div><div style="margin-top:10px">After submitting your self assessment, you cannot withdraw or edit any content.</div>'),
       buttons:[
         { label:L('Kiểm tra lại','Review again'), variant:'quiet' },
-        { label:L('Nộp hồ sơ','Submit file'), variant:'default', icon:'bx-send', act:function(){
+        { label:L('Xác nhận và Gửi','Confirm and submit'), variant:'default', icon:'bx-send', act:function(){
             var s = S.session();
             var payload = latePayload(p, lateFileDraft.name);
             var late = { at:s.date, fileName:lateFileDraft.name, source:'employee-late', goals:payload.goals };
@@ -922,7 +907,7 @@
             S.clearAct(s.emp, 'selfDraft');
             lateFileDraft = null;
             U.dirty.clear();
-            U.toast(L('Đã nộp hồ sơ trễ hạn cho Quản lý','Late file submitted to your manager'));
+            U.toast(L('Gửi hồ sơ cho Quản lý trực tiếp thành công','File sent to your line manager successfully'));
             render();
           } }
       ]
@@ -1223,26 +1208,28 @@
       '.yer-note-link{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}' +
       '.yer-note-link:hover{color:var(--brand-h)}' +
       '.yer-late-upload{margin-top:18px;border:1px solid var(--z200);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 3px 14px rgba(24,24,27,.05)}' +
-      '.yer-late-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 22px 16px;background:linear-gradient(135deg,#fff8fb,#fff)}' +
+      '.yer-late-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 22px 16px;background:#FFF7FB;border-bottom:1px solid #F0D7E5}' +
       '.yer-late-head h2{margin:8px 0 5px;font-size:18px;line-height:1.35;color:var(--z900)}' +
       '.yer-late-head p{margin:0;color:var(--z600);font-size:12.5px;line-height:1.55}' +
-      '.yer-late-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:99px;background:#fff1f2;color:#be123c;font-size:10.5px;font-weight:800}' +
+      '.yer-late-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid #F0D7E5;border-radius:99px;background:#FCEBF5;color:var(--brand);font-size:10.5px;font-weight:800}' +
       '.yer-late-count{min-width:82px;text-align:center;padding:10px 12px;border:1px solid #f4c8da;border-radius:10px;background:#fff}' +
       '.yer-late-count strong{display:block;font-size:22px;line-height:1;color:var(--brand)}.yer-late-count span{display:block;margin-top:4px;font-size:10.5px;color:var(--z500)}' +
-      '.yer-late-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 22px 10px;padding:0;list-style:none;border-top:1px solid var(--z200);border-bottom:1px solid var(--z200)}' +
-      '.yer-late-steps li{display:flex;gap:9px;padding:13px 14px 13px 0;min-width:0}.yer-late-steps li+li{padding-left:14px;border-left:1px solid var(--z200)}' +
-      '.yer-late-steps li>span{flex:none;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:var(--brand);color:#fff;font-size:10.5px;font-weight:800}' +
-      '.yer-late-steps strong{display:block;margin-bottom:2px;font-size:11.5px;color:var(--z800)}.yer-late-steps p{margin:0;font-size:10.8px;line-height:1.45;color:var(--z500)}' +
-      '.yer-late-note{display:flex;align-items:flex-start;gap:7px;margin:0 22px 14px;color:var(--z600);font-size:11.5px;line-height:1.45}.yer-late-note i{flex:none;margin-top:1px;color:var(--brand);font-size:15px}' +
-      '.yer-late-file{display:flex;align-items:center;gap:12px;margin:0 22px 14px;padding:15px;border:1px dashed #d4d4d8;border-radius:10px;background:#fafafa}' +
-      '.yer-late-file.has-file{border-style:solid;border-color:#86d6a1;background:#f3fcf6}' +
-      '.yer-late-file-icon{flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:10px;background:#fff1f7;color:var(--brand);font-size:22px}' +
-      '.yer-late-file.has-file .yer-late-file-icon{background:#dcfce7;color:#15803d}' +
-      '.yer-late-file-copy{min-width:0;flex:1}.yer-late-file-copy strong,.yer-late-file-copy span{display:block}.yer-late-file-copy strong{font-size:12.5px;color:var(--z800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.yer-late-file-copy span{margin-top:3px;font-size:10.8px;color:var(--z500)}' +
-      '.yer-late-file-actions{display:flex;align-items:center;gap:8px;flex:none}' +
-      '.yer-late-confirm{display:flex;align-items:flex-start;gap:8px;margin:0 22px 15px;font-size:11.5px;line-height:1.5;color:var(--z600);cursor:pointer}.yer-late-confirm input{margin-top:3px;accent-color:var(--brand)}' +
-      '.yer-late-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 22px;border-top:1px solid var(--z200);background:var(--z50)}' +
-      '.yer-late-actions>span{display:flex;align-items:center;gap:5px;font-size:10.8px;color:var(--z500)}' +
+      '.yer-late-flow{margin:18px 22px 22px;padding:0;list-style:none;border:1px solid var(--z200);border-radius:10px;overflow:hidden;background:#fff}' +
+      '.yer-late-step{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:18px;min-width:0;min-height:68px;padding:12px 16px;background:#fff}' +
+      '.yer-late-step+.yer-late-step{border-top:1px solid var(--z200)}' +
+      '.yer-late-step-head{display:flex;align-items:center;gap:7px}' +
+      '.yer-late-step-no{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--brand)}' +
+      '.yer-late-step-icon{flex:none;display:inline-grid;place-items:center;color:var(--z500);font-size:15px}' +
+      '.yer-late-step-copy{min-width:0}' +
+      '.yer-late-step-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap}' +
+      '.yer-late-step-title{font-size:12px;line-height:1.45;color:var(--z900)}' +
+      '.yer-late-step-line .btn{flex:none}' +
+      '.yer-late-step-note,.yer-late-lock{display:flex;align-items:flex-start;gap:5px;margin-top:6px;font-size:10.5px;line-height:1.45;color:var(--z500)}' +
+      '.yer-late-step-note i,.yer-late-lock i{flex:none;margin-top:1px;color:var(--brand);font-size:13px}' +
+      '.yer-late-selected{display:flex;align-items:center;gap:10px;min-width:0;margin-top:6px;font-size:10.5px}.yer-late-selected[hidden]{display:none}' +
+      '.yer-late-selected-name{display:flex;align-items:center;gap:4px;min-width:0;color:#15803d;overflow:hidden;white-space:nowrap}.yer-late-selected-name>span{overflow:hidden;text-overflow:ellipsis}.yer-late-selected-name i{flex:none;font-size:13px}' +
+      '.yer-late-remove{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--z500);cursor:pointer}.yer-late-remove:hover{background:#fff1f2;color:#b42318}.yer-late-remove:focus-visible{outline:2px solid var(--brand);outline-offset:2px}.yer-late-remove i{font-size:14px}' +
+      '.yer-late-footer{display:flex;justify-content:flex-end;padding:0 22px 20px}' +
       '.yer-cv-desc{line-height:1.55}' +
       '.yer-ed-ro .ev-content{min-height:0;padding:9px 11px;color:var(--z900)}' +
       '.yer-ed-ro{border-color:var(--z200);background:var(--z50)}' +
@@ -1251,11 +1238,9 @@
       '.yer-final-wrap{padding-left:14px;border-left:1px solid var(--ok-bd)}' +
       '.yer-final-val{color:var(--ok)}' +
       '.yer-final-tag{color:var(--ok);background:var(--z0);border-color:var(--ok-bd)}' +
-      '.yer-late-inline{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:3px 7px;border-radius:99px;background:#fff1f2;color:#be123c;font-size:10.5px;font-weight:700;vertical-align:middle}' +
       '#yer-root .sc-cell .rt-ro,#yer-root .ql-cell .rt-ro{justify-content:center}' +
       '#yer-root .ql-cell .rt-ro-score{font-size:13px}' +
-      '@media(max-width:900px){.yer-late-steps{grid-template-columns:1fr}.yer-late-steps li+li{padding-left:0;border-left:0;border-top:1px solid var(--z200)}.yer-late-file{flex-wrap:wrap}.yer-late-file-copy{min-width:220px}.yer-late-file-actions{width:100%;justify-content:flex-end}}' +
-      '@media(max-width:620px){.yer-late-head{padding:16px}.yer-late-steps,.yer-late-note,.yer-late-file,.yer-late-confirm{margin-left:16px;margin-right:16px}.yer-late-file{align-items:flex-start}.yer-late-file-actions{flex-direction:column;align-items:stretch}.yer-late-file-actions .btn{width:100%}.yer-late-actions{align-items:stretch;flex-direction:column}.yer-late-actions .btn{width:100%}}';
+      '@media(max-width:620px){.yer-late-head{padding:16px}.yer-late-flow{margin:16px}.yer-late-step{grid-template-columns:1fr;gap:8px;padding:14px}.yer-late-step-head,.yer-late-step-copy{grid-column:1}.yer-late-step-line{align-items:flex-start;flex-direction:column}.yer-late-footer{padding:0 16px 16px}.yer-late-footer .btn{width:100%;justify-content:center}}';
     document.head.appendChild(st);
   }
 
