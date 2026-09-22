@@ -619,6 +619,7 @@
         '</div>' +
         '<div class="pms-dlg-ft"></div>' +
       '</div>';
+    if (opts.className) ov.querySelector('.pms-dlg').classList.add(opts.className);
     var foot = ov.querySelector('.pms-dlg-ft');
     (opts.buttons || []).forEach(function (b) {
       var btn = document.createElement('button');

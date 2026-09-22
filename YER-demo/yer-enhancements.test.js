@@ -32,6 +32,10 @@ test('demo scenarios are grouped by role, not by process stage', () => {
 
   const scenarioIds = Array.from(w.PMS_YER_SCENARIOS, s => s.id);
   assert.equal(new Set(scenarioIds).size, scenarioIds.length, 'ma tinh huong phai duy nhat');
+  assert.equal(scenarioIds.filter(id => id.startsWith('nv')).length, 19);
+  assert.equal(scenarioIds.includes('nv17'), false);
+  assert.equal(scenarioIds.includes('nv19'), false);
+  assert.equal(scenarioIds.includes('nv20'), false);
   // Array.from de doi sang mang cua tien trinh test: mang tao trong vm co prototype khac.
   assert.deepEqual(Array.from(w.PMS_YER_SCENARIO_ORDER), scenarioIds);
 
@@ -83,6 +87,49 @@ test('the 16 employee scenarios cover every self assessment state', () => {
   assert.equal(missWhat.missingDev, false);
   assert.equal(missDev.missingWhat, false);
   assert.equal(missDev.missingDev, true);
+});
+
+test('employee tab only reports results after publication and has no response flow', () => {
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
+  const managerDetail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const model = fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8');
+
+  assert.match(employee, /'published':\s+\['Đã có kết quả',\s+'Results available'\]/);
+  assert.match(employee, /'wait-lm2':\s+\['Chờ Quản lý cấp 2'/);
+  assert.match(employee, /'wait-hod':\s+\['Chờ Trưởng đơn vị'/);
+  assert.match(employee, /'wait-tr':\s+\['Chờ tải điểm cuối cùng'/);
+  assert.doesNotMatch(employee, /Cần xem kết quả|responseCard|submitResponse|yer-btn-resp|Phản hồi của Nhân viên/);
+  assert.doesNotMatch(manager, /onlyResponse|yer-mgr-resp|yer-resp-dot|Nhân viên đã gửi phản hồi/);
+  assert.doesNotMatch(managerDetail, /responseBlock|sendReply|yer-md-reply|Phản hồi của Nhân viên/);
+  assert.doesNotMatch(model, /responseOpen|replyOpen|threadLocked/);
+});
+
+test('published employee result keeps prior-cycle status muted and hides manager overall score', () => {
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+
+  assert.match(employee, /myrLbl\.classList\.toggle\('yer-past-cycle-label', Y\.cmp\(s\.date, Y\.step\('self'\)\.from\) >= 0\)/);
+  assert.match(employee, /\.tabs \.tab-active-label\.yer-past-cycle-label\{color:var\(--z600\);background:var\(--z100\);border-color:var\(--z300\)\}/);
+  assert.doesNotMatch(employee, /class="sb-score-tag yer-final-tag"/);
+  assert.doesNotMatch(employee, /yer-hidden-score|L\('Chưa công bố','Not published'\)/);
+  assert.match(employee, /class="yer-manager-score-gap" aria-hidden="true"/);
+  assert.match(employee, /\.yer-manager-score-gap\{height:20px;margin-bottom:12px\}/);
+});
+
+test('nv06 and nv07 name the missing goal type and highlight it in the warning', () => {
+  const w = loadYer();
+  const missingWork = w.PMSYer.profile('y13', '2027-01-12').eligibility;
+  const missingDevelopment = w.PMSYer.profile('y1', '2027-01-12').eligibility;
+  assert.equal(missingWork.missingWhat, true);
+  assert.equal(missingWork.missingDev, false);
+  assert.equal(missingDevelopment.missingWhat, false);
+  assert.equal(missingDevelopment.missingDev, true);
+
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(employee, /return L\('Thiếu mục tiêu công việc','Work goal missing'\)/);
+  assert.match(employee, /return L\('Thiếu mục tiêu phát triển','Development goal missing'\)/);
+  assert.match(employee, /<strong class="yer-missing-goal">/);
+  assert.match(employee, /\.yer-note\.action \.yer-missing-goal\{color:var\(--brand\);font-weight:700\}/);
 });
 
 test('an employee outside the cycle has no year-end review to open', () => {
@@ -282,6 +329,50 @@ test('overdue self assessment keeps the late file route open for all three goal 
   assert.equal(w.PMSYer.status(afterLateWindow, 'vi').key, 'noeval');
 });
 
+test('nv04 mid-year tab shows the completed result and the historical line manager', () => {
+  const w = loadYer();
+  const p = w.PMSYer.profile('y3', '2027-01-12');
+  assert.equal(p.myr.submitted, true);
+  assert.equal(p.myr.nv, 4);
+  assert.equal(p.myr.final, 4);
+  assert.equal(p.myr.lm1By.name, 'Nguyễn Hải Đăng');
+  assert.equal(p.myr.lm1By.login, 'dang.nguyen');
+
+  const managerDetail = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
+  const dataScript = managerDetail.indexOf('<script src="../assets/yer-data.js"></script>');
+  const setupCall = managerDetail.indexOf('setupManagerDetail();');
+  assert.ok(dataScript > 0 && dataScript < setupCall, 'du lieu YER phai duoc nap truoc khi khoi tao tab MYR');
+  assert.equal(managerDetail.match(/<script src="\.\.\/assets\/yer-data\.js"><\/script>/g).length, 1);
+  assert.match(managerDetail, /Đã hoàn thành Đánh giá giữa năm 2026/);
+  assert.match(managerDetail, /Quản lý trực tiếp tại kỳ giữa năm:/);
+  assert.match(managerDetail, /review\.lm1By\|\|null/);
+  assert.match(managerDetail, /id="sb-self-score-label"/);
+  assert.match(managerDetail, /Điểm tự đánh giá:/);
+  assert.match(managerDetail, /id="sb-final-score-label"/);
+  assert.match(managerDetail, /Điểm cuối cùng:/);
+  assert.match(managerDetail, /finalScore\.textContent=String\(review\.final\)/);
+
+  const employeeScreen = fs.readFileSync(path.join(root, 'E-05/index.html'), 'utf8');
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(employeeScreen, /id="myr-result-title"/);
+  assert.match(employeeScreen, /id="myr-result-sub"/);
+  assert.match(employeeScreen, /id="myr-final-score-group" hidden/);
+  assert.match(employeeScreen, /id="myr-final-score"/);
+  assert.match(employee, /function syncMyrResult\(p, completed\)/);
+  assert.match(employee, /var myrDone = !!\(p\.myr && p\.myr\.final !== null && p\.myr\.final !== undefined\)/);
+  assert.match(employee, /syncMyrResult\(p, myrDone\)/);
+  assert.match(employee, /Đã hoàn thành Đánh giá giữa năm 2026/);
+  assert.match(employee, /Quản lý trực tiếp tại kỳ giữa năm:/);
+  assert.match(employee, /p\.myr\.lm1By \|\| p\.emp\.mgr/);
+  assert.match(employee, /draftActions\.style\.display = 'none'/);
+  assert.match(employee, /finalScore\.textContent = String\(p\.myr\.final\)/);
+
+  const yerManager = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const myrLine = yerManager.slice(yerManager.indexOf('function myrLine(p)'), yerManager.indexOf('function maternityBlock(p)'));
+  assert.doesNotMatch(myrLine, /Người đã chấm giữa năm|Rated at mid-year by|p\.emp\.myrMgr/);
+  assert.match(myrLine, /Mở tab giữa năm/);
+});
+
 test('overdue guidance uses a compact three-step flow and a footer submit action', () => {
   const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   const e05 = fs.readFileSync(path.join(root, 'E-05/index.html'), 'utf8');
@@ -334,7 +425,18 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.match(employee, /if\(!lateFileDraft\)\{/);
   assert.match(employee, /title:L\('Chưa chọn file','No file selected'\)/);
   assert.match(employee, /title:L\('Gửi nội dung Tự Đánh giá cuối năm','Submit Year-End Self Assessment'\)/);
-  assert.match(employee, /html:L\('<div>Bạn xác nhận các mục tiêu trong file đã được thống nhất với Quản lý trực tiếp\.<\/div><div style="margin-top:10px">Sau khi gửi Tự đánh giá, bạn không thể thu hồi hoặc chỉnh sửa bất cứ nội dung nào\.<\/div>'/);
+  assert.match(employee, /Bạn xác nhận <strong>các mục tiêu<\/strong> trong file <strong>đã được thống nhất<\/strong> với Quản lý trực tiếp/);
+  assert.match(employee, /<strong>Bạn chỉ có 1 lần gửi duy nhất\.<\/strong>/);
+  assert.match(employee, /bạn <strong>không thể thu hồi hoặc chỉnh sửa<\/strong> bất cứ nội dung nào/);
+  assert.doesNotMatch(employee, /class="yer-late-confirm-risk"/);
+  assert.doesNotMatch(employee, /yer-late-confirm-risk>i/);
+  assert.match(employee, /\.yer-late-confirm-copy\{display:flex;flex-direction:column;gap:10px\}/);
+  assert.match(employee, /className:'yer-late-confirm-dialog'/);
+  assert.match(employee, /\.yer-late-confirm-dialog \.pms-dlg-ti\{[^}]*background:#FFF7FB/);
+  assert.doesNotMatch(employee, /\.yer-late-confirm-dialog \.pms-dlg-ti\{[^}]*border-left/);
+  assert.match(employee, /\.yer-late-confirm-dialog \.pms-dlg-tx\{padding:16px 18px 18px\}/);
+  const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
+  assert.match(ui, /if \(opts\.className\) ov\.querySelector\('\.pms-dlg'\)\.classList\.add\(opts\.className\)/);
   assert.match(employee, /label:L\('Xác nhận và Gửi','Confirm and submit'\), variant:'default'/);
   assert.match(employee, /\.yer-late-head\{[^}]*background:#FFF7FB;border-bottom:1px solid #F0D7E5/);
   assert.match(employee, /\.yer-late-badge\{[^}]*background:#FCEBF5;color:var\(--brand\)/);
@@ -350,11 +452,17 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.match(e05, /\.btn-cta-outline\{background:var\(--z0\);border-color:var\(--brand\);color:var\(--brand\);font-weight:600\}/);
 });
 
-test('late completion banner shows the next assessor instead of a late badge', () => {
+test('late completion banner identifies the supplemental file and overdue days', () => {
+  const w = loadYer();
   const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   const banner = employee.slice(employee.indexOf('function submitBanner(p)'), employee.indexOf('function toolbar(p'));
 
-  assert.doesNotMatch(banner, /yer-late-inline|Nộp trễ hạn|Submitted late/);
+  assert.equal(w.PMSYer.lateDays('2027-01-20'), 2);
+  assert.equal(w.PMSYer.lateDays('2027-01-18'), 0);
+  assert.match(banner, /Đã hoàn thành bổ sung Tự đánh giá cuối năm/);
+  assert.match(banner, /class="yer-late-status"/);
+  assert.match(banner, /L\('Trễ hạn','Late'\)/);
+  assert.match(employee, /\.yer-late-status\{[^}]*background:#FCEBF5;[^}]*color:var\(--brand\)/);
   assert.match(banner, /p\.lateSubmission && !p\.lm && !p\.published/);
   assert.match(banner, /class="yer-next-step"/);
   assert.match(banner, /Tiếp theo:/);
@@ -443,6 +551,10 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /if \(!p\.lateSubmission\) return ''/);
   assert.match(source, /p\.lateSubmission && p\.lateSubmission\.goals/);
   assert.match(source, /không qua bước duyệt/);
+  assert.match(source, /Hồ sơ nộp bổ sung Tự đánh giá cuối năm/);
+  assert.match(source, /class="yer-md-late-status"/);
+  assert.match(source, /Y\.lateDays\(p\.lateSubmission\.at\)/);
+  assert.match(source, /\.yer-md-late-status\{[^}]*background:#FCEBF5;[^}]*color:var\(--brand\)/);
 });
 
 test('tour detail keeps a mascot illustration in every step card', () => {

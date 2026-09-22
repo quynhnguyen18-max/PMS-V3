@@ -1455,11 +1455,11 @@ body.embedded-detail .page-title{font-size:16px}
       </div>
       <div class="sb-score-wrap">
         <div class="sb-score-group">
-          <span class="sb-score-lbl">Điểm của NV:</span>
+          <span class="sb-score-lbl" id="sb-self-score-label">Điểm của NV:</span>
           <span class="sb-score-val" id="sb-score-val">—</span>
         </div>
         <div class="sb-score-group">
-          <span class="sb-score-lbl">Điểm của QLTT:</span>
+          <span class="sb-score-lbl" id="sb-final-score-label">Điểm của QLTT:</span>
           <span class="sb-score-val" id="sb-manager-score">—</span>
         </div>
       </div>
@@ -2131,6 +2131,9 @@ body.embedded-detail .page-title{font-size:16px}
 
 
 <script src="../assets/employees-data.js"></script>
+<!-- M-06 phai nap snapshot MYR/YER truoc khi setupManagerDetail() chay.
+     Neu nap o cuoi trang, ho so demo y* bi nhan nham thanh du lieu mac dinh. -->
+<script src="../assets/yer-data.js"></script>
 <script>
 /* ── FILTER ── */
 /* ── ROW ACTION MENU (table view) ── */
@@ -3389,6 +3392,8 @@ function setupManagerDetail(){
   var banner=panel.querySelector('.submit-banner');
   var bannerTitle=panel.querySelector('.submit-banner .sb-title');
   var bannerSub=panel.querySelector('.submit-banner .sb-sub');
+  var selfScoreLabel=panel.querySelector('#sb-self-score-label');
+  var finalScoreLabel=panel.querySelector('#sb-final-score-label');
 
   if(!submitted){
     if(banner) banner.classList.add('submit-banner--pending');
@@ -3403,8 +3408,27 @@ function setupManagerDetail(){
     return;
   }
 
-  if(bannerTitle) bannerTitle.textContent='Nhân viên đã hoàn thành Tự đánh giá MYR 2026';
-  if(bannerSub) bannerSub.style.display='none';
+  var myrCompleted=review.final!==null&&review.final!==undefined;
+  if(myrCompleted){
+    if(bannerTitle) bannerTitle.textContent='Đã hoàn thành Đánh giá giữa năm 2026';
+    if(bannerSub){
+      var myrManager=review.lm1By||null;
+      var managerAtMyr=myrManager
+        ?myrManager.name+' ('+myrManager.login+')'
+        :emp.manager;
+      bannerSub.style.display='block';
+      bannerSub.innerHTML='Quản lý trực tiếp tại kỳ giữa năm: <strong>'+myrEsc(managerAtMyr)+'</strong>';
+    }
+    if(selfScoreLabel) selfScoreLabel.textContent='Điểm tự đánh giá:';
+    if(finalScoreLabel) finalScoreLabel.textContent='Điểm cuối cùng:';
+    var selfScore=panel.querySelector('#sb-score-val');
+    var finalScore=panel.querySelector('#sb-manager-score');
+    if(selfScore) selfScore.textContent=review.nv!==null&&review.nv!==undefined?String(review.nv):'—';
+    if(finalScore) finalScore.textContent=String(review.final);
+  }else{
+    if(bannerTitle) bannerTitle.textContent='Nhân viên đã hoàn thành Tự đánh giá MYR 2026';
+    if(bannerSub) bannerSub.style.display='none';
+  }
 
   maskFutureManagerScores(panel,phase);
   if(viewOnly){
@@ -3619,7 +3643,6 @@ function openFbPopup(){
   openOverlay('dlg-feedback');
 }
 </script>
-<script src="../assets/yer-data.js"></script>
 <script src="../assets/yer-store.js"></script>
 <script src="../assets/yer-model.js"></script>
 <script src="../assets/yer-i18n.js"></script>

@@ -122,9 +122,10 @@ Mức .5 = vượt trên mức liền trước nhưng chưa đạt trọn vẹn 
 | Điểm LM2/HOD | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
 | Comment LM2/HOD | ✗ | ✗ | ✓ | ✓ | ✓ | ✗ |
 | Final rating | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Employee Response | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
 
-Với NV, ô điểm toàn diện hiện label + trạng thái **Chưa công bố**, không ẩn cả dòng.
+Với NV, **không render dòng điểm toàn diện của Quản lý** ở bất kỳ thời điểm nào; chỉ
+hiển thị nhận xét toàn diện của Quản lý khi đã có dữ liệu. Hai cột nhận xét Nhân viên và
+Quản lý phải thẳng hàng dù cột Quản lý không có dòng điểm.
 HRBP chỉ thấy đơn vị mình phụ trách; L&OD thấy toàn công ty.
 
 ## 8. Không thu hồi
@@ -143,13 +144,12 @@ LM2/HOD sửa điểm thoải mái tới hết deadline của mình.
 
 ## 10. Employee Response (Enh 5)
 
-- Tùy chọn, free text, mở khi LM submit đánh giá, đóng khi publish.
-- Điểm LM là auto-sync `(HR system)` thì **không** hiện ô response.
-- Gửi rồi không sửa, không xóa. Hiện thời gian gửi + tên và domain người gửi.
-- LM trả lời **một lần duy nhất**, tùy chọn. Trả lời xong thread khóa, NV không phản hồi tiếp.
-- LM2/HOD thấy response qua icon ở lưới danh sách + popover, có bộ lọc "Chỉ NV có phản hồi". Không phải vào chi tiết.
-- Không có escalation lên HRBP.
-- Không response được với final rating.
+Chốt ngày 22/09/2026: **bỏ toàn bộ chức năng Employee Response khỏi luồng YER**.
+
+- Nhân viên không có khối `Phản hồi của Nhân viên` ở bất kỳ trạng thái nào.
+- Quản lý không có bộ lọc, icon nhận diện, nội dung phản hồi hoặc hành động trả lời.
+- Model không còn sinh `responseOpen`, `replyOpen` hay thread phản hồi.
+- Các tình huống Demo chuyên cho luồng phản hồi (`nv19`, `nv20`) được loại bỏ.
 
 ## 11. Mid-Year Snapshot (Enh 2)
 
@@ -391,6 +391,33 @@ Chốt ngày 18/09/2026. Hai lý do khác hẳn nhau, cho ra **hai hành vi UI k
   cả hai đều dùng chung một câu ở §40.5c. Nhãn tab đã nói rõ lý do rồi, không cần
   viết dài thêm một lần nữa trong Lưu ý.
 
+## 18.3 Kết quả giữa năm đã hoàn thành khi Quản lý thay đổi
+
+Chốt ngày 22/09/2026 cho trường hợp `nv04`: Quản lý trực tiếp tại kỳ giữa năm và
+Quản lý trực tiếp hiện tại là hai người khác nhau.
+
+Khi Nhân viên mở lại tab **Đánh giá giữa năm** từ `E-05`, hoặc Quản lý mở lại tab này
+từ màn chi tiết `M-06`, box xanh trên cùng hiển thị thông tin ở cấp hồ sơ, trước các
+nhóm mục tiêu:
+
+- trạng thái `Đã hoàn thành Đánh giá giữa năm 2026`;
+- `Quản lý trực tiếp tại kỳ giữa năm: Tên (domain)`;
+- `Điểm tự đánh giá`;
+- `Điểm cuối cùng` — không dùng `Điểm của QLTT` tại vị trí này.
+
+Header nhân viên vẫn hiển thị Quản lý trực tiếp **hiện tại**. Người đã đánh giá giữa
+năm là snapshot lịch sử bất biến trong kết quả MYR (`PMS_MYR[empId].lm1By`), không
+suy từ `employee.mgr`. Không lặp tên người đánh giá tại từng mục tiêu.
+
+Ở thời điểm mở kỳ cuối năm, MYR là dữ liệu lịch sử: nếu đã có `final`, tab luôn ở trạng
+thái **Đã hoàn tất**, toàn bộ nội dung chỉ xem và không còn hành động Lưu nháp/Gửi lại.
+`nv04` trên thanh Demo phải mở được tab này trực tiếp từ E-05 và thấy đủ bốn thông tin
+trong box xanh nêu trên.
+
+Box tham chiếu trên tab **Đánh giá cuối năm** chỉ hướng người dùng sang tab giữa năm;
+không hiển thị người chấm tại đó. Như vậy thông tin lịch sử chỉ có một nguồn hiển thị
+trong box xanh của tab **Đánh giá giữa năm**, tránh mâu thuẫn với Quản lý hiện tại.
+
 ## 19. Song ngữ
 
 - Toggle VI/EN ở topbar góc phải. Mặc định tiếng Việt. Nhớ lựa chọn giữa các màn.
@@ -453,8 +480,7 @@ breadcrumb, emp-chip, chọn chu kỳ, tab bar, toolbar Lưu nháp / Gửi tự 
 | `assets/yer-employee.js` | Render toàn bộ nội dung tab End-Year Review theo dữ liệu và ngày hệ thống |
 
 Nội dung tab End-Year Review theo thứ tự: toolbar → banner trạng thái → dải quy trình →
-banner đặc thù (thiếu mục tiêu, thai sản) → 3 nhóm mục tiêu →
-Đánh giá toàn diện → Phản hồi của Nhân viên.
+banner đặc thù (thiếu mục tiêu, thai sản) → 3 nhóm mục tiêu → Đánh giá toàn diện.
 
 Quy ước riêng của màn Nhân viên:
 - Dải quy trình tên là **Quy trình và Thời gian đánh giá cuối năm 2026**, dạng gọn, **không đánh số**,
@@ -463,13 +489,13 @@ Quy ước riêng của màn Nhân viên:
 - **Có khối Lưu ý** ngay dưới dải quy trình (sửa ngày 16/09/2026, xem §40).
   **Không có khối Kết quả kỳ giữa năm** — kết quả đó để ở tab Đánh giá giữa năm.
 - **Không có card Điểm cuối cùng riêng**. Sau khi nộp, banner trạng thái hiện **Điểm tự đánh giá**;
-  sau khi công bố, banner hiện thêm **Kết quả cuối cùng** kèm tên mức. Banner luôn có nút tải PDF như màn MYR.
+  sau khi công bố, banner hiện thêm **Kết quả cuối cùng** dưới dạng điểm số, không kèm tên
+  mức. Banner luôn có nút tải PDF như màn MYR.
 - Ô nhận xét ở trạng thái chỉ xem giữ nguyên khung `ev-editor-wrap`, bỏ thanh công cụ, nền xám nhạt.
 
 Quy ước dữ liệu ghi vào store:
 - `acts[emp].selfDraft` - bản nháp tự đánh giá, không tính là đã gửi.
 - `acts[emp].self` - bản đã gửi, có `at` nên model coi là đã submit.
-- `acts[emp].response` - phản hồi của nhân viên.
 - `acts[emp].deletedGoals.ids` - danh sách mục tiêu đã xóa mềm.
 
 Khi gộp vào sản phẩm thật, toàn bộ tab này chuyển thẳng vào `E-01`, `E-05` chỉ là bản dựng để review.
@@ -558,9 +584,17 @@ trạng mục tiêu**. Ba trường hợp đều vào cùng một luồng:
 3. CTA `Gửi Quản lý trực tiếp` nằm ở góc phải cuối khối, luôn dùng đúng màu primary
    `--brand` để nhận ra hành động chính; không chuyển thành nút xám khi chưa có file.
    Bấm khi chưa chọn file thì hiện validation yêu cầu chọn file. Khi đã có file, CTA mở
-   popup xác nhận gồm đúng hai ý: mục tiêu đã thống nhất với Quản lý trực tiếp; sau khi
-   gửi Tự đánh giá không thể thu hồi hoặc chỉnh sửa bất cứ nội dung nào. Popup có tiêu đề
+   popup xác nhận gồm ba ý liền mạch: mục tiêu đã thống nhất với Quản lý trực tiếp; người
+   dùng chỉ có một lần gửi duy nhất; sau khi gửi Tự đánh giá không thể thu hồi hoặc chỉnh
+   sửa bất cứ nội dung nào. Popup có tiêu đề
    `Gửi nội dung Tự Đánh giá cuối năm`, nút `Kiểm tra lại` và CTA `Xác nhận và Gửi`.
+   Đây là bước xác nhận quan trọng dùng chung cho `nv08`–`nv11`: in đậm các cụm
+   `các mục tiêu`, `đã được thống nhất`, `Bạn chỉ có 1 lần gửi duy nhất` và `không thể
+   thu hồi hoặc chỉnh sửa`. Ba ý dùng cùng một bố cục nội dung trong thân popup, không
+   tách cảnh báo thành highlight box và không dùng icon khóa.
+   Header của riêng popup này là một vùng tách biệt: nền `#FFF7FB`, viền dưới
+   `#F0D7E5`, không có vạch màu bên trái, tiêu đề 16px/700. Không đổi header của các
+   popup dùng chung khác.
    Gửi thành công thì cập nhật dữ liệu, báo thành công và chuyển sang giao diện hồ sơ đã gửi.
 4. Icon của từng bước là phần tử trình bày màu xám, đặt **trước** nhãn `Bước 1`…`Bước 3`
    và **không phải button**. Mọi action đều dùng button có nhãn rõ ràng; không dùng icon
@@ -582,7 +616,12 @@ của `y9`, `y10`, `y14` — đủ cho toàn bộ tình huống nộp trễ hi�
 - Mục tiêu trong file vào thẳng, trạng thái `imported`, **không qua bước duyệt mục tiêu**.
 - Bản tự đánh giá ghi `source: 'file-import'` kèm tên file.
 - Trạng thái danh sách và nhãn tab: `Nộp trễ hạn - Chờ Quản lý`.
-- Màn Quản lý đọc được mục tiêu import và chấm bình thường.
+- Banner Nhân viên ghi `Đã hoàn thành bổ sung Tự đánh giá cuối năm`; dòng dưới hiển thị
+  `Ngày gửi: dd/mm/yyyy - Trễ hạn x ngày`. Số ngày trễ được tính từ ngày gửi so với hạn
+  cuối bước Tự đánh giá; riêng chữ `Trễ hạn` dùng badge rose-neutral màu thương hiệu.
+- Màn Quản lý đọc được mục tiêu import và chấm bình thường. Mọi hồ sơ từ luồng nộp bổ
+  sung bằng file đều có badge `Trễ hạn x ngày` nổi bật tại khối cảnh báo để Quản lý nhận
+  diện ngay, dùng cùng phép tính và hệ màu với banner Nhân viên.
 
 **`Không đánh giá`** chỉ xuất hiện khi **hết cửa sổ nộp trễ** mà vẫn thiếu mục tiêu và
 không có file nào được nộp. Mô hình: `stopped` cần đủ ba điều kiện — thiếu mục tiêu,
@@ -720,7 +759,7 @@ Màn Quản lý của YER **không phải màn mới**. Nó là **tab Đánh gi�
 | `M-05/index.html` | Bản sao `M-01` với tab Đánh giá cuối năm được bật và mở sẵn. Danh sách nhân viên cần đánh giá |
 | `M-06/index.html` | Bản sao `M-02` với tab Đánh giá cuối năm được bật và mở sẵn. Màn chấm điểm chi tiết |
 | `assets/yer-manager.js` | Render danh sách: dải quy trình, đổi phạm vi vai, tỷ lệ hoàn thành, bộ lọc, bảng điểm |
-| `assets/yer-manager-detail.js` | Render màn chấm điểm: 3 nhóm mục tiêu, cặp nhận xét, điểm toàn diện, phản hồi |
+| `assets/yer-manager-detail.js` | Render màn chấm điểm: 3 nhóm mục tiêu, cặp nhận xét và điểm toàn diện |
 
 ### 39.1 Một màn, ba vai
 
@@ -740,7 +779,6 @@ Màn Quản lý của YER **không phải màn mới**. Nó là **tab Đánh gi�
 
 - `acts[emp].lmDraft` / `lm2Draft` / `hodDraft` — bản nháp theo từng vai, không tính là đã gửi.
 - `acts[emp].lm` / `lm2` / `hod` — bản đã gửi, có `at` nên model coi là đã submit.
-- `acts[emp].response.reply` — trả lời một lần của Quản lý.
 - `acts[emp].returned` — lần trả về gần nhất: ai trả về, lúc nào, hạn 24 giờ.
 
 ### 39.3 Ghi chú
@@ -829,6 +867,17 @@ Chốt ngày 18/09/2026. Hai nguyên tắc:
 | 3 | Nghỉ thai sản | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | một dòng thai sản, xem §40.5b |
 | 4 | Các trường hợp còn lại | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | điều kiện mục tiêu + kết quả kỳ giữa năm |
 | 5 | Không còn gạch đầu dòng nào | **không box nào** | — | không dựng thẻ rỗng |
+
+Với hồ sơ còn trong hạn tự đánh giá nhưng thiếu đúng một loại mục tiêu, nhãn trên tab
+**Đánh giá cuối năm** nói thẳng phần còn thiếu thay vì dùng trạng thái cuối kỳ
+`Không đánh giá`:
+
+- `nv06`: `Thiếu mục tiêu công việc`;
+- `nv07`: `Thiếu mục tiêu phát triển`.
+
+Trong khối cảnh báo, chính tên loại mục tiêu sau `Hiện còn thiếu:` dùng màu thương hiệu
+và weight 700; phần câu còn lại giữ màu chữ mặc định. Trạng thái model vẫn là
+`missing-goal`; `Không đánh giá` chỉ dùng khi hồ sơ đã thực sự qua cửa sổ bổ sung.
 
 Thứ tự khối trên màn ứng với từng trạng thái:
 
@@ -1051,15 +1100,24 @@ lọc theo vai; mỗi dòng đặt sẵn vai trò, nhân sự, ngày hệ thốn
 
 | Nhóm | Mã | Số tình huống |
 |---|---|---|
-| Nhân viên | `nv01`–`nv21` | 21 |
+| Nhân viên | Các mã còn hiệu lực trong `nv01`–`nv22` | 19 |
 | Quản lý trực tiếp | `lm01`–`lm08` | 8 |
 | Quản lý cấp 2 | `lm2-01`–`lm2-04` | 4 |
 | Trưởng đơn vị | `hod01`–`hod04` | 4 |
 
 `nv01`–`nv16` là mười sáu tình huống chính của vai Nhân viên, đi theo đúng thứ tự câu chuyện:
 không đủ điều kiện → thai sản → LWD → đổi quản lý → ba biến thể còn hạn → bốn biến thể
-quá hạn → đã nộp → nộp trễ bằng file → ba bước chờ phía sau. `nv17`–`nv21` là các tình huống
-phụ: kỳ giữa năm và luồng phản hồi sau công bố.
+quá hạn → đã nộp → nộp trễ bằng file → ba bước chờ phía sau. Các tình huống phụ còn lại
+là `nv18`, `nv21`, `nv22`; `nv17` đã bỏ theo yêu cầu, còn `nv19` và `nv20` đã bỏ cùng
+chức năng Employee Response.
+
+Trong tab Đánh giá cuối năm, `nv14`, `nv15`, `nv16` lần lượt hiển thị `Chờ Quản lý cấp 2`,
+`Chờ Trưởng đơn vị`, `Chờ tải điểm cuối cùng`. Chỉ hồ sơ đã hoàn tất bước `Công bố kết quả`
+như `nv21` mới dùng nhãn `Đã có kết quả`.
+
+Tại thời điểm kỳ cuối năm đã mở, badge trạng thái trên tab Đánh giá giữa năm chuyển sang
+hệ màu xám trung tính ở mọi tình huống để không cạnh tranh thị giác với tab cuối năm đang
+được xử lý. Với `nv21`, banner kết quả chỉ hiển thị điểm số cuối cùng; không hiển thị tên mức.
 
 Ghi chú cho người review: **`nv08`–`nv11` dựng ra cùng một màn nộp trễ**. Quá hạn thì file
 thay cho toàn bộ nội dung, nên số mục tiêu đã duyệt chỉ đổi hộp thoại **Tải file mẫu**

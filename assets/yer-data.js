@@ -186,7 +186,10 @@
      y1 (thiếu mục tiêu) và y7 (ngoài kỳ) cố ý không có dữ liệu MYR.   */
   var MYR_NEW = {
     y2: { submitted: true,  nv: 3.5, lm1: 3.5, lm2: 3.5, hod: null, final: 3.5 },
-    y3: { submitted: true,  nv: 4,   lm1: 3.5, lm2: 4,   hod: null, final: 4 },
+    // Luu snapshot nguoi chiu trach nhiem danh gia tai chinh ky MYR. Khong suy tu
+    // emp.mgr vi quan ly hien tai co the da thay doi truoc khi mo lai ket qua.
+    y3: { submitted: true,  nv: 4,   lm1: 3.5, lm2: 4,   hod: null, final: 4,
+      lm1By: { name: 'Nguyễn Hải Đăng', login: 'dang.nguyen', ini: 'ND' } },
     y4: { submitted: true,  nv: 3.5, lm1: 3.5, lm2: null, hod: null, final: 3.5 },
     y5: { submitted: true,  nv: 4,   lm1: 4,   lm2: 4,   hod: null, final: 4 },
     y6: { submitted: true,  nv: 3.5, lm1: 3.5, lm2: null, hod: null, final: 3.5 },
@@ -214,7 +217,7 @@
 
   /* ── 5. Sự kiện YER đã xảy ra (chỉ ghi hành động thật) ───
      Trạng thái hiển thị được SUY RA theo "ngày hệ thống" ở yer-model.js:
-     auto-sync, quá hạn, khóa response... đều tính runtime, không hardcode.  */
+     auto-sync, quá hạn... đều tính runtime, không hardcode.  */
   var Y = {};
 
   function ev(at, extra) { return Object.assign({ at: at }, extra || {}); }
@@ -289,25 +292,22 @@
     hrbpUpload: ev('2027-02-19', { score: 4, comment: 'Điểm thống nhất sau phiên rà soát cấp khối.', approved: false, by: 'Nguyễn Thị Hoa (hoa.nguyen)' })
   };
 
-  // s16 — NV đã phản hồi, LM chưa trả lời
+  // s16 — Quản lý trực tiếp đã hoàn tất
   Y.e10 = {
     scenario: 's16',
     self: ev('2027-01-10', { overall: { score: 4.5, comment: 'Nền tảng MLOps đã phục vụ ổn định nhiều mô hình và giảm chi phí vận hành đáng kể.' },
       comments: { what: 'Platform phục vụ 18 mô hình production, vượt mục tiêu 15.', dev: 'Hoàn thành nghiên cứu fine-tuning và chia sẻ nội bộ.', how: 'Chủ động chuẩn hóa quy trình cho cả nhóm.' } }),
     lm: ev('2027-01-25', { overall: { score: 4, comment: 'Kết quả tốt, nền tảng MLOps tạo ra giá trị rõ ràng cho các nhóm sản phẩm.' },
-      comments: { what: 'Số lượng mô hình phục vụ vượt mục tiêu đề ra.', dev: 'Nghiên cứu có chiều sâu, cần lan tỏa rộng hơn trong năm sau.', how: 'Thể hiện tốt tinh thần chuẩn hóa và chia sẻ.' } }),
-    response: ev('2027-01-31', { text: 'Em cảm ơn anh đã ghi nhận. Về phần chi phí inference, em muốn bổ sung thêm là mức giảm thực tế đạt 34% so với mục tiêu 30%, số liệu em đã cập nhật trong báo cáo tháng 12. Mong anh xem xét thêm khi tổng hợp kết quả.' })
+      comments: { what: 'Số lượng mô hình phục vụ vượt mục tiêu đề ra.', dev: 'Nghiên cứu có chiều sâu, cần lan tỏa rộng hơn trong năm sau.', how: 'Thể hiện tốt tinh thần chuẩn hóa và chia sẻ.' } })
   };
 
-  // s17 — NV phản hồi, LM đã trả lời một lần, luồng trao đổi khóa lại
+  // s17 — Quản lý cấp 2 đã hoàn tất
   Y.e11 = {
     scenario: 's17',
     self: ev('2027-01-09', { overall: { score: 4.5, comment: 'Hai mục tiêu hạ tầng trọng yếu đều hoàn thành vượt kỳ vọng và không gây gián đoạn dịch vụ.' },
       comments: { what: 'Nâng cấp Kubernetes không downtime và hoàn thành DR site đúng hạn.', dev: 'Tiếp tục đầu tư vào năng lực vận hành hệ thống quy mô lớn.', how: 'Đặt độ tin cậy hệ thống lên hàng đầu trong mọi quyết định.' } }),
     lm: ev('2027-01-23', { overall: { score: 4.5, comment: 'Đóng góp rất có giá trị cho sự ổn định của hệ thống production trong năm.' },
       comments: { what: 'Chất lượng thực thi vượt kỳ vọng ở cả hai mục tiêu hạ tầng.', dev: 'Chia sẻ kiến thức hiệu quả trong nhóm Infra.', how: 'Tinh thần trách nhiệm cao và nhất quán.' } }),
-    response: ev('2027-01-29', { text: 'Em cảm ơn anh. Em xin bổ sung là trong kỳ có 2 lần diễn tập DR đều đạt RTO dưới 3 giờ, tốt hơn mục tiêu 4 giờ đề ra ban đầu.',
-      reply: ev('2027-02-03', { text: 'Cảm ơn em đã bổ sung. Anh đã ghi nhận kết quả diễn tập DR vào phần tổng hợp gửi lên cấp trên.' }) }),
     lm2: ev('2027-02-12', { score: 4.5, comment: 'Đồng thuận với đánh giá của quản lý trực tiếp.', source: 'manual' })
   };
 
@@ -582,10 +582,6 @@
       vi: 'Xong Trưởng đơn vị, chờ điểm cuối cùng', en: 'HOD done, awaiting the final rating',
       wvi: 'Bước cuối trước khi công bố: điểm cuối cùng chưa được tải lên hệ thống.',
       wen: 'The last step before publication: the final rating has not been uploaded yet.' },
-    { id: 'nv17', g: 'r-nv', emp: 'e5', role: 'nv', date: '2027-01-12', screen: 'E-05',
-      vi: 'Mục tiêu đổi sau kỳ giữa năm', en: 'Goal changed after Mid-Year',
-      wvi: 'Khối kỳ giữa năm có đường dẫn mở đúng mục tiêu đã thay đổi.',
-      wen: 'The Mid-Year block links straight to the goal that changed.' },
     { id: 'nv18', g: 'r-nv', emp: 'e6', role: 'nv', date: '2027-01-12', screen: 'E-05',
       vi: 'Thuộc kỳ giữa năm nhưng không có kết quả', en: 'In the Mid-Year cycle but with no result',
       wvi: 'Không hoàn tất bước bắt buộc nên không có kết quả, nhưng tab Đánh giá giữa năm **vẫn mở xem lại được**. Nhãn tab là Không có kết quả.',
@@ -594,14 +590,6 @@
       vi: 'Không thuộc kỳ giữa năm - tab bị khóa', en: 'Outside the Mid-Year cycle - tab locked',
       wvi: 'Onboard 15/06/2026, sau hạn 01/04 của kỳ giữa năm nên tab Đánh giá giữa năm **bị khóa, bấm không vào được**, nhãn tab là Không đánh giá. Đối chiếu với nv18 để thấy hai lý do khác nhau cho ra hai UI khác nhau.',
       wen: 'Onboarded 15/06/2026, after the 01/04 Mid-Year cut-off, so the Mid-Year tab is locked. Compare with nv18 to see the two different reasons.' },
-    { id: 'nv19', g: 'r-nv', emp: 'e10', role: 'nv', date: '2027-02-02', screen: 'E-05',
-      vi: 'Đã gửi phản hồi, chờ quản lý trả lời', en: 'Response sent, awaiting manager reply',
-      wvi: 'Nội dung phản hồi chuyển chỉ xem, quản lý còn đúng một lượt trả lời.',
-      wen: 'The response becomes read-only and the manager has exactly one reply left.' },
-    { id: 'nv20', g: 'r-nv', emp: 'e11', role: 'nv', date: '2027-02-10', screen: 'E-05',
-      vi: 'Quản lý đã trả lời, luồng đã khóa', en: 'Manager replied, thread locked',
-      wvi: 'Sau lượt trả lời của quản lý, nhân viên không phản hồi tiếp được.',
-      wen: 'After the manager reply the employee cannot respond again.' },
     { id: 'nv21', g: 'r-nv', emp: 'e12', role: 'nv', date: '2027-04-02', screen: 'E-05',
       vi: 'Đã công bố, điểm cuối khác điểm HOD', en: 'Published, final differs from HOD',
       wvi: 'Nhân viên chỉ thấy điểm cuối cùng, không bao giờ thấy điểm toàn diện của quản lý.',

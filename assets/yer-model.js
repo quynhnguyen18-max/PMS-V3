@@ -39,6 +39,10 @@
   function lateSubmissionDeadline() {
     return addDays(step('lm').to, -3);
   }
+  function lateDays(submittedAt) {
+    if (!submittedAt) return 0;
+    return Math.max(0, Math.round(cmp(submittedAt, step('self').to) / 86400000));
+  }
   function lateWindowOpen(now) {
     return stepState('lm', now) === 'open' && cmp(now, lateSubmissionDeadline()) <= 0;
   }
@@ -98,7 +102,6 @@
     var lm2 = merge(seed.lm2, acts.lm2);
     var hod = merge(seed.hod, acts.hod);
     var hrbpUpload = merge(seed.hrbpUpload, acts.hrbpUpload);
-    var response = merge(seed.response, acts.response);
     var final = merge(seed.final, acts.final);
     var lateSubmission = merge(seed.lateSubmission, acts.lateSubmission);
 
@@ -143,14 +146,6 @@
     var finalView = happened({ at: final && final.uploadedAt }) ? final : null;
     var published = !!(final && final.publishedAt && cmp(now, final.publishedAt) >= 0);
 
-    var responseView = happened(response) ? response : null;
-    var replyView = responseView && responseView.reply && happened(responseView.reply) ? responseView.reply : null;
-    // Ô phản hồi chỉ mở khi: LM đã submit thật (không phải điểm đồng bộ),
-    // chưa công bố kết quả, và nhân viên chưa gửi phản hồi lần nào.
-    var responseOpen = !!lmDone && !published && !(lmView && lmView.synced) && !responseView;
-    // Quản lý chỉ được trả lời một lần, trả lời xong luồng khóa.
-    var replyOpen = !!responseView && !replyView && !published;
-
     return {
       id: empId,
       emp: emp,
@@ -184,11 +179,6 @@
       hrbpUpload: happened(hrbpUpload) ? hrbpUpload : null,
       final: finalView,
       published: published,
-      response: responseView,
-      reply: replyView,
-      responseOpen: responseOpen,
-      replyOpen: replyOpen,
-      threadLocked: !!replyView,
       /* Mục tiêu đã được đánh giá hoàn thành: map goalId -> { by, score, comment, at }.
          Đây là điểm chốt của Quản lý đang phụ trách tại thời điểm đó. Khi nhân viên đổi
          Quản lý giữa kỳ, điểm này do Quản lý cũ chấm và **Quản lý mới không chấm lại**. */
@@ -355,6 +345,7 @@
     step: step,
     stepState: stepState,
     lateSubmissionDeadline: lateSubmissionDeadline,
+    lateDays: lateDays,
     lateWindowOpen: lateWindowOpen,
     currentStep: currentStep,
     profile: profile,

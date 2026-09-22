@@ -813,6 +813,9 @@ label.ev-tb-btn{cursor:pointer}
 .yer-next-step{display:flex;align-items:center;gap:4px;margin-top:4px;font-size:11.5px;line-height:1.4;color:var(--z600)}
 .yer-next-step strong{color:var(--z800);font-weight:600}
 .sb-score-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.sb-score-group{display:flex;align-items:center;gap:7px;padding:0 10px;border-left:1px solid var(--ok-bd)}
+.sb-score-group:first-child{border-left:0}
+.sb-score-group[hidden]{display:none}
 .sb-score-lbl{font-size:12.5px;color:var(--z600);white-space:nowrap}
 .sb-score-val{font-size:22px;font-weight:700;color:var(--z900);line-height:1}
 .sb-score-tag{height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
@@ -1483,13 +1486,19 @@ label.ev-tb-btn{cursor:pointer}
     <div class="submit-banner" id="submit-banner" hidden>
       <div class="sb-icon"><i class="bx bx-check-circle"></i></div>
       <div class="sb-info">
-        <div class="sb-title">Đã nộp tự đánh giá MYR 2026</div>
-        <div class="sb-sub">Nộp lúc <span id="sb-time"></span>  -  Đang chờ Quản lý trực tiếp đánh giá từ 07/07/2026</div>
+        <div class="sb-title" id="myr-result-title">Đã nộp tự đánh giá MYR 2026</div>
+        <div class="sb-sub" id="myr-result-sub">Nộp lúc <span id="sb-time"></span>  -  Đang chờ Quản lý trực tiếp đánh giá từ 07/07/2026</div>
       </div>
       <div class="sb-score-wrap">
-        <span class="sb-score-lbl">Điểm tự đánh giá:</span>
-        <span class="sb-score-val" id="sb-score-val">—</span>
-        <span class="sb-score-tag" id="sb-score-tag" hidden></span>
+        <div class="sb-score-group">
+          <span class="sb-score-lbl">Điểm tự đánh giá:</span>
+          <span class="sb-score-val" id="sb-score-val">—</span>
+          <span class="sb-score-tag" id="sb-score-tag" hidden></span>
+        </div>
+        <div class="sb-score-group" id="myr-final-score-group" hidden>
+          <span class="sb-score-lbl">Điểm cuối cùng:</span>
+          <span class="sb-score-val" id="myr-final-score">—</span>
+        </div>
       </div>
       <div class="sb-actions">
         <button class="btn btn-outline sb-icon-action" type="button" aria-label="Tải kết quả PDF" data-tip="Tải kết quả PDF" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="downloadMyrPdf()">

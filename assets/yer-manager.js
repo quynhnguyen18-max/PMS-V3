@@ -20,7 +20,7 @@
 
   // Vai trò quản lý mà panel này phục vụ. Vai khác thì panel không dựng.
   var MGR_ROLES = ['lm', 'lm2', 'hod'];
-  var state = { search: '', showResigned: false, onlyResponse: false };
+  var state = { search: '', showResigned: false };
 
   function role() {
     var r = S.session().role;
@@ -89,7 +89,6 @@
   function roster() {
     var s = S.session();
     var list = Y.roster(role(), { now: s.date, showResigned: state.showResigned });
-    if (state.onlyResponse) list = list.filter(function (p) { return !!p.response; });
     var q = state.search.trim().toLowerCase();
     if (q) {
       list = list.filter(function (p) {
@@ -156,10 +155,7 @@
       empTags(p) + '</div></div></td>'];
     if (r === 'lm2' || r === 'hod') cells.push(mgrCell(p.emp.mgr));
     if (r === 'hod') cells.push(mgrCell(p.emp.mgr2));
-    cells.push('<td><span class="myr-status ' + tone + '">' + esc(st.label) + '</span>' +
-      (p.response ? '<span class="yer-resp-dot pms-tip"><i class="bx bx-message-rounded-dots"></i>' +
-        '<span class="pms-tip-body" role="tooltip">' + esc(L('Nhân viên đã gửi phản hồi', 'The employee sent a response')) +
-        '</span></span>' : '') + '</td>');
+    cells.push('<td><span class="myr-status ' + tone + '">' + esc(st.label) + '</span></td>');
     cells.push('<td class="score">' + scoreCell(p.self && p.self.overall ? p.self.overall.score : null) + '</td>');
     cells.push('<td class="score">' + scoreCell(p.lm && p.lm.overall ? p.lm.overall.score : null, p.lm && p.lm.synced) + '</td>');
     cells.push('<td class="score">' + scoreCell(p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced) + '</td>');
@@ -207,8 +203,6 @@
         '<div class="yer-mgr-search"><i class="bx bx-search"></i>' +
           '<input id="yer-mgr-q" placeholder="' + esc(L('Tìm theo tên, domain hoặc phòng ban', 'Search by name, domain or department')) +
           '" value="' + esc(state.search) + '"/></div>' +
-        '<label class="yer-mgr-chk"><input type="checkbox" id="yer-mgr-resp"' + (state.onlyResponse ? ' checked' : '') + '/>' +
-          esc(L('Chỉ nhân viên có phản hồi', 'Only employees who responded')) + '</label>' +
         '<label class="yer-mgr-chk"><input type="checkbox" id="yer-mgr-res"' + (state.showResigned ? ' checked' : '') + '/>' +
           esc(L('Hiển thị nhân viên đã nghỉ việc', 'Show resigned employees')) + '</label>' +
         '<button class="btn btn-outline btn-sm yer-mgr-guide" id="yer-mgr-guide"><i class="bx bx-help-circle"></i>' +
@@ -290,8 +284,6 @@
       var again = el('yer-mgr-q');
       if (again) { again.focus(); again.setSelectionRange(at, at); }
     });
-    var resp = el('yer-mgr-resp');
-    if (resp) resp.addEventListener('change', function () { state.onlyResponse = resp.checked; render(); });
     var res = el('yer-mgr-res');
     if (res) res.addEventListener('change', function () { state.showResigned = res.checked; render(); });
     var gd = el('yer-mgr-guide');
@@ -337,8 +329,6 @@
       '.emp-tag-late{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bd)}' +
       '.yer-sync-tag{display:inline-block;margin-left:5px;font-size:10px;font-weight:600;color:var(--z500);' +
         'border:1px solid var(--z200);border-radius:999px;padding:0 5px;background:var(--z50);white-space:nowrap}' +
-      '.yer-resp-dot{margin-left:6px;color:var(--brand);vertical-align:middle}' +
-      '.yer-resp-dot i{font-size:15px}' +
       '.yer-mgr-cell{min-width:0}' +
       '.yer-mgr-name{font-size:12.5px;font-weight:500;color:var(--z800)}' +
       '.yer-mgr-dom{font-size:11px;color:var(--z500);margin-top:1px}' +

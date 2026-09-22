@@ -152,14 +152,9 @@
           '<strong>No Mid-Year result.</strong> This employee did not take part in the 2026 mid-year cycle.') +
       '</div></div>';
     }
-    var m = p.emp.myrMgr || p.emp.mgr || DEFAULT_MGR;
-    var who = m.name + ' (' + (m.login || '') + ')';
     return '<div class="info-note yer-myr-note"><i class="bx bx-calendar-star"></i><div>' +
       L('Cần tham khảo kết quả giữa năm thì sang tab <strong>Đánh giá giữa năm</strong> của chính màn này.',
         'To review the mid-year result, switch to the <strong>Mid-Year Review</strong> tab on this same screen.') +
-      '<br>' + L('Người đã chấm giữa năm: <strong>', 'Rated at mid-year by: <strong>') + esc(who) + '</strong>. ' +
-      L('Quản lý tại thời điểm cuối năm có thể là người khác.',
-        'The manager at year-end may be a different person.') +
       '</div><button class="btn btn-outline btn-sm yer-myr-go" id="yer-md-myr"><i class="bx bx-link-external"></i>' +
         L('Mở tab giữa năm', 'Open mid-year tab') + '</button></div>';
   }
@@ -183,8 +178,11 @@
   /* ── ENH-E02: hồ sơ nộp trễ ──────────────────────────── */
   function lateBlock(p) {
     if (!p.lateSubmission) return '';
+    var daysLate = Y.lateDays(p.lateSubmission.at);
     return '<div class="info-note yer-note-late"><i class="bx bx-time-five"></i><div>' +
-      '<strong>' + L('Hồ sơ nộp trễ hạn', 'Submitted after the deadline') + '</strong>' +
+      '<strong>' + L('Hồ sơ nộp bổ sung Tự đánh giá cuối năm', 'Supplemental year-end self assessment') + '</strong>' +
+      '<span class="yer-md-late-status"><strong>' + L('Trễ hạn','Late') + '</strong> ' +
+        esc(daysLate + L(' ngày',' day' + (daysLate === 1 ? '' : 's'))) + '</span>' +
       '<span class="yer-late-file-tag"><i class="bx bx-file"></i>' + esc(p.lateSubmission.fileName || '') + ' - ' + esc(Y.fmt(p.lateSubmission.at, lg())) + '</span><br>' +
       L('Nhân viên đã tải lên mục tiêu và nội dung tự đánh giá sau thời hạn. Mục tiêu <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với bạn từ trước. Bạn tiếp tục đánh giá như bình thường.',
         'The employee imported their goals and self assessment after their window closed. The goals were taken as-is, <strong>with no approval step</strong>; the employee is responsible for having agreed them with you earlier. You review as usual.') +
@@ -387,29 +385,6 @@
     '</div>';
   }
 
-  /* ── phản hồi của nhân viên ──────────────────────────── */
-  function responseBlock(p) {
-    if (!p.response) return '';
-    var r = p.response;
-    return '<div class="rv-section"><div class="rv-section-hd"><i class="bx bx-message-rounded-dots"></i>' +
-      L('Phản hồi của Nhân viên', 'Employee response') +
-      '<span class="yer-hd-sub">' + esc(r.by ? r.by.name + ' (' + r.by.login + ')' : '') +
-        ' - ' + esc(Y.fmt(r.at, lg())) + '</span></div>' +
-      '<div class="yer-resp-body"><div class="yer-resp-tx">' + esc(r.text || '') + '</div>' +
-      (p.reply
-        ? '<div class="yer-resp-reply"><div class="yer-resp-reply-hd"><i class="bx bx-corner-down-right"></i>' +
-            L('Bạn đã trả lời', 'You replied') + ' - ' + esc(Y.fmt(p.reply.at, lg())) + '</div>' +
-            '<div class="yer-resp-tx">' + esc(p.reply.text || '') + '</div></div>'
-        : p.replyOpen
-          ? '<div class="yer-resp-form">' +
-              '<label class="op-flbl">' + L('Trả lời một lần duy nhất', 'You may reply once only') + '</label>' +
-              editorHtml('yer-md-reply', L('Cảm ơn bạn đã phản hồi…', 'Thank you for your response…'), 1000, '', 'cc-reply', false) +
-              '<button class="btn btn-default btn-sm" id="yer-md-reply-send"><i class="bx bx-send"></i>' +
-                L('Gửi trả lời', 'Send reply') + '</button></div>'
-          : '') +
-      '</div></div>';
-  }
-
   /* ── render ──────────────────────────────────────────── */
   function render() {
     var root = el('yer-mgr-detail-root');
@@ -436,7 +411,6 @@
       html += goalSection(p, 'dev', canEdit);
       html += goalSection(p, 'how', canEdit);
       html += overallCard(p, canEdit);
-      html += responseBlock(p);
     }
 
     if (!canEdit && !mySubmitted(p) && !p.stopped) {
@@ -506,8 +480,6 @@
     if (myr) myr.addEventListener('click', function () { window.switchMainTab(1); });
     var imp = el('yer-md-import');
     if (imp) imp.addEventListener('click', function () { importGoals(p); });
-    var rp = el('yer-md-reply-send');
-    if (rp) rp.addEventListener('click', function () { sendReply(p); });
   }
 
   function onRating(key, v) {
@@ -635,34 +607,6 @@
     });
   }
 
-  function sendReply(p) {
-    var ed = el('yer-md-reply');
-    var text = ed ? ed.innerText.trim() : '';
-    if (!text) {
-      U.dialog({ title: L('Chưa nhập nội dung', 'Nothing entered'),
-        text: L('Hãy nhập nội dung trả lời trước khi gửi.', 'Please enter your reply before sending.'),
-        buttons: [{ label: L('Đã hiểu', 'Got it'), variant: 'default' }] });
-      return;
-    }
-    U.dialog({
-      title: L('Gửi trả lời?', 'Send reply?'),
-      text: L('Bạn chỉ trả lời được một lần. Gửi xong luồng khóa lại, nhân viên không phản hồi tiếp được.',
-              'You may reply only once. After sending, the thread is locked and the employee cannot respond again.'),
-      buttons: [
-        { label: L('Quay lại', 'Go back'), variant: 'quiet' },
-        { label: L('Gửi trả lời', 'Send reply'), variant: 'default', icon: 'bx-send', act: function () {
-            var cur = (S.acts(S.session().emp) || {}).response || {};
-            S.setAct(S.session().emp, 'response', Object.assign({}, cur, {
-              reply: { text: text, at: S.session().date, by: { name: L('Quản lý trực tiếp', 'Line manager'), login: '' } }
-            }));
-            U.dirty.clear();
-            U.toast(L('Đã gửi trả lời', 'Reply sent'));
-            render();
-          } }
-      ]
-    });
-  }
-
   /* ── CSS riêng ───────────────────────────────────────── */
   function injectCss() {
     if (el('yer-md-css')) return;
@@ -675,6 +619,8 @@
       '.yer-myr-go{margin-left:auto;flex:none;white-space:nowrap}' +
       '.yer-note-mat>i{color:var(--info)}' +
       '.yer-note-late>i{color:var(--warn)}' +
+      '.yer-md-late-status{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:3px 8px;border:1px solid #F0D7E5;border-radius:99px;background:#FCEBF5;color:var(--brand);font-size:10.5px;font-weight:600;vertical-align:middle}' +
+      '.yer-md-late-status strong{font-weight:800}' +
       '.yer-late-file-tag{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:3px 7px;border-radius:99px;background:#fff7ed;color:#9a3412;font-size:10.5px;font-weight:600;vertical-align:middle}' +
       '.yer-note-stop>i{color:var(--err)}' +
       '.yer-note-resign>i{color:var(--err)}' +
@@ -692,12 +638,6 @@
       '.ql-by{margin-top:3px;font-size:10.5px;line-height:1.3;color:var(--z500);' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '.rv-grid tbody tr.g-row-done{border-left:3px solid var(--ok)}' +
-      '.yer-resp-body{padding:14px 16px}' +
-      '.yer-resp-tx{font-size:13px;color:var(--z800);line-height:1.6;white-space:pre-wrap}' +
-      '.yer-resp-reply{margin-top:12px;padding-top:12px;border-top:1px solid var(--z200)}' +
-      '.yer-resp-reply-hd{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--z500);margin-bottom:5px}' +
-      '.yer-resp-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--z200)}' +
-      '.yer-resp-form .btn{margin-top:8px}' +
       '.yer-ed-ro .ev-content{min-height:0;padding:9px 11px;color:var(--z900)}' +
       '.yer-ed-ro{border-color:var(--z200);background:var(--z50)}' +
       '.yer-ed-empty{color:var(--z500)}' +
