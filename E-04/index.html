@@ -1197,7 +1197,7 @@ input,select,textarea{font-family:inherit}
             <p class="tip-pop-p"><span class="tip-pop-l">1. Để <b>ghi nhận</b> - dùng Mô hình <b>STAR</b>:</span>
               [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Kết quả tích cực đạt được].</p>
             <p class="tip-pop-p"><span class="tip-pop-l">2. Để <b>góp ý xây dựng</b> - dùng Mô hình <b>STAR-AR</b>:</span>
-              [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Hệ quả] + [Đề xuất cách làm tốt hơn] + [Kết quả tốt hơn nếu đổi cách làm].</p>
+              [Bối cảnh &amp; Nhiệm vụ] + [Hành động cụ thể đồng nghiệp đã làm] + [Kết quả] + [Đề xuất cách làm tốt hơn] + [Kết quả tốt hơn nếu đổi cách làm].</p>
             </div>
           <div class="bg-row">
             <span class="bg-row-lbl">Chọn nền</span>
@@ -2162,9 +2162,9 @@ function hrResponseAnswerMap(record){
 function hrPrivacyNoticeHTML(identityVisibility,checked,onchange,inputId=''){
   const anonymous=identityVisibility==='anonymous';
   const identityCopy=anonymous
-    ? '<b>Bảo mật danh tính:</b> <span>Câu trả lời của bạn được ẩn danh hoàn toàn. Không ai có thể biết người gửi phản hồi này là ai.</span>'
-    : '<b>Hiển thị danh tính:</b> <span>Tên và thông tin của bạn sẽ được hiển thị kèm theo nội dung phản hồi này.</span>';
-  return `<div class="vis-locked hr-info-block"><i class="bx bx-shield-quarter"></i><div><div class="vc-t">Thông báo về Bảo mật & xử lý dữ liệu</div><div class="vc-d hr-consent-copy">${identityCopy}</div><div class="vc-d hr-consent-copy"><b>Xử lý & chia sẻ dữ liệu:</b> <span>Thông tin bạn cung cấp sẽ được HR tổng hợp, phân tích và chia sẻ tới các bên liên quan.</span></div><label class="hr-consent-check"><input type="checkbox"${inputId?` id="${inputId}"`:''} ${checked?'checked':''} onchange="${onchange}"/><span>Tôi đã đọc và đồng ý</span></label></div></div>`;
+    ? '<b>Bảo mật danh tính:</b> <span>Phản hồi của bạn sẽ được ẩn danh, giúp tạo điều kiện để bạn thoải mái chia sẻ những góc nhìn chân thực từ trải nghiệm làm việc.</span>'
+    : '<b>Hiển thị danh tính:</b> <span>Phản hồi của bạn sẽ được lưu kèm thông tin Domain. Thông tin này giúp người xem hiểu rõ hơn bối cảnh và mối liên hệ công việc của góc nhìn được chia sẻ.</span>';
+  return `<div class="vis-locked hr-info-block"><i class="bx bx-shield-quarter"></i><div><div class="vc-t">Thông báo về Bảo mật & xử lý dữ liệu</div><div class="vc-d hr-consent-copy">${identityCopy}</div><div class="vc-d hr-consent-copy"><b>Xử lý & chia sẻ dữ liệu:</b> <span>Thông tin bạn cung cấp sẽ được HR tổng hợp và chia sẻ tới người nhận và/hoặc các cấp quản lý của người nhận.</span></div><label class="hr-consent-check"><input type="checkbox"${inputId?` id="${inputId}"`:''} ${checked?'checked':''} onchange="${onchange}"/><span>Tôi đã đọc và đồng ý</span></label></div></div>`;
 }
 function hrResponseIdentityHTML(record){
   return `<div class="field">${hrPrivacyNoticeHTML(record.identityVisibility,HR_RESPONSE_VIEW.consent,'setHrResponseConsent(this.checked)')}</div>`;

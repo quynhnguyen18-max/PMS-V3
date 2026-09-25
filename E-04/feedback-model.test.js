@@ -562,9 +562,9 @@ test('submitted HR answers stay in Given with review, edit and durable version h
   // Lời ngỏ đứng trước consent; consent dùng đúng nội dung bảo mật/xử lý dữ liệu đã duyệt.
   assert.match(html,/id="replyAsk"[\s\S]{0,500}id="replyHrConsent"/);
   assert.match(html,/Thông báo về Bảo mật & xử lý dữ liệu/);
-  assert.match(html,/Bảo mật danh tính:<\/b> <span>Câu trả lời của bạn được ẩn danh hoàn toàn\. Không ai có thể biết người gửi phản hồi này là ai\.<\/span>/);
-  assert.match(html,/Hiển thị danh tính:<\/b> <span>Tên và thông tin của bạn sẽ được hiển thị kèm theo nội dung phản hồi này\.<\/span>/);
-  assert.match(html,/Xử lý & chia sẻ dữ liệu:<\/b> <span>Thông tin bạn cung cấp sẽ được HR tổng hợp, phân tích và chia sẻ tới các bên liên quan\.<\/span>/);
+  assert.match(html,/Bảo mật danh tính:<\/b> <span>Phản hồi của bạn sẽ được ẩn danh, giúp tạo điều kiện để bạn thoải mái chia sẻ những góc nhìn chân thực từ trải nghiệm làm việc\.<\/span>/);
+  assert.match(html,/Hiển thị danh tính:<\/b> <span>Phản hồi của bạn sẽ được lưu kèm thông tin Domain\. Thông tin này giúp người xem hiểu rõ hơn bối cảnh và mối liên hệ công việc của góc nhìn được chia sẻ\.<\/span>/);
+  assert.match(html,/Xử lý & chia sẻ dữ liệu:<\/b> <span>Thông tin bạn cung cấp sẽ được HR tổng hợp và chia sẻ tới người nhận và\/hoặc các cấp quản lý của người nhận\.<\/span>/);
   assert.match(html,/class="hr-consent-check"/);
   assert.doesNotMatch(html,/Thông tin sử dụng kết quả phản hồi/);
   assert.match(html,/hrAnswerReady\(RV\.item\)&&RV\.consent/);
@@ -845,6 +845,8 @@ test('tip detail breaks the line after the colon and bolds the action words and 
   assert.match(tip, /<div class="tip-pop-h">Mẹo viết phản hồi hiệu quả<\/div>/);
   assert.match(tip, /<span class="tip-pop-l">1\. Để <b>ghi nhận<\/b> - dùng Mô hình <b>STAR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
   assert.match(tip, /<span class="tip-pop-l">2\. Để <b>góp ý xây dựng<\/b> - dùng Mô hình <b>STAR-AR<\/b>:<\/span>\s*\n\s*\[Bối cảnh &amp; Nhiệm vụ\]/);
+  assert.match(tip, /\[Hành động cụ thể đồng nghiệp đã làm\] \+ \[Kết quả\] \+ \[Đề xuất cách làm tốt hơn\]/);
+  assert.doesNotMatch(tip, /\[Hệ quả\]/);
   assert.match(html, /\.tip-pop-l\{display:block;color:var\(--z800\)\}/);
   assert.match(html, /\.tip-pop-l b:last-child\{color:var\(--brand\)/);
   // ra khỏi ô nhập thì không cần làm mờ: --z600 đạt chuẩn WCAG
