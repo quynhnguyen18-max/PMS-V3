@@ -518,7 +518,7 @@ test('HR requests lead the action queue, stay anonymous in the list and land in 
   assert.doesNotMatch(html,/\.qrow\.over\{/);
   /* Avatar mang chữ HR nên không lặp nhãn HR trước tiêu đề; dòng chương trình chỉ dành cho yêu cầu HR. */
   assert.doesNotMatch(html,/q-hr-tag/);
-  assert.match(html,/\$\{hr\?`<div class="qrow-sub"><span class="qrow-sub-ctx">\$\{q\.context\}<\/span>\$\{effortChip\(q\)\}<\/div>`:''\}/);
+  assert.match(html,/\$\{hr\?`<div class="qrow-sub"><span class="qrow-sub-ctx">\$\{q\.context\}<\/span>\$\{questionCountChip\(q\)\}<\/div>`:''\}/);
 
   /* Bộ câu hỏi đã trả lời gộp thành một card trong "Phản hồi đã cho". */
   assert.match(html,/function cardGivenHrProgram\(f\)/);
@@ -624,8 +624,8 @@ test('HR reply popup keeps the approved two-row metadata and lighter question hi
   assert.match(html,/\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(html,/\.hr-structured-reply \.mi-sent\{grid-column:1\}/);
   assert.match(html,/class="mi mi-sent"><span class="mi-l">Ngày gửi/);
-  assert.match(html,/const effort=queueEffort\(item\),effortText=effort\?`\$\{effort\.count\} câu hỏi - \$\{effort\.minutes\} phút trả lời`/);
-  assert.match(html,/<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{effortText\}<\/span>/);
+  assert.match(html,/const questionCount=queueQuestionCount\(item\)/);
+  assert.match(html,/<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{questionCount\} câu hỏi<\/span>/);
 
   // Bỏ card viền lồng nhau ở từng câu, nhưng giữ textarea/rating control để nhận biết vùng nhập.
   assert.match(html,/#dlg-reply \.hr-reply-question,#dlg-hr-response \.hr-reply-question\{padding:0 0 12px;border:0;border-bottom:1px solid var\(--z100\)/);
@@ -725,40 +725,23 @@ test('thanks tooltip follows the design-system metadata separator rule (no middo
   assert.match(mark, /<em>- \$\{label\.role\}<\/em>/);
 });
 
-/* Người được hỏi phải biết trước "mất bao lâu" mới chủ động xếp được thời gian,
-   thay vì mở ticket ra mới biết có bao nhiêu câu. */
-test('HR requests tell how many questions they hold and how long they take', () => {
+test('HR requests show the question count without a time estimate', () => {
   const html = fs.readFileSync(require.resolve('./index.html'), 'utf8');
-  const model = require('../H-05/feedback-program-model.js');
-  // luật ước tính nằm ở model, màn hình chỉ đọc
-  assert.match(html, /FeedbackProgramModel\.answerEffort\(q\.questions\)/);
-  assert.doesNotMatch(html, /Math\.ceil\([^)]*\/\s*60\)/);
   // chỉ yêu cầu HR mới có bộ câu hỏi nhiều câu; yêu cầu một câu không hiện gì
-  assert.match(html, /return isHrQueueRequest\(q\)\?FeedbackProgramModel\.answerEffort\(q\.questions\):null;/);
-  assert.equal(model.answerEffort([]), null);
-  assert.equal(model.answerEffort(null), null);
-  // câu tự luận 40 giây, câu chấm điểm 15 giây, làm tròn LÊN phút
-  const open15 = Array.from({length:15}, () => ({type:'open_text'}));
-  assert.deepEqual(model.answerEffort(open15), {count:15, minutes:10, label:'15 câu hỏi, khoảng 10 phút'});
-  assert.deepEqual(model.answerEffort([{type:'open_text'}]), {count:1, minutes:1, label:'1 câu hỏi, khoảng 1 phút'});
-  // không để dấu ngã đứng cạnh dấu gạch ngang - hai ký hiệu sát nhau đọc rất rối
-  assert.doesNotMatch(model.answerEffort(open15).label, /~|-/);
-  assert.equal(model.answerEffort(Array.from({length:4}, () => ({type:'rating'}))).minutes, 1);
-  assert.equal(model.answerEffort(Array.from({length:5}, () => ({type:'rating'}))).minutes, 2);
-  // DESIGN-SYSTEM 19.0: tách metadata bằng " - ", không dùng middot
-  assert.doesNotMatch(model.answerEffort(open15).label, /\u00B7/);
+  assert.match(html, /return isHrQueueRequest\(q\)&&Array\.isArray\(q\.questions\)\?q\.questions\.length:0;/);
   /* Hai chỗ hiển thị: hàng đợi bên ngoài và khối thông tin trong popup trả lời.
      Hàng đợi KHÔNG kèm icon - dòng đó đã có avatar HR và icon đồng hồ của hạn - và dùng
      ngoặc đơn thay vì gạch ngang, vì tên chương trình thường đã chứa sẵn một dấu gạch. */
-  assert.match(html, /<span class="q-effort">\(\$\{effort\.label\}\)<\/span>/);
-  assert.doesNotMatch(html, /q-effort"><i class="bx/);
-  assert.match(html, /<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{effortText\}<\/span>/);
+  assert.match(html, /<span class="q-question-count">\(\$\{questionCount\} câu hỏi\)<\/span>/);
+  assert.doesNotMatch(html, /q-question-count"><i class="bx/);
+  assert.match(html, /<span class="mi-l">Bộ câu hỏi<\/span><span class="mi-v">\$\{questionCount\} câu hỏi<\/span>/);
+  assert.doesNotMatch(html, /effort\.(?:minutes|label)|phút trả lời/);
   // dòng hạn phản hồi trong popup cũng phải bỏ middot
   assert.doesNotMatch(html, /<span class="mi-due \$\{item\.urgency\}">·/);
-  // tên chương trình co lại, khối lượng luôn đọc được
+  // tên chương trình co lại, số câu hỏi luôn đọc được
   assert.match(html, /\.qrow-sub-ctx\{overflow:hidden;text-overflow:ellipsis;white-space:nowrap\}/);
-  assert.match(html, /\.q-effort\{flex:none;color:var\(--z600\);white-space:nowrap\}/);
-  /* Khối thông tin có ba cột: hàng 1 là hai người, hàng 2 là ngày gửi, hạn và khối lượng. */
+  assert.match(html, /\.q-question-count\{flex:none;color:var\(--z600\);white-space:nowrap\}/);
+  /* Khối thông tin có ba cột: hàng 1 là hai người, hàng 2 là ngày gửi, hạn và số câu hỏi. */
   assert.match(html, /\.hr-structured-reply \.dlg-meta\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(html, /\.hr-structured-reply \.mi-sent\{grid-column:1\}/);
 });

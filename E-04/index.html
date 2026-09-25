@@ -257,12 +257,11 @@ input,select,textarea{font-family:inherit}
 .qrow-t{font-size:12.5px;color:var(--z900);line-height:1.4}
 .qrow-t b{font-weight:600}
 /* Dòng 2 của yêu cầu HR: tên chương trình chiếm phần lớn chiều ngang và cắt bằng "…"
-   khi dài - tên đầy đủ đọc được ngay trong popup trả lời. Khối lượng bộ câu hỏi đứng
-   ngay sau đó và KHÔNG bao giờ bị cắt, vì đó mới là thứ giúp người đọc quyết định trả
-   lời ngay hay để lát nữa. */
+   khi dài - tên đầy đủ đọc được ngay trong popup trả lời. Số câu hỏi đứng ngay sau đó
+   và KHÔNG bao giờ bị cắt. */
 .qrow-sub{display:flex;align-items:baseline;gap:5px;font-size:11.5px;color:var(--z500);margin-top:1px;min-width:0}
 .qrow-sub-ctx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.q-effort{flex:none;color:var(--z600);white-space:nowrap}
+.q-question-count{flex:none;color:var(--z600);white-space:nowrap}
 .qrow-t .q-pre{color:var(--z500);font-weight:400}
 /* Chip "quá hạn" đã đủ báo trễ hạn; viền đỏ dày làm dòng thường nặng ngang dòng của HR. */
 .due{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--z500);flex-shrink:0;white-space:nowrap}
@@ -1714,19 +1713,19 @@ function tsFromDMYSafe(value){
   const [day,month,year]=String(value||'').split('/').map(Number);
   return day&&month&&year?Date.UTC(year,month-1,day):0;
 }
-/* Khối lượng bộ câu hỏi — chỉ yêu cầu của HR mới có bộ câu hỏi nhiều câu;
+/* Số câu hỏi — chỉ yêu cầu của HR mới có bộ câu hỏi nhiều câu;
    yêu cầu của đồng nghiệp hay quản lý chỉ một câu nên hiện ra là thừa. */
-function queueEffort(q){
-  return isHrQueueRequest(q)?FeedbackProgramModel.answerEffort(q.questions):null;
+function queueQuestionCount(q){
+  return isHrQueueRequest(q)&&Array.isArray(q.questions)?q.questions.length:0;
 }
-function effortChip(q){
-  const effort=queueEffort(q);
+function questionCountChip(q){
+  const questionCount=queueQuestionCount(q);
   /* KHÔNG kèm icon: hàng này đã có avatar HR và icon đồng hồ của hạn, thêm nữa là rối.
      Đứng ở dòng 2 chứ không phải cụm bên phải, để dòng 1 đủ rộng cho tên người nhận
      mà không bị xuống dòng. Ngoặc đơn chứ KHÔNG phải dấu gạch ngang: tên chương trình
      thường đã có sẵn một dấu gạch ("… giữa kỳ 2026 - ITC"), thêm dấu nữa là hai gạch
      nằm cạnh nhau trong cùng một dòng. */
-  return effort?`<span class="q-effort">(${effort.label})</span>`:'';
+  return questionCount?`<span class="q-question-count">(${questionCount} câu hỏi)</span>`:'';
 }
 function queueRowHTML(q){
   const headline = isHrQueueRequest(q)
@@ -1740,7 +1739,7 @@ function queueRowHTML(q){
     <div class="av ${hr?'av-hr':'av-brand'} av-sm">${hr?'HR':q.ini}</div>
     <div class="qrow-main">
       <div class="qrow-t">${headline}</div>
-      ${hr?`<div class="qrow-sub"><span class="qrow-sub-ctx">${q.context}</span>${effortChip(q)}</div>`:''}
+      ${hr?`<div class="qrow-sub"><span class="qrow-sub-ctx">${q.context}</span>${questionCountChip(q)}</div>`:''}
     </div>
     <span class="due ${q.urgency}"><i class="bx ${dueIcon}"></i>${q.due}</span>
     <button class="btn btn-default btn-sm" onclick="openReply('${q.id}')">Trả lời</button>
@@ -3397,7 +3396,7 @@ function openReply(id){
   RV={item, vis:null, ai:null, aiUsed:false, cvs:[], answers:{}, consent:false, _stage:null};
   document.getElementById('replyDialog').classList.toggle('hr-structured-reply',isHrQueueRequest(item));
   document.getElementById('replyAsk').classList.toggle('hr-info-block',isHrQueueRequest(item));
-  const effort=queueEffort(item),effortText=effort?`${effort.count} câu hỏi - ${effort.minutes} phút trả lời`:'';
+  const questionCount=queueQuestionCount(item);
   // header thống nhất: tiêu đề cố định + khối thông tin giống popup "Yêu cầu của tôi"
   document.getElementById('replySub').innerHTML=`
     <div class="dlg-meta">
@@ -3406,7 +3405,7 @@ function openReply(id){
         ? `<div class="mi"><span class="mi-l">Phản hồi về</span><span class="mi-v">${isHrQueueRequest(item)?item.feedbackReceiver.name:item.aboutName} <span class="mi-dom">(${isHrQueueRequest(item)?item.feedbackReceiver.domain:item.aboutDom})</span></span></div>` : ''}
       <div class="mi mi-sent"><span class="mi-l">Ngày gửi</span><span class="mi-v">${item.sent}</span></div>
       <div class="mi"><span class="mi-l">Hạn phản hồi</span><span class="mi-v">${item.dueDate} <span class="mi-due ${item.urgency}">- ${item.due}</span></span></div>
-      ${effort?`<div class="mi mi-effort"><span class="mi-l">Bộ câu hỏi</span><span class="mi-v">${effortText}</span></div>`:''}
+      ${questionCount?`<div class="mi mi-question-count"><span class="mi-l">Bộ câu hỏi</span><span class="mi-v">${questionCount} câu hỏi</span></div>`:''}
     </div>`;
   document.getElementById('replyAsk').innerHTML=renderReplyPrompt(item);
   document.getElementById('replyForm').style.display='';
