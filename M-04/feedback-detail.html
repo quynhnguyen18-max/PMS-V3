@@ -93,25 +93,18 @@ main{max-width:1400px;margin:auto;padding:0 24px 24px}
 .pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}
 .pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
 .pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
-/* ── CẢM ƠN: quản lý thả tim cho phản hồi nhân viên nhận được ──────────────
-   Dấu tim nằm ngay sau tên người gửi (cùng quy ước với màn nhân viên E-04);
-   nút "Cảm ơn" nằm cuối dòng ngày, dùng chỗ trống sẵn có nên không thêm dòng nào.
-   Tim người nhận #a50064 (hồng MoMo), tim quản lý #f95396 (hồng +1). */
-.thx-mark{position:relative;display:inline-flex;align-items:center;margin-left:5px;vertical-align:-2px;line-height:1;cursor:default}
-.thx-mark svg{display:block;height:14px;width:auto}
-.thx-mark .h-rcv{fill:#a50064}
-.thx-mark .h-mgr{fill:#f95396}
-.thx-mark .h-cut{fill:none;stroke:#fff;stroke-width:3.8;stroke-linejoin:round}
+/* ── CẢM ƠN: mỗi người thả một tim độc lập, không mã hoá vai trò bằng màu ── */
+.thx-mark{display:inline-flex;align-items:center;margin-left:5px;vertical-align:-2px;line-height:1}
+.thx-heart{position:relative;display:inline-flex;align-items:center;cursor:default;transition:transform .12s ease}
+.thx-heart+.thx-heart{margin-left:-3px}
+.thx-heart:hover,.thx-heart:focus-visible{z-index:2;transform:translateY(-1px);outline:none}
+.thx-heart svg{display:block;height:14px;width:auto}
+.thx-heart .h-thanker{fill:#a50064;stroke:#fff;stroke-width:1.25;stroke-linejoin:round}
 @keyframes thx-pop{0%{transform:scale(0) rotate(-28deg);opacity:0}60%{transform:scale(1.3) rotate(4deg);opacity:1}100%{transform:scale(1);opacity:1}}
 .thx-mark.pop{animation:thx-pop .5s cubic-bezier(.3,1.6,.5,1) both}
 .thx-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:60;width:max-content;white-space:nowrap;padding:7px 10px;border-radius:6px;background:var(--z900);color:#fff;font-size:12px;font-weight:500;line-height:1.45;text-align:left;pointer-events:none;opacity:0;transition:opacity .12s ease}
 .thx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
-.thx-mark:hover .thx-tip,.thx-mark:focus-visible .thx-tip{opacity:1}
-.thx-tip-title{display:block;font-size:10.5px;font-weight:600;letter-spacing:.3px;color:var(--z400);padding-bottom:3px}
-.thx-tip-row{display:flex;align-items:flex-start;gap:6px;padding:1px 0}
-.thx-tip-dot{width:9px;height:9px;border-radius:50%;background:#a50064;flex:none;margin-top:4px}
-.thx-tip-row.mgr .thx-tip-dot{background:#f95396}
-.thx-tip-row em{font-style:normal;color:var(--z400)}
+.thx-heart:hover .thx-tip,.thx-heart:focus-visible .thx-tip{opacity:1}
 /* Thanh cảm ơn ở chân card — sao đúng .fb-thx-bar / .fb-thx của E-04 để hai màn nhìn như một. */
 .fb-thx-bar{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--z200);overflow:hidden;transition:opacity .2s ease,margin-top .35s ease,padding-top .35s ease,height .35s ease}
 .fb-thx-bar.gone{opacity:0;height:0;margin-top:0;padding-top:0;border-top-color:transparent}

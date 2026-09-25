@@ -1546,112 +1546,106 @@ test('§20 design system ghi rõ nguyên tắc đồng bộ giữa các màn hì
 });
 
 /* ═══ Quản lý thả tim cảm ơn phản hồi nhân viên nhận được ═══
-   Chốt thiết kế: giữ nguyên hình trái tim và vị trí ngay sau tên người gửi;
-   hai tim chồng lệch khi cả nhân viên lẫn quản lý đều cảm ơn;
-   tim nhân viên #a50064 (hồng MoMo), tim quản lý #f95396 (hồng +1);
-   nút "Cảm ơn" nằm cuối dòng ngày để card không phát sinh dòng mới. */
+   Chốt thiết kế: mỗi người là một tim riêng, mọi tim cùng màu, tooltip của từng tim
+   chỉ có domain; LM, Upper LM và HOD được thả độc lập trên cùng một phản hồi. */
 function fakeStorage(initial){
   const map=new Map(Object.entries(initial||{}));
   return {getItem:key=>map.has(key)?map.get(key):null,setItem:(key,value)=>map.set(key,String(value)),removeItem:key=>map.delete(key),dump:()=>Object.fromEntries(map)};
 }
 
-test('manager thanks store persists picked feedback ids and survives broken storage', () => {
+test('manager thanks store persists multiple people per feedback and migrates the legacy id list', () => {
   const thanks = require('./manager-thanks.js');
   const storage = fakeStorage();
   const store = thanks.createStore(storage, 'test.thanks');
-  assert.equal(store.has('f1'), false);
-  assert.equal(store.add('f1'), true);
-  assert.equal(store.add('f1'), false, 'mỗi người chỉ thả một tim cho một phản hồi');
-  assert.equal(store.has('f1'), true);
-  assert.deepEqual(JSON.parse(storage.dump()['test.thanks']), ['f1']);
+  const lm={name:'Lê Thị Thanh',dom:'thanh.le'},hod={name:'Phan Anh Tuấn',dom:'tuan.phan'};
+  assert.equal(store.has('f1',lm), false);
+  assert.equal(store.add('f1',lm), true);
+  assert.equal(store.add('f1',lm), false, 'mỗi domain chỉ thả một tim cho một phản hồi');
+  assert.equal(store.add('f1',hod), true, 'quản lý khác vẫn thả thêm được');
+  assert.deepEqual(store.people('f1'), [lm,hod]);
+  assert.deepEqual(JSON.parse(storage.dump()['test.thanks']), {f1:[lm,hod]});
   // mở lại trang: đọc lại đúng trạng thái cũ
-  assert.equal(thanks.createStore(storage, 'test.thanks').has('f1'), true);
+  assert.equal(thanks.createStore(storage, 'test.thanks').has('f1',hod), true);
+  // schema cũ ['id'] vẫn nhận là tim của người đang xem
+  const legacy=thanks.createStore(fakeStorage({'test.legacy':'["f2"]'}),'test.legacy');
+  assert.equal(legacy.has('f2',lm),true);
+  assert.equal(legacy.add('f2',hod),true,'sau khi nhận diện chủ tim cũ, người khác vẫn thả thêm được');
+  assert.deepEqual(legacy.people('f2'),[lm,hod]);
   // localStorage hỏng thì bắt đầu từ rỗng chứ không nổ
-  assert.equal(thanks.createStore(fakeStorage({'test.thanks':'{['}), 'test.thanks').has('f1'), false);
+  assert.deepEqual(thanks.createStore(fakeStorage({'test.thanks':'{['}), 'test.thanks').people('f1'), []);
 });
 
-test('thanks mark keeps the heart shape, pairs two MoMo pinks and always names the feedback giver', () => {
+test('thanks mark renders one separately hoverable heart per domain', () => {
   const thanks = require('./manager-thanks.js');
-  assert.equal(thanks.markHTML({receiver:false, manager:false}, 'Lê Thành Nam'), '');
-  const onlyReceiver = thanks.markHTML({receiver:true, manager:false}, 'Lê Thành Nam');
-  const onlyManager = thanks.markHTML({receiver:false, manager:true}, 'Lê Thành Nam');
-  const both = thanks.markHTML({receiver:true, manager:true}, 'Lê Thành Nam');
-  // một người → một tim, màu cho biết là ai
-  assert.match(onlyReceiver, /class="h-rcv"/);
-  assert.doesNotMatch(onlyReceiver, /h-mgr/);
-  assert.match(onlyManager, /class="h-mgr"/);
-  assert.doesNotMatch(onlyManager, /h-rcv/);
-  /* MỘT cấu trúc chú thích cho mọi trường hợp: tiêu đề "Đã cảm ơn <người cho phản hồi>"
-     rồi mỗi người một dòng — một tim và hai tim không được đọc ra hai kiểu câu khác nhau. */
-  assert.match(onlyReceiver, /thx-tip-title">Đã cảm ơn Lê Thành Nam<\/span><span class="thx-tip-row rcv"/);
-  assert.match(onlyReceiver, /<span>Nhân viên <em>- người nhận phản hồi<\/em><\/span>/);
-  assert.match(onlyManager, /thx-tip-title">Đã cảm ơn Lê Thành Nam<\/span><span class="thx-tip-row mgr"/);
-  assert.match(onlyManager, /<span>Bạn<\/span>/);
-  // hai người → hai tim chồng lệch, tách nhau bằng viền trắng
-  assert.match(both, /h-mgr[\s\S]*h-cut[\s\S]*h-rcv/);
-  // ô chú thích gộp làm một, nêu tên người cho phản hồi, không có thời gian
-  assert.match(both, /Đã cảm ơn Lê Thành Nam/);
-  assert.match(both, /Nhân viên[\s\S]*người nhận phản hồi/);
-  // tim của CHÍNH mình chỉ ghi "Bạn" — chức danh để dành cho dòng của người khác
-  assert.match(both, /thx-tip-row mgr"><span class="thx-tip-dot"><\/span><span>Bạn<\/span>/);
-  assert.doesNotMatch(both, /\d{2}\/\d{2}\/\d{4}/);
+  assert.equal(thanks.peopleMarkHTML([]), '');
+  const html=thanks.peopleMarkHTML([
+    {name:'Nguyễn Văn Tú',dom:'tu.nguyen'},
+    {name:'Lê Thị Thanh',dom:'thanh.le'},
+    {name:'Phan Anh Tuấn',dom:'tuan.phan'}
+  ]);
+  assert.equal((html.match(/class="thx-heart"/g)||[]).length,3);
+  assert.equal((html.match(/class="h-thanker"/g)||[]).length,3);
+  for(const domain of ['tu.nguyen','thanh.le','tuan.phan']){
+    assert.match(html,new RegExp(`data-thx-domain="${domain.replace('.', '\\.')}"[\\s\\S]*?<span class="thx-tip" role="tooltip">${domain.replace('.', '\\.')}<\\/span>`));
+  }
+  assert.doesNotMatch(html,/Nguyễn Văn Tú|Lê Thị Thanh|Phan Anh Tuấn|quản lý|Bạn|Đã cảm ơn/);
 });
 
 test('manager feedback card offers the thank action until the manager has used it', () => {
   const thanks = require('./manager-thanks.js');
   const data = require('./manager-feedback-data.js');
   const employee = {name:'Tú', ini:'NT', login:'tu.nguyen'};
-  const item = {id:'f1', thankedByReceiver:true, sender:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ'}, date:'05/06/2026', body:'Nội dung', cv:[]};
+  const item = {id:'f1', thankedByReceiver:true, thankedByManagers:[{name:'Đỗ Quang Huy',dom:'huy.do'}], sender:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ'}, date:'05/06/2026', body:'Nội dung', cv:[]};
   const store = thanks.createStore(fakeStorage(), 'test.card');
   thanks.use(store);
+  thanks.setViewer({name:'Lê Thị Thanh',dom:'thanh.le'});
   try {
     const before = data.feedbackCard(item, employee);
-    // tim của nhân viên đã có sẵn, nút vẫn còn cho quản lý
+    // tim của nhân viên và quản lý khác đã có sẵn, nút vẫn còn cho người đang xem
     assert.match(before, /data-thx-receiver="1"/);
-    assert.match(before, /class="h-rcv"/);
+    assert.equal((before.match(/class="h-thanker"/g)||[]).length,2);
+    assert.match(before,/data-thx-domain="tu\.nguyen"/);
+    assert.match(before,/data-thx-domain="huy\.do"/);
     assert.match(before, /class="fb-thx" data-thx-id="f1"/);
     assert.match(before, /onclick="thankFeedback\('f1',this\)"/);
     // thanh cảm ơn nằm ở CHÂN card, đúng vị trí và cách thể hiện của màn nhân viên E-04
     assert.match(before, /<div class="fb-thx-bar"><button type="button" class="fb-thx"/);
     assert.match(before, /<span class="fb-thx-hint">Gửi tim tim để cảm ơn người cho phản hồi nhé<\/span><\/div><\/article>$/);
-    // tim lẻ của nhân viên nêu tên đúng người đã cho phản hồi
-    assert.match(before, /Đã cảm ơn Trương Minh Đức<\/span><span class="thx-tip-row rcv"/);
     assert.doesNotMatch(before, /fb-date">05\/06\/2026[^<]*<[^/]/, 'dòng ngày giữ nguyên, không nhét nút vào');
-    store.add('f1');
+    store.add('f1',{name:'Lê Thị Thanh',dom:'thanh.le'});
     const after = data.feedbackCard(item, employee);
     assert.doesNotMatch(after, /class="fb-thx"/, 'đã thả tim thì nút biến mất');
-    assert.match(after, /h-mgr[\s\S]*h-cut[\s\S]*h-rcv/, 'còn lại dấu hai tim');
-    assert.match(after, /Đã cảm ơn Trương Minh Đức/);
+    assert.equal((after.match(/class="h-thanker"/g)||[]).length,3,'còn lại ba tim riêng');
+    assert.match(after,/data-thx-domain="thanh\.le"/);
   } finally {
     thanks.use(null);
+    thanks.setViewer(null);
   }
 });
 
-/* R8 của Scope & Rules: nhân viên đổi quản lý thì tim của quản lý CŨ ở lại nguyên tên người
-   đó, và mỗi phản hồi chỉ nhận MỘT tim từ phía quản lý nên quản lý mới không thả thêm. */
-test('a heart left by the previous manager keeps that name and blocks the new manager', () => {
+test('hearts from other managers stay visible and do not block the current manager', () => {
   const thanks = require('./manager-thanks.js');
   const data = require('./manager-feedback-data.js');
   const employee = {name:'Nguyễn Văn Tú', ini:'NT', login:'tu.nguyen'};
-  const item = {id:'f1', thankedByReceiver:true, thankedByManager:{name:'Đỗ Quang Huy', dom:'huy.do'},
+  const item = {id:'f1', thankedByReceiver:true, thankedByManagers:[{name:'Đỗ Quang Huy', dom:'huy.do'},{name:'Phan Anh Tuấn',dom:'tuan.phan'}],
     sender:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ'}, date:'05/06/2026', body:'Nội dung', cv:[]};
   const store = thanks.createStore(fakeStorage(), 'test.former');
   thanks.use(store);
   thanks.setViewer({name:'Lê Thị Thanh', dom:'thanh.le'});
   try {
     const state = thanks.stateFor(item);
-    assert.deepEqual(state, {receiver:true, manager:false, other:{name:'Đỗ Quang Huy', dom:'huy.do'}});
-    assert.equal(thanks.canThank(state), false, 'một phản hồi chỉ nhận một tim từ phía quản lý');
+    assert.deepEqual(state, {receiver:true, managers:[{name:'Đỗ Quang Huy',dom:'huy.do'},{name:'Phan Anh Tuấn',dom:'tuan.phan'}], manager:false});
+    assert.equal(thanks.canThank(state), true, 'tim của quản lý khác không chặn người đang xem');
     const card = data.feedbackCard(item, employee);
-    assert.doesNotMatch(card, /class="fb-thx"/, 'quản lý mới không thả thêm được');
-    // vẫn là hai tim, và dòng chú thích ghi đúng người đã thả kèm domain
-    assert.match(card, /h-mgr[\s\S]*h-cut[\s\S]*h-rcv/);
-    assert.match(card, /<span>Đỗ Quang Huy \(huy\.do\) <em>- quản lý cũ của Nguyễn Văn Tú<\/em><\/span>/);
-    assert.doesNotMatch(card, /quản lý trực tiếp/, 'không nhận chức danh đương nhiệm cho người đã chuyển');
-    // dữ liệu ghi đúng người đang xem thì vẫn là tim của chính mình
+    assert.match(card, /class="fb-thx"/, 'người đang xem vẫn thả thêm được');
+    assert.equal((card.match(/class="h-thanker"/g)||[]).length,3);
+    assert.match(card,/data-thx-domain="huy\.do"[\s\S]*data-thx-domain="tuan\.phan"/);
+    assert.doesNotMatch(card,/Đỗ Quang Huy|Phan Anh Tuấn|quản lý cũ|quản lý trực tiếp/);
+    // dữ liệu có đúng domain đang xem thì chỉ chặn chính người đó
     thanks.setViewer({name:'Đỗ Quang Huy', dom:'huy.do'});
-    assert.deepEqual(thanks.stateFor(item), {receiver:true, manager:true, other:null});
-    assert.match(data.feedbackCard(item, employee), /<span>Bạn<\/span>/);
+    assert.equal(thanks.stateFor(item).manager,true);
+    assert.equal(thanks.canThank(thanks.stateFor(item)),false);
+    assert.doesNotMatch(data.feedbackCard(item, employee), /class="fb-thx"/);
   } finally {
     thanks.use(null);
     thanks.setViewer(null);
@@ -1661,24 +1655,23 @@ test('a heart left by the previous manager keeps that name and blocks the new ma
 test('the design system documents where the thanks rule lives and what it says', () => {
   const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
   // §20.1: model nào sở hữu luật nào — thiếu dòng này là màn sau lại chép luật vào chính nó
-  assert.match(designSystem, /\| `M-04\/manager-thanks\.js` \| tim cảm ơn: ai đã thả/);
+  assert.match(designSystem, /\| `M-04\/manager-thanks\.js` \| tim cảm ơn: danh sách domain đã thả/);
   // §19: câu chữ chốt ở tài liệu, không để mỗi màn tự đặt
-  assert.match(designSystem, /Tim cảm ơn — danh tính người đã thả/);
-  assert.match(designSystem, /quản lý cũ của \[tên\]/);
-  assert.match(designSystem, /Mỗi phản hồi chỉ nhận MỘT tim từ phía quản lý/);
-  assert.match(designSystem, /ManagerThanks\.thankerLabel\(\)/);
+  assert.match(designSystem, /Tim cảm ơn — một người, một tim/);
+  assert.match(designSystem, /LM, Upper LM, HOD/);
+  assert.match(designSystem, /mỗi domain chỉ thả được một lần/);
+  assert.match(designSystem, /chỉ hiển thị `domain`/);
+  assert.match(designSystem, /Tim của người khác không làm mất nút `Cảm ơn`/);
 });
 
-test('the thanker label is the one place that decides how a heart names its owner', () => {
+test('the thanker label exposes only the domain and never a name or role', () => {
   const thanks = require('./manager-thanks.js');
-  assert.deepEqual(thanks.thankerLabel({self:true}), {who:'Bạn', role:''});
-  // danh tính luôn là Tên (domain) — quy ước chung của design system
   assert.deepEqual(thanks.thankerLabel({name:'Lê Thị Thanh', dom:'thanh.le', mgr:true, of:'bạn', current:true}),
-    {who:'Lê Thị Thanh (thanh.le)', role:'quản lý trực tiếp của bạn'});
+    {who:'thanh.le', role:''});
   assert.deepEqual(thanks.thankerLabel({name:'Đỗ Quang Huy', dom:'huy.do', mgr:true, of:'bạn', current:false}),
-    {who:'Đỗ Quang Huy (huy.do)', role:'quản lý cũ của bạn'});
-  // người nhận phản hồi không gắn chức danh quản lý
-  assert.deepEqual(thanks.thankerLabel({name:'Vũ Thị Lan', dom:'lan.vu'}), {who:'Vũ Thị Lan (lan.vu)', role:''});
+    {who:'huy.do', role:''});
+  assert.deepEqual(thanks.thankerLabel({name:'Vũ Thị Lan', dom:'lan.vu'}), {who:'lan.vu', role:''});
+  assert.deepEqual(thanks.thankerLabel({self:true}), {who:'', role:''});
   // DESIGN-SYSTEM 19.0: không dùng middot trong text UI
   assert.doesNotMatch(JSON.stringify(thanks.thankerLabel({name:'A', dom:'a.b', mgr:true, of:'bạn', current:false})), /\u00B7/);
 });
@@ -1697,11 +1690,11 @@ test('both manager surfaces load the thanks module and share one localStorage st
     assert.match(html, /<script src="manager-thanks\.js"><\/script>/);
     assert.match(html, /ManagerThanks\.use\(ManagerThanks\.createStore\(window\.localStorage\)\)/);
     assert.match(html, /function thankFeedback\(id,button\)\{const who=ManagerThanks\.thank\(id,button\);/);
-    // cùng một bộ màu chốt cho hai tim, dùng chung ở popup, split view và trang chi tiết
-    assert.match(html, /\.thx-mark \.h-rcv\{fill:#a50064\}/);
-    assert.match(html, /\.thx-mark \.h-mgr\{fill:#f95396\}/);
-    assert.match(html, /\.thx-mark svg\{display:block;height:14px/);
-    // ô chú thích luôn nằm gọn trên MỘT dòng, không bị ngắt giữa chừng vì tên dài
+    // mỗi tim là một phần tử riêng, cùng màu và có viền tách nhẹ trong cụm
+    assert.match(html, /\.thx-heart\+\.thx-heart\{margin-left:-3px\}/);
+    assert.match(html, /\.thx-heart \.h-thanker\{fill:#a50064;stroke:#fff/);
+    assert.match(html, /\.thx-heart svg\{display:block;height:14px/);
+    // tooltip domain luôn nằm gọn trên MỘT dòng
     assert.match(html, /\.thx-tip\{[^}]*width:max-content;white-space:nowrap/);
     // DESIGN-SYSTEM 19.0: cấm middot, mọi chỗ ngăn cách metadata phải dùng " - "
     assert.doesNotMatch(html, /·/);
@@ -1718,5 +1711,5 @@ test('thanks module follows the design-system metadata separator rule (no middot
   // DESIGN-SYSTEM 19.0: TUYỆT ĐỐI không dùng middot "·" trong text UI — luôn là " - ".
   const source = fs.readFileSync(path.join(__dirname, 'manager-thanks.js'), 'utf8');
   assert.doesNotMatch(source, /·/);
-  assert.match(source, /<em>- \$\{role\}<\/em>/);
+  assert.doesNotMatch(source, /quản lý cũ|quản lý trực tiếp|<em>/);
 });

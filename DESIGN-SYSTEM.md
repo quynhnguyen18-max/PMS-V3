@@ -284,7 +284,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 
 18b. **Nhóm thông tin mở đầu của yêu cầu:** `Tên chương trình phản hồi` và `Lời ngỏ` nằm trong CÙNG một section, cách nhau 16px và không có đường phân cách ở giữa. Thứ tự là tên chương trình → lời ngỏ → bộ câu hỏi; không để padding của hai section cộng dồn thành khoảng trống lớn.
 
-19. **Tim cảm ơn — danh tính người đã thả:** tim ghi lại hành động của một CON NGƯỜI, không của một chức danh. Dòng chú thích luôn là `Tên (domain)`; chỉ chính người đang xem mới ghi `Bạn`. Chức danh chỉ được nêu khi còn đúng ở thời điểm đọc — nhân viên đã đổi quản lý thì tim cũ ghi `- quản lý cũ của [tên]`, TUYỆT ĐỐI không nhận là `quản lý trực tiếp`. Một tim hay hai tim đều dùng CÙNG một cấu trúc: tiêu đề `Đã cảm ơn [người cho phản hồi]` rồi mỗi người một dòng có chấm màu — không để một tim là một câu còn hai tim là một bảng. Mỗi phản hồi chỉ nhận MỘT tim từ phía quản lý: đã có tim của quản lý trước thì thanh `Cảm ơn` không hiện, giống hệt cách nó biến mất khi chính mình đã thả. Câu chữ lấy từ `ManagerThanks.thankerLabel()`, màn hình không tự viết lại.
+19. **Tim cảm ơn — một người, một tim:** phản hồi nhân viên đã chọn chia sẻ với quản lý cho phép mọi cấp quản lý trong chuỗi (LM, Upper LM, HOD) thả tim độc lập; một phản hồi có thể nhận nhiều tim nhưng mỗi domain chỉ thả được một lần. Tim ghi lại hành động của một CON NGƯỜI, không của chức danh: mỗi người là một tim riêng trong cùng cụm, mọi tim dùng cùng màu và không sắp xếp theo vai trò. Hover/focus TỪNG tim chỉ hiển thị `domain` của người đã thả, không hiện tên, `Bạn`, chức danh hay quan hệ quản lý. Tim của người khác không làm mất nút `Cảm ơn`; nút chỉ biến mất khi chính domain đang xem đã thả. Schema lưu danh sách người thả và renderer lấy từ `M-04/manager-thanks.js`, màn hình không tự viết lại.
 
 ## 20. NGUYÊN TẮC ĐỒNG BỘ GIỮA CÁC MÀN HÌNH (bắt buộc — đọc trước khi sửa bất kỳ màn nào)
 
@@ -300,7 +300,7 @@ vì mỗi màn nhìn riêng thì đều hợp lý. Các rule dưới đây có �
 | `E-04/feedback-model.js` | vòng đời yêu cầu nhân viên tự tạo, chuẩn hoá feed | E-04 |
 | `M-04/manager-request-model.js` | yêu cầu của quản lý: tạo, tiến độ, nghỉ việc, đóng, nhắc | M-04, `request-detail`, E-04 |
 | `H-05/feedback-program-model.js` | chương trình của HR: tạo, tiến độ, chia sẻ kết quả, đóng, nhắc | H-05, H-06, H-07, E-04, M-04 |
-| `M-04/manager-thanks.js` | tim cảm ơn: ai đã thả, câu chữ dòng chú thích, luật một tim từ phía quản lý | M-04, `feedback-detail`, E-04 |
+| `M-04/manager-thanks.js` | tim cảm ơn: danh sách domain đã thả, mỗi domain một tim, renderer và tooltip | M-04, `feedback-detail`, E-04 |
 
 - Màn hình **KHÔNG được chép luật vào `<script>` của chính nó**, kể cả khi chỉ vài dòng.
   Bản chép sẽ lệch, và test đọc model nên sẽ xanh trong khi màn hình chạy sai — loại lỗi

@@ -1,109 +1,114 @@
-/* Quản lý thả tim cảm ơn phản hồi mà nhân viên của mình nhận được.
-   Chỉ áp cho phản hồi đã chia sẻ tới cấp quản lý — M-04 vốn chỉ hiển thị đúng nhóm đó
-   (ManagerFeedbackData.feedbackFor lọc visibility==='manager'), nên mọi card ở đây đều thả tim được.
+/* Quản lý thả tim cảm ơn phản hồi mà nhân viên nhận được và đã chia sẻ với quản lý.
+   Mỗi người quản lý (LM, Upper LM, HOD) có một lượt cảm ơn độc lập, vì vậy một phản hồi
+   có thể nhận nhiều tim. Tim thuộc về CON NGƯỜI đã thả, không thuộc về vai trò.
 
-   Quy ước hiển thị thống nhất với màn nhân viên E-04:
-     • dấu tim nằm ngay sau tên người gửi trên dòng đầu card, không chiếm dòng riêng
-     • một tim = một người cảm ơn, hai tim chồng lệch = cả hai
-     • tim của người nhận phản hồi dùng hồng MoMo #A50064, tim của quản lý dùng hồng +1 #F95396
-     • rê chuột ra MỘT ô liệt kê ai đã cảm ơn, không hiện thời gian
-
-   R8 của Scope & Rules: tim thuộc về NGƯỜI đã thả chứ không thuộc về chức danh. Nhân viên
-   đổi quản lý thì tim của quản lý cũ ở lại nguyên tên người đó, và mỗi phản hồi chỉ nhận
-   MỘT tim từ phía quản lý — quản lý mới không thả thêm. thankerLabel() giữ luật câu chữ này
-   cho cả M-04 lẫn E-04, không màn nào được tự viết lại. */
+   Quy ước hiển thị dùng chung với màn nhân viên E-04:
+     • mỗi người thả = một tim riêng trong cụm tim nhỏ ngay sau tên người gửi
+     • mọi tim dùng cùng một màu; không mã hoá vai trò bằng màu hay vị trí
+     • hover/focus từng tim chỉ hiện domain của chính người đã thả
+     • mỗi domain chỉ được thả một tim cho cùng một phản hồi */
 (function(root,factory){
   const api=factory();
   if(typeof module==='object'&&module.exports)module.exports=api;
   root.ManagerThanks=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   const STORAGE_KEY='pms.m04.thanks';
-  /* một path trái tim duy nhất, hai biến thể chỉ khác cách xếp */
   const HEART='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
-  const FRONT='translate(0,3) scale(0.78)',BACK='translate(9.5,0) scale(0.78)';
 
   function escapeAttr(value){
     return String(value==null?'':value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+  function personOf(value){
+    const person=value||{};
+    const dom=String(person.dom||person.login||'').trim();
+    return dom?{name:String(person.name||'').trim(),dom}:null;
+  }
+  function uniquePeople(values){
+    const seen=new Set();
+    return (Array.isArray(values)?values:[]).map(personOf).filter(person=>{
+      if(!person||seen.has(person.dom))return false;
+      seen.add(person.dom);return true;
+    });
+  }
 
-  /* ── Trạng thái: quản lý đã thả tim cho những phản hồi nào ────────────────
-     Lưu ở localStorage nên tim còn nguyên khi mở lại trang, và dùng chung
-     giữa M-04/index.html với M-04/feedback-detail.html. */
+  /* ── Trạng thái cảm ơn ────────────────────────────────────────────────
+     Schema mới: {feedbackId:[{name,dom}, ...]}. Bản cũ lưu ['feedbackId']; các id cũ
+     vẫn được nhận diện là tim của người đang xem, rồi tự nâng cấp khi có lần ghi kế tiếp. */
   function createStore(storage,key){
     const storageKey=key||STORAGE_KEY;
-    let ids=new Set();
+    let reactions=new Map(),legacyIds=new Set();
     try{
       const parsed=JSON.parse(storage.getItem(storageKey));
-      if(Array.isArray(parsed))ids=new Set(parsed.filter(id=>typeof id==='string'));
+      if(Array.isArray(parsed))legacyIds=new Set(parsed.filter(id=>typeof id==='string'));
+      else if(parsed&&typeof parsed==='object')Object.entries(parsed).forEach(([id,people])=>{
+        const clean=uniquePeople(people);
+        if(id&&clean.length)reactions.set(id,clean);
+      });
     }catch(error){
       // localStorage hỏng hoặc bị chặn — bắt đầu lại từ trạng thái rỗng.
     }
+    function people(id,viewer){
+      const legacy=legacyIds.has(id)?personOf(viewer||VIEWER):null;
+      if(legacy){
+        reactions.set(id,uniquePeople([...(reactions.get(id)||[]),legacy]));
+        legacyIds.delete(id);persist();
+      }
+      return uniquePeople(reactions.get(id)||[]);
+    }
     function persist(){
-      try{storage.setItem(storageKey,JSON.stringify([...ids]));return true;}
-      catch(error){return false;}
+      try{
+        const value={};
+        reactions.forEach((list,id)=>{if(list.length)value[id]=list;});
+        storage.setItem(storageKey,JSON.stringify(value));return true;
+      }catch(error){return false;}
     }
     return {
-      has(id){return ids.has(id);},
-      add(id){if(!id||ids.has(id))return false;ids.add(id);persist();return true;},
-      remove(id){if(!ids.delete(id))return false;persist();return true;},
-      ids(){return [...ids];},
-      clear(){ids=new Set();persist();}
+      has(id,person){const target=personOf(person||VIEWER);return !!target&&people(id,target).some(item=>item.dom===target.dom);},
+      add(id,person){
+        const target=personOf(person||VIEWER);
+        if(!id||!target||this.has(id,target))return false;
+        reactions.set(id,uniquePeople([...people(id,target),target]));legacyIds.delete(id);persist();return true;
+      },
+      remove(id,person){
+        const target=personOf(person||VIEWER);
+        if(!id||!target)return false;
+        const current=people(id,target),next=current.filter(item=>item.dom!==target.dom);
+        if(next.length===current.length)return false;
+        if(next.length)reactions.set(id,next);else reactions.delete(id);
+        legacyIds.delete(id);persist();return true;
+      },
+      people,
+      ids(person){const target=personOf(person||VIEWER);return [...new Set([...reactions.keys(),...legacyIds])].filter(id=>target&&people(id,target).some(item=>item.dom===target.dom));},
+      clear(){reactions=new Map();legacyIds=new Set();persist();}
     };
   }
 
   /* ── Hình dấu tim ────────────────────────────────────────────────────── */
-  function heartHTML(who){
-    return `<svg viewBox="1 2 22 20.5" aria-hidden="true"><path class="h-${who}" d="${HEART}"/></svg>`;
+  function heartHTML(){
+    return `<svg viewBox="1 2 22 20.5" aria-hidden="true"><path class="h-thanker" d="${HEART}"/></svg>`;
   }
-  /* Hai tim chồng lệch: tim quản lý (hồng nhạt) nhô ra sau, tim người nhận (hồng đậm) nằm trước,
-     tách nhau bằng một viền trắng mảnh. */
-  function pairHTML(){
-    return `<svg viewBox="0 1 27.5 20.5" aria-hidden="true">`
-      +`<path class="h-mgr" d="${HEART}" transform="${BACK}"/>`
-      +`<path class="h-cut" d="${HEART}" transform="${FRONT}"/>`
-      +`<path class="h-rcv" d="${HEART}" transform="${FRONT}"/></svg>`;
-  }
-  function tipRow(kind,label,role){
-    return `<span class="thx-tip-row ${kind}"><span class="thx-tip-dot"></span><span>${label}${role?` <em>- ${role}</em>`:''}</span></span>`;
-  }
-  /* Một dòng "ai đã cảm ơn". Danh tính luôn là `Tên (domain)` — chỉ chính người đang xem mới
-     là "Bạn" — và chức danh CHỈ được nêu khi còn đúng ở thời điểm đọc: đã đổi quản lý thì ghi
-     "quản lý cũ của …", không nhận là quản lý trực tiếp nữa.
-     person = {name, dom, self, mgr, of, current, role} */
+  /* Tooltip chỉ trả domain; không đổi thành "Bạn", không thêm tên hay chức danh. */
   function thankerLabel(person){
-    const p=person||{};
-    const who=p.self?'Bạn':`${p.name||''}${p.dom?` (${p.dom})`:''}`.trim();
-    let role=p.role||'';
-    if(p.mgr&&!p.self)role=`${p.current===false?'quản lý cũ':'quản lý trực tiếp'} của ${p.of||'nhân viên'}`;
-    return {who,role};
+    const clean=personOf(person);
+    return {who:clean?clean.dom:'',role:''};
   }
-  /* state = {receiver, manager, other} — "manager" là chính người đang xem màn M-04,
-     "other" là quản lý khác (thường là quản lý cũ của nhân viên) đã thả tim từ trước; theo R8
-     hai cái này không bao giờ cùng có. senderName = người đã cho phản hồi.
-     Một cấu trúc chú thích DUY NHẤT cho mọi trường hợp — tiêu đề "Đã cảm ơn <người cho phản hồi>"
-     rồi mỗi người một dòng — để một tim và hai tim không đọc ra hai kiểu câu khác nhau.
-     options = {employeeName} — tên nhân viên, dùng cho câu "quản lý cũ của …". */
+  function peopleMarkHTML(people,pop){
+    const clean=uniquePeople(people);
+    if(!clean.length)return '';
+    const hearts=clean.map(person=>{
+      const domain=escapeAttr(person.dom);
+      return `<span class="thx-heart" tabindex="0" data-thx-domain="${domain}" aria-label="${domain}">${heartHTML()}`
+        +`<span class="thx-tip" role="tooltip">${domain}</span></span>`;
+    }).join('');
+    return `<span class="thx-mark${pop?' pop':''}">${hearts}</span>`;
+  }
+  /* state = {receiver, managers, manager}; options.receiverDomain là domain nhân viên nhận. */
   function markHTML(state,senderName,pop,options){
-    const opts=options||{};
-    const receiver=!!(state&&state.receiver),mine=!!(state&&state.manager);
-    const other=(!mine&&state&&state.other)?state.other:null;
-    if(!receiver&&!mine&&!other)return '';
-    const who=escapeAttr(senderName||'người đã phản hồi');
-    const art=(receiver&&(mine||other))?pairHTML():heartHTML(receiver?'rcv':'mgr');
-    let rows=receiver?tipRow('rcv','Nhân viên','người nhận phản hồi'):'';
-    if(mine)rows+=tipRow('mgr','Bạn','');
-    else if(other){
-      /* Người đang xem M-04 chính là quản lý trực tiếp đương nhiệm của nhân viên này,
-         nên tim mang tên người khác chỉ có thể là của quản lý trước đó. */
-      const label=thankerLabel({name:other.name,dom:other.dom,mgr:true,current:false,of:opts.employeeName});
-      rows+=tipRow('mgr',escapeAttr(label.who),escapeAttr(label.role));
-    }
-    const tip=`<span class="thx-tip"><span class="thx-tip-title">Đã cảm ơn ${who}</span>${rows}</span>`;
-    return `<span class="thx-mark${pop?' pop':''}" tabindex="0">${art}${tip}</span>`;
+    const opts=options||{},people=[];
+    if(state&&state.receiver&&opts.receiverDomain)people.push({dom:opts.receiverDomain});
+    if(state&&Array.isArray(state.managers))people.push(...state.managers);
+    return peopleMarkHTML(people,pop);
   }
-  /* Thanh cảm ơn ở chân card — GIỮ ĐÚNG cách màn nhân viên E-04 làm:
-     đường kẻ đứt ngăn với nội dung, nút pill "Cảm ơn" và một dòng gợi ý bên cạnh.
-     Bấm xong thanh thu lại rồi biến mất hẳn, chỉ để lại dấu tim trên dòng tên. */
   function barHTML(id,senderName){
     if(!id)return '';
     return `<div class="fb-thx-bar">`
@@ -116,20 +121,21 @@
   let ACTIVE=null,VIEWER=null;
   function use(store){ACTIVE=store||null;return ACTIVE;}
   function active(){return ACTIVE;}
-  /* Trang khai báo người đang xem để module phân biệt được "tim của mình" với
-     "tim của quản lý trước" khi dữ liệu đã ghi sẵn một lượt cảm ơn. */
-  function setViewer(person){VIEWER=person||null;return VIEWER;}
+  function setViewer(person){VIEWER=personOf(person);return VIEWER;}
   function viewer(){return VIEWER;}
-  function stateFor(item){
-    const by=(item&&item.thankedByManager)||null;
-    const own=!!(by&&VIEWER&&by.dom&&by.dom===VIEWER.dom);
-    return {receiver:!!(item&&item.thankedByReceiver),
-      manager:own||!!(ACTIVE&&item&&ACTIVE.has(item.id)),
-      other:(by&&!own)?by:null};
+  function seededManagers(item){
+    if(!item)return [];
+    if(Array.isArray(item.thankedByManagers))return uniquePeople(item.thankedByManagers);
+    return uniquePeople(item.thankedByManager?[item.thankedByManager]:[]);
   }
-  /* R8: một phản hồi chỉ nhận một tim từ phía quản lý. Đã có tim của quản lý trước thì
-     quản lý mới không thả thêm — luật nằm ở đây để card và nút cùng đọc một chỗ. */
-  function canThank(state){return !!state&&!state.manager&&!state.other;}
+  function stateFor(item){
+    const local=ACTIVE&&item?ACTIVE.people(item.id,VIEWER):[];
+    const managers=uniquePeople([...seededManagers(item),...local]);
+    const mine=!!(VIEWER&&managers.some(person=>person.dom===VIEWER.dom));
+    return {receiver:!!(item&&item.thankedByReceiver),managers,manager:mine};
+  }
+  /* Mỗi quản lý chỉ bị chặn bởi tim của chính domain đó; tim của người khác không chặn. */
+  function canThank(state){return !!state&&!!VIEWER&&!state.manager;}
   function flyHearts(anchor){
     if(typeof document==='undefined'||!anchor)return;
     if(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -147,35 +153,29 @@
       setTimeout(()=>heart.remove(),1400+index*70);
     }
   }
-  /* Thả tim: ghi trạng thái, thanh cảm ơn thu lại và biến mất, dấu tim hiện trên dòng tên.
-     Nhịp và hiệu ứng lấy đúng theo thankFb() của màn nhân viên E-04.
-     Cập nhật tại chỗ thay vì render lại cả danh sách để giữ vị trí cuộn và hiệu ứng.
-     Trả về tên người gửi để trang gọi tự hiện toast bằng cơ chế toast của riêng nó. */
   function thank(id,button){
-    if(!ACTIVE||!id||ACTIVE.has(id))return null;
-    ACTIVE.add(id);
+    if(!ACTIVE||!VIEWER||!id||ACTIVE.has(id,VIEWER))return null;
+    ACTIVE.add(id,VIEWER);
     const senderName=(button&&button.dataset&&button.dataset.thxSender)||'';
     if(!button||!button.closest)return senderName||'người đã phản hồi';
     const card=button.closest('.feedback-card'),bar=button.closest('.fb-thx-bar');
     const slow=typeof matchMedia!=='function'||!matchMedia('(prefers-reduced-motion: reduce)').matches;
-    button.disabled=true;
-    button.classList.add('pop');
+    button.disabled=true;button.classList.add('pop');
     if(slow)flyHearts(button);
     setTimeout(()=>{
       if(bar){bar.style.height=`${bar.offsetHeight}px`;requestAnimationFrame(()=>bar.classList.add('gone'));}
       const line=card&&card.querySelector('.fb-line');
       if(line){
-        /* Nhân viên đã cảm ơn từ trước thì trên dòng đã có sẵn một tim —
-           thay hẳn dấu cũ bằng dấu hai tim, chứ không bỏ qua. */
-        const html=markHTML({receiver:card.dataset.thxReceiver==='1',manager:true},senderName,true);
         const existing=line.querySelector('.thx-mark');
-        if(existing)existing.outerHTML=html; else line.insertAdjacentHTML('beforeend',html);
+        const people=existing?[...existing.querySelectorAll('[data-thx-domain]')].map(node=>({dom:node.dataset.thxDomain})):[];
+        const html=peopleMarkHTML([...people,VIEWER],true);
+        if(existing)existing.outerHTML=html;else line.insertAdjacentHTML('beforeend',html);
       }
       setTimeout(()=>{if(bar)bar.remove();},slow?400:0);
     },slow?420:0);
     return senderName||'người đã phản hồi';
   }
 
-  return {STORAGE_KEY,createStore,markHTML,barHTML,heartHTML,pairHTML,thankerLabel,
+  return {STORAGE_KEY,createStore,markHTML,peopleMarkHTML,barHTML,heartHTML,thankerLabel,
     use,active,setViewer,viewer,stateFor,canThank,thank,flyHearts};
 });
