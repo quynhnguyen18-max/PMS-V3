@@ -84,8 +84,8 @@
 .hr-line-link i{font-size:14px}
 /* Lối vào AI Summary: mascot đứng ở khoảng trống giữa tiêu đề và nhóm nút. Phải đứng NGOÀI
    dòng chữ tiêu đề - nhét một control cao 34px vào giữa dòng chữ 15px sẽ đội dòng lên và
-   đẩy tiêu đề sát mép trên popup. Mở popup là mascot nhún kèm một lời mời; bấm rồi thì lời
-   mời biến mất, mascot đứng yên, và từ đó rê chuột mới hiện tên. */
+   đẩy tiêu đề sát mép trên popup. Lần đầu mascot nhún kèm lời mời; sau khi đã xem rồi thu
+   gọn, mascot vẫn hiện cùng nhãn ngắn "AI Summary" để lối vào không biến mất. */
 .ai-entry{position:relative;display:flex;align-items:center;gap:8px;flex:none;padding:2px;border:0;border-radius:8px;background:transparent;cursor:pointer;transition:background .12s ease}
 /* display:flex của class này ĐÈ lên display:none mà trình duyệt gán cho thuộc tính hidden,
    nên phải nói lại cho rõ: hidden là biến mất hẳn. */
@@ -97,15 +97,8 @@
 .ai-entry.bob img{animation:ai-entry-bob 2.6s ease-in-out infinite}
 .ai-entry.bob:hover img{animation:none}
 @media(prefers-reduced-motion:reduce){.ai-entry.bob img{animation:none}}
-/* Lời mời và tên không bao giờ cùng xuất hiện: lời mời đang hiện thì nó đã nói đủ.
-   Cả hai đều nằm BÊN TRÁI mascot, trong lòng header - xổ xuống dưới là che mất dòng
-   kết quả HR ngay bên dưới. Lời mời chiếm chỗ thật trong hàng nên dòng tên nhân viên
-   tự co lại; tên chỉ hiện lúc rê chuột nên để nổi, không đẩy layout. */
+/* Nhãn nằm BÊN TRÁI mascot và luôn chiếm chỗ thật khi AI Summary đang thu gọn. */
 .ai-entry-cta{flex:none;padding:5px 10px;border-radius:7px;background:#fff;color:var(--brand);border:1px solid var(--brand-ring);font-size:10.5px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(165,0,100,.10)}
-.ai-entry-tip{position:absolute;top:50%;right:calc(100% + 8px);transform:translateY(-50%);z-index:30;padding:4px 9px;border-radius:5px;background:var(--z900);color:#fff;font-size:10.5px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
-.ai-entry:hover .ai-entry-tip,.ai-entry:focus-visible .ai-entry-tip{opacity:1}
-.ai-entry.inviting .ai-entry-tip{display:none}
-.ai-entry:not(.inviting) .ai-entry-cta{display:none}
 /* Header của popup phản hồi: nới rộng cho chữ thở, hai dòng tách nhau rõ hơn. */
 /* Ghim chiều cao: lời mời biến mất sau khi bấm, không ghim thì header tụt xuống vài pixel
      ngay lúc người dùng đang nhìn vào đó. */
@@ -128,7 +121,7 @@
    hẹp sẽ ép tên nhân viên xuống dòng. Dùng container query nên đo theo bề rộng của
    chính khung phải, không phải bề rộng cửa sổ. */
 .split-pane{container-type:inline-size}
-@container (max-width:560px){.split-pane-head .ai-entry-cta{display:none}}.split-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.split-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}.view-hidden{display:none}
+.split-badge-item{display:inline-flex;align-items:center;gap:4px;color:var(--z600);font-size:12px}.split-badge-item img{width:24px;height:24px;border-radius:50%;object-fit:cover}.split-pane-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}.view-hidden{display:none}
 .split-badge-item{position:relative;cursor:help}.split-badge-tip{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:30;padding:4px 8px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease}.split-badge-tip::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.split-badge-item:hover .split-badge-tip{opacity:1}
 .pms-tooltip{position:relative;display:inline-flex;cursor:help}.fb-sender{gap:4px;align-items:baseline}.pms-tooltip-content{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:40;padding:5px 9px;background:var(--z900);color:#fff;border-radius:6px;font-size:12px;font-weight:500;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease}.pms-tooltip-content::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--z900)}.pms-tooltip:hover .pms-tooltip-content,.pms-tooltip:focus-visible .pms-tooltip-content{opacity:1;visibility:visible}
 .pms-tooltip-top{top:auto;bottom:calc(100% + 7px)}.pms-tooltip-top::after{top:100%;bottom:auto;border-bottom-color:transparent;border-top-color:var(--z900)}
@@ -297,7 +290,7 @@
 
       <div class="list-head"><div class="result-title" id="listTitle">Direct reports</div><span class="result-count" id="resultCount">0 nhân viên</span><div class="list-actions"><button type="button" class="btn btn-outline" id="headerDownload" aria-label="Tải dữ liệu phản hồi" title="Tải dữ liệu phản hồi" onclick="openDownloadDialog()"><i class="bx bx-download"></i></button><label class="search"><i class="bx bx-search"></i><input id="searchInput" placeholder="Tìm theo tên hoặc domain…" oninput="renderEmployees()"/></label><div class="filter-menu" id="filterMenu" style="display:none"><button class="btn btn-outline filter-toggle" id="filterToggle" onclick="toggleFilterPanel()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="filterCount">0</span></button><div class="filter-popover" id="filterPopover"><div class="filter-popover-grid"><select class="filter-select" id="filterDivision" onchange="renderEmployees()"></select><select class="filter-select" id="filterDepartment" onchange="renderEmployees()"></select><select class="filter-select" id="filterTeam" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager2" onchange="renderEmployees()"></select></div><div class="filter-popover-foot"><button class="btn btn-outline" onclick="clearFilters()">Xóa bộ lọc</button></div></div></div><button class="btn btn-outline" id="splitViewButton" aria-pressed="false" onclick="toggleSplitView()"><i class="bx bx-columns"></i> Split View</button></div></div>
       <div id="listView"><div class="employee-list" id="employeeList"></div></div>
-      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div class="split-pane-heading"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button type="button" class="ai-entry" id="splitAiEntry" hidden onclick="toggleSplitAiSummary()" aria-expanded="false" aria-controls="splitAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">Bấm xem tóm tắt nhanh</span><img src="../assets/mascot/think.png" alt=""/><span class="ai-entry-tip">AI Summary</span></button><button class="icon-btn" id="splitDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
+      <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div class="split-pane-heading"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button type="button" class="ai-entry" id="splitAiEntry" hidden onclick="toggleSplitAiSummary()" aria-expanded="false" aria-controls="splitAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">AI summary</span><img src="../assets/mascot/think.png" alt=""/></button><button class="icon-btn" id="splitDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
       </section>
 
       <section class="mode-panel" id="requestModePanel" role="tabpanel" aria-labelledby="requestsModeTab" hidden>
@@ -327,7 +320,7 @@
 
 <div class="overlay" id="feedbackDialog" onclick="if(event.target===this)closeFeedback()">
   <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
-    <header class="dialog-head"><div class="dialog-heading"><div class="dialog-title" id="dialogTitle">Phản hồi đã nhận <span class="dialog-count" id="dialogCount">0</span></div><div class="dialog-sub" id="dialogSub"></div></div><button type="button" class="ai-entry" id="dialogAiEntry" hidden onclick="toggleDialogAiSummary()" aria-expanded="false" aria-controls="dialogAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">Bấm xem tóm tắt nhanh</span><img src="../assets/mascot/think.png" alt=""/><span class="ai-entry-tip">AI Summary</span></button><div class="dialog-actions"><button class="icon-btn" id="dialogDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" id="openTabButton" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button><button class="close" onclick="closeFeedback()" aria-label="Đóng">×</button></div></header>
+    <header class="dialog-head"><div class="dialog-heading"><div class="dialog-title" id="dialogTitle">Phản hồi đã nhận <span class="dialog-count" id="dialogCount">0</span></div><div class="dialog-sub" id="dialogSub"></div></div><button type="button" class="ai-entry" id="dialogAiEntry" hidden onclick="toggleDialogAiSummary()" aria-expanded="false" aria-controls="dialogAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">AI summary</span><img src="../assets/mascot/think.png" alt=""/></button><div class="dialog-actions"><button class="icon-btn" id="dialogDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" id="openTabButton" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button><button class="close" onclick="closeFeedback()" aria-label="Đóng">×</button></div></header>
     <div class="dialog-body" id="dialogBody"></div>
     <footer class="dialog-foot"><button class="btn btn-outline" onclick="closeFeedback()">Đóng</button></footer>
   </section>
@@ -464,7 +457,7 @@ function mergeStoredRequestState(seed,stored){
 }
 function loadRequestStore(){const storage=requestStorage(),seeded=ManagerRequestSeed.create(EMPLOYEES),loaded=ManagerRequestStorage.load(storage,REQUEST_STORAGE_KEY,()=>seeded),seedById=new Map(seeded.map(request=>[request.id,request])),merged=loaded.map(request=>{const seed=seedById.get(request.id);return seed?mergeStoredRequestState(seed,request):request;}),known=new Set(merged.map(request=>request.id));seeded.forEach(request=>{if(!known.has(request.id))merged.push(request);});ManagerRequestStorage.save(storage,REQUEST_STORAGE_KEY,merged);return ManagerRequestModel.createStore(merged);}
 function persistRequestStore(){return ManagerRequestStorage.save(requestStorage(),REQUEST_STORAGE_KEY,REQUEST_STORE.requests);}
-const STATE={scope:'lm1',selectedId:null,splitView:false,filterOpen:false,contentMode:'feedback',requestView:'list',requestLimit:10,requestStatusFilter:'all',requestFilterOpen:false,dialogAiCollapsed:true,splitAiCollapsed:true};
+const STATE={scope:'lm1',selectedId:null,splitView:false,filterOpen:false,contentMode:'feedback',requestView:'list',requestLimit:10,requestStatusFilter:'all',requestFilterOpen:false,dialogAiCollapsed:true,dialogAiViewed:false,splitAiCollapsed:true,splitAiViewed:false};
 
 function employeesInScope(){ return EMPLOYEES.filter(emp=>emp.lvl===STATE.scope); }
 function visibleFeedbackForManager(employeeId){
@@ -666,16 +659,21 @@ function employeeAiSummaryHTML(employee,feedback){
      một nghĩa với mọi chỗ đóng khác trên màn. */
   return `<section class="dialog-ai-summary" id="dialogAiSummary" ${STATE.dialogAiCollapsed?'hidden':''}><header class="dialog-ai-summary-head"><div><div class="dialog-ai-summary-brand"><img class="dialog-ai-summary-mascot" src="../assets/mascot/think.png" alt=""/><span>AI Summary</span></div><div class="dialog-ai-summary-note">Không bao gồm kết quả từ chương trình của HR</div></div><button type="button" class="dialog-ai-summary-toggle" onclick="toggleDialogAiSummary()" aria-label="Đóng AI Summary"><i class="bx bx-x"></i></button></header><div class="dialog-ai-summary-content"><section><div class="dialog-ai-summary-label">Điểm mạnh</div>${list(summary.strengths)}</section><section><div class="dialog-ai-summary-label">Cơ hội phát triển</div>${list(summary.opportunities)}</section></div></section>`;
 }
+function syncAiEntry(entry,available,collapsed,viewed){
+  if(!entry)return;
+  entry.hidden=!available||!collapsed;
+  entry.setAttribute('aria-expanded',String(!collapsed));
+  entry.classList.toggle('inviting',available&&collapsed&&!viewed);
+  entry.classList.toggle('bob',available&&collapsed&&!viewed);
+  const label=entry.querySelector('.ai-entry-cta');
+  if(label)label.textContent='AI summary';
+}
 function toggleDialogAiSummary(){
   STATE.dialogAiCollapsed=!STATE.dialogAiCollapsed;
   const summary=document.getElementById('dialogAiSummary'),entry=document.getElementById('dialogAiEntry');
-  if(entry){
-    /* Đã bấm là thôi mời gọi. Đang mở thì mascot thu lại - khối tóm tắt đã mang sẵn tên
-       và mascot nhỏ của nó; đóng lại thì mascot quay ra làm lối vào. */
-    entry.classList.remove('inviting','bob');
-    entry.hidden=!STATE.dialogAiCollapsed;
-    entry.setAttribute('aria-expanded',String(!STATE.dialogAiCollapsed));
-  }
+  if(!STATE.dialogAiCollapsed)STATE.dialogAiViewed=true;
+  /* Đang mở thì lối vào thu lại. Khi đóng, mascot quay ra cùng nhãn "AI Summary". */
+  syncAiEntry(entry,!!summary,STATE.dialogAiCollapsed,STATE.dialogAiViewed);
   if(!summary)return;
   summary.hidden=STATE.dialogAiCollapsed;
   if(!STATE.dialogAiCollapsed)summary.scrollIntoView({block:'nearest'});
@@ -692,14 +690,9 @@ function splitAiSummaryHTML(employee,feedback){
 function toggleSplitAiSummary(){
   STATE.splitAiCollapsed=!STATE.splitAiCollapsed;
   const summary=document.getElementById('splitAiSummary'),entry=document.getElementById('splitAiEntry');
-  if(entry){
-    /* Đang mở thì mascot thu lại: khối tóm tắt đã mang sẵn tên và mascot nhỏ của nó,
-       để thêm một con ở hàng tiêu đề là hai lối vào cho cùng một thứ đang mở sẵn.
-       Đóng lại thì mascot quay ra, nhưng thôi mời gọi vì người dùng đã biết nó ở đâu. */
-    entry.classList.remove('inviting','bob');
-    entry.hidden=!STATE.splitAiCollapsed;
-    entry.setAttribute('aria-expanded',String(!STATE.splitAiCollapsed));
-  }
+  if(!STATE.splitAiCollapsed)STATE.splitAiViewed=true;
+  /* Đang mở thì lối vào thu lại. Khi đóng, mascot quay ra cùng nhãn "AI Summary". */
+  syncAiEntry(entry,!!summary,STATE.splitAiCollapsed,STATE.splitAiViewed);
   if(!summary)return;
   summary.hidden=STATE.splitAiCollapsed;
 }
@@ -710,6 +703,7 @@ function openFeedback(employeeId){
   /* Mặc định đóng: bản tổng hợp do máy sinh là thứ tra cứu khi cần, không phải thứ chen
      trước phản hồi do người viết. Nút trong tiêu đề nháy để mời, không tự bung. */
   STATE.dialogAiCollapsed=true;
+  STATE.dialogAiViewed=false;
   document.getElementById('dialogCount').textContent=items.length;
   document.getElementById('dialogSub').textContent=FEEDBACK_STORE.employeeMeta(emp);
   const hrCount=hrReportCount(emp.login);
@@ -725,12 +719,9 @@ function openFeedback(employeeId){
     : '<div class="empty">Chưa có phản hồi nào được chia sẻ với quản lý.</div>';
   document.getElementById('dialogBody').innerHTML=hrLine+feedbackContent;
   const entry=document.getElementById('dialogAiEntry');
-  entry.hidden=!summary||!STATE.dialogAiCollapsed;
-  entry.setAttribute('aria-expanded','false');
   /* Mỗi lần mở popup lại mời một lần: người xem có thể là quản lý khác, hoặc chính họ nhưng
      đã quên. Lời mời chỉ mất khi họ thật sự bấm vào. */
-  entry.classList.toggle('bob',!!summary);
-  entry.classList.toggle('inviting',!!summary);
+  syncAiEntry(entry,!!summary,STATE.dialogAiCollapsed,STATE.dialogAiViewed);
   document.getElementById('feedbackDialog').classList.add('open');
   syncViewerDownloadLabels();
 }
@@ -740,6 +731,7 @@ function selectSplitEmployee(employeeId){
   /* Đổi người là về trạng thái đóng: bản tóm tắt của người trước không được ở lại mở sẵn
      cho người sau, và mascot phải quay ra để còn bấm. */
   STATE.splitAiCollapsed=true;
+  STATE.splitAiViewed=false;
   STATE.selectedId=employeeId;renderEmployees();syncViewerDownloadLabels();
 }
 function splitBadgeSummaryHTML(feedback){
@@ -753,7 +745,11 @@ function splitBadgeSummaryHTML(feedback){
 function renderSplitView(items){
   if(!STATE.splitView)return;
   if(!items.length){document.getElementById('splitEmployeeList').innerHTML='<div class="empty">Không có nhân viên.</div>';document.getElementById('splitFeedbackPane').innerHTML='';return;}
-  if(!items.some(emp=>emp.id===STATE.selectedId))STATE.selectedId=(items.find(emp=>visibleFeedbackForManager(emp.id).length||hrReportCount(emp.login))||items[0]).id;
+  if(!items.some(emp=>emp.id===STATE.selectedId)){
+    STATE.selectedId=(items.find(emp=>visibleFeedbackForManager(emp.id).length||hrReportCount(emp.login))||items[0]).id;
+    STATE.splitAiCollapsed=true;
+    STATE.splitAiViewed=false;
+  }
   document.getElementById('splitEmployeeList').innerHTML=items.map(emp=>{const feedbackCount=visibleFeedbackForManager(emp.id).length,hrCount=hrReportCount(emp.login);return `<button class="split-person ${emp.id===STATE.selectedId?'on':''}" onclick="selectSplitEmployee('${emp.id}')"><span class="avatar">${emp.ini}</span><span style="min-width:0"><span class="emp-name" style="display:block">${emp.name} <span class="emp-domain">(${emp.login})</span></span><span class="emp-meta" style="display:block">${feedbackCount} phản hồi đã nhận${hrCount?` - ${hrCount} kết quả từ HR`:''}</span></span></button>`;}).join('');
   const emp=items.find(item=>item.id===STATE.selectedId),feedback=visibleFeedbackForManager(emp.id);
   document.getElementById('splitEmployeeLabel').textContent=emp.name;
@@ -769,11 +765,8 @@ function renderSplitView(items){
     ? `${summary}<div class="feedback-card-list">${feedback.map((item,index)=>feedbackCard(item,emp,{senderTooltipPlacement:index===0?'bottom':'top'})).join('')}</div>`
     : '<div class="empty">Chưa có phản hồi.</div>';
   const splitEntry=document.getElementById('splitAiEntry');
-  splitEntry.hidden=!summary||!STATE.splitAiCollapsed;
-  splitEntry.setAttribute('aria-expanded',String(!STATE.splitAiCollapsed));
   /* Đổi người là mời lại: mỗi nhân viên có một bản tổng hợp riêng. Đang mở sẵn thì thôi. */
-  splitEntry.classList.toggle('bob',!!summary&&STATE.splitAiCollapsed);
-  splitEntry.classList.toggle('inviting',!!summary&&STATE.splitAiCollapsed);
+  syncAiEntry(splitEntry,!!summary,STATE.splitAiCollapsed,STATE.splitAiViewed);
 }
 function closeFeedback(){document.getElementById('feedbackDialog').classList.remove('open')}
 
