@@ -5,6 +5,7 @@ const path=require('node:path');
 
 const modelPath='./feedback-program-model.js';
 const questionnaireModelPath='./questionnaire-library-model.js';
+const questionnaireExportPath='./questionnaire-library-export.js';
 
 test('keeps request questionnaires independent from visible library templates',()=>{
   const model=require(questionnaireModelPath);
@@ -1681,43 +1682,80 @@ test('questionnaire library rows open on click and keep action icons aligned',()
   assert.doesNotMatch(library,/bx-show/);
   assert.doesNotMatch(library,/data-tooltip="Xem bộ câu hỏi"/);
   assert.match(library,/<div class="template-row" role="button" tabindex="0"[^>]*onclick="openDetail\('\$\{item\.id\}'\)"/);
-  for(const action of ['useTemplate','copyTemplate','openEditor','deleteTemplate']){
+  for(const action of ['useTemplate','copyTemplate','openEditor','deleteTemplate','downloadTemplate']){
     assert.match(library,new RegExp(`onclick="event\\.stopPropagation\\(\\);${action}\\('\\$\\{item\\.id\\}'\\)"`));
   }
-  /* Bốn ô cố định, hàng không sửa được vẫn chừa chỗ để icon gióng thẳng cột. */
-  assert.match(library,/\.row-actions\{display:grid;grid-template-columns:repeat\(4,28px\);justify-content:start/);
-  /* Cột chức năng rộng đúng 4 ô icon để tiêu đề gióng thẳng icon đầu tiên. */
-  assert.match(library,/minmax\(145px,\.72fr\) 124px;/);
+  /* Khu vực đủ chỗ cho năm action; các action không có quyền bị ẩn để icon còn lại xếp liền nhau. */
+  assert.match(library,/\.row-actions\{display:grid;grid-template-columns:repeat\(5,28px\);justify-content:start/);
+  /* Cột chức năng rộng đủ cho hàng có đầy đủ năm icon. */
+  assert.match(library,/minmax\(145px,\.72fr\) 156px;/);
   assert.match(library,/\.library-head \.h-r\{text-align:left\}/);
-  assert.match(library,/\.icon-slot\{display:block;width:28px;height:28px\}/);
+  assert.match(library,/\.icon-slot\{display:none\}/);
   assert.match(library,/<span class="icon-slot" aria-hidden="true"><\/span><span class="icon-slot" aria-hidden="true"><\/span>/);
+  assert.match(library,/data-tooltip="Tải xuống" aria-label="Tải xuống \$\{item\.name\}"[\s\S]{0,120}downloadTemplate\('\$\{item\.id\}'\)/);
 });
 
-test('questionnaire library lets HR download the whole library or one template as Excel-friendly CSV',()=>{
+test('questionnaire library lets HR download the whole library or one template as structured Excel',()=>{
   const library=fs.readFileSync(require.resolve('./questionnaire-library.html'),'utf8');
-  assert.match(library,/class="page-actions"[\s\S]*?onclick="downloadAllTemplates\(\)"[\s\S]*?Tải xuống[\s\S]*?onclick="openEditor\(\)"[\s\S]*?Tạo bộ câu hỏi/);
+  assert.match(library,/class="page-actions"[\s\S]*?onclick="openDownloadAllConfirm\(\)"[\s\S]*?aria-label="Tải xuống toàn bộ thư viện"[\s\S]*?onclick="openEditor\(\)"[\s\S]*?Tạo bộ câu hỏi/);
   assert.match(library,/id="downloadOverlay"/);
-  assert.match(library,/data-download-mode="all"[\s\S]*?Toàn bộ thư viện/);
-  assert.match(library,/data-download-mode="single"[\s\S]*?Từng bộ riêng biệt/);
-  assert.match(library,/id="downloadTemplateSelect"/);
+  assert.match(library,/id="downloadTitle">Tải xuống toàn bộ thư viện\?<\/div>/);
+  assert.match(library,/id="downloadConfirmCopy"/);
+  assert.match(library,/function openDownloadAllConfirm\(\)[\s\S]{0,300}Bạn sắp tải xuống \$\{items\.length\} bộ câu hỏi\./);
+  assert.doesNotMatch(library,/Bạn sắp tải xuống \$\{items\.length\} bộ câu hỏi trong một file Excel\./);
   assert.match(library,/function downloadWholeLibrary\(\)/);
   assert.match(library,/function downloadTemplate\(id\)/);
-  assert.match(library,/function confirmDownload\(\)/);
-  assert.match(library,/text\/csv;charset=utf-8/);
-  assert.match(library,/const csv='\\uFEFF'/);
-  assert.match(library,/\['STT','Câu hỏi','Loại câu hỏi','Bắt buộc'\]/);
+  assert.match(library,/function confirmDownloadAll\(\)[\s\S]{0,100}downloadWholeLibrary\(\)/);
+  assert.doesNotMatch(library,/data-download-mode|downloadTemplateSelect|setDownloadMode|downloadMode/);
+  assert.match(library,/assets\/vendor\/jszip\.min\.js/);
+  assert.match(library,/questionnaire-library-export\.js/);
+  assert.match(library,/QuestionnaireLibraryExport\.downloadWhole/);
+  assert.match(library,/QuestionnaireLibraryExport\.downloadSingle/);
+  assert.match(library,/ownerDepartment/);
+  assert.match(library,/ownerDivision/);
+  assert.doesNotMatch(library,/text\/csv|saveCSV|csvCell/);
   assert.match(library,/id="detailFoot"[\s\S]*?downloadTemplate\('\$\{item\.id\}'\)[\s\S]*?Tải xuống/);
-  assert.doesNotMatch(library,/data-tooltip="Tải xuống"/);
+  assert.match(library,/data-tooltip="Tải xuống"/);
   assert.match(library,/\.btn:has\(>i\.bx-download\)\{[^}]*width:34px;[^}]*font-size:0/);
-  assert.match(library,/\.btn:has\(>i\.bx-download\)::after\{[^}]*content:'Tải xuống';[^}]*font-size:11px/);
+  assert.match(library,/\.btn:has\(>i\.bx-download\)::after\{[^}]*content:attr\(aria-label\);[^}]*font-size:11px/);
   assert.match(library,/\.btn:has\(>i\.bx-download\):hover::after,\.btn:has\(>i\.bx-download\):focus-visible::after/);
   assert.match(library,/#downloadOverlay \.dialog-foot \.btn-primary\{width:auto;padding:0 12px;font-size:12\.5px\}/);
   assert.match(library,/#downloadOverlay \.dialog-foot \.btn-primary::after\{display:none\}/);
   assert.match(library,/#detailFoot \.btn:has\(>i\.bx-download\)\{width:auto;padding:0 12px;font-size:12\.5px\}/);
   assert.match(library,/#detailFoot \.btn:has\(>i\.bx-download\)::after\{display:none\}/);
-  assert.match(library,/\.download-single\{margin-top:16px\}/);
-  assert.doesNotMatch(library,/Chọn tải toàn bộ thư viện hoặc một bộ câu hỏi riêng biệt\./);
-  assert.doesNotMatch(library,/Tải một file tổng hợp tất cả bộ câu hỏi bạn được phép xem\./);
-  assert.doesNotMatch(library,/Chọn một bộ câu hỏi cụ thể để tải xuống\./);
-  assert.match(library,/#downloadTemplateSelect\{font-family:inherit;font-size:13px;font-weight:400\}/);
+  assert.match(library,/\.download-dialog\{width:min\(440px,100%\)\}/);
+  assert.match(library,/\.download-confirm-copy\{[^}]*font-size:12\.5px/);
+});
+
+test('Excel export gives every questionnaire its own sheet with common metadata above question rows',async()=>{
+  const exporter=require(questionnaireExportPath);
+  const item={
+    id:'tpl-1',name:'HRBP_Khảo sát',createdAt:'01/08/2026',updatedAt:'12/08/2026',scopeText:'Toàn bộ HRBP và L&OD Team',
+    creator:{name:'Lê Thuỳ Anh',domain:'anh.le',department:'HR Business Partner',division:'Human Resources'},
+    questions:[
+      {type:'open_text',text:'Điểm mạnh nổi bật là gì?',required:true},
+      {type:'rating',text:'Mức độ phối hợp?',ratingScale:5,ratingLabels:{min:'Cần cải thiện',max:'Xuất sắc'},required:false}
+    ]
+  };
+  const single=await exporter.buildWorkbook([exporter.singleSheet(item)],'nodebuffer');
+  const JSZip=require('../assets/vendor/jszip.min.js');
+  const singleZip=await JSZip.loadAsync(single);
+  const singleXml=await singleZip.file('xl/worksheets/sheet1.xml').async('string');
+  for(const text of ['NGƯỜI TẠO','THÔNG TIN BỘ CÂU HỎI','Họ tên','Domain','Department','Division','Tạo: 01/08/2026 - Cập nhật: 12/08/2026','Phạm vi chia sẻ','Yêu cầu bắt buộc trả lời?','Có','Không'])assert.match(singleXml,new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  assert.doesNotMatch(singleXml,/<pane\b/);
+
+  const second={...item,id:'tpl-2',name:'L&OD_Phối hợp liên phòng ban'};
+  const wholeSheets=exporter.wholeSheets([item,second]);
+  assert.deepEqual(wholeSheets.map(sheet=>sheet.name),['1. HRBP_Khảo sát','2. L&OD_Phối hợp liên phòng ban']);
+  const whole=await exporter.buildWorkbook(wholeSheets,'nodebuffer');
+  const wholeZip=await JSZip.loadAsync(whole);
+  const firstXml=await wholeZip.file('xl/worksheets/sheet1.xml').async('string');
+  const secondXml=await wholeZip.file('xl/worksheets/sheet2.xml').async('string');
+  for(const xml of [firstXml,secondXml]){
+    assert.match(xml,/NGƯỜI TẠO/);
+    assert.match(xml,/THÔNG TIN BỘ CÂU HỎI/);
+    assert.match(xml,/HR Business Partner/);
+    assert.match(xml,/Yêu cầu bắt buộc trả lời\?/);
+    assert.doesNotMatch(xml,/<pane\b/);
+  }
 });
