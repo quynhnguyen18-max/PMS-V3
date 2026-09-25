@@ -973,10 +973,9 @@ test('seeds a two-entry sharing history with the recipients for each share',()=>
   assert.deepEqual(sharing.log.map(entry=>entry.audiences),[['recipients','managers'],['others']]);
 });
 
-/* HR chọn người nhận THEO CẤP, và mỗi cấp phải nói rõ đang là ai kèm domain: ba cấp
-   có thể trỏ về cùng một người, nên nếu chỉ ghi "Các cấp quản lý" thì HR không biết
-   mình đang chia sẻ cho ai. */
-test('H-06 share popup picks recipients by management level, naming each person with a domain',()=>{
+/* Form chỉ chọn THEO CẤP; tên người thật luôn dành cho bước xem lại để các option
+   giữ cùng một cấu trúc dù đang chia sẻ cho một hay nhiều người nhận. */
+test('H-06 share popup keeps manager-level options free of inline people names',()=>{
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   assert.match(detail,/id="shareResultSettings"/);
   // ba cấp là ba lựa chọn riêng, lấy nhãn từ model chứ không tự đặt tên
@@ -985,23 +984,15 @@ test('H-06 share popup picks recipients by management level, naming each person 
   assert.match(detail,/onchange="toggleShareLevel\('\$\{level\}'\)"/);
   assert.doesNotMatch(detail,/'managers','Các cấp quản lý'/);
   assert.doesNotMatch(detail,/function setResultShareAudience\(audience\)/);
-  // mỗi cấp hiện tên người thật kèm domain, và nói rõ khi chưa chọn người nhận
-  assert.match(detail,/function shareLevelSummary\(level\)/);
-  assert.doesNotMatch(detail,/Chọn người nhận phản hồi ở trên để biết đây là ai/);
-  /* Chia sẻ cho tất cả người nhận thì mỗi cấp có thể ra hàng chục người: chỉ nêu số
-     lượng, danh sách đầy đủ để dành cho bước xem lại. */
-  assert.match(detail,/function shareOneRecipientOnly\(\)\{return shareParticipantIds\(\)\.length===1;\}/);
-  // phần trong ngoặc là chú thích: không in đậm, dùng xám
-  assert.match(detail,/<span class="share-option-hint">\(xem danh sách ở bước sau\)<\/span>/);
-  assert.match(detail,/\.share-option-hint\{font-weight:400;color:var\(--z500\)\}/);
+  // không hiện tên, domain hay chú thích phụ trực tiếp trong ba option quản lý
+  const shareForm=detail.slice(detail.indexOf('function renderResultShareSettings()'),detail.indexOf('function openResultShareDialog('));
+  assert.doesNotMatch(shareForm,/shareLevelSummary|shareOneRecipientOnly|share-level-people|xem danh sách ở bước sau/);
   // mỗi lựa chọn gọn một hàng, không tự đẻ thêm dòng mô tả
   assert.match(detail,/<strong>Người nhận phản hồi <span class="share-option-hint">\(xem kết quả của mình\)<\/span><\/strong>/);
   assert.match(detail,/<strong>Người khác<\/strong><\/span><\/label>/);
   assert.match(detail,/function sharePersonText\(entry\)\{return `\$\{entry\.name\} \(\$\{entry\.domain\}\)`;\}/);
-  assert.match(detail,/share-level-people/);
-  // ô chọn vẫn gọn: <small> bị ẩn nên dòng tên người dùng class riêng
+  // ô chọn vẫn gọn và không có metadata dòng hai
   assert.match(detail,/\.share-audience-option small\{display:none\}/);
-  assert.match(detail,/\.share-level-people\{display:block/);
   assert.match(detail,/share-audience-multi/);
   // người ngoài phạm vi quản lý được báo ngay ở form, trước khi bấm chia sẻ
   assert.match(detail,/function shareOutsideNoteHTML\(\)/);
@@ -1046,8 +1037,19 @@ test('H-06 share flow reviews who sees whose result in a table before sending',(
   assert.match(detail,/function shareReviewTableHTML\(\)/);
   assert.match(detail,/<th class="share-table-index">#<\/th><th>Người nhận phản hồi<\/th>/);
   // nhãn không kèm số đếm: bảng ngay dưới đã liệt kê đủ
-  assert.match(detail,/<span class="share-section-label">Ai xem kết quả của ai<\/span>/);
+  assert.match(detail,/<span class="share-section-label">Danh sách chia sẻ kết quả phản hồi<\/span>/);
   assert.match(detail,/shareAudienceTableHTML\(\{ids:shareParticipantIds\(\),toRecipient:state\.toRecipient/);
+  // thông tin chung đứng trên bảng, mỗi nhãn và nội dung nằm cùng một dòng
+  assert.match(detail,/<div class="share-review-meta">\$\{channelRow\}<div class="share-review-meta-row">/);
+  assert.match(detail,/<strong>Cách xem kết quả:<\/strong>/);
+  assert.match(detail,/<strong>Nội dung chia sẻ:<\/strong><span>\$\{content\}<\/span>/);
+  const review=detail.slice(detail.indexOf('function shareReviewHTML('),detail.indexOf('function renderShareReview('));
+  assert.ok(review.indexOf('share-review-meta')<review.indexOf('Danh sách chia sẻ kết quả phản hồi'));
+  assert.doesNotMatch(review,/<span class="share-section-label">(?:Cách xem kết quả|Nội dung chia sẻ)<\/span>/);
+  assert.match(detail,/\.share-review-meta\{display:flex;flex-direction:column;gap:6px;margin-top:16px\}/);
+  assert.match(detail,/\.share-review-meta-row\{display:grid;grid-template-columns:132px minmax\(0,1fr\);gap:10px;color:var\(--z900\);font-size:12\.5px/);
+  assert.match(detail,/\.share-review-meta-row strong\{color:var\(--z900\);font-weight:600\}/);
+  assert.doesNotMatch(detail,/\.share-review-meta\{[^}]*border|\.share-review-meta\{[^}]*background/);
   // chỉ dựng cột cho vai HR thật sự chọn
   assert.match(detail,/M\.MANAGER_LEVELS\.filter\(level=>\(plan\.managerLevels\|\|\[\]\)\.includes\(level\)\)/);
   // mỗi ô có tên kèm domain
@@ -1058,21 +1060,27 @@ test('H-06 share flow reviews who sees whose result in a table before sending',(
   const reviewTable=detail.slice(detail.indexOf('function shareAudienceTableHTML('),detail.indexOf('function shareReviewHTML('));
   // bỏ chú thích ra rồi mới soi: ta chặn CHỮ HIỆN RA trong bảng, không chặn lời giải thích
   assert.doesNotMatch(reviewTable.replace(/\/\*[\s\S]*?\*\//g,''),/qua email/);
-  // Người khác xuất hiện ở mọi hàng được chia sẻ, kể cả khi hàng đó nhận file qua email
+  // Người khác là danh sách chung nên chỉ render một ô gộp cho toàn bộ hàng người nhận
   assert.match(detail,/shareAudienceTableHTML\(\{ids:shareParticipantIds\(\)[^}]*\}\)/);
   assert.doesNotMatch(detail,/includeEmailViewers/);
-  assert.match(detail,/const viewersFor=id=>extraViewers\.filter\(viewer=>viewer\.domain\|\|viewer\.name\)/);
-  assert.match(detail,/if\(ids\.some\(id=>viewersFor\(id\)\.length\)\)columns\.push/);
+  assert.match(detail,/const otherViewers=extraViewers\.filter\(viewer=>viewer\.domain\|\|viewer\.name\)/);
+  assert.match(detail,/if\(otherViewers\.length\)columns\.push/);
+  assert.match(detail,/if\(index>0\)return '';/);
+  assert.match(detail,/<td rowspan="\$\{ids\.length\}" class="share-table-shared">/);
+  assert.doesNotMatch(detail,/const viewersFor=id=>/);
   // bảng cần rộng hơn form vì có tới 6 cột
   assert.match(detail,/#resultDialogSurface\.share-review-dialog\{width:min\(980px,100%\)\}/);
   assert.match(detail,/classList\.add\('share-review-dialog'\)/);
   assert.match(detail,/classList\.remove\('share-review-dialog'\)/);
+  // đổi từ form sang bước xem lại phải bắt đầu ở đầu bảng, không giữ vị trí cuộn cũ
+  assert.match(detail,/const settings=document\.getElementById\('shareResultSettings'\);[\s\S]{0,220}settings\.innerHTML=shareReviewHTML\(\);[\s\S]{0,220}settings\.scrollTop=0;/);
   // bảng cuộn ngang khi nhiều cột, theo DESIGN-SYSTEM 19.6
   assert.match(detail,/\.share-table-wrap\{overflow-x:auto/);
   // quay lại sửa được, và chỉ nút ở bước này mới thật sự gửi
   assert.match(detail,/back\.textContent='Quay lại chỉnh sửa'/);
   assert.match(detail,/function backToShareForm\(\)/);
-  assert.match(detail,/confirm\.textContent=SHARE_REVIEW\.closeIds\.length\?'Đóng & chia sẻ kết quả':'Xác nhận chia sẻ'/);
+  assert.match(detail,/confirm\.textContent='Chia sẻ kết quả'/);
+  assert.doesNotMatch(detail,/Đóng & chia sẻ kết quả|Xác nhận chia sẻ/);
   assert.match(detail,/confirmResultShare\(SHARE_REVIEW\.ids,\{targets:shareTargets\(\),by:shareByPerson\(\)/);
 });
 test('H-06 overview keeps result sharing to one compact status row and puts identity information last',()=>{
@@ -1099,6 +1107,13 @@ test('H-06 share history says the common facts once and reuses the review table'
   assert.match(detail,/<dt>Nội dung chia sẻ<\/dt>/);
   assert.match(detail,/<dt>Cách xem kết quả<\/dt>/);
   assert.match(detail,/entry\.by&&entry\.by\.domain\?shareHistoryName\(entry\.by\.domain,entry\.by\.name\):'HR'/);
+  // cả bốn dòng chung dùng cùng grid nhãn - nội dung, đứng trước disclosure
+  assert.match(detail,/const noteRow=entry\.note\?`<dt>Ghi chú của HR<\/dt><dd>\$\{escapeResultShare\(entry\.note\)\}<\/dd>`:'';/);
+  assert.match(detail,/\$\{channelRow\}\$\{noteRow\}<\/dl>`[\s\S]{0,80}\$\{shareHistoryDetailHTML\(entry\)\}/);
+  assert.match(detail,/\.share-history-dl dt\{color:var\(--z500\);font-size:11px;font-weight:400\}/);
+  assert.match(detail,/\.share-history-dl dt::after\{content:':'\}/);
+  assert.match(detail,/\.share-history-dl dd\{margin:0;color:var\(--z900\);font-size:12px;font-weight:400\}/);
+  assert.doesNotMatch(detail,/share-history-note/);
   /* Bảng đã nói kết quả của ai rơi vào tay ai, nên phần chung không lặp lại danh
      sách người nhận - đó chính là thứ gây rối mắt ở bản trước. */
   assert.doesNotMatch(detail,/<dt>Kết quả của<\/dt>/);
@@ -1113,6 +1128,18 @@ test('H-06 share history says the common facts once and reuses the review table'
   assert.match(detail,/function shareReviewTableHTML\(\)\{[\s\S]{0,220}shareAudienceTableHTML\(\{ids:shareParticipantIds\(\)/);
   assert.match(detail,/function shareHistoryTableHTML\(entry\)[\s\S]{0,900}return shareAudienceTableHTML\(\{ids,toRecipient:targets\.toRecipient/);
   assert.match(detail,/<th class="share-table-index">#<\/th><th>Người nhận phản hồi<\/th>/);
+  // danh sách chi tiết mặc định thu gọn; số đếm là người thực tế được chia sẻ
+  assert.match(detail,/function shareHistoryDetailHTML\(entry\)/);
+  assert.match(detail,/function shareHistoryViewerCount\(entry\)/);
+  assert.match(detail,/if\(targets\.toRecipient\)ids\.forEach\(id=>add\(id\)\)/);
+  assert.match(detail,/\(targets\.managerLevels\|\|\[\]\)\.forEach\(level=>/);
+  assert.match(detail,/\(targets\.extraViewers\|\|\[\]\)\.forEach\(viewer=>add\(viewer\.domain,viewer\.name\)\)/);
+  assert.match(detail,/<details class="share-history-detail"><summary><span class="share-history-toggle">/);
+  assert.match(detail,/<span>Xem danh sách chi tiết<\/span><i class="bx bx-chevron-down"><\/i><\/span>/);
+  assert.match(detail,/<span class="share-history-count">\$\{count\} người được chia sẻ<\/span>/);
+  assert.doesNotMatch(detail,/<details class="share-history-detail" open>/);
+  assert.match(detail,/shareHistoryDetailHTML\(entry\)/);
+  assert.match(detail,/\.share-history-detail\[open\] \.share-history-toggle i\{transform:rotate\(180deg\)\}/);
   // cách xem viết chung một câu theo vai trò, không lặp lại ở từng hàng
   assert.match(detail,/function shareHistoryChannelText\(entry\)/);
   assert.match(detail,/if\(hasEmail&&hasSystem\)return 'Cấp quản lý xem trên hệ thống, người khác không thuộc phạm vi quản lý nhân viên xem file đính kèm gửi qua email';/);
@@ -1123,10 +1150,11 @@ test('H-06 share history says the common facts once and reuses the review table'
      phải mang theo targets và note, nếu không lịch sử cũ mất bảng lẫn ghi chú. */
   assert.match(detail,/targets:sharing\.targets/);
   assert.match(detail,/note:sharing\.note\}\]/);
-  /* Cả review và lịch sử đều kể "ai đã nhận kết quả", nên người chỉ nhận file qua
-     email cũng đứng trong cột `Người khác`; hai chỗ dùng chung đúng một hàm dựng. */
+  /* Cả review và lịch sử đều kể "ai đã nhận kết quả" bằng cùng một bảng; danh sách
+     Người khác là dữ liệu chung nên xuất hiện đúng một lần trong ô gộp. */
   assert.doesNotMatch(detail,/includeEmailViewers/);
-  assert.match(detail,/const viewersFor=id=>extraViewers\.filter\(viewer=>viewer\.domain\|\|viewer\.name\)/);
+  assert.match(detail,/const otherViewers=extraViewers\.filter\(viewer=>viewer\.domain\|\|viewer\.name\)/);
+  assert.match(detail,/<td rowspan="\$\{ids\.length\}" class="share-table-shared">/);
   assert.doesNotMatch(detail,/Người nhận file qua email/);
   assert.doesNotMatch(detail,/function shareHistoryEmailViewers/);
   // câu chữ nội dung chia sẻ viết một lần, dùng chung với bước xem lại
@@ -1182,6 +1210,7 @@ test('seed programs demo repeated sharing with a different audience each round',
   assert.equal(s9.length,2);
   assert.notEqual(s9[0].at,s9[1].at);
   assert.ok(s9.every(entry=>entry.at.startsWith('22/01/2026')));
+  assert.ok(s9.some(entry=>entry.participantIds.length>=5&&entry.participantIds.length<=10),'demo cần một lần chia sẻ cho 5-10 người nhận');
 });
 
 test('design system documents the required result-sharing audience and identity context',()=>{
@@ -1190,6 +1219,8 @@ test('design system documents the required result-sharing audience and identity 
   assert.match(designSystem,/Người khác/);
   assert.match(designSystem,/Danh tính người cho phản hồi/);
   assert.match(designSystem,/không lặp metadata mô tả dưới các option/);
+  assert.match(designSystem,/ba option <b>Quản lý trực tiếp<\/b>.*chỉ hiển thị nhãn vai trò/);
+  assert.match(designSystem,/gộp cột này thành một ô theo chiều dọc/);
   assert.match(designSystem,/Status chia sẻ kết quả trong panel tổng quan hiển thị một hàng/);
   assert.match(designSystem,/Chip người đã chọn đứng trên ô tìm kiếm/);
 });

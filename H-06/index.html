@@ -57,8 +57,9 @@
 .confirm-dialog.share-dialog{width:min(560px,100%)}.confirm-actions .btn-primary{height:30px;padding:0 10px;border-color:var(--brand);background:var(--brand);color:#fff;font-size:11.5px;font-weight:600}.confirm-actions .btn-primary:hover{background:#8d0056;border-color:#8d0056}.share-audience-option{align-items:center;min-height:38px;padding:8px 10px}.share-audience-option input{margin-top:0}.share-audience-option small{display:none}.share-audience-option strong{font-size:12px}.share-people-picker{position:relative}.share-viewer-suggestions{position:absolute;z-index:80;top:calc(100% + 4px);left:0;right:0;max-height:178px;overflow-y:auto;border:1px solid var(--z200);border-radius:6px;background:#fff;box-shadow:0 8px 20px rgba(24,24,27,.12)}.share-viewer-suggestion{width:100%;padding:8px 10px;border:0;border-bottom:1px solid var(--z100);background:#fff;color:var(--z700);font:inherit;font-size:12px;text-align:left}.share-viewer-suggestion:last-child{border-bottom:0}.share-viewer-suggestion:hover{background:var(--z50)}.share-viewer-suggestion strong{font-weight:600;color:var(--z900)}.share-viewer-suggestion .domain{margin-left:4px;font-size:12px}.share-viewer-empty{padding:8px 10px;color:var(--z500);font-size:11.5px}.share-viewer-chips{margin-top:7px}
 .confirm-dialog.share-history-dialog{width:min(980px,100%)}/* Bước xem lại là một bảng 5-6 cột, hẹp như form thì cột cuối bị cắt. Dùng selector
    kèm id vì .share-dialog còn được nới/thu ở nhiều chỗ phía dưới trong cùng file. */
-#resultDialogSurface.share-review-dialog{width:min(980px,100%)}#resultDialogSurface.share-review-dialog .confirm-title{margin-bottom:10px}#resultDialogSurface.share-review-dialog .confirm-copy{margin-top:0}#resultDialogSurface.share-review-dialog .share-section{margin-top:12px}#resultDialogSurface.share-review-dialog .share-section-label{margin-bottom:6px}.share-history-link{padding:0;border:0;background:transparent;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}.share-history-link:hover{color:var(--brand-h,#8b0055)}.share-log-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.share-log-row{display:flex;gap:6px;font-size:12px;color:var(--z700)}.share-log-turn{flex:none;color:var(--z600);font-weight:600}.share-log-when{color:var(--z600);font-variant-numeric:tabular-nums}.share-history-list{display:flex;flex-direction:column;gap:10px}.share-history-card{padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:var(--z50)}.share-history-turn{margin-bottom:6px;color:var(--z900);font-size:12px;font-weight:700}.share-history-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.share-history-when{color:var(--z600);font-size:11.5px;font-variant-numeric:tabular-nums}.share-history-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px}.share-history-plain{color:var(--z700);font-size:12px}.share-history-note{margin-top:8px;color:var(--z700);font-size:11.5px;line-height:1.5}.share-history-note span{display:block;color:var(--z500);font-size:11px}.share-history-dl dt{color:var(--z500);font-size:11px}.share-history-dl dd{margin:0;color:var(--z900);font-size:12px}
+#resultDialogSurface.share-review-dialog{width:min(980px,100%)}#resultDialogSurface.share-review-dialog .confirm-title{margin-bottom:10px}#resultDialogSurface.share-review-dialog .confirm-copy{margin-top:0}#resultDialogSurface.share-review-dialog .share-section{margin-top:12px}#resultDialogSurface.share-review-dialog .share-section-label{margin-bottom:6px}.share-review-meta{display:flex;flex-direction:column;gap:6px;margin-top:16px}.share-review-meta-row{display:grid;grid-template-columns:132px minmax(0,1fr);gap:10px;color:var(--z900);font-size:12.5px;line-height:1.5}.share-review-meta-row strong{color:var(--z900);font-weight:600}.share-history-link{padding:0;border:0;background:transparent;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}.share-history-link:hover{color:var(--brand-h,#8b0055)}.share-log-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.share-log-row{display:flex;gap:6px;font-size:12px;color:var(--z700)}.share-log-turn{flex:none;color:var(--z600);font-weight:600}.share-log-when{color:var(--z600);font-variant-numeric:tabular-nums}.share-history-list{display:flex;flex-direction:column;gap:10px}.share-history-card{padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:var(--z50)}.share-history-turn{margin-bottom:6px;color:var(--z900);font-size:12px;font-weight:700}.share-history-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.share-history-when{color:var(--z600);font-size:11.5px;font-variant-numeric:tabular-nums}.share-history-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}.share-history-plain{color:var(--z700);font-size:12px}.share-history-dl dt{color:var(--z500);font-size:11px;font-weight:400}.share-history-dl dt::after{content:':'}.share-history-dl dd{margin:0;color:var(--z900);font-size:12px;font-weight:400}
 .summary-share{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-top:14px;padding:10px 0 0;border:0;border-top:1px solid var(--z200);border-radius:0;background:transparent}.summary-share-status{font-size:11.5px;font-weight:600;color:var(--z800)}.share-status-done{color:var(--brand)}.summary-share-meta{margin-top:3px;color:var(--z500);font-size:10.5px;line-height:1.45}.share-meta-list{margin:5px 0 0;padding-left:15px;display:grid;gap:3px}.share-meta-list li{line-height:1.4}.summary-share-action{margin:0}.summary-share-action .btn-share{height:30px;font-size:11.5px;width:100%;justify-content:center}
+.share-history-detail{margin-top:10px;border-top:1px solid var(--z200)}.share-history-detail>summary{display:flex;align-items:center;gap:8px;padding:9px 0 0;list-style:none;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer}.share-history-detail>summary::-webkit-details-marker{display:none}.share-history-toggle{display:inline-flex;align-items:center;gap:2px}.share-history-toggle i{color:var(--brand);font-size:16px;transition:transform .12s}.share-history-detail[open] .share-history-toggle i{transform:rotate(180deg)}.share-history-count{color:var(--z500);font-weight:400}.share-history-table{margin-top:8px}
 .share-extra-viewers{margin-top:7px}.share-viewer-chips{margin:0 0 6px}.share-viewer-chip{gap:7px;padding:4px 6px 4px 5px;border-color:var(--brand-ring);background:var(--brand-muted);color:var(--z700);font-size:12px}.share-viewer-avatar{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:9px;font-weight:700;flex:none}.share-viewer-chip button{width:18px;height:18px;border-radius:50%;font-size:13px}.share-viewer-chip button:hover{background:#fff;color:var(--err)}
 .rating-answer,.self-assessment-tag{display:inline-flex;align-items:center;min-height:22px;margin-top:6px;padding:2px 6px;border:1px solid var(--z200);border-radius:4px;background:var(--z50);color:var(--z600);font-size:10.5px;font-weight:600;line-height:1.35}.rating-answer{color:var(--brand);border-color:var(--brand-ring);background:var(--brand-muted)}.self-assessment-tag{margin:0 0 0 6px;vertical-align:middle;font-weight:500}
 </style>
@@ -250,25 +251,9 @@ function shareTargets(){
   const state=RESULT_SHARE_STATE;
   return {toRecipient:state.toRecipient,managerLevels:state.managerLevels.slice(),extraViewers:state.extraViewers.slice()};
 }
-/* Những con người thật đứng sau một cấp quản lý, gộp theo domain. Chia sẻ cho nhiều
-   nhân viên thì một cấp có thể ra nhiều người khác nhau. */
-function shareLevelPeople(level){
-  return FeedbackProgramModel.resolveShareRecipients(shareParticipantIds(),{managerLevels:[level]});
-}
-/* "Lê Thị Thanh (thanh.le)" - luôn kèm domain để HR biết chính xác là ai. */
+/* Dùng cho cảnh báo người ngoài phạm vi quản lý; tên người trong các option cấp quản lý
+   luôn được giữ lại cho bước xem lại. */
 function sharePersonText(entry){return `${entry.name} (${entry.domain})`;}
-/* Chỉ nêu đích danh khi đang chia sẻ cho ĐÚNG MỘT người nhận - lúc đó mỗi cấp là một
-   người, đọc một dòng là đủ. Từ hai người nhận trở lên, mỗi cấp đã ra nhiều người khác
-   nhau nên liệt kê ở đây vừa dài vừa không giúp quyết định gì; chỗ soi đủ danh sách là
-   bước xem lại trước khi chia sẻ. */
-function shareOneRecipientOnly(){return shareParticipantIds().length===1;}
-function shareLevelSummary(level){
-  /* Chưa tick ai thì để trống: nhắc "chọn người nhận ở trên" là nói lại thứ người dùng
-     vừa nhìn thấy, và ba dòng nhắc giống hệt nhau chỉ làm ô chọn dài ra. */
-  if(!shareOneRecipientOnly())return '';
-  const people=shareLevelPeople(level);
-  return people.length?people.map(sharePersonText).join(', '):'Không tìm thấy người ở cấp này';
-}
 function toggleShareLevel(level){
   const list=RESULT_SHARE_STATE.managerLevels,index=list.indexOf(level);
   if(index>=0)list.splice(index,1); else list.push(level);
@@ -296,9 +281,8 @@ function shareOutsideNoteHTML(){
     `<b>${escapeResultShare(sharePersonText(entry))}</b>`).join(', ')} không quản lý một số người trong danh sách, nên với những người đó họ ${escapeResultShare(FeedbackProgramModel.channelNote('emailOnly')).replace('Ngoài phạm vi quản lý - ','')}.</span></div>`;
 }
 /* ── Bước xem lại trước khi chia sẻ ──────────────────────────────────────
-   Form chỉ nói HR CHỌN GÌ; bước này nói việc đó DẪN TỚI AI. Đây cũng là chỗ trả
-   nợ câu "(xem danh sách ở bước sau)" ở form: mọi cấp quản lý được bung ra thành
-   người thật kèm domain, và ai không xem được trên hệ thống thì nói thẳng. */
+   Form chỉ nói HR CHỌN VAI TRÒ GÌ; bước này mới bung mỗi cấp quản lý thành người
+   thật kèm domain, và nói rõ ai không xem được trên hệ thống. */
 var SHARE_REVIEW={ids:[],closeIds:[]};
 function shareReviewPersonText(domain){
   const person=(typeof OrgChain!=='undefined')?OrgChain.person(domain):null;
@@ -336,12 +320,10 @@ function shareAudienceTableHTML(plan){
   const M=FeedbackProgramModel,ids=plan.ids||[],extraViewers=plan.extraViewers||[];
   const levels=M.MANAGER_LEVELS.filter(level=>(plan.managerLevels||[]).includes(level));
   const columns=levels.map(level=>({key:level,label:M.recipientRoleLabel(level)}));
-  /* Người khác mà HR đã chọn thì luôn đứng trong bảng, kể cả người chỉ nhận file qua
-     email. Trước đây bảng xem lại lọc bỏ họ nên cùng một người vừa được chọn lại hiện
-     "Không có" ở vài hàng - HR tưởng mình chọn hụt. Cách xem đã được nói một lần ở
-     dòng chung, nên trong ô không ghi lại. */
-  const viewersFor=id=>extraViewers.filter(viewer=>viewer.domain||viewer.name);
-  if(ids.some(id=>viewersFor(id).length))columns.push({key:'other',label:'Người khác'});
+  /* Người khác là cùng một danh sách cho toàn bộ người nhận trong lần chia sẻ. Chỉ dựng
+     một ô gộp theo chiều dọc để tránh lặp lại nguyên danh sách ở từng hàng. */
+  const otherViewers=extraViewers.filter(viewer=>viewer.domain||viewer.name);
+  if(otherViewers.length)columns.push({key:'other',label:'Người khác'});
   const head=`<tr><th class="share-table-index">#</th><th>Người nhận phản hồi</th>`
     +columns.map(column=>`<th>${escapeResultShare(column.label)}</th>`).join('')+`</tr>`;
   const rows=ids.map((id,index)=>{
@@ -350,8 +332,8 @@ function shareAudienceTableHTML(plan){
       +(plan.toRecipient?'<span class="share-table-self">Tự xem kết quả của mình</span>':'');
     const cells=columns.map(column=>{
       if(column.key==='other'){
-        const viewers=viewersFor(id);
-        return `<td>${viewers.length?viewers.map(viewer=>shareReviewPersonCell(viewer.domain,sharePersonName(viewer.domain,viewer.name),'')).join(''):'<span class="share-table-empty">Không có</span>'}</td>`;
+        if(index>0)return '';
+        return `<td rowspan="${ids.length}" class="share-table-shared">${otherViewers.map(viewer=>shareReviewPersonCell(viewer.domain,sharePersonName(viewer.domain,viewer.name),'')).join('')}</td>`;
       }
       const found=chain.find(entry=>entry.role===column.key);
       return `<td>${found?shareReviewPersonCell(found.domain,sharePersonName(found.domain,found.name),''):'<span class="share-table-empty">Không có</span>'}</td>`;
@@ -370,25 +352,29 @@ function shareReviewHTML(){
   const content=shareContentText(RESULT_SHARE_STATE.contentLevel);
   const note=RESULT_SHARE_STATE.note.trim()
     ?`<section class="share-section"><span class="share-section-label">Ghi chú của HR</span><div class="share-review-text">${escapeResultShare(RESULT_SHARE_STATE.note.trim())}</div></section>`:'';
-  /* Không nhắc lại cảnh báo đóng yêu cầu: form ở bước trước đã nói, và nút xác nhận
-     vẫn ghi rõ "Đóng & chia sẻ kết quả". */
+  /* Không nhắc lại cảnh báo đóng yêu cầu: form ở bước trước đã nói. CTA bước xem lại
+     chỉ gọi đúng hành động chính là chia sẻ kết quả; logic đóng yêu cầu vẫn chạy ngầm. */
   /* Bảng nói AI xem kết quả của ai; dòng này nói XEM BẰNG CÁCH NÀO. Dùng chung đúng
      một hàm với lịch sử để hai bước không kể hai câu chuyện khác nhau. */
   const channel=shareChannelText(ids,shareTargets());
-  const channelBlock=channel?`<section class="share-section"><span class="share-section-label">Cách xem kết quả</span>`
-    +`<div class="share-review-text">${escapeResultShare(channel)}</div></section>`:'';
-  return `<section class="share-section"><span class="share-section-label">Ai xem kết quả của ai</span>`
-    +`${shareReviewTableHTML()}</section>${channelBlock}`
-    +`<section class="share-section"><span class="share-section-label">Nội dung chia sẻ</span>`
-    +`<div class="share-review-text">${content}</div></section>${note}`;
+  const channelRow=channel?`<div class="share-review-meta-row"><strong>Cách xem kết quả:</strong>`
+    +`<span>${escapeResultShare(channel)}</span></div>`:'';
+  const meta=`<div class="share-review-meta">${channelRow}<div class="share-review-meta-row">`
+    +`<strong>Nội dung chia sẻ:</strong><span>${content}</span></div></div>`;
+  return `${meta}<section class="share-section"><span class="share-section-label">Danh sách chia sẻ kết quả phản hồi</span>`
+    +`${shareReviewTableHTML()}</section>${note}`;
 }
 function renderShareReview(){
   document.getElementById('resultDialogSurface').classList.add('share-review-dialog');
   document.getElementById('resultDialogTitle').textContent='Xem lại trước khi chia sẻ';
   document.getElementById('resultDialogCopy').textContent='Hãy kiểm tra danh sách thật kỹ trước khi gửi. Kết quả đã chia sẻ sẽ không thể thu hồi.';
-  document.getElementById('shareResultSettings').innerHTML=shareReviewHTML();
+  const settings=document.getElementById('shareResultSettings');
+  settings.innerHTML=shareReviewHTML();
+  /* Form trước đó có thể đang cuộn ở cuối. Bước xem lại là một nội dung mới nên luôn
+     bắt đầu từ tiêu đề và header bảng, không kế thừa vị trí cuộn của form. */
+  settings.scrollTop=0;
   const confirm=document.getElementById('resultDialogConfirm');
-  confirm.textContent=SHARE_REVIEW.closeIds.length?'Đóng & chia sẻ kết quả':'Xác nhận chia sẻ';
+  confirm.textContent='Chia sẻ kết quả';
   PENDING_DIALOG=()=>{
     if(SHARE_REVIEW.closeIds.length)closeRecipientsQuietly(SHARE_REVIEW.closeIds);
     confirmResultShare(SHARE_REVIEW.ids,{targets:shareTargets(),by:shareByPerson(),at:shareStamp(),
@@ -437,12 +423,11 @@ function goToShareReview(){
 }
 function renderResultShareSettings(){
   const settings=document.getElementById('shareResultSettings'),state=RESULT_SHARE_STATE,M=FeedbackProgramModel;
-  /* Ba cấp quản lý là BA lựa chọn riêng, mỗi lựa chọn nói rõ đang là ai kèm domain.
-     Hai cấp có thể trỏ về cùng một người - đó là tổ chức thật, vẫn giữ đủ ba dòng. */
+  /* Ba cấp quản lý là BA lựa chọn riêng. Form chỉ chọn vai trò; danh sách người cụ thể
+     luôn để ở bước xem lại, kể cả khi phạm vi chỉ có một người nhận phản hồi. */
   const levelOptions=M.MANAGER_LEVELS.map(level=>`<label class="share-audience-option ${state.managerLevels.includes(level)?'on':''}">`
     +`<input type="checkbox" ${state.managerLevels.includes(level)?'checked':''} onchange="toggleShareLevel('${level}')"/>`
-    +`<span><strong>${escapeResultShare(M.recipientRoleLabel(level))}${shareParticipantIds().length&&!shareOneRecipientOnly()?' <span class="share-option-hint">(xem danh sách ở bước sau)</span>':''}</strong>`
-    +`${shareLevelSummary(level)?`<span class="share-level-people">${escapeResultShare(shareLevelSummary(level))}</span>`:''}</span></label>`).join('');
+    +`<span><strong>${escapeResultShare(M.recipientRoleLabel(level))}</strong></span></label>`).join('');
   settings.innerHTML=`${shareScopeSectionHTML()}<section class="share-section">`
     +`<span class="share-section-label">Ai được xem kết quả?</span>`
     +`<div class="share-audience-options share-audience-multi">`
@@ -567,19 +552,43 @@ function shareHistoryTableHTML(entry){
   return shareAudienceTableHTML({ids,toRecipient:targets.toRecipient,
     managerLevels:targets.managerLevels,extraViewers:targets.extraViewers});
 }
+/* Đếm người THỰC SỰ nhận quyền xem, không đếm số kết quả được chia sẻ. Một người
+   xuất hiện ở nhiều vai (ví dụ vừa là quản lý trực tiếp của người này, vừa là
+   trưởng đơn vị của người khác) vẫn chỉ tính một lần. */
+function shareHistoryViewerCount(entry){
+  const targets=shareHistoryTargets(entry),ids=shareHistoryParticipantIds(entry),viewers=new Set();
+  const add=(domain,name)=>{const key=domain||String(name||'').trim().toLocaleLowerCase('vi');if(key)viewers.add(key);};
+  if(targets.toRecipient)ids.forEach(id=>add(id));
+  ids.forEach(id=>{
+    const chain=(typeof OrgChain!=='undefined')?OrgChain.chainFor(id):[];
+    (targets.managerLevels||[]).forEach(level=>{
+      const person=chain.find(item=>item.role===level);
+      if(person)add(person.domain,person.name);
+    });
+  });
+  (targets.extraViewers||[]).forEach(viewer=>add(viewer.domain,viewer.name));
+  return viewers.size;
+}
+function shareHistoryDetailHTML(entry){
+  const count=shareHistoryViewerCount(entry);
+  return `<details class="share-history-detail"><summary><span class="share-history-toggle">`
+    +`<span>Xem danh sách chi tiết</span><i class="bx bx-chevron-down"></i></span>`
+    +`<span class="share-history-count">${count} người được chia sẻ</span></summary>`
+    +`<div class="share-history-table">${shareHistoryTableHTML(entry)}</div></details>`;
+}
 /* Bảng đã nói kết quả của ai rơi vào tay ai, nên phần chung không lặp lại danh sách
    người nhận nữa - chỉ giữ những thứ bảng KHÔNG nói được. */
 function shareHistoryCardHTML(entry,index){
   const by=entry.by&&entry.by.domain?shareHistoryName(entry.by.domain,entry.by.name):'HR';
   const channel=shareHistoryChannelText(entry);
   const channelRow=channel?`<dt>Cách xem kết quả</dt><dd>${escapeResultShare(channel)}</dd>`:'';
-  const note=entry.note?`<div class="share-history-note"><span>Ghi chú của HR</span>${escapeResultShare(entry.note)}</div>`:'';
+  const noteRow=entry.note?`<dt>Ghi chú của HR</dt><dd>${escapeResultShare(entry.note)}</dd>`:'';
   return `<div class="share-history-card"><div class="share-history-head">`
     +`<span class="share-history-turn">Lần ${index+1}</span><span class="share-history-when">${escapeResultShare(entry.at||'—')}</span></div>`
     +`<dl class="share-history-dl"><dt>Người chia sẻ</dt><dd>${escapeResultShare(by)}</dd>`
     +`<dt>Nội dung chia sẻ</dt><dd>${escapeResultShare(shareContentText(entry.contentLevel))}</dd>`
-    +`${channelRow}</dl>`
-    +`${shareHistoryTableHTML(entry)}${note}</div>`;
+    +`${channelRow}${noteRow}</dl>`
+    +`${shareHistoryDetailHTML(entry)}</div>`;
 }
 function openShareHistory(){
   const sharing=PROGRAM.resultSharing||{};
