@@ -333,7 +333,7 @@ test('the request tab teaches the feature when empty, and the CTA names the job'
   assert.ok(html.includes('role="tooltip">Yêu cầu này không còn nhận phản hồi do đã quá 90 ngày hoặc được Người yêu cầu đóng hoặc người liên quan đã nghỉ việc.'));
 });
 
-test('managers can download received feedback per employee or in bulk, within their own scope', () => {
+test('manager bulk download chooses employees and content before the privacy confirmation', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
 
   // icon tải ở từng dòng, cạnh icon xem — có tooltip tên nút
@@ -346,14 +346,27 @@ test('managers can download received feedback per employee or in bulk, within th
   // nút header mở hộp thoại chọn phạm vi, dùng lại visual của H-06
   // nút tải nằm trong thanh công cụ của tab, ngay cạnh ô tìm kiếm — không còn ở header trang
   assert.ok(html.includes('<div class="list-actions"><button type="button" class="btn btn-outline" id="headerDownload"'));
+  assert.ok(html.includes('id="headerDownload" aria-label="Tải dữ liệu phản hồi" title="Tải dữ liệu phản hồi"'));
   assert.ok(html.includes('onclick="openDownloadDialog()"'));
   assert.ok(html.includes('.list-actions #headerDownload{height:32px'));
   assert.ok(!html.includes('class="icon-btn" id="headerDownload"'), 'không còn nút tải kiểu icon ở header trang');
   // nút đã thuộc hẳn tab phản hồi nên bỏ luôn phần đổi nhãn theo tab
   assert.ok(!html.includes('function syncHeaderDownload'));
   assert.ok(html.includes('onclick="openDownloadDialog()"'));
-  assert.ok(html.includes('<strong>Tải toàn bộ (${list.length} nhân viên)</strong>'));
+  assert.ok(html.includes('<strong>Toàn bộ nhân viên đang hiển thị (${list.length})</strong>'));
   assert.ok(html.includes('<strong>Chọn từng nhân viên</strong>'));
+  assert.ok(html.includes('<span class="share-section-label">1. Chọn phạm vi tải</span>'));
+  assert.ok(html.includes('<span class="share-section-label">2. Chọn nội dung tải</span>'));
+  assert.ok(html.includes('<strong>Phản hồi nhân viên đã nhận</strong>'));
+  assert.ok(html.includes('<strong>Kết quả từ chương trình HR đã chia sẻ</strong>'));
+  assert.doesNotMatch(html, /<strong>Phản hồi đã nhận và kết quả từ HR<\/strong>|value="both"/);
+  assert.match(html, /type="checkbox" name="downloadContent" value="feedback"[\s\S]{0,180}toggleDownloadContent\('feedback'\)/);
+  assert.match(html, /type="checkbox" name="downloadContent" value="hr"[\s\S]{0,180}toggleDownloadContent\('hr'\)/);
+  assert.match(html, /function toggleDownloadContent\(content\)\{[\s\S]{0,220}DOWNLOAD_STATE\.contents\.push\(content\)/);
+  assert.doesNotMatch(html, /Áp dụng theo tab, bộ lọc và từ khóa tìm kiếm hiện tại|Chỉ tải dữ liệu của những nhân viên bạn chọn|Gồm các phản hồi nhân viên nhận được trong chu kỳ đang chọn|Chỉ gồm kết quả từ chương trình thu thập phản hồi do HR đã chia sẻ với bạn/);
+  assert.match(html, /DOWNLOAD_STATE=\{scope:'all',ids:\[\],contents:\['feedback'\],step:'settings'\}/);
+  assert.match(html, /content=DOWNLOAD_STATE\.contents\.length===2\?'both':DOWNLOAD_STATE\.contents\[0\]/);
+  assert.match(html, /function handleDownloadPrimary\(\)\{if\(DOWNLOAD_STATE\.step==='warning'\)confirmDownload\(\);else\{DOWNLOAD_STATE\.step='warning';renderDownloadSettings\(\);\}\}/);
   const hr = fs.readFileSync(path.join(__dirname, '..', 'H-06', 'index.html'), 'utf8');
   ['.confirm-title{margin:-18px -18px 14px;padding:15px 18px;background:#fbe4f0', '.share-audience-option.on strong{color:var(--brand)}'].forEach(rule => {
     assert.ok(html.includes(rule), `hộp thoại tải thiếu rule của H-06: ${rule}`);
@@ -364,14 +377,24 @@ test('managers can download received feedback per employee or in bulk, within th
   assert.match(html, /function currentEmployees\(\)/);
   assert.match(html, /function renderEmployees\(\)\{\s*const items=currentEmployees\(\);/);
   assert.match(html, /return currentEmployees\(\)\.filter\(emp=>visibleFeedbackForManager\(emp\.id\)\.length\|\|hrReportCount\(emp\.login\)\)/);
-  assert.match(html, /function downloadFeedback\(ids\)\{[\s\S]{0,200}currentEmployees\(\)\.filter/);
+  assert.match(html, /function downloadFeedback\(ids,content='both'\)\{[\s\S]{0,200}currentEmployees\(\)\.filter/);
 
-  /* Kết quả từ HR đi kèm nhưng tách sheet riêng, và nói rõ điều đó trong hộp thoại.
-     Một đối tượng chỉ được gọi bằng MỘT tên trên mọi màn (DESIGN-SYSTEM §19.17): HR chia sẻ
-     "kết quả" nên màn quản lý cũng gọi là kết quả, không gọi là báo cáo. */
-  assert.match(html, /kết quả từ HR ở sheet riêng/);
-  assert.match(html, /Kết quả do HR chia sẻ được tách thành sheet riêng/);
+  /* Hai checkbox cho phép chọn riêng từng loại hoặc tải đồng thời cả hai. Không gọi kết
+     quả từ HR là "báo cáo". */
+  assert.match(html, /content==='hr'\?0:picked\.reduce/);
+  assert.match(html, /content==='feedback'\?0:picked\.reduce/);
   assert.doesNotMatch(html, /báo cáo HR|Báo cáo HR|Báo cáo phản hồi từ HR/);
+
+  /* Cảnh báo chỉ xuất hiện ở bước xác nhận, sau khi đã chọn xong. CTA xác nhận phải nói
+     rõ người dùng đã hiểu trách nhiệm bảo mật trước khi tải. */
+  assert.match(html, /if\(DOWNLOAD_STATE\.step==='warning'\)\{/);
+  assert.ok(html.includes('<p>Tài liệu này chứa <strong>thông tin cá nhân nhạy cảm</strong> và chỉ dành riêng cho <strong>nhân viên nhận phản hồi cùng các cấp quản lý có thẩm quyền</strong>.</p>'));
+  assert.ok(html.includes('<p>Nghiêm cấm mọi hành vi <strong>tiết lộ, sao chép hoặc phân phối trái phép</strong>.</p>'));
+  assert.ok(html.includes('<p>Bằng việc truy cập tài liệu này, bạn xác nhận trách nhiệm đảm bảo việc lưu trữ và sử dụng thông tin tuân thủ đúng các chính sách <strong>Bảo mật và Bảo vệ Dữ liệu của Công ty</strong>.</p>'));
+  assert.ok(html.includes('.download-warning-copy{display:grid;gap:7px}'));
+  assert.ok(html.includes('.download-warning-copy strong{color:var(--z900);font-weight:700}'));
+  assert.ok(html.includes('Tôi đã hiểu và tải'));
+  assert.match(html, /downloadFeedback\(ids,content\)/);
 
   // nút header nằm trên thanh tab nên phải tự đổi phạm vi theo tab đang mở
   // ba nơi xem phản hồi của một người đều tải được ngay tại chỗ, không cần quay về bảng

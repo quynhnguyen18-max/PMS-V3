@@ -49,12 +49,14 @@
 .confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 .confirm-actions .btn-primary{height:30px;padding:0 10px;border-color:var(--brand);background:var(--brand);color:#fff;font-size:11.5px;font-weight:600}
 .confirm-actions .btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.download-settings{min-height:0;overflow:auto;padding-right:2px}
 .share-section{margin-top:14px}
 .share-section-label{display:block;margin-bottom:7px;color:var(--z900);font-size:12.5px;font-weight:600}
 .share-audience-options{display:grid;gap:7px}
 .share-audience-option{display:grid;grid-template-columns:16px minmax(0,1fr);gap:7px;align-items:center;min-height:38px;padding:8px 10px;border:1px solid var(--z200);border-radius:6px;background:#fff;color:var(--z600);cursor:pointer}
 .share-audience-option:hover{background:var(--z50);border-color:var(--z300)}
 .share-audience-option.on{border-color:var(--brand);background:var(--brand-muted)}
+.share-audience-option.is-disabled{opacity:.5;cursor:not-allowed;background:var(--z50)}
 .share-audience-option strong{display:block;color:var(--z700);font-size:12px;font-weight:600}
 .share-audience-option.on strong{color:var(--brand)}
 .share-audience-option small{display:none}
@@ -71,7 +73,7 @@
 .dl-meta{display:block;margin-top:1px;color:var(--z500);font-size:11px}
 .dl-empty{padding:12px;border:1px dashed var(--z200);border-radius:6px;color:var(--z500);font-size:12px;text-align:center}
 .dl-note{display:flex;gap:6px;align-items:flex-start;margin-top:12px;font-size:11px;line-height:1.5;color:var(--z500)}
-.dl-note i{font-size:14px;margin-top:1px}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 96px 112px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 96px 112px}.report-cell{font-size:12px;color:var(--z600)}.report-none{color:var(--z400)}/* Kết quả từ HR: MỘT dòng, đứng cố định ở đầu thân popup. Nội dung không đọc được tại đây
+.dl-note i{font-size:14px;margin-top:1px}.download-summary{display:grid;gap:8px;margin-top:14px;padding:11px 12px;border:1px solid var(--z200);border-radius:7px;background:var(--z50)}.download-summary-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;font-size:12px;line-height:1.45}.download-summary-row span{color:var(--z500)}.download-summary-row strong{color:var(--z800);font-weight:600}.download-warning{display:flex;align-items:flex-start;gap:9px;margin-top:12px;padding:11px 12px;border:1px solid var(--brand-ring);border-radius:7px;background:var(--brand-muted);color:var(--z700);font-size:11.5px;line-height:1.55}.download-warning i{flex:none;margin-top:1px;color:var(--brand);font-size:16px}.download-warning-copy{display:grid;gap:7px}.download-warning-copy p{margin:0}.download-warning-copy strong{color:var(--z900);font-weight:700}.cols-lm2{grid-template-columns:minmax(240px,1fr) 180px 130px 96px 112px}.cols-hod{grid-template-columns:minmax(220px,1fr) 155px 155px 130px 96px 112px}.report-cell{font-size:12px;color:var(--z600)}.report-none{color:var(--z400)}/* Kết quả từ HR: MỘT dòng, đứng cố định ở đầu thân popup. Nội dung không đọc được tại đây
    nên dòng này chỉ làm hai việc - báo có bao nhiêu, và dẫn sang màn chi tiết. Vì chỉ là lối đi
    nên dùng xám trung tính, không lấy hồng của việc cần làm. */
 .hr-line{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--brand-ring);border-radius:7px;background:var(--brand-muted);font-size:12px;color:var(--z700)}
@@ -300,7 +302,7 @@
         </div>
       </section>
 
-      <div class="list-head"><div class="result-title" id="listTitle">Direct reports</div><span class="result-count" id="resultCount">0 nhân viên</span><div class="list-actions"><button type="button" class="btn btn-outline" id="headerDownload" aria-label="Tải phản hồi đã nhận" title="Tải phản hồi đã nhận" onclick="openDownloadDialog()"><i class="bx bx-download"></i></button><label class="search"><i class="bx bx-search"></i><input id="searchInput" placeholder="Tìm theo tên hoặc domain…" oninput="renderEmployees()"/></label><div class="filter-menu" id="filterMenu" style="display:none"><button class="btn btn-outline filter-toggle" id="filterToggle" onclick="toggleFilterPanel()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="filterCount">0</span></button><div class="filter-popover" id="filterPopover"><div class="filter-popover-grid"><select class="filter-select" id="filterDivision" onchange="renderEmployees()"></select><select class="filter-select" id="filterDepartment" onchange="renderEmployees()"></select><select class="filter-select" id="filterTeam" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager2" onchange="renderEmployees()"></select></div><div class="filter-popover-foot"><button class="btn btn-outline" onclick="clearFilters()">Xóa bộ lọc</button></div></div></div><button class="btn btn-outline" id="splitViewButton" aria-pressed="false" onclick="toggleSplitView()"><i class="bx bx-columns"></i> Split View</button></div></div>
+      <div class="list-head"><div class="result-title" id="listTitle">Direct reports</div><span class="result-count" id="resultCount">0 nhân viên</span><div class="list-actions"><button type="button" class="btn btn-outline" id="headerDownload" aria-label="Tải dữ liệu phản hồi" title="Tải dữ liệu phản hồi" onclick="openDownloadDialog()"><i class="bx bx-download"></i></button><label class="search"><i class="bx bx-search"></i><input id="searchInput" placeholder="Tìm theo tên hoặc domain…" oninput="renderEmployees()"/></label><div class="filter-menu" id="filterMenu" style="display:none"><button class="btn btn-outline filter-toggle" id="filterToggle" onclick="toggleFilterPanel()"><i class="bx bx-filter-alt"></i> Bộ lọc <span class="filter-count" id="filterCount">0</span></button><div class="filter-popover" id="filterPopover"><div class="filter-popover-grid"><select class="filter-select" id="filterDivision" onchange="renderEmployees()"></select><select class="filter-select" id="filterDepartment" onchange="renderEmployees()"></select><select class="filter-select" id="filterTeam" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager" onchange="renderEmployees()"></select><select class="filter-select" id="filterManager2" onchange="renderEmployees()"></select></div><div class="filter-popover-foot"><button class="btn btn-outline" onclick="clearFilters()">Xóa bộ lọc</button></div></div></div><button class="btn btn-outline" id="splitViewButton" aria-pressed="false" onclick="toggleSplitView()"><i class="bx bx-columns"></i> Split View</button></div></div>
       <div id="listView"><div class="employee-list" id="employeeList"></div></div>
       <div class="split-shell" id="splitShell"><aside class="split-list" id="splitEmployeeList"></aside><section class="split-pane"><header class="split-pane-head"><div class="split-pane-heading"><div class="split-pane-title">Phản hồi của <span id="splitEmployeeName" class="split-employee-name pms-tooltip" tabindex="0"><span id="splitEmployeeLabel"></span><span id="splitEmployeeTooltip" class="pms-tooltip-content" role="tooltip"></span></span></div><div class="split-overview" id="splitOverview"></div><div class="split-badge-summary" id="splitBadgeSummary" aria-label="Giá trị được ghi nhận"></div></div><button type="button" class="ai-entry" id="splitAiEntry" hidden onclick="toggleSplitAiSummary()" aria-expanded="false" aria-controls="splitAiSummary" aria-label="AI Summary"><span class="ai-entry-cta">Bấm xem tóm tắt nhanh</span><img src="../assets/mascot/think.png" alt=""/><span class="ai-entry-tip">AI Summary</span></button><button class="icon-btn" id="splitDownload" title="Tải phản hồi" aria-label="Tải phản hồi" onclick="downloadSelectedEmployee()"><i class="bx bx-download"></i></button><button class="icon-btn" title="Mở trong tab mới" onclick="openFeedbackTab()"><i class="bx bx-link-external"></i></button></header><div class="split-pane-body" id="splitFeedbackPane"></div></section></div>
       </section>
@@ -433,7 +435,7 @@
   </section>
 </div>
 
-<div class="dialog-overlay" id="downloadDialog" role="dialog" aria-modal="true" aria-labelledby="downloadDialogTitle" onclick="if(event.target===this)closeDownloadDialog()"><section class="confirm-dialog share-dialog"><div class="confirm-title" id="downloadDialogTitle">Tải phản hồi đã nhận</div><p class="confirm-copy">Tệp chỉ gồm những phản hồi bạn đang được xem trong phạm vi quản lý này.</p><div id="downloadSettings"></div><div class="dl-note"><i class="bx bx-info-circle"></i><span>Kết quả do HR chia sẻ được tách thành sheet riêng, có ghi rõ nguồn là chương trình của HR.</span></div><div class="confirm-actions"><button class="btn btn-primary" type="button" id="downloadConfirm" onclick="confirmDownload()"><i class="bx bx-download"></i> Tải xuống</button></div></section></div><div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
+<div class="dialog-overlay" id="downloadDialog" role="dialog" aria-modal="true" aria-labelledby="downloadDialogTitle" onclick="if(event.target===this)closeDownloadDialog()"><section class="confirm-dialog share-dialog"><div class="confirm-title" id="downloadDialogTitle">Tải dữ liệu phản hồi</div><p class="confirm-copy" id="downloadDialogCopy">Chọn nhân viên và loại nội dung bạn muốn tải.</p><div class="download-settings" id="downloadSettings"></div><div class="confirm-actions"><button class="btn btn-outline" type="button" id="downloadBack" onclick="backDownloadSettings()" hidden>Quay lại</button><button class="btn btn-primary" type="button" id="downloadConfirm" onclick="handleDownloadPrimary()"><i class="bx bx-right-arrow-alt"></i> Tiếp tục</button></div></section></div><div class="toast" id="toast"><i class="bx bx-check-circle"></i><span id="toastText"></span></div>
 
 <script src="../assets/employees-data.js"></script>
 <script src="manager-feedback-data.js"></script>
@@ -522,40 +524,84 @@ function setScope(scope){
 }
 /* Danh sách nhân viên ĐANG hiển thị: tab scope + bộ lọc + ô tìm kiếm.
    Bảng và chức năng tải dùng chung hàm này để phạm vi không bao giờ lệch nhau. */
-/* ── Tải phản hồi đã nhận ─────────────────────────────────────────────────
+/* ── Tải dữ liệu phản hồi ─────────────────────────────────────────────────
    Phạm vi tải LUÔN lấy từ đúng hàm lọc của màn hình (tab direct/indirect,
    bộ lọc, ô tìm kiếm) và đúng visibility — không truy vấn riêng, để tệp
    không bao giờ chứa nhiều hơn những gì quản lý đang được xem. */
-let DOWNLOAD_STATE={scope:'all',ids:[]};
+const DOWNLOAD_WARNING_HTML='<p>Tài liệu này chứa <strong>thông tin cá nhân nhạy cảm</strong> và chỉ dành riêng cho <strong>nhân viên nhận phản hồi cùng các cấp quản lý có thẩm quyền</strong>.</p><p>Nghiêm cấm mọi hành vi <strong>tiết lộ, sao chép hoặc phân phối trái phép</strong>.</p><p>Bằng việc truy cập tài liệu này, bạn xác nhận trách nhiệm đảm bảo việc lưu trữ và sử dụng thông tin tuân thủ đúng các chính sách <strong>Bảo mật và Bảo vệ Dữ liệu của Công ty</strong>.</p>';
+let DOWNLOAD_STATE={scope:'all',ids:[],contents:['feedback'],step:'settings'};
 function downloadableEmployees(){
   return currentEmployees().filter(emp=>visibleFeedbackForManager(emp.id).length||hrReportCount(emp.login));
+}
+function selectedDownloadEmployees(list=downloadableEmployees()){
+  return DOWNLOAD_STATE.scope==='some'?list.filter(emp=>DOWNLOAD_STATE.ids.includes(emp.id)):list;
+}
+function downloadContentCounts(list=selectedDownloadEmployees()){
+  return {
+    feedback:list.reduce((sum,emp)=>sum+visibleFeedbackForManager(emp.id).length,0),
+    hr:list.reduce((sum,emp)=>sum+hrReportCount(emp.login),0)
+  };
+}
+function normalizeDownloadContent(){
+  const counts=downloadContentCounts();
+  DOWNLOAD_STATE.contents=DOWNLOAD_STATE.contents.filter(content=>counts[content]);
+  if(!DOWNLOAD_STATE.contents.length){
+    if(counts.feedback)DOWNLOAD_STATE.contents=['feedback'];
+    else if(counts.hr)DOWNLOAD_STATE.contents=['hr'];
+  }
 }
 /* Nút tải giờ nằm ngay trong thanh công cụ của tab "Phản hồi nhân viên đã nhận",
    nên tự nó đã rõ phạm vi — không cần đổi nhãn theo tab như khi còn ở header trang. */
 function openDownloadDialog(){
-  DOWNLOAD_STATE={scope:'all',ids:[]};
+  DOWNLOAD_STATE={scope:'all',ids:[],contents:['feedback'],step:'settings'};
+  normalizeDownloadContent();
   renderDownloadSettings();
   document.getElementById('downloadDialog').classList.add('open');
 }
 function closeDownloadDialog(){document.getElementById('downloadDialog').classList.remove('open');}
-function setDownloadScope(scope){DOWNLOAD_STATE.scope=scope;renderDownloadSettings();}
-function toggleDownloadPerson(id){const at=DOWNLOAD_STATE.ids.indexOf(id);if(at>=0)DOWNLOAD_STATE.ids.splice(at,1);else DOWNLOAD_STATE.ids.push(id);renderDownloadSettings();}
+function setDownloadScope(scope){DOWNLOAD_STATE.scope=scope;normalizeDownloadContent();renderDownloadSettings();}
+function toggleDownloadContent(content){
+  const at=DOWNLOAD_STATE.contents.indexOf(content);
+  if(at>=0)DOWNLOAD_STATE.contents.splice(at,1);else DOWNLOAD_STATE.contents.push(content);
+  renderDownloadSettings();
+}
+function toggleDownloadPerson(id){const at=DOWNLOAD_STATE.ids.indexOf(id);if(at>=0)DOWNLOAD_STATE.ids.splice(at,1);else DOWNLOAD_STATE.ids.push(id);normalizeDownloadContent();renderDownloadSettings();}
+function downloadScopeLabel(targets){return DOWNLOAD_STATE.scope==='all'?`Toàn bộ ${targets.length} nhân viên đang hiển thị`:`${targets.length} nhân viên đã chọn`;}
+function downloadContentLabel(){const feedback=DOWNLOAD_STATE.contents.includes('feedback'),hr=DOWNLOAD_STATE.contents.includes('hr');return feedback&&hr?'Phản hồi đã nhận và kết quả từ HR':hr?'Kết quả từ chương trình HR đã chia sẻ':'Phản hồi nhân viên đã nhận';}
 function renderDownloadSettings(){
   const list=downloadableEmployees(),some=DOWNLOAD_STATE.scope==='some';
+  const targets=selectedDownloadEmployees(list),counts=downloadContentCounts(targets);
+  const title=document.getElementById('downloadDialogTitle'),copy=document.getElementById('downloadDialogCopy');
+  const confirm=document.getElementById('downloadConfirm'),back=document.getElementById('downloadBack');
+  if(DOWNLOAD_STATE.step==='warning'){
+    title.textContent='Xác nhận tải dữ liệu';
+    copy.textContent='Kiểm tra lại phạm vi và nội dung trước khi tải.';
+    document.getElementById('downloadSettings').innerHTML=`<div class="download-summary"><div class="download-summary-row"><span>Phạm vi</span><strong>${downloadScopeLabel(targets)}</strong></div><div class="download-summary-row"><span>Nội dung</span><strong>${downloadContentLabel()}</strong></div></div><div class="download-warning"><i class="bx bx-shield-quarter"></i><div class="download-warning-copy">${DOWNLOAD_WARNING_HTML}</div></div>`;
+    back.hidden=false;
+    confirm.disabled=false;
+    confirm.innerHTML='<i class="bx bx-download"></i> Tôi đã hiểu và tải';
+    return;
+  }
+  title.textContent='Tải dữ liệu phản hồi';
+  copy.textContent='Chọn nhân viên và loại nội dung bạn muốn tải.';
   const rows=list.map(emp=>{
     const on=DOWNLOAD_STATE.ids.indexOf(emp.id)>=0,count=visibleFeedbackForManager(emp.id).length,reports=hrReportCount(emp.login);
     const meta=[count?`${count} phản hồi`:'',reports?`${reports} kết quả từ HR`:''].filter(Boolean).join(' - ');
     return `<label class="dl-person${on?' on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleDownloadPerson('${emp.id}')"/><span class="avatar">${emp.ini}</span><span class="dl-info"><span class="dl-name">${emp.name}<span class="domain">(${emp.login})</span></span><span class="dl-meta">${meta}</span></span></label>`;
   }).join('');
   const block=list.length?`<div class="dl-list">${rows}</div>`:'<div class="dl-empty">Chưa có phản hồi nào để tải trong phạm vi này.</div>';
-  document.getElementById('downloadSettings').innerHTML=`<section class="share-section"><div class="share-audience-options"><label class="share-audience-option${some?'':' on'}"><input type="radio" name="downloadScope" ${some?'':'checked'} onchange="setDownloadScope('all')"/><span><strong>Tải toàn bộ (${list.length} nhân viên)</strong><small>Gồm mọi nhân viên đang hiển thị theo bộ lọc hiện tại.</small></span></label><label class="share-audience-option${some?' on':''}"><input type="radio" name="downloadScope" ${some?'checked':''} onchange="setDownloadScope('some')"/><span><strong>Chọn từng nhân viên</strong><small>Chỉ tải phản hồi của những người bạn chọn.</small></span></label></div></section><section class="share-section" ${some?'':'hidden'}><span class="share-section-label">Chọn nhân viên cần tải</span>${block}</section>`;
-  document.getElementById('downloadConfirm').disabled=!list.length||(some&&!DOWNLOAD_STATE.ids.length);
+  document.getElementById('downloadSettings').innerHTML=`<section class="share-section"><span class="share-section-label">1. Chọn phạm vi tải</span><div class="share-audience-options"><label class="share-audience-option${some?'':' on'}"><input type="radio" name="downloadScope" ${some?'':'checked'} onchange="setDownloadScope('all')"/><span><strong>Toàn bộ nhân viên đang hiển thị (${list.length})</strong></span></label><label class="share-audience-option${some?' on':''}"><input type="radio" name="downloadScope" ${some?'checked':''} onchange="setDownloadScope('some')"/><span><strong>Chọn từng nhân viên</strong></span></label></div></section><section class="share-section" ${some?'':'hidden'}><span class="share-section-label">Chọn nhân viên cần tải</span>${block}</section><section class="share-section"><span class="share-section-label">2. Chọn nội dung tải</span><div class="share-audience-options"><label class="share-audience-option${DOWNLOAD_STATE.contents.includes('feedback')?' on':''}${counts.feedback?'':' is-disabled'}"><input type="checkbox" name="downloadContent" value="feedback" ${DOWNLOAD_STATE.contents.includes('feedback')?'checked':''} ${counts.feedback?'':'disabled'} onchange="toggleDownloadContent('feedback')"/><span><strong>Phản hồi nhân viên đã nhận</strong></span></label><label class="share-audience-option${DOWNLOAD_STATE.contents.includes('hr')?' on':''}${counts.hr?'':' is-disabled'}"><input type="checkbox" name="downloadContent" value="hr" ${DOWNLOAD_STATE.contents.includes('hr')?'checked':''} ${counts.hr?'':'disabled'} onchange="toggleDownloadContent('hr')"/><span><strong>Kết quả từ chương trình HR đã chia sẻ</strong></span></label></div></section>`;
+  back.hidden=true;
+  confirm.innerHTML='<i class="bx bx-right-arrow-alt"></i> Tiếp tục';
+  confirm.disabled=!targets.length||!DOWNLOAD_STATE.contents.length||DOWNLOAD_STATE.contents.some(content=>!counts[content]);
 }
+function handleDownloadPrimary(){if(DOWNLOAD_STATE.step==='warning')confirmDownload();else{DOWNLOAD_STATE.step='warning';renderDownloadSettings();}}
+function backDownloadSettings(){DOWNLOAD_STATE.step='settings';renderDownloadSettings();}
 function confirmDownload(){
   const list=downloadableEmployees();
-  const ids=DOWNLOAD_STATE.scope==='some'?DOWNLOAD_STATE.ids:list.map(emp=>emp.id);
+  const ids=selectedDownloadEmployees(list).map(emp=>emp.id),content=DOWNLOAD_STATE.contents.length===2?'both':DOWNLOAD_STATE.contents[0];
   closeDownloadDialog();
-  downloadFeedback(ids);
+  downloadFeedback(ids,content);
 }
 /* Popup xem nhanh và Split View đều đang xem đúng một người — tải luôn người đó, khỏi hộp thoại. */
 function downloadSelectedEmployee(){if(STATE.selectedId)downloadFeedback([STATE.selectedId]);}
@@ -565,14 +611,16 @@ function syncViewerDownloadLabels(){
   ['splitDownload','dialogDownload'].forEach(id=>{const btn=document.getElementById(id);if(!btn)return;btn.title=label;btn.setAttribute('aria-label',label);});
 }
 /* Một đường ra duy nhất cho cả nút ở từng dòng lẫn hộp thoại, để phạm vi luôn tính giống nhau. */
-function downloadFeedback(ids){
+function downloadFeedback(ids,content='both'){
   const picked=currentEmployees().filter(emp=>ids.indexOf(emp.id)>=0);
   if(!picked.length){toast('Chưa có phản hồi nào để tải.');return;}
-  const feedback=picked.reduce((sum,emp)=>sum+visibleFeedbackForManager(emp.id).length,0);
-  const reports=picked.reduce((sum,emp)=>sum+hrReportCount(emp.login),0);
+  const feedback=content==='hr'?0:picked.reduce((sum,emp)=>sum+visibleFeedbackForManager(emp.id).length,0);
+  const reports=content==='feedback'?0:picked.reduce((sum,emp)=>sum+hrReportCount(emp.login),0);
   const who=picked.length===1?picked[0].name:`${picked.length} nhân viên`;
-  const parts=[`${feedback} phản hồi`];
-  if(reports)parts.push(`${reports} kết quả từ HR ở sheet riêng`);
+  const parts=[];
+  if(feedback)parts.push(`${feedback} phản hồi`);
+  if(reports)parts.push(`${reports} kết quả từ HR${content==='both'?' ở sheet riêng':''}`);
+  if(!parts.length){toast('Không có dữ liệu phù hợp để tải.');return;}
   toast(`Đang chuẩn bị tệp cho ${who} — ${parts.join(' - ')}.`);
 }
 function currentEmployees(){
