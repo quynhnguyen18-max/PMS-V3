@@ -421,11 +421,12 @@ test('answering a line-manager request shows one question and is always shared',
   // HR ghi rõ người nào của HR, quản lý ghi họ tên; cả hai đều kèm domain
   assert.match(html,/const requesterText = isHr\s*\?\s*`HR\$\{requester\.name\?` - \$\{requester\.name\}`:''\}\$\{dom\(requester\.dom\)\}`/);
   assert.match(html,/:\s*`\$\{requester\.name\}\$\{dom\(requester\.dom\)\}`;/);
-  // ngày và phạm vi xem đi cùng hàng metadata đó; ngày của phản hồi HR là lối vào history
-  assert.match(html,/const dateHTML=isHr\?`<button class="fb-meta-date fb-history-link"[\s\S]{0,180}openHrResponseRecord\('\$\{f\.id\}'\)[\s\S]{0,120}>\$\{date\}<\/button>`:`<span class="fb-meta-date">\$\{date\}<\/span>`/);
+  // ngày và phạm vi xem đi cùng hàng metadata đó; ngày chỉ là metadata, không kiêm lối vào history
+  assert.match(html,/const dateHTML=`<span class="fb-meta-date">\$\{date\}<\/span>`/);
+  assert.doesNotMatch(html,/fb-meta-date fb-history-link/);
   assert.match(html,/\$\{dateHTML\}\s*\$\{closedHTML\}\s*\$\{visIcon\(f\.vis,'sender'\)\}/);
   assert.match(html,/const more=\(!isHr\)\?'':rest\.length/);           // không có "Xem thêm"
-  assert.match(html,/\$\{isHr\?`<div class="hr-given-count"/);          // không có dòng đếm câu hỏi
+  assert.match(html,/\$\{isHr\?`<div class="hr-given-summary"><div class="hr-given-count"/); // không có dòng đếm câu hỏi
   assert.match(html,/\$\{isHr&&f\.program\?`<div class="fb-sub-line"/); // không có dòng mục tiêu
   // dữ liệu phải biết người của HR là ai, cả seed lẫn card sinh ra sau khi trả lời
   assert.match(html,/requester:\{name:'Lê Minh Thu', dom:'minhthu\.le', ini:'LT'\}/);
@@ -569,10 +570,17 @@ test('submitted HR answers stay in Given with review, edit and durable version h
   assert.doesNotMatch(html,/Thông tin sử dụng kết quả phản hồi/);
   assert.match(html,/hrAnswerReady\(RV\.item\)&&RV\.consent/);
 
-  // Đã cho vẫn là nơi lưu; history mở từ ngày trả lời, không thêm button history ở cuối card.
+  // Đã cho vẫn là nơi lưu; ngày trả lời giữ đúng nghĩa metadata, history tách thành một dòng nhỏ ở chân card.
   assert.match(html,/Xem tại Đã cho/);
   assert.match(html,/function openHrGivenFromSuccess\(recordId\)/);
-  assert.match(html,/fb-meta-date fb-history-link/);
+  assert.match(html,/const editCount=isHr\?Math\.max\(versions\.length-1,0\):0;/);
+  assert.match(html,/class="hr-edit-history"[\s\S]{0,160}>Lịch sử chỉnh sửa<\/button>/);
+  assert.match(html,/class="hr-given-summary">[\s\S]{0,220}Đã trả lời \$\{answers\.filter\(pair=>pair\.answer\)\.length\}\/\$\{answers\.length\} câu hỏi[\s\S]{0,80}\$\{historyHTML\}<\/div>/);
+  assert.match(html,/\.hr-given-summary\{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:8px;flex-wrap:wrap\}/);
+  assert.match(html,/\.hr-edit-history\{[^}]*border-left:1px solid var\(--z200\)[^}]*padding:0 0 0 12px[^}]*text-decoration:underline/);
+  assert.match(html,/\.hr-edit-history:hover,\.hr-edit-history:focus-visible\{color:var\(--brand\);text-decoration:underline\}/);
+  assert.match(html,/\$\{editHTML\?`<div class="req-actions">\$\{editHTML\}<\/div>`:''\}/);
+  assert.doesNotMatch(html,/hr-given-actions/);
   assert.doesNotMatch(html,/Xem lại & lịch sử/);
   assert.doesNotMatch(html,/hrResponseVersionMeta/);
   assert.match(html,/Chỉnh sửa câu trả lời/);

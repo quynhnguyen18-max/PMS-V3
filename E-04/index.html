@@ -245,7 +245,8 @@ input,select,textarea{font-family:inherit}
 .fb-av-hr{background:var(--brand);color:#fff}
 .fb-sub-line{margin-top:2px;color:var(--z500);font-size:11.5px}
 .hr-given-body{margin-top:9px}
-.hr-given-count{display:inline-flex;align-items:center;gap:5px;margin-bottom:8px;color:var(--z600);font-size:11.5px;font-weight:600}
+.hr-given-summary{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.hr-given-count{display:inline-flex;align-items:center;gap:5px;color:var(--z600);font-size:11.5px;font-weight:600}
 .hr-given-count i{font-size:14px;color:var(--brand)}
 .hr-given-empty{color:var(--z500);font-style:italic}
 .hr-given-rest{display:none;margin-top:10px}
@@ -452,8 +453,6 @@ input,select,textarea{font-family:inherit}
 .fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
 .fb-meta-date{font-size:11.5px;color:var(--z500)}
 .fb-meta-closed{font-size:11.5px;font-weight:500;color:var(--z600)}
-.fb-history-link{border:0;background:transparent;padding:0;text-decoration:underline;text-underline-offset:2px}
-.fb-history-link:hover{color:var(--brand)}
 /* Dòng "Yêu cầu phản hồi của ..." là metadata nên đi cùng hàng ngày tháng và phạm vi xem. */
 .fb-req-by{font-size:11.5px;color:var(--z500)}
 .fb-req-by b{color:var(--z700);font-weight:600}
@@ -498,6 +497,9 @@ input,select,textarea{font-family:inherit}
 .req-title{font-size:13.5px;font-weight:600;color:var(--z900);line-height:1.4}
 .req-actions{display:flex;gap:7px;margin-top:12px}
 .fb-card-hr .req-actions{justify-content:flex-end}
+.hr-edit-history{border:0;border-left:1px solid var(--z200);background:transparent;padding:0 0 0 12px;color:var(--z500);font-size:11.5px;line-height:1.45;text-decoration:underline;text-underline-offset:2px}
+.hr-edit-history:hover,.hr-edit-history:focus-visible{color:var(--brand);text-decoration:underline}
+.hr-edit-history:focus-visible{outline:2px solid var(--brand-ring);outline-offset:3px;border-radius:2px}
 .btn-outline-brand{border-color:var(--brand);background:var(--z0);color:var(--brand)}
 .btn-outline-brand:hover{background:var(--brand-muted)}
 
@@ -2078,8 +2080,12 @@ function cardGivenHrProgram(f){
   const requesterText = isHr
     ? `HR${requester.name?` - ${requester.name}`:''}${dom(requester.dom)}`
     : `${requester.name}${dom(requester.dom)}`;
-  const latest=isHr?hrResponseLatest(f):null,date=latest?String(latest.submittedAt||f.date).split(' ')[0]:f.date;
-  const dateHTML=isHr?`<button class="fb-meta-date fb-history-link" type="button" onclick="openHrResponseRecord('${f.id}')" aria-label="Xem lịch sử chỉnh sửa ngày ${date}">${date}</button>`:`<span class="fb-meta-date">${date}</span>`;
+  const versions=isHr?hrResponseVersions(f):[],firstVersion=versions[0]||null;
+  const date=firstVersion?String(firstVersion.submittedAt||f.date).split(' ')[0]:f.date;
+  const dateHTML=`<span class="fb-meta-date">${date}</span>`;
+  const editCount=isHr?Math.max(versions.length-1,0):0;
+  const historyHTML=editCount?`<button class="hr-edit-history" type="button" onclick="openHrResponseRecord('${f.id}')">Lịch sử chỉnh sửa</button>`:'';
+  const editHTML=isHr&&hrResponseCanEdit(f)?`<button class="btn btn-outline-brand btn-sm" type="button" onclick="openHrResponseRecord('${f.id}',true)"><i class="bx bx-edit-alt"></i> Chỉnh sửa câu trả lời</button>`:'';
   const closedHTML=isHr&&hrResponseClosed(f)?`<span class="fb-meta-closed">Đã đóng ${escapeHTML(f.closedAt||'')}</span>`:'';
   const meta = `<div class="fb-meta">
       <span class="fb-req-by">Yêu cầu phản hồi của <b>${requesterText}</b></span>
@@ -2090,11 +2096,11 @@ function cardGivenHrProgram(f){
   return `<div class="fb-card${isHr?' fb-card-hr':''}" data-kind="given" data-fb="${f.id||''}">
     ${cardHead(SELF, f.who, meta)}
     <div class="hr-given-body">
-      ${isHr?`<div class="hr-given-count"><i class="bx bx-list-check"></i>Đã trả lời ${answers.filter(pair=>pair.answer).length}/${answers.length} câu hỏi</div>`:''}
+      ${isHr?`<div class="hr-given-summary"><div class="hr-given-count"><i class="bx bx-list-check"></i>Đã trả lời ${answers.filter(pair=>pair.answer).length}/${answers.length} câu hỏi</div>${historyHTML}</div>`:''}
       ${first?feedbackPair(first.question,answerHTML(first)):''}
       ${more}
     </div>
-    ${isHr&&hrResponseCanEdit(f)?`<div class="req-actions"><button class="btn btn-outline-brand btn-sm" type="button" onclick="openHrResponseRecord('${f.id}',true)"><i class="bx bx-edit-alt"></i> Chỉnh sửa câu trả lời</button></div>`:''}
+    ${editHTML?`<div class="req-actions">${editHTML}</div>`:''}
   </div>`;
 }
 function toggleHrGiven(button){
