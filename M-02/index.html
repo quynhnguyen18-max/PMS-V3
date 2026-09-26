@@ -914,15 +914,15 @@ body.embedded-detail .page-title{font-size:16px}
   </div>
 
   <div class="role-sw">
-    <button class="role-btn" onclick="location.href='../E-01/index.html'">Nhân viên</button>
-    <button class="role-btn on" onclick="location.href='../M-01/index.html'">Quản lý</button>
+    <button class="role-btn" onclick="location.href='../E-05/index.html?role=nv'">Nhân viên</button>
+    <button class="role-btn on" onclick="location.href='../M-05/index.html'">Quản lý</button>
   </div>
 
   <nav class="sb-nav">
     <span class="sb-grp">Tổng quan</span>
     <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
-    <div class="sb-item on" onclick="location.href='../M-01/index.html'"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
+    <div class="sb-item on" onclick="location.href='../M-05/index.html'"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
     <div class="sb-item" onclick="location.href='../M-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của đội nhóm</div>
   </nav>
 
@@ -942,7 +942,7 @@ body.embedded-detail .page-title{font-size:16px}
 
   <!-- Top bar -->
   <header class="topbar">
-    <a href="../M-01/index.html?tab=myr" onclick="event.preventDefault();backToMyrList()" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Danh sách</a>
+    <a href="../M-05/index.html?tab=myr" onclick="event.preventDefault();backToMyrList()" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Danh sách</a>
     <span class="topbar-title">Chi tiết đánh giá của Nhân viên</span>
     <div class="topbar-right">
       <label class="demo-toggle" title="Demo: bật/tắt tính năng Đánh giá hoàn thành (cấu hình theo tổ chức)">
@@ -961,7 +961,7 @@ body.embedded-detail .page-title{font-size:16px}
 
     <!-- Header -->
     <div class="breadcrumb">
-      <a href="../M-01/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep"> / </span><span>Chi tiết đánh giá của Nhân viên</span>
+      <a href="../M-05/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep"> / </span><span>Chi tiết đánh giá của Nhân viên</span>
     </div>
     <div class="page-hd">
       <h1 class="page-title">Chi tiết đánh giá của Nhân viên</h1>
@@ -3089,10 +3089,10 @@ function managerRecallAssessment(){
 function backToMyrList(){
   var params=new URLSearchParams({
     tab:'myr',
-    role:MANAGER_DETAIL_STATE.role,
+    myrRole:MANAGER_DETAIL_STATE.role,
     phase:MANAGER_DETAIL_STATE.phase
   });
-  location.href='../M-01/index.html?'+params.toString();
+  location.href='../M-05/index.html?'+params.toString();
 }
 
 function renderManagerActions(){

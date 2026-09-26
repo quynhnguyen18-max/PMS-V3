@@ -2342,9 +2342,14 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
   updateMyrSplitViewButton();
   const initialParams=new URLSearchParams(location.search);
   if(initialParams.get('tab')==='myr'){
-    const initialRole=['lm1','lm2','hod'].includes(initialParams.get('role'))?initialParams.get('role'):'lm1';
+    /* Vai MYR đi bằng myrRole, không dùng role: thanh demo YER đọc role vào phiên,
+       nên lm1 lọt vào đó sẽ làm hỏng luồng Đánh giá cuối năm. */
+    const myrRoleParam=initialParams.get('myrRole')||initialParams.get('role');
+    const initialRole=['lm1','lm2','hod'].includes(myrRoleParam)?myrRoleParam:'lm1';
     setMyrRole(initialRole);
     switchCycleTab(1);
+  }else if(initialParams.get('tab')==='goals'){
+    switchCycleTab(0);
   }
 })();
 

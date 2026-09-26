@@ -1,0 +1,90 @@
+<svg width="680" height="700" viewBox="0 0 680 700" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: system-ui, -apple-system, sans-serif; }
+  .th { font-size: 12px; font-weight: 600; fill: #e8e0d4; }
+  .ts { font-size: 10px; font-weight: 400; fill: #b0a898; }
+  .arr { stroke: #b0a898; stroke-width: 1; fill: none; }
+  .c-teal rect   { fill: #1a3d3a; stroke: #2d7a6e; stroke-width: 1; }
+  .c-purple rect { fill: #2d1f3d; stroke: #7c4daa; stroke-width: 1; }
+  .c-amber rect  { fill: #3d2d0a; stroke: #c9820a; stroke-width: 1; }
+  .c-green rect  { fill: #1a3d22; stroke: #2ea84a; stroke-width: 1; }
+  .c-gray rect   { fill: #2a2a2a; stroke: #666; stroke-width: 1; }
+  .note rect     { fill: #1e1e1e; stroke: #555; stroke-width: 0.5; }
+</style>
+<rect width="680" height="700" fill="#141414"/>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#b0a898" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<text class="ts" x="40" y="22" fill="#666">FLOW 3 — MID-YEAR REVIEW (MYR)</text>
+<line x1="40" y1="26" x2="640" y2="26" stroke="#333" stroke-width="0.5"/>
+
+<g class="c-teal"><rect x="160" y="40" width="360" height="88" rx="8"/></g>
+<text class="th" x="340" y="62" text-anchor="middle" dominant-baseline="central">Employee self-assessment</text>
+<text class="ts" x="340" y="80" text-anchor="middle" dominant-baseline="central">Rate WHAT · Development · HOW goals</text>
+<text class="ts" x="340" y="96" text-anchor="middle" dominant-baseline="central">Per-goal or summary per goal type</text>
+<text class="ts" x="340" y="112" text-anchor="middle" dominant-baseline="central">Overall performance rating (1–5)</text>
+
+<g class="note"><rect x="40" y="50" width="116" height="44" rx="6"/></g>
+<text class="ts" x="98" y="68" text-anchor="middle" dominant-baseline="central" fill="#666">Employee sees:</text>
+<text class="ts" x="98" y="84" text-anchor="middle" dominant-baseline="central" fill="#666">own self-assessment</text>
+
+<line x1="340" y1="128" x2="340" y2="148" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-teal"><rect x="200" y="148" width="280" height="44" rx="8"/></g>
+<text class="th" x="340" y="166" text-anchor="middle" dominant-baseline="central">Submit to LM1</text>
+<text class="ts" x="340" y="182" text-anchor="middle" dominant-baseline="central">LM1 reads &amp; proceeds to review</text>
+<line x1="340" y1="192" x2="340" y2="212" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="160" y="212" width="360" height="76" rx="8"/></g>
+<text class="th" x="340" y="232" text-anchor="middle" dominant-baseline="central">LM1 reviews &amp; rates</text>
+<text class="ts" x="340" y="250" text-anchor="middle" dominant-baseline="central">Per-goal or summary per goal type</text>
+<text class="ts" x="340" y="266" text-anchor="middle" dominant-baseline="central">WHAT · Development · HOW + Overall rating</text>
+
+<g class="note"><rect x="40" y="222" width="116" height="56" rx="6"/></g>
+<text class="ts" x="98" y="240" text-anchor="middle" dominant-baseline="central" fill="#666">Employee sees:</text>
+<text class="ts" x="98" y="256" text-anchor="middle" dominant-baseline="central" fill="#666">LM1 per-goal ratings</text>
+<text class="ts" x="98" y="272" text-anchor="middle" dominant-baseline="central" fill="#666">(not LM1 overall)</text>
+
+<line x1="340" y1="288" x2="340" y2="308" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="200" y="308" width="280" height="44" rx="8"/></g>
+<text class="th" x="340" y="326" text-anchor="middle" dominant-baseline="central">LM1 submits</text>
+<text class="ts" x="340" y="342" text-anchor="middle" dominant-baseline="central">Passes to next level (if applicable)</text>
+<line x1="340" y1="352" x2="340" y2="372" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-amber"><rect x="180" y="372" width="320" height="56" rx="8"/></g>
+<text class="th" x="340" y="392" text-anchor="middle" dominant-baseline="central">LM2 review (optional)</text>
+<text class="ts" x="340" y="408" text-anchor="middle" dominant-baseline="central">Reads LM1 result · Gives overall rating</text>
+<text class="ts" x="340" y="424" text-anchor="middle" dominant-baseline="central">if participates → score passes to HOD</text>
+<line x1="340" y1="428" x2="340" y2="448" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-amber"><rect x="180" y="448" width="320" height="56" rx="8"/></g>
+<text class="th" x="340" y="468" text-anchor="middle" dominant-baseline="central">HOD review (optional)</text>
+<text class="ts" x="340" y="484" text-anchor="middle" dominant-baseline="central">Reads all results · Gives overall rating</text>
+<text class="ts" x="340" y="500" text-anchor="middle" dominant-baseline="central">if participates → score becomes final</text>
+
+<g class="note"><rect x="40" y="448" width="136" height="56" rx="6"/></g>
+<text class="ts" x="108" y="464" text-anchor="middle" dominant-baseline="central" fill="#666">Final rating =</text>
+<text class="ts" x="108" y="480" text-anchor="middle" dominant-baseline="central" fill="#666">highest manager</text>
+<text class="ts" x="108" y="496" text-anchor="middle" dominant-baseline="central" fill="#666">who participated</text>
+
+<line x1="340" y1="504" x2="340" y2="524" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-green"><rect x="180" y="524" width="320" height="56" rx="8"/></g>
+<text class="th" x="340" y="544" text-anchor="middle" dominant-baseline="central">L&amp;OD publishes final rating</text>
+<text class="ts" x="340" y="560" text-anchor="middle" dominant-baseline="central">Clicks Publish button at cycle end</text>
+<text class="ts" x="340" y="576" text-anchor="middle" dominant-baseline="central">Employee notified of final rating</text>
+
+<g class="note"><rect x="40" y="534" width="136" height="36" rx="6"/></g>
+<text class="ts" x="108" y="548" text-anchor="middle" dominant-baseline="central" fill="#666">Employee sees:</text>
+<text class="ts" x="108" y="562" text-anchor="middle" dominant-baseline="central" fill="#666">final rating (published)</text>
+
+<line x1="340" y1="580" x2="340" y2="600" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-gray"><rect x="200" y="600" width="280" height="44" rx="8"/></g>
+<text class="th" x="340" y="618" text-anchor="middle" dominant-baseline="central">MYR result stored in HRM / PMS</text>
+<text class="ts" x="340" y="634" text-anchor="middle" dominant-baseline="central">Used as base for YER (optional)</text>
+</svg>

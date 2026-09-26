@@ -1,0 +1,11 @@
+# Folder nặng hoặc không phải code, bỏ qua khi tìm kiếm (Grep, Glob, ripgrep)
+MoMo color/
+MoMo Font/
+feedback-pilot-email/
+assets/myr-results/
+assets/vendor/
+*.xlsx
+*.docx
+*.pdf
+*.png
+*.gif

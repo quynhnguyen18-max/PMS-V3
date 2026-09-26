@@ -1,0 +1,146 @@
+<svg width="680" height="920" viewBox="0 0 680 920" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: system-ui, -apple-system, sans-serif; }
+  .th { font-size: 12px; font-weight: 600; fill: #e8e0d4; }
+  .ts { font-size: 10px; font-weight: 400; fill: #b0a898; }
+  .arr { stroke: #b0a898; stroke-width: 1; fill: none; }
+  .c-teal rect   { fill: #1a3d3a; stroke: #2d7a6e; stroke-width: 1; }
+  .c-purple rect { fill: #2d1f3d; stroke: #7c4daa; stroke-width: 1; }
+  .c-amber rect  { fill: #3d2d0a; stroke: #c9820a; stroke-width: 1; }
+  .c-coral rect  { fill: #3d1a1a; stroke: #c94d4d; stroke-width: 1; }
+  .c-green rect  { fill: #1a3d22; stroke: #2ea84a; stroke-width: 1; }
+  .c-blue rect   { fill: #1a2a3d; stroke: #2d6aaa; stroke-width: 1; }
+  .c-gray rect   { fill: #2a2a2a; stroke: #666; stroke-width: 1; }
+</style>
+<rect width="680" height="920" fill="#141414"/>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#b0a898" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<text class="ts" x="40" y="34" fill="#666">FOUNDATION</text>
+<line x1="40" y1="38" x2="640" y2="38" stroke="#333" stroke-width="0.5"/>
+
+<g class="c-gray"><rect x="260" y="52" width="160" height="40" rx="20"/></g>
+<text class="th" x="340" y="72" text-anchor="middle" dominant-baseline="central">Start: PM prototype</text>
+<line x1="340" y1="92" x2="340" y2="116" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="220" y="116" width="240" height="44" rx="8"/></g>
+<text class="th" x="340" y="134" text-anchor="middle" dominant-baseline="central">Collect source documents</text>
+<text class="ts" x="340" y="150" text-anchor="middle" dominant-baseline="central">Process, policy, timeline</text>
+<line x1="340" y1="160" x2="340" y2="184" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="220" y="184" width="240" height="44" rx="8"/></g>
+<text class="th" x="340" y="202" text-anchor="middle" dominant-baseline="central">Define prototype scope</text>
+<text class="ts" x="340" y="218" text-anchor="middle" dominant-baseline="central">Modules + roles</text>
+
+<line x1="280" y1="206" x2="180" y2="258" class="arr" marker-end="url(#arrow)"/>
+<line x1="400" y1="206" x2="500" y2="258" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-teal"><rect x="80" y="258" width="200" height="80" rx="8"/></g>
+<text class="th" x="180" y="278" text-anchor="middle" dominant-baseline="central">Core modules</text>
+<text class="ts" x="180" y="296" text-anchor="middle" dominant-baseline="central">Goal Setting · MYR · YER</text>
+<text class="ts" x="180" y="312" text-anchor="middle" dominant-baseline="central">Feedback · Dashboard</text>
+
+<g class="c-teal"><rect x="400" y="258" width="200" height="80" rx="8"/></g>
+<text class="th" x="500" y="278" text-anchor="middle" dominant-baseline="central">Core roles</text>
+<text class="ts" x="500" y="296" text-anchor="middle" dominant-baseline="central">IC · LM1 · LM2 · HOD</text>
+<text class="ts" x="500" y="312" text-anchor="middle" dominant-baseline="central">Total Rewards · HRBP · L&amp;OD</text>
+
+<line x1="180" y1="338" x2="180" y2="378" stroke="#b0a898" stroke-width="1"/>
+<line x1="500" y1="338" x2="500" y2="378" stroke="#b0a898" stroke-width="1"/>
+<line x1="180" y1="378" x2="500" y2="378" stroke="#b0a898" stroke-width="1"/>
+<line x1="340" y1="378" x2="340" y2="398" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-blue"><rect x="210" y="398" width="260" height="44" rx="8"/></g>
+<text class="th" x="340" y="416" text-anchor="middle" dominant-baseline="central">Define system foundation</text>
+<text class="ts" x="340" y="432" text-anchor="middle" dominant-baseline="central">5 pillars</text>
+
+<line x1="340" y1="442" x2="340" y2="460" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="80" y1="460" x2="600" y2="460" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="80" y1="460" x2="80" y2="480" class="arr" marker-end="url(#arrow)"/>
+<line x1="200" y1="460" x2="200" y2="480" class="arr" marker-end="url(#arrow)"/>
+<line x1="340" y1="460" x2="340" y2="480" class="arr" marker-end="url(#arrow)"/>
+<line x1="480" y1="460" x2="480" y2="480" class="arr" marker-end="url(#arrow)"/>
+<line x1="600" y1="460" x2="600" y2="480" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-coral"><rect x="36" y="480" width="88" height="52" rx="6"/></g>
+<text class="th" x="80" y="498" text-anchor="middle" dominant-baseline="central">Role &amp;</text>
+<text class="th" x="80" y="514" text-anchor="middle" dominant-baseline="central">permission</text>
+
+<g class="c-coral"><rect x="156" y="480" width="88" height="52" rx="6"/></g>
+<text class="th" x="200" y="498" text-anchor="middle" dominant-baseline="central">Data</text>
+<text class="th" x="200" y="514" text-anchor="middle" dominant-baseline="central">objects</text>
+
+<g class="c-coral"><rect x="296" y="480" width="88" height="52" rx="6"/></g>
+<text class="th" x="340" y="498" text-anchor="middle" dominant-baseline="central">Status</text>
+<text class="th" x="340" y="514" text-anchor="middle" dominant-baseline="central">model</text>
+
+<g class="c-coral"><rect x="436" y="480" width="88" height="52" rx="6"/></g>
+<text class="th" x="480" y="498" text-anchor="middle" dominant-baseline="central">Timeline</text>
+<text class="th" x="480" y="514" text-anchor="middle" dominant-baseline="central">&amp; deadlines</text>
+
+<g class="c-coral"><rect x="556" y="480" width="88" height="52" rx="6"/></g>
+<text class="th" x="600" y="498" text-anchor="middle" dominant-baseline="central">Nav /</text>
+<text class="th" x="600" y="514" text-anchor="middle" dominant-baseline="central">IA</text>
+
+<text class="ts" x="40" y="572" fill="#666">PROTOTYPE FLOWS</text>
+<line x1="40" y1="576" x2="640" y2="576" stroke="#333" stroke-width="0.5"/>
+
+<line x1="80" y1="532" x2="80" y2="590" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="200" y1="532" x2="200" y2="590" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="340" y1="532" x2="340" y2="590" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="480" y1="532" x2="480" y2="590" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="600" y1="532" x2="600" y2="590" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="80" y1="590" x2="600" y2="590" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="340" y1="590" x2="340" y2="610" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-blue"><rect x="190" y="610" width="300" height="44" rx="8"/></g>
+<text class="th" x="340" y="628" text-anchor="middle" dominant-baseline="central">Performance Cycle Workspace</text>
+<text class="ts" x="340" y="644" text-anchor="middle" dominant-baseline="central">Tabs + role switcher</text>
+
+<line x1="340" y1="654" x2="340" y2="674" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="100" y1="674" x2="580" y2="674" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="100" y1="674" x2="100" y2="694" class="arr" marker-end="url(#arrow)"/>
+<line x1="220" y1="674" x2="220" y2="694" class="arr" marker-end="url(#arrow)"/>
+<line x1="340" y1="674" x2="340" y2="694" class="arr" marker-end="url(#arrow)"/>
+<line x1="460" y1="674" x2="460" y2="694" class="arr" marker-end="url(#arrow)"/>
+<line x1="580" y1="674" x2="580" y2="694" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-green"><rect x="52" y="694" width="96" height="52" rx="6"/></g>
+<text class="th" x="100" y="712" text-anchor="middle" dominant-baseline="central">Flow 1</text>
+<text class="ts" x="100" y="728" text-anchor="middle" dominant-baseline="central">Goal Setting</text>
+
+<g class="c-green"><rect x="172" y="694" width="96" height="52" rx="6"/></g>
+<text class="th" x="220" y="712" text-anchor="middle" dominant-baseline="central">Flow 2</text>
+<text class="ts" x="220" y="728" text-anchor="middle" dominant-baseline="central">Feedback</text>
+
+<g class="c-amber"><rect x="292" y="694" width="96" height="52" rx="6"/></g>
+<text class="th" x="340" y="712" text-anchor="middle" dominant-baseline="central">Flow 3</text>
+<text class="ts" x="340" y="728" text-anchor="middle" dominant-baseline="central">MYR</text>
+
+<g class="c-amber"><rect x="412" y="694" width="96" height="52" rx="6"/></g>
+<text class="th" x="460" y="712" text-anchor="middle" dominant-baseline="central">Flow 4</text>
+<text class="ts" x="460" y="728" text-anchor="middle" dominant-baseline="central">YER</text>
+
+<g class="c-teal"><rect x="532" y="694" width="96" height="52" rx="6"/></g>
+<text class="th" x="580" y="712" text-anchor="middle" dominant-baseline="central">Flow 5</text>
+<text class="ts" x="580" y="728" text-anchor="middle" dominant-baseline="central">Dashboard</text>
+
+<line x1="100" y1="746" x2="100" y2="790" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="220" y1="746" x2="220" y2="790" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="340" y1="746" x2="340" y2="790" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="460" y1="746" x2="460" y2="790" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="580" y1="746" x2="580" y2="790" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="100" y1="790" x2="580" y2="790" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="340" y1="790" x2="340" y2="810" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-blue"><rect x="200" y="810" width="280" height="44" rx="8"/></g>
+<text class="th" x="340" y="828" text-anchor="middle" dominant-baseline="central">Validate screens → Handoff</text>
+<text class="ts" x="340" y="844" text-anchor="middle" dominant-baseline="central">Test 4 journeys + exceptions</text>
+<line x1="340" y1="854" x2="340" y2="878" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-gray"><rect x="240" y="878" width="200" height="36" rx="18"/></g>
+<text class="th" x="340" y="896" text-anchor="middle" dominant-baseline="central">Complete prototype package</text>
+</svg>

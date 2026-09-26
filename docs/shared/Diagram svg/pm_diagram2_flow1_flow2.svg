@@ -1,0 +1,147 @@
+<svg width="680" height="1000" viewBox="0 0 680 1000" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: system-ui, -apple-system, sans-serif; }
+  .th { font-size: 12px; font-weight: 600; fill: #e8e0d4; }
+  .ts { font-size: 10px; font-weight: 400; fill: #b0a898; }
+  .arr { stroke: #b0a898; stroke-width: 1; fill: none; }
+  .c-teal rect   { fill: #1a3d3a; stroke: #2d7a6e; stroke-width: 1; }
+  .c-purple rect { fill: #2d1f3d; stroke: #7c4daa; stroke-width: 1; }
+  .c-amber rect  { fill: #3d2d0a; stroke: #c9820a; stroke-width: 1; }
+  .c-coral rect  { fill: #3d1a1a; stroke: #c94d4d; stroke-width: 1; }
+  .c-green rect  { fill: #1a3d22; stroke: #2ea84a; stroke-width: 1; }
+  .c-blue rect   { fill: #1a2a3d; stroke: #2d6aaa; stroke-width: 1; }
+  .c-gray rect   { fill: #2a2a2a; stroke: #666; stroke-width: 1; }
+  .note rect     { fill: #1e1e1e; stroke: #555; stroke-width: 0.5; }
+</style>
+<rect width="680" height="1000" fill="#141414"/>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#b0a898" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<text class="ts" x="40" y="22" fill="#666">FLOW 1 — GOAL SETTING (ON-SYSTEM)</text>
+<line x1="40" y1="26" x2="640" y2="26" stroke="#333" stroke-width="0.5"/>
+
+<g class="note"><rect x="40" y="38" width="600" height="28" rx="6"/></g>
+<text class="ts" x="340" y="57" text-anchor="middle" dominant-baseline="central" fill="#666">Company goals (CEO/BOM) &amp; L&amp;OD guidance done offline — not on system</text>
+
+<g class="c-teal"><rect x="160" y="82" width="360" height="76" rx="8"/></g>
+<text class="th" x="340" y="102" text-anchor="middle" dominant-baseline="central">Employee creates goals</text>
+<text class="ts" x="340" y="120" text-anchor="middle" dominant-baseline="central">WHAT · HOW · Development</text>
+<text class="ts" x="340" y="136" text-anchor="middle" dominant-baseline="central">Type · Objective · KRs · Dates · Priority</text>
+<line x1="340" y1="158" x2="340" y2="178" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-teal"><rect x="200" y="178" width="280" height="44" rx="8"/></g>
+<text class="th" x="340" y="196" text-anchor="middle" dominant-baseline="central">Employee submits goals to LM1</text>
+<text class="ts" x="340" y="212" text-anchor="middle" dominant-baseline="central">Status: Pending approval</text>
+<line x1="340" y1="222" x2="340" y2="242" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="200" y="242" width="280" height="44" rx="8"/></g>
+<text class="th" x="340" y="260" text-anchor="middle" dominant-baseline="central">LM1 reviews quality &amp; alignment</text>
+<text class="ts" x="340" y="276" text-anchor="middle" dominant-baseline="central">Per-goal review</text>
+<line x1="340" y1="286" x2="340" y2="306" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-amber"><rect x="230" y="306" width="220" height="44" rx="8"/></g>
+<text class="th" x="340" y="324" text-anchor="middle" dominant-baseline="central">LM1 Approve or Reject?</text>
+<text class="ts" x="340" y="340" text-anchor="middle" dominant-baseline="central">Decision per goal</text>
+
+<!-- Reject path -->
+<line x1="230" y1="328" x2="130" y2="328" stroke="#b0a898" stroke-width="0.8"/>
+<text class="ts" x="178" y="322" text-anchor="middle">Reject</text>
+<line x1="130" y1="328" x2="130" y2="380" class="arr" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="40" y="380" width="180" height="44" rx="6"/></g>
+<text class="th" x="130" y="398" text-anchor="middle" dominant-baseline="central">LM1 rejects goal</text>
+<text class="ts" x="130" y="414" text-anchor="middle" dominant-baseline="central">Reason recorded</text>
+<line x1="130" y1="424" x2="130" y2="460" class="arr" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="40" y="460" width="180" height="56" rx="6"/></g>
+<text class="th" x="130" y="480" text-anchor="middle" dominant-baseline="central">Employee action</text>
+<text class="ts" x="130" y="496" text-anchor="middle" dominant-baseline="central">Edit &amp; resubmit</text>
+<text class="ts" x="130" y="510" text-anchor="middle" dominant-baseline="central">or Delete &amp; create new</text>
+<line x1="130" y1="516" x2="130" y2="556" stroke="#b0a898" stroke-width="0.8"/>
+<line x1="130" y1="556" x2="200" y2="556" stroke="#b0a898" stroke-width="0.8"/>
+<line x1="200" y1="556" x2="200" y2="200" stroke="#b0a898" stroke-width="0.8"/>
+<line x1="200" y1="200" x2="200" y2="200" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="108" y="542" text-anchor="middle" fill="#666">Resubmit</text>
+
+<!-- Approve path -->
+<line x1="450" y1="328" x2="530" y2="328" stroke="#b0a898" stroke-width="0.8"/>
+<text class="ts" x="488" y="322" text-anchor="middle">Approve</text>
+<line x1="530" y1="328" x2="530" y2="380" class="arr" marker-end="url(#arrow)"/>
+<g class="c-green"><rect x="430" y="380" width="200" height="44" rx="8"/></g>
+<text class="th" x="530" y="398" text-anchor="middle" dominant-baseline="central">Goals approved</text>
+<text class="ts" x="530" y="414" text-anchor="middle" dominant-baseline="central">Source of truth for review</text>
+<line x1="530" y1="424" x2="530" y2="444" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-gray"><rect x="410" y="444" width="240" height="44" rx="8"/></g>
+<text class="th" x="530" y="462" text-anchor="middle" dominant-baseline="central">Goals active</text>
+<text class="ts" x="530" y="478" text-anchor="middle" dominant-baseline="central">Await MYR / YER cycle</text>
+<line x1="530" y1="488" x2="530" y2="508" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-amber"><rect x="410" y="508" width="240" height="44" rx="8"/></g>
+<text class="th" x="530" y="526" text-anchor="middle" dominant-baseline="central">Need to update goals?</text>
+<text class="ts" x="530" y="542" text-anchor="middle" dominant-baseline="central">Employee-initiated</text>
+
+<!-- No -->
+<line x1="530" y1="552" x2="530" y2="572" stroke="#b0a898" stroke-width="0.5"/>
+<text class="ts" x="548" y="565">No</text>
+<line x1="530" y1="572" x2="530" y2="580" class="arr" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="410" y="580" width="240" height="36" rx="8"/></g>
+<text class="th" x="530" y="598" text-anchor="middle" dominant-baseline="central">Continue to MYR / YER</text>
+
+<!-- Yes: recall -->
+<line x1="650" y1="530" x2="660" y2="530" stroke="#b0a898" stroke-width="0.8"/>
+<text class="ts" x="655" y="524" text-anchor="start">Yes</text>
+<line x1="660" y1="530" x2="660" y2="590" class="arr" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="490" y="590" width="170" height="56" rx="6"/></g>
+<text class="th" x="575" y="608" text-anchor="middle" dominant-baseline="central">Employee recalls goals</text>
+<text class="ts" x="575" y="624" text-anchor="middle" dominant-baseline="central">Edits &amp; resubmits</text>
+<text class="ts" x="575" y="638" text-anchor="middle" dominant-baseline="central">LM1 receives noti</text>
+<line x1="575" y1="646" x2="575" y2="668" stroke="#b0a898" stroke-width="0.8"/>
+<line x1="575" y1="668" x2="450" y2="668" stroke="#b0a898" stroke-width="0.8"/>
+<line x1="450" y1="668" x2="450" y2="264" stroke="#b0a898" stroke-width="0.8"/>
+<line x1="450" y1="264" x2="480" y2="264" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="432" y="662" text-anchor="middle" fill="#666">LM1 re-approves</text>
+
+<!-- Flow 2 -->
+<text class="ts" x="40" y="720" fill="#666">FLOW 2 — CONTINUOUS FEEDBACK</text>
+<line x1="40" y1="724" x2="640" y2="724" stroke="#333" stroke-width="0.5"/>
+
+<line x1="100" y1="738" x2="400" y2="738" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="100" y1="738" x2="100" y2="758" class="arr" marker-end="url(#arrow)"/>
+<line x1="200" y1="738" x2="200" y2="758" class="arr" marker-end="url(#arrow)"/>
+<line x1="300" y1="738" x2="300" y2="758" class="arr" marker-end="url(#arrow)"/>
+<line x1="400" y1="738" x2="400" y2="758" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-teal"><rect x="48" y="758" width="104" height="44" rx="6"/></g>
+<text class="th" x="100" y="776" text-anchor="middle" dominant-baseline="central">Give</text>
+<text class="ts" x="100" y="792" text-anchor="middle" dominant-baseline="central">feedback</text>
+
+<g class="c-teal"><rect x="148" y="758" width="104" height="44" rx="6"/></g>
+<text class="th" x="200" y="776" text-anchor="middle" dominant-baseline="central">Request</text>
+<text class="ts" x="200" y="792" text-anchor="middle" dominant-baseline="central">feedback</text>
+
+<g class="c-teal"><rect x="248" y="758" width="104" height="44" rx="6"/></g>
+<text class="th" x="300" y="776" text-anchor="middle" dominant-baseline="central">Receive</text>
+<text class="ts" x="300" y="792" text-anchor="middle" dominant-baseline="central">feedback</text>
+
+<g class="c-teal"><rect x="348" y="758" width="104" height="44" rx="6"/></g>
+<text class="th" x="400" y="776" text-anchor="middle" dominant-baseline="central">Respond</text>
+<text class="ts" x="400" y="792" text-anchor="middle" dominant-baseline="central">to request</text>
+
+<line x1="100" y1="802" x2="100" y2="830" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="200" y1="802" x2="200" y2="830" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="300" y1="802" x2="300" y2="830" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="400" y1="802" x2="400" y2="830" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="100" y1="830" x2="400" y2="830" stroke="#b0a898" stroke-width="0.5"/>
+<line x1="250" y1="830" x2="250" y2="850" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="110" y="850" width="280" height="44" rx="8"/></g>
+<text class="th" x="250" y="868" text-anchor="middle" dominant-baseline="central">Feedback saved by cycle &amp; person</text>
+<text class="ts" x="250" y="884" text-anchor="middle" dominant-baseline="central">Supporting evidence for review</text>
+<line x1="390" y1="872" x2="540" y2="872" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-green"><rect x="540" y="850" width="120" height="44" rx="8"/></g>
+<text class="th" x="600" y="868" text-anchor="middle" dominant-baseline="central">→ Review</text>
+<text class="ts" x="600" y="884" text-anchor="middle" dominant-baseline="central">cycle</text>
+</svg>
