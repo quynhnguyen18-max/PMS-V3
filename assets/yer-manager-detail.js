@@ -34,9 +34,26 @@
   function actsOf() { return S.acts(S.session().emp) || {}; }
 
   function draftKey() { return role() + 'Draft'; }
-  function loadDraft() {
+  function submittedDraft(p) {
+    if (!mySubmitted(p)) return null;
+    if (role() === 'lm') {
+      return {
+        goalScores: Object.assign({}, p.lm.goalScores || {}),
+        howScores: Object.assign({}, p.lm.howScores || {}),
+        comments: Object.assign({}, p.lm.comments || {}),
+        overall: Object.assign({}, p.lm.overall || {})
+      };
+    }
+    var own = role() === 'lm2' ? p.lm2 : p.hod;
+    return { goalScores: {}, howScores: {}, comments: {}, overall: {
+      score: own && own.score,
+      comment: own && own.comment || ''
+    } };
+  }
+  function loadDraft(p) {
     var d = actsOf()[draftKey()];
-    draft = d ? JSON.parse(JSON.stringify(d)) : { goalScores: {}, howScores: {}, comments: {}, overall: {} };
+    draft = d ? JSON.parse(JSON.stringify(d))
+      : submittedDraft(p) || { goalScores: {}, howScores: {}, comments: {}, overall: {} };
   }
   function saveDraft(silent) {
     S.setAct(S.session().emp, draftKey(), draft);
@@ -66,18 +83,23 @@
   ];
   var DEFAULT_MGR = { name: 'Lê Thị Thanh', login: 'thanh.le', ini: 'LT' };
 
-  function editorHtml(id, placeholder, max, value, counterId, readonly) {
-    if (readonly) {
-      return '<div class="ev-editor-wrap yer-ed-ro"><div class="ev-content" id="' + id + '">' +
-        (value ? esc(value) : '<span class="yer-ed-empty">—</span>') + '</div></div>';
-    }
-    return '<div class="ev-editor-wrap"><div class="ev-toolbar" onmousedown="event.preventDefault()">' +
+  function editorToolbar() {
+    return '<div class="ev-toolbar" onmousedown="event.preventDefault()">' +
       '<button class="ev-tb-btn" onclick="edCmd(\'bold\')" title="Bold"><span style="font-weight:700;font-size:12px">B</span></button>' +
       '<button class="ev-tb-btn" onclick="edCmd(\'italic\')" title="Italic"><span style="font-style:italic;font-size:12px">I</span></button>' +
       '<button class="ev-tb-btn" onclick="edCmd(\'underline\')" title="Underline"><span style="text-decoration:underline;font-size:12px">U</span></button>' +
       '<span class="ev-tb-sep"></span>' +
       '<button class="ev-tb-btn" onclick="edCmd(\'insertUnorderedList\')" title="List"><i class="bx bx-list-ul" style="font-size:14px"></i></button>' +
-      '</div><div class="ev-content" contenteditable="true" data-placeholder="' + esc(placeholder) + '" id="' + id +
+      '</div>';
+  }
+
+  function editorHtml(id, placeholder, max, value, counterId, readonly) {
+    if (readonly) {
+      return '<div class="ev-editor-wrap yer-ed-ro"><div class="ev-content" id="' + id + '">' +
+        (value ? esc(value) : '<span class="yer-ed-empty">—</span>') + '</div></div>';
+    }
+    return '<div class="ev-editor-wrap">' + editorToolbar() +
+      '<div class="ev-content" contenteditable="true" data-placeholder="' + esc(placeholder) + '" id="' + id +
         '" oninput="edCount(this,\'' + counterId + '\',' + max + ')">' + esc(value || '') + '</div></div>' +
       '<div class="char-ct" id="' + counterId + '">' + String(value || '').length + ' / ' + max + '</div>';
   }
@@ -106,28 +128,31 @@
   }
   function stepOpen(p) { return Y.stepState(myStep(), p.now) === 'open'; }
   function editable(p) {
-    if (!stepOpen(p)) return false;
-    if (p.stopped) return false;
-    // Khi thiếu goal, LM chỉ bắt đầu chấm sau khi NV đã nộp file trễ.
-    // Hồ sơ đủ goal từ trước vẫn theo rule hiện hành: LM có thể chấm dù NV bỏ self.
-    if (isLm() && p.eligibility.reason === 'missing-goal' && !p.lateSubmission && !p.maternity) return false;
-    // LM và NV không thu hồi được sau khi gửi; LM2/HOD sửa thoải mái tới hết deadline (§8)
-    if (role() === 'lm') return !mySubmitted(p);
-    return true;
+    return Y.managerReviewState(role(), p).canEdit;
   }
 
   function toolbar(p, canEdit) {
     if (!canEdit) return '';
+    var submitted = mySubmitted(p);
     return '<div class="cycle-actions yer-mgr-actions">' +
-      (isLm() ? '<button class="btn btn-outline btn-sm" id="yer-md-return"><i class="bx bx-undo"></i>' +
-        L('Trả về cho nhân viên', 'Return to employee') + '</button>' : '') +
       (role() === 'lm2' ? '<button class="btn btn-outline btn-sm" id="yer-md-return"><i class="bx bx-undo"></i>' +
         L('Trả về cho Quản lý trực tiếp', 'Return to line manager') + '</button>' : '') +
-      '<button class="btn btn-outline btn-sm" id="yer-md-draft"><i class="bx bx-save"></i>' +
-        L('Lưu nháp', 'Save draft') + '</button>' +
+      (!submitted ? '<button class="btn btn-outline btn-sm" id="yer-md-draft"><i class="bx bx-save"></i>' +
+        L('Lưu nháp', 'Save draft') + '</button>' : '') +
       '<button class="btn btn-default btn-sm" id="yer-md-submit"><i class="bx bx-send"></i>' +
-        (isLm() ? L('Gửi đánh giá', 'Submit review') : L('Lưu điểm', 'Save rating')) + '</button>' +
+        (submitted ? L('Lưu thay đổi', 'Save changes')
+          : isLm() ? L('Gửi đánh giá', 'Submit review') : L('Lưu điểm', 'Save rating')) + '</button>' +
     '</div>';
+  }
+
+  function detailNav(p, canEdit) {
+    return '<div class="manager-detail-nav yer-md-nav">' +
+      '<button type="button" class="manager-back" id="yer-md-back"><i class="bx bx-left-arrow-alt"></i>' +
+        L('Quay lại danh sách nhân viên', 'Back to employee list') + '</button>' +
+      '<div class="manager-nav-right">' + toolbar(p, canEdit) +
+        '<button type="button" class="btn btn-cta-outline btn-sm" id="yer-md-feedback"><i class="bx bx-message-square-dots"></i>' +
+          L('Phản hồi đã nhận', 'Feedback received') + '</button>' +
+      '</div></div>';
   }
 
   function banner(p) {
@@ -135,16 +160,21 @@
     var score = role() === 'lm' ? (p.lm.overall && p.lm.overall.score)
       : role() === 'lm2' ? p.lm2.score : p.hod.score;
     var at = role() === 'lm' ? p.lm.at : role() === 'lm2' ? p.lm2.at : p.hod.at;
-    return '<div class="submit-banner"><i class="bx bx-check-circle"></i><div class="sb-text">' +
-      '<div class="sb-title">' + L('Bạn đã gửi đánh giá cho nhân viên này', 'You have submitted this review') + '</div>' +
-      '<div class="sb-sub">' + L('Gửi lúc ', 'Submitted on ') + esc(Y.fmt(at, lg())) +
-        (isLm() ? '&nbsp;- ' + L('không sửa và không thu hồi được', 'it cannot be edited or withdrawn') : '') + '</div>' +
-      '</div><div class="sb-score"><span class="sb-score-lbl">' + L('Điểm toàn diện của bạn', 'Your overall rating') +
-      '</span><span class="sb-score-val">' + (score == null ? '—' : esc(String(score))) + '</span></div></div>';
+    return '<div class="submit-banner yer-md-submit-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
+      '<div class="sb-info"><div class="sb-title">' +
+        L('Bạn đã hoàn thành đánh giá cho nhân viên này', 'You have completed this review') + '</div>' +
+      '<div class="sb-sub">' + L('Cập nhật lần cuối: ', 'Last updated: ') + esc(Y.fmt(at, lg())) +
+        ' - ' + L('Bạn có thể chỉnh sửa tới hết hạn ', 'You can edit until ') + esc(Y.fmt(Y.step(role()).to, lg())) +
+      '</div></div><div class="sb-score-wrap"><div class="sb-score-group">' +
+      '<span class="sb-score-lbl">' + L('Điểm toàn diện của bạn:', 'Your overall rating:') + '</span>' +
+      '<span class="sb-score-val">' + (score == null ? '—' : esc(String(score))) + '</span>' +
+      '</div></div></div>';
   }
 
   /* ── ENH-E03: điều hướng sang kết quả giữa năm ───────── */
   function myrLine(p) {
+    // Hồ sơ có LWD gộp thông tin Mid-Year vào chính box Lưu ý để không dựng hai box rời.
+    if (p.resignFrom && !p.resigned) return '';
     var hasMyr = !!(p.myr && p.myr.submitted);
     if (!hasMyr) {
       return '<div class="info-note yer-myr-note"><i class="bx bx-calendar-x"></i><div>' +
@@ -155,8 +185,7 @@
     return '<div class="info-note yer-myr-note"><i class="bx bx-calendar-star"></i><div>' +
       L('Cần tham khảo kết quả giữa năm thì sang tab <strong>Đánh giá giữa năm</strong> của chính màn này.',
         'To review the mid-year result, switch to the <strong>Mid-Year Review</strong> tab on this same screen.') +
-      '</div><button class="btn btn-outline btn-sm yer-myr-go" id="yer-md-myr"><i class="bx bx-link-external"></i>' +
-        L('Mở tab giữa năm', 'Open mid-year tab') + '</button></div>';
+      '</div></div>';
   }
 
   /* ── ENH-E10: hướng dẫn cho Quản lý khi nhân viên thai sản ── */
@@ -200,11 +229,19 @@
 
   function resignBlock(p) {
     if (!p.resignFrom || p.resigned) return '';
-    return '<div class="info-note yer-note-resign"><i class="bx bx-log-out"></i><div>' +
-      L('Nhân viên nghỉ việc từ <strong>', 'This employee leaves on <strong>') + esc(Y.fmt(p.resignFrom, lg())) + '</strong>. ' +
-      L('Hãy chấm điểm trước ngày hiệu lực. Hồ sơ này không tính vào tỷ lệ hoàn thành và hệ thống không nhắc bạn.',
-        'Please rate before that date. This profile is excluded from the completion rate and no reminders are sent to you.') +
-    '</div></div>';
+    var items = [
+      L('Nhân viên có Ngày làm việc cuối cùng: <strong>', 'The employee\'s last working day is <strong>') +
+        esc(Y.fmt(p.resignFrom, lg())) + '</strong>. ' +
+        L('Hãy hoàn thành đánh giá trước ngày này. Hồ sơ không tính vào tỷ lệ hoàn thành và hệ thống không gửi nhắc.',
+          'Complete the review before this date. The profile is excluded from the completion rate and no reminders are sent.')
+    ];
+    if (p.myr && p.myr.submitted) {
+      items.push(L('Bạn có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm</a> 2026 của nhân viên trước khi tự đánh giá cuối năm.',
+        'You can review the employee\'s <a href="#" class="yer-note-link" data-go-tab="1">Mid-Year Review</a> 2026 result before the year-end self assessment.'));
+    }
+    return '<div class="info-note yer-note-block yer-note-resign"><i class="bx bx-info-circle"></i><div>' +
+      '<strong>' + L('Lưu ý:', 'Note:') + '</strong><ul class="yer-note-list"><li>' +
+      items.join('</li><li>') + '</li></ul></div></div>';
   }
 
   /* ── mục tiêu Quản lý trước đã đánh giá hoàn thành ──
@@ -246,12 +283,13 @@
     var rows;
     if (type === 'how') {
       rows = CORE_VALUES.map(function (cv, i) {
-        return { id: 'how:' + i, name: lg() === 'en' ? cv.en : cv.vi, result: cv.desc, prio: '' };
+        return { id: 'how:' + i, name: lg() === 'en' ? cv.en : cv.vi, result: cv.desc, prio: '', time: '' };
       });
     } else {
       rows = list.map(function (g) {
         // done: mục tiêu Quản lý trước đã đánh giá hoàn thành, Quản lý hiện tại không chấm lại
         return { id: 'goal:' + g.id, name: g.title, result: g.result || '', prio: g.prio || '',
+                 time: [g.s, g.e].filter(Boolean).join(' – '),
                  done: (p.completedGoals || {})[g.id] || null };
       });
     }
@@ -264,17 +302,29 @@
       : lmMap;
 
     // LM2/HOD không chấm điểm từng mục tiêu, chỉ đọc điểm của NV và của QLTT (§3)
-    var myColHead = isLm() ? L('Điểm của bạn', 'Your score') : L('Điểm của QLTT', 'Line manager');
+    var myColHead = L('Điểm QLTT', 'Line manager');
+
+    var header = type === 'how'
+      ? '<th style="width:30%">' + L('Giá trị cốt lõi', 'Core value') + '</th>' +
+        '<th style="width:52%">' + L('Mô tả', 'Description') + '</th>' +
+        '<th class="th-c" style="width:9%">' + L('Điểm NV', 'Employee') + '</th>' +
+        '<th class="th-c th-ql" style="width:9%">' + esc(myColHead) + '</th>'
+      : type === 'what'
+      ? '<th style="width:26%">' + L('Tên mục tiêu', 'Goal') + '</th>' +
+        '<th style="width:36%">' + L('Kết quả cần đạt', 'Expected result') + '</th>' +
+        '<th style="width:9%">' + L('Ưu tiên', 'Priority') + '</th>' +
+        '<th style="width:11%">' + L('Thời gian', 'Timeline') + '</th>' +
+        '<th class="th-c" style="width:9%">' + L('Điểm NV', 'Employee') + '</th>' +
+        '<th class="th-c th-ql" style="width:9%">' + esc(myColHead) + '</th>'
+      : '<th style="width:30%">' + L('Tên mục tiêu', 'Goal') + '</th>' +
+        '<th style="width:44%">' + L('Kết quả cần đạt', 'Expected result') + '</th>' +
+        '<th style="width:10%">' + L('Thời gian', 'Timeline') + '</th>' +
+        '<th class="th-c" style="width:8%">' + L('Điểm NV', 'Employee') + '</th>' +
+        '<th class="th-c th-ql" style="width:8%">' + esc(myColHead) + '</th>';
 
     return '<div class="rv-section"><div class="rv-section-hd"><i class="bx ' + t.icon + '"></i>' +
         esc(lg() === 'en' ? t.en : t.vi) + '</div>' +
-      '<div class="rv-grid-wrap"><table class="rv-grid"><thead><tr>' +
-        '<th>' + (type === 'how' ? L('Giá trị cốt lõi', 'Core value') : L('Tên mục tiêu', 'Goal')) + '</th>' +
-        '<th>' + (type === 'how' ? L('Mô tả', 'Description') : L('Kết quả cần đạt', 'Expected result')) + '</th>' +
-        (type === 'how' ? '' : '<th>' + L('Ưu tiên', 'Priority') + '</th>') +
-        '<th class="th-c">' + L('Điểm NV', 'Employee') + '</th>' +
-        '<th class="th-c th-ql">' + esc(myColHead) + '</th>' +
-      '</tr></thead><tbody>' +
+      '<div class="rv-grid-wrap"><table class="rv-grid"><thead><tr>' + header + '</tr></thead><tbody>' +
       rows.map(function (r) {
         var key = r.id.split(':');
         var bucket = key[0] === 'how' ? 'how' : 'goal';
@@ -286,9 +336,10 @@
           '><td><div class="g-name">' + esc(r.name) + '</div>' +
           (r.done ? doneChip() : '') + '</td>' +
           '<td><div class="g-result">' + esc(r.result) + '</div></td>' +
-          (type === 'how' ? '' : '<td><div class="g-meta">' +
+          (type === 'what' ? '<td><div class="g-meta">' +
             (r.prio ? '<span class="prio prio-' + esc(r.prio) + '">' +
-              esc(lg() === 'en' ? (PRIO[r.prio] || {}).en : (PRIO[r.prio] || {}).vi) + '</span>' : '') + '</div></td>') +
+              esc(lg() === 'en' ? (PRIO[r.prio] || {}).en : (PRIO[r.prio] || {}).vi) + '</span>' : '') + '</div></td>' : '') +
+          (type === 'how' ? '' : '<td><div class="g-meta">' + esc(r.time || '—') + '</div></td>') +
           '<td class="sc-cell">' + ratingCell('self:' + bucket + ':' + idx, selfVal == null ? null : selfVal, { readonly: true }) + '</td>' +
           '<td class="ql-cell">' + ratingCell('my:' + bucket + ':' + idx, myVal == null ? null : myVal,
             { readonly: r.done ? true : !(canEdit && isLm()) }) + byLine(r.done && r.done.mgr) + '</td></tr>';
@@ -308,7 +359,7 @@
         editorHtml('yer-md-self-' + type, '', 500, selfCmt, 'cc-self-' + type, true) + '</div>' +
       '<div class="scmt-panel' + (canEdit && isLm() ? ' editable-panel' : ' scmt-locked') + '">' +
         '<div class="scmt-hd"><i class="bx bx-user-check"></i>' +
-          (isLm() ? L('Đánh giá của bạn', 'Your review') : L('Đánh giá của Quản lý trực tiếp', 'Line manager review')) +
+          L('Đánh giá của Quản lý trực tiếp', 'Line manager review') +
           (canEdit && isLm() ? req() : '') +
         '</div>' +
         editorHtml('yer-md-cmt-' + type, placeholder, 500, myCmt, 'cc-cmt-' + type, !(canEdit && isLm())) + '</div>' +
@@ -341,9 +392,9 @@
       }));
     }
 
-    var myTitle = role() === 'lm' ? L('Đánh giá của bạn', 'Your review')
-      : role() === 'lm2' ? L('Đánh giá của bạn - Quản lý cấp 2', 'Your review - second level')
-      : L('Đánh giá của bạn - Trưởng đơn vị', 'Your review - head of department');
+    var myTitle = role() === 'lm' ? L('Quản lý trực tiếp đánh giá', 'Line manager review')
+      : role() === 'lm2' ? L('Quản lý cấp 2 đánh giá', 'Second-level manager review')
+      : L('Trưởng đơn vị đánh giá', 'Head of department review');
     var mine = mySubmitted(p)
       ? (role() === 'lm' ? (p.lm.overall || {})
          : role() === 'lm2' ? { score: p.lm2.score, comment: p.lm2.comment }
@@ -397,11 +448,11 @@
     }
     var p = prof();
     if (!p) { root.innerHTML = ''; return; }
-    loadDraft();
+    loadDraft(p);
     syncChrome(p);
 
     var canEdit = editable(p);
-    var html = toolbar(p, canEdit) + banner(p);
+    var html = detailNav(p, canEdit) + banner(p);
 
     html += stoppedBlock(p) + lateBlock(p) + maternityBlock(p) + resignBlock(p);
     html += myrLine(p);
@@ -437,7 +488,7 @@
     if (tabs[1]) {
       var myrBadge = tabs[1].querySelector('.tab-active-label');
       if (myrBadge) myrBadge.textContent = p.myr && p.myr.submitted
-        ? L('Đã công bố', 'Published') : L('Không có dữ liệu', 'No data');
+        ? L('Đã hoàn thành', 'Completed') : L('Không có dữ liệu', 'No data');
     }
     var chip = document.querySelector('.emp-chip');
     if (chip) {
@@ -450,6 +501,30 @@
           esc([p.emp.div, p.emp.team || p.emp.dept].filter(Boolean).join(' - ')) + '</div>' +
         '<div class="ec-line"><span class="ec-lbl">' + L('Quản lý trực tiếp', 'Line manager') + ':</span> ' +
           esc(mgr.name || '') + ' <span class="ec-dom">(' + esc(mgr.login || '') + ')</span></div></div>';
+    }
+    var col = chip && chip.parentElement && chip.parentElement.classList.contains('emp-col')
+      ? chip.parentElement : null;
+    if (col) {
+      var badges = [];
+      if (p.resignFrom && !p.resigned) {
+        badges.push({ cls: 'yer-lwd', icon: 'bx-log-out',
+          html: L('Ngày làm việc cuối cùng: ', 'Last working day: ') +
+            '<strong>' + esc(Y.fmt(p.resignFrom, lg())) + '</strong>' });
+      }
+      if (p.maternity) {
+        badges.push({ cls: 'yer-mtn', icon: 'bx-calendar',
+          html: p.maternityTo
+            ? L('Nghỉ thai sản tới ngày: ', 'On maternity leave until: ') +
+              '<strong>' + esc(Y.fmt(p.maternityTo, lg())) + '</strong>'
+            : L('Đang nghỉ thai sản', 'On maternity leave') });
+      }
+      col.querySelectorAll('.emp-badge').forEach(function (badge) { badge.remove(); });
+      badges.forEach(function (badge) {
+        var node = document.createElement('span');
+        node.className = 'emp-badge ' + badge.cls;
+        node.innerHTML = '<i class="bx ' + badge.icon + '"></i>' + badge.html;
+        col.appendChild(node);
+      });
     }
   }
 
@@ -476,8 +551,18 @@
     if (sb) sb.addEventListener('click', function () { collectEditors(); submit(p); });
     var rt = el('yer-md-return');
     if (rt) rt.addEventListener('click', function () { returnForEdit(p); });
-    var myr = el('yer-md-myr');
-    if (myr) myr.addEventListener('click', function () { window.switchMainTab(1); });
+    var back = el('yer-md-back');
+    if (back) back.addEventListener('click', function () { location.href = '../M-05/index.html'; });
+    var feedback = el('yer-md-feedback');
+    if (feedback) feedback.addEventListener('click', function () {
+      if (typeof window.openFbPopup === 'function') window.openFbPopup();
+    });
+    document.querySelectorAll('#yer-mgr-detail-root .yer-note-link').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        window.switchMainTab(Number(link.dataset.goTab));
+      });
+    });
     var imp = el('yer-md-import');
     if (imp) imp.addEventListener('click', function () { importGoals(p); });
   }
@@ -508,6 +593,7 @@
 
   /* ── hành động ───────────────────────────────────────── */
   function submit(p) {
+    var updating = mySubmitted(p);
     var missing = [];
     if (draft.overall == null || draft.overall.score == null) {
       missing.push(L('điểm toàn diện', 'the overall rating'));
@@ -533,22 +619,28 @@
     }
 
     U.dialog({
-      title: isLm() ? L('Gửi đánh giá cho nhân viên này?', 'Submit this review?')
-                    : L('Lưu điểm cho nhân viên này?', 'Save this rating?'),
-      text: isLm()
-        ? L('Gửi xong bạn không sửa và không thu hồi được. Nhân viên sẽ đọc được điểm từng mục tiêu và các ô nhận xét của bạn, nhưng không thấy điểm toàn diện.',
-            'Once submitted you cannot edit or withdraw it. The employee will see your goal scores and comments, but never your overall rating.')
-        : L('Bạn vẫn sửa được cho tới hết deadline của mình. Nhân viên không thấy điểm này.',
-            'You can still edit until your own deadline. The employee never sees this rating.'),
+      title: updating
+        ? L('Lưu thay đổi đánh giá?', 'Save review changes?')
+        : isLm() ? L('Gửi đánh giá cho nhân viên này?', 'Submit this review?')
+                 : L('Lưu điểm cho nhân viên này?', 'Save this rating?'),
+      text: L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết hạn ',
+              'You can continue editing your review until ') + Y.fmt(Y.step(role()).to, lg()) + '. ' +
+        (isLm()
+          ? L('Nhân viên đọc được điểm từng mục tiêu và các ô nhận xét của bạn, nhưng không thấy điểm toàn diện.',
+              'The employee can see your goal scores and comments, but never your overall rating.')
+          : L('Nhân viên không thấy điểm toàn diện của cấp quản lý.',
+              'The employee cannot see manager-level overall ratings.')),
       buttons: [
         { label: L('Quay lại', 'Go back'), variant: 'quiet' },
-        { label: isLm() ? L('Gửi đánh giá', 'Submit review') : L('Lưu điểm', 'Save rating'),
+        { label: updating ? L('Lưu thay đổi', 'Save changes')
+            : isLm() ? L('Gửi đánh giá', 'Submit review') : L('Lưu điểm', 'Save rating'),
           variant: 'default', icon: 'bx-send', act: function () { doSubmit(p); } }
       ]
     });
   }
 
   function doSubmit(p) {
+    var updating = mySubmitted(p);
     var now = S.session().date;
     var payload;
     if (role() === 'lm') {
@@ -561,19 +653,19 @@
     S.setAct(S.session().emp, role(), payload);
     S.clearAct(S.session().emp, draftKey());
     U.dirty.clear();
-    U.toast(isLm() ? L('Đã gửi đánh giá', 'Review submitted') : L('Đã lưu điểm', 'Rating saved'));
+    U.toast(updating ? L('Đã lưu thay đổi đánh giá', 'Review changes saved')
+      : isLm() ? L('Đã gửi đánh giá', 'Review submitted') : L('Đã lưu điểm', 'Rating saved'));
     render();
   }
 
-  /* ENH-E02 §27.2: trả về cho cấp dưới sửa, ràng buộc 24 giờ */
+  /* Chỉ LM2 còn luồng trả về cho QLTT; đã bỏ trả Self Assessment về cho Nhân viên. */
   function returnForEdit(p) {
-    var who = isLm() ? L('nhân viên', 'the employee') : L('Quản lý trực tiếp', 'the line manager');
     U.dialog({
       title: L('Trả về để chỉnh sửa?', 'Return for editing?'),
-      text: L('Hồ sơ chuyển sang trạng thái Bị trả về để chỉnh sửa và ' + who +
+      text: L('Hồ sơ chuyển sang trạng thái Bị trả về để chỉnh sửa và Quản lý trực tiếp' +
               ' phải nộp lại trong 24 giờ. Deadline của các bước sau giữ nguyên, không giãn ra. ' +
               'Quá 24 giờ mà chưa nộp lại thì hồ sơ quay về trạng thái trước khi trả về và quy trình đi tiếp.',
-              'The profile moves to Returned for editing and ' + who +
+              'The profile moves to Returned for editing and the line manager' +
               ' must resubmit within 24 hours. Later deadlines are unchanged. ' +
               'If nothing comes back in time the profile reverts and the process moves on.'),
       buttons: [
@@ -613,8 +705,15 @@
     var st = document.createElement('style');
     st.id = 'yer-md-css';
     st.textContent =
-      '#yer-mgr-detail-root .yer-mgr-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}' +
+      '#yer-mgr-detail-root .yer-mgr-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:0}' +
+      '#yer-mgr-detail-root .yer-md-nav{margin-bottom:14px}' +
+      '#yer-mgr-detail-root .yer-md-submit-banner{margin-bottom:14px}' +
       '.yer-hd-sub{margin-left:auto;font-size:11.5px;font-weight:400;color:var(--z500);text-transform:none;letter-spacing:0}' +
+      '#yer-mgr-detail-root>.info-note{display:flex;gap:8px;align-items:flex-start;margin-bottom:18px;' +
+        'padding:11px 14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);' +
+        'font-size:12px;color:var(--z600);line-height:1.5}' +
+      '#yer-mgr-detail-root>.info-note>i{flex-shrink:0;margin-top:1px;font-size:15px;color:var(--brand)}' +
+      '#yer-mgr-detail-root>.info-note strong{color:var(--z700);font-weight:600}' +
       '.yer-myr-note{align-items:center}' +
       '.yer-myr-go{margin-left:auto;flex:none;white-space:nowrap}' +
       '.yer-note-mat>i{color:var(--info)}' +
@@ -624,6 +723,16 @@
       '.yer-late-file-tag{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:3px 7px;border-radius:99px;background:#fff7ed;color:#9a3412;font-size:10.5px;font-weight:600;vertical-align:middle}' +
       '.yer-note-stop>i{color:var(--err)}' +
       '.yer-note-resign>i{color:var(--err)}' +
+      '.yer-note-list{margin:5px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:3px}' +
+      '.yer-note-list li{line-height:1.55}' +
+      '.yer-note-link{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}' +
+      '.yer-note-link:hover{color:var(--brand-h)}' +
+      '.emp-badge{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:var(--rxs);' +
+        'border:1px solid;font-size:12px;font-weight:500;white-space:nowrap}' +
+      '.emp-badge i{font-size:15px}' +
+      '.emp-badge strong{font-weight:700}' +
+      '.yer-lwd{border-color:var(--err-bd);background:var(--err-bg);color:var(--err)}' +
+      '.yer-mtn{border-color:var(--brand-ring);background:var(--brand-muted);color:var(--brand)}' +
       '.yer-req{color:#dc2626;font-weight:700;margin-left:3px}' +
       '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;' +
         'clip:rect(0,0,0,0);white-space:nowrap;border:0}' +
@@ -638,8 +747,9 @@
       '.ql-by{margin-top:3px;font-size:10.5px;line-height:1.3;color:var(--z500);' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '.rv-grid tbody tr.g-row-done{border-left:3px solid var(--ok)}' +
+      '#yer-mgr-detail-root .ev-toolbar{display:flex}' +
       '.yer-ed-ro .ev-content{min-height:0;padding:9px 11px;color:var(--z900)}' +
-      '.yer-ed-ro{border-color:var(--z200);background:var(--z50)}' +
+      '.yer-ed-ro{border-color:var(--z200);box-shadow:none;background:var(--z50)}' +
       '.yer-ed-empty{color:var(--z500)}' +
       '.yer-mgr-empty{padding:48px 20px;text-align:center;color:var(--z500);font-size:13px}' +
       '.yer-mgr-empty i{display:block;font-size:30px;color:var(--z300);margin-bottom:8px}' +

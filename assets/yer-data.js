@@ -628,6 +628,10 @@
       vi: 'Quá hạn - hệ thống đồng bộ điểm', en: 'Overdue - score synced by the system',
       wvi: 'Badge HR system cạnh điểm của quản lý, không có nhận xét kèm theo.',
       wen: 'An HR system badge next to the manager score, with no comment attached.' },
+    { id: 'lm09', g: 'r-lm', emp: 'e10', role: 'lm', date: '2027-01-27', screen: 'M-06',
+      vi: 'Đã đánh giá - vẫn được chỉnh sửa', en: 'Submitted review remains editable',
+      wvi: 'QLTT đã gửi đánh giá nhưng timeline của QLTT vẫn mở, nên điểm mục tiêu, nhận xét và điểm toàn diện vẫn chỉnh sửa được.',
+      wen: 'The line manager already submitted, but their timeline is still open, so goal scores, comments and the overall rating remain editable.' },
 
     /* ── Quản lý cấp 2 ── */
     { id: 'lm2-01', g: 'r-lm2', emp: 'y8', role: 'lm2', date: '2027-02-10', screen: 'M-06',
@@ -646,6 +650,10 @@
       vi: 'Quá hạn - đồng bộ điểm từ quản lý', en: 'Overdue - score synced from the manager',
       wvi: 'Đồng bộ ở tầng thứ hai, vẫn dùng chung một nhãn HR system.',
       wen: 'Second-level sync, still using the same shared HR system label.' },
+    { id: 'lm2-05', g: 'r-lm2', emp: 'e11', role: 'lm2', date: '2027-02-13', screen: 'M-06',
+      vi: 'Đã đánh giá - vẫn được chỉnh sửa', en: 'Saved rating remains editable',
+      wvi: 'Quản lý cấp 2 đã lưu điểm nhưng timeline cấp 2 vẫn mở, nên điểm toàn diện và nhận xét vẫn chỉnh sửa được.',
+      wen: 'The second-level manager already saved a rating, but their timeline is still open, so the overall rating and comment remain editable.' },
 
     /* ── Trưởng đơn vị ── */
     { id: 'hod01', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-02-20', screen: 'M-06',
@@ -663,7 +671,11 @@
     { id: 'hod04', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-03-05', screen: 'M-05',
       vi: 'Quá hạn - không đồng bộ', en: 'Overdue - no sync',
       wvi: 'Hồ sơ giữ trạng thái Chờ Trưởng đơn vị, quy trình vẫn đi tiếp sang bước sau.',
-      wen: 'The profile stays in Awaiting HOD and the process still moves on to the next step.' }
+      wen: 'The profile stays in Awaiting HOD and the process still moves on to the next step.' },
+    { id: 'hod05', g: 'r-hod', emp: 'e12', role: 'hod', date: '2027-02-20', screen: 'M-06',
+      vi: 'Đã đánh giá - vẫn được chỉnh sửa', en: 'Saved HOD rating remains editable',
+      wvi: 'Trưởng đơn vị đã lưu điểm nhưng timeline HOD vẫn mở, nên điểm toàn diện và nhận xét vẫn chỉnh sửa được.',
+      wen: 'The head of department already saved a rating, but the HOD timeline is still open, so the overall rating and comment remain editable.' }
   ];
 
   // Thứ tự review chính là thứ tự khai báo ở trên: theo vai trò, trong mỗi vai

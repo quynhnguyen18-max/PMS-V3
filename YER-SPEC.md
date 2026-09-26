@@ -128,10 +128,12 @@ hiển thị nhận xét toàn diện của Quản lý khi đã có dữ liệu.
 Quản lý phải thẳng hàng dù cột Quản lý không có dòng điểm.
 HRBP chỉ thấy đơn vị mình phụ trách; L&OD thấy toàn công ty.
 
-## 8. Không thu hồi
+## 8. Không thu hồi; Quản lý được cập nhật trong timeline
 
-NV và LM **không** thu hồi được sau khi submit. Mọi nút submit phải có dialog xác nhận nêu rõ hậu quả.
-LM2/HOD sửa điểm thoải mái tới hết deadline của mình.
+- Nhân viên **không** thu hồi hoặc chỉnh sửa Self Assessment sau khi gửi.
+- QLTT, Quản lý cấp 2 và HOD không cần thu hồi bản đánh giá đã gửi: cả ba vai đều mở lại,
+  chỉnh sửa và lưu cập nhật được tới hết deadline của chính mình.
+- Sau deadline, đánh giá của vai đó chuyển sang chỉ xem.
 
 ## 9. HRBP upload hộ HOD
 
@@ -637,11 +639,11 @@ Prototype không dựng inbox thông báo, chỉ hiện badge và banner trên m
 - Prototype dùng file Excel dựng sẵn theo từng hồ sơ demo. Bản thật cần sinh file động từ
   toàn bộ mục tiêu đã duyệt của nhân viên tại thời điểm tải.
 
-### 27.2 Trả về để chỉnh sửa — chọn Opt 2
+### 27.2 Trả về để chỉnh sửa
 
-- **Quản lý trực tiếp trả về cho Nhân viên.** Nhân viên sửa được **cả mục tiêu lẫn nội dung
-  tự đánh giá**, ràng buộc hoàn thành trong **24 giờ** kể từ lúc bị trả về.
-- **Quản lý cấp 2 trả về cho Quản lý trực tiếp**, cùng cách.
+- **Bỏ tính năng Quản lý trực tiếp trả Self Assessment về cho Nhân viên.** Không hiển thị
+  nút, popup hay trạng thái trả về ở bước QLTT.
+- **Quản lý cấp 2 vẫn có thể trả về cho Quản lý trực tiếp**, với hạn nộp lại 24 giờ.
 - Deadline của từng vai **giữ nguyên**, không giãn ra vì có lần trả về.
 - Quá 24 giờ mà chưa nộp lại: hồ sơ quay về trạng thái trước khi trả về, quy trình đi tiếp.
 - Trạng thái mới: `Bị trả về để chỉnh sửa`, kèm tên người trả về và lý do.
@@ -771,9 +773,9 @@ Màn Quản lý của YER **không phải màn mới**. Nó là **tab Đánh gi�
 | 3 nhận xét nhóm | nhập, bắt buộc | chỉ xem | chỉ xem |
 | Điểm toàn diện | nhập, bắt buộc | nhập, bắt buộc | nhập, bắt buộc |
 | Nhận xét toàn diện | bắt buộc | tùy chọn | tùy chọn |
-| Sửa sau khi gửi | **không** (§8) | được, tới hết deadline | được, tới hết deadline |
+| Sửa sau khi gửi | được, tới hết deadline | được, tới hết deadline | được, tới hết deadline |
 | Cột điểm đọc thêm | — | của QLTT | của QLTT và QL cấp 2 |
-| Nút trả về | về nhân viên | về QLTT | — |
+| Nút trả về | — | về QLTT | — |
 
 ### 39.2 Quy ước dữ liệu ghi vào store
 
@@ -783,7 +785,8 @@ Màn Quản lý của YER **không phải màn mới**. Nó là **tab Đánh gi�
 
 ### 39.3 Ghi chú
 
-- Điểm đã gửi đọc lại từ bản đã gửi chứ không từ bản nháp, vì gửi xong là nháp bị xóa.
+- Khi mở lại trong timeline của chính vai, điểm và nhận xét đã gửi được nạp thành dữ liệu
+  chỉnh sửa ban đầu; bấm `Lưu thay đổi` ghi đè bản đánh giá của vai đó.
 - Tỷ lệ hoàn thành dùng `PMSYer.completion`, không tự đếm lại trong màn (DESIGN-SYSTEM.md §20.1).
 - Khi gộp vào sản phẩm thật, hai tab này chuyển thẳng vào `M-01` và `M-02`.
 
@@ -1094,16 +1097,16 @@ mascot thay nút hướng dẫn, ba file mẫu có thật, thanh demo ẩn nhưn
 
 ## 46. Bảng điều hướng tình huống
 
-`YER-demo/index.html` gom **37 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
+`YER-demo/index.html` gom **38 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
 người review thường duyệt hết phần của một vai rồi mới sang vai khác. Hàng chip đầu bảng
 lọc theo vai; mỗi dòng đặt sẵn vai trò, nhân sự, ngày hệ thống và **màn hình sẽ mở**.
 
 | Nhóm | Mã | Số tình huống |
 |---|---|---|
 | Nhân viên | Các mã còn hiệu lực trong `nv01`–`nv22` | 19 |
-| Quản lý trực tiếp | `lm01`–`lm08` | 8 |
-| Quản lý cấp 2 | `lm2-01`–`lm2-04` | 4 |
-| Trưởng đơn vị | `hod01`–`hod04` | 4 |
+| Quản lý trực tiếp | `lm01`–`lm09` | 9 |
+| Quản lý cấp 2 | `lm2-01`–`lm2-05` | 5 |
+| Trưởng đơn vị | `hod01`–`hod05` | 5 |
 
 `nv01`–`nv16` là mười sáu tình huống chính của vai Nhân viên, đi theo đúng thứ tự câu chuyện:
 không đủ điều kiện → thai sản → LWD → đổi quản lý → ba biến thể còn hạn → bốn biến thể
@@ -1130,3 +1133,71 @@ Ba bản dựng phụ để review từng phần:
 | `YER-demo/overdue-self-assessment.html` | bốn tình huống nộp trễ cạnh nhau |
 | `YER-demo/mascot-tour.html` | thử từng bước của tourguide |
 | `YER-demo/mascot-tour-v2.html` | mascot gắn trên chính màn `E-05` |
+
+## 47. Danh sách Đánh giá cuối năm của Quản lý
+
+Chốt ngày 22/09/2026.
+
+- `M-05` giữ cùng ngôn ngữ giao diện với danh sách Đánh giá giữa năm: dải đổi phạm vi
+  gồm `Direct reports` / `Indirect reports`, lựa chọn phụ `LM2` / `HOD`, tìm kiếm và bảng
+  nhân viên. Không dựng biến thể ba nút phạm vi riêng cho YER.
+- Roster được lọc sẵn theo reporting scope giống Mid-Year: QLTT xem toàn bộ direct reports,
+  Quản lý cấp 2 xem toàn bộ nhân viên thuộc các Quản lý dưới quyền, HOD xem toàn bộ nhân viên
+  thuộc đơn vị. Không vai nào nhận danh sách toàn công ty rồi mới lọc ở giao diện.
+- Khi đang ở kỳ cuối năm, tab **Đánh giá giữa năm** dùng nhãn xanh **`Đã hoàn thành`**.
+- Tab **Đánh giá cuối năm** có nhãn theo vai và hồ sơ của tình huống đang chọn, ví dụ
+  `Cần đánh giá`, `Đã hoàn thành`, `Cần phê duyệt`, `Đã có kết quả` hoặc trạng thái chờ.
+- Không có bộ lọc `Hiển thị nhân viên đã nghỉ việc`; danh sách mặc định tuân theo luật lọc
+  của model. Người đã có ngày nghỉ việc trong tương lai vẫn có thể hiện badge LWD nhưng
+  không tính vào mẫu số tiến độ.
+- Không hiển thị thẻ `Tiến độ đánh giá cuối năm` trên danh sách này.
+- Dải quy trình dùng đúng component của màn Nhân viên và chỉ gồm 5 bước:
+  `Tự đánh giá → Quản lý trực tiếp → Quản lý cấp 2 → Trưởng đơn vị → Công bố kết quả`.
+  Trên màn danh sách Quản lý, các bước **không hiển thị domain**.
+- Bảng luôn có cột `Chức năng`; icon bút dùng khi vai đang xem có thể đánh giá hoặc sửa lại
+  bản đã gửi trong timeline của chính vai, icon mắt dùng khi chỉ xem. Trước khi timeline mở
+  và sau deadline, hồ sơ chỉ còn icon mắt. Cột `Trạng thái` là cột cố định, thu gọn vừa đủ
+  đọc và không có tay kéo;
+  phần chiều rộng thu hồi được phân bổ lại cho thông tin nhân viên, các cột điểm và Chức năng
+  theo từng vai `LM`, `LM2`, `HOD`. Các cột điểm giữ căn giữa như bảng Mid-Year.
+- Thứ tự ưu tiên của danh sách: **`Chưa Tự đánh giá`** → hồ sơ nộp trễ đang
+  **`Chờ QLTT đánh giá`** → nhân viên thai sản đang **`Chờ QLTT đánh giá`** → các trạng thái
+  khác → nhân viên bình thường đang **`Chờ QLTT đánh giá`**. Trong từng nhóm vẫn giữ thứ tự
+  dữ liệu ban đầu; mọi hồ sơ có ngày `LWD` luôn nằm ở cuối toàn bộ danh sách.
+- Badge trạng thái dùng cùng kiểu pill bo tròn của Mid-Year và giữ nguyên câu chữ theo trạng
+  thái khách quan của quy trình. Chỉ trạng thái đang chờ **đúng vai hiện tại** và timeline của
+  vai đó còn mở mới dùng màu hồng; cùng trạng thái khi vai khác xem, trước timeline hoặc sau
+  deadline dùng màu xám vì không thể action. Quá hạn nhưng chưa nộp dùng màu đỏ.
+- Cột Quản lý dùng `PMSYer.actors(profile)` làm nguồn duy nhất, không đọc thẳng `emp.mgr` /
+  `emp.mgr2`; nhờ đó hồ sơ seed chưa lặp lại dữ liệu tổ chức vẫn hiện đúng chuỗi quản lý.
+  Tên và domain dùng nguyên kết cấu `.myr-manager` + `.er-login` của bảng Mid-Year.
+- Cột Nhân viên giữ thêm khoảng đệm trái 12px để nội dung không dính sát viền bảng.
+- `Chờ Quản lý trực tiếp` được rút gọn thành **`Chờ QLTT đánh giá`**. Với nhân viên thai sản,
+  badge xanh `Đang nghỉ thai sản` chỉ nằm dưới thông tin nhân viên; cột `Trạng thái` không lặp
+  thông tin này mà hiển thị action **`Chờ QLTT đánh giá`**.
+- `Cần nộp file trễ hạn` trên danh sách Quản lý đổi thành **`Chưa Tự đánh giá`**. Hồ sơ đã
+  nộp trễ chỉ hiển thị **`Chờ QLTT đánh giá`** trong cột Trạng thái; thông tin `Nộp trễ hạn`
+  được giữ một lần dưới tên nhân viên.
+- Không hiển thị ba thành phần phụ trên danh sách: khối mô tả việc của vai, khối giải thích
+  điểm toàn diện và nút/tour `Xem hướng dẫn`.
+
+## 48. Chi tiết Đánh giá cuối năm của Quản lý
+
+Chốt ngày 22/09/2026.
+
+- Cả **QLTT, Quản lý cấp 2 và HOD** đều sửa được điểm và nhận xét của chính mình sau lần
+  đánh giá đầu tiên, miễn là timeline của vai đó vẫn còn mở. Hết deadline mới chuyển chỉ xem.
+- Quản lý cấp 2 và HOD chỉ nhập **điểm toàn diện (overall rating)** và nhận xét toàn diện cho
+  nhân viên đã nằm trong roster được lọc sẵn của vai mình; điểm từng mục tiêu của các cấp trước
+  chỉ để tham khảo.
+- Ba tình huống `lm09`, `lm2-05`, `hod05` lần lượt kiểm tra trạng thái đã đánh giá nhưng vẫn
+  chỉnh sửa được của từng cấp quản lý.
+- Tab Cuối năm dùng đúng cấu trúc tab Giữa năm: một hàng điều hướng có `Quay lại danh sách
+  nhân viên` bên trái và các action bên phải; không đặt thêm nút `Danh sách` trên topbar.
+- Bảng mục tiêu dùng cùng phân bổ cột với Giữa năm, gồm cột `Thời gian`; hai panel nhận xét
+  và thẻ Đánh giá toàn diện dùng cùng editor, toolbar, màu viền và nhãn vai trò.
+- Bỏ toàn bộ nút và dialog `Trả về cho nhân viên` ở vai QLTT.
+- Với hồ sơ có LWD, không dựng thêm box Mid-Year riêng. Box `Lưu ý` gồm bullet 1 về LWD
+  và bullet 2: `Bạn có thể xem lại kết quả [Đánh giá giữa năm] 2026 của nhân viên trước khi
+  tự đánh giá cuối năm.` Cụm `Đánh giá giữa năm` dùng màu thương hiệu, gạch chân và là liên
+  kết chuyển sang tab Giữa năm ngay trong cùng màn.

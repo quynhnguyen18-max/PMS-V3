@@ -213,6 +213,47 @@
     return { key: 'no-self', label: t('Không tự đánh giá', 'No self assessment'), tone: 'muted' };
   }
 
+  /* ── Quyền của từng cấp Quản lý tại một thời điểm ─────────
+     Danh sách và màn chi tiết phải cùng đọc helper này để icon hành động không
+     nói khác với quyền chỉnh sửa thực tế. Một bản đã gửi vẫn sửa được nhiều lần
+     trong timeline của chính vai; trước/sau timeline chỉ được xem. */
+  function managerReviewState(role, p) {
+    if (!p || ['lm', 'lm2', 'hod'].indexOf(role) < 0) {
+      return { stepOpen: false, submitted: false, pending: false, canEdit: false };
+    }
+
+    var own = role === 'lm' ? p.lm : role === 'lm2' ? p.lm2 : p.hod;
+    var submitted = role === 'lm' ? !!(own && !own.synced) : !!own;
+    var stepOpen = stepState(role, p.now) === 'open';
+    var blocked = p.resigned || p.stopped || p.eligibility.reason === 'late-onboard';
+    var prerequisite = false;
+
+    if (role === 'lm') {
+      // Hồ sơ đủ goal vẫn được QLTT đánh giá khi NV bỏ Self Assessment. Nếu thiếu
+      // goal thì chỉ mở sau khi có file nộp trễ; thai sản dùng luồng import riêng.
+      prerequisite = submitted || p.eligibility.reason !== 'missing-goal' ||
+        !!p.lateSubmission || !!p.maternity;
+    } else if (role === 'lm2') {
+      prerequisite = submitted || !!p.lm;
+    } else {
+      prerequisite = submitted || !!p.lm2;
+    }
+
+    var key = status(p, 'vi').key;
+    var pendingKey = role === 'lm' ? 'wait-lm' : role === 'lm2' ? 'wait-lm2' : 'wait-hod';
+    // Thai sản không cần Self Assessment nhưng chuyển thành việc của QLTT khi
+    // timeline QLTT bắt đầu.
+    var pending = key === pendingKey ||
+      (role === 'lm' && key === 'maternity' && stepState('lm', p.now) !== 'future');
+
+    return {
+      stepOpen: stepOpen,
+      submitted: submitted,
+      pending: pending,
+      canEdit: !!(stepOpen && !blocked && prerequisite)
+    };
+  }
+
   /* ── Quyền xem điểm theo vai trò ────────────────────────── */
   // level: 'self' | 'lmGoals' | 'lmOverall' | 'lm2' | 'hod' | 'final'
   function canSee(role, level, p) {
@@ -305,7 +346,10 @@
     var out = (window.PMS_EMPLOYEES || []).map(function (e) { return profile(e.id, now); }).filter(Boolean);
     out = out.filter(function (p) { return p.eligibility.reason !== 'late-onboard'; });
     if (!opts.showResigned) out = out.filter(function (p) { return !p.resigned; });
-    if (role === 'lm') out = out.filter(function (p) { return p.emp.lvl === 'lm1'; });
+    // Cùng phạm vi đã dùng ở danh sách Mid-Year: mỗi vai chỉ nhận roster thuộc
+    // reporting scope của chính họ; màn hình không tải toàn công ty rồi mới giả lập lọc.
+    var scopeLevel = role === 'lm' ? 'lm1' : role === 'lm2' ? 'lm2' : role === 'hod' ? 'hod' : null;
+    if (scopeLevel) out = out.filter(function (p) { return p.emp.lvl === scopeLevel; });
     return out;
   }
 
@@ -350,6 +394,7 @@
     currentStep: currentStep,
     profile: profile,
     status: status,
+    managerReviewState: managerReviewState,
     canSee: canSee,
     roster: roster,
     completion: completion,

@@ -116,6 +116,76 @@ test('published employee result keeps prior-cycle status muted and hides manager
   assert.match(employee, /\.yer-manager-score-gap\{height:20px;margin-bottom:12px\}/);
 });
 
+test('manager year-end list follows the mid-year shell and uses employee timeline rules', () => {
+  const page = fs.readFileSync(path.join(root, 'M-05/index.html'), 'utf8');
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
+
+  assert.match(page, /id="cy-1-lbl">Đã hoàn thành<\/span>/);
+  assert.match(manager, /function managerTabState\(p\)/);
+  assert.match(manager, /yer\.textContent = managerTabState\(Y\.profile\(S\.session\(\)\.emp, S\.session\(\)\.date\)\)/);
+  assert.match(manager, /var MGR_STEPS = \['self', 'lm', 'lm2', 'hod', 'publish'\]/);
+  assert.match(manager, /\.filter\(function \(st\) \{ return MGR_STEPS\.indexOf\(st\.key\) >= 0; \}\)/);
+  assert.match(manager, /domain: ''/);
+  assert.match(manager, /class="yer-mgr-stepper"><div id="yer-mgr-steps"><\/div><\/div>/);
+  assert.doesNotMatch(manager, /showResigned|yer-mgr-res|Hiển thị nhân viên đã nghỉ việc|Show resigned employees/);
+  assert.doesNotMatch(manager, /yer-mgr-progress|function progressHtml/);
+  assert.doesNotMatch(manager, /yer-role-guide|yer-mgr-guide|Xem hướng dẫn|View guide|<div class="myr-info"/);
+  assert.match(manager, /role-sw-row/);
+  assert.match(manager, /<span>Direct reports<\/span>/);
+  assert.match(manager, /<span>Indirect reports<\/span>/);
+  assert.match(manager, /class="role-sub-btn/);
+  assert.match(manager, /role-sw-row yer-mgr-controls/);
+  assert.match(manager, /role-sub-group[\s\S]*yer-mgr-search/);
+  assert.match(manager, /\.yer-mgr-controls \.role-sub-group\{margin-left:0\}/);
+  assert.doesNotMatch(manager, /list-toolbar yer-mgr-toolbar/);
+  assert.match(manager, /myr-table-wrap yer-mgr-table-wrap/);
+  assert.match(manager, /id="yer-mgr-colgroup"/);
+  assert.match(manager, /var actors = Y\.actors\(p\)/);
+  assert.match(manager, /cells\.push\(mgrCell\(actors\.lm\)\)/);
+  assert.match(manager, /class="myr-manager"/);
+  assert.match(manager, /<span class="er-login">\(/);
+  assert.match(manager, /\.yer-mgr-table th:first-child,\.yer-mgr-table td:first-child\{padding-left:12px\}/);
+  assert.doesNotMatch(manager, /yer-status-resizer|yer-col-resizer|function bindStatusResizer\(\)|statusWidth/);
+  assert.match(manager, /return col\('27%'\) \+ col\('17%'\)/);
+  assert.match(manager, /return col\('20%'\) \+ col\('15%'\) \+ col\('15%'\)/);
+  assert.match(manager, /return col\('18%'\) \+ col\('12%'\) \+ col\('12%'\) \+ col\('14%'\)/);
+  assert.match(manager, /L\('Chức năng', 'Action'\)/);
+  assert.match(manager, /class="myr-action-cell"/);
+});
+
+test('manager columns resolve the shared reporting chain when an employee seed omits mgr', () => {
+  const w = loadYer();
+  for (const empId of ['e2', 'e13']) {
+    const profile = w.PMSYer.profile(empId, '2027-02-10');
+    assert.equal(profile.emp.mgr, undefined);
+    const manager = w.PMSYer.actors(profile).lm;
+    assert.equal(manager.name, 'Lê Thị Thanh');
+    assert.equal(manager.login, 'thanh.le');
+    assert.equal(manager.ini, 'LT');
+  }
+});
+
+test('each manager role receives only the full roster inside its reporting scope', () => {
+  const w = loadYer();
+  const scope = { lm: 'lm1', lm2: 'lm2', hod: 'hod' };
+  for (const [role, level] of Object.entries(scope)) {
+    const roster = w.PMSYer.roster(role, { now: '2027-01-12' });
+    assert.ok(roster.length > 0, `${role} scope must not be empty`);
+    assert.ok(roster.every(profile => profile.emp.lvl === level));
+  }
+  assert.equal(w.PMSYer.roster('lm2', { now: '2027-01-12' }).some(profile => profile.emp.id === 'e1'), false);
+  assert.equal(w.PMSYer.roster('hod', { now: '2027-01-12' }).some(profile => profile.emp.id === 'e5'), false);
+});
+
+test('LM2 and HOD only edit their own overall rating inside the filtered roster', () => {
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  assert.match(detail, /LM2\/HOD không chấm điểm từng mục tiêu, chỉ đọc điểm của NV và của QLTT/);
+  assert.match(detail, /readonly: r\.done \? true : !\(canEdit && isLm\(\)\)/);
+  assert.match(detail, /role\(\) === 'lm2' \? L\('Quản lý cấp 2 đánh giá'/);
+  assert.match(detail, /L\('Trưởng đơn vị đánh giá', 'Head of department review'\)/);
+  assert.match(detail, /key: 'my:overall'/);
+});
+
 test('nv06 and nv07 name the missing goal type and highlight it in the warning', () => {
   const w = loadYer();
   const missingWork = w.PMSYer.profile('y13', '2027-01-12').eligibility;
@@ -370,7 +440,41 @@ test('nv04 mid-year tab shows the completed result and the historical line manag
   const yerManager = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   const myrLine = yerManager.slice(yerManager.indexOf('function myrLine(p)'), yerManager.indexOf('function maternityBlock(p)'));
   assert.doesNotMatch(myrLine, /Người đã chấm giữa năm|Rated at mid-year by|p\.emp\.myrMgr/);
-  assert.match(myrLine, /Mở tab giữa năm/);
+  assert.doesNotMatch(myrLine, /Mở tab giữa năm|yer-md-myr/);
+  assert.match(myrLine, /if \(p\.resignFrom && !p\.resigned\) return ''/);
+});
+
+test('manager LWD note merges the mid-year link into its second bullet', () => {
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const block = detail.slice(detail.indexOf('function resignBlock(p)'), detail.indexOf('function doneChip()'));
+  assert.match(block, /items\.join\('<\/li><li>'\)/);
+  assert.match(block, /Bạn có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm<\/a> 2026 của nhân viên trước khi tự đánh giá cuối năm\./);
+  assert.match(detail, /querySelectorAll\('#yer-mgr-detail-root \.yer-note-link'\)/);
+  assert.match(detail, /window\.switchMainTab\(Number\(link\.dataset\.goTab\)\)/);
+  assert.match(detail, /\.yer-note-link\{color:var\(--brand\);font-weight:600;text-decoration:underline/);
+});
+
+test('manager YER list uses action colors, concise labels and the requested priority ordering', () => {
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
+  const listStatus = manager.slice(manager.indexOf('function listStatus(p)'), manager.indexOf('function rowHtml(p)'));
+  const rosterRank = manager.slice(manager.indexOf('function rosterRank(p)'), manager.indexOf('function roster()'));
+  const roster = manager.slice(manager.indexOf('function roster()'), manager.indexOf('function scoreCell'));
+
+  assert.match(listStatus, /L\('Chờ QLTT đánh giá'/);
+  assert.doesNotMatch(manager, /L\('Chờ Quản lý trực tiếp', 'Awaiting line manager'\)/);
+  assert.match(listStatus, /L\('Chưa Tự đánh giá', 'Self assessment missing'\)/);
+  assert.doesNotMatch(listStatus, /Nộp trễ hạn - Chờ QLTT đánh giá/);
+  assert.match(listStatus, /key === 'maternity'/);
+  assert.match(listStatus, /key === 'late-upload' \? 'danger'/);
+  assert.match(listStatus, /review\.pending && review\.stepOpen/);
+  assert.match(manager, /\.myr-status\.danger\{color:var\(--err\);background:var\(--err-bg\);border-color:var\(--err-bd\)\}/);
+  assert.match(manager, /\.yer-mgr-table \.myr-status\{border-radius:50px/);
+  assert.match(rosterRank, /if \(p\.resignFrom\) return 99/);
+  assert.match(rosterRank, /if \(key === 'late-upload'\) return 0/);
+  assert.match(rosterRank, /review\.pending && review\.stepOpen/);
+  assert.match(rosterRank, /role\(\) === 'lm' && p\.lateSubmission/);
+  assert.match(rosterRank, /role\(\) === 'lm' && p\.maternity/);
+  assert.match(roster, /rosterRank\(a\.p\) - rosterRank\(b\.p\) \|\| a\.index - b\.index/);
 });
 
 test('overdue guidance uses a compact three-step flow and a footer submit action', () => {
@@ -555,6 +659,66 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /class="yer-md-late-status"/);
   assert.match(source, /Y\.lateDays\(p\.lateSubmission\.at\)/);
   assert.match(source, /\.yer-md-late-status\{[^}]*background:#FCEBF5;[^}]*color:var\(--brand\)/);
+});
+
+test('all manager levels can edit a submitted review while their own timeline remains open', () => {
+  const w = loadYer();
+  const cases = [
+    ['lm09', 'lm', 'e10', '2027-01-27'],
+    ['lm2-05', 'lm2', 'e11', '2027-02-13'],
+    ['hod05', 'hod', 'e12', '2027-02-20']
+  ];
+  for (const [scenarioId, role, emp, date] of cases) {
+    const scenario = w.PMS_YER_SCENARIOS.find(item => item.id === scenarioId);
+    assert.ok(scenario, `${scenarioId} must exist in the demo`);
+    assert.equal(scenario.role, role);
+    assert.equal(scenario.emp, emp);
+    assert.equal(scenario.date, date);
+    const profile = w.PMSYer.profile(emp, date);
+    assert.equal(w.PMSYer.stepState(role, date), 'open');
+    assert.ok(role === 'lm' ? profile.lm : role === 'lm2' ? profile.lm2 : profile.hod);
+    const review = w.PMSYer.managerReviewState(role, profile);
+    assert.equal(review.submitted, true);
+    assert.equal(review.canEdit, true);
+
+    const afterDeadline = w.PMSYer.profile(emp, w.PMSYer.addDays(w.PMSYer.step(role).to, 1));
+    assert.equal(w.PMSYer.managerReviewState(role, afterDeadline).canEdit, false);
+  }
+
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const editable = detail.slice(detail.indexOf('function editable(p)'), detail.indexOf('function toolbar(p'));
+  assert.match(editable, /Y\.managerReviewState\(role\(\), p\)\.canEdit/);
+  assert.doesNotMatch(editable, /return !mySubmitted\(p\)/);
+  assert.match(detail, /function submittedDraft\(p\)/);
+  assert.match(detail, /loadDraft\(p\)/);
+  assert.match(detail, /L\('Lưu thay đổi', 'Save changes'\)/);
+  assert.doesNotMatch(detail, /Trả về cho nhân viên|Return to employee/);
+});
+
+test('manager year-end detail follows the mid-year detail structure', () => {
+  const page = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+
+  assert.match(detail, /function detailNav\(p, canEdit\)/);
+  assert.match(detail, /class="manager-detail-nav yer-md-nav"/);
+  assert.match(detail, /id="yer-md-back"/);
+  assert.match(detail, /Quay lại danh sách nhân viên/);
+  assert.doesNotMatch(page, /<header class="topbar">\s*<a[^>]+>[^<]*<i[^>]*><\/i>Danh sách<\/a>/);
+  assert.match(detail, /L\('Thời gian', 'Timeline'\)/);
+  assert.match(detail, /style="width:26%"/);
+  assert.match(detail, /style="width:36%"/);
+  assert.match(detail, /style="width:11%"/);
+  assert.match(detail, /function editorToolbar\(\)/);
+  assert.match(detail, /if \(readonly\) \{\s*return '<div class="ev-editor-wrap yer-ed-ro"><div class="ev-content"/);
+  assert.doesNotMatch(detail, /\.yer-ed-ro \.ev-toolbar/);
+  assert.match(detail, /\.yer-ed-ro\{border-color:var\(--z200\);box-shadow:none;background:var\(--z50\)\}/);
+  assert.match(page, /class="emp-col"/);
+  assert.match(page, /Đánh giá giữa năm<span class="badge tab-active-label">Đã hoàn thành<\/span>/);
+  assert.match(detail, /Ngày làm việc cuối cùng:/);
+  assert.match(detail, /class="info-note yer-note-block yer-note-resign"/);
+  assert.doesNotMatch(detail, /el\('yer-md-myr'\)/);
+  assert.match(page, /\.rv-section-hd\{[^}]*border-bottom:1px solid #f3cfe1;background:#fbe4f0\}/);
+  assert.match(detail, /L\('Quản lý trực tiếp đánh giá', 'Line manager review'\)/);
 });
 
 test('tour detail keeps a mascot illustration in every step card', () => {

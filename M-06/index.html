@@ -120,6 +120,7 @@ input,select,textarea{font-family:inherit}
 .page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
 
+.emp-col{display:flex;flex-direction:column;align-items:stretch;gap:7px;flex-shrink:0}
 .emp-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);flex-shrink:0}
 .ec-info{display:flex;flex-direction:column;gap:2px}
 .ec-line{font-size:12px;color:var(--z800);line-height:1.35}
@@ -946,7 +947,6 @@ body.embedded-detail .page-title{font-size:16px}
 
   <!-- Top bar -->
   <header class="topbar">
-    <a href="../M-05/index.html" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Danh sách</a>
     <span class="topbar-title">Chi tiết đánh giá của Nhân viên</span>
     <div class="topbar-right">
       <span id="lang-slot" style="margin-right:6px"></span>
@@ -966,16 +966,18 @@ body.embedded-detail .page-title{font-size:16px}
 
     <!-- Header -->
     <div class="breadcrumb">
-      <a href="../M-01/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep"> / </span><span>Chi tiết đánh giá của Nhân viên</span>
+      <a href="../M-05/index.html">Mục tiêu và Đánh giá nhân viên</a><span class="bc-sep"> / </span><span>Chi tiết đánh giá của Nhân viên</span>
     </div>
     <div class="page-hd">
       <h1 class="page-title">Chi tiết đánh giá của Nhân viên</h1>
-      <div class="emp-chip">
-        <div class="av av-brand av-xs">NT</div>
-        <div class="ec-info">
-          <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
-          <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
-          <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+      <div class="emp-col">
+        <div class="emp-chip">
+          <div class="av av-brand av-xs">NT</div>
+          <div class="ec-info">
+            <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
+            <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
+            <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -993,7 +995,7 @@ body.embedded-detail .page-title{font-size:16px}
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn" onclick="switchMainTab(0)">Mục tiêu<span class="tab-cnt">6</span></button>
-      <button class="tab-btn has-active-label" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label">Đã công bố</span></button>
+      <button class="tab-btn has-active-label" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label">Đã hoàn thành</span></button>
       <button class="tab-btn on has-active-label" onclick="switchMainTab(2)">Đánh giá cuối năm<span class="badge tab-active-label" id="tablbl-yer">—</span></button>
     </div>
 
