@@ -951,16 +951,20 @@ test('HR builder owns requester, identity and release messaging for structured p
   const programHint=builder.indexOf('Tên hiển thị cho tất cả người tham gia và người được chia sẻ kết quả.');
   const programInput=builder.indexOf('id="progName"');
   const invitation=builder.indexOf('for="invitationMessage">Lời ngỏ');
+  const invitationHint=builder.indexOf('Tất cả người cho và nhận phản hồi, Quản lý trực tiếp của người nhận phản hồi sẽ nhận được thông báo về chương trình do HR tạo.');
+  const invitationInput=builder.indexOf('id="invitationMessage"');
   const questionnaire=builder.indexOf('id="tplSel"');
   assert.ok(programLabel<programHint&&programHint<programInput);
-  assert.ok(programInput<invitation&&invitation<questionnaire);
+  assert.ok(programInput<invitation&&invitation<invitationHint&&invitationHint<invitationInput&&invitationInput<questionnaire);
   assert.match(builder,/class="field-section program-intro-section"/);
   assert.match(builder,/\.program-intro-section\{display:grid;gap:16px\}/);
-  /* Dòng lưu ý dưới "Lời ngỏ" có icon (i) đứng đầu để nhận ra ngay là thông tin,
-     không phải hướng dẫn nhập. */
-  assert.ok(builder.includes('<div class="field-hint field-hint-info"><i class="bx bx-info-circle"></i><span>Tất cả người cho và nhận phản hồi, Quản lý trực tiếp của người nhận phản hồi sẽ nhận được thông báo về chương trình do HR tạo.</span></div>'));
+  assert.ok(builder.includes('<div class="field-hint field-hint-info">Tất cả người cho và nhận phản hồi, Quản lý trực tiếp của người nhận phản hồi sẽ nhận được thông báo về chương trình do HR tạo.</div>'));
+  assert.doesNotMatch(builder,/field-hint-info"><i/);
+  assert.match(builder,/<textarea class="fc intro-textarea" id="progName" rows="1"[^>]*oninput="resizeIntroTextarea\(this\)"/);
+  assert.match(builder,/<textarea class="fc intro-textarea" id="invitationMessage" rows="1"[^>]*oninput="resizeIntroTextarea\(this\)"/);
+  assert.match(builder,/\.intro-textarea\{display:block;height:38px;min-height:38px;resize:none!important;overflow:hidden\}/);
+  assert.match(builder,/function resizeIntroTextarea\(element\)/);
   assert.doesNotMatch(builder,/Tên hiển thị cho HR và người tham gia trong danh sách chương trình/);
-  assert.match(builder,/\.field-hint-info\{display:flex;align-items:flex-start;gap:6px\}/);
   assert.doesNotMatch(builder,/người cho phản hồi nhận Request Item của mình/);
   assert.doesNotMatch(builder,/quản lý trực tiếp của người nhận đã được gửi thông báo/);
 });
