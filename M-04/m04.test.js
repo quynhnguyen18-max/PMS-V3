@@ -4,6 +4,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// DESIGN-SYSTEM tách 3 file: lõi, components và rule riêng Feedback. Đọc gộp để rule nằm ở file nào cũng được kiểm.
+const readDesignSystem = () => ['DESIGN-SYSTEM.md', 'design-system/COMPONENTS.md', 'docs/modules/feedback/UI-RULES.md']
+  .map((f) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8')).join('\n');
+
 const pagePath = path.join(__dirname, 'index.html');
 const detailPath = path.join(__dirname, 'feedback-detail.html');
 
@@ -498,7 +502,7 @@ test('feedback business metadata uses custom tooltips and design system document
   const data = fs.readFileSync(path.join(__dirname, 'manager-feedback-data.js'), 'utf8');
   const detail = fs.readFileSync(path.join(__dirname, 'feedback-detail.html'), 'utf8');
   const requestDetail = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
-  const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
+  const designSystem = readDesignSystem();
   assert.doesNotMatch(data, /title="\$\{cv\}"/);
   assert.match(data, /pms-tooltip-content/);
   assert.match(detail, /\.pms-tooltip-content\{/);
@@ -746,12 +750,12 @@ test('every manager feedback sender has a tooltip and split view chooses placeme
 test('M-04 links manager navigation and reuses shared employee data', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
   assert.match(html, /\.\.\/assets\/employees-data\.js/);
-  assert.match(html, /\.\.\/M-01\/index\.html/);
+  assert.match(html, /\.\.\/M-05\/index\.html/);
   assert.match(html, /\.\.\/E-04\/index\.html/);
 });
 
 test('manager screens link their Feedback navigation item to M-04', () => {
-  const screens = ['M-01', 'M-01b', 'M-01d', 'M-02'];
+  const screens = ['M-01b', 'M-02', 'M-05', 'M-06'];
   for (const screen of screens) {
     const html = fs.readFileSync(path.join(__dirname, '..', screen, 'index.html'), 'utf8');
     assert.match(html, /M-04\/index\.html/, `${screen} must link to M-04`);
@@ -787,7 +791,7 @@ test('indirect scopes provide organizational filters without inline scope guides
 });
 
 test('design system defines the short-hyphen metadata separator rule', () => {
-  const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
+  const designSystem = readDesignSystem();
   assert.match(designSystem, /Metadata separator[\s\S]{0,200}không dùng ký tự middot `·`[\s\S]{0,160}metadata/i);
   assert.match(designSystem, /dấu gạch ngang ngắn.*` - `/);
 });
@@ -832,7 +836,7 @@ test('manager feedback textareas inherit the design-system typography', () => {
 
 test('MR-1 explains responsible use and presents a clear receiver-to-giver flow', () => {
   const html = fs.readFileSync(pagePath, 'utf8');
-  const plan = fs.readFileSync(path.join(__dirname, '..', 'FEEDBACK_PLAN.md'), 'utf8');
+  const plan = fs.readFileSync(path.join(__dirname, '..', 'docs', 'modules', 'feedback', 'FEEDBACK_PLAN.md'), 'utf8');
   assert.match(html, /Hãy sử dụng tính năng này khi cần thêm góc nhìn từ những người đã trực tiếp làm việc với nhân viên/);
   assert.match(html, /Phản hồi nên phục vụ cho việc hiểu rõ hơn và hỗ trợ nhân viên phát triển, không thay thế cho trao đổi và đánh giá của Quản lý/);
   assert.match(html, /<em>Nội dung yêu cầu và phản hồi có thể được các bên liên quan nhìn thấy\.<\/em>/);
@@ -1286,7 +1290,7 @@ test('manager request UI follows shared typography, table-link and progress-chip
 
 test('manager content tabs are folder tabs, with a thin pink outline on the closed one', () => {
   const html=fs.readFileSync(pagePath,'utf8');
-  const m01=fs.readFileSync(path.join(__dirname,'..','M-01','index.html'),'utf8');
+  const m01=fs.readFileSync(path.join(__dirname,'..','M-05','index.html'),'utf8');
   assert.match(html,/Phản hồi nhân viên đã nhận<\/button>/);
   assert.match(html,/Yêu cầu phản hồi đã tạo<\/button>/);
 
@@ -1536,7 +1540,7 @@ test('§20.4 đóng yêu cầu thì đóng băng số liệu, ticket bị khoá 
 });
 
 test('§20 design system ghi rõ nguyên tắc đồng bộ giữa các màn hình', () => {
-  const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
+  const designSystem = readDesignSystem();
   assert.match(designSystem, /## 20\. NGUYÊN TẮC ĐỒNG BỘ GIỮA CÁC MÀN HÌNH/);
   assert.match(designSystem, /Luật nghiệp vụ chỉ được viết MỘT lần, trong file model/);
   assert.match(designSystem, /Một sự việc — một bộ mã — nhiều câu chữ/);
@@ -1655,7 +1659,7 @@ test('hearts from other managers stay visible and do not block the current manag
 });
 
 test('the design system documents where the thanks rule lives and what it says', () => {
-  const designSystem = fs.readFileSync(path.join(__dirname, '..', 'DESIGN-SYSTEM.md'), 'utf8');
+  const designSystem = readDesignSystem();
   // §20.1: model nào sở hữu luật nào — thiếu dòng này là màn sau lại chép luật vào chính nó
   assert.match(designSystem, /\| `M-04\/manager-thanks\.js` \| tim cảm ơn: danh sách domain đã thả/);
   // §19: câu chữ chốt ở tài liệu, không để mỗi màn tự đặt

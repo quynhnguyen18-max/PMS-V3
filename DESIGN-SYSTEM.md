@@ -62,185 +62,9 @@ Bạn sẽ tạo một màn hình HTML prototype mới cho hệ thống PMS (MoM
 - Section label/eyebrow: 11px/600 uppercase .5px z500.
 - Body: 13–13.5px z700/z900. Meta phụ (đọc được): 12px **z600** (không dùng z500).
 
-## 5. EMPLOYEE CHIP (header phải)
-```html
-<div class="emp-chip"><!-- viền z200, bo --r, padding 9px 13px, bg z0 -->
-  <div class="av av-brand av-xs">NT</div>
-  <div class="ec-info"><!-- gap 2px -->
-    <div class="ec-line"><span class="ec-lbl">Nhân viên:</span> Nguyễn Văn Tú <span class="ec-dom">(tu.nguyen)</span></div>
-    <div class="ec-line"><span class="ec-lbl">Team:</span> ITC - Backend</div>
-    <div class="ec-line"><span class="ec-lbl">Quản lý trực tiếp:</span> Lê Thị Thanh <span class="ec-dom">(thanh.le)</span></div>
-  </div>
-</div>
-```
-`.ec-line{font-size:12px;color:var(--z800)}` · `.ec-lbl{color:var(--z600);font-weight:500}` · `.ec-dom{color:var(--z600)}`. Dòng Team chỉ "DIV - TEAM" (gạch nối `-`, không kèm chức danh).
+## 5–18b. COMPONENTS → `design-system/COMPONENTS.md`
 
-## 6. LOẠI MỤC TIÊU (goal type) — 3 loại, CÙNG MÀU HỒNG
-Tên + icon CHUẨN (dùng nhất quán mọi nơi: badge, bảng, card, dialog):
-| Loại | Nhãn | Icon |
-|------|------|------|
-| What | **Công việc** | `bx-target-lock` |
-| Dev  | **Phát triển** | `bx-line-chart` |
-| How  | **Hành vi**    | `bx-heart` |
-
-Badge cả 3 loại cùng style hồng (KHÔNG mỗi loại một màu):
-```css
-.b-what,.b-dev,.b-how{color:var(--brand);background:var(--brand-muted);border-color:var(--brand)}
-```
-
-## 7. BADGES, PRIO, EVAL CHIP — theo 3 ý định tối giản
-```css
-.badge{display:inline-flex;align-items:center;padding:1px 7px;height:20px;border-radius:var(--rxs);font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;letter-spacing:.1px}
-/* DONE = xanh lá */
-.b-ok{color:var(--ok);background:transparent;border-color:var(--ok)}                 /* Đã duyệt */
-.b-done{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-bd);gap:3px}   /* Hoàn thành (icon check) */
-/* ACTION-NEEDED = hồng */
-.b-action{color:var(--brand);background:var(--brand-muted);border-color:var(--brand)} /* Cần hành động */
-.b-warn{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)} /* Cần cập nhật (hồng nhạt) */
-.b-err{color:var(--brand);background:transparent;border-color:var(--brand)}            /* Từ chối (hồng viền) */
-/* NEUTRAL/INFO = xám */
-.b-info,.b-upd,.b-muted{color:var(--z600);background:var(--z100);border-color:var(--z200)} /* Nháp / thông báo */
-```
-**Prio pills — KHÔNG có icon tam giác:**
-```css
-.prio{display:inline-flex;align-items:center;height:20px;padding:1px 7px;border-radius:var(--rxs);font-size:11px;font-weight:500}
-.prio-h{background:var(--z200);color:var(--z900);font-weight:600}  /* Cao — chỉ chữ, không icon */
-.prio-m{background:var(--z100);color:var(--z600)}                 /* Trung bình */
-.prio-l{background:transparent;color:var(--z400)}                /* Thấp */
-```
-Eval chip: `.eval-done` (xanh outline) · `.eval-wait` (xám) · `.eval-revise` (hồng outline).
-Eval pair NV·QL (điểm nhân viên · quản lý): pill xám `.eval-pair` (bg z100, viền z200), KHÔNG dùng sao/màu.
-
-## 8. CORE VALUE BADGES — 5 giá trị cốt lõi MoMo
-- Dùng ảnh linh vật trong `Core value with BG/` — **icon-only** (tròn 54px), tên hiện khi hover (tooltip xám đậm z800).
-- Mapping ảnh → tên: `Innovation.png`→Đổi mới · `Teamwork.png`→Tinh thần đồng đội · `Constant_.png`→Không ngừng học hỏi · `Customer_.png`→Khách hàng là trung tâm · `Excellence.png`→Thực thi xuất sắc.
-```html
-<span class="cv-item"><img class="cv-img" src=".../Innovation.png" alt="Đổi mới"/><span class="cv-tip">Đổi mới</span></span>
-```
-Khi đính kèm vào phản hồi (fb-badges): huy hiệu tròn 34px + hover tên.
-
-## 8.1 TOOLTIP — component dùng chung toàn PMS
-- Tooltip chứa thông tin nghiệp vụ phải do prototype tự render; **không dùng tooltip mặc định của trình duyệt** (`title`) cho tên nhân viên, cơ cấu tổ chức, huy hiệu, quyền xem hoặc trạng thái nghiệp vụ.
-- Visual: nền `--z900`, chữ trắng, font `12px/1.4`, weight `500`, padding `5px 9px`, bo góc `6px`.
-- Hiển thị khi hover và khi focus bằng bàn phím. Trigger dùng `tabindex="0"`; nội dung dùng `role="tooltip"`.
-- Nội dung ngắn, không lặp thông tin đang nhìn thấy. Với tên nhân viên trong header Split View: `Phòng ban - Vị trí`.
-- Tooltip mặc định/`title` chỉ được giữ cho icon tiện ích đơn giản khi đã có `aria-label` tương ứng; không dùng để chứa dữ liệu nhân sự.
-```html
-<span class="pms-tooltip" tabindex="0">
-  Nguyễn Văn Tú
-  <span class="pms-tooltip-content" role="tooltip">ITC - Senior Engineer</span>
-</span>
-```
-
-## 8.2 FEEDBACK STATUS — semantic mapping bắt buộc
-- Áp dụng cùng một mapping trên toàn bộ module Feedback: màn hình nhân viên, màn hình quản lý, feed, popup, bảng, Kanban và panel chi tiết. Không tự đổi màu hoặc kiểu hiển thị theo từng màn hình.
-- **Đang thu thập / Chưa trả lời:** vàng cảnh báo (`#d97706`, nền `#fffbeb`, viền `#fde68a`). Trong danh sách người cần trả lời, card dùng nền + viền vàng; trạng thái cạnh tên chỉ là icon + text vàng, không thêm nền/viền lần hai.
-- **Quá hạn:** đỏ (`#dc2626`, nền `#fef2f2`, viền `#fecaca`). Không dùng vàng hoặc xám cho trạng thái quá hạn.
-- **Hoàn thành / Đã trả lời:** xanh lá (`--ok`, `--ok-bg`, `--ok-bd`).
-- **Không phản hồi:** xám trung tính (`--z600`, `--z100`, `--z300`) vì ticket đã khóa và không còn hành động.
-- **Câu hỏi của người chưa trả lời:** nền trắng, viền vàng cảnh báo, label “Câu hỏi” màu `--z500`. Câu hỏi đã có phản hồi tiếp tục dùng nền hồng theo pattern feedback hiện hành.
-- Status trong popup chi tiết người trả lời dùng icon + text, không dùng chip có nền/viền. Status tổng quan ticket, bảng và Kanban có thể dùng chip nhưng phải giữ đúng semantic mapping trên.
-
-## 9. BUTTONS (shadcn variants)
-```css
-.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;line-height:1.4;white-space:nowrap;transition:var(--t)}
-.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}      /* hover --brand-h — NÚT CHÍNH, 1/khu vực */
-.btn-cta-outline{background:var(--z0);border-color:var(--brand);color:var(--brand);font-weight:600} /* action quan trọng cần nhấn */
-.btn-secondary{background:var(--z100);border-color:var(--z200);color:var(--z700)}
-.btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
-.btn-ghost{background:transparent;border-color:transparent;color:var(--z600)}
-.btn-destructive{background:transparent;border-color:var(--err-bd);color:var(--err)}
-.btn-sm{padding:4px 10px;font-size:12.5px}  .btn-xs{padding:2px 8px;font-size:11.5px}
-/* DISABLED = xám, KHÔNG nền hồng */
-.btn:disabled,.btn-default:disabled{background:var(--z100);border-color:var(--z200);color:var(--z400);cursor:not-allowed}
-```
-Chỉ nút chính/action quan trọng dùng hồng. Secondary/outline/ghost/disabled = xám, không gây rối. Luôn kèm icon boxicons.
-
-## 10. TABS (in-page) — enclosed chip, rõ ràng
-Mỗi tab là 1 chip THẤY RÕ (không phải text trơn). Tab active tô nền hồng nhạt + viền hồng + gạch hồng dày phía trên + icon; inactive chip trắng viền z300; disabled viền đứt nét.
-```css
-.tabs{display:flex;gap:6px;border-bottom:2px solid var(--z200);margin-bottom:16px}
-.tab-btn{padding:9px 16px;font-size:13px;font-weight:500;color:var(--z600);border:1px solid var(--z300);background:var(--z0);margin-bottom:-2px;display:flex;align-items:center;gap:6px;border-radius:var(--rsm) var(--rsm) 0 0;transition:var(--t)}
-.tab-btn i{font-size:15px}
-.tab-btn:not(.disabled):not(.on):hover{color:var(--z900);background:var(--z100);border-color:var(--z400)}
-.tab-btn.on{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}
-.tab-btn.disabled{color:var(--z400);background:var(--z50);border-style:dashed;cursor:not-allowed}
-.tab-cnt{padding:0 5px;height:16px;line-height:16px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--z200);color:var(--z600)}
-.tab-btn.on .tab-cnt{background:var(--z0);color:var(--brand)}
-```
-**Tên tab chu kỳ chuẩn:** Mục tiêu · **Đánh giá giữa năm** (MYR) · **Đánh giá cuối năm** (YER) · **Hiệu chuẩn** (Calibration). (Không dùng "giữa kỳ/cuối kỳ/hiệu chỉnh".)
-View switcher (Bảng/Lưới) = `.view-sw` segmented control.
-
-## 11. TABLE — thứ tự cột chuẩn
-Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết quả cần đạt · Mức độ ưu tiên · Thời gian · Trạng thái · Chức năng**.
-```css
-.gtable th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);background:var(--brand-muted);padding:10px 12px;border-bottom:1px solid var(--brand-ring)}
-.gtable td{padding:11px 12px;border-bottom:1px solid var(--z200);vertical-align:top;color:var(--z900);font-size:13px;font-weight:500;line-height:1.45}
-.gtable tbody tr:hover{background:var(--z50)}
-```
-- Loại: `.gt-type` = icon hồng + nhãn (Công việc/Phát triển/Hành vi). Kết quả: `.gt-result` clamp 2 dòng. Thời gian: dạng "01/01 – 31/12".
-- Chức năng: nút ô vuông 27px `.gt-actbtn` (bx-show / bx-check-square / bx-edit-alt), hover bg z100.
-- Wrapper `.gtable-wrap`: viền z300 + `--sh` + bo `--r`.
-
-## 12. CARDS & GRID 3 CỘT (Mục tiêu)
-`.goal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start}` → 3 cột: **Mục tiêu công việc** (target-lock, đếm) · **Mục tiêu phát triển** (line-chart) · **Mục tiêu hành vi** (heart).
-- Card `.goal-col`: viền z300 + `--sh` + bo `--r`.
-- Header cột `.col-hd`: nền hồng nhạt `#fbe4f0`, viền dưới `#f3cfe1`, icon hồng 16px, title 13px/700 z900, count badge phải.
-- Cột Công việc/Phát triển: item `.goal-item` (title + badge trạng thái + prio + thời gian). Footer `.col-add-btn` "+ Thêm..." + `.col-note` (11px z600) nhắc điều kiện.
-- Cột Hành vi: list `.how-item` = 5 giá trị cốt lõi (tên + chevron phải), KHÔNG badge; `.col-note` giải thích.
-
-## 13. INFO / GUIDE BOX
-- Guide box `.guide-box`: nền z50, viền z200. Info + quy trình (`.proc-step` pill + `.proc-num` tròn 20px). `strong` = hồng.
-- Banner nhấn `.edit-banner`: nền `--brand-muted`, viền `--brand-ring`.
-- Info-note nhẹ `.info-note`: chữ z600, icon đầu dòng hồng 15px, `strong` z700.
-
-## 14. FORM CONTROLS
-- Input/select/textarea `.fc`: viền z200, bo rsm, 13.5px z900, focus `border-color:var(--brand);outline:2px solid var(--brand-ring)`. Select mũi tên SVG `%23a1a1aa`.
-- Label `.flbl` 12.5px/500 z700. **Mọi trường người dùng bắt buộc nhập/chọn phải có dấu `*` đỏ (`.req`) ngay sau tên field; không dùng hậu tố “(bắt buộc)” hoặc “(bắt buộc chọn)”.** Trường tùy chọn không có dấu sao. Hint `.fhint` z600. Error `.fc.err` viền err + `.ferr`.
-- **Type segment** `.type-seg`: 2 lựa chọn **Công việc / Phát triển**, chấm `.ts-dot` HỒNG cả 2 (tối giản, không màu khác nhau), active chữ hồng.
-- Toggle `.demo-toggle` (accent hồng). Checkbox `accent-color:var(--brand)`.
-- Date: input `mm/dd/yyyy` + icon `bx-calendar` bên phải (`.date-input`).
-
-## 15. RICH-TEXT EDITOR — 2 dạng
-**(A) Neutral `.rte-wrap`** (dùng cho tạo/nhập mục tiêu): viền XÁM z200, focus ring hồng. Toolbar: B / I / U / màu chữ (A + gạch hồng) / list / link. **KHÔNG có dropdown Normal/Heading.** `.rte-body` placeholder z400 + đếm ký tự "0 / 1000".
-
-**(B) Evaluation `.ev-editor-wrap`** (ô nhận xét NV & Quản lý): viền hồng `--brand-ring` + cạnh trái nhấn 3px `inset box-shadow` hồng (2 sắc: nhạt ở toolbar, đậm ở nội dung). Nền nội dung trong suốt, `padding-left:11px`.
-- **Editable & Locked dùng CÙNG viền hồng.** Trạng thái **locked/chỉ xem: BỎ toolbar format** (chỉ hiện nội dung), không làm mờ nội dung.
-- Không hardcode màu; không phủ pseudo-element toàn cạnh trái; không đặt nền trắng trên `.ev-content`.
-
-## 16. DIALOG / MODAL / POPUP
-```css
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
-.overlay.open{display:flex}
-.dialog{background:var(--z0);border-radius:var(--r);border:1px solid var(--z200);max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg)}
-```
-`.dlg-hd` (badges + title 15px/600 + close). **Rule header dialog module Feedback (E-04, M-04, H-05, H-06, H-07):** header chỉ có **title 1 dòng** (không có `.dlg-sub` hay metadata) → nền hồng nhạt `#fbe4f0` với `border-bottom:1px solid #f3cfe1` (dùng modifier `.dlg-hd--brand`, áp cho `.dlg-hd`, `.dialog-head`, `.review-modal-head` và tương đương). Header có **nhiều dòng** (title + `.dlg-sub`, metadata, người gửi, deadline…) → nền trắng `var(--z0)` với `border-bottom:1px solid var(--z200)` để tránh nhiễu thị giác. Áp dụng cho E-04: pink cho `dlg-give`, `dlg-newreq`, `dlg-queue`, `dlg-received-reader`; white cho `dlg-req`, `dlg-reply`, `dlg-confirm`. Kèm `.dlg-tabs` (tab dialog), `.dlg-body` scroll, `.dlg-foot` (border-top, justify-end).
-**Review-confirmation modal:** Trước hành động gửi một yêu cầu, mở overlay dialog theo pattern này; không thay form bằng màn hình riêng. Đóng modal hoặc chọn “Quay lại chỉnh sửa” phải giữ nguyên dữ liệu đã nhập. Footer của modal rà soát dùng action compact `32px / 12px`, padding `12px 18px 16px` để nút không sát mép dưới.
-**Popup Tạo mục tiêu:** Loại mục tiêu (select: Mục tiêu Công việc / Mục tiêu Phát triển) · hàng 3 cột (Ưu tiên · Từ ngày · Đến ngày) · Tên mục tiêu (RTE neutral + đếm) · Kết quả cần đạt (RTE neutral) · footer: Lưu nháp (outline) + Gửi quản lý (default).
-**Popup Phản hồi đã nhận:** title + badge đếm hồng; các `.fb-card` (avatar, tên + domain, org, ngày; `.fb-qbox` nếu có câu hỏi — **nền hồng #fbe4f0, chữ z900/500** để tương phản rõ; `.fb-body`; `.fb-badges` core value nếu được ghi nhận).
-**Popup trả lời yêu cầu từ chương trình HR:** chỉ với request có nguồn HR, metadata header trên desktop dùng grid 2 cột / 2 hàng: hàng 1 `Người yêu cầu` và `Phản hồi về`; hàng 2 `Ngày gửi` và `Hạn phản hồi`. Trên màn hẹp, xếp một cột. Không áp dụng quy tắc này cho popup trả lời yêu cầu của đồng nghiệp hoặc Quản lý; các popup đó giữ metadata linh hoạt. Khối quyền xem phải nêu rõ kết quả hiện tại chỉ HR xem được khi HR chưa chia sẻ; đồng thời highlight `Danh tính người cho phản hồi: Ẩn danh` hoặc `Hiển thị danh tính` theo cấu hình chương trình.
-
-## 17. TIMELINE · STEPPER · TOAST
-- **Timeline** `.tl`: dấu chấm CHỈ XÁM `--z400` (không tô nhiều màu). `.tl-ev` z800, `.tl-who` z600, `.tl-note` nền z50.
-- **Stepper** `.stepper-card`: các bước dạng mô tả theo deadline. Vòng tròn: **active (đang mở) = hồng**; **hết deadline = xám z300** (KHÔNG xanh lá); tương lai = z200. Dùng SỐ, không dùng checkmark.
-- **Toast** `#toast`/`.toast-static`: nền z900, chữ trắng, icon xanh khi thành công.
-
-## 18. COMPONENT BỔ SUNG (chuẩn shadcn/Linear tối giản)
-- **Breadcrumb** `.breadcrumb`: link z600 → hover hồng, separator z400, trang hiện tại z900/600.
-- **Search / input icon** `.search-box`: icon trái z400, focus ring hồng.
-- **Dropdown menu** `.menu-static`: viền z200 + shadow, item hover z100, mục nguy hiểm màu hồng.
-- **Tooltip** `.tip-static`: nền **xám đậm z800** (không đen tuyền), chữ trắng, mũi tên.
-- **Empty state** `.empty-state`: viền đứt z300 nền z50, icon 34px z400, title z700, sub z600, CTA.
-- **Skeleton** `.skeleton`: gradient z100→z200 chạy.
-- **Pagination** `.pagination`: nút `.pg-btn` viền z200, active nền hồng, disabled z300.
-
-## 18b. COMPONENT NÂNG CAO
-- **Sheet / Drawer** `.sheet`: panel trượt từ phải (width 340px), viền trái + `--sh-lg`, có scrim mờ. Header (title + close) · body scroll · footer justify-end. Dùng xem chi tiết mà không rời bảng.
-- **Alert dialog** `.alert-dlg` (max 400px): icon tròn (brand-muted) + title 15px + body z600 + 2 nút (Hủy outline + hành động). Xóa/nguy hiểm mới dùng `.btn-destructive`.
-- **Date picker** `.cal`: lịch tháng, header (tháng + nav), 7 cột T2–CN. Ngày: `.today` viền brand-ring, `.sel` nền brand, `.in-range` nền brand-muted, `.muted` z300.
-- **Combobox** `.combo`: select có search — input (icon search) + `.combo-list` dropdown; option hover/`.active` nền z100, `.sel` chữ hồng + check.
-- **Chart** `.chart`: bar chart phân bố điểm — cột `.bar` hồng, cột phụ `.bar.muted` xám; trục dưới z200. Giữ đơn sắc hồng+xám, KHÔNG cầu vồng.
-- **Accordion** `.accordion`: item gập/mở, header chevron xoay + chữ hồng khi mở (`.acc-item.open`); body max-height transition. JS toggle class `.open` (`[data-acc]`).
+Employee chip, loại mục tiêu, badge, core value, tooltip, feedback status, button, tab, table, card, info box, form, rich-text, dialog, timeline, component bổ sung và nâng cao. Giữ nguyên số mục §5 đến §18b. Chỉ đọc mục cần dùng.
 
 ## 19. QUY TẮC CHUNG (bắt buộc)
 
@@ -251,46 +75,16 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 4. Khoảng cách block: 14–18px. Icon boxicons 13–16px, z500 (thường) / hồng (nhấn). Transition `--t`.
 5. Màu chỉ theo 3 ý định (xanh done / hồng action / xám neutral). Active/selected: nền `--brand-muted`, chữ `--brand`.
 6. Chữ phụ đọc được: z600/z700, KHÔNG z500/z400. Responsive: bảng `overflow-x:auto`, grid `1fr` khi hẹp. **Form authoring:** tại laptop, giữ page shell đầy đủ nhưng căn giữa bề mặt nhập liệu với `max-width 860px`; chỉ chuyển grid thành `1fr` trước khi content bị co ép.
-7. **Feedback direction:** nghĩa phản hồi luôn là `Người cho phản hồi → Người nhận phản hồi`. Khi form đặt người nhận ở bên trái và người cho ở bên phải, dùng tam giác xám đậm hướng sang trái để vẫn phản ánh đúng chiều phản hồi. Review modal phải dùng cùng thứ tự, nhãn rõ cả “Người nhận phản hồi” và “Người cho phản hồi”.
-8. **Questionnaire library:** UI hiện tại chỉ có hai phạm vi: `personal` với nhãn **Chỉ mình tôi**, và `all_hr` với nhãn **Toàn bộ HRBP và L&OD Team**. Chọn chia sẻ phải tự động chia sẻ cho toàn bộ HRBP và L&OD; KHÔNG hiển thị lựa chọn người cụ thể. `selected_hr` chỉ được model giữ để đọc dữ liệu cũ, không được dùng khi tạo mới; khi owner sửa rồi lưu bộ `selected_hr` cũ, UI chuyển bộ đó thành `all_hr`. Owner luôn xem, dùng, sửa và xóa bộ gốc; người được chia sẻ chỉ xem, dùng và tạo bản sao; bản sao luôn là `personal` của người sao chép. Thư viện (H-05) và màn Tạo chương trình phải đọc CÙNG một nguồn dữ liệu `questionnaire-library-seed.js`, cùng lọc bằng `QuestionnaireLibraryModel.visibleTo`; bộ `personal` của người khác không được xuất hiện. Tab thư viện là **Tất cả - Của tôi - Được chia sẻ với tôi**. Bảng thư viện có 5 cột: **Tên bộ câu hỏi - Số câu - Người tạo - Phạm vi - Chức năng**; cột Chức năng luôn có tiêu đề, rộng đúng bằng 4 ô icon (124px) và tiêu đề gióng thẳng cột với ICON ĐẦU TIÊN của mọi hàng, không canh phải lơ lửng giữa khoảng trống. KHÔNG có nút con mắt "Xem bộ câu hỏi": bấm bất kỳ chỗ nào trên hàng (hàng là `role="button"`, hỗ trợ Enter/Space) sẽ mở popup xem, nên mọi nút trong cột Chức năng phải `event.stopPropagation()`. Cột Chức năng là grid 4 ô cố định 28px theo thứ tự `Dùng bộ này - Tạo bản sao - Chỉnh sửa - Xóa`; hàng không có quyền sửa/xóa chừa hai ô trống (`.icon-slot`, phải `display:block` mới giữ được chỗ) để icon cùng chức năng gióng thẳng một cột giữa các hàng. Người tạo hiển thị `Tên (domain)`, ví dụ `Mai Thị Hằng (hang.mai)`. Popup xem bộ câu hỏi dùng 2 tab `Câu hỏi` và `Lịch sử thay đổi`. Danh sách câu hỏi ở tab `Câu hỏi` là dữ liệu đọc nên dùng card neutral (nền z50, viền z200, nhãn `CÂU HỎI N` z600 uppercase 10.5px, nội dung z900) — KHÔNG dùng nền hồng như `.fb-qbox`; nền hồng chỉ dành cho câu hỏi nằm xen trong nội dung phản hồi, nơi cần tách khỏi phần xung quanh. Trong một popup, hồng chỉ được xuất hiện ở tab đang mở và CTA chính; history log liệt kê từng phiên bản (mới nhất trên cùng, badge `Phiên bản mới nhất` dùng neutral xám `.b-muted`, KHÔNG dùng hồng — popup đã có hồng ở tab active, box câu hỏi và CTA), mỗi phiên bản gồm người thực hiện `Tên (domain)`, ngày và danh sách thay đổi so với phiên bản trước. Mỗi thay đổi phải hiện NỘI DUNG chứ không chỉ nhãn: nhãn hành động (`Sửa nội dung Câu hỏi 3`) + khối `TRƯỚC` (viền trái z300, nền trắng) và `SAU` (viền trái hồng, nền `--brand-muted`). Thêm câu chỉ có `SAU`, xóa câu chỉ có `TRƯỚC`, hành động không có nội dung (tạo mới, tạo bản sao) chỉ có nhãn. Đổi phạm vi chia sẻ phải được ghi vào history. KHÔNG dùng đỏ/xanh cho diff — giữ đúng 3 ý định màu. Footer popup xem chỉ chứa hành động, KHÔNG có CTA `Đóng`/`Hủy` (đã có nút `×` và click ngoài overlay): `Chỉnh sửa` (chỉ hiện với bộ của chính mình, cùng điều kiện `canEdit` như nút ở bảng; bấm thì đóng popup xem và mở popup chỉnh sửa) - `Tạo bản sao` - `Dùng bộ này` (primary). Câu hỏi được chọn vào request phải là bản clone, nên mọi chỉnh sửa chỉ áp dụng cho request đó. Cờ bắt buộc là thiết lập của từng câu hỏi, đi theo câu hỏi khi clone vào request; đổi cờ này ghi một dòng history `Đổi thiết lập trả lời Câu hỏi N` với TRƯỚC/SAU là `Bắt buộc trả lời`/`Không bắt buộc`.
-8a. **Questionnaire picker grouping:** Popup **Chọn bộ câu hỏi có sẵn** trong màn Tạo yêu cầu phản hồi phải nhóm danh sách thành **Bộ câu hỏi của tôi** và **Được chia sẻ với tôi**, KHÔNG nhóm theo vai trò HRBP/L&OD. Cả hai nhóm chỉ lấy dữ liệu đã qua `QuestionnaireLibraryModel.visibleTo`; nhóm **Bộ câu hỏi của tôi** có `ownerId` là người đang dùng, nhóm **Được chia sẻ với tôi** có owner khác người đang dùng.
-8b. **Questionnaire download:** Nút tải xuống nằm trong page actions, ngay bên trái CTA **Tạo bộ câu hỏi**, dùng icon `bx-download` trong nút vuông 34px và hover/focus hiện tooltip **Tải xuống toàn bộ thư viện**. Nút này mặc định tải toàn bộ các bộ câu hỏi người dùng được phép xem và phải mở popup xác nhận trước khi tạo file. Mỗi hàng trong bảng có thêm icon **Tải xuống** ở vị trí cuối cùng của cột Chức năng để tải riêng bộ đó; icon tải riêng thực hiện trực tiếp và phải chặn sự kiện mở popup chi tiết của hàng. Cột Chức năng rộng 156px, đủ cho tối đa 5 icon theo thứ tự `Dùng bộ này - Tạo bản sao - Chỉnh sửa - Xóa - Tải xuống`; action không có quyền bị ẩn hoàn toàn, không giữ khoảng trống, nên các icon còn lại luôn xếp liền nhau từ trái sang phải. File xuất luôn là Excel `.xlsx` thật; khi tải toàn bộ, mỗi bộ câu hỏi là một sheet riêng. Đầu sheet dùng hai khối gọn đặt cạnh nhau: **Người tạo** gồm họ tên, domain, division, department; **Thông tin bộ câu hỏi** gồm tên bộ câu hỏi, thời gian tạo/cập nhật gần nhất, phạm vi chia sẻ và số câu hỏi. Bảng phía dưới giữ mỗi câu hỏi một dòng, có loại câu hỏi, cấu hình thang điểm nếu có và cột **Yêu cầu bắt buộc trả lời?** với giá trị **Có/Không**. Sheet cuộn bình thường, không Freeze Pane và không biến vùng câu hỏi thành native Excel Table. Nút tải trong popup xem chi tiết từng bộ vẫn hiển thị đầy đủ icon + text **Tải xuống**.
-8c. **Questionnaire action layout precedence:** Quy tắc action xếp liền nhau trong cột rộng 156px tại mục 8b thay thế mô tả grid 4 ô/124px và ô trống trong mục 8; các quy tắc còn lại của hàng và popup chi tiết vẫn giữ nguyên.
-9. **Question type & inline validation:** Loại câu hỏi dùng icon có tooltip nền đen chữ trắng, không dùng text action thường trực. Khi submit form thiếu trường bắt buộc, hiển thị lỗi 11.5px ngay bên dưới trường, thêm `aria-invalid` và focus vào lỗi đầu tiên; toast không được là thông báo lỗi duy nhất.
-10. **Participant mapping:** Người nhận phản hồi ở trái, người cho phản hồi ở phải, tam giác xám đậm chỉ sang trái để giữ đúng chiều người cho → người nhận. Toggle cá nhân hóa chỉ khả dụng khi đã chọn từ hai người nhận phản hồi.
-11. **Context-width form fields:** Thời hạn phản hồi dùng chiều rộng ngữ cảnh `220px` khi đặt cạnh trường dài hơn. Nhóm option cùng hàng phải có chiều cao đều nhau; mô tả phụ tối đa 2 dòng, sau đó clamp. Ở breakpoint hẹp, nhóm trường xếp một cột với khoảng cách 18px.
-12. **Chia sẻ kết quả:** CTA panel tổng quan dùng `Chia sẻ kết quả`; chia sẻ cho riêng một người nhận là một lựa chọn TRONG dialog đó, không phải một nút riêng ở rail. Trong dialog, câu hỏi đầu tiên là `Chia sẻ kết quả của ai?` với hai lựa chọn `Tất cả người nhận phản hồi` và `Chọn từng người nhận phản hồi` - KHÔNG dùng `Phạm vi chia sẻ` hay `Chia sẻ toàn bộ kết quả`, vì "toàn bộ" không nói được là toàn bộ người nhận hay toàn bộ nội dung. Câu hỏi thứ hai là `Ai được xem kết quả?`, liệt kê BA cấp quản lý thành ba lựa chọn riêng (`Quản lý trực tiếp` / `Quản lý cấp 2` / `Trưởng đơn vị`), hai cấp trỏ về cùng một người vẫn giữ đủ ba dòng. Mỗi cấp chỉ nêu đích danh khi đang chia sẻ cho ĐÚNG MỘT người nhận (một cấp là một người, đọc một dòng là đủ). Từ hai người nhận trở lên - kể cả khi HR tự tick vài người trong danh sách - hàng nhãn chỉ ghi `(xem danh sách ở bước sau)`, vì mỗi cấp đã ra nhiều người khác nhau; chỗ soi đủ danh sách là bước xem lại trước khi chia sẻ. Bảng xem lại trước khi chia sẻ phải liệt kê ĐỦ người HR đã chọn cho từng người nhận phản hồi: người ngoài phạm vi quản lý vẫn đứng ở cột `Người khác` dù chỉ nhận file qua email, không được hiện `Không có` sau khi HR vừa chọn họ. Kênh xem là thông tin chung ở dòng `Cách xem kết quả`, không phải lý do để ẩn người khỏi bảng. Mỗi lựa chọn giữ GỌN một hàng, không thêm dòng mô tả cho thứ mà nhãn đã nói; phần trong ngoặc là chú thích nên KHÔNG in đậm và dùng xám `--z500`, kể cả khi lựa chọn đang được chọn. Cả hai luôn mở dialog xác nhận, không tự chia sẻ ngay. Dưới `Ai được xem kết quả?` là multi-select checkbox (ít nhất một): `Người nhận phản hồi (xem kết quả của mình)`, ba cấp quản lý, rồi `Người khác`. Các option chỉ giữ nhãn chính, không lặp metadata mô tả. `Người khác` dùng combobox người dùng chuẩn M-04 và hiện danh sách khi gõ tên/domain. Cho phép chia sẻ NHIỀU LẦN: mỗi lần cộng dồn người xem và ghi một dòng vào lịch sử chia sẻ; panel tổng quan KHÔNG hiển thị chữ "Đã chia sẻ kết quả"; chỉ hiển thị link `Lịch sử chia sẻ kết quả` và danh sách `Lần N: [thời gian]`. Bấm link mở popup lịch sử: MỖI LẦN chia sẻ là một thẻ, trong thẻ tách đôi phần chung và phần riêng. Phần chung đứng ở đầu thẻ, mỗi thứ nói ĐÚNG MỘT LẦN: `Lần N` kèm NGÀY GIỜ đứng ngay cạnh nhãn `Lần N` (không dạt sang mép phải; có giờ để phân biệt hai lần chia sẻ trong cùng một ngày), `Người chia sẻ` (tên kèm domain của chính người HR bấm nút, không ghi trống là "HR"; dữ liệu mẫu giữ cùng một HR cho mọi lần của một chương trình, vì đổi người giữa các lần làm người đọc tưởng có luật nào đó) và `Nội dung chia sẻ`. KHÔNG có dòng `Kết quả của`: bảng bên dưới đã liệt kê từng người nhận phản hồi, nhắc lại chỉ gây rối mắt. `Cách xem kết quả` cũng là thứ CHUNG và nằm ở phần chung, vì cách xem đi theo vai trò chứ không theo từng người: chỉ có phạm vi quản lý thì ghi `Cấp quản lý xem trên hệ thống`; có thêm người ngoài phạm vi thì ghi `Cấp quản lý xem trên hệ thống, người khác không thuộc phạm vi quản lý nhân viên xem file đính kèm gửi qua email`; chỉ có người ngoài phạm vi thì ghi mình vế sau. Người ngoài phạm vi quản lý VẪN đứng trong bảng, ở cột `Người khác` như mọi người được chia sẻ khác; cách họ xem đã nói một lần ở dòng chung nên trong ô KHÔNG ghi lại. Phần riêng nằm trong BẢNG, và bảng này dùng CHUNG một hàm dựng với bảng `Ai xem kết quả của ai` ở bước xem lại trước khi chia sẻ (mỗi hàng là một người nhận phản hồi, mỗi cột là một vai HR thật sự chọn) - hai chỗ kể cùng một chuyện thì phải nhìn giống nhau và sửa một lần là cả hai cùng đổi. Không nhét những thứ chung (thời gian, người chia sẻ, nội dung, cách xem) vào từng hàng bảng - lặp lại cùng một câu ở mọi hàng làm mắt phải đọc lại thứ đã biết. Popup lịch sử rộng bằng popup xem lại (`min(980px,100%)`) vì chứa cùng một bảng. Câu chữ của `Nội dung chia sẻ` ở bước xem lại và ở lịch sử viết MỘT LẦN trong `shareContentText()`, không chép tay ở hai nơi. Trường `Nội dung chia sẻ` dùng nhãn `Chỉ chia sẻ kết quả tổng hợp bởi AI` và `Chia sẻ kết quả tổng hợp bởi AI và Nội dung chi tiết từng phản hồi`. Yêu cầu đã đóng chỉ MỞ LẠI được khi HR tự đóng, chưa chia sẻ kết quả và chưa quá 90 ngày kể từ ngày tạo; chia sẻ rồi hoặc hệ thống tự đóng thì chốt vĩnh viễn. Dialog đóng yêu cầu (toàn bộ hoặc theo người nhận) phải nêu rõ: đóng sẽ ngừng thu thập phản hồi và chỉ ca đóng tay hợp lệ mới có thể mở lại. Chip người đã chọn đứng trên ô tìm kiếm, dùng avatar hồng đậm, nền hồng nhạt và font 12px như picker M-04. Nhãn chuẩn ở form, panel tổng quan và dialog là `Danh tính người cho phản hồi`, kèm dòng dẫn “Khi HR chia sẻ kết quả tới Quản lý và/hoặc Nhân viên, danh tính người cho phản hồi sẽ được:”. Hai option theo đúng thứ tự: `Ẩn danh` (“Chỉ nội dung phản hồi được hiển thị.”) rồi `Hiển thị danh tính` (“Hiển thị cả nội dung phản hồi và họ tên người cho.”) — không dùng “Ghi danh”/“Hiện danh tính”. Phần giải thích nằm GỌN trong hai thẻ option, KHÔNG thêm ô diễn giải riêng bên dưới sau khi chọn: hai chỗ nói cùng một ý buộc người đọc phải đối chiếu. Ghi chú thông báo `Tất cả người cho và nhận phản hồi, Quản lý trực tiếp của người nhận phản hồi sẽ nhận được thông báo về chương trình do HR tạo.` đặt dưới ô `Lời ngỏ`, không đặt trong nhóm option danh tính. Dialog không dùng CTA Hủy, đóng bằng click ngoài overlay. Status chia sẻ kết quả trong panel tổng quan hiển thị một hàng: chưa chia sẻ gồm status và CTA; đã chia sẻ gồm status và metadata. `Thông tin người cho phản hồi` luôn đứng sau `Phản hồi đang chờ`. Phạm vi chia sẻ và trạng thái thu thập là hai dữ liệu độc lập.
-12a. **Chia sẻ kết quả - tên người và cột Người khác:** Ba option `Quản lý trực tiếp` / `Quản lý cấp 2` / `Trưởng đơn vị` chỉ hiển thị nhãn vai trò, KHÔNG hiển thị tên hoặc domain trực tiếp trong form, kể cả khi phạm vi chỉ có một người nhận phản hồi. Danh sách người cụ thể chỉ xuất hiện ở bước `Xem lại trước khi chia sẻ`. Vì `Người khác` là một danh sách chung được chia sẻ cho toàn bộ người nhận trong cùng lượt, bảng xem lại và bảng lịch sử phải gộp toàn bộ cột này thành một ô `rowspan`; không lặp lại cùng danh sách ở từng hàng. Quy tắc này thay thế phần mô tả nêu đích danh một người trong mục 12.
-12b. **Chia sẻ kết quả - vị trí cuộn khi xem lại:** Khi người dùng bấm `Xem lại trước khi chia sẻ`, nội dung popup chuyển sang một bước mới và BẮT BUỘC đặt vùng cuộn `shareResultSettings` về đầu (`scrollTop = 0`). Tiêu đề, hướng dẫn, metadata và header của bảng `Danh sách chia sẻ kết quả phản hồi` phải luôn là phần đầu tiên người dùng nhìn thấy; không kế thừa vị trí cuộn từ form cấu hình trước đó.
-12c. **Chia sẻ kết quả - CTA xác nhận:** CTA chính tại bước `Xem lại trước khi chia sẻ` luôn dùng nhãn **Chia sẻ kết quả**. Không dùng `Đóng & chia sẻ kết quả` hoặc `Xác nhận chia sẻ`; việc tự đóng các yêu cầu còn mở là business rule chạy cùng thao tác, không đưa vào nhãn nút.
-12d. **Lịch sử chia sẻ - danh sách chi tiết:** Mỗi thẻ `Lần N` luôn hiển thị phần thông tin chung; bảng danh sách chia sẻ kết quả nằm trong disclosure **Xem danh sách chi tiết** và mặc định thu gọn. Số cạnh disclosure là tổng **người thực tế được chia sẻ quyền xem** (người nhận phản hồi, các cấp quản lý và người khác), khử trùng theo danh tính; không dùng số dòng nhân viên có kết quả. Chevron phải nằm sát nhãn `Xem danh sách chi tiết`, đổi hướng khi mở/đóng để thể hiện rõ vùng có thể click. Người dùng chủ động mở/đóng từng lần chia sẻ; không tự mở tất cả vì một lần chia sẻ có thể chứa 5–10 người nhận hoặc nhiều hơn. Dữ liệu demo phải có ít nhất một lần chia sẻ cho 5–10 người nhận để kiểm tra chiều dài và thao tác thu gọn.
-12e. **Thứ tự và hierarchy thông tin chung khi xem lại/lịch sử chia sẻ:** Ở bước `Xem lại trước khi chia sẻ`, hai dòng `Cách xem kết quả: [nội dung]` và `Nội dung chia sẻ: [nội dung]` đặt trên bảng `Danh sách chia sẻ kết quả phản hồi`; nhãn và nội dung cùng một dòng, không để dưới bảng. Không dùng box, viền, nền hoặc bo góc cho hai dòng này; tách khỏi lời nhắc phía trên bằng spacing và dùng chữ đậm màu `--z900` để nhận ra đây là nội dung chính. Trong từng thẻ lịch sử, bốn dòng `Người chia sẻ` / `Nội dung chia sẻ` / `Cách xem kết quả` / `Ghi chú của HR` phải dùng chung một definition-list grid, cùng font, cỡ chữ, màu và căn lề; `Ghi chú của HR` đứng trước disclosure `Xem danh sách chi tiết`.
+
+> Mục 7 đến 12e, 14, 15 đến 15h, 18 đến 18b và 19 đến 19c là rule giao diện riêng của Feedback, đã chuyển sang `docs/modules/feedback/UI-RULES.md` (giữ nguyên số mục).
+
 13. **Icon + text cùng hàng (status chip, reminder meta, pending tag, chip nhỏ):** nhóm icon+chữ BẮT BUỘC `display:inline-flex;align-items:center;gap:4px`. TUYỆT ĐỐI không đặt `gap` trên phần tử inline/block thiếu `display:flex|inline-flex` — `gap` sẽ vô tác dụng, icon dính sát chữ. Khi copy component từ màn chuẩn (M-04/E-04) sang màn khác, copy đủ MỌI thuộc tính CSS (gồm `display`), không lược bớt.
-14. **Pending / nhắc (chuẩn M-04 `request-detail`), mọi màn chi tiết yêu cầu (M-04, H-06…) phải giống hệt:** label section `.label{font-size:10px;font-weight:600;uppercase;margin:13px 0 7px}` (KHÔNG để label sát box); mỗi người chưa trả lời là 1 card `.pending{display:block;padding:11px 12px;background:var(--warning-muted);border:1px solid var(--warning-border);border-radius:7px}`; trạng thái `.pending-tag` màu `var(--warning)`; nút nhắc từng dòng `.btn-pending-remind` (nền trắng, viền z300, 28px); dòng thông tin nhắc `.reminder-meta{margin-top:7px}` + `.reminder-summary{display:inline-flex;align-items:center;gap:4px}` — hiển thị "Hệ thống sẽ tự động nhắc ngày X" (chưa nhắc) hoặc "Đã nhắc: N lần" + tooltip lịch sử (đã nhắc). Không tự chế kích thước/spacing card khác với M-04.
-15a. **Icon trạng thái trong danh sách người nhận (H-06 và `request-detail` của M-04):** mỗi hàng có TỐI ĐA một icon ở mép phải, và icon chỉ trả lời một câu: yêu cầu này còn thu thập được không.
-   - Dấu check đôi `bx-check-double` xanh = **đã chia sẻ kết quả** của người đó. Chia sẻ là trạng thái CUỐI (yêu cầu tự đóng và không mở lại được) nên dấu check THAY cho ổ khoá, không hiện cả hai.
-   - Ổ khoá `bx-lock-alt` = **đã đóng mà chưa chia sẻ**. Tooltip phải nêu ĐÚNG lý do của hàng đó, không dùng chung một chữ "Đã đóng".
-   - Không icon = đang thu thập bình thường.
-   - **Bộ mã lý do đóng dùng CHUNG cho cả hai vai** (`manual` / `no-active-ticket` / `expired`), chỉ khác câu chữ vì khác người đọc — đúng nguyên tắc §20 "một sự việc, một bộ mã, nhiều câu chữ". HR đọc `FeedbackProgramModel.campaignCloseReason(campaign,today)`, quản lý đọc `ManagerRequestModel.recipientCloseReason(request,employeeId,today)`; màn hình KHÔNG tự tính lại.
-   - **Nhận đủ phản hồi (`no-active-ticket`) LÀ đã đóng**, không phải một trạng thái lửng: không còn ai để chờ thì không còn gì để thu, nên có ổ khoá và không mở lại được. Ở cấp chương trình, nhãn vẫn là `Hoàn thành` vì nói được nhiều hơn `Đã đóng` — đóng vì thu đủ, không phải đóng giữa chừng — nhưng về luật thì nó là một trạng thái đã đóng.
-15. **Trạng thái chương trình:** dùng đúng một vocabulary ở list và detail: `Nháp` / `Đang thu thập` / `Sắp đến hạn` / `Quá hạn` / `Hoàn thành` / `Đã đóng`. `Sắp đến hạn` áp dụng trong ba ngày trước hạn; `Hoàn thành` khi đủ toàn bộ phản hồi; `Đã đóng` khi HR đóng chương trình. List và detail phải đọc cùng helper trạng thái. Nút nhắc ở list phải dùng cùng eligibility/cooldown 24 giờ với H-06, không chỉ hiện toast.
-
-
-15b. **Nhân sự nghỉ việc trong yêu cầu đang thu thập:** người nhận hoặc người cho phản hồi nghỉ việc giữa kỳ vẫn nằm trong yêu cầu đã tạo, nên mọi màn chi tiết yêu cầu (H-06 của HR và `request-detail` của quản lý) phải gắn tag `Đã nghỉ việc` ngay sau tên người đó: pill `.emp-tag.emp-tag-resigned` — component tag nhân sự DÙNG CHUNG cho mọi màn (danh sách nhân viên của quản lý, chi tiết yêu cầu của HR và của quản lý): `padding:1px 8px`, `border-radius:50px`, `font-size:10px`, viền err-border + nền err-muted + chữ err. Không tự chế chip vuông xám riêng cho từng màn; trạng thái `Nghỉ thai sản` dùng cùng component với biến thể `.emp-tag-maternity` (xanh info) (nền err-muted, viền err-border, chữ err, 10px, bo tròn 50px) ở rail người nhận, ở dòng người chưa trả lời và ở phản hồi đã nhận. Trạng thái đọc từ cờ `resigned` của nhân sự (dữ liệu nhân sự dùng chung hoặc chính bản ghi người trong yêu cầu). Người đã nghỉ việc KHÔNG nhắc được, cả thủ công lẫn tự động: nút `Nhắc` disabled với tooltip `Người cho phản hồi đã nghỉ việc, không gửi nhắc được` và phải NHÌN RA được là đã chặn (`opacity:.45`, nền `--z100`, viền `--z200`, `cursor:not-allowed`, bỏ hover) — không để nút disabled trông y hệt nút bấm được. **Cửa sổ nhắc:** yêu cầu QUÁ HẠN vẫn nhắc được bình thường; nhắc chỉ dừng khi quá 90 ngày kể từ ngày tạo yêu cầu (đúng phạm vi chọn hạn của form) hoặc khi yêu cầu đã đóng, và mỗi người vẫn phải cách lần nhắc gần nhất tối thiểu 24 giờ. Tooltip của nút nhắc bị chặn phải nêu ĐÚNG lý do của dòng đó theo thứ tự: nghỉ việc → yêu cầu đã đóng → quá 90 ngày kể từ ngày tạo → ẩn danh → cooldown 24 giờ; không mặc định đổ cho cooldown, họ bị loại khỏi danh sách của `Nhắc toàn bộ người chưa trả lời`, và dòng meta thay ngày nhắc tự động bằng `Hệ thống dừng nhắc tự động` (không hứa ngày nhắc sẽ không bao giờ chạy). Mọi màn tạo yêu cầu mới (H-05 `create-campaign`, dialog tạo yêu cầu của M-04) KHÔNG cho chọn người đã nghỉ việc ở cả vai trò người nhận lẫn người cho. Trong lúc còn thu thập, lượt phản hồi của người đã nghỉ việc bị LOẠI KHỎI MẪU SỐ tiến độ (cờ `excludedByResignation` do màn hình đặt, model đọc): `0/4` thành `0/2`, trạng thái `Hoàn thành` tính trên phần còn thu được, và dòng trạng thái của họ đổi thành `Ngừng thu thập` (icon `bx-user-x`). Yêu cầu đã đóng giữ nguyên số liệu lịch sử, không loại trừ. Ngưỡng AI Summary vẫn là 2 phản hồi trở lên, chỉ mẫu số thay đổi. Người NHẬN phản hồi nghỉ việc thì vẫn thu tiếp để lưu hồ sơ, nhưng dialog `Chia sẻ kết quả` phải cảnh báo bằng box warning theo cú pháp `[tên người nhận] đã nghỉ việc nên không thể xem kết quả.` Tag trong rail đứng thành dòng riêng dưới dòng tiến độ: `align-self:flex-start` + `margin-top:5px` để pill bo sát chữ và không dính dòng trên. Yêu cầu ẩn danh vẫn giữ ẩn danh — không hiện tên lẫn tag.
-
-15c. **Yêu cầu phản hồi của HR ở màn nhân viên (E-04):** trong hàng đợi `Cần bạn phản hồi`, yêu cầu do HR tạo LUÔN đứng trên mọi yêu cầu khác; trong từng nhóm xếp theo hạn gần nhất trước. Rule này thay cho rule cũ "gấp nhất lên đầu" nên yêu cầu quá hạn của đồng nghiệp có thể nằm dưới yêu cầu HR — vì vậy chip `quá hạn` màu err phải giữ nguyên để vẫn nhận ra được. Viền trái nhấn CHỈ dành cho dòng HR; dòng quá hạn của yêu cầu thường giữ viền xám mặc định, cảnh báo trễ hạn nằm ở chip. Danh sách chỉ ghi `Yêu cầu phản hồi của HR cho [Người nhận]`, KHÔNG nêu tên người HR gửi (chỉ lộ khi mở màn trả lời); dòng HR nhấn bằng avatar chữ `HR` nền brand, nền `--brand-muted` và viền trái hồng 3px — KHÔNG thêm chip `HR` trước tiêu đề vì avatar đã mang chữ đó. Dòng chương trình (metadata dưới tiêu đề) chỉ hiển thị cho yêu cầu HR; yêu cầu của đồng nghiệp chỉ một dòng tiêu đề. Sau khi trả lời, cả bộ câu hỏi gộp thành MỘT card trong `Phản hồi đã cho`: đầu card là nhãn HR + `Yêu cầu phản hồi của HR cho [Người nhận]` + tên chương trình, thân card có dòng `Đã trả lời N/M câu hỏi`, câu hỏi đầu tiên và nút mở rộng tại chỗ để xem các câu còn lại; không tách mỗi câu thành một card. Khi HR đóng yêu cầu mà nhân viên chưa trả lời, hàng đợi hiện MỘT LẦN dòng `Yêu cầu đã đóng, bạn không cần phản hồi` (không có nút trả lời); mở danh sách xong thì đánh dấu đã đọc vào `uc5_e04_closed_notice_seen` và lần sau tự biến mất vì không còn hành động nào.
-
 16. **Tooltip trong bảng:** wrapper bảng KHÔNG được `overflow:hidden` (tooltip hàng đầu/nút cuối sẽ bị cắt mất chữ) — giữ bo góc bằng `border-radius` trên header và row cuối. Tooltip của nhóm nút ở cột Chức năng phải neo mép phải (`right:0;left:auto;transform:translate(0,…)`), không dùng `left:50%` vì tooltip sẽ tràn khỏi bảng.
 17. **Review logic hiển thị kèm mọi yêu cầu chỉnh sửa:** khi đổi một rule hiển thị, phải rà lại toàn bộ thành phần phụ thuộc rule đó (cột, filter/tab, nút hành động, field trong form, màn hình khác đọc cùng dữ liệu) và sửa cho nhất quán trong cùng lần, thay vì chỉ sửa đúng chỗ được chỉ ra.
-
-
-18. **Màn Tạo yêu cầu phản hồi (H-05 `create-campaign`):** trường tên chương trình dùng nhãn `Tên chương trình phản hồi` (không dùng “Mục tiêu”); `Lời ngỏ` là trường BẮT BUỘC với placeholder `Nhập mục tiêu của yêu cầu phản hồi và lời nhắn gửi đến các bên liên quan` và inline error riêng. Chọn bộ câu hỏi dùng POPUP `Chọn bộ câu hỏi có sẵn` (không dùng select, không có dòng metadata dưới tiêu đề): cột trái là danh sách nhóm theo nhóm người tạo `HRBP` rồi `L&OD`, trong mỗi nhóm sắp theo tên A-Z (`localeCompare` locale `vi`); cột phải xem trước thẳng danh sách câu hỏi, KHÔNG lặp lại tên bộ câu hỏi vì cột trái đã hiển thị; CTA `Dùng bộ câu hỏi này` disabled tới khi chọn. Bộ đang áp dụng gắn nhãn `Đang dùng`. Popup có hành động **Tự tạo bộ câu hỏi mới** đặt ở FOOTER bên trái (nút outline, icon `bx-edit-alt`), KHÔNG đặt trong danh sách chọn bên trái: tự tạo là lối thoát khi HR xem xong mà không dùng bộ nào, không phải một bộ câu hỏi để "dùng" — nếu để trong danh sách thì CTA `Dùng bộ câu hỏi này` đọc sai nghĩa. Bấm nút này áp dụng ngay và đóng popup: yêu cầu bắt đầu với một câu hỏi trống, nhãn trigger đổi thành `Tự tạo bộ câu hỏi`. CTA chính `Dùng bộ câu hỏi này` chỉ dành cho bộ có sẵn và vẫn disabled tới khi chọn một bộ. Khi bộ câu hỏi hiện tại vẫn đúng bản clone của bộ đang dùng (HR chưa sửa tay), chọn bộ khác phải NẠP THẲNG, không hỏi xác nhận; chỉ hỏi khi HR đã tự nhập hoặc đã sửa nội dung. Tag `Đang dùng` bo sát text (`display:inline-flex`, padding 2px 7px, không đặt `height`/`line-height` cố định). Modal phải `display:flex;flex-direction:column` trong `max-height 88vh`, body `flex:1;min-height:0`, hai cột tự cuộn — nếu không, bộ câu hỏi dài sẽ đẩy CTA ra khỏi màn hình. Dialog `Lưu vào bộ câu hỏi` không hỏi phạm vi chia sẻ và ghi luôn phiên bản đầu vào history log. Sau khi gửi yêu cầu, KHÔNG nhảy thẳng sang màn chi tiết: mở alert dialog xác nhận (icon tròn `--brand-muted`, title `Đã tạo yêu cầu phản hồi`, nội dung nêu tên chương trình + đã gửi thông báo + báo cáo chỉ hiện sau khi HR chia sẻ) với hai hành động `Về danh sách chương trình` và `Xem chi tiết chương trình`; dialog này không có nút `×` và không đóng bằng click ngoài vì HR phải chọn điểm đến. Popup **Rà soát yêu cầu phản hồi** có ba hành động theo thứ tự `Quay lại chỉnh sửa` - `Lưu nháp` - `Gửi yêu cầu`: `Lưu nháp` ghi chương trình với `status: draft`, `done: 0`, KHÔNG gửi thông báo cho ai, rồi quay về danh sách kèm toast. Yêu cầu nháp mở lại bằng `create-campaign.html?id=<id>`: form nạp lại toàn bộ dữ liệu đã lưu, tiêu đề đổi thành `Tiếp tục thiết lập yêu cầu phản hồi`, lưu lại giữ nguyên id (không sinh chương trình trùng). Nút `Xóa yêu cầu` CHỈ nằm ở màn chi tiết yêu cầu (màn tiếp tục thiết lập), KHÔNG đưa vào danh sách chương trình và KHÔNG thêm cột `Chức năng` cho bảng danh sách. Xóa nháp mẫu ghi id vào `uc5_deleted_campaigns` để danh sách không hiện lại sau khi tải lại. Chỉ ở trạng thái nháp mới hiện nút `Xóa yêu cầu` (btn outline màu err) ở page head, bấm mở dialog xác nhận nêu rõ nháp chưa gửi cho ai và xóa không khôi phục được. **Người tham gia:** chip người đã chọn nằm DƯỚI ô tìm kiếm ở màn này (ngược với dialog chia sẻ kết quả ở mục 12, nơi chip đứng trên ô tìm kiếm) — ở form authoring, ô tìm kiếm là điểm thao tác chính nên phải đứng yên một chỗ, không bị đẩy xuống mỗi lần thêm người. Mỗi người nhận có một danh sách người cho phản hồi riêng. Menu sao chép của một người nhận phải giữ cả hai cách: `Áp dụng cho tất cả người nhận` thực hiện ngay trong một lần bấm và `Áp dụng cho người đã chọn`; thao tác sao chép THAY danh sách đích bằng danh sách nguồn và tự loại người nhận đích nếu họ xuất hiện trong danh sách người cho. Mỗi câu hỏi có toggle `Bắt buộc` ngay trên hàng tiêu đề câu hỏi, mặc định TẮT như Google Form; câu bắt buộc hiển thị dấu `*` đỏ ở mọi nơi đọc lại câu hỏi (preview chọn bộ câu hỏi, review trước khi gửi, popup xem bộ câu hỏi, màn trả lời E-04, màn kết quả H-06) và KHÔNG dùng hậu tố text “(bắt buộc)”. Người cho phản hồi chỉ bị chặn gửi khi còn câu bắt buộc chưa trả lời, đồng thời phải trả lời ít nhất một câu. Đổi thứ tự câu hỏi bằng KÉO THẢ như Google Form: tay cầm `.q-drag` (icon `bx-grid-vertical`) đứng đầu hàng tiêu đề câu hỏi, card chỉ bật `draggable` khi giữ chuột trên tay cầm (nếu để card luôn draggable thì bôi chọn chữ trong textarea sẽ biến thành kéo card); vị trí thả hiển thị bằng vạch hồng `inset box-shadow` ở mép trên/dưới card đích, card đang kéo `opacity:.5`. Tay cầm là button focus được và nhận phím mũi tên lên/xuống để người dùng bàn phím vẫn đổi được thứ tự. Không dùng nút mũi tên thường trực. Áp dụng cho cả form tạo yêu cầu lẫn editor thư viện bộ câu hỏi.
-
-18a. **Menu sao chép người cho phản hồi (thay thế câu rule sao chép ở §18):** tooltip của icon neo mép phải để không bị cắt chữ. Nội dung popover căn trái và dùng cùng một radio group gồm `Sao chép và áp dụng cho tất cả người nhận` (mặc định) và `Sao chép và áp dụng theo người nhận sau`; khi chọn cách thứ hai mới hiện checkbox từng người nhận. Một CTA `Áp dụng` thực hiện lựa chọn hiện tại. Thao tác sao chép THAY danh sách đích bằng danh sách nguồn và tự loại người nhận đích nếu họ xuất hiện trong danh sách người cho.
-
-18b. **Nhóm thông tin mở đầu của yêu cầu:** `Tên chương trình phản hồi` và `Lời ngỏ` nằm trong CÙNG một section, cách nhau 16px và không có đường phân cách ở giữa. Thứ tự là tên chương trình → lời ngỏ → bộ câu hỏi; không để padding của hai section cộng dồn thành khoảng trống lớn. Hai textarea mặc định cao một dòng (`38px`) và tự giãn theo nội dung. Dòng thông báo người nhận notification đặt ngay dưới nhãn `Lời ngỏ`, trước ô nhập, và không dùng icon thông tin.
-
-19. **Tim cảm ơn — một người, một tim:** phản hồi nhân viên đã chọn chia sẻ với quản lý cho phép mọi cấp quản lý trong chuỗi (LM, Upper LM, HOD) thả tim độc lập; một phản hồi có thể nhận nhiều tim nhưng mỗi domain chỉ thả được một lần. Tim ghi lại hành động của một CON NGƯỜI, không của chức danh: mỗi người là một tim riêng trong cùng cụm, mọi tim dùng cùng màu và không sắp xếp theo vai trò. Hover/focus TỪNG tim chỉ hiển thị `domain` của người đã thả, không hiện tên, `Bạn`, chức danh hay quan hệ quản lý. Tim của người khác không làm mất nút `Cảm ơn`; nút chỉ biến mất khi chính domain đang xem đã thả. Schema lưu danh sách người thả và renderer lấy từ `M-04/manager-thanks.js`, màn hình không tự viết lại.
+20. **Icon không tồn tại trong Boxicons 2.1.4:** KHÔNG dùng `bx-sparkles` và `bx-magic` — bản Boxicons đang dùng không có hai icon này nên trình duyệt vẽ ra ô rỗng. Lối vào AI dùng mascot (`assets/mascot/`). Trước khi dùng một icon mới, kiểm tra tên có trong bản 2.1.4.
+21. **Thuộc tính `hidden` trên phần tử có `display` riêng:** class đặt `display:flex|grid|inline-flex` sẽ đè lên `display:none` mà trình duyệt gán cho `[hidden]`, nên phần tử vẫn hiện. Mỗi class như vậy mà được bật/tắt bằng `hidden` BẮT BUỘC khai thêm `.ten-class[hidden]{display:none}` (vd `.ai-entry[hidden]`, `.dlg-tabs[hidden]`).
+22. **Một đối tượng, một tên trên mọi màn:** cùng một thứ phải được gọi bằng MỘT tên ở mọi màn và mọi vai. Ví dụ: thứ HR chia sẻ luôn là `kết quả` (`Chia sẻ kết quả`, `kết quả từ HR`), KHÔNG gọi là `báo cáo` ở H-05, H-06 hay M-04. Đổi tên thì đổi ở mọi màn trong cùng lần sửa (rule 17).
+23. **Ký hiệu trong câu chữ:** không đặt hai ký hiệu sát nhau (vd dấu ngã `~` cạnh ` - `); ước lượng thì viết chữ `khoảng`. Khi phần chính đã có sẵn ` - ` (tên chương trình như `… giữa kỳ 2026 - ITC`), phần phụ đi kèm đặt trong NGOẶC ĐƠN thay vì nối thêm một ` - ` nữa, vd `Đánh giá giữa kỳ 2026 - ITC (15 câu hỏi)`.
 
 ## 20. NGUYÊN TẮC ĐỒNG BỘ GIỮA CÁC MÀN HÌNH (bắt buộc — đọc trước khi sửa bất kỳ màn nào)
 
@@ -322,13 +116,24 @@ vì mỗi màn nhìn riêng thì đều hợp lý. Các rule dưới đây có �
 Mã lý do đóng yêu cầu (`ManagerRequestModel.closeReasonCodes()`) là bộ mã DUY NHẤT.
 Đặt tên riêng ở màn khác (`request-closed`, `closed-by-manager`…) là hai màn nói hai thứ tiếng.
 
-| Mã | Khi nào | Quản lý đọc (M-04) | Người được hỏi đọc (E-04) |
-|---|---|---|---|
-| `creator-resigned` | quản lý tạo yêu cầu đã nghỉ việc | Quản lý tạo yêu cầu đã nghỉ việc | Người tạo yêu cầu đã nghỉ việc… |
-| `manual` | quản lý chủ động bấm đóng | Quản lý đã chủ động đóng | Quản lý đã đóng yêu cầu… |
-| `no-active-ticket` | không còn ai có thể trả lời | Không còn ai có thể phản hồi | Yêu cầu đã đóng vì không còn ai… |
-| `expired` | quá 90 ngày kể từ ngày tạo | Quá 90 ngày kể từ ngày tạo | Yêu cầu đã quá 90 ngày nên tự đóng… |
-| `recipient-resigned` | (mức ticket) người nhận nghỉ việc | ghi sau chữ Đóng trên ticket | Người nhận phản hồi đã nghỉ việc… |
+| Mã | Khi nào | Quản lý đọc (M-04) | Người được hỏi đọc (E-04) | Bản ngắn (popup `Yêu cầu đã đóng` của E-04) |
+|---|---|---|---|---|
+| `creator-resigned` | quản lý tạo yêu cầu đã nghỉ việc | Quản lý tạo yêu cầu đã nghỉ việc | Người tạo yêu cầu đã nghỉ việc… | Người tạo yêu cầu đã nghỉ việc |
+| `manual` | quản lý chủ động bấm đóng | Quản lý đã chủ động đóng | Quản lý đã đóng yêu cầu… | Quản lý đã đóng yêu cầu |
+| `no-active-ticket` | không còn ai có thể trả lời | Không còn ai có thể phản hồi | Yêu cầu đã đóng vì không còn ai… | Không còn ai có thể phản hồi |
+| `expired` | quá 90 ngày kể từ ngày tạo | Quá 90 ngày kể từ ngày tạo | Yêu cầu đã quá 90 ngày nên tự đóng… | Yêu cầu hết hiệu lực vì quá 90 ngày |
+| `recipient-resigned` | (mức ticket) người nhận nghỉ việc | ghi sau chữ Đóng trên ticket | Người nhận phản hồi đã nghỉ việc… | Người nhận phản hồi đã nghỉ việc |
+| `hr-closed` | HR đóng chương trình khi người được hỏi chưa trả lời | — (không thuộc M-04) | HR đã đóng yêu cầu, bạn không cần phản hồi | HR đã đóng yêu cầu |
+
+Ba bảng câu chữ nằm cạnh nhau trong `ManagerRequestModel`: `CLOSE_REASON_TEXT`, `REVIEWER_NOTICE_TEXT`
+và `CLOSE_REASON_SHORT` (đọc qua `closeReasonShort()`). Bản ngắn chỉ nêu lý do, vì tiêu đề popup đã nói
+"Yêu cầu đã đóng"; nhắc lại "bạn không cần phản hồi" ở từng dòng là thừa. Mã lạ rơi về `Yêu cầu đã đóng`.
+
+**Người nhận phản hồi nghỉ việc: HR và quản lý KHÁC nhau có chủ đích.** Yêu cầu của quản lý đóng
+ticket chưa trả lời của người đó (`recipient-resigned`) và báo cho người cho phản hồi chưa trả lời;
+chương trình của HR vẫn thu tiếp để lưu hồ sơ và cảnh báo trong dialog `Chia sẻ kết quả`
+(`UI-RULES.md` mục 15b). Người CHO phản hồi nghỉ việc thì hai vai giống nhau: ticket ngừng thu và bị
+loại khỏi mẫu số khi còn đang thu thập (§20.4).
 
 ### 20.3 Trạng thái: mỗi vai có tập trạng thái riêng, nhưng cùng luật
 

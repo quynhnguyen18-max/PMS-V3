@@ -3,6 +3,10 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 
+// DESIGN-SYSTEM tách 3 file: lõi, components và rule riêng Feedback. Đọc gộp để rule nằm ở file nào cũng được kiểm.
+const readDesignSystem=()=>['../DESIGN-SYSTEM.md','../design-system/COMPONENTS.md','../docs/modules/feedback/UI-RULES.md']
+  .map(f=>fs.readFileSync(path.resolve(__dirname,f),'utf8')).join('\n');
+
 const modelPath='./feedback-program-model.js';
 const questionnaireModelPath='./questionnaire-library-model.js';
 const questionnaireExportPath='./questionnaire-library-export.js';
@@ -155,7 +159,7 @@ test('saves request questions through an explicit named questionnaire popup',()=
 });
 
 test('documents the current two-scope questionnaire rule and legacy compatibility',()=>{
-  const markdown=fs.readFileSync(path.resolve(__dirname,'../DESIGN-SYSTEM.md'),'utf8');
+  const markdown=readDesignSystem();
   const showcase=fs.readFileSync(path.resolve(__dirname,'../design-system/index.html'),'utf8');
   for(const source of [markdown,showcase]){
     assert.match(source,/Toàn bộ HRBP và L(?:&|&amp;)OD Team/);
@@ -396,7 +400,7 @@ test('HR builder keeps the deadline compact and identity options aligned at lapt
 
 test('identity visibility keeps every explanation inside the two option cards',()=>{
   const page=fs.readFileSync(require.resolve('./create-campaign.html'),'utf8');
-  const design=fs.readFileSync(require.resolve('../DESIGN-SYSTEM.md'),'utf8');
+  const design=readDesignSystem();
   const lead='Khi HR chia sẻ kết quả tới Quản lý và/hoặc Nhân viên, danh tính người cho phản hồi sẽ được:';
   const anon='Chỉ nội dung phản hồi được hiển thị.';
   const named='Hiển thị cả nội dung phản hồi và họ tên người cho.';
@@ -414,7 +418,7 @@ test('identity visibility keeps every explanation inside the two option cards',(
 });
 
 test('design system documents centered HR authoring and responsive context-width controls',()=>{
-  const design=fs.readFileSync(require.resolve('../DESIGN-SYSTEM.md'),'utf8');
+  const design=readDesignSystem();
   assert.match(design,/Form authoring[^\n]*max-width 860px/i);
   assert.match(design,/Thời hạn phản hồi[^\n]*220px/);
   assert.match(design,/Người nhận phản hồi ở trái, người cho phản hồi ở phải/i);
@@ -833,8 +837,8 @@ test('H-06 shows the core-value badge summary for the selected participant',
 test('Feedback navigation routes each role to one entry screen and keeps H-06 as a detail-only route',()=>{
   const employee=fs.readFileSync(path.join(__dirname,'..','E-04','index.html'),'utf8');
   const manager=fs.readFileSync(path.join(__dirname,'..','M-04','index.html'),'utf8');
-  const employeeHome=fs.readFileSync(path.join(__dirname,'..','E-01','index.html'),'utf8');
-  const managerHome=fs.readFileSync(path.join(__dirname,'..','M-01','index.html'),'utf8');
+  const employeeHome=fs.readFileSync(path.join(__dirname,'..','E-05','index.html'),'utf8');
+  const managerHome=fs.readFileSync(path.join(__dirname,'..','M-05','index.html'),'utf8');
   const program=fs.readFileSync(require.resolve('./index.html'),'utf8');
   const detail=fs.readFileSync(path.join(__dirname,'..','H-06','index.html'),'utf8');
   for(const source of [employee,manager,employeeHome,managerHome]){
@@ -1427,7 +1431,7 @@ test('renders reviewer identity as two equal feedback choice cards',()=>{
 
 test('design rules preserve request-review confirmation dialogs and compact footer actions',()=>{
   const design=fs.readFileSync(require.resolve('../design-system/index.html'),'utf8');
-  const markdown=fs.readFileSync(require.resolve('../DESIGN-SYSTEM.md'),'utf8');
+  const markdown=readDesignSystem();
   assert.match(design,/Review-confirmation modal/i);
   assert.match(design,/người nhận ở bên trái và người cho ở bên phải/i);
   assert.match(markdown,/Review-confirmation modal/i);

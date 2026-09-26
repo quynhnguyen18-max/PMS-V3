@@ -3,8 +3,9 @@
 > **Nguyên tắc sản phẩm:** Feedback không phải là công cụ đánh giá. Module này phục vụ việc ghi nhận, coaching và hỗ trợ nhân viên phát triển; không thiết kế các luồng khuyến khích quản lý thu thập phản hồi tràn lan hoặc dùng phản hồi để tạo cảm giác giám sát.
 
 > **Phạm vi đợt này:** UC1 (Employee yêu cầu phản hồi) · UC2 (Cho phản hồi) · UC3 (Manager yêu cầu phản hồi cho cấp dưới) · **UC-R (Reviewer — trả lời yêu cầu phản hồi)**.
-> UC4 (Team) & UC5 (HR Programs) — để đợt sau.
-> **Trạng thái cập nhật 04/08/2026:** Phase A–C đã hoàn thành trên prototype `E-04`. Phase D đã hoàn thành D1–D4 trên `M-04`: quản lý xem feedback, tạo yêu cầu và theo dõi tiến độ. Bước tiếp theo là D5 — AI Coaching Summary.
+> UC4 (Team) — để đợt sau. UC5 (HR Programs) đã đưa vào prototype ở H-05, H-06, H-07 (xem §4c đến §4e).
+> **Trạng thái cập nhật 27/09/2026:** Phase A–C hoàn thành trên `E-04`. Phase D hoàn thành D1–D5 trên `M-04` (AI Summary theo nhân viên đã có ở popup `Phản hồi đã nhận`, Split View và màn chi tiết yêu cầu). UC5 của HR đã dựng: tạo yêu cầu, thư viện bộ câu hỏi, chi tiết chương trình, chia sẻ kết quả, báo cáo.
+> **Nguồn chân lý:** prototype được chỉnh trực tiếp trên UI, nên khi tài liệu này lệch với code thì code là bản đúng và tài liệu phải được sửa theo.
 
 ---
 
@@ -18,7 +19,11 @@
 | 4 | Guide, not enforce | AI gợi ý STAR/Core Value dạng chip, không phải form bắt buộc |
 | 5 | AI as coach | AI là mock, luôn có bước người dùng duyệt; không bao giờ tự gửi |
 
-**Từ ngữ đã chốt:** dùng **"Cho phản hồi"** (không dùng "Chia sẻ phản hồi") và **"Yêu cầu phản hồi"** (không dùng "Xin phản hồi").
+**Từ ngữ đã chốt:**
+- Dùng **"Cho phản hồi"** (không dùng "Chia sẻ phản hồi") và **"Yêu cầu phản hồi"** (không dùng "Xin phản hồi").
+- Thứ HR chia sẻ gọi là **"kết quả"** (`Chia sẻ kết quả`, `kết quả từ HR`), KHÔNG gọi là "báo cáo", ở H-05, H-06 và M-04 (DS §19 rule 22).
+- CTA tạo yêu cầu của quản lý là **"Thu thập phản hồi cho nhân viên"**, tiêu đề popup dùng cùng tên. Không dùng "Tạo yêu cầu phản hồi" vì trùng chữ và trùng icon với nút "Yêu cầu phản hồi" của nhân viên trong khi nghĩa khác nhau; "Thu thập" khớp từ vựng vòng đời `Đang thu thập` / `Ngừng thu thập`.
+- Màn của nhân viên tên là **"Phản hồi của tôi"**; màn của quản lý là **"Phản hồi của đội nhóm"**.
 
 ---
 
@@ -82,7 +87,7 @@ Nguyên tắc IA:
 └───────────────────────────────────────────────────────────────┘
 ```
 
-- Xem phản hồi cấp dưới nhận được → **tái dùng popup `docs/reference/popup_fb_preview.html`** (xem mục 6).
+- Xem phản hồi cấp dưới nhận được → **tái dùng popup `reference/popup_fb_preview.html`** (xem mục 6).
 - Direct/Indirect dùng lại đúng tab-switch LM1/LM2/HOD có sẵn ở M-01.
 
 ---
@@ -118,6 +123,8 @@ Khi chọn ≥2 reviewer, cho người dùng chọn chế độ ngay trong R-1:
 
 > UI: một toggle "Cá nhân hóa nội dung cho từng người" đặt ngay dưới danh sách reviewer. Off = 1 ô chung; On = danh sách ô riêng. Tránh bắt điền lại từ đầu — luôn seed từ nội dung chung.
 
+> **Phạm vi toggle (chốt 27/09/2026):** toggle chỉ còn ở popup tạo yêu cầu của quản lý (M-04). Màn tạo yêu cầu của HR (H-05 `create-campaign`) KHÔNG có toggle: mỗi người nhận luôn có danh sách người cho phản hồi riêng, nháp cũ lưu ở chế độ chung được chuyển sang danh sách riêng lúc nạp.
+
 ### UC-R — Reviewer: trả lời yêu cầu phản hồi (có AI) ★ luồng dùng chung
 Điểm hội tụ của UC1 (đồng nghiệp xin) và UC3 (quản lý xin). Entry point: panel "Cần bạn phản hồi" + thông báo in-app.
 
@@ -126,7 +133,7 @@ Khi chọn ≥2 reviewer, cho người dùng chọn chế độ ngay trong R-1:
 | RV-1 | Panel "Cần bạn phản hồi" | Ai xin · về ai · context · hạn · nguồn (đồng nghiệp/quản lý). Badge overdue. (Đây chính là panel đầu view Nhân viên, không phải trang riêng) |
 | RV-2 | Trả lời | Thấy context + lời nhắn người xin · textarea + **AI Coach** (dùng lại S-2/S-3) · **chỉ thấy request của mình** |
 | RV-3 | Visibility theo ngữ cảnh | UC1 → reviewer chọn được phạm vi; UC3 → hiện rõ **mặc định shared**, không đổi được. Badge "ai sẽ xem" |
-| RV-4 | Submitted | Đã gửi — submit **1 lần**, không sửa |
+| RV-4 | Submitted | Đã gửi — submit **1 lần**, không sửa. **Ngoại lệ:** câu trả lời cho yêu cầu của HR sửa được theo điều kiện ở §4c |
 
 ### UC3 — Quản lý yêu cầu phản hồi (có AI, view Quản lý)
 Luồng: chọn direct report(s) → chọn reviewers → context → hệ thống sinh request/(NV×reviewer) → monitor → AI summary.
@@ -138,11 +145,56 @@ Luồng: chọn direct report(s) → chọn reviewers → context → hệ thố
 | MR-3 | AI Coaching Summary | Strengths · Development opportunities · Recurring themes. **Không sửa được.** "Coaching evidence, không phải điểm" |
 | — | Reviewer submit | Dùng lại **UC-R**. Visibility mặc định **shared**. |
 
+#### 4b. UC3 — luật đã chốt trên prototype
+
+- **Một câu hỏi:** mỗi người cho phản hồi nhận ĐÚNG 1 câu hỏi (chung cho mọi người, hoặc riêng từng người khi bật cá nhân hóa). Màn trả lời và card đã cho của nhân viên không có dòng đếm `Đã trả lời X/Y câu hỏi`.
+- **Visibility cố định:** `shared`, người trả lời không đổi được (`reviewerCanChangeVisibility:false`).
+- **Thứ tự chọn:** chọn nhân viên nhận phản hồi trước, rồi người cho phản hồi, cùng thứ tự với màn HR.
+- **Nghỉ việc, đóng, mở lại, nhắc:** luật nằm trong `M-04/manager-request-model.js`, tổng hợp ở DS §20.2 đến §20.6. Người nhận phản hồi nghỉ việc thì ticket chưa trả lời của người đó đóng (`recipient-resigned`), khác với chương trình của HR (vẫn thu tiếp) — khác có chủ đích.
+- **Đóng chủ động:** quản lý đóng ở màn chi tiết, hai phạm vi: toàn bộ yêu cầu hoặc theo người nhận. Khoá hết người nhận thì cả yêu cầu đóng. Ticket đã trả lời không bị đụng tới.
+
+#### 4c. UC5 — nhân viên trả lời yêu cầu của HR
+
+- **Số câu hỏi:** hàng đợi và popup trả lời cho biết số câu hỏi của bộ (`N câu hỏi`). KHÔNG hiển thị thời gian ước tính trả lời. Chỉ yêu cầu HR mới hiện số câu, vì yêu cầu của đồng nghiệp hay quản lý chỉ có 1 câu.
+- **Gửi:** phải trả lời mọi câu bắt buộc, trả lời ít nhất một câu, VÀ tick `Tôi đã đọc và đồng ý` ở khối `Thông báo về Bảo mật & xử lý dữ liệu`. Câu chữ đã duyệt của khối này:
+  - **Bảo mật danh tính:** Phản hồi của bạn sẽ được ẩn danh, giúp tạo điều kiện để bạn thoải mái chia sẻ những góc nhìn chân thực từ trải nghiệm làm việc.
+  - **Hiển thị danh tính:** Phản hồi của bạn sẽ được lưu kèm thông tin Domain. Thông tin này giúp người xem hiểu rõ hơn bối cảnh và mối liên hệ công việc của góc nhìn được chia sẻ.
+  - **Xử lý & chia sẻ dữ liệu:** Thông tin bạn cung cấp sẽ được HR tổng hợp và chia sẻ tới người nhận và/hoặc các cấp quản lý của người nhận.
+- **Nơi lưu:** câu trả lời đã gửi nằm ở `Phản hồi đã cho`, cả bộ câu hỏi là một card.
+- **Sửa câu trả lời:** chỉ sửa được khi đồng thời: yêu cầu do HR tạo, yêu cầu CHƯA đóng, chương trình chọn **Hiển thị danh tính** (chương trình ẩn danh không sửa được), và hôm nay chưa quá ngày hết hiệu lực `expiresAt`. Mỗi lần lưu (`Lưu và gửi điều chỉnh`) tạo một PHIÊN BẢN MỚI, phiên bản cũ giữ nguyên, không sửa được. Lịch sử chỉnh sửa xem được khi đã sửa ít nhất một lần. Luật nằm ở `hrResponseCanEdit()` trong E-04.
+- **Yêu cầu đã đóng trước khi trả lời:** rời khỏi hàng đợi việc cần làm, được giữ lại trong popup `Yêu cầu đã đóng` để tra cứu bất cứ lúc nào (không còn cơ chế thông báo một lần rồi mất). Mã lý do `hr-closed` (DS §20.2). Yêu cầu của quản lý bị đóng cũng vào cùng popup này.
+
+#### 4d. UC5 — chia sẻ kết quả theo chuỗi quản lý
+
+- Mỗi nhân sự chỉ khai **quản lý trực tiếp**; quản lý cấp 2 và trưởng đơn vị được SUY RA từ đó (`assets/org-chain.js`), nên dữ liệu không tự mâu thuẫn. Trưởng đơn vị không nằm trong chuỗi của chính mình; chuỗi không được vòng lại.
+- Ba cấp luôn là ba lựa chọn riêng, kể cả khi hai hoặc ba cấp là cùng một người. Một người giữ nhiều cấp chỉ xuất hiện MỘT lần trong danh sách người xem, mang đủ các vai.
+- Có tên trong danh sách chia sẻ CHƯA đủ để xem trên hệ thống: chuỗi quản lý của nhân viên quyết định quyền xem. Người ngoài chuỗi (và người không có domain) chỉ nhận file qua email. Một người có thể vừa xem trên hệ thống kết quả của người mình quản lý, vừa chỉ nhận file kết quả của người mình không quản lý.
+- Chia sẻ nhiều lần thì CỘNG DỒN người xem, không thay thế lần trước; mỗi lần ghi người chia sẻ, của ai, cho ai, qua kênh nào. Câu chữ vai và kênh nằm ở một chỗ trong model. Giao diện xem `UI-RULES.md` mục 12 đến 12e.
+
+#### 4e. UC5 — thư viện bộ câu hỏi
+
+- Lưu một bộ câu hỏi cần: có tên, **ít nhất 5 câu hỏi**, và chọn một trong hai phạm vi (`Chỉ mình tôi` / `Toàn bộ HRBP và L&OD Team`). Gợi ý đặt tên theo mẫu `[Bộ phận]_[Mục đích sử dụng]`.
+- Phạm vi, quyền sửa/xóa/sao chép, lịch sử thay đổi và tải xuống: xem `UI-RULES.md` mục 8 đến 8c.
+
+#### 4f. Quản lý tải dữ liệu phản hồi (M-04)
+
+- Phạm vi tải luôn đúng bằng danh sách quản lý đang xem (cùng hàm lọc `currentEmployees()` theo tab, bộ lọc Direct/Indirect và ô tìm kiếm); file không bao giờ chứa nhiều hơn những gì quản lý được xem.
+- Hai lựa chọn: phạm vi (toàn bộ nhân viên đang hiển thị, hoặc chọn từng nhân viên) và nội dung (phản hồi nhân viên đã nhận, kết quả từ chương trình HR đã chia sẻ, hoặc cả hai). Kết quả từ HR nằm ở sheet riêng.
+- Trước khi tải luôn có bước xác nhận trách nhiệm bảo mật; quản lý phải bấm `Tôi đã hiểu và tải`.
+- Tải một người thì làm ngay tại chỗ đang xem người đó: dòng nhân viên, popup xem nhanh, Split View, màn chi tiết.
+- Giao diện: `UI-RULES.md` mục 19c.
+
+#### 4g. AI Summary của quản lý
+
+- AI Summary theo nhân viên chỉ tổng hợp phản hồi liên tục, **KHÔNG bao gồm kết quả từ chương trình của HR**, và tự ghi rõ điều đó ngay dưới tên khối.
+- Kết quả từ HR hiện riêng, trong popup chỉ còn một dòng đếm số và dẫn sang màn chi tiết.
+- Mặc định ẩn, người dùng chủ động mở (giao diện: `UI-RULES.md` mục 19b). Ngưỡng tạo tóm tắt vẫn là 2 phản hồi trở lên (DS §20.4).
+
 ---
 
 ## 5. Component library
 
-- **Feedback card / popup "Phản hồi đã nhận"** — `docs/reference/popup_fb_preview.html` là **popup danh sách phản hồi 1 người nhận**, gắn với nút "Phản hồi đã nhận" ở màn Đánh giá giữa năm. **Tái dùng đúng bối cảnh:** (a) làm card trong feed view Nhân viên; (b) làm popup khi Quản lý bấm "xem" phản hồi của 1 cấp dưới. Chuẩn hóa 1 lần, dùng lại.
+- **Feedback card / popup "Phản hồi đã nhận"** — `reference/popup_fb_preview.html` là **popup danh sách phản hồi 1 người nhận**, gắn với nút "Phản hồi đã nhận" ở màn Đánh giá giữa năm. **Tái dùng đúng bối cảnh:** (a) làm card trong feed view Nhân viên; (b) làm popup khi Quản lý bấm "xem" phản hồi của 1 cấp dưới. Chuẩn hóa 1 lần, dùng lại.
 - **Core Value badges (5)** — icon-only 34–54px, hover hiện tên. Lấy từ `Core value with BG/`:
   Đổi mới (`Innovation.png`) · Tinh thần đồng đội (`Teamwork.png`) · Không ngừng học hỏi (`Constant_.png`) · Khách hàng là trung tâm (`Customer_.png`) · Thực thi xuất sắc (`Excellence.png`). Style `.cv-item` / `.fb-badge` đã có trong design system.
 - **AI Coach panel** — chip STAR/STARAR/Core Value, before/after.
@@ -193,7 +245,7 @@ Phản hồi gom theo **chu kỳ performance**, không theo năm dương lịch 
    - ✅ **D2 — Hoàn thành:** quản lý xem phản hồi cấp dưới theo visibility, tái sử dụng feedback card/popup hiện có.
    - ✅ **D3 — Hoàn thành:** MR-1 — quản lý tạo yêu cầu phản hồi cho direct reports, hỗ trợ nhiều nhân viên và nhiều người phản hồi.
    - ✅ **D4 — Hoàn thành:** MR-2 — tab “Yêu cầu” quản lý theo Mục tiêu, List/Kanban, Xem thêm theo batch 10, detail route riêng theo request → nhân viên → người phản hồi, pending, overdue, nhắc phản hồi và localStorage migration.
-   - ⏭️ **D5 — Tiếp theo:** MR-3 — AI Coaching Summary theo từng nhân viên trong từng request.
+   - ✅ **D5 — Hoàn thành:** MR-3 — AI Summary theo từng nhân viên, ở popup `Phản hồi đã nhận`, Split View và màn chi tiết yêu cầu (§4g).
    - **D6:** kiểm thử quyền và luồng xuyên vai trò.
 
 Mỗi phase xong em gửi chị xem trước khi qua phase kế.
@@ -214,4 +266,6 @@ Mỗi phase xong em gửi chị xem trước khi qua phase kế.
 ---
 
 ## 9. Ngoài phạm vi đợt này
-UC4 Team Feedback (2027) · UC5 HR Programs · role HR · Dashboard Analytics đầy đủ · Likert scale · anonymous · tích hợp sâu Performance Review.
+UC4 Team Feedback (2027) · Dashboard Analytics đầy đủ · tích hợp sâu Performance Review.
+
+> Cập nhật 27/09/2026: UC5 HR Programs, role HR, câu hỏi chấm điểm và lựa chọn ẩn danh (chỉ trong chương trình của HR) đã được dựng trên prototype nên không còn nằm ngoài phạm vi.
