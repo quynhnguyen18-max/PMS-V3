@@ -661,6 +661,20 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /\.yer-md-late-status\{[^}]*background:#FCEBF5;[^}]*color:var\(--brand\)/);
 });
 
+test('manager demo separates roster phases from role-filtered detail scenarios', () => {
+  const demo = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
+  assert.match(demo, /var MANAGER_ROLES = \['lm', 'lm2', 'hod'\]/);
+  assert.match(demo, /var MANAGER_STEPS = \['self', 'lm', 'lm2', 'hod', 'publish'\]/);
+  assert.match(demo, /var managerList = onScreen\('M-05\/index\.html'\)/);
+  assert.match(demo, /var managerDetail = onScreen\('M-06\/index\.html'\)/);
+  assert.match(demo, /sc\.role === s\.role && sc\.screen === 'M-06'/);
+  assert.match(demo, /managerDetail[\s\S]*Tình huống chi tiết/);
+  assert.match(demo, /var scenarioControl = managerDetail/);
+  assert.match(demo, /return !managerScreen \|\| MANAGER_STEPS\.indexOf\(st\.key\) >= 0/);
+  assert.match(demo, /Giai đoạn/);
+  assert.match(demo, /var empSelect = bar\.querySelector\('#dm-emp'\)/);
+});
+
 test('all manager levels can edit a submitted review while their own timeline remains open', () => {
   const w = loadYer();
   const cases = [

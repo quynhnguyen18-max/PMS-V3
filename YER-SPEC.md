@@ -1079,6 +1079,16 @@ không theo mã nhân sự: một người có thể xuất hiện ở nhiều t
 (ví dụ `e1` ở `nv16`, `lm02` và `hod02`). Nhóm cuối **Hồ sơ khác** (`emp:<id>`) dành cho
 nhân sự không thuộc tình huống nào, chỉ đổi hồ sơ chứ không đổi vai và ngày.
 
+Riêng hai màn Quản lý tách rõ hai mục đích demo:
+
+- `M-05` là **tổng quan roster theo thời điểm**: thanh demo chỉ có Vai trò, Ngày hệ thống
+  và 5 giai đoạn `Tự đánh giá → QLTT → QL cấp 2 → HOD → Công bố`. Không có dropdown
+  nhân viên/tình huống; đổi giai đoạn chỉ đổi ngày của toàn roster, không chuyển màn.
+- `M-06` là **chi tiết use case**: mới hiện dropdown `Tình huống chi tiết`, và dropdown chỉ
+  chứa tình huống `M-06` của đúng vai đang xem. Chọn tình huống không âm thầm đổi sang vai khác.
+- Hai bước nội bộ `Total Reward` và `HR Director` không hiện trên thanh demo của màn Quản lý,
+  đồng nhất với dải quy trình 5 bước trên màn hình.
+
 ## 45. Bộ kiểm thử
 
 | Lệnh | Phạm vi |
