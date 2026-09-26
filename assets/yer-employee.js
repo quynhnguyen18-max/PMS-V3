@@ -1000,9 +1000,17 @@
          - Thuộc kỳ nhưng không hoàn tất (NV không làm hoặc Quản lý không chấm)
            → **vẫn mở xem lại được**, chỉ là không có kết quả.
        Luật "có thuộc kỳ giữa năm hay không" lấy từ model, không chép lại ở đây. */
+    /* MYR-SPEC §2a: chỉ khi đang ở use case của thanh demo thì tab Giữa năm mới là
+       dữ liệu lịch sử của kỳ cuối năm. Không có use case thì tab là màn MYR bình thường. */
+    var myrHistory = Y.myrAsHistory(p.emp.id);
+    if(lastMyrHistory !== null && lastMyrHistory !== myrHistory){ location.reload(); return; }
+    lastMyrHistory = myrHistory;
     var myrDone = !!(p.myr && p.myr.final !== null && p.myr.final !== undefined);
     var myrLbl = el('tablbl-myr');
-    if(myrLbl){
+    if(myrLbl && !myrHistory){
+      myrLbl.textContent = L('Đang hoạt động','Active');
+      myrLbl.classList.remove('yer-past-cycle-label');
+    } else if(myrLbl){
       myrLbl.textContent = myrDone
         ? L('Đã hoàn tất','Completed')
         : !p.myrEligible ? L('Không đánh giá','Not evaluated')
@@ -1012,7 +1020,7 @@
 
     var MYR_CUTOFF = function(){ return (window.PMS_YER_TIMELINE||{}).myrOnboardCutoff || '2026-04-01'; };
     var tabMyr = el('tab-myr');
-    if(tabMyr){
+    if(tabMyr && myrHistory){
       tabMyr.classList.toggle('disabled', !p.myrEligible);
       tabMyr.title = p.myrEligible ? ''
         : L('Onboard sau ' + Y.fmt(MYR_CUTOFF(), lg()) + ' nên không thuộc kỳ Đánh giá giữa năm 2026',
@@ -1021,7 +1029,7 @@
         window.switchMainTab(0);
       }
     }
-    syncMyrResult(p, myrDone);
+    if(myrHistory) syncMyrResult(p, myrDone);
     var cnt = el('tabcnt-goals');
     if(cnt) cnt.textContent = (p.emp.goals||[]).filter(function(g){ return deletedIds().indexOf(g.id) < 0; }).length;
 
@@ -1046,11 +1054,15 @@
   /* Tab MYR trong E-05 là ảnh chụp lịch sử để xem lại tại thời điểm cuối năm.
      Không dùng trạng thái "đã nộp self" của bản E-01; khi đã có điểm cuối cùng thì
      hiển thị kết quả đã hoàn thành cùng đúng người phụ trách tại kỳ MYR. */
+  var lastMyrHistory = null;
   function syncMyrResult(p, completed){
     var panel = el('mpanel-myr');
     if(!panel) return;
     var draftActions = panel.querySelector('.myr-draft-actions');
     if(draftActions) draftActions.style.display = 'none';
+    // Dữ liệu lịch sử: đã hết timeline nên không còn mở lại để chỉnh sửa
+    var editBtn = el('myr-edit-btn');
+    if(editBtn) editBtn.hidden = true;
     panel.classList.toggle('page-submitted', !!completed);
 
     var resultBanner = panel.querySelector('#submit-banner');

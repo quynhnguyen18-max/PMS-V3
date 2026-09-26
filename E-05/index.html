@@ -484,7 +484,6 @@ input,select,textarea{font-family:inherit}
 .eval-chip i{font-size:12px}
 .eval-done{color:var(--ok);background:transparent;border-color:var(--ok)}
 .eval-wait{color:var(--z500);background:var(--z100);border-color:var(--z200);font-weight:500}
-.eval-revise{color:var(--brand);background:transparent;border-color:var(--brand)}
 .ev-steps{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .ev-step{padding:4px 11px;border:1px solid var(--z200);border-radius:50px;background:var(--z0);font-size:12px;font-weight:500;color:var(--z500)}
 .ev-step.active{border-color:var(--brand);color:var(--brand);background:var(--brand-muted)}
@@ -502,8 +501,6 @@ input,select,textarea{font-family:inherit}
 .ev-cmt-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--z500);display:block;margin-bottom:4px}
 .ev-meta{font-size:11.5px;color:var(--z500);margin-top:6px}
 .ev-locked-msg{font-size:12.5px;color:var(--z500);font-style:italic}
-.ev-revise-box{font-size:12.5px;color:var(--z700);background:var(--brand-muted);border:1px solid var(--brand-ring);border-radius:var(--rxs);padding:8px 10px;line-height:1.5;margin-bottom:10px}
-.ev-revise-box strong{color:var(--brand)}
 
 /* Bố cục so sánh NV / Quản lý song song */
 .ev-cards.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
@@ -1017,7 +1014,7 @@ label.ev-tb-btn{cursor:pointer}
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn" onclick="switchMainTab(0)">Mục tiêu<span class="tab-cnt" id="tabcnt-goals">6</span></button>
-      <button class="tab-btn has-active-label" id="tab-myr" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label" id="tablbl-myr">Đã hoàn tất</span></button>
+      <button class="tab-btn has-active-label" id="tab-myr" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label" id="tablbl-myr">Đang hoạt động</span></button>
       <button class="tab-btn on has-active-label" id="tab-yer" onclick="switchMainTab(2)">Đánh giá cuối năm<span class="badge tab-active-label" id="tablbl-yer">—</span></button>
     </div>
 
@@ -1501,6 +1498,8 @@ label.ev-tb-btn{cursor:pointer}
         </div>
       </div>
       <div class="sb-actions">
+        <!-- MYR-SPEC MYR-25: trong timeline tự đánh giá, nhân viên mở lại và gửi lại được -->
+        <button class="btn btn-outline btn-sm" type="button" id="myr-edit-btn" onclick="myrReopen()"><i class="bx bx-edit"></i> Chỉnh sửa</button>
         <button class="btn btn-outline sb-icon-action" type="button" aria-label="Tải kết quả PDF" data-tip="Tải kết quả PDF" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="downloadMyrPdf()">
           <i class="bx bxs-file-pdf"></i>
         </button>
@@ -1543,7 +1542,7 @@ label.ev-tb-btn{cursor:pointer}
           <div class="step-circle">4</div>
           <div class="step-body">
             <div class="step-label">HOD đánh giá</div>
-            <div class="step-timeline">17/07 – 21/07/2026</div>
+            <div class="step-timeline">22/07 – 25/07/2026</div>
             <span class="step-badge optional">Khuyến khích</span>
           </div>
         </div>
@@ -2078,7 +2077,7 @@ label.ev-tb-btn{cursor:pointer}
                 <span class="ev-who-ico mgr"><i class="bx bx-user-voice"></i></span>
                 <div class="ev-card-hd">Quản lý đánh giá</div>
               </div>
-              <div class="ev-revise-box" id="ev-mgr-revise" style="display:none"><strong>Quản lý yêu cầu đánh giá lại:</strong> <span id="ev-mgr-revise-text"></span></div>
+              
               <div class="ev-locked-msg" id="ev-mgr-wait">Sẽ mở sau khi bạn gửi đánh giá cho quản lý.</div>
               <div id="ev-mgr-view" style="display:none">
                 <div class="ev-score"><span id="ev-mgr-score-view"></span></div>
@@ -2448,13 +2447,13 @@ function openDetail(el) {
       } else if (s === 'pending') {
         cta.innerHTML = '<i class="bx bx-undo"></i> Thu hồi';
         cta.className = 'btn btn-cta-outline btn-sm';
-        cta.onclick = function(){ closeOverlay('dlg-detail'); };
+        cta.onclick = function(){ closeOverlay('dlg-detail'); recallGoal(el, 'draft'); };
         cta.style.display = '';
       } else if (s === 'approved' && el.dataset.eval !== 'done') {
-        // Đã duyệt nhưng chưa hoàn thành đánh giá → cho phép NV thu hồi để sửa
+        // Đã duyệt nhưng chưa hoàn thành đánh giá → NV thu hồi để sửa, mục tiêu về Cần cập nhật (GS-26)
         cta.innerHTML = '<i class="bx bx-undo"></i> Thu hồi để sửa';
         cta.className = 'btn btn-cta-outline btn-sm';
-        cta.onclick = function(){ closeOverlay('dlg-detail'); };
+        cta.onclick = function(){ closeOverlay('dlg-detail'); recallGoal(el, 'update'); };
         cta.style.display = '';
       }
     }
@@ -2485,6 +2484,31 @@ function openDetail(el) {
 
   openOverlay('dlg-detail');
   switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
+}
+/* Thu hồi mục tiêu (GOAL-SPEC GS-26): Chờ duyệt → Nháp, Đã duyệt → Cần cập nhật.
+   Cập nhật cả thẻ ở chế độ Cột lẫn dòng ở chế độ Bảng. */
+function recallGoal(el, to) {
+  var BADGE = { update: ['b-action', 'Cần cập nhật'], draft: ['b-muted', 'Nháp'] };
+  var b = BADGE[to];
+  el.dataset.status = to;
+  el.dataset.eval = 'none';
+  delete el.dataset.updatenote;
+  var badge = el.querySelector('.gi-meta .badge');
+  if (badge) { badge.className = 'badge ' + b[0]; badge.textContent = b[1]; }
+  el.querySelectorAll('.gi-meta .eval-chip, .gi-meta .eval-pair').forEach(function(x){ x.remove(); });
+  var editBtn = '<i class="bx bx-edit"></i>';
+  var acts = el.querySelector('.gi-actions');
+  if (acts) acts.innerHTML = '<button class="gi-act accent" data-tip="Sửa &amp; Gửi" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="event.stopPropagation();openEdit(this.closest(\'.goal-item\'))">' + editBtn + '</button>';
+  document.querySelectorAll('.gt-row').forEach(function(row) {
+    if (row.innerHTML.indexOf("getElementById('" + el.id + "')") < 0) return;
+    row.dataset.status = to;
+    var cells = row.children;
+    var st = cells[cells.length - 2], ac = cells[cells.length - 1];
+    if (st) st.innerHTML = '<span class="badge ' + b[0] + '">' + b[1] + '</span>';
+    if (ac) ac.innerHTML = '<div class="gt-act-cell"><button class="gt-pri accent" data-tip="Sửa &amp; Gửi" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="openEdit(document.getElementById(\'' + el.id + '\'))">' + editBtn + '</button></div>';
+  });
+  renderSummary();
+  showToast(to === 'update' ? 'Đã thu hồi. Mục tiêu chuyển về Cần cập nhật.' : 'Đã thu hồi mục tiêu về Nháp.');
 }
 function openHow(el) {
   showHow(el.querySelector('.how-name').textContent.trim(), el.dataset.desc, false);
@@ -2544,12 +2568,12 @@ function todayStr() {
 function renderEvalTab(el) {
   var state = el.dataset.eval || 'none';
   var $ = function(id){ return document.getElementById(id); };
-  $('ev-mgr-revise').style.display = 'none';
   $('ev-mgr-wait').textContent = 'Sẽ mở sau khi bạn gửi đánh giá cho quản lý.';
   // Bố cục song song khi nhân viên đã đánh giá xong (để so sánh với quản lý)
   $('ev-cards').classList.toggle('compare', state === 'selfdone' || state === 'done');
 
-  if (state === 'none' || state === 'revise') {
+  // Đánh giá hoàn thành không có bước "đánh giá lại" (GOAL-SPEC GS-60)
+  if (state === 'none') {
     $('ev-self-edit').style.display = 'block';
     $('ev-self-view').style.display = 'none';
     $('ev-self-score').value = el.dataset.evSelf || '';
@@ -2558,11 +2582,6 @@ function renderEvalTab(el) {
     $('ev-mgr-wait').style.display = 'block';
     $('ev-mgr-view').style.display = 'none';
     $('ev-mgr-card').classList.add('locked');
-    if (state === 'revise') {
-      $('ev-mgr-revise').style.display = 'block';
-      $('ev-mgr-revise-text').textContent = el.dataset.evMgrRevise || '';
-      $('ev-mgr-wait').style.display = 'none';
-    }
     $('ev-step-1').className = 'ev-step active';
     $('ev-step-2').className = 'ev-step';
   } else {
@@ -2624,7 +2643,6 @@ function updateEvalChip(el) {
     var html = '';
     if (state === 'done') html = '<span class="eval-pair eval-only" title="Điểm tự đánh giá của nhân viên (NV) và điểm của quản lý (QL)"><span class="ep-seg"><span class="ep-who">NV</span>' + (el.dataset.evSelf || '') + '</span><span class="ep-div"></span><span class="ep-seg ep-mgr"><span class="ep-who">QL</span>' + (el.dataset.evMgr || '') + '</span></span>';
     else if (state === 'selfdone') html = '<span class="eval-chip eval-wait eval-only">Chờ quản lý đánh giá</span>';
-    else if (state === 'revise') html = '<span class="eval-chip eval-revise eval-only">Cần đánh giá lại</span>';
     // Khi đã có cả 2 đánh giá → mục tiêu chuyển trạng thái "Hoàn thành"
     var badge = meta.querySelector('.badge');
     if (state === 'done' && badge) { badge.textContent = 'Hoàn thành'; badge.className = 'badge b-done'; }
@@ -2946,13 +2964,11 @@ function doSubmit() {
 }
 function myrSaveDraft() { showToast('Đã lưu nháp thành công'); }
 
-function openRecall()  { document.getElementById('recall-overlay').classList.add('open'); }
-function closeRecall() { document.getElementById('recall-overlay').classList.remove('open'); }
-function doRecall() {
-  closeRecall();
+/* Mở lại bản đã gửi để chỉnh sửa, được làm đến hết timeline tự đánh giá (06/07/2026). */
+function myrReopen() {
   document.getElementById('submit-banner').hidden = true;
   document.querySelector('.page').classList.remove('page-submitted');
-  showToast('Đã thu hồi. Bạn có thể chỉnh sửa và gửi lại.');
+  showToast('Bạn có thể chỉnh sửa và gửi lại đến hết 06/07/2026.');
 }
 
 /* ── Toast ── */
@@ -2967,7 +2983,7 @@ function showToast(msg) {
 
 /* ── Keyboard ── */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeConfirm(); closeValidate(); closeRecall(); }
+  if (e.key === 'Escape') { closeConfirm(); closeValidate(); }
 });
 
 /* ── Det expand ── */
@@ -3360,7 +3376,7 @@ document.addEventListener('DOMContentLoaded',initDemoData);
     <div class="dlg-body">
       <div class="info-note" style="margin-bottom:12px">
         <i class="bx bx-info-circle"></i>
-        <span>Sau khi gửi, bạn <strong>không thể chỉnh sửa</strong> bản tự đánh giá này. Quản lý trực tiếp sẽ nhận thông báo và bắt đầu đánh giá từ 07/07/2026.</span>
+        <span>Quản lý trực tiếp sẽ nhận thông báo và bắt đầu đánh giá từ 07/07/2026. Bạn vẫn <strong>chỉnh sửa và gửi lại</strong> được đến hết 06/07/2026.</span>
       </div>
       <p class="dlg-copy">Bạn có chắc muốn gửi tự đánh giá cho kỳ MYR 2026 không?</p>
     </div>
@@ -3383,29 +3399,6 @@ document.addEventListener('DOMContentLoaded',initDemoData);
 </div>
 
 <!-- Goal detail popup -->
-<!-- Recall confirm overlay -->
-<div class="overlay" id="recall-overlay" onclick="if(event.target===this)closeRecall()">
-  <div class="dialog sm">
-    <div class="dlg-hd">
-      <div class="dlg-hd-row">
-        <div style="flex:1"><div class="dlg-title">Thu hồi tự đánh giá?</div></div>
-        <button class="dlg-close" onclick="closeRecall()"><i class="bx bx-x"></i></button>
-      </div>
-    </div>
-    <div class="dlg-body">
-      <div class="info-note" style="margin-bottom:12px;border-color:var(--err-bd);background:var(--err-bg)">
-        <i class="bx bx-error" style="color:var(--err)"></i>
-        <span>Sau khi thu hồi, bản tự đánh giá sẽ trở về trạng thái <strong>nháp</strong>. Quản lý trực tiếp chưa nhận được bản nộp cho đến khi bạn gửi lại.</span>
-      </div>
-      <p class="dlg-copy">Hạn chỉnh sửa: <strong>06/07/2026</strong>. Sau thời hạn này bạn không thể thu hồi.</p>
-    </div>
-    <div class="dlg-foot">
-      <button class="btn btn-outline btn-sm" onclick="closeRecall()"><i class="bx bx-x"></i>Hủy</button>
-      <button class="btn btn-destructive btn-sm" onclick="doRecall()"><i class="bx bx-undo"></i>Xác nhận thu hồi</button>
-    </div>
-  </div>
-</div>
-
 <!-- Validation popup -->
 <div class="overlay" id="validate-overlay" onclick="if(event.target===this)closeValidate()">
   <div class="dialog">

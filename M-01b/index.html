@@ -548,7 +548,10 @@ var _isRO=(new URLSearchParams(location.search)).get('ro')==='1';
 window.addEventListener('DOMContentLoaded',function(){
   var empId=(new URLSearchParams(location.search)).get('emp')||'e1';
   EMP=EMPS_META[empId]||EMPS_META['e1'];
-  GOALS=GOALS_DATA[empId]||{};
+  // Quản lý không thấy mục tiêu Nháp (GOAL-SPEC GS-49)
+  var allGoals=GOALS_DATA[empId]||{};
+  GOALS={};
+  Object.keys(allGoals).forEach(function(id){ if(allGoals[id].status!=='draft') GOALS[id]=allGoals[id]; });
   document.title='Chi tiết Mục tiêu – '+EMP.name+' | MoMo HRM';
   document.getElementById('bc-emp-name').textContent=EMP.name;
   document.getElementById('approve-emp-name').textContent=EMP.name;
@@ -626,7 +629,7 @@ function statusHTML(g){
   else if(g.status==='approved'&&g.eval==='done') b='<span class="badge b-done"><i class="bx bx-check-circle"></i> Hoàn thành</span>';
   else if(g.status==='approved') b='<span class="badge b-ok">Đã duyệt</span>';
   else if(g.status==='update') b='<span class="badge b-action">Cần cập nhật</span>';
-  else if(g.status==='rejected') b='<span class="badge b-err">Bị từ chối</span>';
+  else if(g.status==='rejected') b='<span class="badge b-err">Từ chối</span>';
   else if(g.status==='draft') b='<span class="badge b-muted">Nháp</span>';
   if(g.status==='approved'&&g.eval==='selfdone'){
     var nv=parseFloat(g.evSelfScore).toFixed(1);
@@ -1047,7 +1050,7 @@ function managerGoalExportRows(){
       pending:'Chờ duyệt',
       approved:'Đã duyệt',
       update:'Cần cập nhật',
-      rejected:'Bị từ chối',
+      rejected:'Từ chối',
       draft:'Nháp'
     }[g.status]||g.status;
     return [

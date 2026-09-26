@@ -8,8 +8,7 @@ Tab Giữa năm nằm chung file với tab Mục tiêu (và Cuối năm), nên k
 |---|---|---|
 | Nhân viên | E-05 (màn vào chính) | `E-05/index.html` `#mpanel-myr` |
 | Quản lý | M-05 danh sách, chu kỳ Giữa năm `switchCycleTab(1)`, các hàm `renderMyr*`, `myrDetailUrl`. Deep link `M-05/index.html?tab=myr&myrRole=lm1` | `M-05/index.html` `#cy-panel-1` |
-| Quản lý | M-02 Chi tiết Giữa năm, mở từ danh sách MYR của M-05 (cả trang và khung nhúng `embed=1`) | `M-02/index.html` `#mpanel-myr` |
-| Quản lý | M-06 Chi tiết đánh giá (luồng YER), tab Giữa năm | `M-06/index.html` `#mpanel-myr` |
+| Quản lý | M-06 Chi tiết đánh giá, tab Giữa năm. Mở từ danh sách MYR của M-05 bằng `tab=myr` (cả trang và khung nhúng `embed=1`) | `M-06/index.html` `#mpanel-myr` |
 
 Kết quả MYR mẫu dạng PDF: `assets/myr-results/` (sinh bằng `tools/generate_myr_pdfs.py`, đã chặn đọc).
 
@@ -17,11 +16,13 @@ Kết quả MYR mẫu dạng PDF: `assets/myr-results/` (sinh bằng `tools/gene
 
 - Bộ cũ E-01, M-01 đã được gộp vào E-05, M-05 (27/09/2026).
 - **Vai MYR truyền bằng tham số `myrRole`, không dùng `role`.** Thanh demo YER (`assets/yer-demo.js`) đọc `role` và `emp` trên URL rồi ghi vào phiên YER, nên `role=lm1` sẽ làm hỏng luồng Cuối năm.
-- **M-02 và tab Giữa năm của M-06 đang là hai bản khác nhau.** M-06 mới hơn (có banner "Đã hoàn thành Đánh giá giữa năm", quản lý tại kỳ giữa năm theo YER-SPEC §18.3). Chị chốt (27/09/2026): giữ M-02 làm màn chi tiết Giữa năm của M-05, gộp với M-06 ở giai đoạn 2 khi chốt rule MYR.
+- **M-02 đã gộp vào M-06 (27/09/2026).** M-02 là bản cũ của tab Giữa năm trong M-06, đã xóa. Tham số URL xem `MYR-SPEC.md` §10.
 
 ## Tài liệu
 
-Chưa có spec riêng trong repo. Nguồn hiện có:
+- `MYR-SPEC.md`: rule MYR. Chị đã duyệt ngày 27/09/2026. §2a là luật tách màn MYR khỏi thanh demo YER.
+
+Nguồn gốc đã trích vào MYR-SPEC:
 - `docs/shared/PMS_PRD_v1.md` §5 (Module 3 – Mid-Year Review).
 - `docs/shared/PM Process.md`.
 - `docs/shared/Diagram svg/pm_diagram3_flow3_myr.svg`.
@@ -29,5 +30,5 @@ Chưa có spec riêng trong repo. Nguồn hiện có:
 
 ## Trạng thái rà soát
 
-- [ ] **Giai đoạn 2:** trích rule từ commit (lịch sử E-01, M-01, cùng M-02, M-05, E-05, M-06) và các mục MYR trong YER-SPEC thành `MYR-SPEC.md` trong folder này.
+- [x] **Giai đoạn 2:** trích rule thành `MYR-SPEC.md`, gộp M-02 vào M-06, chị duyệt 27/09/2026.
 - [ ] **Giai đoạn 3:** kiểm tra tuân thủ DS.

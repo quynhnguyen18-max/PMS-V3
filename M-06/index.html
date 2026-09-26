@@ -862,7 +862,9 @@ body.embedded-detail .topbar,
 body.embedded-detail .breadcrumb,
 body.embedded-detail .page>.cycle-row,
 body.embedded-detail .page>.tabs,
-body.embedded-detail .manager-detail-nav{display:none!important}
+body.embedded-detail .manager-detail-nav,
+body.embedded-detail #pms-demo,
+body.embedded-detail #pms-demo-pill{display:none!important}
 body.embedded-detail .workspace{margin-left:0}
 body.embedded-detail .page{padding:14px}
 body.embedded-detail .page-hd{margin-bottom:14px}
@@ -995,7 +997,7 @@ body.embedded-detail .page-title{font-size:16px}
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn" onclick="switchMainTab(0)">Mục tiêu<span class="tab-cnt">6</span></button>
-      <button class="tab-btn has-active-label" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label">Đã hoàn thành</span></button>
+      <button class="tab-btn has-active-label" onclick="switchMainTab(1)">Đánh giá giữa năm<span class="badge tab-active-label" id="tablbl-myr">Đang hoạt động</span></button>
       <button class="tab-btn on has-active-label" onclick="switchMainTab(2)">Đánh giá cuối năm<span class="badge tab-active-label" id="tablbl-yer">—</span></button>
     </div>
 
@@ -2987,13 +2989,14 @@ function toggleDet(id, btn) {
 })();
 
 /* ── Main tab switch (Mục tiêu / MYR) ── */
-function switchMainTab(idx){
+function switchMainTab(idx,skipYerRender){
   var btns=document.querySelectorAll(".tabs .tab-btn");
   btns.forEach(function(b){b.classList.remove("on");});
   document.querySelectorAll(".main-panel").forEach(function(p){p.classList.remove("on");});
   if(btns[idx])btns[idx].classList.add("on");
   var ids=["mpanel-goals","mpanel-myr","mpanel-yer"];
-  if(idx===2&&window.PMSYerManagerDetail) window.PMSYerManagerDetail.render();
+  // Lúc khởi tạo, yer-manager-detail.js chưa boot xong nên chưa render; nó tự render khi boot.
+  if(idx===2&&!skipYerRender&&window.PMSYerManagerDetail) window.PMSYerManagerDetail.render();
   var pl=document.getElementById(ids[idx]);
   if(pl)pl.classList.add("on");
 }
@@ -3346,7 +3349,8 @@ function setupManagerDetail(){
   document.body.classList.toggle('embedded-detail',params.get('embed')==='1');
   var empId=params.get('emp')||'e1';
   var emp=managerEmployeeMeta(empId);
-  var role=params.get('role')||'lm1';
+  // Vai MYR đi bằng myrRole: tham số role thuộc luồng YER, yer-demo.js ghi nó vào phiên.
+  var role=params.get('myrRole')||'lm1';
   var phase=params.get('phase')||'employee';
   var review=(window.PMS_MYR||{})[empId]||{};
   var lm1Score=review.lm1!=null?String(review.lm1):(params.get('lm1')||'');
@@ -3381,7 +3385,10 @@ function setupManagerDetail(){
   if(tabs[0]) tabs[0].onclick=backToMyrList;
   if(tabs[1]) tabs[1].onclick=function(){switchMainTab(1);};
   if(tabs[2]) tabs[2].onclick=function(){switchMainTab(2);};
-  switchMainTab(2);
+  // Mở từ danh sách Giữa năm của M-05 (trang hoặc khung Split View) thì vào thẳng tab Giữa năm.
+  // Khung nhúng ẩn dải tab nên luôn phải là tab Giữa năm.
+  var openMyr=params.get('tab')==='myr'||params.get('embed')==='1';
+  switchMainTab(openMyr?1:2,true);
 
   var panel=document.getElementById('mpanel-myr');
   if(!panel) return;
@@ -3410,7 +3417,10 @@ function setupManagerDetail(){
     return;
   }
 
-  var myrCompleted=review.final!==null&&review.final!==undefined;
+  // MYR-SPEC §2a: chỉ use case của thanh demo mới biến tab này thành dữ liệu lịch sử kỳ cuối năm.
+  var myrHistory=!!(window.PMSYer&&window.PMSYer.myrAsHistory(empId));
+  MANAGER_DETAIL_STATE.myrHistory=myrHistory;
+  var myrCompleted=myrHistory&&review.final!==null&&review.final!==undefined;
   if(myrCompleted){
     if(bannerTitle) bannerTitle.textContent='Đã hoàn thành Đánh giá giữa năm 2026';
     if(bannerSub){
@@ -3433,8 +3443,9 @@ function setupManagerDetail(){
   }
 
   maskFutureManagerScores(panel,phase);
-  if(viewOnly){
-    renderLm1ReadOnly(panel,empId,lm1Visible);
+  // Ở use case kỳ cuối năm, MYR là dữ liệu lịch sử: có hay chưa có kết quả, mọi vai đều chỉ xem (MYR-31)
+  if(viewOnly||myrHistory){
+    renderLm1ReadOnly(panel,empId,lm1Visible||(myrHistory&&review.lm1!=null));
     return;
   }
 
@@ -3444,7 +3455,24 @@ function setupManagerDetail(){
   renderManagerActions();
 }
 
-setupManagerDetail();
+/* Chạy sau khi các script YER ở cuối trang đã nạp, vì cần PMSYer.myrAsHistory() (MYR-SPEC §2a). */
+document.addEventListener('DOMContentLoaded',function(){
+  setupManagerDetail();
+  // Thanh demo đổi use case hoặc hồ sơ thì dựng lại tab Giữa năm cho đúng nhân viên, đúng chế độ.
+  document.addEventListener('pms:demo-change',function(e){
+    var reason=e.detail&&e.detail.reason;
+    if(reason==='init'||reason==='lang'||!window.PMSStore||!window.PMSYer) return;
+    var sessionEmp=window.PMSStore.session().emp;
+    var params=new URLSearchParams(location.search);
+    var sameEmp=(params.get('emp')||'e1')===sessionEmp;
+    if(sameEmp&&window.PMSYer.myrAsHistory(sessionEmp)===MANAGER_DETAIL_STATE.myrHistory) return;
+    params.set('emp',sessionEmp);
+    params.delete('scenario');
+    var myrTab=document.getElementById('mpanel-myr');
+    if(myrTab&&myrTab.classList.contains('on')) params.set('tab','myr'); else params.delete('tab');
+    location.href=location.pathname+'?'+params.toString();
+  });
+});
 </script>
 
 <!-- ═══ MYR overlays (ported from E-02) ═══ -->

@@ -11,7 +11,7 @@ Chị sẽ nói đang làm module nào. Chỉ đọc file này, `DESIGN-SYSTEM.m
 |---|---|---|
 | Feedback | `docs/modules/feedback/README.md` | E-04, M-04, H-05, H-06, H-07 |
 | Goal setting | `docs/modules/goal-setting/README.md` | Tab Mục tiêu trong E-05, M-06; M-05, M-01b |
-| Đánh giá giữa năm (MYR) | `docs/modules/myr/README.md` | Tab Giữa năm trong E-05, M-06; M-05, M-02 |
+| Đánh giá giữa năm (MYR) | `docs/modules/myr/README.md` | Tab Giữa năm trong E-05, M-06; M-05 |
 | Đánh giá cuối năm (YER) | `docs/modules/yer/README.md` | E-05, M-05, M-06, YER-demo |
 
 ## Tài liệu dùng chung

@@ -10,4 +10,3 @@ Rule mới nhất nằm ở `docs/modules/<module>/`. Nếu hai nơi mâu thuẫ
 | `PMS_PRD_v1.md` | PRD toàn hệ thống. §4 Goal, §5 MYR, §6 YER, §9 Feedback, §11 Business rules. Grep `^## ` rồi đọc đúng mục |
 | `Diagram svg/` | Sơ đồ nền tảng và luồng Goal, MYR, YER |
 | `PMS_Screen_Inventory_v1.md` | **Tạm giữ.** Danh sách màn theo vai và quy tắc ai được xem điểm. Mã màn hình là mã cũ. Xóa sau giai đoạn 2 |
-| `PMS_Screen_Spec_GoalSetting_v1.md` | **Tạm giữ.** Spec màn Goal v1, mã màn hình cũ. Xóa khi đã có `docs/modules/goal-setting/GOAL-SPEC.md` |

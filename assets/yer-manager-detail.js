@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    YER Manager Detail — tab Đánh giá cuối năm của màn M-06
-   Bám đúng ngôn ngữ thiết kế của tab Đánh giá giữa năm trong M-02:
+   Bám đúng ngôn ngữ thiết kế của tab Đánh giá giữa năm trong cùng màn M-06:
    cycle-actions, submit-banner, info-note, rv-section + rv-grid,
    cặp scmt-panel, overall-card. Chỉ khác ở phần riêng của kỳ cuối năm.
 
@@ -487,8 +487,9 @@
     }
     if (tabs[1]) {
       var myrBadge = tabs[1].querySelector('.tab-active-label');
-      if (myrBadge) myrBadge.textContent = p.myr && p.myr.submitted
-        ? L('Đã hoàn thành', 'Completed') : L('Không có dữ liệu', 'No data');
+      // Ngoài use case của thanh demo, tab Giữa năm là màn MYR bình thường (MYR-SPEC §2a)
+      if (myrBadge) myrBadge.textContent = !Y.myrAsHistory(p.emp.id) ? L('Đang hoạt động', 'Active')
+        : p.myr && p.myr.submitted ? L('Đã hoàn thành', 'Completed') : L('Không có dữ liệu', 'No data');
     }
     var chip = document.querySelector('.emp-chip');
     if (chip) {

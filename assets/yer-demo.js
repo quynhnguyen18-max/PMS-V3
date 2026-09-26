@@ -78,7 +78,7 @@
     var patch = {};
     if (q.get('scenario')) {
       var sc = (window.PMS_YER_SCENARIOS || []).filter(function (s) { return s.id === q.get('scenario'); })[0];
-      if (sc) { patch.role = sc.role; patch.emp = sc.emp; patch.date = sc.date; patch.screen = sc.screen; }
+      if (sc) { patch.role = sc.role; patch.emp = sc.emp; patch.date = sc.date; patch.screen = sc.screen; patch.scenario = sc.id; }
     }
     if (q.get('role')) patch.role = q.get('role');
     if (q.get('emp')) patch.emp = q.get('emp');
@@ -128,6 +128,14 @@
     var wantScreen = patch.screen; delete patch.screen;
     if (!S.session().date) patch.date = patch.date || window.PMSYer.DEFAULT_DATE;
     if (Object.keys(patch).length) S.setSession(patch);
+    // ?scenario= đã ghi vào phiên thì gỡ khỏi URL, để về sau phiên là nguồn duy nhất
+    // (rời use case trên thanh demo là hết use case, kể cả trên màn mở bằng deep link).
+    if (patch.scenario && window.history && window.history.replaceState) {
+      var q = new URLSearchParams(window.location.search);
+      q.delete('scenario');
+      var rest = q.toString();
+      window.history.replaceState(null, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);
+    }
     // ?scenario=... mở đúng màn của tình huống, kể cả khi được dán vào màn khác
     if (wantScreen && goScreen(wantScreen)) return;
 
@@ -231,7 +239,8 @@
         '</div>';
 
       bar.querySelector('#dm-role').addEventListener('change', function (e) {
-        S.setSession({ role: e.target.value });
+        // Đổi vai là rời use case đang chọn (MYR-SPEC §2a)
+        S.setSession({ role: e.target.value, scenario: null });
         if (goScreen(DEFAULT_SCREEN[e.target.value])) return;
         render(); notify('role');
       });
@@ -239,11 +248,11 @@
       if (empSelect) empSelect.addEventListener('change', function (e) {
           var v = String(e.target.value || '');
           if (v.indexOf('emp:') === 0) {
-            S.setSession({ emp: v.slice(4) }); render(); notify('emp'); return;
+            S.setSession({ emp: v.slice(4), scenario: null }); render(); notify('emp'); return;
           }
           var sc = scById[v.slice(3)];
           if (!sc) return;
-          S.setSession({ emp: sc.emp, role: sc.role, date: sc.date });
+          S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id });
           if (goScreen(sc.screen || DEFAULT_SCREEN[sc.role])) return;
           render(); notify('emp');
         });

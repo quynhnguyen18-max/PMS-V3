@@ -658,7 +658,7 @@ textarea.fc{resize:vertical}
         Mục tiêu nhân viên <span class="cy-tab-cnt" id="cy-0-cnt">0</span>
       </button>
       <button class="cy-tab-btn has-active-label" id="cy-1" onclick="switchCycleTab(1)">
-        Đánh giá giữa năm <span class="cy-active-label" id="cy-1-lbl">Đã hoàn thành</span>
+        Đánh giá giữa năm <span class="cy-active-label" id="cy-1-lbl">Đang hoạt động</span>
       </button>
       <button class="cy-tab-btn on has-active-label" id="cy-2" onclick="switchCycleTab(2)">
         Đánh giá cuối năm <span class="cy-active-label" id="cy-2-lbl">—</span>
@@ -1106,6 +1106,7 @@ function badgeSt(status){
   if(status==='approved') return `<span class="badge b-ok">Đã duyệt</span>`;
   if(status==='done') return `<span class="badge b-done"><i class="bx bx-check"></i>Hoàn thành</span>`;
   if(status==='update') return `<span class="badge b-action">Cần cập nhật</span>`;
+  if(status==='rejected') return `<span class="badge b-err">Từ chối</span>`;
   if(status==='draft') return `<span class="badge b-muted">Nháp</span>`;
   return '';
 }
@@ -1618,11 +1619,10 @@ function filteredMyrEmps(){
   if(S.myrFilterTeam){const q=S.myrFilterTeam.toLowerCase();emps=emps.filter(e=>e.team&&e.team.toLowerCase().includes(q));}
   if(S.myrFilterLm1){const q=S.myrFilterLm1.toLowerCase();emps=emps.filter(e=>e.mgr&&(e.mgr.name+' ('+e.mgr.login+')').toLowerCase().includes(q));}
   if(S.myrFilterLm2){const q=S.myrFilterLm2.toLowerCase();emps=emps.filter(e=>e.mgr2&&(e.mgr2.name+' ('+e.mgr2.login+')').toLowerCase().includes(q));}
-  emps=emps.slice().sort((a,b)=>{
-    const aStatus=myrStatus(a),bStatus=myrStatus(b);
-    const rank=s=>s.tone==='completed'?0:1;
-    return rank(aStatus)-rank(bStatus)||a.name.localeCompare(b.name,'vi');
-  });
+  // MYR-SPEC MYR-40a: người đang chờ chính vai mình đánh giá lên đầu, rồi hồ sơ còn dở, Hoàn thành xuống cuối.
+  const waitingOnMe={lm1:'Chờ QLTT đánh giá',lm2:'Chờ QL Cấp 2 đánh giá',hod:'Chờ HOD đánh giá'}[S.myrRole];
+  const rank=s=>s.text===waitingOnMe?0:s.tone==='completed'?2:1;
+  emps=emps.slice().sort((a,b)=>rank(myrStatus(a))-rank(myrStatus(b))||a.name.localeCompare(b.name,'vi'));
   return emps;
 }
 
@@ -1698,7 +1698,8 @@ function myrDetailUrl(empId,embedded){
   const review=MYR_DATA[emp.id]||{};
   const params=new URLSearchParams({
     emp:emp.id,
-    role:S.myrRole,
+    myrRole:S.myrRole,
+    tab:'myr',
     eligible:status.eligible?'1':'0',
     submitted:review.submitted?'1':'0',
     status:status.text,
@@ -1707,7 +1708,7 @@ function myrDetailUrl(empId,embedded){
     lm2:review.lm2===null?'':review.lm2
   });
   if(embedded) params.set('embed','1');
-  return '../M-02/index.html?'+params.toString();
+  return '../M-06/index.html?'+params.toString();
 }
 
 var _myrSpEmpId=null;
@@ -2027,13 +2028,14 @@ function renderSpDetail(eid){
       `<div class="sp-hero-meta"><span>${emp.div}</span><span class="sp-hdot"></span><span>${emp.dept}</span><span class="sp-hdot"></span><span>${emp.pos}</span></div>`+
     `</div>`+
     `<div class="sp-hero-stats">`+
-      `<div class="sp-sbox"><span class="sp-sn">${emp.goals.length}</span><span class="sp-sl">mục tiêu</span></div>`+
+      `<div class="sp-sbox"><span class="sp-sn">${emp.goals.filter(g=>g.status!=='draft').length}</span><span class="sp-sl">mục tiêu</span></div>`+
       (pnd?`<div class="sp-sbox pnd"><span class="sp-sn">${pnd}</span><span class="sp-sl">chờ duyệt</span></div>`:'')+
       (upd?`<div class="sp-sbox upd"><span class="sp-sn">${upd}</span><span class="sp-sl">đang cập nhật</span></div>`:'')+
     `</div>`;
   // Table rows
   const prioMap={h:'<span class="prio prio-h">Cao</span>',m:'<span class="prio prio-m">Trung bình</span>',l:'<span class="prio prio-l">Thấp</span>'};
-  document.getElementById('sp-tbody').innerHTML=emp.goals.map(g=>{
+  // Quản lý không thấy mục tiêu Nháp (GOAL-SPEC GS-49)
+  document.getElementById('sp-tbody').innerHTML=emp.goals.filter(g=>g.status!=='draft').map(g=>{
     const typeHtml=g.type==='what'
       ?`<span class="sp-type"><i class="bx bx-target-lock"></i>Công việc</span>`
       :`<span class="sp-type"><i class="bx bx-trending-up"></i>Phát triển</span>`;
@@ -2073,7 +2075,7 @@ function spReqUpdate(gid){
 function spReject(gid){
   const emp=findEmp(_spEmpId);if(!emp)return;
   const g=emp.goals.find(x=>x.id===gid);
-  if(g){g.status='draft';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
+  if(g){g.status='rejected';renderSpDetail(_spEmpId);renderSpList();renderEmpList();renderCycleBadge();}
 }
 function openSpFullPage(){
   if(_spEmpId) location.href='../M-01b/index.html?emp='+_spEmpId;
@@ -2563,6 +2565,13 @@ function approveCalibRatings(){
 <script>
 /* Đổi vai trò ở sidebar: đặt vai vào phiên rồi mới chuyển trang,
    nếu không màn đích sẽ mở bằng vai cũ và hiện khối rỗng. */
+/* MYR-SPEC §2a: nhãn tab Giữa năm chỉ là "Đã hoàn thành" khi đang ở use case của thanh demo. */
+function syncMyrCycleLabel(){
+  var lbl=document.getElementById('cy-1-lbl');
+  if(lbl&&window.PMSYer) lbl.textContent=window.PMSYer.myrAsHistory()?'Đã hoàn thành':'Đang hoạt động';
+}
+document.addEventListener('DOMContentLoaded',syncMyrCycleLabel);
+document.addEventListener('pms:demo-change',syncMyrCycleLabel);
 function pmsGoRole(role, href){try{ if(window.PMSStore) window.PMSStore.setSession({ role: role }); }catch(e){}location.href = href;}
 </script>
 </body>

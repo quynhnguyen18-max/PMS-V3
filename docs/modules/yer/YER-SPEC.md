@@ -337,7 +337,7 @@ và ở popup chi tiết nơi có đủ chỗ.
 
 ## 17. Xóa mục tiêu (Enh 3)
 
-- Chỉ NV xóa được, chỉ với goal `Lưu nháp` hoặc `Bị từ chối`.
+- Chỉ NV xóa được, chỉ với goal `Lưu nháp` hoặc `Từ chối`.
 - **Soft-delete**: ẩn khỏi danh sách NV, vẫn lưu để tra cứu và audit.
 - Có dialog xác nhận, không bắt nhập lý do.
 
@@ -1088,6 +1088,10 @@ Riêng hai màn Quản lý tách rõ hai mục đích demo:
   chứa tình huống `M-06` của đúng vai đang xem. Chọn tình huống không âm thầm đổi sang vai khác.
 - Hai bước nội bộ `Total Reward` và `HR Director` không hiện trên thanh demo của màn Quản lý,
   đồng nhất với dải quy trình 5 bước trên màn hình.
+
+**Use case và tab Giữa năm** (chốt 27/09/2026): chọn use case trên thanh demo thì phiên ghi `scenario`;
+chỉ khi đó tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm. Không có use case thì màn MYR
+hiển thị bình thường, độc lập. Chi tiết ở `docs/modules/myr/MYR-SPEC.md` §2a.
 
 ## 45. Bộ kiểm thử
 

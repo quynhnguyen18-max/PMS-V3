@@ -120,7 +120,9 @@ test('manager year-end list follows the mid-year shell and uses employee timelin
   const page = fs.readFileSync(path.join(root, 'M-05/index.html'), 'utf8');
   const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
 
-  assert.match(page, /id="cy-1-lbl">Đã hoàn thành<\/span>/);
+  // MYR-SPEC §2a: mặc định là màn MYR bình thường, chỉ use case của thanh demo mới là "Đã hoàn thành"
+  assert.match(page, /id="cy-1-lbl">Đang hoạt động<\/span>/);
+  assert.match(page, /window\.PMSYer\.myrAsHistory\(\)\?'Đã hoàn thành':'Đang hoạt động'/);
   assert.match(manager, /function managerTabState\(p\)/);
   assert.match(manager, /yer\.textContent = managerTabState\(Y\.profile\(S\.session\(\)\.emp, S\.session\(\)\.date\)\)/);
   assert.match(manager, /var MGR_STEPS = \['self', 'lm', 'lm2', 'hod', 'publish'\]/);
@@ -410,7 +412,7 @@ test('nv04 mid-year tab shows the completed result and the historical line manag
 
   const managerDetail = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
   const dataScript = managerDetail.indexOf('<script src="../assets/yer-data.js"></script>');
-  const setupCall = managerDetail.indexOf('setupManagerDetail();');
+  const setupCall = managerDetail.indexOf('  setupManagerDetail();');
   assert.ok(dataScript > 0 && dataScript < setupCall, 'du lieu YER phai duoc nap truoc khi khoi tao tab MYR');
   assert.equal(managerDetail.match(/<script src="\.\.\/assets\/yer-data\.js"><\/script>/g).length, 1);
   assert.match(managerDetail, /Đã hoàn thành Đánh giá giữa năm 2026/);
@@ -727,7 +729,7 @@ test('manager year-end detail follows the mid-year detail structure', () => {
   assert.doesNotMatch(detail, /\.yer-ed-ro \.ev-toolbar/);
   assert.match(detail, /\.yer-ed-ro\{border-color:var\(--z200\);box-shadow:none;background:var\(--z50\)\}/);
   assert.match(page, /class="emp-col"/);
-  assert.match(page, /Đánh giá giữa năm<span class="badge tab-active-label">Đã hoàn thành<\/span>/);
+  assert.match(page, /Đánh giá giữa năm<span class="badge tab-active-label" id="tablbl-myr">Đang hoạt động<\/span>/);
   assert.match(detail, /Ngày làm việc cuối cùng:/);
   assert.match(detail, /class="info-note yer-note-block yer-note-resign"/);
   assert.doesNotMatch(detail, /el\('yer-md-myr'\)/);
@@ -739,4 +741,60 @@ test('tour detail keeps a mascot illustration in every step card', () => {
   const source = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
   assert.match(source, /class=\"tg-mascot\"/);
   assert.match(source, /it\.pose \|\| 'think\.png'/);
+});
+
+test('mid-year detail lives in M-06: M-05 opens its MYR tab with myrRole, M-02 is gone', () => {
+  /* MYR-SPEC §10: vai MYR đi bằng myrRole vì role thuộc luồng YER (yer-demo.js ghi vào phiên). */
+  const list = fs.readFileSync(path.join(root, 'M-05/index.html'), 'utf8');
+  const page = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
+  assert.ok(!fs.existsSync(path.join(root, 'M-02/index.html')));
+  assert.match(list, /return '\.\.\/M-06\/index\.html\?'\+params\.toString\(\)/);
+  assert.match(list, /myrRole:S\.myrRole,\s*tab:'myr'/);
+  assert.doesNotMatch(list, /M-02\/index\.html/);
+  assert.match(page, /var role=params\.get\('myrRole'\)\|\|'lm1'/);
+  assert.match(page, /var openMyr=params\.get\('tab'\)==='myr'\|\|params\.get\('embed'\)==='1'/);
+  assert.match(page, /body\.embedded-detail #pms-demo-pill\{display:none!important\}/);
+});
+
+test('MYR tab is shown as year-end history only inside a demo-bar use case of the same employee', () => {
+  /* MYR-SPEC §2a: MYR và YER dựng ở hai thời điểm khác nhau. */
+  const w = loadYer();
+  const sc = w.PMS_YER_SCENARIOS[0];
+  const session = { emp: sc.emp, role: sc.role, date: sc.date };
+  w.PMSStore = { session: () => session, acts: () => ({}) };
+  assert.equal(w.PMSYer.myrAsHistory(sc.emp), false);
+  session.scenario = sc.id;
+  assert.equal(w.PMSYer.myrAsHistory(sc.emp), true);
+  assert.equal(w.PMSYer.myrAsHistory('khong-phai-nv-cua-use-case'), false);
+
+  const demo = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
+  assert.match(demo, /patch\.scenario = sc\.id/);
+  assert.match(demo, /S\.setSession\(\{ emp: sc\.emp, role: sc\.role, date: sc\.date, scenario: sc\.id \}\)/);
+  assert.match(demo, /S\.setSession\(\{ emp: v\.slice\(4\), scenario: null \}\)/);
+  assert.match(demo, /S\.setSession\(\{ role: e\.target\.value, scenario: null \}\)/);
+
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(employee, /var myrHistory = Y\.myrAsHistory\(p\.emp\.id\)/);
+  assert.match(employee, /if\(myrHistory\) syncMyrResult\(p, myrDone\)/);
+  const page = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
+  assert.match(page, /var myrCompleted=myrHistory&&review\.final!==null/);
+  assert.match(page, /if\(viewOnly\|\|myrHistory\)\{/);
+});
+
+test('employee may reopen a submitted mid-year self assessment within the timeline', () => {
+  const page = fs.readFileSync(path.join(root, 'E-05/index.html'), 'utf8');
+  assert.match(page, /id="myr-edit-btn" onclick="myrReopen\(\)"/);
+  assert.match(page, /function myrReopen\(\)/);
+  assert.doesNotMatch(page, /recall-overlay|không thể chỉnh sửa<\/strong> bản tự đánh giá/);
+  // Nhân viên không bao giờ thấy điểm toàn diện của Quản lý trực tiếp
+  assert.doesNotMatch(page, /Điểm của QLTT:/);
+});
+
+test('mid-year list puts people waiting on my role first and HOD timeline matches across screens', () => {
+  const list = fs.readFileSync(path.join(root, 'M-05/index.html'), 'utf8');
+  const e05 = fs.readFileSync(path.join(root, 'E-05/index.html'), 'utf8');
+  assert.match(list, /const rank=s=>s\.text===waitingOnMe\?0:s\.tone==='completed'\?2:1;/);
+  // MYR-04: HOD 22/07 – 25/07/2026, không trùng bước LM2
+  assert.match(list, /22\/07 – 25\/07\/2026/);
+  assert.match(e05, /HOD đánh giá<\/div>\s*<div class="step-timeline">22\/07 – 25\/07\/2026<\/div>/);
 });

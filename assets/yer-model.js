@@ -379,8 +379,29 @@
     };
   }
 
+  /* MYR-SPEC §2a: màn MYR và màn YER dựng ở hai thời điểm khác nhau.
+     Tab Giữa năm chỉ hiển thị như dữ liệu lịch sử của kỳ cuối năm khi người xem
+     đang ở đúng một use case chọn từ thanh Chế độ demo, và use case đó là của
+     chính nhân viên đang mở. Còn lại tab Giữa năm hiển thị bình thường, độc lập.
+     Use case lấy từ ?scenario= trên URL (deep link) hoặc từ phiên (thanh demo ghi). */
+  function demoScenario() {
+    var id = null;
+    try { id = new URLSearchParams(window.location.search).get('scenario'); } catch (e) {}
+    var s = window.PMSStore && window.PMSStore.session();
+    if (!id && s) id = s.scenario || null;
+    if (!id) return null;
+    return (window.PMS_YER_SCENARIOS || []).filter(function (x) { return x.id === id; })[0] || null;
+  }
+  function myrAsHistory(empId) {
+    var sc = demoScenario();
+    if (!sc) return false;
+    return !empId || sc.emp === empId;
+  }
+
   window.PMSYer = {
     TL: TL,
+    demoScenario: demoScenario,
+    myrAsHistory: myrAsHistory,
     actors: actors,
     today: today,
     fmt: fmt,

@@ -755,7 +755,7 @@ test('M-04 links manager navigation and reuses shared employee data', () => {
 });
 
 test('manager screens link their Feedback navigation item to M-04', () => {
-  const screens = ['M-01b', 'M-02', 'M-05', 'M-06'];
+  const screens = ['M-01b', 'M-05', 'M-06'];
   for (const screen of screens) {
     const html = fs.readFileSync(path.join(__dirname, '..', screen, 'index.html'), 'utf8');
     assert.match(html, /M-04\/index\.html/, `${screen} must link to M-04`);
