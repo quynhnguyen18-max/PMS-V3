@@ -1,0 +1,42 @@
+/*
+  assets/tokens.css: nguồn DUY NHẤT cho tokens :root của mọi màn PMS.
+  Giá trị lấy nguyên từ design-system/index.html (DS §2). Không sửa giá trị ở màn hình.
+
+  Cách dùng trong màn hình (đặt TRƯỚC khối <style> của màn):
+    <link rel="stylesheet" href="../assets/tokens.css"/>
+  Màn chỉ được giữ trong :root riêng những biến bố cục của chính nó
+  (vd --info-w của E-04, --program-columns của H-05), không khai lại token ở đây.
+*/
+:root{
+  /* Zinc scale (shadcn) */
+  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
+  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
+
+  /* MoMo pink — accent only */
+  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;
+  --brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
+
+  /* Semantic: xanh lá = hoàn thành */
+  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+
+  /* Trạng thái Feedback (COMPONENTS §8.2): vàng = đang thu thập, đỏ = quá hạn.
+     --err còn dùng cho .btn-destructive (§9) và lỗi form (§14). */
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+
+  /* Màu phân loại: loại mục tiêu, thông tin, cập nhật. Giữ theo quyết định 27/09/2026,
+     không thêm nhóm màu mới ngoài các nhóm này (DS §2). */
+  --what:#2563eb;--what-bg:#eff6ff;--what-bd:#bfdbfe;
+  --dev:#7c3aed;--dev-bg:#f5f3ff;--dev-bd:#ddd6fe;
+  --how:#0f766e;--how-bg:#f0fdfa;--how-bd:#99f6e4;
+  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
+  --upd:#7c3aed;--upd-bg:#f5f3ff;--upd-bd:#ddd6fe;
+
+  /* Spacing/shape */
+  --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
+  --sh-sm:0 1px 2px rgba(0,0,0,.04);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
+  --t:all .12s ease;
+}

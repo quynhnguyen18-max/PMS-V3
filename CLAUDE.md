@@ -21,6 +21,7 @@ Chị sẽ nói đang làm module nào. Chỉ đọc file này, `DESIGN-SYSTEM.m
   - `design-system/COMPONENTS.md`: §5 đến §18b. Chỉ đọc mục cần dùng.
   - `docs/modules/feedback/UI-RULES.md`: rule giao diện riêng của Feedback (các mục cũ của §19).
   - `design-system/index.html`: bản showcase render thật.
+  - `assets/tokens.css`: tokens `:root` dùng chung, mọi màn nạp file này (DS §2). Không khai lại token trong màn.
 - **Business rules gốc:** `docs/shared/` (bản v1, 06/2026, chỉ đọc). Xem `docs/shared/README.md`. Rule mới nhất nằm ở `docs/modules/`.
 
 ## Quy tắc làm việc

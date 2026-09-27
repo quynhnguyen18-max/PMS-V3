@@ -165,7 +165,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 ## 17. TIMELINE · STEPPER · TOAST
 - **Timeline** `.tl`: dấu chấm CHỈ XÁM `--z400` (không tô nhiều màu). `.tl-ev` z800, `.tl-who` z600, `.tl-note` nền z50.
 - **Stepper** `.stepper-card`: các bước dạng mô tả theo deadline. Vòng tròn: **active (đang mở) = hồng**; **hết deadline = xám z300** (KHÔNG xanh lá); tương lai = z200. Dùng SỐ, không dùng checkmark.
-- **Toast** `#toast`/`.toast-static`: nền z900, chữ trắng, icon xanh khi thành công.
+- **Toast** `#toast`/`.toast-static`: nền z900, chữ trắng, icon xanh `var(--ok)` khi thành công (trên nền z900 đạt tương phản khoảng 5.4:1, đủ cho icon; không dùng mã xanh sáng riêng như `#4ade80`).
 
 ## 18. COMPONENT BỔ SUNG (chuẩn shadcn/Linear tối giản)
 - **Breadcrumb** `.breadcrumb`: link z600 → hover hồng, separator z400, trang hiện tại z900/600.

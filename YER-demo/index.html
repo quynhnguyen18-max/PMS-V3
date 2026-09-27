@@ -6,20 +6,12 @@
 <title>YER 2026 — Bảng điều hướng tình huống | MoMo HRM</title>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/tokens.css"/>
 <style>
-:root{
-  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
-  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
-  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;
-  --brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
-  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
-  --nh:52px;--r:8px;--rsm:6px;--rxs:4px;
-  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --t:all .12s ease;
-}
+html{font-size:14px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.5;color:var(--z700);background:var(--z50);-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:var(--rxs)}
 button{font-family:inherit}
 
 /* ── shell ─────────────────────────────────────────────── */
@@ -47,7 +39,7 @@ button{font-family:inherit}
 .proc-top{display:flex;align-items:center;gap:7px}
 .proc-num{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--z100);color:var(--z400);flex:none}
 .proc-step.past .proc-num{background:var(--z200);color:var(--z600)}
-.proc-step.now .proc-num{background:var(--brand);color:#fff}
+.proc-step.now .proc-num{background:var(--brand);color:var(--brand-fg)}
 .proc-name{font-size:12.5px;font-weight:600;color:var(--z900);line-height:1.3}
 .proc-step.future .proc-name{color:var(--z500)}
 .proc-date{font-size:11.5px;color:var(--z600);font-variant-numeric:tabular-nums}
@@ -123,7 +115,7 @@ button{font-family:inherit}
 .flt{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 12px;border-bottom:1px solid var(--z200);margin-bottom:12px}
 .flt-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:50px;border:1px solid var(--z300);background:var(--z0);color:var(--z600);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--t)}
 .flt-btn:hover:not(.on){background:var(--z100);color:var(--z900)}
-.flt-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.flt-btn.on{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
 .flt-cnt{font-size:11px;font-weight:700;opacity:.72}
 .b-screen{color:var(--z700);background:var(--z50);border-color:var(--z300);font-weight:600}
 </style>

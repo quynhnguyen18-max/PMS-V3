@@ -226,7 +226,7 @@ test('manager screens apply the resignation rules and name the closed ticket', (
     assert.ok(detail.includes(token), `màn quản lý thiếu: ${token}`);
     assert.ok(hrDetail.includes(token), `H-06 không còn: ${token}`);
   });
-  assert.ok(detail.includes('Đóng · người nhận nghỉ việc'));
+  assert.ok(detail.includes('Đóng - người nhận nghỉ việc'));
   assert.ok(detail.includes("if(item&&item.closedByResignation==='reviewer')return 'bx-user-x';"));
   // màn quản lý không ghi lại việc "đã báo" — luật thông báo thuộc về màn nhân viên
   assert.ok(!detail.includes('Đã báo'));
@@ -483,7 +483,7 @@ test('manager feedback cards show only the sender and omit redundant sharing met
   const html = fs.readFileSync(pagePath, 'utf8');
   const data = fs.readFileSync(path.join(__dirname, 'manager-feedback-data.js'), 'utf8');
   assert.match(html, /class="split-badge-tip"/);
-  assert.match(html, /\.split-badge-tip\{[^}]*background:var\(--z900\)[^}]*color:#fff[^}]*border-radius:6px/);
+  assert.match(html, /\.split-badge-tip\{[^}]*background:var\(--z900\)[^}]*color:var\(--brand-fg\)[^}]*border-radius:var\(--rsm\)/);
   assert.match(html, /feedbackCard\(item,emp,\{senderTooltipPlacement:/);
   assert.match(html, /function feedbackCard\(item,emp,options\)\{\s*return ManagerFeedbackData\.feedbackCard\(item,emp,options\);\s*\}/);
   assert.doesNotMatch(data, /compactRecipient|fb-arrow|share-icon|bx-group/);
@@ -495,7 +495,7 @@ test('manager split header uses the shared custom tooltip for department and pos
   assert.match(html, /id="splitEmployeeTooltip" class="pms-tooltip-content"/);
   assert.match(html, /employeeTooltip\.textContent=\[emp\.dept,emp\.pos\]/);
   assert.doesNotMatch(html, /employeeName\.title=/);
-  assert.match(html, /\.pms-tooltip-content\{[^}]*background:var\(--z900\)[^}]*color:#fff[^}]*border-radius:6px[^}]*font-size:12px/);
+  assert.match(html, /\.pms-tooltip-content\{[^}]*background:var\(--z900\)[^}]*color:var\(--brand-fg\)[^}]*border-radius:var\(--rsm\)[^}]*font-size:12px/);
 });
 
 test('feedback business metadata uses custom tooltips and design system documents the rule', () => {
@@ -1100,7 +1100,7 @@ test('request detail explains automatic and latest manual reminder timing', () =
   assert.match(html,/question pending-question/);
   assert.match(html,/\.pending-actions\{[^}]*display:flex[^}]*align-items:center/);
   assert.match(html,/\.pending-tag\{[^}]*border:0[^}]*background:transparent/);
-  assert.match(html,/\.question\.pending-question\{[^}]*background:#fff[^}]*border:1px solid var\(--warning-border\)[^}]*border-radius:7px/);
+  assert.match(html,/\.question\.pending-question\{[^}]*background:var\(--z0\)[^}]*border:1px solid var\(--warn-bd\)[^}]*border-radius:7px/);
   assert.match(html,/\.question\.pending-question \.label\{[^}]*color:var\(--z500\)/);
   assert.match(html,/\.reminder-history-tip\{[^}]*font-size:10px/);
   assert.match(html,/bx-info-circle/);
@@ -1312,8 +1312,8 @@ test('manager content tabs are folder tabs, with a thin pink outline on the clos
   assert.ok(!html.includes('.content-tab.on{background:var(--brand);color:var(--z0)'), 'đã loại kiểu thanh phân đoạn');
 
   // bộ lọc phạm vi giữ nguyên, không bị đụng tới
-  assert.match(html,/\.scope-tabs\{[^}]*background:var\(--z100\)[^}]*border-radius:8px/);
-  assert.match(html,/\.scope-btn\.on\{[^}]*background:#fff/);
+  assert.match(html,/\.scope-tabs\{[^}]*background:var\(--z100\)[^}]*border-radius:var\(--r\)/);
+  assert.match(html,/\.scope-btn\.on\{[^}]*background:var\(--z0\)/);
   assert.ok(html.includes('id="tab-direct" onclick="setScope(\'lm1\')"'));
 
   const tabBlock=html.match(/id="contentModeTabs"[\s\S]*?<\/div>/)?.[0]||'';
@@ -1327,7 +1327,7 @@ test('Kanban uses neutral lanes and cards with semantic color only in headers', 
   assert.match(html, /\.kanban-lane\{[^}]*border:1px solid var\(--z200\)[^}]*background:var\(--z50\)/);
   assert.match(html, /\.kanban-title\{[^}]*background:var\(--lane-tint\)[^}]*color:var\(--lane-color\)/);
   assert.match(html, /\.kanban-dot\{[^}]*background:var\(--lane-color\)/);
-  assert.match(html, /\.kanban-card\{[^}]*border:1px solid var\(--z200\)[^}]*background:#fff/);
+  assert.match(html, /\.kanban-card\{[^}]*border:1px solid var\(--z200\)[^}]*background:var\(--z0\)/);
   assert.match(html, /class="kanban-empty"/);
   assert.match(html, /\.kanban-empty\{[^}]*font-size:10\.5px/);
   assert.doesNotMatch(html, /\.kanban-lane\.(collecting|overdue|complete)\{[^}]*background:/);
@@ -1379,7 +1379,7 @@ test('request detail uses a scannable three-region layout and shared feedback co
   assert.match(html, /\.content-pane\{[^}]*min-height:0[^}]*display:flex[^}]*flex-direction:column/);
   assert.match(html, /\.pane-body\{[^}]*overflow-y:auto/);
   assert.match(html, /\.shared-question,\.question\{[^}]*background:var\(--brand-muted\)[^}]*border-left:3px solid var\(--brand-ring\)/);
-  assert.match(html, /\.pending\.pending\{[^}]*background:var\(--warning-muted\)[^}]*border:1px solid var\(--warning-border\)/);
+  assert.match(html, /\.pending\.pending\{[^}]*background:var\(--warn-bg\)[^}]*border:1px solid var\(--warn-bd\)/);
   assert.match(html, /ManagerFeedbackData\.coreValueIcon\(cv\)/);
   assert.match(html, /<img src="\.\.\/Core value with BG\/\$\{icon\}"/);
   assert.match(html, /renderTicketSummary\(stat,rows\)/);
@@ -1389,7 +1389,7 @@ test('request detail uses a scannable three-region layout and shared feedback co
 test('request detail keeps ticket metadata in the summary and core values in the employee header', () => {
   const html = fs.readFileSync(path.join(__dirname, 'request-detail.html'), 'utf8');
   assert.match(html,/summary-status summary-status-\$\{lifecycle\}/);
-  assert.match(html,/\.summary-status-overdue\{[^}]*color:var\(--error\)[^}]*background:var\(--error-muted\)[^}]*border-color:var\(--error-border\)/);
+  assert.match(html,/\.summary-status-overdue\{[^}]*color:var\(--err\)[^}]*background:var\(--err-bg\)[^}]*border-color:var\(--err-bd\)/);
   assert.doesNotMatch(html, /id="requestMeta"/);
   assert.doesNotMatch(html, /id="requestProgress"/);
   assert.match(html, /id="employeeBadgeSummary"/);
@@ -1442,7 +1442,7 @@ test('request detail renders a non-editable AI summary before original feedback 
   assert.doesNotMatch(html, /Sửa AI Summary|Chỉnh sửa summary|Regenerate|Tạo lại/);
   assert.match(html, /function renderEmployeeAiSummary\(employee,done\)/);
   assert.match(html, /\.ai-summary\{[^}]*border-color:var\(--z200\)[^}]*box-shadow:/);
-  assert.match(html, /\.ai-summary-head\{[^}]*background:#fff/);
+  assert.match(html, /\.ai-summary-head\{[^}]*background:var\(--z0\)/);
   assert.match(html, /\.shared-question,\.question\{[^}]*background:var\(--brand-muted\)[^}]*border-left:3px solid var\(--brand-ring\)/);
   assert.match(html, /\.ai-summary-head-meta\{[^}]*flex-direction:row/);
   assert.match(html, /const collapsedAiEmployees=new Set\(\)/);
@@ -1698,7 +1698,7 @@ test('both manager surfaces load the thanks module and share one localStorage st
     assert.match(html, /function thankFeedback\(id,button\)\{const who=ManagerThanks\.thank\(id,button\);/);
     // mỗi tim là một phần tử riêng, cùng màu và có viền tách nhẹ trong cụm
     assert.match(html, /\.thx-heart\+\.thx-heart\{margin-left:-3px\}/);
-    assert.match(html, /\.thx-heart \.h-thanker\{fill:#a50064;stroke:#fff/);
+    assert.match(html, /\.thx-heart \.h-thanker\{fill:var\(--brand\);stroke:var\(--z0\)/);
     assert.match(html, /\.thx-heart svg\{display:block;height:14px/);
     // tooltip domain luôn nằm gọn trên MỘT dòng
     assert.match(html, /\.thx-tip\{[^}]*width:max-content;white-space:nowrap/);

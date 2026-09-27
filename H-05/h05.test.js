@@ -1380,7 +1380,7 @@ test('uses the M-04 people picker pattern without widening the personalised mapp
   assert.doesNotMatch(page,/class="mapping-mode"/);
   assert.match(page,/\.mapping-list\.per-recipient \.mapping-row[^}]*grid-template-columns:minmax\(0,\.3fr\) 24px minmax\(0,\.7fr\)/);
   assert.match(page,/\.mapping-chip\{[^}]*border-color:var\(--brand-ring\)[^}]*background:var\(--brand-muted\)/);
-  assert.match(page,/\.mapping-chip \.mapping-avatar,\.mapping-person-card \.mapping-avatar\{[^}]*background:var\(--brand\)[^}]*color:#fff/);
+  assert.match(page,/\.mapping-chip \.mapping-avatar,\.mapping-person-card \.mapping-avatar\{[^}]*background:var\(--brand\)[^}]*color:var\(--brand-fg\)/);
   assert.match(page,/\.mapping-person-picker \.fc\{min-height:34px/);
   assert.doesNotMatch(selectedChipRenderer,/mapping-domain/);
   assert.doesNotMatch(recipientRenderer,/mapping-domain/);
@@ -1424,7 +1424,7 @@ test('renders reviewer identity as two equal feedback choice cards',()=>{
   assert.match(page,/class="feedback-choice-card" id="identityAnonymous"/);
   assert.match(page,/onchange="setIdentityVisibility\('named'\)"/);
   assert.match(page,/\.feedback-choice-options\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)[^}]*gap:8px/);
-  assert.match(page,/\.feedback-choice-card\{[^}]*border:1px solid var\(--z200\)[^}]*background:#fff/);
+  assert.match(page,/\.feedback-choice-card\{[^}]*border:1px solid var\(--z200\)[^}]*background:var\(--z0\)/);
   assert.match(page,/\.feedback-choice-card\.on\{[^}]*border-color:var\(--brand\)[^}]*background:var\(--brand-muted\)/);
   assert.match(design,/Feedback binary-choice card/i);
 });

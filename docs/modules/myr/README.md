@@ -31,4 +31,4 @@ Nguồn gốc đã trích vào MYR-SPEC:
 ## Trạng thái rà soát
 
 - [x] **Giai đoạn 2:** trích rule thành `MYR-SPEC.md`, gộp M-02 vào M-06, chị duyệt 27/09/2026.
-- [ ] **Giai đoạn 3:** kiểm tra tuân thủ DS.
+- [x] **Giai đoạn 3 (xong 27/09/2026):** tokens gộp vào `assets/tokens.css`, mọi màn nạp file này và chỉ giữ biến bố cục riêng; `assets/tokens.test.js` chặn khai lại token, tên biến riêng, icon không có trong Boxicons 2.1.4 và middot. Quyết định chung ghi ở `DESIGN-SYSTEM.md` §2, §19 rule 1, 6, 20, 24, 25.

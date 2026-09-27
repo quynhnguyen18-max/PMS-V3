@@ -51,10 +51,10 @@
        không vạch màu dày bên trái. Đây là thông tin giải thích chứ không phải trạng thái,
        nên không đổi màu theo điểm cao thấp. Xanh nhạt để tách hẳn khỏi nền hồng của các
        khối thao tác và khỏi vàng/đỏ/xanh lá của các chip trạng thái. */
-    '.rt-def{margin-top:10px;padding:11px 14px 12px;border:1px solid #d3e7f2;border-radius:var(--rsm);',
-    'background:#eaf5fb;font-size:12.5px;color:var(--z700);line-height:1.6}',
+    '.rt-def{margin-top:10px;padding:11px 14px 12px;border:1px solid var(--info-bd);border-radius:var(--rsm);',
+    'background:var(--info-bg);font-size:12.5px;color:var(--z700);line-height:1.6}',
     '.rt-def-hd{display:flex;align-items:center;gap:5px;margin-bottom:6px;',
-    'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#186a8e}',
+    'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--info)}',
     '.rt-def-hd i{font-size:14px}',
     '.rt-def p + p{margin-top:7px}',
     '.rt-def strong,.pms-tip-body strong{font-weight:600}',
@@ -183,7 +183,7 @@
     'color:#fff;font-size:13px;font-weight:500;padding:9px 15px;border-radius:var(--rsm);display:flex;align-items:center;',
     'gap:7px;box-shadow:0 8px 30px rgba(0,0,0,.2);opacity:0;transition:opacity .18s ease;pointer-events:none;max-width:88vw}',
     '.pms-toast.show{opacity:1}',
-    '.pms-toast i{font-size:16px;color:#4ade80}'
+    '.pms-toast i{font-size:16px;color:var(--ok)}'
   ].join('');
 
   function injectCss() {

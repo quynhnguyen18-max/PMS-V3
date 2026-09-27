@@ -6,19 +6,12 @@
 <title>YER 2026 — Component nền tảng | MoMo HRM</title>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/tokens.css"/>
 <style>
-:root{
-  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;
-  --z400:#a1a1aa;--z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;
-  --brand:#A50064;--brand-h:#8B0055;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
-  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
-  --nh:52px;--r:8px;--rsm:6px;--rxs:4px;
-  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --t:all .12s ease;
-}
+html{font-size:14px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.5;color:var(--z700);background:var(--z50);-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:var(--rxs)}
 button{font-family:inherit}
 a{color:inherit}
 
@@ -50,7 +43,7 @@ a{color:inherit}
 .fc{width:100%;border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 10px;font-size:13.5px;color:var(--z900);font-family:inherit;background:var(--z0);resize:vertical}
 .fc:focus{border-color:var(--brand);outline:2px solid var(--brand-ring)}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;cursor:pointer;transition:var(--t)}
-.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
 .btn-default:hover{background:var(--brand-h)}
 .btn-outline{background:var(--z0);border-color:var(--z200);color:var(--z700)}
 .btn-outline:hover{background:var(--z100)}

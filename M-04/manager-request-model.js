@@ -41,7 +41,7 @@
   function addDaysDMY(value,days){const date=dateFromDMY(value);if(!date)return '';date.setUTCDate(date.getUTCDate()+days);return fmtDMYFromDate(date);}
   function automaticReminderDate(request){return addDaysDMY(request&&request.due,-3);}
   function dateTimeFromDMY(value){
-    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[· ]\s*(\d{2}):(\d{2}))?$/);
+    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[·\- ]\s*(\d{2}):(\d{2}))?$/);
     return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;
   }
   function reminderHistory(request,assignment,todayDMY){

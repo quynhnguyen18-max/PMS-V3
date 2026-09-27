@@ -7,24 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/tokens.css"/>
 <style>
 /* ═══ TOKENS — shadcn / zinc (đồng bộ E-01) ═══ */
-:root{
-  --z0:#ffffff;--z50:#fafafa;--z100:#f4f4f5;--z200:#e4e4e7;--z300:#d4d4d8;--z400:#a1a1aa;
-  --z500:#71717a;--z600:#52525b;--z700:#3f3f46;--z800:#27272a;--z900:#18181b;--z950:#09090b;
-  --brand:#A50064;--brand-h:#8B0055;--brand-fg:#fff;--brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
-  --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
-  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
-  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
-  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
-  --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
-  --info-w:312px;   /* bề ngang dùng chung: ô thông tin nhân viên + cụm nút CTA */
-  --sh-sm:0 1px 2px rgba(0,0,0,.04);
-  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
-  --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
-  --t:all .12s ease;
-}
+:root{--info-w:312px;   /* bề ngang dùng chung: ô thông tin nhân viên + cụm nút CTA */}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
 body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
@@ -33,21 +19,21 @@ a{color:var(--brand);text-decoration:none}
 input,select,textarea{font-family:inherit}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+::-webkit-scrollbar-thumb{background:var(--z300);border-radius:var(--rxs)}
 
 /* ── SHELL ── */
 .app{display:flex;min-height:100vh}
 .sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
 .workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
 .sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0;position:sticky;top:0;background:var(--z0);z-index:2}
-.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sb-logo span{font-size:13px;font-weight:800;color:#fff}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:var(--brand-fg)}
 .sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
 .sb-name em{color:var(--brand);font-style:normal}
 .sb-sub{font-size:11px;color:var(--z500)}
 .role-sw{display:flex;gap:2px;padding:10px 12px 6px}
 .role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t);letter-spacing:.1px}
-.role-btn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
 .role-btn:hover:not(.on){background:var(--z100);border-color:var(--z400);color:var(--z700)}
 .sb-nav{flex:1;padding:2px 0 12px}
 .sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
@@ -173,7 +159,7 @@ input,select,textarea{font-family:inherit}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;font-family:inherit;transition:var(--t);border:1px solid transparent;line-height:1.4;white-space:nowrap;cursor:pointer}
-.btn-default{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-default{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
 .btn-default:hover{background:var(--brand-h)}
 .btn-secondary{background:var(--z100);border-color:var(--z200);color:var(--z700)}
 .btn-secondary:hover{background:var(--z200);border-color:var(--z400)}
@@ -207,7 +193,7 @@ input,select,textarea{font-family:inherit}
 .qrow{display:flex;align-items:center;gap:10px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 11px;transition:var(--t)}
 /* Yêu cầu của HR: nhấn bằng nhãn + viền trái hồng để tách khỏi yêu cầu của đồng nghiệp. */
 .qrow-hr{border-color:var(--brand-ring);background:var(--brand-muted);box-shadow:inset 3px 0 var(--brand)}
-.av-hr{background:var(--brand);color:#fff}
+.av-hr{background:var(--brand);color:var(--brand-fg)}
 .av-hr i,.fb-av-hr i{font-size:14px}
 /* Lối vào lịch sử: một dòng chữ mảnh ở chân thẻ, cố ý KHÔNG làm thành nút hay thẻ riêng
    để không cạnh tranh với việc cần làm. */
@@ -242,7 +228,7 @@ input,select,textarea{font-family:inherit}
 .qrow-mini-hr .qm-name{color:var(--z900);font-weight:600}
 /* Card gộp một bộ câu hỏi HR trong "Phản hồi đã cho". */
 .fb-card-hr{border-color:var(--brand-ring)}
-.fb-av-hr{background:var(--brand);color:#fff}
+.fb-av-hr{background:var(--brand);color:var(--brand-fg)}
 .fb-sub-line{margin-top:2px;color:var(--z500);font-size:11.5px}
 .hr-given-body{margin-top:9px}
 .hr-given-summary{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:8px;flex-wrap:wrap}
@@ -292,7 +278,7 @@ input,select,textarea{font-family:inherit}
 
 /* ══ ĐƯỢC CẢM ƠN — báo trên tab "Đã cho", reset theo phiên ══ */
 .seg-heart{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:0 6px;height:17px;border-radius:9px;
-  background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;transition:opacity .35s ease,transform .35s ease}
+  background:var(--brand);color:var(--brand-fg);font-size:10.5px;font-weight:700;transition:opacity .35s ease,transform .35s ease}
 .seg-btn.on .seg-heart{background:var(--z0);color:var(--brand)}
 .seg-heart.fade{opacity:0;transform:scale(.4)}
 @keyframes thx-beat{0%,100%{transform:scale(1)}18%{transform:scale(1.3)}36%{transform:scale(1)}54%{transform:scale(1.22)}}
@@ -330,7 +316,7 @@ input,select,textarea{font-family:inherit}
 .dialog.sealing .dlg-flap{opacity:1;transform:rotateX(0)}
 .dialog.sealing .dlg-body{transform:scaleY(.06);opacity:0}
 .dlg-seal{position:absolute;top:124px;left:50%;transform:translate(-50%,0) scale(2.6);opacity:0;z-index:7;
-  width:42px;height:42px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;
+  width:42px;height:42px;border-radius:50%;background:var(--brand);color:var(--brand-fg);display:flex;align-items:center;justify-content:center;
   font-size:20px;box-shadow:0 3px 10px rgba(165,0,100,.4);pointer-events:none;
   transition:transform .3s cubic-bezier(.2,1.4,.4,1),opacity .2s ease}
 .dialog.stamped .dlg-seal{opacity:1;transform:translate(-50%,0) scale(1)}
@@ -360,7 +346,7 @@ input,select,textarea{font-family:inherit}
   transition:transform .55s cubic-bezier(.45,.05,.2,1);z-index:3;backface-visibility:hidden}
 .env-flap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 60%)}
 .env-seal{position:absolute;top:43px;left:50%;transform:translate(-50%,0);z-index:4;width:28px;height:28px;border-radius:50%;
-  background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
+  background:var(--brand);color:var(--brand-fg);display:flex;align-items:center;justify-content:center;font-size:14px;
   box-shadow:0 2px 6px rgba(165,0,100,.32);transition:transform .22s cubic-bezier(.3,1.5,.5,1),opacity .22s ease}
 .env-front{position:absolute;left:0;right:0;bottom:0;height:72px;z-index:2;display:flex;align-items:center;gap:9px;
   padding:0 16px;background:var(--z0);border-top:1px solid var(--z200);transition:transform .34s ease,opacity .3s ease}
@@ -370,7 +356,7 @@ input,select,textarea{font-family:inherit}
 .env-l2{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--z500);margin-top:2px}
 .env-cta{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;
   color:var(--brand);background:var(--z0);border:1px solid var(--brand);transition:var(--t)}
-.fb-env.sealed:hover .env-cta{background:var(--brand);color:#fff}
+.fb-env.sealed:hover .env-cta{background:var(--brand);color:var(--brand-fg)}
 
 /* ══ CẢM ƠN ══ */
 .fb-thx-bar{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--z200);
@@ -389,9 +375,9 @@ input,select,textarea{font-family:inherit}
 .thx-heart+.thx-heart{margin-left:-3px}
 .thx-heart:hover,.thx-heart:focus-visible{z-index:2;transform:translateY(-1px);outline:none}
 .thx-heart svg{display:block;height:15px;width:auto}
-.thx-heart .h-thanker{fill:#a50064;stroke:var(--z0);stroke-width:1.25;stroke-linejoin:round}
+.thx-heart .h-thanker{fill:var(--brand);stroke:var(--z0);stroke-width:1.25;stroke-linejoin:round}
 .thx-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:1100;width:max-content;white-space:nowrap;
-  padding:7px 10px;border-radius:6px;background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;line-height:1.45;text-align:left;
+  padding:7px 10px;border-radius:var(--rsm);background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;line-height:1.45;text-align:left;
   pointer-events:none;opacity:0;transition:opacity .12s ease}
 .thx-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
 .thx-heart:hover .thx-tip,.thx-heart:focus-visible .thx-tip{opacity:1}
@@ -448,7 +434,7 @@ input,select,textarea{font-family:inherit}
 .who-tip:hover .fb-badge-tip{opacity:1}
 /* tam giác đặc kiểu Facebook, không phải mũi tên */
 .fb-arrow{width:0;height:0;border-left:6px solid var(--z600);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;flex-shrink:0;margin:0 2px}
-/* 1 hàng meta: phạm vi xem · ngày · giá trị cốt lõi */
+/* 1 hàng meta: phạm vi xem - ngày - giá trị cốt lõi */
 /* dòng 2 của header — thay chỗ dòng phòng ban cũ */
 .fb-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
 .fb-meta-date{font-size:11.5px;color:var(--z500)}
@@ -485,7 +471,7 @@ input,select,textarea{font-family:inherit}
 .fb-card.fb-can-expand .fb-expand{display:flex}
 .fb-badge-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
 .fb-badge-img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block}
-.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
+.fb-badge-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;padding:5px 9px;border-radius:var(--rsm);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:1100;line-height:1.4}
 .fb-badge-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--z900)}
 .fb-badge-wrap:hover .fb-badge-tip{opacity:1}
 
@@ -598,7 +584,7 @@ input,select,textarea{font-family:inherit}
 .pi-org{font-size:11px;color:var(--z500)}
 .pick-empty{padding:12px;font-size:12px;color:var(--z400);text-align:center}
 .pick-chosen{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px solid var(--brand-ring);background:var(--brand-muted);border-radius:var(--rsm)}
-.pick-chosen .fb-av{background:var(--brand);color:#fff}
+.pick-chosen .fb-av{background:var(--brand);color:var(--brand-fg)}
 .pc-x{margin-left:auto;width:24px;height:24px;border-radius:var(--rxs);border:none;background:transparent;color:var(--z500);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
 .pc-x:hover{background:var(--z0);color:var(--z800)}
 /* textarea */
@@ -636,9 +622,9 @@ input,select,textarea{font-family:inherit}
    vẫn kéo mắt mà không nhấp nháy liên hồi gây rối. Dừng hẳn khi người dùng đã tương tác. */
 @keyframes tip-blink{
   0%{transform:scale(1);background:var(--brand-muted);box-shadow:0 0 0 0 rgba(165,0,100,.5)}
-  14%{transform:scale(1.28);background:var(--brand);color:#fff;box-shadow:0 0 0 6px rgba(165,0,100,.16)}
+  14%{transform:scale(1.28);background:var(--brand);color:var(--brand-fg);box-shadow:0 0 0 6px rgba(165,0,100,.16)}
   30%{transform:scale(1);background:var(--brand-muted);color:var(--brand);box-shadow:0 0 0 12px rgba(165,0,100,0)}
-  44%{transform:scale(1.16);background:var(--brand);color:#fff;box-shadow:0 0 0 0 rgba(165,0,100,0)}
+  44%{transform:scale(1.16);background:var(--brand);color:var(--brand-fg);box-shadow:0 0 0 0 rgba(165,0,100,0)}
   60%,100%{transform:scale(1);background:var(--brand-muted);color:var(--brand);box-shadow:0 0 0 0 rgba(165,0,100,0)}}
 .tip-btn.blink{animation:tip-blink 1.9s ease-out infinite}
 /* Chấm báo đứng yên: vừa là tín hiệu "có gì đó mới ở đây" khi mắt chưa bắt được nhịp đập,
@@ -669,11 +655,11 @@ input,select,textarea{font-family:inherit}
 .bg-sw-none{background:var(--z0);display:flex;align-items:center;justify-content:center;color:var(--z400);font-size:15px}
 .bg-sw-none.on{color:var(--brand)}
 /* khi đã chọn nền: chữ to hơn, canh giữa, giống lúc viết status */
-.compose-ta.has-bg{color:var(--ta-fg,#fff);border-color:transparent;caret-color:var(--ta-fg,#fff);
+.compose-ta.has-bg{color:var(--ta-fg,var(--z0));border-color:transparent;caret-color:var(--ta-fg,var(--z0));
   min-height:170px;text-align:var(--ta-align,center);font-size:16px;font-weight:600;
   line-height:var(--ta-lh,1.6);padding:var(--ta-pad,30px 22px);resize:none;text-shadow:none}
 .compose-ta.has-bg.ta-dark{text-shadow:0 1px 3px rgba(0,0,0,.35)}
-.compose-ta.has-bg::placeholder{color:var(--ta-fg,#fff);opacity:.75;font-weight:500}
+.compose-ta.has-bg::placeholder{color:var(--ta-fg,var(--z0));opacity:.75;font-weight:500}
 .compose-ta.has-bg:focus{outline:2px solid var(--brand-ring);outline-offset:2px;border-color:transparent}
 /* ── Popup đọc phản hồi có nền: chrome trung tính, nền chỉ nằm ở nội dung ── */
 .reader-dialog{max-width:620px}
@@ -725,7 +711,7 @@ input,select,textarea{font-family:inherit}
 .cvsel span{font-size:9.5px;color:var(--z600);text-align:center;line-height:1.25}
 .cvsel.on{border-color:var(--brand);background:var(--brand-muted)}
 .cvsel.on span{color:var(--brand);font-weight:600}
-.cvsel .cv-check{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--brand);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center}
+.cvsel .cv-check{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--brand);color:var(--brand-fg);font-size:10px;display:none;align-items:center;justify-content:center}
 .cvsel.on .cv-check{display:flex}
 .cvsel:not(.on) img{filter:grayscale(.55);opacity:.85}
 /* feedback type selector */
@@ -744,7 +730,7 @@ input,select,textarea{font-family:inherit}
 .tpl-note{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--z500);margin-top:7px;line-height:1.4}
 .tpl-note i{font-size:13px;color:var(--brand);flex-shrink:0}
 .tg-head{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.tg-badge{font-size:11px;font-weight:700;color:#fff;background:var(--brand);border-radius:var(--rxs);padding:2px 8px;letter-spacing:.3px}
+.tg-badge{font-size:11px;font-weight:700;color:var(--brand-fg);background:var(--brand);border-radius:var(--rxs);padding:2px 8px;letter-spacing:.3px}
 .tg-htext{font-size:12px;font-weight:600;color:var(--z800)}
 .tg-purpose{font-size:11.5px;color:var(--z600);line-height:1.5;margin-bottom:11px}
 .tg-steps{display:flex;flex-direction:column;gap:7px;margin-bottom:11px}
@@ -798,7 +784,7 @@ input,select,textarea{font-family:inherit}
 /* ═══ YÊU CẦU PHẢN HỒI (UC1) ═══ */
 .rv-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
 .rv-chip{display:inline-flex;align-items:center;gap:7px;padding:4px 6px 4px 5px;border:1px solid var(--brand-ring);background:var(--brand-muted);border-radius:50px}
-.rv-chip .fb-av{width:22px;height:22px;font-size:9px;background:var(--brand);color:#fff}
+.rv-chip .fb-av{width:22px;height:22px;font-size:9px;background:var(--brand);color:var(--brand-fg)}
 .rv-chip-name{font-size:12px;font-weight:500;color:var(--z800)}
 .rv-chip-x{width:18px;height:18px;border:none;background:transparent;color:var(--z500);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .rv-chip-x:hover{background:var(--z0);color:var(--err)}
@@ -808,7 +794,7 @@ input,select,textarea{font-family:inherit}
 .opt-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:12px;color:var(--z700);font-weight:500}
 .opt-toggle input{appearance:none;-webkit-appearance:none;width:32px;height:18px;background:var(--z300);border-radius:50px;position:relative;cursor:pointer;transition:var(--t);flex-shrink:0;margin:0}
 .opt-toggle input:checked{background:var(--brand)}
-.opt-toggle input::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:var(--t)}
+.opt-toggle input::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--z0);border-radius:50%;transition:var(--t)}
 .opt-toggle input:checked::after{left:16px}
 /* per-person questions */
 .person-row{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--z100)}
@@ -870,22 +856,23 @@ input,select,textarea{font-family:inherit}
 .hr-response-version .hr-version-time{font-weight:400;color:var(--z600)}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--z900);color:var(--brand-fg);font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--rsm);box-shadow:var(--sh-lg);z-index:2000;opacity:0;pointer-events:none;transition:all .2s ease;display:flex;align-items:center;gap:8px;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast i{font-size:16px;color:#fff}
+.toast i{font-size:16px;color:var(--brand-fg)}
 /* ── MEDIA SUMMARY CAMPAIGN ── */
-.media-summary-entry{position:relative;z-index:1;border:0;border-radius:999px;background:var(--brand);color:#fff;box-shadow:var(--sh-sm);height:30px;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;transition:var(--t)}
+.media-summary-entry{position:relative;z-index:1;border:0;border-radius:999px;background:var(--brand);color:var(--brand-fg);box-shadow:var(--sh-sm);height:30px;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;transition:var(--t)}
 .media-summary-entry:hover{background:var(--brand-h)}.media-summary-entry.compact:hover .fb-badge-tip{opacity:1}.media-summary-entry[hidden]{display:none}.media-summary-entry.compact{width:30px;padding:0;justify-content:center}.media-summary-entry.compact .media-entry-label{display:none}.media-entry-star{font-size:15px;line-height:1;animation:media-entry-blink 1.35s ease-in-out infinite}@keyframes media-entry-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}@media(prefers-reduced-motion:reduce){.media-entry-star{animation:none}}
 .media-summary-dialog{width:min(840px,96vw);max-height:90vh;background:var(--z0);border-radius:12px;overflow:hidden;box-shadow:var(--sh-lg);display:flex;flex-direction:column}.media-summary-head{height:50px;padding:0 16px;border-bottom:1px solid var(--z200);display:flex;align-items:center}.media-summary-title{font-size:14px;font-weight:700;color:var(--z900);flex:1}.media-summary-note{font-size:10.5px;color:var(--z500);margin-right:10px}
-.media-story{display:grid;grid-template-columns:minmax(0,1fr) 240px;min-height:490px}.media-poster-stage{background:var(--z100);display:flex;align-items:center;justify-content:center;padding:22px}.media-poster{width:min(310px,100%);aspect-ratio:4/5;border-radius:16px;padding:28px;color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 16px 34px rgba(88,0,53,.2)}.media-template-impact{background:linear-gradient(155deg,#7d004c,#b0006b 58%,#e65b9c)}.media-template-growth{background:linear-gradient(155deg,#233047,#48566e 58%,#7b8da9)}.media-template-values{background:linear-gradient(155deg,#6c3d1f,#9a6234 58%,#d2a36c)}
-.media-poster-kicker{font-size:10px;letter-spacing:.8px;text-transform:uppercase;opacity:.82}.media-poster h3{font-size:23px;line-height:1.2;margin:58px 0 15px;color:#fff}.media-poster p{font-size:13.5px;line-height:1.58}.media-poster-foot{font-size:9.5px;opacity:.75;margin-top:auto}.media-story-side{border-left:1px solid var(--z200);padding:18px;display:flex;flex-direction:column}.media-story-side h4{font-size:13px;color:var(--z900)}.media-story-side>p{font-size:10.5px;color:var(--z500);margin-top:4px}.media-progress{display:flex;gap:5px;margin:18px 0}.media-progress span{height:4px;flex:1;border-radius:4px;background:var(--z200)}.media-progress span.on{background:var(--brand)}.media-story-nav{display:flex;gap:8px}.media-story-actions{display:grid;gap:8px;margin-top:auto}.media-story-actions .btn{justify-content:center}
+.media-story{display:grid;grid-template-columns:minmax(0,1fr) 240px;min-height:490px}.media-poster-stage{background:var(--z100);display:flex;align-items:center;justify-content:center;padding:22px}.media-poster{width:min(310px,100%);aspect-ratio:4/5;border-radius:16px;padding:28px;color:var(--brand-fg);display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 16px 34px rgba(88,0,53,.2)}.media-template-impact{background:linear-gradient(155deg,#7d004c,#b0006b 58%,#e65b9c)}.media-template-growth{background:linear-gradient(155deg,#233047,#48566e 58%,#7b8da9)}.media-template-values{background:linear-gradient(155deg,#6c3d1f,#9a6234 58%,#d2a36c)}
+.media-poster-kicker{font-size:10px;letter-spacing:.8px;text-transform:uppercase;opacity:.82}.media-poster h3{font-size:23px;line-height:1.2;margin:58px 0 15px;color:var(--brand-fg)}.media-poster p{font-size:13.5px;line-height:1.58}.media-poster-foot{font-size:9.5px;opacity:.75;margin-top:auto}.media-story-side{border-left:1px solid var(--z200);padding:18px;display:flex;flex-direction:column}.media-story-side h4{font-size:13px;color:var(--z900)}.media-story-side>p{font-size:10.5px;color:var(--z500);margin-top:4px}.media-progress{display:flex;gap:5px;margin:18px 0}.media-progress span{height:4px;flex:1;border-radius:var(--rxs);background:var(--z200)}.media-progress span.on{background:var(--brand)}.media-story-nav{display:flex;gap:8px}.media-story-actions{display:grid;gap:8px;margin-top:auto}.media-story-actions .btn{justify-content:center}
 .media-download-menu{position:relative}.media-download-trigger{width:100%;justify-content:center}.media-download-trigger .bx-chevron-down{transition:transform var(--t)}.media-download-menu[data-open="true"] .media-download-trigger .bx-chevron-down{transform:rotate(180deg)}
-.media-download-list{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:var(--z0);border:1px solid var(--z200);border-radius:8px;box-shadow:var(--sh-md);padding:4px;display:none;z-index:2}
+.media-download-list{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-md);padding:4px;display:none;z-index:2}
 .media-download-menu[data-open="true"] .media-download-list{display:block}
-.media-download-list button{width:100%;background:transparent;border:0;text-align:left;padding:8px 10px;border-radius:6px;font-size:12px;color:var(--z900);cursor:pointer;display:flex;align-items:center;gap:8px;transition:var(--t)}
+.media-download-list button{width:100%;background:transparent;border:0;text-align:left;padding:8px 10px;border-radius:var(--rsm);font-size:12px;color:var(--z900);cursor:pointer;display:flex;align-items:center;gap:8px;transition:var(--t)}
 .media-download-list button:hover{background:var(--z100)}
 .media-download-list button i{font-size:14px;color:var(--z500)}
 @media(max-width:720px){.media-story{grid-template-columns:1fr}.media-story-side{border-left:0;border-top:1px solid var(--z200)}.media-poster-stage{padding:16px}.media-poster{width:min(280px,100%)}}
+.dialog-ai-summary-mascot{width:20px;height:20px;object-fit:contain;display:block;flex:none}
 </style>
   <script src="feedback-model.js"></script>
   <script src="request-question-ai.js"></script>
@@ -895,7 +882,7 @@ input,select,textarea{font-family:inherit}
   <!-- Luật đóng yêu cầu của quản lý: dùng chung đúng bảng lý do với M-04, không tự đặt tên mã riêng. -->
   <script src="../M-04/manager-request-model.js"></script>
   <script src="../M-04/manager-thanks.js"></script>
-  <style>.hr-report-card{display:block;text-decoration:none;border:1px solid var(--brand-ring,rgba(165,0,100,.2));background:var(--brand-muted,rgba(165,0,100,.07));transition:box-shadow .12s,border-color .12s}.hr-report-card:hover{border-color:var(--brand,#a50064);box-shadow:0 3px 12px rgba(165,0,100,.12)}.hr-report-card .rail-title{color:var(--brand,#a50064)}.hr-report-sub{margin-top:5px;font-size:11.5px;color:var(--z600,#52525b);display:flex;align-items:center;justify-content:space-between;gap:8px}.hr-report-sub .go{color:var(--brand,#a50064);font-weight:600}</style>
+  <style>.hr-report-card{display:block;text-decoration:none;border:1px solid var(--brand-ring,rgba(165,0,100,.2));background:var(--brand-muted,rgba(165,0,100,.07));transition:box-shadow .12s,border-color .12s}.hr-report-card:hover{border-color:var(--brand,var(--brand));box-shadow:0 3px 12px rgba(165,0,100,.12)}.hr-report-card .rail-title{color:var(--brand,var(--brand))}.hr-report-sub{margin-top:5px;font-size:11.5px;color:var(--z600,var(--z600));display:flex;align-items:center;justify-content:space-between;gap:8px}.hr-report-sub .go{color:var(--brand,var(--brand));font-weight:600}</style>
 </head>
 <body>
 <div class="app">
@@ -1199,7 +1186,7 @@ input,select,textarea{font-family:inherit}
           <div class="ai-panel" id="aiPanel" style="display:none"></div>
           <div class="ai-bar" id="giveAiBar">
             <span class="ai-used-note" id="giveAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</span>
-            <button class="btn-ai" id="aiBtn" onclick="runAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
+            <button class="btn-ai" id="aiBtn" onclick="runAI()" disabled><i class="bx bxs-magic-wand"></i> Cải thiện với AI</button>
           </div>
         </div>
 
@@ -1272,7 +1259,7 @@ input,select,textarea{font-family:inherit}
           <div class="ai-panel" id="reqCommonAiPanel" style="display:none"></div>
           <div class="ai-bar" id="reqCommonAiBar">
             <div class="ai-used-note" id="reqCommonAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</div>
-            <button class="btn-ai" id="reqCommonAiBtn" onclick="runReqQuestionAI('common')" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
+            <button class="btn-ai" id="reqCommonAiBtn" onclick="runReqQuestionAI('common')" disabled><i class="bx bxs-magic-wand"></i> Cải thiện với AI</button>
           </div>
           <div id="reqPersonWrap" style="display:none">
             <div class="field-hint" style="margin-bottom:2px">Mỗi người một câu hỏi riêng (đã điền sẵn theo câu hỏi chung, bạn có thể sửa):</div>
@@ -1322,7 +1309,7 @@ input,select,textarea{font-family:inherit}
           <div class="ai-panel" id="replyAiPanel" style="display:none"></div>
           <div class="ai-bar" id="replyAiBar">
             <span class="ai-used-note" id="replyAiStatus" style="display:none"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</span>
-            <button class="btn-ai" id="replyAiBtn" onclick="runReplyAI()" disabled><i class="bx bx-magic"></i> Cải thiện với AI</button>
+            <button class="btn-ai" id="replyAiBtn" onclick="runReplyAI()" disabled><i class="bx bxs-magic-wand"></i> Cải thiện với AI</button>
           </div>
         </div>
         <div id="replyStructuredFields" hidden></div>
@@ -1403,18 +1390,18 @@ const SELF={name:'Nguyễn Văn Tú', dom:'tu.nguyen', ini:'NT'};
 /* Hồ sơ đầy đủ dùng cho tooltip ở feed + popup chi tiết yêu cầu.
    Request data chỉ cần giữ org ngắn; position được resolve thống nhất theo domain. */
 const ORG_BY_DOM={
-  'mai.tran':'ITC – Frontend – Software Engineer',
-  'nam.le':'ITC – Mobile – iOS Developer',
-  'lan.vu':'ITC – QA – QA Engineer',
-  'bao.nguyen':'ITC – Platform – Tech Lead',
-  'duc.truong':'ITC – Backend – Senior Engineer',
-  'lan.hoang':'MKT – Brand – Senior Designer',
-  'hung.le':'ITC – Backend – Senior Engineer',
-  'hang.mai':'ITC – DevOps – Platform Engineer',
-  'duc.pham':'ITC – Data – Data Engineer',
-  'hieu.pham':'FIN – Finance Control – Analyst',
-  'phuong.nguyen':'ITC – Data – Data Scientist',
-  'khoa.tran':'ITC – Mobile – iOS Engineer'
+  'mai.tran':'ITC - Frontend - Software Engineer',
+  'nam.le':'ITC - Mobile - iOS Developer',
+  'lan.vu':'ITC - QA - QA Engineer',
+  'bao.nguyen':'ITC - Platform - Tech Lead',
+  'duc.truong':'ITC - Backend - Senior Engineer',
+  'lan.hoang':'MKT - Brand - Senior Designer',
+  'hung.le':'ITC - Backend - Senior Engineer',
+  'hang.mai':'ITC - DevOps - Platform Engineer',
+  'duc.pham':'ITC - Data - Data Engineer',
+  'hieu.pham':'FIN - Finance Control - Analyst',
+  'phuong.nguyen':'ITC - Data - Data Scientist',
+  'khoa.tran':'ITC - Mobile - iOS Engineer'
 };
 function fullOrg(p){ return ORG_BY_DOM[p.dom] || p.org || ''; }
 function initials(name){ return String(name||'').trim().split(/\s+/).slice(-2).map(part=>part.charAt(0)).join('').toUpperCase(); }
@@ -1426,27 +1413,27 @@ const FEED = [
   /* mgrThanks: mọi cấp quản lý đã thả tim, mỗi người được nhận diện bằng domain.
      Chỉ có thể xảy ra với phản hồi được chia sẻ tới cấp quản lý. */
   { kind:'received', id:'rcv-1', opened:true, thanked:false, mgrThanks:[{name:'Lê Thị Thanh', dom:'thanh.le'},{name:'Phan Anh Tuấn', dom:'tuan.phan'}], cycle:'2026', date:'14/03/2026', ts:20260314, vis:'manager',
-    who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
+    who:{name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC - Mobile - iOS Developer'},
     body:'Tú là một trong những backend developer chắc tay nhất team. Khả năng phân tích kỹ thuật của bạn rất sắc bén — từ thiết kế API đến xử lý edge case đều được cân nhắc kỹ lưỡng. Không chỉ giỏi về kỹ thuật, Tú còn rất hỗ trợ đồng đội và luôn sẵn lòng chia sẻ kiến thức.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi'] },
   { kind:'received', id:'rcv-2', opened:false, thanked:false, cycle:'2026', date:'22/04/2026', ts:20260422, vis:'receiver', backgroundId:'postcard',
     fromReq:'Xin phản hồi sau buổi trình bày roadmap kỹ thuật Q1',
-    who:{name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand – Senior Designer'},
+    who:{name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT - Brand - Senior Designer'},
     q:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     body:'Tú explain vấn đề kỹ thuật rất rõ ràng kể cả với người không chuyên. Trong buổi họp roadmap tháng 4, bạn dùng ví dụ trực quan giúp business team hiểu tại sao cần refactor service đó — điều này thường rất khó nhưng Tú làm rất tự nhiên.',
     cv:['Khách hàng là trung tâm'] },
   /* Tim đã thả giữ nguyên theo domain dù cơ cấu quản lý thay đổi. */
   { kind:'received', id:'rcv-3', opened:true, thanked:true, mgrThanks:[{name:'Đỗ Quang Huy', dom:'huy.do'},{name:'Lê Thị Thanh', dom:'thanh.le'},{name:'Phan Anh Tuấn', dom:'tuan.phan'}], cycle:'2026', date:'05/06/2026', ts:20260605, vis:'manager', backgroundId:'letter',
-    who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
+    who:{name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC - Backend - Senior Engineer'},
     body:'Tú xử lý incident production Q1 rất xuất sắc. Từ lúc phát hiện đến khi khắc phục hoàn toàn, bạn giữ bình tĩnh, trace root cause chính xác và phối hợp nhịp nhàng với DevOps và frontend để giảm thiểu downtime.',
     cv:['Thực thi xuất sắc','Tinh thần đồng đội'] },
   /* Chỉ mình cảm ơn: phạm vi "Chỉ mình tôi" nên quản lý không xem được — vĩnh viễn một tim. */
   { kind:'received', id:'rcv-5', opened:true, thanked:true, cycle:'2026', date:'28/07/2026', ts:20260728, vis:'receiver',
-    who:{name:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', org:'ITC – Backend – Software Engineer'},
+    who:{name:'Đặng Thu Trang', dom:'trang.dang', ini:'ĐT', org:'ITC - Backend - Software Engineer'},
     body:'Mỗi lần mình hỏi về luồng thanh toán, Tú đều vẽ lại sơ đồ và giải thích từ đầu chứ không trả lời cho xong. Nhờ vậy mình nắm được hệ thống nhanh hơn hẳn so với đọc tài liệu.',
     cv:['Tinh thần đồng đội'] },
   { kind:'received', id:'rcv-4', opened:true, thanked:true, cycle:'2025', date:'18/09/2025', ts:20250918, vis:'receiver',
-    who:{name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform – Tech Lead'},
+    who:{name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC - Platform - Tech Lead'},
     body:'Năm nay Tú tiến bộ rõ về tư duy hệ thống. Các đề xuất kiến trúc của bạn ngày càng chững chạc và có tính đến vận hành lâu dài.',
     cv:['Không ngừng học hỏi'] },
 
@@ -1455,7 +1442,7 @@ const FEED = [
   { kind:'given', id:'gvn-hr-1', cycle:'2026', date:'20/06/2026', ts:20260620, requestSource:'hr', vis:'hr',
     program:'Khảo sát năng lực hợp tác nửa đầu 2026 - ITC',
     requester:{name:'Lê Minh Thu', dom:'minhthu.le', ini:'LT'},
-    who:{name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC – Mobile – iOS Engineer'},
+    who:{name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC - Mobile - iOS Engineer'},
     identityVisibility:'named', requestStatus:'collecting', expiresAt:'18/11/2026',
     responseVersions:[
       {version:1,submittedAt:'18/06/2026 10:20',consentedAt:'18/06/2026 10:20',answers:[
@@ -1503,33 +1490,33 @@ const FEED = [
      chỉ khác là không có dòng mục tiêu — chỉ câu hỏi và câu trả lời. */
   { kind:'given', id:'gvn-mgr-1', cycle:'2026', date:'02/08/2026', ts:20260802, requestSource:'manager', vis:'mgr-request',
     requester:{name:'Lê Thị Thanh', dom:'thanh.le', ini:'LT'},
-    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
+    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC - QA - QA Engineer'},
     hrAnswers:[{question:'Bạn đánh giá thế nào về sự phối hợp và đóng góp của Vũ Thị Lan trong dự án Migration?',
        answer:'Lan dựng bộ regression test cho phần payment rất kỹ và chạy lại đầy đủ sau mỗi lần đổi schema. Nhờ vậy đợt cắt sang service mới nhóm phát hiện sớm hai lỗi tính phí, không để lọt lên production.'}],
     body:'', cv:[] },
   { kind:'given', id:'gvn-mgr-2', cycle:'2026', date:'18/07/2026', ts:20260718, requestSource:'manager', vis:'mgr-request',
     requester:{name:'Lê Thị Thanh', dom:'thanh.le', ini:'LT'},
-    who:{name:'Nguyễn Thị Phương', dom:'phuong.nguyen', ini:'NP', org:'ITC – Data – Data Scientist'},
+    who:{name:'Nguyễn Thị Phương', dom:'phuong.nguyen', ini:'NP', org:'ITC - Data - Data Scientist'},
     hrAnswers:[{question:'Bạn ghi nhận điểm mạnh nào của Nguyễn Thị Phương trong cách dẫn dắt công việc?',
        answer:'Phương chia bài toán rất rõ trước khi bắt tay vào làm. Ở dự án dự báo nhu cầu, bạn tách hẳn phần làm sạch dữ liệu ra thành các bước nhỏ có thể kiểm tra được, nên khi kết quả lệch thì cả nhóm biết ngay phải soi ở đâu.'}],
     body:'', cv:[] },
   { kind:'given', id:'gvn-1', cycle:'2026', date:'12/03/2026', ts:20260312, thankedAt:'14/03/2026',
-    who:{name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
+    who:{name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC - Frontend - Software Engineer'},
     body:'Mai làm việc rất chủ động trong dự án Design System. Bạn không chỉ hoàn thành phần component được giao mà còn chủ động chuẩn hoá tài liệu Storybook, giúp cả team dùng lại dễ dàng hơn nhiều.',
     cv:['Tinh thần đồng đội','Thực thi xuất sắc'], vis:'receiver' },
   /* mgrThanks: các cấp quản lý của NGƯỜI NHẬN đã thả tim cảm ơn mình. */
   { kind:'given', id:'gvn-2', cycle:'2026', date:'18/05/2026', ts:20260518, thankedAt:'19/05/2026', mgrThanks:[{name:'Đỗ Quang Huy', dom:'huy.do'},{name:'Phan Anh Tuấn', dom:'tuan.phan'}],
-    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer',
+    who:{name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC - QA - QA Engineer',
       mgr:{name:'Đỗ Quang Huy', dom:'huy.do'}},
     body:'Cảm ơn Lan đã hỗ trợ dựng bộ regression test cho payment module rất kỹ. Nhờ vậy đợt release vừa rồi mình phát hiện sớm được 2 lỗi nghiêm trọng trước khi lên production.',
     cv:['Khách hàng là trung tâm'], vis:'manager' },
   { kind:'given', id:'gvn-3', cycle:'2026', date:'02/06/2026', ts:20260602, mgrThanks:[{name:'Phan Anh Tuấn', dom:'tuan.phan'}],
-    who:{name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps – Platform Engineer',
+    who:{name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC - DevOps - Platform Engineer',
       mgr:{name:'Trịnh Thu Hà', dom:'ha.trinh'}},
     body:'Đợt migration vừa rồi Hằng phản hồi rất nhanh mỗi khi có cảnh báo hạ tầng, kể cả ngoài giờ, nhờ vậy team không bị block ở bước chuyển dữ liệu. Nếu lần sau mình thống nhất trước kênh báo sự cố thì sẽ đỡ mất thời gian tìm đúng người.',
     cv:['Tinh thần đồng đội'], vis:'manager' },
   { kind:'given', id:'gvn-4', cycle:'2026', date:'20/06/2026', ts:20260620,
-    who:{name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC – Data – Data Engineer'},
+    who:{name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC - Data - Data Engineer'},
     body:'Đức chủ động tự học phần message queue rồi chia sẻ lại cho cả team trong buổi tech share tháng 6, phần ví dụ thực tế rất dễ hiểu. Nếu viết lại thành tài liệu ngắn thì người mới vào sẽ đỡ mất thời gian dò hỏi.',
     cv:['Không ngừng học hỏi'], vis:'receiver' },
 
@@ -1539,33 +1526,33 @@ const FEED = [
     due:'20/03/2026', status:'open',
     qMode:'shared', question:'Bạn thấy phần trình bày và nội dung roadmap Q1 của mình có điểm nào rõ ràng, điểm nào nên cải thiện thêm?',
     reviewers:[
-      {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile', st:'done', vis:'receiver', repliedAt:'10/03/2026 · 09:32',
+      {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC - Mobile', st:'done', vis:'receiver', repliedAt:'10/03/2026 - 09:32',
         fb:'Phần trình bày của Tú rất mạch lạc, đi thẳng vào vấn đề. Slide kiến trúc dễ theo dõi và bạn trả lời câu hỏi kỹ thuật rất tự tin. Nếu có thể, lần sau thêm 1 slide tóm tắt impact về business ở đầu sẽ giúp stakeholder non-tech nắm nhanh hơn.',
         cv:['Thực thi xuất sắc']},
-      {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand', st:'done', vis:'receiver', repliedAt:'11/03/2026 · 14:18',
+      {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT - Brand', st:'done', vis:'receiver', repliedAt:'11/03/2026 - 14:18',
         fb:'Mình đánh giá cao cách Tú dùng ví dụ trực quan để giải thích lý do refactor. Business team hiểu được ngay. Điểm cần lưu ý là đôi lúc bạn nói hơi nhanh ở phần số liệu, có thể chậm lại một chút.',
         cv:['Khách hàng là trung tâm']},
-      {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend', st:'done', vis:'manager', repliedAt:'13/03/2026 · 16:05',
+      {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC - Backend', st:'done', vis:'manager', repliedAt:'13/03/2026 - 16:05',
         fb:'Nội dung kỹ thuật rất chắc. Cách Tú phân tích trade-off giữa các phương án migration cho thấy tư duy hệ thống tốt. Rất đáng để junior trong team học theo.',
         cv:['Không ngừng học hỏi','Thực thi xuất sắc']},
-      {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN – Finance Control', st:'pending'},
-      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'pending'}
+      {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN - Finance Control', st:'pending'},
+      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC - Platform', st:'pending'}
     ] },
   { id:'req-postgresql-migration', kind:'request', cycle:'2026', date:'10/07/2026', ts:20260710,
     context:'Xin phản hồi sau dự án migration hệ thống thanh toán sang PostgreSQL',
     due:'25/07/2026', status:'open', qMode:'individual',
     reviewers:[
-      {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps', st:'done', vis:'receiver', repliedAt:'15/07/2026 · 10:24',
+      {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC - DevOps', st:'done', vis:'receiver', repliedAt:'15/07/2026 - 10:24',
         q:'Việc phối hợp giữa mình và team DevOps trong quá trình migration diễn ra thế nào?',
         fb:'Tú lên kế hoạch migration rất bài bản, chia nhỏ theo từng giai đoạn nên team DevOps chủ động được hạ tầng. Rollback plan rõ ràng giúp mình yên tâm khi go-live. Lần sau nếu thông báo lịch cutover sớm hơn 1–2 ngày thì sẽ càng mượt.',
         cv:['Tinh thần đồng đội']},
-      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver', repliedAt:'18/07/2026 · 16:40',
+      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC - Backend', st:'done', vis:'receiver', repliedAt:'18/07/2026 - 16:40',
         q:'Chất lượng kỹ thuật của phần chuyển đổi schema và data như thế nào?',
         fb:'Phần chuyển đổi schema được xử lý cẩn thận, không mất mát dữ liệu và downtime gần như bằng 0. Cách Tú viết script migration idempotent rất chuyên nghiệp.',
         cv:['Thực thi xuất sắc']},
-      {name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC – Data', st:'pending',
+      {name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC - Data', st:'pending',
         q:'Sau migration, hiệu năng truy vấn trên các báo cáo dữ liệu có cải thiện không?'},
-      {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA', st:'pending',
+      {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC - QA', st:'pending',
         q:'Quá trình kiểm thử hồi quy sau migration có thuận lợi không?'}
     ] },
   { id:'req-active-collaboration', kind:'request', cycle:'2026', date:'05/08/2026', ts:20260805,
@@ -1573,22 +1560,22 @@ const FEED = [
     due:'28/08/2026', status:'open', qMode:'shared',
     question:'Trong quá trình phối hợp gần đây, bạn ghi nhận điều gì Tú đang làm tốt và điều gì Tú có thể cải thiện thêm?',
     reviewers:[
-      {name:'Nguyễn Hoài An', dom:'an.nguyen', ini:'NA', org:'ITC – Product', st:'pending'},
-      {name:'Đỗ Minh Khang', dom:'khang.do', ini:'DK', org:'ITC – Mobile', st:'pending'}
+      {name:'Nguyễn Hoài An', dom:'an.nguyen', ini:'NA', org:'ITC - Product', st:'pending'},
+      {name:'Đỗ Minh Khang', dom:'khang.do', ini:'DK', org:'ITC - Mobile', st:'pending'}
     ] },
   { id:'req-senior-mentoring', kind:'request', cycle:'2026', date:'02/02/2026', ts:20260202,
     context:'Xin góp ý về khả năng mentor junior để chuẩn bị cho lộ trình lên Senior',
     due:'12/02/2026', status:'completed', qMode:'individual',
     reviewers:[
-      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform', st:'done', vis:'manager', repliedAt:'06/02/2026 · 09:15',
+      {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC - Platform', st:'done', vis:'manager', repliedAt:'06/02/2026 - 09:15',
         q:'Theo bạn, mình cần phát triển thêm điều gì để sẵn sàng cho vai trò Senior?',
         fb:'Tú có tố chất mentor tốt: kiên nhẫn và giải thích rõ ràng. Để lên Senior, mình khuyến khích bạn chủ động nhận review code cho junior thường xuyên hơn và tham gia sâu vào các technical decision ở cấp team.',
         cv:['Tinh thần đồng đội']},
-      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend', st:'done', vis:'receiver', repliedAt:'08/02/2026 · 14:30',
+      {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC - Backend', st:'done', vis:'receiver', repliedAt:'08/02/2026 - 14:30',
         q:'Trải nghiệm được mình hỗ trợ/mentor của bạn như thế nào?',
         fb:'Mình từng được Tú hỗ trợ debug một vấn đề khó và bạn hướng dẫn rất tận tình, chỉ cả cách tư duy chứ không chỉ đưa đáp án. Đây chính là chất của một mentor.',
         cv:['Không ngừng học hỏi']},
-      {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend', st:'done', vis:'receiver', repliedAt:'10/02/2026 · 11:05',
+      {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC - Frontend', st:'done', vis:'receiver', repliedAt:'10/02/2026 - 11:05',
         q:'Bạn có gợi ý gì để mình dẫn dắt team hiệu quả hơn?',
         fb:'Tú luôn sẵn sàng chia sẻ kiến thức cross-team. Nếu muốn phát triển hơn ở vai trò dẫn dắt, bạn có thể chủ động đứng ra tổ chức vài buổi tech sharing ngắn cho team.',
         cv:['Tinh thần đồng đội']}
@@ -1953,7 +1940,7 @@ function cardSealed(f){
         <div class="fb-av">${f.who.ini}</div>
         <div class="env-txt">
           <div class="env-l1"><b>${f.who.name}</b> đã gửi bạn một phản hồi</div>
-          <div class="env-l2"><span>${f.date}</span><span>·</span>${visIcon(f.vis||'receiver')}</div>
+          <div class="env-l2"><span>${f.date}</span><span>-</span>${visIcon(f.vis||'receiver')}</div>
         </div>
         <span class="env-cta"><i class="bx bx-envelope-open"></i> Mở</span>
       </div>
@@ -2038,12 +2025,12 @@ function thankFb(id, btn){
   }, slow?420:0);
   toast(`Đã gửi lời cảm ơn tới ${f.who.name}`);
 }
-/* cập nhật lại số trong nhãn "Chưa mở · N" sau khi mở 1 thư */
+/* cập nhật lại số trong nhãn "Chưa mở - N" sau khi mở 1 thư */
 function updateUnreadLabel(){
   const lbl=document.getElementById('grpUnread');
   if(!lbl) return;
   const n=unreadItems(FeedbackModel.itemsForFilter(FEED,curFilter,cy())).length;
-  if(!n) lbl.remove(); else lbl.textContent=`Chưa mở · ${n}`;
+  if(!n) lbl.remove(); else lbl.textContent=`Chưa mở - ${n}`;
 }
 function unreadItems(items){ return items.filter(f=>f.kind==='received' && !fbState(f).opened); }
 /* Một lần trả lời bộ câu hỏi của HR gồm nhiều câu, nên gộp thành MỘT card trong "Phản hồi đã cho":
@@ -2278,20 +2265,20 @@ function draftCardsHTML(q){
   const inRequest = curFilter==='all' || curFilter==='request';
   const g=DRAFTS.give;
   if(g && g.cycle===cy() && inGiven){
-    const o={key:'give', label:'Bản nháp · Cho phản hồi', savedAt:g.savedAt, open:'openGive()',
+    const o={key:'give', label:'Bản nháp - Cho phản hồi', savedAt:g.savedAt, open:'openGive()',
       title: g.recipient ? `Phản hồi gửi ${g.recipient.name} (${g.recipient.dom})` : 'Chưa chọn người nhận',
       body: snip(g.text)};
     if(match(o)) cards.push(draftCardHTML(o));
   }
   Object.values(DRAFTS.reply).forEach(r=>{
     if(r.cycle!==cy() || !inGiven) return;
-    const o={key:'reply-'+r.itemId, label:'Bản nháp · Trả lời yêu cầu', savedAt:r.savedAt, open:`openReply('${r.itemId}')`,
+    const o={key:'reply-'+r.itemId, label:'Bản nháp - Trả lời yêu cầu', savedAt:r.savedAt, open:`openReply('${r.itemId}')`,
       title:`Trả lời yêu cầu của ${r.from} (${r.dom})`, body:snip(r.text||Object.values(r.answers||{}).find(Boolean)||'')};
     if(match(o)) cards.push(draftCardHTML(o));
   });
   const rq=DRAFTS.req;
   if(rq && rq.cycle===cy() && inRequest){
-    const o={key:'req', label:'Bản nháp · Yêu cầu phản hồi', savedAt:rq.savedAt, open:'openRequest()',
+    const o={key:'req', label:'Bản nháp - Yêu cầu phản hồi', savedAt:rq.savedAt, open:'openRequest()',
       title: rq.reviewers.length ? `Yêu cầu gửi ${rq.reviewers.length} người` : 'Chưa chọn người phản hồi',
       body: snip(rq.personalize ? (rq.reviewers.map(r=>r.q).filter(Boolean)[0]||'') : rq.q)};
     if(match(o)) cards.push(draftCardHTML(o));
@@ -2317,7 +2304,7 @@ function cardRequest(f,idx){
     + (others.length>8 ? `<br>… và ${others.length-8} người nữa` : '');
   const suffix = more>0
     ? `<span class="fb-more" onclick="openReq(${idx})">và ${more} người khác<span class="fb-badge-tip tip-list">${list}</span></span>` : '';
-  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} · Hạn ${f.due}</span></div>`;
+  const meta=`<div class="fb-meta"><span class="fb-meta-date">${f.date} - Hạn ${f.due}</span></div>`;
   return `<div class="fb-card has-chip" data-kind="request">
     <div class="fb-chip-tr">${st}</div>
     ${cardHead(SELF, first, meta, suffix)}
@@ -2356,7 +2343,7 @@ function renderFeedItems(){
   if(unread.length){
     const rest = items.filter(f=>!unread.includes(f));
     feed.innerHTML = drafts
-      + `<div class="feed-grp" id="grpUnread">Chưa mở · ${unread.length}</div>`
+      + `<div class="feed-grp" id="grpUnread">Chưa mở - ${unread.length}</div>`
       + unread.map(card).join('')
       // tab "Đã nhận" mới gắn nhãn "Đã đọc"; tab "Tất cả" phần còn lại có cả đã cho / yêu cầu
       + (rest.length ? (curFilter==='received' ? `<div class="feed-grp">Đã đọc</div>` : '') + rest.map(card).join('') : '');
@@ -2502,7 +2489,7 @@ function openReq(idx){
   body += f.reviewers.map(r=>{
     const answered = r.st==='done' && r.fb;
     const meta = answered
-      ? `<div class="fb-meta"><span class="fb-meta-date">${r.repliedAt.split(' · ')[0]}</span>${visIcon(r.vis||'receiver','receiver')}</div>`
+      ? `<div class="fb-meta"><span class="fb-meta-date">${r.repliedAt.split(/\s+[·-]\s+/)[0]}</span>${visIcon(r.vis||'receiver','receiver')}</div>`
       : '';
     const pendingTag = !answered ? `<span class="rv-pending-tag ${locked?'is-locked':''}"><i class="bx ${locked?'bx-lock-alt':'bx-time-five'}"></i>${locked?'Không phản hồi':'Chưa trả lời'}</span>` : '';
     const question = !answered && f.qMode==='individual' && r.q
@@ -2535,12 +2522,12 @@ function openReq(idx){
     : locked
       ? 'Yêu cầu đã đóng sau 90 ngày và không thể nhận thêm phản hồi.'
     : f.remindedOn
-      ? `Đã nhắc thủ công ngày ${f.remindedOn} · hệ thống vẫn tự nhắc 3 ngày trước hạn.`
+      ? `Đã nhắc thủ công ngày ${f.remindedOn} - hệ thống vẫn tự nhắc 3 ngày trước hạn.`
       : 'Hệ thống tự nhắc 3 ngày trước hạn.';
   openOverlay('dlg-req');
 }
 
-/* ── nhắc người chưa trả lời (UC1 · R-2) ── */
+/* ── nhắc người chưa trả lời (UC1 - R-2) ── */
 let curReqIdx=null;
 const justRemindedReviewers=new Set();
 function remindBtnHTML(f, idx, cls){
@@ -2562,18 +2549,18 @@ function remindPending(idx){
 
 /* ═══════ CHO PHẢN HỒI (UC2) + AI COACH ═══════ */
 const DIRECTORY=[
-  {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC – Frontend – Software Engineer'},
-  {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC – Mobile – iOS Developer'},
-  {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC – QA – QA Engineer'},
-  {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC – Platform – Tech Lead'},
-  {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC – Backend – Senior Engineer'},
-  {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT – Brand – Senior Designer'},
-  {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC – Backend – Senior Engineer'},
-  {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC – DevOps – Platform Engineer'},
-  {name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC – Data – Data Engineer'},
-  {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN – Finance Control – Analyst'},
-  {name:'Nguyễn Thị Phương', dom:'phuong.nguyen', ini:'NP', org:'ITC – Data – Data Scientist'},
-  {name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC – Mobile – iOS Engineer'}
+  {name:'Trần Thị Mai', dom:'mai.tran', ini:'TM', org:'ITC - Frontend - Software Engineer'},
+  {name:'Lê Thành Nam', dom:'nam.le', ini:'LN', org:'ITC - Mobile - iOS Developer'},
+  {name:'Vũ Thị Lan', dom:'lan.vu', ini:'VL', org:'ITC - QA - QA Engineer'},
+  {name:'Nguyễn Quốc Bảo', dom:'bao.nguyen', ini:'NB', org:'ITC - Platform - Tech Lead'},
+  {name:'Trương Minh Đức', dom:'duc.truong', ini:'TĐ', org:'ITC - Backend - Senior Engineer'},
+  {name:'Hoàng Thị Lan', dom:'lan.hoang', ini:'HL', org:'MKT - Brand - Senior Designer'},
+  {name:'Lê Văn Hùng', dom:'hung.le', ini:'LH', org:'ITC - Backend - Senior Engineer'},
+  {name:'Mai Thị Hằng', dom:'hang.mai', ini:'MH', org:'ITC - DevOps - Platform Engineer'},
+  {name:'Phạm Minh Đức', dom:'duc.pham', ini:'PĐ', org:'ITC - Data - Data Engineer'},
+  {name:'Phạm Trung Hiếu', dom:'hieu.pham', ini:'PH', org:'FIN - Finance Control - Analyst'},
+  {name:'Nguyễn Thị Phương', dom:'phuong.nguyen', ini:'NP', org:'ITC - Data - Data Scientist'},
+  {name:'Trần Văn Khoa', dom:'khoa.tran', ini:'TK', org:'ITC - Mobile - iOS Engineer'}
 ];
 
 /* AI mock: draft → phân tích + bản cải thiện theo STAR / STAR-AR */
@@ -2600,7 +2587,7 @@ const AI_DEMOS={
   }
 };
 const FW_DESC={
-  'STAR':'STAR — Situation · Task · Action · Result. Phù hợp khi ghi nhận, khen, cảm ơn.',
+  'STAR':'STAR — Situation - Task - Action - Result. Phù hợp khi ghi nhận, khen, cảm ơn.',
   'STAR-AR':'STAR-AR — STAR + Alternative Action & Result. Phù hợp khi góp ý phát triển.'
 };
 /* Reference khung phản hồi — dùng cho bảng hướng dẫn + câu mẫu */
@@ -2644,7 +2631,7 @@ const GIVE_BGS=[
   { id:'pastel', name:'Hồng pastel', fg:'#7a0049',
     css:'linear-gradient(135deg,#fde7f2 0%,#f9d6e8 45%,#f4c4dd 100%)' },
 
-  { id:'hearts', name:'Hồng pastel · tim nhỏ', fg:'#7a0049',
+  { id:'hearts', name:'Hồng pastel - tim nhỏ', fg:'#7a0049',
     css:HEART_TILE+' repeat, linear-gradient(135deg,#fde7f2,#f7d2e6)',
     sw:HEART_TILE+' repeat, linear-gradient(135deg,#fde7f2,#f7d2e6)', swSize:'22px 22px, cover' },
 
@@ -2737,7 +2724,7 @@ function openGive(){
   document.getElementById('giveAiBar').style.display='flex';
   document.getElementById('giveAiStatus').style.display='none';
   document.getElementById('aiBtn').className='btn-ai';
-  document.getElementById('aiBtn').innerHTML='<i class="bx bx-magic"></i> Cải thiện với AI';
+  document.getElementById('aiBtn').innerHTML='<i class="bx bxs-magic-wand"></i> Cải thiện với AI';
   document.querySelectorAll('input[name="gvis"]').forEach(r=>r.checked=false);
   document.getElementById('visCardR').classList.remove('on');
   document.getElementById('visCardM').classList.remove('on');
@@ -2852,10 +2839,10 @@ function renderTypeGuide(){
     <div class="tpl-bar">
       <span class="tpl-txt"><i class="bx bx-bulb"></i> Gợi ý khung <b>${F.name}</b>${mixed?' — bao quát cả ghi nhận &amp; góp ý':''}</span>
       <button class="btn btn-outline btn-xs" onclick="insertTemplate()"><i class="bx bx-edit-alt"></i> Dùng mẫu câu</button>
-      <button class="btn btn-ghost btn-xs" onclick="insertDemo()"><i class="bx bx-magic"></i> Thử với ví dụ</button>
+      <button class="btn btn-ghost btn-xs" onclick="insertDemo()"><i class="bx bxs-magic-wand"></i> Thử với ví dụ</button>
       <button class="tg-toggle" onclick="toggleGuideSample(this)">Xem ví dụ</button>
     </div>
-    ${mixed?'<div class="tpl-note"><i class="bx bx-magic"></i> Cứ viết tự nhiên rồi bấm “Cải thiện với AI” — AI sẽ giúp bạn sắp xếp rõ ràng.</div>':''}
+    ${mixed?'<div class="tpl-note"><i class="bx bxs-magic-wand"></i> Cứ viết tự nhiên rồi bấm “Cải thiện với AI” — AI sẽ giúp bạn sắp xếp rõ ràng.</div>':''}
     <div class="tg-sample" id="tgSample">${sample}</div>`;
 }
 function toggleGuideSample(btn){
@@ -2937,7 +2924,7 @@ function runAI(trigger){
   document.getElementById('giveAiBar').style.display='none';
   const panel=document.getElementById('aiPanel');
   panel.style.display='';
-  panel.innerHTML='<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang cải thiện nội dung…</div>';
+  panel.innerHTML='<div class="ai-head"><i class="bx bxs-magic-wand"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang cải thiện nội dung…</div>';
   setTimeout(()=>{
     G.ai=detectAI(text);
     G.aiRun=true;
@@ -2958,7 +2945,7 @@ function renderAIPanel(stage){
       <div class="ai-suggestion">${a.improved}</div>
       <div class="ai-actions">
         <button class="btn btn-outline btn-xs" onclick="acceptAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
-        <button class="btn btn-outline btn-xs" onclick="runAI(this)"><i class="bx bx-magic"></i> Cải thiện lại</button>
+        <button class="btn btn-outline btn-xs" onclick="runAI(this)"><i class="bx bxs-magic-wand"></i> Cải thiện lại</button>
       </div>`;
   } else {
     const msg = stage==='accepted' ? 'Đã dùng gợi ý của AI — bạn vẫn có thể sửa trong ô nội dung.'
@@ -2967,7 +2954,7 @@ function renderAIPanel(stage){
     mainHTML=`<div class="ai-done"><i class="bx bx-check-circle"></i>${msg}</div>`;
   }
   p.style.display='';
-  p.innerHTML=`<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>${mainHTML}`;
+  p.innerHTML=`<div class="ai-head"><i class="bx bxs-magic-wand"></i>Gợi ý từ AI</div>${mainHTML}`;
 }
 function toggleCV(name){
   const i=G.cvs.indexOf(name);
@@ -2983,7 +2970,7 @@ function acceptAI(){
   const btn=document.getElementById('aiBtn');
   btn.className='btn-ai';
   btn.disabled=false;
-  btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
+  btn.innerHTML='<i class="bx bxs-magic-wand"></i> Cải thiện lại';
   syncGive();
 }
 
@@ -3063,7 +3050,7 @@ function showGiveSuccess(p, visTxt, cvHTML){
       <div class="give-ok-d">${p.name} sẽ nhận thông báo ngay.${G.vis==='manager'?' Quản lý trực tiếp của họ cũng sẽ thấy phản hồi này.':''} Sau khi gửi, phản hồi không thể chỉnh sửa.</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
         <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt}</div>
-        ${G.aiUsed?'<div class="give-ok-note"><i class="bx bx-magic"></i>Có hỗ trợ từ AI</div>':''}
+        ${G.aiUsed?'<div class="give-ok-note"><i class="bx bxs-magic-wand"></i>Có hỗ trợ từ AI</div>':''}
       </div>
       ${cvHTML}
       <div style="margin-top:18px;display:flex;gap:8px;justify-content:center">
@@ -3180,14 +3167,14 @@ function escapeReqAiText(value){
 }
 function reqAiPanelMarkup(key){
   const state=reqAiState(key);
-  if(state.loading) return '<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang làm rõ câu hỏi…</div>';
+  if(state.loading) return '<div class="ai-head"><i class="bx bxs-magic-wand"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang làm rõ câu hỏi…</div>';
   if(state.used) return '';
   if(!state.suggestion) return '';
-  return `<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>
+  return `<div class="ai-head"><i class="bx bxs-magic-wand"></i>Gợi ý từ AI</div>
     <div class="ai-suggestion">${escapeReqAiText(state.suggestion)}</div>
     <div class="ai-actions">
       ${state.used?'':`<button class="btn btn-outline btn-xs" onclick="acceptReqQuestionAI('${key}')"><i class="bx bx-check"></i> Dùng gợi ý này</button>`}
-      <button class="btn btn-outline btn-xs" onclick="runReqQuestionAI('${key}')"><i class="bx bx-magic"></i> Cải thiện lại</button>
+      <button class="btn btn-outline btn-xs" onclick="runReqQuestionAI('${key}')"><i class="bx bxs-magic-wand"></i> Cải thiện lại</button>
     </div>`;
 }
 function renderReqCommonAi(){
@@ -3199,7 +3186,7 @@ function renderReqCommonAi(){
   const btn=document.getElementById('reqCommonAiBtn');
   btn.style.display=state.suggestion&&!state.used?'none':'';
   btn.disabled=!reqQuestionValue('common').trim()||state.loading;
-  btn.innerHTML=state.loading?'<i class="bx bx-loader-alt bx-spin"></i> Đang cải thiện…':`<i class="bx bx-magic"></i> ${state.used?'Cải thiện lại':'Cải thiện với AI'}`;
+  btn.innerHTML=state.loading?'<i class="bx bx-loader-alt bx-spin"></i> Đang cải thiện…':`<i class="bx bxs-magic-wand"></i> ${state.used?'Cải thiện lại':'Cải thiện với AI'}`;
 }
 function activateReqQuestion(key){
   if(!R.personalize || R.activeQuestionKey===key) return;
@@ -3255,7 +3242,7 @@ function renderPersonalize(){
             <div class="ai-bar">
               <div class="ai-used-note" style="display:${reqAiState(r.dom).used?'flex':'none'}"><i class="bx bx-check-circle"></i>Đã dùng gợi ý của AI, bạn vẫn có thể sửa thêm</div>
               ${reqAiState(r.dom).used?'':`<span class="field-hint">Đang chỉnh câu hỏi cho ${r.name}</span>`}
-              ${reqAiState(r.dom).suggestion&&!reqAiState(r.dom).used?'':`<button class="btn-ai" data-req-ai-btn="${r.dom}" onclick="runReqQuestionAI('${r.dom}')" ${!(r.q||'').trim()||reqAiState(r.dom).loading?'disabled':''}><i class="bx ${reqAiState(r.dom).loading?'bx-loader-alt bx-spin':'bx-magic'}"></i> ${reqAiState(r.dom).loading?'Đang cải thiện…':(reqAiState(r.dom).used?'Cải thiện lại':'Cải thiện với AI')}</button>`}
+              ${reqAiState(r.dom).suggestion&&!reqAiState(r.dom).used?'':`<button class="btn-ai" data-req-ai-btn="${r.dom}" onclick="runReqQuestionAI('${r.dom}')" ${!(r.q||'').trim()||reqAiState(r.dom).loading?'disabled':''}><i class="bx ${reqAiState(r.dom).loading?'bx-loader-alt bx-spin':'bxs-magic-wand'}"></i> ${reqAiState(r.dom).loading?'Đang cải thiện…':(reqAiState(r.dom).used?'Cải thiện lại':'Cải thiện với AI')}</button>`}
             </div>`:''}
         </div>
       </div>`).join('')
@@ -3380,7 +3367,7 @@ function openReply(id){
   document.getElementById('replyAiBar').style.display='flex';
   document.getElementById('replyAiStatus').style.display='none';
   document.getElementById('replyAiBtn').className='btn-ai';
-  document.getElementById('replyAiBtn').innerHTML='<i class="bx bx-magic"></i> Cải thiện với AI';
+  document.getElementById('replyAiBtn').innerHTML='<i class="bx bxs-magic-wand"></i> Cải thiện với AI';
   document.getElementById('replySingleAnswerField').hidden=isHrQueueRequest(item);
   renderHrReplyQuestions(item);
   renderReplyVis(item);
@@ -3453,7 +3440,7 @@ function runReplyAI(trigger){
   document.getElementById('replyAiBar').style.display='none';
   const panel=document.getElementById('replyAiPanel');
   panel.style.display='';
-  panel.innerHTML='<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang cải thiện nội dung…</div>';
+  panel.innerHTML='<div class="ai-head"><i class="bx bxs-magic-wand"></i>Gợi ý từ AI</div><div class="ai-loading"><i class="bx bx-loader-alt bx-spin"></i>Đang cải thiện nội dung…</div>';
   setTimeout(()=>{
     RV.ai=replyDetect(text); RV._stage='compare';
     document.getElementById('replyAiBar').style.display='none';
@@ -3472,7 +3459,7 @@ function renderReplyAI(stage){
       <div class="ai-suggestion">${a.improved}</div>
       <div class="ai-actions">
         <button class="btn btn-outline btn-xs" onclick="acceptReplyAI()"><i class="bx bx-check"></i> Dùng gợi ý này</button>
-        <button class="btn btn-outline btn-xs" onclick="runReplyAI(this)"><i class="bx bx-magic"></i> Cải thiện lại</button>
+        <button class="btn btn-outline btn-xs" onclick="runReplyAI(this)"><i class="bx bxs-magic-wand"></i> Cải thiện lại</button>
       </div>`;
   } else {
     const msg = stage==='accepted' ? 'Đã dùng gợi ý của AI — bạn vẫn có thể sửa trong ô nội dung.'
@@ -3480,7 +3467,7 @@ function renderReplyAI(stage){
               : 'Đã cập nhật nội dung.';
     main=`<div class="ai-done"><i class="bx bx-check-circle"></i>${msg}</div>`;
   }
-  p.style.display=''; p.innerHTML=`<div class="ai-head"><i class="bx bx-magic"></i>Gợi ý từ AI</div>${main}`;
+  p.style.display=''; p.innerHTML=`<div class="ai-head"><i class="bx bxs-magic-wand"></i>Gợi ý từ AI</div>${main}`;
 }
 function acceptReplyAI(){
   document.getElementById('replyTA').value=RV.ai.improved;
@@ -3491,7 +3478,7 @@ function acceptReplyAI(){
   const btn=document.getElementById('replyAiBtn');
   btn.className='btn-ai';
   btn.disabled=false;
-  btn.innerHTML='<i class="bx bx-magic"></i> Cải thiện lại';
+  btn.innerHTML='<i class="bx bxs-magic-wand"></i> Cải thiện lại';
   syncReply();
 }
 
@@ -3571,7 +3558,7 @@ function submitReply(){
       <div class="give-ok-d">${isHr?`Cảm ơn bạn đã hoàn thành ${answers.length} câu trả lời cho ${target}. Câu trả lời được lưu tại tab “Đã cho”; bạn có thể mở lại và xem lịch sử bất cứ lúc nào.`:`Cảm ơn bạn đã dành thời gian phản hồi cho ${target}. Sau khi gửi, phản hồi không thể chỉnh sửa.`}</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
         <div class="give-ok-note"><i class="bx bx-user"></i>${visTxt} xem được</div>
-        ${RV.aiUsed?'<div class="give-ok-note"><i class="bx bx-magic"></i>Có hỗ trợ từ AI</div>':''}
+        ${RV.aiUsed?'<div class="give-ok-note"><i class="bx bxs-magic-wand"></i>Có hỗ trợ từ AI</div>':''}
         ${cv.length?`<div class="give-ok-note"><i class="bx bx-medal"></i>${cv.join(', ')}</div>`:''}
       </div>
       <div style="margin-top:18px;display:flex;justify-content:center;gap:8px"><button class="btn btn-outline btn-sm" onclick="closeOverlay('dlg-reply')">Đóng</button>${isHr?`<button class="btn btn-default btn-sm" onclick="openHrGivenFromSuccess('${hrRecordId}')"><i class="bx bx-right-arrow-alt"></i> Xem tại Đã cho</button>`:''}</div>

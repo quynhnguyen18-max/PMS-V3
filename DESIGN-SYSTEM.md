@@ -19,14 +19,17 @@ Bạn sẽ tạo một màn hình HTML prototype mới cho hệ thống PMS (MoM
 6. Mọi element interactive đủ state: hover / focus / disabled / error.
 
 ## 1. Stack & nền tảng
-- Single-file HTML: CSS trong `<style>`, JS vanilla trong `<script>`. Không framework.
+- Single-file HTML: CSS trong `<style>`, JS vanilla trong `<script>`. Không framework. Ngoại lệ duy nhất cho CSS: tokens nạp từ `assets/tokens.css` (§2).
 - Font: **Public Sans** (300;400;500;600;700) qua Google Fonts.
 - Icon: **Boxicons 2.1.4** (`<i class="bx bx-...">`).
 - `<html lang="vi">`, `html{font-size:14px}`, `body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);-webkit-font-smoothing:antialiased}`.
 - Reset: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}`. Scrollbar mảnh 4px, thumb `--z300`.
 - Tiếng Việt có dấu: body 400, chỉ nhấn mới 600/700 (dấu nặng hơn Latin).
 
-## 2. TOKENS — dán nguyên khối `:root`, KHÔNG sửa giá trị
+## 2. TOKENS — một file duy nhất `assets/tokens.css`, KHÔNG sửa giá trị
+Mọi màn nạp tokens bằng `<link rel="stylesheet" href="../assets/tokens.css"/>` đặt TRƯỚC khối `<style>` của màn. `:root` trong màn chỉ được giữ biến bố cục riêng của màn đó (vd `--info-w` của E-04, `--program-columns` của H-05) hoặc ghi đè theo `@media` (vd M-04 `--sw:0px` khi hẹp). KHÔNG khai lại token, KHÔNG đặt tên riêng trùng nghĩa (`--warning`, `--error`, `--success`, `--muted`, `--ring`, `--shadow`…). `assets/tokens.test.js` chặn cả hai lỗi này.
+
+Nội dung `assets/tokens.css` (nguồn chính là file, bản dưới để tra nhanh):
 ```css
 :root{
   /* Zinc scale (shadcn) */
@@ -35,8 +38,17 @@ Bạn sẽ tạo một màn hình HTML prototype mới cho hệ thống PMS (MoM
   /* MoMo pink — accent only */
   --brand:#A50064;--brand-h:#8B0055;--brand-fg:#ffffff;
   --brand-muted:rgba(165,0,100,.07);--brand-ring:rgba(165,0,100,.2);
-  /* Semantic — chỉ xanh lá "done" còn dùng màu riêng; các loại khác quy về hồng/xám */
+  /* Xanh lá = hoàn thành */
   --ok:#16a34a;--ok-bg:#f0fdf4;--ok-bd:#bbf7d0;
+  /* Trạng thái Feedback (COMPONENTS §8.2): vàng = đang thu thập, đỏ = quá hạn; --err còn cho nút xoá (§9) và lỗi form (§14) */
+  --warn:#d97706;--warn-bg:#fffbeb;--warn-bd:#fde68a;
+  --err:#dc2626;--err-bg:#fef2f2;--err-bd:#fecaca;
+  /* Màu phân loại (giữ, chốt 27/09/2026): loại mục tiêu, thông tin, cập nhật */
+  --what:#2563eb;--what-bg:#eff6ff;--what-bd:#bfdbfe;
+  --dev:#7c3aed;--dev-bg:#f5f3ff;--dev-bd:#ddd6fe;
+  --how:#0f766e;--how-bg:#f0fdfa;--how-bd:#99f6e4;
+  --info:#2563eb;--info-bg:#eff6ff;--info-bd:#bfdbfe;
+  --upd:#7c3aed;--upd-bg:#f5f3ff;--upd-bd:#ddd6fe;
   /* Spacing/shape */
   --sw:232px;--nh:52px;--r:8px;--rsm:6px;--rxs:4px;
   --sh-sm:0 1px 2px rgba(0,0,0,.04);
@@ -44,10 +56,10 @@ Bạn sẽ tạo một màn hình HTML prototype mới cho hệ thống PMS (MoM
   --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.03);
   --sh-lg:0 8px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.04);
   --t:all .12s ease;
-  /* Header hồng nhạt (ngoại lệ hardcode duy nhất) */
-  /* #fbe4f0 nền · #f3cfe1 viền */
 }
 ```
+Header hồng nhạt `#fbe4f0` nền, `#f3cfe1` viền là màu hardcode được phép (§19 rule 1), không nằm trong file tokens.
+**Màu phân loại** (`--what`, `--dev`, `--how`, `--info`, `--upd`) được giữ ở những chỗ đang dùng (quyết định 27/09/2026). Không thêm nhóm màu mới ngoài các nhóm trên; màu thứ hai của một màn (vd chàm `--template` cũ ở create-campaign) quy về nhóm có sẵn.
 **Quy tắc màu:** Pink `--brand` chỉ dùng làm accent (active, nút chính, icon nhấn, action cần chú ý). Nền/chữ dùng zinc. Chữ nội dung chính `--z900`, chữ phụ `--z600`, eyebrow label `--z500`.
 
 ## 3. LAYOUT SHELL (mọi màn giữ nguyên)
@@ -69,22 +81,24 @@ Employee chip, loại mục tiêu, badge, core value, tooltip, feedback status, 
 ## 19. QUY TẮC CHUNG (bắt buộc)
 
 **19.0 Metadata separator.** TUYỆT ĐỐI không dùng ký tự middot `·` (U+00B7) ở bất kỳ text UI nào — status, chip, meta, hint, tách metadata. Luôn thay bằng dấu gạch ngang ngắn ` - ` (space-hyphen-space). Ví dụ: "Chưa đóng - sẽ đóng khi chia sẻ", KHÔNG "Chưa đóng · sẽ đóng khi chia sẻ".
-1. Chỉ dùng token đã định nghĩa; không hardcode hex (ngoại lệ: header hồng `#fbe4f0`/`#f3cfe1`).
+1. Chỉ dùng token đã định nghĩa; không hardcode hex. Ngoại lệ: header hồng `#fbe4f0`/`#f3cfe1`; hoạ tiết thư, phong bì, thiệp và bộ theme thiệp của E-04 (phần "delight", chốt 27/09/2026). Giá trị trùng token vẫn phải viết `var(--token)` (vd `#fff` là `var(--z0)`, chữ trắng trên nền hồng là `var(--brand-fg)`), bo góc 8/6/4px là `var(--r)`/`var(--rsm)`/`var(--rxs)`. **Ngoài phạm vi DS:** trang demo mascot (`YER-demo/mascot-tour.html`, `mascot-tour-v2.html`, `overdue-self-assessment.html`) và thanh công cụ demo (`assets/yer-demo.js`), vì không phải màn sản phẩm.
 2. Bo góc: card/dialog `--r`(8) · control/badge `--rsm`(6)/`--rxs`(4) · pill/chip tròn 50px.
 3. Viền mặc định 1px z200; card nổi z300 + `--sh`.
 4. Khoảng cách block: 14–18px. Icon boxicons 13–16px, z500 (thường) / hồng (nhấn). Transition `--t`.
 5. Màu chỉ theo 3 ý định (xanh done / hồng action / xám neutral). Active/selected: nền `--brand-muted`, chữ `--brand`.
-6. Chữ phụ đọc được: z600/z700, KHÔNG z500/z400. Responsive: bảng `overflow-x:auto`, grid `1fr` khi hẹp. **Form authoring:** tại laptop, giữ page shell đầy đủ nhưng căn giữa bề mặt nhập liệu với `max-width 860px`; chỉ chuyển grid thành `1fr` trước khi content bị co ép.
+6. Chữ phụ đọc được: z600/z700, KHÔNG z500/z400 (giai đoạn 3 không rà hàng loạt vì phần lớn chỗ dùng z500 là eyebrow hợp lệ; sửa màn nào thì áp rule này cho màn đó). Responsive: bảng `overflow-x:auto`, grid `1fr` khi hẹp. **Form authoring:** tại laptop, giữ page shell đầy đủ nhưng căn giữa bề mặt nhập liệu với `max-width 860px`; chỉ chuyển grid thành `1fr` trước khi content bị co ép.
 
 > Mục 7 đến 12e, 14, 15 đến 15h, 18 đến 18b và 19 đến 19c là rule giao diện riêng của Feedback, đã chuyển sang `docs/modules/feedback/UI-RULES.md` (giữ nguyên số mục).
 
 13. **Icon + text cùng hàng (status chip, reminder meta, pending tag, chip nhỏ):** nhóm icon+chữ BẮT BUỘC `display:inline-flex;align-items:center;gap:4px`. TUYỆT ĐỐI không đặt `gap` trên phần tử inline/block thiếu `display:flex|inline-flex` — `gap` sẽ vô tác dụng, icon dính sát chữ. Khi copy component từ màn chuẩn (M-04/E-04) sang màn khác, copy đủ MỌI thuộc tính CSS (gồm `display`), không lược bớt.
 16. **Tooltip trong bảng:** wrapper bảng KHÔNG được `overflow:hidden` (tooltip hàng đầu/nút cuối sẽ bị cắt mất chữ) — giữ bo góc bằng `border-radius` trên header và row cuối. Tooltip của nhóm nút ở cột Chức năng phải neo mép phải (`right:0;left:auto;transform:translate(0,…)`), không dùng `left:50%` vì tooltip sẽ tràn khỏi bảng.
 17. **Review logic hiển thị kèm mọi yêu cầu chỉnh sửa:** khi đổi một rule hiển thị, phải rà lại toàn bộ thành phần phụ thuộc rule đó (cột, filter/tab, nút hành động, field trong form, màn hình khác đọc cùng dữ liệu) và sửa cho nhất quán trong cùng lần, thay vì chỉ sửa đúng chỗ được chỉ ra.
-20. **Icon không tồn tại trong Boxicons 2.1.4:** KHÔNG dùng `bx-sparkles` và `bx-magic` — bản Boxicons đang dùng không có hai icon này nên trình duyệt vẽ ra ô rỗng. Lối vào AI dùng mascot (`assets/mascot/`). Trước khi dùng một icon mới, kiểm tra tên có trong bản 2.1.4.
+20. **Icon không tồn tại trong Boxicons 2.1.4:** KHÔNG dùng `bx-sparkles` và `bx-magic` — bản Boxicons đang dùng không có hai icon này nên trình duyệt vẽ ra ô rỗng. Lối vào AI dùng mascot (`assets/mascot/`): tiêu đề khối AI Summary dùng `<img class="dialog-ai-summary-mascot" src="../assets/mascot/think.png" alt=""/>` cỡ 20px ở mọi màn (M-04, H-06, H-07, `feedback-detail`, `request-detail`, `feedback-report-view.js`). Icon AI nhỏ nằm trong nút hoặc dòng chữ (`Cải thiện với AI`, `Gợi ý từ AI`) dùng `bx bxs-magic-wand`, có trong 2.1.4. Trước khi dùng một icon mới, kiểm tra tên có trong bản 2.1.4.
 21. **Thuộc tính `hidden` trên phần tử có `display` riêng:** class đặt `display:flex|grid|inline-flex` sẽ đè lên `display:none` mà trình duyệt gán cho `[hidden]`, nên phần tử vẫn hiện. Mỗi class như vậy mà được bật/tắt bằng `hidden` BẮT BUỘC khai thêm `.ten-class[hidden]{display:none}` (vd `.ai-entry[hidden]`, `.dlg-tabs[hidden]`).
 22. **Một đối tượng, một tên trên mọi màn:** cùng một thứ phải được gọi bằng MỘT tên ở mọi màn và mọi vai. Ví dụ: thứ HR chia sẻ luôn là `kết quả` (`Chia sẻ kết quả`, `kết quả từ HR`), KHÔNG gọi là `báo cáo` ở H-05, H-06 hay M-04. Đổi tên thì đổi ở mọi màn trong cùng lần sửa (rule 17).
 23. **Ký hiệu trong câu chữ:** không đặt hai ký hiệu sát nhau (vd dấu ngã `~` cạnh ` - `); ước lượng thì viết chữ `khoảng`. Khi phần chính đã có sẵn ` - ` (tên chương trình như `… giữa kỳ 2026 - ITC`), phần phụ đi kèm đặt trong NGOẶC ĐƠN thay vì nối thêm một ` - ` nữa, vd `Đánh giá giữa kỳ 2026 - ITC (15 câu hỏi)`.
+24. **Màu trạng thái chỉ lấy từ token, không viết tay sắc gần giống:** "Đang thu thập / Sắp đến hạn / Chưa trả lời" là `--warn*`, "Quá hạn" là `--err*`, "Hoàn thành / Đã chia sẻ" là `--ok*`, ở mọi màn và mọi vai. Các sắc cũ tự chế (`#b86600`, `#9a5b00`, `#b45309`, `#b42318`, `#16803a`, `#8d0056`…) đã quy về token ở giai đoạn 3; không thêm lại. Hover đậm hơn của nút xanh dùng `filter:brightness(.92)`, không chế thêm mã màu.
+25. **Wrapper bảng bo góc mà không cắt tooltip (bổ sung rule 16):** ô bảng chỉ nhận `border-radius` khi bảng là `border-collapse:separate;border-spacing:0`. Bo góc ở `th` đầu/cuối của header và `td` đầu/cuối của hàng cuối bằng `calc(var(--r) - 1px)`, KHÔNG dùng `overflow:hidden` trên wrapper (mẫu: `.myr-table-wrap` ở M-05, `.gtable-wrap` ở showcase).
 
 ## 20. NGUYÊN TẮC ĐỒNG BỘ GIỮA CÁC MÀN HÌNH (bắt buộc — đọc trước khi sửa bất kỳ màn nào)
 

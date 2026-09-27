@@ -764,7 +764,7 @@ test('employee cards show one heart per receiver or manager domain without role 
   // dữ liệu mẫu có nhiều quản lý trên cùng một phản hồi
   assert.match(html, /mgrThanks:\[\{name:'Đỗ Quang Huy', dom:'huy\.do'\},\{name:'Lê Thị Thanh', dom:'thanh\.le'\},\{name:'Phan Anh Tuấn', dom:'tuan\.phan'\}\]/);
   assert.match(html, /\.thx-heart\+\.thx-heart\{margin-left:-3px\}/);
-  assert.match(html, /\.thx-heart \.h-thanker\{fill:#a50064/);
+  assert.match(html, /\.thx-heart \.h-thanker\{fill:var\(--brand\)/);
   const thanks = require('../M-04/manager-thanks.js');
   assert.deepEqual(thanks.thankerLabel({name:'Đỗ Quang Huy', dom:'huy.do'}), {who:'huy.do', role:''});
 });

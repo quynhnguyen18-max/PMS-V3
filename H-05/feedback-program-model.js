@@ -455,11 +455,11 @@
       return (dateFromDMY(b.createdAt)||0)-(dateFromDMY(a.createdAt)||0);
     });
   }
-  /* Nhận cả "07/09/2026 14:30" và "07/09/2026 · 14:30". Dấu · nay BỊ CẤM trong text UI
+  /* Nhận "07/09/2026 14:30", "07/09/2026 - 14:30" và bản cũ "07/09/2026 · 14:30". Dấu · nay BỊ CẤM trong text UI
      (DS §19.0) nhưng vẫn còn trong dữ liệu cũ, và M-04/E-04 đều nhận cả hai — chỉ H-05 thì không.
      Không nhận thì mốc nhắc kiểu cũ parse ra null và cooldown 24 giờ im lặng mất tác dụng. */
   function dateTimeFromDMY(value){
-    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[· ]\s*(\d{2}):(\d{2}))?$/);
+    const match=String(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*[·\- ]\s*(\d{2}):(\d{2}))?$/);
     return match?new Date(Date.UTC(+match[3],+match[2]-1,+match[1],+(match[4]||0),+(match[5]||0))):null;
   }
   /* Người cho phản hồi nghỉ việc giữa kỳ sẽ không bao giờ trả lời. Trong lúc còn thu thập, lượt của họ

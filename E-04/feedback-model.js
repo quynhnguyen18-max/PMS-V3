@@ -24,7 +24,7 @@
   function responseFromReviewer(request, reviewer, index){
     if(reviewer.st!=='done' || !reviewer.fb) return null;
     const reqId=requestId(request,index);
-    const date=String(reviewer.repliedAt || request.date || '').split(' · ')[0];
+    const date=String(reviewer.repliedAt || request.date || '').split(/\s+[·-]\s+/)[0];
     return {
       id:responseId(reqId,reviewer), kind:'received', cycle:request.cycle,
       date, ts:tsFromDate(date), requestId:reqId, status:'submitted',
@@ -82,7 +82,7 @@
   }
 
   function latestResponseTime(request){
-    return ((request&&request.reviewers)||[]).reduce((latest,item)=>Math.max(latest,tsFromDate(String(item.repliedAt||'').split('·')[0].trim())),0);
+    return ((request&&request.reviewers)||[]).reduce((latest,item)=>Math.max(latest,tsFromDate(String(item.repliedAt||'').split(/\s+[·-]\s+/)[0].trim())),0);
   }
 
   function compareRequestsForAction(a,b,todayDMY){

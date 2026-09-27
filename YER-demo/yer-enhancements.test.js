@@ -538,20 +538,20 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.doesNotMatch(employee, /yer-late-confirm-risk>i/);
   assert.match(employee, /\.yer-late-confirm-copy\{display:flex;flex-direction:column;gap:10px\}/);
   assert.match(employee, /className:'yer-late-confirm-dialog'/);
-  assert.match(employee, /\.yer-late-confirm-dialog \.pms-dlg-ti\{[^}]*background:#FFF7FB/);
+  assert.match(employee, /\.yer-late-confirm-dialog \.pms-dlg-ti\{[^}]*background:var\(--brand-muted\)/);
   assert.doesNotMatch(employee, /\.yer-late-confirm-dialog \.pms-dlg-ti\{[^}]*border-left/);
   assert.match(employee, /\.yer-late-confirm-dialog \.pms-dlg-tx\{padding:16px 18px 18px\}/);
   const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
   assert.match(ui, /if \(opts\.className\) ov\.querySelector\('\.pms-dlg'\)\.classList\.add\(opts\.className\)/);
   assert.match(employee, /label:L\('Xác nhận và Gửi','Confirm and submit'\), variant:'default'/);
-  assert.match(employee, /\.yer-late-head\{[^}]*background:#FFF7FB;border-bottom:1px solid #F0D7E5/);
-  assert.match(employee, /\.yer-late-badge\{[^}]*background:#FCEBF5;color:var\(--brand\)/);
+  assert.match(employee, /\.yer-late-head\{[^}]*background:var\(--brand-muted\);border-bottom:1px solid var\(--brand-ring\)/);
+  assert.match(employee, /\.yer-late-badge\{[^}]*background:var\(--brand-muted\);color:var\(--brand\)/);
   assert.match(employee, /\.yer-late-step-icon\{[^}]*color:var\(--z500\);font-size:15px/);
   assert.match(employee, /\.yer-late-step\{display:grid;grid-template-columns:104px minmax\(0,1fr\)/);
   assert.match(employee, /\.yer-late-step-line\{display:flex;align-items:center;gap:12px;flex-wrap:wrap/);
   assert.match(employee, /\.yer-late-footer\{display:flex;justify-content:flex-end/);
   assert.doesNotMatch(employee, /\.yer-late-flow\{[^}]*grid-template-columns:repeat\(4/);
-  assert.match(e05, /\.yer-note\.action\{background:#FFF7FB;border-color:#F0D7E5/);
+  assert.match(e05, /\.yer-note\.action\{background:var\(--brand-muted\);border-color:var\(--brand-ring\)/);
   assert.match(e05, /\.yer-note\.action>i\{color:var\(--brand\)\}/);
   assert.match(employee, /class="btn btn-cta-outline btn-sm yn-cta" id="yer-go-goals"/);
   assert.doesNotMatch(employee, /class="btn btn-default btn-sm yn-cta" id="yer-go-goals"/);
@@ -568,7 +568,7 @@ test('late completion banner identifies the supplemental file and overdue days',
   assert.match(banner, /Đã hoàn thành bổ sung Tự đánh giá cuối năm/);
   assert.match(banner, /class="yer-late-status"/);
   assert.match(banner, /L\('Trễ hạn','Late'\)/);
-  assert.match(employee, /\.yer-late-status\{[^}]*background:#FCEBF5;[^}]*color:var\(--brand\)/);
+  assert.match(employee, /\.yer-late-status\{[^}]*background:var\(--brand-muted\);[^}]*color:var\(--brand\)/);
   assert.match(banner, /p\.lateSubmission && !p\.lm && !p\.published/);
   assert.match(banner, /class="yer-next-step"/);
   assert.match(banner, /Tiếp theo:/);
@@ -660,7 +660,7 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /Hồ sơ nộp bổ sung Tự đánh giá cuối năm/);
   assert.match(source, /class="yer-md-late-status"/);
   assert.match(source, /Y\.lateDays\(p\.lateSubmission\.at\)/);
-  assert.match(source, /\.yer-md-late-status\{[^}]*background:#FCEBF5;[^}]*color:var\(--brand\)/);
+  assert.match(source, /\.yer-md-late-status\{[^}]*background:var\(--brand-muted\);[^}]*color:var\(--brand\)/);
 });
 
 test('manager demo separates roster phases from role-filtered detail scenarios', () => {

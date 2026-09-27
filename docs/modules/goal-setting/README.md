@@ -27,4 +27,4 @@ Nguồn gốc đã trích vào GOAL-SPEC:
 ## Trạng thái rà soát
 
 - [x] **Giai đoạn 2:** trích rule thành `GOAL-SPEC.md`, chị duyệt 27/09/2026, đã xóa spec v1.
-- [ ] **Giai đoạn 3:** kiểm tra tuân thủ DS (M-05 đang dùng một bộ tokens khác E-05, M-06).
+- [x] **Giai đoạn 3 (xong 27/09/2026):** tokens gộp vào `assets/tokens.css`, mọi màn nạp file này và chỉ giữ biến bố cục riêng; `assets/tokens.test.js` chặn khai lại token, tên biến riêng, icon không có trong Boxicons 2.1.4 và middot. Quyết định chung ghi ở `DESIGN-SYSTEM.md` §2, §19 rule 1, 6, 20, 24, 25. E-05, M-05, M-06, M-01b dùng chung tokens; bảng M-05 bỏ `overflow:hidden` (rule 25); màu phân loại `--what`, `--dev` được giữ.
