@@ -798,3 +798,82 @@ test('mid-year list puts people waiting on my role first and HOD timeline matche
   assert.match(list, /22\/07 – 25\/07\/2026/);
   assert.match(e05, /HOD đánh giá<\/div>\s*<div class="step-timeline">22\/07 – 25\/07\/2026<\/div>/);
 });
+
+test('an employee with enough goals but no self assessment is still rated by the line manager until the LM deadline', () => {
+  const w = loadYer();
+  const Y = w.PMSYer;
+  // e2 đủ mục tiêu, không tự đánh giá, QLTT chưa chấm (YER-SPEC §6)
+  const lastLmDays = ['2027-01-30', Y.step('lm').to];
+  for (const date of lastLmDays) {
+    const p = Y.profile('e2', date);
+    assert.equal(p.eligibility.eligible, true);
+    assert.equal(p.self, null);
+    assert.equal(p.stopped, false, `${date} must not stop the profile`);
+    assert.equal(Y.managerReviewState('lm', p).canEdit, true);
+  }
+  const afterLm = Y.profile('e2', Y.addDays(Y.step('lm').to, 1));
+  assert.equal(afterLm.stopped, true);
+  assert.equal(Y.status(afterLm, 'vi').key, 'noeval');
+
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  const tabState = employee.slice(employee.indexOf('function yerTabState(p)'), employee.indexOf('/* ── CSS cho trạng thái'));
+  assert.match(tabState, /p\.eligibility\.reason === 'missing-goal' && !p\.stopped/);
+  assert.match(employee, /Thời gian nộp trễ đã kết thúc lúc 18:00 ngày/);
+  assert.match(employee, /!p\.maternity && !hasWarnNote/);
+});
+
+test('LM2 return reopens the line-manager review for 24 hours with who and why', () => {
+  const w = loadYer();
+  const Y = w.PMSYer;
+  const date = '2027-02-05';
+  const emp = w.PMS_EMPLOYEES.map(e => Y.profile(e.id, date)).find(p => p && p.lm && !p.lm.synced && !p.lm2);
+  assert.ok(emp, 'need a profile waiting for LM2');
+  w.PMSStore.acts = id => id === emp.id
+    ? { returned: { by: { name: 'Quản lý cấp 2', login: 'lm2.demo' }, at: date, dueHours: 24, reason: 'Bổ sung nhận xét' } }
+    : {};
+
+  const p = Y.profile(emp.id, date);
+  assert.equal(p.returned.due, '2027-02-06');
+  assert.equal(Y.status(p, 'vi').label, 'Bị trả về để chỉnh sửa');
+  assert.equal(Y.managerReviewState('lm', p).canEdit, true);
+  assert.equal(Y.managerReviewState('lm', p).pending, true);
+  assert.equal(Y.managerTabLabel('lm', p, 'vi'), 'Bị trả về để chỉnh sửa');
+  assert.equal(Y.managerTabLabel('lm2', p, 'vi'), 'Chờ QLTT đánh giá');
+
+  const expired = Y.profile(emp.id, '2027-02-07');
+  assert.equal(expired.returned, null);
+  assert.equal(Y.status(expired, 'vi').key, 'wait-lm2');
+  assert.equal(Y.managerReviewState('lm', expired).canEdit, false);
+
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  assert.match(detail, /function returnedBlock\(p\)/);
+  assert.match(detail, /id="yer-md-return-reason"/);
+  assert.match(detail, /if \(role\(\) === 'lm'\) S\.clearAct\(S\.session\(\)\.emp, 'returned'\)/);
+});
+
+test('manager detail keeps the timeline, empty goal groups, goal popups and the shared tab label', () => {
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const page = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
+
+  // §40.2: màn chi tiết có dải quy trình, bước Tự đánh giá có domain
+  assert.match(detail, /id="yer-md-steps"/);
+  assert.match(detail, /domain: person \? person\.login : ''/);
+  // §40.5d: nhóm trống vẫn giữ khối
+  assert.doesNotMatch(detail, /if \(type !== 'how' && !list\.length\) return '';/);
+  assert.match(detail, /function emptyRow\(type\)/);
+  // §13.1, §13.2: dòng mang data-* và popup ghi ai đánh giá hoàn thành
+  assert.match(detail, /data-name="' \+ esc\(r\.name\)/);
+  assert.match(detail, /data-done-by="/);
+  assert.match(detail, /window\.bindReviewGoalRows\(el\('yer-mgr-detail-root'\)\)/);
+  assert.match(page, /window\.bindReviewGoalRows = bindReviewGoalRows;/);
+  assert.match(page, /Đã đánh giá hoàn thành bởi/);
+  // §39.1: QLTT không bị đòi điểm mục tiêu đã khóa, phải có nhận xét toàn diện
+  assert.match(detail, /!\(p\.completedGoals \|\| \{\}\)\[g\.id\] && draft\.goalScores\[g\.id\] == null/);
+  assert.match(detail, /L\('nhận xét toàn diện', 'the overall comment'\)/);
+  // §41.5: tên kỳ tiếng Việt
+  assert.doesNotMatch(detail, /Không có kết quả Mid-Year/);
+  // §47: M-05 và M-06 cùng một luật nhãn tab
+  assert.match(detail, /Y\.managerTabLabel\(role\(\), p, lg\(\)\)/);
+  assert.match(manager, /Y\.managerTabLabel\(role\(\), p, lg\(\)\)/);
+});

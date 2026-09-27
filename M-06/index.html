@@ -2387,6 +2387,14 @@ function openDetail(el) {
   openOverlay('dlg-detail');
   switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
 }
+/* Giá trị cốt lõi ở tab Đánh giá cuối năm: dòng không có .how-name nên đọc từ data-* */
+function openHowFromRow(tr) {
+  document.getElementById('dh-name').textContent = tr.dataset.name || '';
+  const desc = document.getElementById('dh-desc');
+  desc.textContent = tr.dataset.result || '—';
+  desc.style.whiteSpace = 'pre-line';
+  openOverlay('dlg-how');
+}
 function openHow(el) {
   document.getElementById('dh-name').textContent = el.querySelector('.how-name').textContent.trim();
   document.getElementById('dh-desc').textContent = el.dataset.desc || '—';
@@ -2821,6 +2829,12 @@ function openGoalDetail(tr) {
     metaGrid.style.display = 'none';
   }
 
+  const doneWrap = document.getElementById('gd-done-wrap');
+  if (doneWrap) {
+    doneWrap.style.display = tr.dataset.doneBy ? '' : 'none';
+    document.getElementById('gd-done').textContent = tr.dataset.doneBy || '';
+  }
+
   document.getElementById('goal-detail-overlay').classList.add('open');
 }
 function closeGoalDetail() { document.getElementById('goal-detail-overlay').classList.remove('open'); }
@@ -2959,9 +2973,14 @@ function toggleDet(id, btn) {
 })();
 
 /* ── Hover tooltip + click goal detail ── */
+/* Tab Đánh giá cuối năm do yer-manager-detail.js dựng lại mỗi lần render, nên hàm này
+   được gọi lại qua window.bindReviewGoalRows(scope). Cờ data-tip-bound chặn gắn trùng. */
 (function initGoalInteractions() {
   const tip = document.getElementById('goal-tip');
-  document.querySelectorAll('.rv-grid tbody tr[data-name]').forEach(tr => {
+  function bindReviewGoalRows(scope) {
+  (scope || document).querySelectorAll('.rv-grid tbody tr[data-name]').forEach(tr => {
+    if (tr.dataset.tipBound) return;
+    tr.dataset.tipBound = '1';
     if (tip) {
       tr.addEventListener('mouseenter', e => {
         tip.querySelector('.tt-name').textContent = tr.dataset.name || '';
@@ -2973,11 +2992,15 @@ function toggleDet(id, btn) {
       tr.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
     }
     tr.addEventListener('click', e => {
-      if (e.target.closest('.sc-select, .det-btn, select, input')) return;
+      if (e.target.closest('.sc-select, .op-select, .det-btn, select, input, a, button')) return;
       if (tip) tip.style.display = 'none';
+      if (tr.dataset.kind === 'how') { openHowFromRow(tr); return; }
       openGoalDetail(tr);
     });
   });
+  }
+  window.bindReviewGoalRows = bindReviewGoalRows;
+  bindReviewGoalRows();
   function positionTip(e) {
     if (!tip) return;
     const pad = 14, tw = tip.offsetWidth, th = tip.offsetHeight;
@@ -3540,7 +3563,12 @@ document.addEventListener('DOMContentLoaded',function(){
       </div>
       <div class="gd-field">
         <div class="gd-field-lbl">Kết quả cần đạt</div>
-        <div class="gd-field-box" id="gd-result"></div>
+        <div class="gd-field-box" id="gd-result" style="white-space:pre-line"></div>
+      </div>
+      <!-- Chỉ hiện với mục tiêu đã đánh giá hoàn thành ở tab Đánh giá cuối năm (YER-SPEC §13.1) -->
+      <div class="gd-field" id="gd-done-wrap" style="margin-top:12px;display:none">
+        <div class="gd-field-lbl">Đã đánh giá hoàn thành bởi</div>
+        <div class="gd-field-box" id="gd-done"></div>
       </div>
     </div>
     <div class="dlg-foot">

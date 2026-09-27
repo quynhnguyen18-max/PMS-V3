@@ -30,5 +30,5 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
 
 ## Trạng thái rà soát
 
-- [ ] **Giai đoạn 2:** đối chiếu commit với YER-SPEC (đang được cập nhật thường xuyên, dự kiến ít thiếu).
+- [x] **Giai đoạn 2 (xong 27/09/2026):** đã đối chiếu 12 commit YER với YER-SPEC. Chị chốt 13 chỗ code và spec lệch nhau: 5 chỗ sửa spec theo code (thứ tự danh sách M-05, khoảng cách 26px của dải quy trình, tourguide chỉ chạy khi bấm mascot, dòng giữa năm ở M-06 không nêu người chấm, nhãn `Đang hoạt động` của tab Giữa năm theo MYR-09a), 8 chỗ sửa code theo spec (QLTT chấm được hồ sơ không tự đánh giá tới hết hạn QLTT, nhãn `Không đánh giá` khi hết hạn bổ sung, luồng LM2 trả về có trạng thái và hạn 24 giờ, validation của QLTT, box hết hạn nộp trễ, M-06 có dải quy trình, nhóm mục tiêu trống, popup chi tiết và nhãn tab chung với M-05). Rule có trong code mà chưa ghi đã bổ sung vào §18.4, §24, §27, §39.3, §43, §44, §47, §48; phần lỗi thời ở §5, §11, §12, §16, §21, §22, §35, §45, §46 đã dọn. Đã xóa `docs/shared/PMS_Screen_Inventory_v1.md`, quy tắc xem điểm chuyển vào §7. Business rules còn thay đổi trong lúc dựng, sẽ cập nhật tiếp.
 - [ ] **Giai đoạn 3:** kiểm tra tuân thủ DS.

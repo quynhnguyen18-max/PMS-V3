@@ -54,31 +54,9 @@
       });
   }
 
-  /* Nhãn tab nói việc của vai đang xem trong đúng tình huống demo được chọn.
-     Không dùng nguyên văn trạng thái hồ sơ vì cùng một hồ sơ "Chờ Quản lý" sẽ
-     mang ý nghĩa hành động khác nhau đối với LM, LM2 và HOD. */
+  /* Nhãn tab nói việc của vai đang xem. Luật nằm ở model để M-06 nói cùng một câu. */
   function managerTabState(p) {
-    if (!p) return '';
-    var r = role();
-    var st = Y.status(p, lg());
-    if (st.key === 'published') return L('Đã có kết quả', 'Results available');
-    if (st.key === 'out' || st.key === 'resigned' || st.key === 'noeval') return st.label;
-    if (r === 'hod' && p.hrbpUpload && !p.hrbpUpload.approved) {
-      return L('Cần phê duyệt', 'Approval needed');
-    }
-    if ((r === 'lm' && p.lm) || (r === 'lm2' && p.lm2) || (r === 'hod' && p.hod)) {
-      return L('Đã hoàn thành', 'Completed');
-    }
-    if (r === 'lm') {
-      if (p.self || p.maternity) return L('Cần đánh giá', 'Review needed');
-      return st.label;
-    }
-    if (r === 'lm2') {
-      return p.lm ? L('Cần đánh giá', 'Review needed')
-                  : L('Chờ QLTT đánh giá', 'Awaiting line manager');
-    }
-    return p.lm2 ? L('Cần đánh giá', 'Review needed')
-                 : L('Chờ Quản lý cấp 2', 'Awaiting second-level manager');
+    return Y.managerTabLabel(role(), p, lg());
   }
 
   function syncCycleLabels() {

@@ -140,8 +140,17 @@
     // để import goal + self assessment tới hạn nộp bổ sung (hạn QLTT trừ 3 ngày).
     var stopped = !elig.eligible && elig.reason === 'missing-goal' &&
       lateClosed && !lateView;
+    // Đủ mục tiêu mà không tự đánh giá: QLTT vẫn chấm tới hết hạn của QLTT (§6). Chỉ khi hết
+    // hạn QLTT mà vẫn không có điểm nào thì hồ sơ mới dừng.
     var noScoreAtAll = !selfDone && !lmView;
-    if (stopped || (lateClosed && noScoreAtAll)) stopped = true;
+    if (stepState('lm', now) === 'closed' && noScoreAtAll) stopped = true;
+
+    /* LM2 trả về cho QLTT (§27.2). Còn hiệu lực trong 24 giờ, prototype tính theo ngày nên
+       hết hiệu lực từ ngày thứ hai sau ngày trả về. QLTT gửi lại thì màn hình xóa bản ghi này.
+       Hết hạn mà QLTT chưa gửi lại: hồ sơ quay về trạng thái trước khi trả về. */
+    var ret = acts.returned || null;
+    var returnedView = (ret && ret.at && cmp(now, ret.at) >= 0 && cmp(now, addDays(ret.at, 1)) <= 0)
+      ? Object.assign({ due: addDays(ret.at, 1) }, ret) : null;
 
     var finalView = happened({ at: final && final.uploadedAt }) ? final : null;
     var published = !!(final && final.publishedAt && cmp(now, final.publishedAt) >= 0);
@@ -175,6 +184,7 @@
       selfRequired: !maternity,
       lm: lmView,
       lm2: lm2View,
+      returned: returnedView,
       hod: hodView,
       hrbpUpload: happened(hrbpUpload) ? hrbpUpload : null,
       final: finalView,
@@ -202,6 +212,7 @@
     if (p.eligibility.reason === 'missing-goal') return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
     if (p.published) return { key: 'published', label: t('Đã công bố kết quả', 'Results published'), tone: 'done' };
     if (p.hod) return { key: 'wait-tr', label: t('Chờ tải điểm cuối cùng', 'Awaiting final upload'), tone: 'muted' };
+    if (p.returned) return { key: 'returned', label: t('Bị trả về để chỉnh sửa', 'Returned for editing'), tone: 'action' };
     if (p.lm2) return { key: 'wait-hod', label: t('Chờ HOD đánh giá', 'Awaiting HOD'), tone: 'action' };
     if (p.lm) return { key: 'wait-lm2', label: t('Chờ Quản lý cấp 2', 'Awaiting second-level manager'), tone: 'action' };
     if (p.self) return { key: 'wait-lm', label: p.lateSubmission
@@ -224,7 +235,7 @@
 
     var own = role === 'lm' ? p.lm : role === 'lm2' ? p.lm2 : p.hod;
     var submitted = role === 'lm' ? !!(own && !own.synced) : !!own;
-    var stepOpen = stepState(role, p.now) === 'open';
+    var stepOpen = stepState(role, p.now) === 'open' || (role === 'lm' && !!p.returned);
     var blocked = p.resigned || p.stopped || p.eligibility.reason === 'late-onboard';
     var prerequisite = false;
 
@@ -241,6 +252,7 @@
 
     var key = status(p, 'vi').key;
     var pendingKey = role === 'lm' ? 'wait-lm' : role === 'lm2' ? 'wait-lm2' : 'wait-hod';
+    if (role === 'lm' && key === 'returned') pendingKey = 'returned';
     // Thai sản không cần Self Assessment nhưng chuyển thành việc của QLTT khi
     // timeline QLTT bắt đầu.
     var pending = key === pendingKey ||
@@ -252,6 +264,33 @@
       pending: pending,
       canEdit: !!(stepOpen && !blocked && prerequisite)
     };
+  }
+
+  /* ── Nhãn tab Đánh giá cuối năm của ba vai quản lý ──────
+     Nói việc của vai đang xem, không dùng nguyên văn trạng thái hồ sơ: cùng một hồ sơ
+     "Chờ Quản lý" mang ý nghĩa hành động khác nhau với QLTT, LM2 và HOD.
+     M-05 và M-06 cùng đọc hàm này (DESIGN-SYSTEM.md §20.1). */
+  function managerTabLabel(role, p, lang) {
+    if (!p) return '';
+    function t(vi, en) { return lang === 'en' ? en : vi; }
+    var st = status(p, lang);
+    if (st.key === 'published') return t('Đã có kết quả', 'Results available');
+    if (st.key === 'out' || st.key === 'resigned' || st.key === 'noeval') return st.label;
+    if (role === 'lm' && st.key === 'returned') return st.label;
+    if (role === 'hod' && p.hrbpUpload && !p.hrbpUpload.approved) return t('Cần phê duyệt', 'Approval needed');
+    if ((role === 'lm' && p.lm) || (role === 'lm2' && p.lm2) || (role === 'hod' && p.hod)) {
+      return t('Đã hoàn thành', 'Completed');
+    }
+    if (role === 'lm') {
+      if (p.self || p.maternity || p.lateSubmission) return t('Cần đánh giá', 'Review needed');
+      if (st.key === 'late-upload') return t('Chưa Tự đánh giá', 'Self assessment missing');
+      return st.label;
+    }
+    if (role === 'lm2') {
+      if (st.key === 'returned') return t('Chờ QLTT đánh giá', 'Awaiting line manager');
+      return p.lm ? t('Cần đánh giá', 'Review needed') : t('Chờ QLTT đánh giá', 'Awaiting line manager');
+    }
+    return p.lm2 ? t('Cần đánh giá', 'Review needed') : t('Chờ Quản lý cấp 2', 'Awaiting second-level manager');
   }
 
   /* ── Quyền xem điểm theo vai trò ────────────────────────── */
@@ -416,6 +455,7 @@
     profile: profile,
     status: status,
     managerReviewState: managerReviewState,
+    managerTabLabel: managerTabLabel,
     canSee: canSee,
     roster: roster,
     completion: completion,

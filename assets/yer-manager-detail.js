@@ -171,6 +171,35 @@
       '</div></div></div>';
   }
 
+  /* ── Dải quy trình (§40) ─────────────────────────────────
+     Cùng component với màn Nhân viên và danh sách Quản lý. Màn chi tiết là của một
+     nhân viên nên mọi bước đều có domain, kể cả Tự đánh giá; bước Công bố thì không. */
+  var MD_STEPS = ['self', 'lm', 'lm2', 'hod', 'publish'];
+  function mountSteps(p) {
+    var node = el('yer-md-steps');
+    if (!node) return;
+    var who = Y.actors(p);
+    var opens = Y.fmt(Y.step('self').from, lg());
+    U.steps(node, {
+      title: L('Quy trình và Thời gian đánh giá cuối năm 2026 - bắt đầu ' + opens,
+               'Year-End Review 2026 process and timeline - opens ' + opens),
+      collapseKey: 'yer-md',
+      items: window.PMS_YER_TIMELINE.steps
+        .filter(function (st) { return MD_STEPS.indexOf(st.key) >= 0; })
+        .map(function (st) {
+          var state = Y.stepState(st.key, p.now);
+          var person = who[st.key];
+          return {
+            key: st.key,
+            name: lg() === 'en' ? st.en : st.vi,
+            domain: person ? person.login : '',
+            date: L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg()),
+            state: state === 'open' ? 'open' : state === 'closed' ? 'done' : 'todo'
+          };
+        })
+    });
+  }
+
   /* ── ENH-E03: điều hướng sang kết quả giữa năm ───────── */
   function myrLine(p) {
     // Hồ sơ có LWD gộp thông tin Mid-Year vào chính box Lưu ý để không dựng hai box rời.
@@ -178,7 +207,7 @@
     var hasMyr = !!(p.myr && p.myr.submitted);
     if (!hasMyr) {
       return '<div class="info-note yer-myr-note"><i class="bx bx-calendar-x"></i><div>' +
-        L('<strong>Không có kết quả Mid-Year.</strong> Nhân viên này không tham gia kỳ đánh giá giữa năm 2026.',
+        L('<strong>Không có kết quả Đánh giá giữa năm.</strong> Nhân viên này không tham gia kỳ Đánh giá giữa năm 2026.',
           '<strong>No Mid-Year result.</strong> This employee did not take part in the 2026 mid-year cycle.') +
       '</div></div>';
     }
@@ -215,6 +244,18 @@
       '<span class="yer-late-file-tag"><i class="bx bx-file"></i>' + esc(p.lateSubmission.fileName || '') + ' - ' + esc(Y.fmt(p.lateSubmission.at, lg())) + '</span><br>' +
       L('Nhân viên đã tải lên mục tiêu và nội dung tự đánh giá sau thời hạn. Mục tiêu <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với bạn từ trước. Bạn tiếp tục đánh giá như bình thường.',
         'The employee imported their goals and self assessment after their window closed. The goals were taken as-is, <strong>with no approval step</strong>; the employee is responsible for having agreed them with you earlier. You review as usual.') +
+    '</div></div>';
+  }
+
+  /* ── LM2 trả về cho QLTT (§27.2) ─────────────────────── */
+  function returnedBlock(p) {
+    if (!p.returned) return '';
+    var by = p.returned.by || {};
+    return '<div class="info-note yer-note-returned"><i class="bx bx-undo"></i><div>' +
+      '<strong>' + L('Bị trả về để chỉnh sửa', 'Returned for editing') + '</strong><br>' +
+      L('Trả về bởi ', 'Returned by ') + '<strong>' + esc(by.login || by.name || '—') + '</strong>' +
+      L(' - Hạn nộp lại: ', ' - Due back: ') + esc(Y.fmt(p.returned.due, lg())) +
+      (p.returned.reason ? '<br>' + L('Lý do: ', 'Reason: ') + esc(p.returned.reason) : '') +
     '</div></div>';
   }
 
@@ -273,8 +314,9 @@
   }
 
   function goalSection(p, type, canEdit) {
+    /* Nhóm chưa có mục tiêu vẫn giữ khối, thân bảng là một dòng xám mờ, giống màn
+       Nhân viên (§40.5d). Giấu khối thì không nhìn ra nhân viên đang thiếu loại nào. */
     var list = approvedGoals(p, type);
-    if (type !== 'how' && !list.length) return '';
     var t = TYPE[type];
     var selfScores = (p.self && p.self.goalScores) || {};
     var myScores = draft.goalScores || {};
@@ -332,7 +374,13 @@
         // Đã chốt hoàn thành thì cả hai cột đều lấy điểm đã chốt và đều chỉ xem
         var selfVal = r.done ? r.done.self.score : selfMap[idx];
         var myVal = r.done ? r.done.mgr.score : myMap[idx];
+        /* data-name / data-result cho tooltip và popup chi tiết (window.bindReviewGoalRows
+           ở M-06). data-done-by để popup ghi ai đã đánh giá hoàn thành (§13.1). */
+        var doneBy = r.done && r.done.mgr && r.done.mgr.by;
         return '<tr' + (r.done ? ' class="g-row-done"' : '') +
+          (type === 'how' ? ' data-kind="how"' : '') +
+          ' data-name="' + esc(r.name) + '" data-result="' + esc(r.result) + '"' +
+          (doneBy ? ' data-done-by="' + esc(doneBy.name + ' (' + doneBy.login + ')') + '"' : '') +
           '><td><div class="g-name">' + esc(r.name) + '</div>' +
           (r.done ? doneChip() : '') + '</td>' +
           '<td><div class="g-result">' + esc(r.result) + '</div></td>' +
@@ -343,8 +391,16 @@
           '<td class="sc-cell">' + ratingCell('self:' + bucket + ':' + idx, selfVal == null ? null : selfVal, { readonly: true }) + '</td>' +
           '<td class="ql-cell">' + ratingCell('my:' + bucket + ':' + idx, myVal == null ? null : myVal,
             { readonly: r.done ? true : !(canEdit && isLm()) }) + byLine(r.done && r.done.mgr) + '</td></tr>';
-      }).join('') + '</tbody></table></div>' +
+      }).join('') + (rows.length ? '' : emptyRow(type)) + '</tbody></table></div>' +
       commentPair(p, type, canEdit) + '</div>';
+  }
+
+  function emptyRow(type) {
+    var name = (lg() === 'en' ? TYPE[type].en : TYPE[type].vi).toLowerCase();
+    return '<tr class="g-none-row"><td colspan="' + (type === 'what' ? 6 : 5) + '"><div class="g-none">' +
+      L('Chưa có ' + name + ' nào được Quản lý trực tiếp phê duyệt.',
+        'No ' + ({ what: 'work goal', dev: 'development goal' }[type] || 'goal') + ' has been approved by the line manager yet.') +
+      '</div></td></tr>';
   }
 
   function commentPair(p, type, canEdit) {
@@ -452,9 +508,9 @@
     syncChrome(p);
 
     var canEdit = editable(p);
-    var html = detailNav(p, canEdit) + banner(p);
+    var html = detailNav(p, canEdit) + banner(p) + '<div id="yer-md-steps" class="yer-md-steps"></div>';
 
-    html += stoppedBlock(p) + lateBlock(p) + maternityBlock(p) + resignBlock(p);
+    html += returnedBlock(p) + stoppedBlock(p) + lateBlock(p) + maternityBlock(p) + resignBlock(p);
     html += myrLine(p);
 
     if (!p.stopped) {
@@ -477,8 +533,7 @@
   function syncChrome(p) {
     var lbl = el('tablbl-yer');
     if (lbl) {
-      var st = Y.status(p, lg());
-      lbl.textContent = st.label;
+      lbl.textContent = Y.managerTabLabel(role(), p, lg());
     }
     var tabs = document.querySelectorAll('.tabs .tab-btn');
     if (tabs[0]) {
@@ -530,6 +585,9 @@
   }
 
   function afterRender(p, canEdit) {
+    mountSteps(p);
+    // Bảng dựng lại mỗi lần render nên gắn lại tooltip và popup chi tiết mục tiêu
+    if (window.bindReviewGoalRows) window.bindReviewGoalRows(el('yer-mgr-detail-root'));
     document.querySelectorAll('#yer-mgr-detail-root [data-rt]').forEach(function (node) {
       var key = node.dataset.rt;
       var val = node.dataset.val === '' ? null : Number(node.dataset.val);
@@ -601,14 +659,23 @@
     }
     if (isLm()) {
       var goals = approvedGoals(p, 'what').concat(approvedGoals(p, 'dev'));
-      var lacking = goals.filter(function (g) { return draft.goalScores[g.id] == null; });
+      // Mục tiêu đã đánh giá hoàn thành bị khóa ô điểm nên không được đòi (§13.1)
+      var lacking = goals.filter(function (g) {
+        return !(p.completedGoals || {})[g.id] && draft.goalScores[g.id] == null;
+      });
       if (lacking.length) missing.push(L('điểm của ' + lacking.length + ' mục tiêu', lacking.length + ' goal scores'));
+      var howLacking = CORE_VALUES.filter(function (_, i) { return (draft.howScores || {})[i] == null; });
+      if (howLacking.length) missing.push(L('điểm của ' + howLacking.length + ' giá trị cốt lõi', howLacking.length + ' core value scores'));
       ['what', 'dev', 'how'].forEach(function (t) {
         if (!((draft.comments || {})[t] || '').trim()) {
           missing.push(L('nhận xét nhóm ' + (lg() === 'en' ? TYPE[t].en : TYPE[t].vi),
             'the ' + TYPE[t].en + ' comment'));
         }
       });
+      // Nhận xét toàn diện bắt buộc với QLTT, tùy chọn với LM2 và HOD (§39.1)
+      if (!((draft.overall || {}).comment || '').trim()) {
+        missing.push(L('nhận xét toàn diện', 'the overall comment'));
+      }
     }
     if (missing.length) {
       U.dialog({
@@ -653,6 +720,8 @@
     }
     S.setAct(S.session().emp, role(), payload);
     S.clearAct(S.session().emp, draftKey());
+    // QLTT gửi lại thì lần trả về hết hiệu lực
+    if (role() === 'lm') S.clearAct(S.session().emp, 'returned');
     U.dirty.clear();
     U.toast(updating ? L('Đã lưu thay đổi đánh giá', 'Review changes saved')
       : isLm() ? L('Đã gửi đánh giá', 'Review submitted') : L('Đã lưu điểm', 'Rating saved'));
@@ -660,27 +729,42 @@
   }
 
   /* Chỉ LM2 còn luồng trả về cho QLTT; đã bỏ trả Self Assessment về cho Nhân viên. */
-  function returnForEdit(p) {
+  function returnForEdit(p, prev) {
+    // Hộp thoại đóng trước khi chạy act, nên lý do được giữ lại qua sự kiện input
+    var reason = prev || '';
     U.dialog({
       title: L('Trả về để chỉnh sửa?', 'Return for editing?'),
-      text: L('Hồ sơ chuyển sang trạng thái Bị trả về để chỉnh sửa và Quản lý trực tiếp' +
+      html: '<p>' + esc(L('Hồ sơ chuyển sang trạng thái Bị trả về để chỉnh sửa và Quản lý trực tiếp' +
               ' phải nộp lại trong 24 giờ. Deadline của các bước sau giữ nguyên, không giãn ra. ' +
               'Quá 24 giờ mà chưa nộp lại thì hồ sơ quay về trạng thái trước khi trả về và quy trình đi tiếp.',
               'The profile moves to Returned for editing and the line manager' +
               ' must resubmit within 24 hours. Later deadlines are unchanged. ' +
-              'If nothing comes back in time the profile reverts and the process moves on.'),
+              'If nothing comes back in time the profile reverts and the process moves on.')) + '</p>' +
+        '<label class="op-flbl" for="yer-md-return-reason">' + L('Lý do trả về', 'Reason') + req() + '</label>' +
+        '<textarea id="yer-md-return-reason" class="yer-md-return-reason" rows="3" maxlength="500">' + esc(reason) + '</textarea>',
       buttons: [
         { label: L('Quay lại', 'Go back'), variant: 'quiet' },
         { label: L('Trả về', 'Return it'), variant: 'default', icon: 'bx-undo', act: function () {
+            if (!reason.trim()) {
+              U.toast(L('Cần nhập lý do trả về', 'Please enter a reason'));
+              returnForEdit(p, reason);
+              return;
+            }
+            var me = Y.actors(p).lm2 || {};
             S.setAct(S.session().emp, 'returned', {
-              by: role(), at: S.session().date,
-              dueHours: 24
+              by: { name: me.name, login: me.login }, at: S.session().date,
+              dueHours: 24, reason: reason.trim()
             });
             U.toast(L('Đã trả về, hạn nộp lại trong 24 giờ', 'Returned, due back within 24 hours'));
             render();
           } }
       ]
     });
+    var box = el('yer-md-return-reason');
+    if (box) {
+      box.addEventListener('input', function () { reason = box.value; });
+      box.focus();
+    }
   }
 
   /* ENH-E10: Quản lý import mục tiêu thay nhân viên nghỉ thai sản */
@@ -708,6 +792,13 @@
     st.textContent =
       '#yer-mgr-detail-root .yer-mgr-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:0}' +
       '#yer-mgr-detail-root .yer-md-nav{margin-bottom:14px}' +
+      '#yer-mgr-detail-root .yer-md-steps{margin-bottom:14px}' +
+      '#yer-mgr-detail-root .rv-grid .g-none-row td{padding:16px 12px}' +
+      '#yer-mgr-detail-root .g-none{text-align:center;font-size:12.5px;color:var(--z400);font-style:italic}' +
+      '#yer-mgr-detail-root .rv-grid tbody tr[data-name]{cursor:pointer}' +
+      '.yer-md-return-reason{width:100%;margin-top:6px;border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 10px;' +
+        'font-family:inherit;font-size:13px;color:var(--z700);resize:vertical}' +
+      '.yer-md-return-reason:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}' +
       '#yer-mgr-detail-root .yer-md-submit-banner{margin-bottom:14px}' +
       '.yer-hd-sub{margin-left:auto;font-size:11.5px;font-weight:400;color:var(--z500);text-transform:none;letter-spacing:0}' +
       '#yer-mgr-detail-root>.info-note{display:flex;gap:8px;align-items:flex-start;margin-bottom:18px;' +

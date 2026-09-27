@@ -740,10 +740,12 @@
     // không dựng khối cảnh báo giục ở đây: sắp nghỉ mà vẫn đủ điều kiện thì nhân viên
     // tự đánh giá theo đúng hạn chung, không có lý do gì phải làm sớm hơn.
     // NV thai sản không thuộc luồng nộp trễ nên không báo cửa sổ nộp trễ đã đóng
-    if(!p.self && !editable && selfOpen === false && !p.maternity){
+    // Thiếu mục tiêu thì khối cảnh báo ở trên đã nói hồ sơ không đánh giá; không dựng box thứ hai (§40.5a)
+    if(!p.self && !editable && selfOpen === false && !p.maternity && !hasWarnNote){
+      var lateEnd = Y.fmt(Y.lateSubmissionDeadline(), lg());
       html += '<div class="yer-note info"><i class="bx bx-info-circle"></i><div>' +
-        L('Thời gian nộp trễ đã kết thúc cùng timeline của Quản lý trực tiếp vào ngày <strong>' + Y.fmt(Y.step('lm').to, lg()) + '</strong>.',
-          'The late-submission window ended with the line-manager timeline on <strong>' + Y.fmt(Y.step('lm').to, lg()) + '</strong>.') + '</div></div>';
+        L('Thời gian nộp trễ đã kết thúc lúc 18:00 ngày <strong>' + lateEnd + '</strong>.',
+          'The late-submission window closed at 18:00 on <strong>' + lateEnd + '</strong>.') + '</div></div>';
     }
 
 
@@ -1100,6 +1102,8 @@
     'wait-tr':    ['Chờ tải điểm cuối cùng',     'Awaiting final rating'],
     'wait-hod':   ['Chờ Trưởng đơn vị',          'Awaiting Head of Department'],
     'wait-lm2':   ['Chờ Quản lý cấp 2',          'Awaiting second-level manager'],
+    // Trả về là việc giữa hai cấp quản lý, nhân viên vẫn thấy hồ sơ đang ở Quản lý cấp 2
+    'returned':   ['Chờ Quản lý cấp 2',          'Awaiting second-level manager'],
     'wait-lm':    ['Đang chờ Quản lý',          'Awaiting manager'],
     'maternity':  ['Không yêu cầu tự đánh giá',  'Self assessment not required'],
     'need-self':  ['Cần tự đánh giá',           'Self assessment needed'],
@@ -1107,7 +1111,8 @@
   };
 
   function yerTabState(p){
-    if(p.eligibility.reason === 'missing-goal'){
+    // Còn trong hạn thì nói thẳng phần còn thiếu; đã qua cửa sổ nộp bổ sung thì là Không đánh giá (§40.5a)
+    if(p.eligibility.reason === 'missing-goal' && !p.stopped){
       if(p.eligibility.missingWhat && !p.eligibility.missingDev){
         return L('Thiếu mục tiêu công việc','Work goal missing');
       }
