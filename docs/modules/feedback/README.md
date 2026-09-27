@@ -29,7 +29,6 @@
 | `UI-RULES.md` | Rule giao diện riêng Feedback, tách từ DS §19 (giữ số mục cũ) |
 | `product/` | Tài liệu product: Building a Feedback Culture, 1-Page Alignment, Scope Cut & Rules Alignment |
 | `reference/` | Mẫu xuất báo cáo (`Feedback-Export-Templates.xlsx`), popup mẫu `popup_fb_preview.html` |
-| `history/` | Spec và plan triển khai theo ngày (08/2026). Chỉ để tra lịch sử, không phải rule hiện hành |
 | `files/` | UAT template, wording song ngữ, mẫu xuất thư viện bộ câu hỏi, template module đã review, mẫu kết quả HR chia sẻ |
 
 Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §9 (Module 7 – Phản hồi cá nhân).
@@ -44,7 +43,7 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §9 (Module 7 – Ph�
 
 - `demo-delight/`: các demo hiệu ứng (tarot, sphere, AI coach).
 - `demo-feedback-response-lifecycle/`: demo vòng đời phản hồi, có `REQUIREMENTS.md`.
-- `feedback-pilot-email/`: email truyền thông pilot (23MB, đã chặn đọc).
+- Email truyền thông pilot đã chuyển ra folder cha (`../feedback-pilot-email/`) để lưu trữ, không nằm trong repo.
 - Tool: `tools/build_feedback_uat_template.py`, `tools/build_questionnaire_library_export.mjs` (xuất ra `files/`).
 
 ## Trạng thái rà soát

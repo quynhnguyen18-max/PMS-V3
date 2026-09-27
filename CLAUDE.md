@@ -30,17 +30,28 @@ Chị sẽ nói đang làm module nào. Chỉ đọc file này, `DESIGN-SYSTEM.m
 - Text UI tuyệt đối không dùng middot `·`, luôn dùng ` - ` (DS §19.0).
 - Luật nghiệp vụ chỉ viết một lần, trong file model. Màn hình chỉ render (DS §20.1).
 - Không sửa `assets/employees-data.js` (dữ liệu nhân sự dùng chung cho mọi màn).
-- **Rule mới chốt với chị phải được ghi vào tài liệu trong cùng lượt sửa code:** rule nghiệp vụ và rule riêng của module ghi vào `docs/modules/<module>/`; rule giao diện áp dụng cho mọi màn ghi vào `DESIGN-SYSTEM.md` §19. Nếu có test đọc tài liệu thì cập nhật cả test.
 - Sửa file dùng chung (`assets/`, `H-05/feedback-program-*.js`, `M-04/manager-*.js`) thì phải rà mọi màn đang dùng file đó.
+
+## Trước mỗi commit (bắt buộc, không đợi chị nhắc)
+
+Tài liệu phải luôn là bản mới nhất. Mỗi commit có sửa code thì trong **cùng commit** phải:
+
+1. **Cập nhật tài liệu theo code vừa sửa.** Rule nghiệp vụ và rule riêng của module ghi vào spec của module (`FEEDBACK_PLAN.md`, `GOAL-SPEC.md`, `MYR-SPEC.md`, `YER-SPEC.md`). Rule giao diện riêng Feedback ghi vào `UI-RULES.md`. Rule giao diện dùng cho mọi màn ghi vào `DESIGN-SYSTEM.md` §19, component vào `design-system/COMPONENTS.md`, token vào `assets/tokens.css` và DS §2. Thêm, bớt hay đổi màn, file dùng chung, test thì sửa README của module và bảng module ở file này.
+2. **Rule cũ bị thay thì sửa hoặc xóa đoạn cũ**, không để hai phiên bản cùng tồn tại. Chỗ nào tài liệu và code lệch nhau thì hỏi chị bản nào đúng.
+3. Test nào đọc câu chữ trong tài liệu thì cập nhật và chạy lại test.
+4. **Rà rác:** liệt kê file tạm, ảnh chụp, output, file không còn được chỗ nào tham chiếu, rồi **hỏi chị trước khi xóa**. Không tự xóa.
+5. Tin nhắn báo xong phải ghi rõ đã cập nhật tài liệu nào. Nếu không có rule mới thì ghi "Không có rule mới".
+
+Hook `.claude/hooks/require-docs.js` (chỉ có trên máy chị) tự chặn commit có sửa code màn hình hoặc `assets/` mà không kèm tài liệu nào. Chỉ khi thật sự không có rule mới mới ghi `[no-docs]` trong nội dung commit.
 
 ## Đọc tiết kiệm
 
 - File HTML màn hình dài 1.000 đến 3.800 dòng. Dùng Grep tìm `id`, tên hàm hoặc chuỗi cần sửa, rồi Read với `offset` và `limit`. Không đọc cả file.
 - Tài liệu dài (`YER-SPEC.md` 80KB, `UI-RULES.md` 36KB, `PMS_PRD_v1.md`): Grep `^## ` để lấy mục lục, rồi đọc đúng mục.
-- Không đọc: `node_modules/`, `MoMo color/`, `MoMo Font/`, `feedback-pilot-email/`, `assets/myr-results/`, `assets/vendor/` (đã chặn trong `.claude/settings.json` và `.ignore`).
+- Không đọc: `node_modules/`, `MoMo Font/`, `assets/myr-results/`, `assets/vendor/` (đã chặn trong `.claude/settings.json` và `.ignore`).
 
 ## Lệnh
 
 - `npm run dev`: chạy prototype ở cổng 5173 (hoặc dùng preview "PMS Prototype" trong `.claude/launch.json`).
-- `npm test`: test Feedback và org-chain.
+- `npm test`: test Feedback, org-chain và tokens.
 - `npm run test:yer`: test YER.
