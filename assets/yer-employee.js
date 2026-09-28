@@ -680,8 +680,12 @@
                'part of your bonus may be cut and promotion and salary increase deferred for the next 6 months, from the fourth reminder (' + Y.fmt(all[3].remindAt, lg()) + ').');
     return Y.lateText('discipline', lg());
   }
+  /* Xác nhận đã đọc chỉ giữ trong trang đang mở, không ghi vào dữ liệu (§27.3): tải lại trang (F5)
+     là phải xác nhận lại. Khóa theo nhân viên và lần nhắc, sang lần nhắc mới cũng phải xác nhận lại. */
+  var lateAckMem = {};
+  function lateAckOf(p){ return p.lateRound ? lateAckMem[p.id + ':' + p.lateRound.round] || null : null; }
   function lateAcked(p){
-    return !!(p.lateAck && p.lateRound && p.lateAck.round === p.lateRound.round);
+    return !!lateAckOf(p);
   }
 
   /* Khối thông báo quá hạn, đứng trên cùng tab (§27.3). Chỉ nói về lần nhắc đang mở:
@@ -707,7 +711,7 @@
       '</ul>' +
       (acked
         ? '<div class="yer-late-note-act"><span class="yer-late-acked"><i class="bx bx-check"></i>' +
-            L('Bạn đã xác nhận ngày ' + Y.fmt(p.lateAck.at, lg()),'Confirmed on ' + Y.fmt(p.lateAck.at, lg())) + '</span>' +
+            L('Bạn đã xác nhận ngày ' + Y.fmt(lateAckOf(p).at, lg()),'Confirmed on ' + Y.fmt(lateAckOf(p).at, lg())) + '</span>' +
             '<button type="button" class="btn btn-default btn-sm" id="yer-late-open"><i class="bx bx-cloud-upload"></i>' +
             L('Nộp bổ sung','Submit late file') + '</button></div>'
         : '<div class="yer-late-note-act"><label class="yer-late-ack-check"><input type="checkbox" id="yer-late-ack-check">' +
@@ -1033,7 +1037,7 @@
       ackBtn.addEventListener('click', function(){
         if(!ackCheck.checked) return;
         var s = S.session();
-        S.setAct(s.emp, 'lateAck', { round: p.lateRound.round, at: s.date });
+        lateAckMem[p.id + ':' + p.lateRound.round] = { at: s.date };
         render();
         // Xác nhận xong thì mở ngay popup hướng dẫn các bước nộp bổ sung
         openLateDialog(prof());

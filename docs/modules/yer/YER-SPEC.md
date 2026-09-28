@@ -841,8 +841,9 @@ lần là một cơ hội nộp bổ sung, hạn 18:00 ngày làm việc thứ b
 
 - Hình thức xử lý **cộng dồn** theo lần nộp. Giới hạn điểm tối đa 3 **chỉ là thông báo**, hệ thống không chặn điểm.
 - **Xác nhận đã đọc.** Trước khi mở popup tải lên, nhân viên phải đọc thông báo của **đúng lần nhắc đang mở**
-  và đánh dấu `Tôi đã đọc, hiểu và xác nhận tiếp tục.` (§27.1). Lưu ở `acts.lateAck = { round, at }`; sang lần
-  nhắc mới phải xác nhận lại vì hình thức xử lý đổi.
+  và đánh dấu `Tôi đã đọc, hiểu và xác nhận tiếp tục.` (§27.1). Xác nhận **chỉ giữ trong trang đang mở**
+  (biến `lateAckMem` của `yer-employee.js`, không ghi vào dữ liệu): tải lại trang (F5) là trở về chưa xác nhận
+  (chốt 28/09/2026). Sang lần nhắc mới cũng phải xác nhận lại vì hình thức xử lý đổi.
 - Màn chỉ hiện nội dung của lần nhắc đang mở, không liệt kê cả bốn lần.
 - Popup xác nhận gửi file thêm câu: hồ sơ được ghi nhận trễ n ngày làm việc, ở lần nhắc thứ k, kèm hình thức xử lý nếu lần đó đã có.
 - **Sau khi nộp**, banner xanh ghi nhãn `Trễ hạn x ngày làm việc` và dòng `Hình thức xử lý theo quy định (nộp ở
@@ -1416,6 +1417,9 @@ Nộp bổ sung ở từng lần nhắc dùng **một nhân viên ở hai thời
 đã nộp; ngày cuối của lần đó thì đã nộp theo bản dựng sẵn `lateSeed()` trong `yer-data.js` (`nv16` đến `nv19`).
 `y16` Mạc Thùy Dung là nhân sự mới cho lần nhắc 4. `e8` và `y16` chưa có file Template điền sẵn nên bấm
 `Tải Template` sẽ báo liên hệ HR (§27.1); luồng nộp vẫn đi tiếp. Hồ sơ nộp trễ của màn Quản lý là `y12`.
+`nv12` đến `nv19` có cờ `fresh` (chốt 28/09/2026): mỗi lần tải trang (F5) hoặc chọn lại tình huống, thanh demo xóa
+thao tác cũ của nhân viên đó (`self`, `selfDraft`, `selfEditing`, `selfLog`, `lateSubmission`, `importedGoals`, hàm
+`freshStart` trong `yer-demo.js`), nên tình huống luôn bắt đầu lại đúng như dữ liệu dựng sẵn.
 `y12` nộp bổ sung ngày 28/01/2027 (lần nhắc 3) nên tình huống `lm05` của Quản lý là ngày 29/01/2027.
 
 Tại thời điểm kỳ cuối năm đã mở, nhãn trên tab Đánh giá giữa năm dùng hệ màu xám trung tính để

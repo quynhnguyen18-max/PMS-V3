@@ -114,6 +114,18 @@
     return true;
   }
 
+  /* Tình huống có cờ `fresh` (nộp bổ sung ở từng lần nhắc, YER-SPEC §46): mỗi lần tải trang hoặc chọn
+     tình huống thì xóa thao tác cũ của nhân viên đó, để lúc nào cũng làm lại được từ đầu. */
+  var FRESH_KEYS = ['self', 'selfDraft', 'selfEditing', 'selfLog', 'lateSubmission', 'importedGoals'];
+  function freshStart(sc) {
+    if (!sc || !sc.fresh) return;
+    FRESH_KEYS.forEach(function (k) { window.PMSStore.clearAct(sc.emp, k); });
+  }
+  function currentScenario() {
+    var id = window.PMSStore.session().scenario;
+    return (window.PMS_YER_SCENARIOS || []).filter(function (x) { return x.id === id; })[0] || null;
+  }
+
   function notify(reason) {
     document.dispatchEvent(new CustomEvent('pms:demo-change', {
       detail: Object.assign({ reason: reason }, window.PMSStore.session())
@@ -138,6 +150,7 @@
     }
     // ?scenario=... mở đúng màn của tình huống, kể cả khi được dán vào màn khác
     if (wantScreen && goScreen(wantScreen)) return;
+    freshStart(currentScenario());
 
     var bar = document.createElement('div');
     bar.id = 'pms-demo';
@@ -259,6 +272,7 @@
           var sc = scById[v.slice(3)];
           if (!sc) return;
           S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id });
+          freshStart(sc);
           if (goScreen(sc.screen || DEFAULT_SCREEN[sc.role])) return;
           render(); notify('emp');
         });

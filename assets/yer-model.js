@@ -268,8 +268,6 @@
       lateSubmission: lateView,
       // Lần nhắc gắn với hồ sơ: lần đã nộp bổ sung, hoặc lần đang mở nếu chưa nộp (§27.3)
       lateRound: lateView ? lateRound(lateView.at) : (lateOpen && !selfDone ? lateRound(now) : null),
-      // Nhân viên đã xác nhận đọc thông báo của lần nhắc nào (phải xác nhận lại ở mỗi lần mới)
-      lateAck: acts.lateAck || null,
       lateWindowOpen: lateOpen,
       lmDeadline: lmDue,
       lateSubmissionDeadline: lateSubmissionDeadline(),

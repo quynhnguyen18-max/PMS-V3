@@ -100,6 +100,10 @@ test('the 20 employee scenarios follow the requested order and states', () => {
     assert.equal(Y.status(p, 'vi').key, 'wait-lm', id);
     assert.equal(p.emp.id, prof(pending).emp.id, id + ' va ' + pending + ' la cung mot nguoi');
   }
+  // Tinh huong nop bo sung (nv12 den nv19) lam lai tu dau sau moi lan tai trang
+  assert.deepEqual(Array.from(nv.filter(x => x.fresh), x => x.id), ['nv12', 'nv13', 'nv14', 'nv15', 'nv16', 'nv17', 'nv18', 'nv19']);
+  const demoSrc = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
+  assert.match(demoSrc, /if \(wantScreen && goScreen\(wantScreen\)\) return;\s*freshStart\(currentScenario\(\)\);/);
   const never = prof('nv20');
   assert.equal(never.self, null);
   assert.equal(never.lateWindowOpen, false);
@@ -1059,7 +1063,10 @@ test('late submission has four reminders three working days apart, counted in wo
   const emp = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   assert.doesNotMatch(emp, /lateInfoBlock/);
   assert.match(emp, /var isLateFile = !!p\.lateSubmission;/);
-  assert.match(emp, /S\.setAct\(s\.emp, 'lateAck', \{ round: p\.lateRound\.round, at: s\.date \}\)/);
+  // Xac nhan da doc chi giu trong trang, F5 la phai xac nhan lai
+  assert.match(emp, /lateAckMem\[p\.id \+ ':' \+ p\.lateRound\.round\] = \{ at: s\.date \};/);
+  assert.doesNotMatch(emp, /setAct\(s\.emp, 'lateAck'/);
+  assert.doesNotMatch(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), /lateAck/);
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   assert.match(detail, /L\(' ngày làm việc',' working day'/);
 });
