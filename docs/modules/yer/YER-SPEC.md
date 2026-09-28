@@ -235,7 +235,7 @@ Chốt ngày 22/09/2026: **bỏ toàn bộ chức năng Employee Response khỏi
 - Nhân viên không có khối `Phản hồi của Nhân viên` ở bất kỳ trạng thái nào.
 - Quản lý không có bộ lọc, icon nhận diện, nội dung phản hồi hoặc hành động trả lời.
 - Model không còn sinh `responseOpen`, `replyOpen` hay thread phản hồi.
-- Các tình huống Demo chuyên cho luồng phản hồi (`nv19`, `nv20`) được loại bỏ.
+- Các tình huống Demo chuyên cho luồng phản hồi (mã `nv19`, `nv20` của bộ tình huống cũ) được loại bỏ. Mã hiện tại xem §46.
 
 ## 11. Mid-Year Snapshot (Enh 2)
 
@@ -713,7 +713,7 @@ trạng mục tiêu**. Ba trường hợp đều vào cùng một luồng:
      | 1 | (không hiện) | hệ thống sẽ gửi nhắc nhở lần thứ 2 vào ngày dd/mm/yyyy. Sau 2 lần nhắc nhở và cho cơ hội mà nhân viên vẫn chưa hoàn thành Tự đánh giá, các biện pháp xử lý tiếp theo sẽ được áp dụng theo quy định Công ty. |
      | 2 | (không hiện) | các biện pháp xử lý tiếp theo sẽ được áp dụng theo quy định Công ty, bắt đầu từ việc giới hạn điểm đánh giá toàn diện tối đa là 3. |
      | 3 | Điểm đánh giá toàn diện được giới hạn tối đa là 3. | bạn có thể bị cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ ngày nhắc nhở lần thứ tư (dd/mm/yyyy). |
-     | 4 | giới hạn điểm tối đa 3, và câu đầy đủ về cắt giảm thưởng, tạm hoãn 6 tháng, người đề xuất và phê duyệt, thời gian tạm hoãn | Công ty có thể sẽ đánh giá và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động đã quy định. |
+     | 4 | giới hạn điểm tối đa 3, và câu đầy đủ về cắt giảm thưởng, tạm hoãn 6 tháng, người đề xuất và phê duyệt | Công ty có thể sẽ đánh giá và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động đã quy định. |
 
      Câu gốc nằm ở `LATE_TEXT` trong model, dùng chung cho khối này, banner sau khi nộp và popup xác nhận gửi file;
    - chưa xác nhận: ô đánh dấu `Tôi đã đọc, hiểu và xác nhận tiếp tục.` và nút `Xác nhận và tiếp tục` (khóa tới
@@ -752,8 +752,6 @@ trạng mục tiêu**. Ba trường hợp đều vào cùng một luồng:
 4. Icon của từng bước là phần tử trình bày màu xám, đặt **trước** nhãn `Bước 1`…`Bước 3`
    và **không phải button**. Mọi action đều dùng button có nhãn rõ ràng; không dùng icon
    đơn lẻ làm CTA.
-5. Badge quá hạn dùng cùng hệ màu thương hiệu với header rose-neutral: nền `#FCEBF5`,
-   viền `#F0D7E5`, chữ/icon `--brand`; không dùng màu đỏ/cam khác hệ.
 
 **File mẫu.** Bấm `Tải Template`:
 
@@ -773,15 +771,22 @@ Chọn file không phải `.xlsx` hoặc `.xls` thì báo lỗi và bỏ file đ
 - Trạng thái danh sách và nhãn tab: `Nộp trễ hạn - Chờ Quản lý`.
 - Banner Nhân viên ghi `Đã hoàn thành bổ sung Tự đánh giá cuối năm`; dòng dưới hiển thị
   `Ngày gửi: dd/mm/yyyy - Trễ hạn x ngày làm việc`. Số ngày trễ đếm theo **ngày làm việc** (§27.3);
-  `Trễ hạn x ngày làm việc` là **một nhãn** rose-neutral màu thương hiệu (chốt 28/09/2026). Dòng tiếp theo trong
-  chính banner: `Hình thức xử lý theo quy định (nộp ở lần nhắc nhở k/4): …`. Không dựng khối riêng bên dưới
-  nữa vì trùng thông tin với banner. Hai dòng này luôn có, kể cả sau khi công bố kết quả.
+  `Trễ hạn x ngày làm việc` là **một nhãn màu đỏ** `--err-bg`/`--err-bd`/`--err` (chốt 28/09/2026 theo DS §19 rule 24: nhãn trạng thái quá hạn dùng đỏ; hồng thương hiệu chỉ dành cho việc cần làm). Dòng tiếp theo trong
+  chính banner: **`Hình thức xử lý theo quy định`** `(nộp ở lần nhắc thứ k): …`. Chốt lại 28/09/2026:
+  - dòng này **chỉ hiện khi đã có hình thức áp dụng** (lần 3, 4); nộp ở lần 1, 2 thì không có dòng này;
+  - chỉ ghi lần nhắc thứ mấy, **không ghi tổng số lần** (không dùng `k/4` ở bất kỳ chỗ nào, kể cả popup xác nhận
+    và badge ở M-06);
+  - nhãn `Hình thức xử lý theo quy định` in đậm; nội dung chữ thường, **chỉ in đậm từ khóa**: `tối đa là 3`,
+    `cắt giảm một phần tiền thưởng`, `tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo` (`LATE_KEYWORDS`);
+  - không ghi thêm câu `Thời gian tạm hoãn: từ … đến …`.
+  Không dựng khối riêng bên dưới vì trùng thông tin với banner. Nhãn trễ hạn và dòng này luôn có, kể cả sau khi
+  công bố kết quả.
 - Màn Quản lý đọc được mục tiêu import và chấm bình thường. Mọi hồ sơ từ luồng nộp bổ
-  sung bằng file đều có badge `Trễ hạn x ngày làm việc - nhắc nhở lần k/4` nổi bật tại khối cảnh báo để
+  sung bằng file đều có badge đỏ `Trễ hạn x ngày làm việc - lần nhắc thứ k` nổi bật tại khối cảnh báo để
   Quản lý nhận diện ngay, dùng cùng phép tính và hệ màu với banner Nhân viên.
 
 **`Không đánh giá`** chỉ xuất hiện khi **hết cả bốn lần nhắc** mà vẫn thiếu mục tiêu và
-không có file nào được nộp. Khi đó màn Nhân viên chỉ còn một khối nổi (`.yer-note.action.yer-late-closed`):
+không có file nào được nộp. Khi đó màn Nhân viên chỉ còn một khối nổi màu **vàng cảnh báo** (`.yer-note.yer-late-closed`, cùng tông với `.yer-late-note`):
 `Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc 18:00 ngày dd/mm/yyyy.` kèm câu hình thức kỷ luật;
 không dựng khối `Lưu ý` nữa. Mô hình: `stopped` cần đủ ba điều kiện — thiếu mục tiêu,
 đã qua `lateSubmissionDeadline`, và không có `lateSubmission`.
@@ -839,9 +844,9 @@ lần là một cơ hội nộp bổ sung, hạn 18:00 ngày làm việc thứ b
   và đánh dấu `Tôi đã đọc, hiểu và xác nhận tiếp tục.` (§27.1). Lưu ở `acts.lateAck = { round, at }`; sang lần
   nhắc mới phải xác nhận lại vì hình thức xử lý đổi.
 - Màn chỉ hiện nội dung của lần nhắc đang mở, không liệt kê cả bốn lần.
-- Popup xác nhận gửi file thêm câu: hồ sơ được ghi nhận trễ n ngày làm việc, ở lần nhắc k/4, kèm hình thức xử lý.
+- Popup xác nhận gửi file thêm câu: hồ sơ được ghi nhận trễ n ngày làm việc, ở lần nhắc thứ k, kèm hình thức xử lý nếu lần đó đã có.
 - **Sau khi nộp**, banner xanh ghi nhãn `Trễ hạn x ngày làm việc` và dòng `Hình thức xử lý theo quy định (nộp ở
-  lần nhắc nhở k/4): …` (§27.1).
+  lần nhắc thứ k): …` khi đã có hình thức áp dụng (§27.1).
 
 **Hạn chấm của QLTT với hồ sơ nộp bổ sung** (chốt 28/09/2026). Lần nhắc thứ tư chạy qua hạn chung của QLTT
 (01/02/2027), nên hồ sơ nộp bổ sung có hạn riêng: **3 ngày làm việc kể từ ngày nhân viên nộp**, nếu mốc đó muộn
@@ -851,12 +856,12 @@ hơn hạn chung (`PMSYer.lmDeadline(lateSubmission)`, `p.lmDeadline`). Hồ sơ
 |---|---|
 | trước hoặc bằng 27/01/2027 | 01/02/2027 (hạn chung) |
 | 28/01/2027 (`y12`) | 02/02/2027 |
-| 02/02/2027 (`y16`) | 12/02/2027 (bỏ qua ngày lễ mẫu 05/02, 08/02 đến 11/02) |
+| 02/02/2027 | 12/02/2027 (bỏ qua ngày lễ mẫu 05/02, 08/02 đến 11/02) |
 
 Trong hạn riêng, QLTT vẫn chấm được (`managerReviewState('lm').canEdit`), hệ thống chưa đồng bộ điểm; hết hạn
 riêng mới đồng bộ theo §6. Hạn riêng không vượt quá hạn Quản lý cấp 2 (15/02/2027) với lịch hiện tại.
 
-- Tình huống demo: `nv06` (lần 2, chưa nộp), `nv12` đến `nv15` (đã nộp ở lần 1 đến 4), `nv16` (không nộp sau 4 lần).
+- Tình huống demo: `nv06` (lần 2, chưa nộp), `nv12` đến `nv15` (chưa nộp, đang bị nhắc ở lần 1 đến 4), `nv16` đến `nv19` (đã nộp ở lần 1 đến 4), `nv20` (không nộp sau 4 lần).
 
 ## 28. ENH-E03 — Điều hướng sang kết quả Mid-Year
 
@@ -1088,7 +1093,7 @@ Chốt ngày 18/09/2026. Hai nguyên tắc:
 | 4 | Các trường hợp còn lại | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | điều kiện mục tiêu + kết quả kỳ giữa năm |
 | 5 | Không còn gạch đầu dòng nào | **không box nào** | — | không dựng thẻ rỗng |
 | 5b | Quá hạn, còn trong bốn lần nhắc, chưa nộp (§27.1) | **chỉ** khối vàng `.yer-note.yer-late-note` | **trên** dải quy trình | lần nhắc, hạn, hình thức xử lý (nếu có), lưu ý, xác nhận; các ô bên dưới khóa |
-| 6 | Hết cả bốn lần nộp bổ sung mà chưa nộp (§27.3) | **chỉ** khối `.yer-note.action.yer-late-closed` | dưới dải quy trình | không dựng khối Lưu ý |
+| 6 | Hết cả bốn lần nộp bổ sung mà chưa nộp (§27.3) | **chỉ** khối vàng `.yer-note.yer-late-closed` | dưới dải quy trình | không dựng khối Lưu ý |
 
 Phần còn thiếu được nói trên nhãn tab **Mục tiêu** (§18.4), không nằm trên nhãn tab
 Đánh giá cuối năm nữa.
@@ -1369,18 +1374,18 @@ có popup chi tiết mục tiêu, dùng chung luật nhãn tab với M-05.
 
 ## 46. Bảng điều hướng tình huống
 
-`YER-demo/index.html` gom **35 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
+`YER-demo/index.html` gom **39 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
 người review thường duyệt hết phần của một vai rồi mới sang vai khác. Hàng chip đầu bảng
 lọc theo vai; mỗi dòng đặt sẵn vai trò, nhân sự, ngày hệ thống và **màn hình sẽ mở**.
 
 | Nhóm | Mã | Số tình huống |
 |---|---|---|
-| Nhân viên | `nv01`–`nv16` | 16 |
+| Nhân viên | `nv01`–`nv20` | 20 |
 | Quản lý trực tiếp | `lm01`–`lm09` | 9 |
 | Quản lý cấp 2 | `lm2-01`–`lm2-05` | 5 |
 | Trưởng đơn vị | `hod01`–`hod05` | 5 |
 
-Mười sáu tình huống của Nhân viên, chốt 28/09/2026:
+Hai mươi tình huống của Nhân viên, chốt 28/09/2026:
 
 | Mã | Tình huống | Hồ sơ, ngày |
 |---|---|---|
@@ -1395,14 +1400,22 @@ Mười sáu tình huống của Nhân viên, chốt 28/09/2026:
 | `nv09` | Đã có ngày làm việc cuối cùng | `y6`, 08/01/2027 |
 | `nv10` | Có mục tiêu đã đánh giá hoàn thành với Quản lý cũ: cột Điểm QLTT ghi domain Quản lý cũ dưới điểm (§13.1) | `y3`, 12/01/2027 |
 | `nv11` | Có nhận xét của Quản lý cấp 2 và Trưởng đơn vị (§7) | `e12`, 25/02/2027 |
-| `nv12` | Đã nộp bổ sung ở lần nhắc 1 | `y9`, nộp 20/01, xem 21/01/2027 |
-| `nv13` | Đã nộp bổ sung ở lần nhắc 2 (file bù mục tiêu công việc) | `y14`, nộp 25/01, xem 26/01/2027 |
-| `nv14` | Đã nộp bổ sung ở lần nhắc 3 | `y12`, nộp 28/01, xem 29/01/2027 |
-| `nv15` | Đã nộp bổ sung ở lần nhắc 4 | `y16`, nộp 02/02, xem 03/02/2027 |
-| `nv16` | Không nộp sau 4 lần nhắc | `e2`, 05/02/2027 |
+| `nv12` | Chưa nộp - đang bị nhắc nhở lần 1 | `y9`, 19/01/2027 |
+| `nv13` | Chưa nộp - đang bị nhắc nhở lần 2 (file bù mục tiêu công việc) | `y14`, 22/01/2027 |
+| `nv14` | Chưa nộp - đang bị nhắc nhở lần 3 | `e8`, 27/01/2027 |
+| `nv15` | Chưa nộp - đang bị nhắc nhở lần 4 | `y16`, 01/02/2027 |
+| `nv16` | Đã nộp bổ sung ở lần nhắc thứ 1 | `y9`, nộp 20/01, xem 21/01/2027 |
+| `nv17` | Đã nộp bổ sung ở lần nhắc thứ 2 | `y14`, nộp 25/01, xem 26/01/2027 |
+| `nv18` | Đã nộp bổ sung ở lần nhắc thứ 3 | `e8`, nộp 28/01, xem 29/01/2027 |
+| `nv19` | Đã nộp bổ sung ở lần nhắc thứ 4 | `y16`, nộp 02/02, xem 03/02/2027 |
+| `nv20` | Không nộp sau 4 lần nhắc | `e2`, 05/02/2027 |
 
 `nv07` và `nv08` là cùng một người ở hai thời điểm; `e10` có sẵn lịch sử gửi, mở lại, gửi lại (§8.2).
-Hồ sơ nộp bổ sung dựng sẵn bằng `lateSeed()` trong `yer-data.js`; `y16` Mạc Thùy Dung là nhân sự mới cho lần nhắc 4.
+Nộp bổ sung ở từng lần nhắc dùng **một nhân viên ở hai thời điểm** (chốt 28/09/2026): ngày nhắc đầu tiên của lần
+đó thì chưa nộp (`nv12` đến `nv15`), người review đi trọn luồng khối cảnh báo, xác nhận, popup, gửi file tới banner
+đã nộp; ngày cuối của lần đó thì đã nộp theo bản dựng sẵn `lateSeed()` trong `yer-data.js` (`nv16` đến `nv19`).
+`y16` Mạc Thùy Dung là nhân sự mới cho lần nhắc 4. `e8` và `y16` chưa có file Template điền sẵn nên bấm
+`Tải Template` sẽ báo liên hệ HR (§27.1); luồng nộp vẫn đi tiếp. Hồ sơ nộp trễ của màn Quản lý là `y12`.
 `y12` nộp bổ sung ngày 28/01/2027 (lần nhắc 3) nên tình huống `lm05` của Quản lý là ngày 29/01/2027.
 
 Tại thời điểm kỳ cuối năm đã mở, nhãn trên tab Đánh giá giữa năm dùng hệ màu xám trung tính để

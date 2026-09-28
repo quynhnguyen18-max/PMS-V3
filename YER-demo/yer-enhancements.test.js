@@ -32,10 +32,7 @@ test('demo scenarios are grouped by role, not by process stage', () => {
 
   const scenarioIds = Array.from(w.PMS_YER_SCENARIOS, s => s.id);
   assert.equal(new Set(scenarioIds).size, scenarioIds.length, 'ma tinh huong phai duy nhat');
-  assert.equal(scenarioIds.filter(id => id.startsWith('nv')).length, 16);
-  assert.equal(scenarioIds.includes('nv17'), false);
-  assert.equal(scenarioIds.includes('nv19'), false);
-  assert.equal(scenarioIds.includes('nv20'), false);
+  assert.equal(scenarioIds.filter(id => id.startsWith('nv')).length, 20);
   // Array.from de doi sang mang cua tien trinh test: mang tao trong vm co prototype khac.
   assert.deepEqual(Array.from(w.PMS_YER_SCENARIO_ORDER), scenarioIds);
 
@@ -56,11 +53,11 @@ test('demo scenarios are grouped by role, not by process stage', () => {
   }
 });
 
-test('the 16 employee scenarios follow the requested order and states', () => {
+test('the 20 employee scenarios follow the requested order and states', () => {
   const w = loadYer();
   const Y = w.PMSYer;
   const nv = w.PMS_YER_SCENARIOS.filter(s => s.g === 'r-nv');
-  assert.deepEqual(Array.from(nv, s => s.id), Array.from({ length: 16 }, (_, i) => 'nv' + String(i + 1).padStart(2, '0')));
+  assert.deepEqual(Array.from(nv, s => s.id), Array.from({ length: 20 }, (_, i) => 'nv' + String(i + 1).padStart(2, '0')));
   const prof = id => { const sc = nv.find(s => s.id === id); return Y.profile(sc.emp, sc.date); };
 
   assert.equal(Y.selfAssessmentState(prof('nv01')).mode, 'draft');
@@ -87,14 +84,23 @@ test('the 16 employee scenarios follow the requested order and states', () => {
   const upper = prof('nv11');
   assert.ok(upper.self && upper.lm && upper.lm2.comment && upper.hod.comment, 'nv11 co nhan xet cua LM2 va HOD');
 
-  // Nop bo sung o tung lan nhac, va khong nop sau 4 lan
+  // Chua nop, dang bi nhac o lan 1 den 4: di tron luong tu canh bao toi luc da nop
   for (const [id, round] of [['nv12', 1], ['nv13', 2], ['nv14', 3], ['nv15', 4]]) {
+    const p = prof(id);
+    assert.equal(p.self, null, id + ' phai chua nop');
+    assert.equal(p.lateSubmission, null, id);
+    assert.equal(p.lateRound.round, round, id);
+    assert.equal(Y.status(p, 'vi').key, 'late-upload', id);
+  }
+  // Da nop o lan 1 den 4: cung nhan vien voi bo tren, o ngay cuoi cua lan nhac
+  for (const [id, round, pending] of [['nv16', 1, 'nv12'], ['nv17', 2, 'nv13'], ['nv18', 3, 'nv14'], ['nv19', 4, 'nv15']]) {
     const p = prof(id);
     assert.ok(p.lateSubmission, id + ' phai co ho so nop bo sung');
     assert.equal(p.lateRound.round, round, id);
     assert.equal(Y.status(p, 'vi').key, 'wait-lm', id);
+    assert.equal(p.emp.id, prof(pending).emp.id, id + ' va ' + pending + ' la cung mot nguoi');
   }
-  const never = prof('nv16');
+  const never = prof('nv20');
   assert.equal(never.self, null);
   assert.equal(never.lateWindowOpen, false);
   assert.equal(Y.status(never, 'vi').key, 'noeval');
@@ -112,11 +118,12 @@ test('late files give the line manager 3 extra working days past the common dead
   assert.equal(Y.lmDeadline({ at: '2027-01-20' }), '2027-02-01', 'nop som thi van dung han chung');
   assert.equal(Y.lmDeadline({ at: '2027-01-28' }), '2027-02-02');
   assert.equal(Y.lmDeadline({ at: '2027-02-02' }), '2027-02-12', 'bo qua ngay le trong lich');
-  const late4 = Y.profile('y16', '2027-02-10');
-  assert.equal(late4.lmDeadline, '2027-02-12');
-  assert.equal(late4.lm, null, 'chua dong bo diem khi QLTT con han rieng');
-  assert.equal(Y.managerReviewState('lm', late4).canEdit, true);
-  const after = Y.profile('y16', '2027-02-13');
+  // y12 nop ngay 28/01: QLTT cham duoc toi 02/02 du han chung la 01/02
+  const late3 = Y.profile('y12', '2027-02-02');
+  assert.equal(late3.lmDeadline, '2027-02-02');
+  assert.equal(late3.lm, null, 'chua dong bo diem khi QLTT con han rieng');
+  assert.equal(Y.managerReviewState('lm', late3).canEdit, true);
+  const after = Y.profile('y12', '2027-02-03');
   assert.equal(after.lm.synced, true);
   assert.equal(Y.managerReviewState('lm', after).canEdit, false);
 });
@@ -704,9 +711,15 @@ test('late completion banner identifies the supplemental file and overdue days',
   assert.match(banner, /Đã hoàn thành bổ sung Tự đánh giá cuối năm/);
   assert.match(banner, /class="yer-late-status"/);
   assert.match(banner, /L\('Trễ hạn ' \+ daysLate \+ ' ngày làm việc'/);
-  assert.match(banner, /Hình thức xử lý theo quy định \(nộp ở lần nhắc nhở /);
+  // Chi hien khi da co hinh thuc ap dung; chi ghi lan nhac thu may, khong ghi tong so lan; chi nhan tu khoa
+  assert.match(banner, /if\(isLateFile && p\.lateRound && p\.lateRound\.consequence\.length\)\{/);
+  assert.match(banner, /L\(' \(nộp ở lần nhắc thứ ' \+ p\.lateRound\.round \+ '\): '/);
+  assert.match(banner, /lateNowHtml\(p\.lateRound\)/);
+  assert.doesNotMatch(employee, /Thời gian tạm hoãn: từ|'\/4/);
+  assert.match(employee, /function emphasize\(text\)/);
+  assert.match(employee, /\.yer-note\.yer-late-closed\{background:var\(--warn-bg\);border-color:var\(--warn-bd\)/);
   assert.match(banner, /!p\.lateSubmission && p\.selfLog && p\.selfLog\.length/);
-  assert.match(employee, /\.yer-late-status\{[^}]*background:var\(--brand-muted\);[^}]*color:var\(--brand\)/);
+  assert.match(employee, /\.yer-late-status\{[^}]*background:var\(--err-bg\);[^}]*color:var\(--err\)/);
   assert.match(banner, /p\.lateSubmission && !p\.lm && !p\.published/);
   assert.match(banner, /class="yer-next-step"/);
   assert.match(banner, /Tiếp theo:/);
@@ -798,7 +811,7 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /Hồ sơ nộp bổ sung Tự đánh giá cuối năm/);
   assert.match(source, /class="yer-md-late-status"/);
   assert.match(source, /Y\.lateDays\(p\.lateSubmission\.at\)/);
-  assert.match(source, /\.yer-md-late-status\{[^}]*background:var\(--brand-muted\);[^}]*color:var\(--brand\)/);
+  assert.match(source, /\.yer-md-late-status\{[^}]*background:var\(--err-bg\);[^}]*color:var\(--err\)/);
 });
 
 test('manager demo separates roster phases from role-filtered detail scenarios', () => {

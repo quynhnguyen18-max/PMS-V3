@@ -242,7 +242,7 @@
       '<span class="yer-md-late-status"><strong>' + L('Trễ hạn','Late') + '</strong> ' +
         // Đếm theo ngày làm việc, kèm lần nhắc nhở lúc nhân viên nộp (YER-SPEC §27.3)
         esc(daysLate + L(' ngày làm việc',' working day' + (daysLate === 1 ? '' : 's')) +
-          (p.lateRound ? L(' - nhắc nhở lần ',' - reminder ') + p.lateRound.round + '/4' : '')) + '</span>' +
+          (p.lateRound ? L(' - lần nhắc thứ ',' - reminder ') + p.lateRound.round : '')) + '</span>' +
       '<span class="yer-late-file-tag"><i class="bx bx-file"></i>' + esc(p.lateSubmission.fileName || '') + ' - ' + esc(Y.fmt(p.lateSubmission.at, lg())) + '</span><br>' +
       L('Nhân viên đã tải lên mục tiêu và nội dung tự đánh giá sau thời hạn. Mục tiêu <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với bạn từ trước. Bạn tiếp tục đánh giá như bình thường.',
         'The employee imported their goals and self assessment after their window closed. The goals were taken as-is, <strong>with no approval step</strong>; the employee is responsible for having agreed them with you earlier. You review as usual.') +
@@ -812,7 +812,7 @@
       '.yer-myr-go{margin-left:auto;flex:none;white-space:nowrap}' +
       '.yer-note-mat>i{color:var(--info)}' +
       '.yer-note-late>i{color:var(--warn)}' +
-      '.yer-md-late-status{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:3px 8px;border:1px solid var(--brand-ring);border-radius:99px;background:var(--brand-muted);color:var(--brand);font-size:10.5px;font-weight:600;vertical-align:middle}' +
+      '.yer-md-late-status{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:3px 8px;border:1px solid var(--err-bd);border-radius:99px;background:var(--err-bg);color:var(--err);font-size:10.5px;font-weight:600;vertical-align:middle}' +
       '.yer-md-late-status strong{font-weight:800}' +
       '.yer-late-file-tag{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:3px 7px;border-radius:99px;background:var(--warn-bg);color:var(--warn);font-size:10.5px;font-weight:600;vertical-align:middle}' +
       '.yer-note-stop>i{color:var(--err)}' +

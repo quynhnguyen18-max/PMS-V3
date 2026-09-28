@@ -524,11 +524,12 @@
         (isLateFile ? ' <span class="yer-late-status">' +
           esc(L('Trễ hạn ' + daysLate + ' ngày làm việc','Late by ' + daysLate + ' working day' + (daysLate === 1 ? '' : 's'))) + '</span>' : '');
     // Hình thức xử lý nằm ngay trong banner, dưới dòng ngày gửi (§27.3)
-    if(isLateFile && p.lateRound){
+    // Chỉ hiện khi đã có hình thức áp dụng (lần 3, 4). Nhãn in đậm, nội dung chữ thường, chỉ nhấn từ khóa.
+    if(isLateFile && p.lateRound && p.lateRound.consequence.length){
       sub += '</div><div class="sb-sub yer-late-csq">' +
-        L('Hình thức xử lý theo quy định (nộp ở lần nhắc nhở ' + p.lateRound.round + '/4): ',
-          'Measure under policy (submitted at reminder ' + p.lateRound.round + '/4): ') +
-        '<strong>' + esc(lateNowText(p.lateRound)) + '</strong>';
+        '<strong>' + L('Hình thức xử lý theo quy định','Measure under policy') + '</strong>' +
+        L(' (nộp ở lần nhắc thứ ' + p.lateRound.round + '): ',' (submitted at reminder ' + p.lateRound.round + '): ') +
+        lateNowHtml(p.lateRound);
     }
     // Còn hạn thì nói rõ mốc cuối cùng còn chỉnh sửa được, ngay dưới ngày gửi (§8)
     if(st.canReopen){
@@ -650,24 +651,18 @@
      Đây là luồng riêng chỉ mở trong timeline của LM. Một file duy nhất,
      goal đi thẳng vào hồ sơ và không phát sinh bước phê duyệt goal. */
   /* ── Bốn lần nhắc nộp bổ sung (§27.3). Luật và câu chữ hình thức xử lý ở model. ── */
-  // Ngày kết thúc tạm hoãn: 6 tháng kể từ ngày nhắc lần thứ tư
-  function freezeUntil(){
-    var r4 = Y.lateRounds()[3].remindAt.split('-');
-    var t = new Date(+r4[0], +r4[1] - 1 + 6, +r4[2]);
-    return String(t.getDate()).padStart(2,'0') + '/' + String(t.getMonth() + 1).padStart(2,'0') + '/' + t.getFullYear();
+  function consequenceText(key){ return Y.lateText(key, lg()); }
+  /* Chỉ in đậm từ khóa của hình thức xử lý, phần còn lại để chữ thường cho dễ đọc */
+  var LATE_KEYWORDS = {
+    vi: ['tối đa là 3', 'cắt giảm một phần tiền thưởng', 'tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo'],
+    en: ['capped at 3', 'Part of the bonus may be cut', 'promotion and salary increase deferred for the next 6 months']
+  };
+  function emphasize(text){
+    var out = esc(text);
+    (LATE_KEYWORDS[lg()] || []).forEach(function(k){ out = out.split(esc(k)).join('<strong>' + esc(k) + '</strong>'); });
+    return out;
   }
-  function consequenceText(key){
-    var t = Y.lateText(key, lg());
-    if(key === 'bonus') t += L(' Thời gian tạm hoãn: từ ' + Y.fmt(Y.lateRounds()[3].remindAt, lg()) + ' đến ' + freezeUntil() + '.',
-                               ' Deferral period: ' + Y.fmt(Y.lateRounds()[3].remindAt, lg()) + ' to ' + freezeUntil() + '.');
-    return t;
-  }
-  // Hình thức xử lý áp cho hồ sơ nộp trong lần nhắc này
-  function lateNowText(r){
-    if(!r.consequence.length) return L('Chưa áp dụng hình thức xử lý vì nộp trong 2 lần nhắc nhở đầu tiên.',
-                                       'No measure applies because it is within the first 2 reminders.');
-    return r.consequence.map(consequenceText).join(' ');
-  }
+  function lateNowHtml(r){ return r.consequence.map(function(k){ return emphasize(consequenceText(k)); }).join(' '); }
   // Điều xảy ra nếu hết lần nhắc này mà vẫn chưa nộp
   /* Câu cảnh báo nếu hết lần nhắc này mà vẫn chưa nộp. Bám đúng nội dung quy định (§27.3),
      chỉ nối thành câu hoàn chỉnh cho từng lần, không rút gọn thành cụm từ. */
@@ -707,7 +702,7 @@
       L('Hạn Tự đánh giá đã kết thúc ngày ' + Y.fmt(Y.step('self').to, lg()) + ' <strong>(trễ ' + days + ' ngày làm việc)</strong>. Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày ' + deadline + '</strong>.',
         'The self-assessment deadline was ' + Y.fmt(Y.step('self').to, lg()) + ' <strong>(' + days + ' working days late)</strong>. Submit your late file before <strong>18:00 on ' + deadline + '</strong>.') +
       '<ul class="yer-note-list">' +
-        (nowText ? '<li>' + L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + esc(nowText) + '</li>' : '') +
+        (nowText ? '<li>' + L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + lateNowHtml(r) + '</li>' : '') +
         '<li>' + L('<strong>Lưu ý:</strong> nếu quá hạn trên mà vẫn chưa nộp, ','<strong>Note:</strong> if still not submitted by then, ') + esc(lateNextText(r)) + '</li>' +
       '</ul>' +
       (acked
@@ -942,7 +937,7 @@
     // Thiếu mục tiêu thì khối cảnh báo ở trên đã nói hồ sơ không đánh giá; không dựng box thứ hai (§40.5a)
     if(lateClosed && !hasWarnNote){
       var lateEnd = Y.fmt(Y.lateSubmissionDeadline(), lg());
-      html += '<div class="yer-note action yer-late-closed"><i class="bx bx-time-five"></i><div>' +
+      html += '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div>' +
         '<strong>' + L('Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc 18:00 ngày ' + lateEnd + '.',
                        'The late self-assessment window closed at 18:00 on ' + lateEnd + '.') + '</strong><br>' +
         L('Bạn đã không nộp sau 4 lần nhắc nhở. ','You did not submit after 4 reminders. ') + esc(Y.lateText('discipline', lg())) +
@@ -1072,9 +1067,9 @@
       className:'yer-late-confirm-dialog',
       title:L('Gửi nội dung Tự Đánh giá cuối năm','Submit Year-End Self Assessment'),
       html:L('<div class="yer-late-confirm-copy"><p>Bạn xác nhận <strong>các mục tiêu</strong> trong file <strong>đã được thống nhất</strong> với Quản lý trực tiếp.</p><p><strong>Bạn chỉ có 1 lần gửi duy nhất.</strong></p><p>Sau khi gửi Tự đánh giá, bạn <strong>không thể thu hồi hoặc chỉnh sửa</strong> bất cứ nội dung nào.</p>' +
-             '<p>Hồ sơ được ghi nhận <strong>trễ ' + Y.lateDays(p.now) + ' ngày làm việc</strong>, nộp ở lần nhắc nhở <strong>' + p.lateRound.round + '/4</strong>. ' + esc(lateNowText(p.lateRound)) + '</p></div>',
+             '<p>Hồ sơ được ghi nhận <strong>trễ ' + Y.lateDays(p.now) + ' ngày làm việc</strong>, nộp ở <strong>lần nhắc thứ ' + p.lateRound.round + '</strong>.' + (p.lateRound.consequence.length ? ' ' + lateNowHtml(p.lateRound) : '') + '</p></div>',
              '<div class="yer-late-confirm-copy"><p>You confirm that <strong>the goals</strong> in the file <strong>were agreed</strong> with your line manager.</p><p><strong>You can submit only once.</strong></p><p>After submitting your self assessment, you <strong>cannot withdraw or edit</strong> any content.</p>' +
-             '<p>This is recorded as <strong>' + Y.lateDays(p.now) + ' working days late</strong>, at reminder <strong>' + p.lateRound.round + '/4</strong>. ' + esc(lateNowText(p.lateRound)) + '</p></div>'),
+             '<p>This is recorded as <strong>' + Y.lateDays(p.now) + ' working days late</strong>, at <strong>reminder ' + p.lateRound.round + '</strong>.' + (p.lateRound.consequence.length ? ' ' + lateNowHtml(p.lateRound) : '') + '</p></div>'),
       buttons:[
         { label:L('Kiểm tra lại','Review again'), variant:'quiet' },
         { label:L('Xác nhận và Gửi','Confirm and submit'), variant:'default', icon:'bx-send', act:function(){
@@ -1586,8 +1581,9 @@
       '.yer-note-list li{line-height:1.55}' +
       '.yer-note-link{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}' +
       '.yer-note-link:hover{color:var(--brand-h)}' +
-      '.yer-late-status{display:inline-flex;align-items:center;padding:1px 6px;border:1px solid var(--brand-ring);border-radius:99px;' +
-        'background:var(--brand-muted);color:var(--brand);font-size:10.5px;font-weight:700;line-height:1.5}' +
+      // Nhãn trạng thái Trễ hạn dùng màu đỏ --err (DS §19 rule 24), cùng màu với badge ở M-06
+      '.yer-late-status{display:inline-flex;align-items:center;padding:1px 6px;border:1px solid var(--err-bd);border-radius:99px;' +
+        'background:var(--err-bg);color:var(--err);font-size:10.5px;font-weight:700;line-height:1.5}' +
       '.yer-late-confirm-copy{display:flex;flex-direction:column;gap:10px}' +
       '.yer-late-confirm-copy p{margin:0}' +
       '.yer-late-confirm-copy strong{font-weight:700;color:var(--z900)}' +
@@ -1664,7 +1660,11 @@
       '.yer-late-acked{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--z600)}' +
       '.yer-late-acked i{color:var(--ok);font-size:15px}' +
       '.yer-late-note .yer-late-note-body{flex:1;min-width:0}' +
-      '.yer-late-csq strong{color:var(--z900);font-weight:600}' +
+      '.yer-late-csq{line-height:1.55}' +
+      '.yer-late-csq strong{color:var(--z900);font-weight:700}' +
+      // Hết cả bốn lần nhắc: cùng tông vàng cảnh báo với khối quá hạn
+      '#yer-root .yer-note.yer-late-closed{background:var(--warn-bg);border-color:var(--warn-bd);color:var(--z800)}' +
+      '#yer-root .yer-late-closed>i{color:var(--warn);font-size:18px}' +
       // Popup nộp bổ sung: rộng hơn popup thường, không có chân popup vì nút Gửi nằm trong nội dung
       '.yer-late-dialog{max-width:720px}' +
       '.yer-late-dialog .pms-dlg-ft{display:none}' +

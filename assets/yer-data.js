@@ -457,10 +457,13 @@
   };
 
   // s23-s25 — nhân viên quá hạn tự đánh giá, tách theo trạng thái goal
-  // Nộp bổ sung bằng file ở từng lần nhắc (§27.3). Mục tiêu trong file vào thẳng hồ sơ, không qua duyệt.
+  /* Nộp bổ sung ở từng lần nhắc (§27.3). Mỗi lần dùng một nhân viên ở hai thời điểm:
+     ngày nhắc đầu tiên của lần đó thì CHƯA nộp (nv12 đến nv15, đi trọn luồng được),
+     ngày cuối của lần đó thì ĐÃ nộp theo bản dựng sẵn dưới đây (nv16 đến nv19).
+     Mục tiêu trong file vào thẳng hồ sơ, không qua duyệt. */
   function lateSeed(scenario, at, fileName, goals, overall, scores) {
     var goalScores = {};
-    goals.forEach(function (g, i) { goalScores[g.id] = scores[i]; });
+    goals.forEach(function (g, i) { goalScores[g.id] = scores[i] != null ? scores[i] : 3; });
     return {
       scenario: scenario,
       importedGoals: { at: at, source: 'employee-late', fileName: fileName, goals: goals },
@@ -470,16 +473,18 @@
         overall: { score: overall, comment: 'Hoàn thành phần lớn mục tiêu, cần cải thiện việc cập nhật tiến độ đúng hạn.' } })
     };
   }
-  function imported(g) { return Object.assign({}, g, { status: 'imported' }); }
   function goalsOf(id) {
-    return (NEW_EMPLOYEES.filter(function (e) { return e.id === id; })[0] || { goals: [] }).goals
-      .filter(function (g) { return g.status === 'approved'; }).map(imported);
+    return ((window.PMS_EMPLOYEES || []).filter(function (e) { return e.id === id; })[0] || { goals: [] }).goals
+      .filter(function (g) { return g.status === 'approved'; })
+      .map(function (g) { return Object.assign({}, g, { status: 'imported' }); });
   }
-  Y.y9 = lateSeed('s23', '2027-01-20', 'YER-2026-Nguyen-Mai-Anh.xlsx', goalsOf('y9'), 3.5, [4, 3]);   // lần nhắc 1
-  Y.y14 = lateSeed('s27', '2027-01-25', 'YER-2026-Dinh-Gia-Han.xlsx',                                  // lần nhắc 2, file bù mục tiêu công việc
+  Y.y9 = lateSeed('s23', '2027-01-20', 'YER-2026-Nguyen-Mai-Anh.xlsx', goalsOf('y9'), 3.5, [4, 3]);    // lần 1
+  Y.y14 = lateSeed('s27', '2027-01-25', 'YER-2026-Dinh-Gia-Han.xlsx',                                   // lần 2, file bù mục tiêu công việc
     [{ id: 'late-y14-what', type: 'what', title: 'Giảm thời gian phản hồi yêu cầu của đối tác', result: 'Thời gian phản hồi trung bình dưới 3 giờ làm việc.', status: 'imported', s: '01/01', e: '31/12', prio: 'h', comments: [] }]
       .concat(goalsOf('y14')), 3.5, [4, 3]);
-  Y.y16 = lateSeed('s28', '2027-02-02', 'YER-2026-Mac-Thuy-Dung.xlsx', goalsOf('y16'), 3, [3, 3]);    // lần nhắc 4
+  Y.e8 = lateSeed('s29', '2027-01-28', 'YER-2026-Nguyen-Thi-Hoa.xlsx',
+    goalsOf('e8'), 3, [3, 3]);                                                             // lần 3
+  Y.y16 = lateSeed('s28', '2027-02-02', 'YER-2026-Mac-Thuy-Dung.xlsx', goalsOf('y16'), 3, [3, 3]);     // lần 4
   Y.y10 = { scenario: 's24' };  // thiếu Development goal đã duyệt
   Y.y11 = { scenario: 's25' };  // chưa có goal
 
@@ -605,26 +610,42 @@
       vi: 'Có nhận xét của Quản lý cấp 2 và Trưởng đơn vị', en: 'Comments from the second-level manager and HOD',
       wvi: 'Đã tự đánh giá, có điểm QLTT. Cuối trang có thêm ô nhận xét của Quản lý cấp 2 và Trưởng đơn vị, không hiện điểm của hai cấp này.',
       wen: 'Self assessment done with line-manager scores. A comment box from the second-level manager and HOD is added at the bottom, without their ratings.' },
-    { id: 'nv12', g: 'r-nv', emp: 'y9', role: 'nv', date: '2027-01-21', screen: 'E-05',
+    { id: 'nv12', g: 'r-nv', emp: 'y9', role: 'nv', date: '2027-01-19', screen: 'E-05',
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 1', en: 'Not submitted - reminder 1',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Lần 1 chưa áp dụng hình thức xử lý. Khối cảnh báo nói nếu quá hạn lần này thì hệ thống gửi nhắc nhở lần 2.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Round 1 carries no measure; the warning says reminder 2 follows if this round is missed.' },
+    { id: 'nv13', g: 'r-nv', emp: 'y14', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 2', en: 'Not submitted - reminder 2',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Vẫn chưa áp dụng hình thức xử lý; nếu quá hạn lần này thì bắt đầu giới hạn điểm toàn diện tối đa là 3. File nộp bù luôn mục tiêu công việc còn thiếu.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. No measure yet; missing this round starts the rating cap. The file also supplies the missing work goal.' },
+    { id: 'nv14', g: 'r-nv', emp: 'e8', role: 'nv', date: '2027-01-27', screen: 'E-05',
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 3', en: 'Not submitted - reminder 3',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Hình thức xử lý: điểm đánh giá toàn diện tối đa là 3; nếu quá hạn lần này thì có thể cắt giảm thưởng và tạm hoãn thăng chức, tăng lương.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Measure: rating capped at 3; missing this round may lead to a bonus cut and deferral.' },
+    { id: 'nv15', g: 'r-nv', emp: 'y16', role: 'nv', date: '2027-02-01', screen: 'E-05',
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 4', en: 'Not submitted - reminder 4',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Hình thức xử lý cộng dồn: điểm tối đa là 3, có thể cắt giảm thưởng và tạm hoãn thăng chức, tăng lương 6 tháng; quá hạn lần này thì có thể bị kỷ luật.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Cumulative measures; missing this round may lead to disciplinary action.' },
+    { id: 'nv16', g: 'r-nv', emp: 'y9', role: 'nv', date: '2027-01-21', screen: 'E-05',
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 1', en: 'Late file submitted at reminder 1',
-      wvi: 'Nộp trong 2 lần nhắc đầu nên chưa áp dụng hình thức xử lý. Banner vẫn ghi số ngày làm việc trễ.',
-      wen: 'Submitted within the first 2 reminders, so no measure applies. The banner still shows the working days late.' },
-    { id: 'nv13', g: 'r-nv', emp: 'y14', role: 'nv', date: '2027-01-26', screen: 'E-05',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn; lần này chưa có hình thức xử lý.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label; no measure in this round.' },
+    { id: 'nv17', g: 'r-nv', emp: 'y14', role: 'nv', date: '2027-01-26', screen: 'E-05',
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 2', en: 'Late file submitted at reminder 2',
-      wvi: 'Vẫn chưa áp dụng hình thức xử lý. File nộp bù luôn mục tiêu công việc còn thiếu.',
-      wen: 'No measure applies yet. The file also supplies the missing work goal.' },
-    { id: 'nv14', g: 'r-nv', emp: 'y12', role: 'nv', date: '2027-01-29', screen: 'E-05',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn; lần này chưa có hình thức xử lý.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label; no measure in this round.' },
+    { id: 'nv18', g: 'r-nv', emp: 'e8', role: 'nv', date: '2027-01-29', screen: 'E-05',
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 3', en: 'Late file submitted at reminder 3',
-      wvi: 'Hình thức xử lý theo quy định: điểm đánh giá toàn diện tối đa là 3.',
-      wen: 'Measure under policy: the overall rating is capped at 3.' },
-    { id: 'nv15', g: 'r-nv', emp: 'y16', role: 'nv', date: '2027-02-03', screen: 'E-05',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn và hình thức xử lý theo quy định.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure.' },
+    { id: 'nv19', g: 'r-nv', emp: 'y16', role: 'nv', date: '2027-02-03', screen: 'E-05',
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 4', en: 'Late file submitted at reminder 4',
-      wvi: 'Hình thức xử lý cộng dồn: điểm tối đa là 3, có thể cắt giảm thưởng và tạm hoãn thăng chức, tăng lương 6 tháng.',
-      wen: 'Cumulative measures: rating capped at 3, possible bonus cut and 6-month deferral of promotion and raise.' },
-    { id: 'nv16', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-05', screen: 'E-05',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn và hình thức xử lý theo quy định.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure.' },
+    { id: 'nv20', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-05', screen: 'E-05',
       vi: 'Không nộp sau 4 lần nhắc nhở', en: 'Not submitted after 4 reminders',
-      wvi: 'Hết thời gian nộp bổ sung: chỉ còn một khối nổi báo đã hết hạn và hình thức kỷ luật, các ô đều khóa.',
-      wen: 'The late window has closed: one prominent notice about the deadline and disciplinary action; all fields are locked.' },
+      wvi: 'Hết thời gian nộp bổ sung: chỉ còn một khối vàng báo đã hết hạn và hình thức kỷ luật, các ô đều khóa.',
+      wen: 'The late window has closed: one yellow notice about the deadline and disciplinary action; all fields are locked.' },
 
     /* ── Quản lý trực tiếp ── */
     { id: 'lm01', g: 'r-lm', emp: 'y6', role: 'lm', date: '2027-01-25', screen: 'M-05',
