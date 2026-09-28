@@ -186,7 +186,12 @@
             sc.id + ' — ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
         }).join('');
       } else if (!managerList) {
-        scenarioOptions = groups.map(function(g){
+        // Màn Nhân viên chỉ liệt kê tình huống của vai Nhân viên (§44.1)
+        if (!current) {
+          scenarioOptions += '<option value="" selected disabled>' +
+            (lg === 'en' ? 'Select a scenario' : 'Chọn tình huống') + '</option>';
+        }
+        scenarioOptions += groups.filter(function(g){ return g.role === 'nv'; }).map(function(g){
           var rows = sortedScenarios.filter(function(sc){ return sc.g === g.id; });
           if(!rows.length) return '';
           return '<optgroup label="' + label(g) + '">' + rows.map(function(sc){
@@ -195,10 +200,8 @@
               sc.id + ' — ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
           }).join('') + '</optgroup>';
         }).join('');
-        var otherOptions = emps.filter(function(e){ return !usedEmp[e.id]; }).map(function(e){
-          return '<option value="emp:' + e.id + '"' + (!current && e.id === s.emp ? ' selected' : '') + '>' + e.name + '</option>';
-        }).join('');
-        if(otherOptions) scenarioOptions += '<optgroup label="' + (lg === 'en' ? 'Other profiles' : 'Hồ sơ khác') + '">' + otherOptions + '</optgroup>';
+        // Không còn nhóm Hồ sơ khác: hồ sơ lẻ giữ nguyên ngày hệ thống của tình huống trước nên
+        // màn hiển thị không khớp với câu chuyện của hồ sơ. Mọi hồ sơ demo đều là tình huống có số.
       }
 
       var visibleRoles = managerScreen
@@ -207,7 +210,10 @@
       var scenarioControl = managerDetail
         ? '<label>' + (lg === 'en' ? 'Detail scenario' : 'Tình huống chi tiết') +
             '<select id="dm-emp">' + scenarioOptions + '</select></label>'
-        : '';
+        : !managerList
+          ? '<label>' + (lg === 'en' ? 'Scenario' : 'Tình huống') +
+              '<select id="dm-emp">' + scenarioOptions + '</select></label>'
+          : '';
       var visibleSteps = window.PMS_YER_TIMELINE.steps.filter(function (st) {
         return !managerScreen || MANAGER_STEPS.indexOf(st.key) >= 0;
       });

@@ -240,7 +240,9 @@
     return '<div class="info-note yer-note-late"><i class="bx bx-time-five"></i><div>' +
       '<strong>' + L('Hồ sơ nộp bổ sung Tự đánh giá cuối năm', 'Supplemental year-end self assessment') + '</strong>' +
       '<span class="yer-md-late-status"><strong>' + L('Trễ hạn','Late') + '</strong> ' +
-        esc(daysLate + L(' ngày',' day' + (daysLate === 1 ? '' : 's'))) + '</span>' +
+        // Đếm theo ngày làm việc, kèm lần nhắc nhở lúc nhân viên nộp (YER-SPEC §27.3)
+        esc(daysLate + L(' ngày làm việc',' working day' + (daysLate === 1 ? '' : 's')) +
+          (p.lateRound ? L(' - nhắc nhở lần ',' - reminder ') + p.lateRound.round + '/4' : '')) + '</span>' +
       '<span class="yer-late-file-tag"><i class="bx bx-file"></i>' + esc(p.lateSubmission.fileName || '') + ' - ' + esc(Y.fmt(p.lateSubmission.at, lg())) + '</span><br>' +
       L('Nhân viên đã tải lên mục tiêu và nội dung tự đánh giá sau thời hạn. Mục tiêu <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với bạn từ trước. Bạn tiếp tục đánh giá như bình thường.',
         'The employee imported their goals and self assessment after their window closed. The goals were taken as-is, <strong>with no approval step</strong>; the employee is responsible for having agreed them with you earlier. You review as usual.') +

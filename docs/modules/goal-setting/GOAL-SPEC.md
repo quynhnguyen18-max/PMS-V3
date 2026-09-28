@@ -51,7 +51,9 @@ Mã rule: `GS-xx`. Mã màn theo hệ hiện tại (E-05, M-05, M-01b, M-06), kh
 - **GS-17** Sau khi đã duyệt, QLTT **không từ chối** được nữa. (PRD §2.2, §4.5)
 - **GS-18** Mục tiêu `Từ chối` và mục tiêu đã xóa không vào kỳ đánh giá. Chỉ mục tiêu `Đã duyệt` mới được đánh giá ở MYR, YER. (PRD §4.7)
 
-## 4. Màn Nhân viên: tab Mục tiêu (`E-05` `#mpanel-goals`)
+## 4. Màn Nhân viên: tab Danh sách mục tiêu (`E-05` `#mpanel-goals`)
+
+Tab đổi tên từ `Mục tiêu` thành `Danh sách mục tiêu` ngày 27/09/2026, ở cả E-05 và M-06. Khi nhân viên còn thiếu mục tiêu trong hạn Tự đánh giá, tab có nhãn `Cần thiết lập mục tiêu …` (YER-SPEC §18.4).
 
 ### 4.1 Bố cục
 

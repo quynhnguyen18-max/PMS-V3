@@ -61,6 +61,9 @@
     '.rt-def strong{color:var(--z900)}',
     '.pms-tip-body strong{color:#fff}',
     '.rt-empty{font-size:12.5px;color:var(--z500)}',
+    /* Ô chưa chọn điểm: nới rộng cho vừa chữ gợi ý, chữ thường và nhạt hơn điểm đã chọn */
+    '.sc-select.rt-unset,.op-select.rt-unset{width:auto;min-width:112px;font-weight:500;font-size:12px;color:var(--z600);text-align:left}',
+    '.rt-unset option{color:var(--z900);font-weight:600}',
     '.rt-i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;',
     'border:1px solid var(--z300);color:var(--z500);font-size:11px;cursor:help;background:var(--z0);flex:none}',
     '.rt-i:hover,.rt-i:focus-visible{border-color:var(--brand);color:var(--brand);outline:none}',
@@ -260,10 +263,11 @@
         ? '<span class="op-score-lbl">' + esc(opts.label) +
           (opts.required ? '<span style="color:#dc2626;margin-left:2px">*</span>' : '') + '</span>'
         : '';
-      var sel = '<select class="' + (half ? 'op-select' : 'sc-select') + '"' +
+      // Chưa chọn thì ô tự nói cách dùng, thay cho dấu gạch ngang (§41.1)
+      var sel = '<select class="' + (half ? 'op-select' : 'sc-select') + (val == null ? ' rt-unset' : '') + '"' +
         (opts.disabled ? ' disabled' : '') +
         ' aria-label="' + esc(opts.label || (lang() === 'en' ? 'Rating' : 'Điểm đánh giá')) + '">' +
-        '<option value="">—</option>' +
+        '<option value="">' + (lang() === 'en' ? 'Select 1-5' : 'Chọn điểm 1-5') + '</option>' +
         values().map(function (v) {
           return '<option value="' + v + '"' + (val === v ? ' selected' : '') + '>' + fmtNum(v) + '</option>';
         }).join('') + '</select>';

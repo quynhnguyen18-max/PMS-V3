@@ -36,15 +36,87 @@
     if (cmp(now, s.to) > 0) return 'closed';
     return 'open';
   }
-  function lateSubmissionDeadline() {
-    return addDays(step('lm').to, -3);
+  /* ── Ngày làm việc (§27.3): thứ 2 đến thứ 6, trừ ngày lễ ── */
+  function isWorkingDay(v) {
+    var wd = d(v).getDay();
+    return wd !== 0 && wd !== 6 && (window.PMS_YER_HOLIDAYS || []).indexOf(v) < 0;
   }
+  function addWorkingDays(v, n) {
+    var cur = v;
+    while (n > 0) { cur = addDays(cur, 1); if (isWorkingDay(cur)) n--; }
+    return cur;
+  }
+  // Số ngày làm việc sau `from`, tính tới hết ngày `to`
+  function workingDaysBetween(from, to) {
+    var n = 0, cur = from;
+    while (cmp(cur, to) < 0) { cur = addDays(cur, 1); if (isWorkingDay(cur)) n++; }
+    return n;
+  }
+
+  /* ── Nộp bổ sung sau hạn tự đánh giá: bốn lần nhắc (§27.3) ──
+     Lần 1 nhắc ngay ngày làm việc đầu tiên sau hạn chót. Các lần sau cách nhau 3 ngày làm việc.
+     Mỗi lần là một cơ hội nộp bổ sung, hạn là 18:00 ngày làm việc thứ ba của lần đó.
+     consequence: hình thức xử lý áp cho hồ sơ nộp trong lần đó (cộng dồn).
+     next: điều xảy ra nếu hết lần đó mà vẫn chưa nộp.                                        */
+  var LATE_ROUND_RULE = [
+    { consequence: [],                 next: 'remind' },
+    { consequence: [],                 next: 'cap3' },
+    { consequence: ['cap3'],           next: 'bonus' },
+    { consequence: ['cap3', 'bonus'],  next: 'discipline' }
+  ];
+  /* Câu chữ của các hình thức xử lý: dùng chung cho màn Nhân viên và màn Quản lý (DS §20.1) */
+  var LATE_TEXT = {
+    remind: { vi: 'Hệ thống sẽ gửi nhắc nhở lần tiếp theo.',
+              en: 'The system will send the next reminder.' },
+    policy: { vi: 'Sau 2 lần nhắc nhở và cho cơ hội mà nhân viên vẫn chưa hoàn thành Tự đánh giá, các biện pháp xử lý tiếp theo sẽ được áp dụng theo quy định Công ty.',
+              en: 'If, after 2 reminders and chances, the self assessment is still not completed, further measures will apply under Company policy.' },
+    cap3:   { vi: 'Điểm đánh giá toàn diện được giới hạn tối đa là 3.',
+              en: 'The overall rating is capped at 3.' },
+    bonus:  { vi: 'Có thể cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ thời điểm nhắc nhở lần thứ tư. Việc áp dụng cụ thể do Trưởng đơn vị phối hợp với HOHR đề xuất và được CEO hoặc người được ủy quyền phê duyệt.',
+              en: 'Part of the bonus may be cut and promotion and salary increase deferred for the next 6 months, counted from the fourth reminder. The Head of Department and HOHR propose the specifics for approval by the CEO or an authorised person.' },
+    discipline: { vi: 'Công ty có thể sẽ đánh giá và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động đã quy định.',
+                  en: 'The Company may review and apply suitable disciplinary action under the Labour Regulations.' }
+  };
+  function lateRounds() {
+    var out = [], r = addWorkingDays(step('self').to, 1);
+    for (var k = 0; k < LATE_ROUND_RULE.length; k++) {
+      out.push({ round: k + 1, remindAt: r, deadline: addWorkingDays(r, 2),
+        consequence: LATE_ROUND_RULE[k].consequence, next: LATE_ROUND_RULE[k].next });
+      r = addWorkingDays(r, 3);
+    }
+    return out;
+  }
+  // Lần nhắc đang áp cho một ngày sau hạn tự đánh giá; null nếu chưa quá hạn hoặc đã hết cả bốn lần
+  function lateRound(v) {
+    if (!v || cmp(v, step('self').to) <= 0) return null;
+    return lateRounds().filter(function (r) { return cmp(v, r.deadline) <= 0; })[0] || null;
+  }
+  function lateText(key, lang) {
+    var t = LATE_TEXT[key];
+    return t ? (lang === 'en' ? t.en : t.vi) : '';
+  }
+  function lateSubmissionDeadline() {
+    var all = lateRounds();
+    return all[all.length - 1].deadline;
+  }
+  // Số ngày trễ tính theo ngày làm việc, không tính thứ 7, chủ nhật và ngày lễ
   function lateDays(submittedAt) {
     if (!submittedAt) return 0;
-    return Math.max(0, Math.round(cmp(submittedAt, step('self').to) / 86400000));
+    return workingDaysBetween(step('self').to, submittedAt);
+  }
+  /* Hạn chấm của QLTT (§27.3, chốt 28/09/2026). Hồ sơ nộp bổ sung có thêm 3 ngày làm việc kể từ
+     ngày nhân viên nộp, nếu mốc đó muộn hơn hạn chung của bước QLTT. Hồ sơ khác dùng hạn chung. */
+  function lmDeadline(late) {
+    var due = step('lm').to;
+    if (late && late.at) {
+      var extra = addWorkingDays(late.at, 3);
+      if (cmp(extra, due) > 0) due = extra;
+    }
+    return due;
   }
   function lateWindowOpen(now) {
-    return stepState('lm', now) === 'open' && cmp(now, lateSubmissionDeadline()) <= 0;
+    now = now || today();
+    return cmp(now, step('self').to) > 0 && cmp(now, lateSubmissionDeadline()) <= 0;
   }
   function currentStep(now) {
     now = now || today();
@@ -121,10 +193,14 @@
     var lm2Done = happened(lm2);
     var hodDone = happened(hod);
 
+    // Hồ sơ nộp bổ sung có hạn chấm riêng của QLTT (§27.3), nên đồng bộ theo hạn đó
+    var lmDue = lmDeadline(happened(lateSubmission) ? lateSubmission : null);
+    var lmClosed = cmp(now, lmDue) > 0;
+
     // Auto-sync quá deadline — chỉ điểm toàn diện, không kèm nhận xét
     var lmView = lmDone ? Object.assign({}, lm, { source: lm.source || 'manual' }) : null;
-    if (!lmView && stepState('lm', now) === 'closed' && selfDone && self.overall) {
-      lmView = { overall: { score: self.overall.score, comment: '' }, source: 'sync', at: step('lm').to, synced: true };
+    if (!lmView && lmClosed && selfDone && self.overall) {
+      lmView = { overall: { score: self.overall.score, comment: '' }, source: 'sync', at: lmDue, synced: true };
     }
     var lm2View = lm2Done ? Object.assign({}, lm2, { source: lm2.source || 'manual' }) : null;
     if (!lm2View && stepState('lm2', now) === 'closed' && lmView && lmView.overall) {
@@ -143,7 +219,7 @@
     // Đủ mục tiêu mà không tự đánh giá: QLTT vẫn chấm tới hết hạn của QLTT (§6). Chỉ khi hết
     // hạn QLTT mà vẫn không có điểm nào thì hồ sơ mới dừng.
     var noScoreAtAll = !selfDone && !lmView;
-    if (stepState('lm', now) === 'closed' && noScoreAtAll) stopped = true;
+    if (lmClosed && noScoreAtAll) stopped = true;
 
     /* LM2 trả về cho QLTT (§27.2). Còn hiệu lực trong 24 giờ, prototype tính theo ngày nên
        hết hiệu lực từ ngày thứ hai sau ngày trả về. QLTT gửi lại thì màn hình xóa bản ghi này.
@@ -154,6 +230,21 @@
 
     var finalView = happened({ at: final && final.uploadedAt }) ? final : null;
     var published = !!(final && final.publishedAt && cmp(now, final.publishedAt) >= 0);
+
+    /* Chỉnh sửa sau khi gửi (§8). Chỉ còn hiệu lực trong hạn tự đánh giá; hết hạn thì
+       bản đã gửi gần nhất là bản chính thức, bản đang sửa dở bị bỏ. */
+    var editAct = happened(acts.selfEditing) ? acts.selfEditing : null;
+    var selfOpenNow = stepState('self', now) === 'open';
+    var selfEditing = (selfDone && editAct && selfOpenNow) ? editAct : null;
+    var log = (seed.selfLog || []).concat((acts.selfLog && acts.selfLog.items) || [])
+      .filter(function (it) { return it && it.at && cmp(now, it.at) >= 0; });
+    if (!log.length && selfDone) {
+      log = [{ type: self.source === 'file-import' ? 'late-file' : 'submit', at: self.at,
+        overall: self.overall ? self.overall.score : null }];
+    }
+    if (selfDone && editAct && !selfOpenNow) {
+      log.push({ type: 'expired', at: step('self').to, time: '18:00', keptAt: self.at });
+    }
 
     return {
       id: empId,
@@ -175,12 +266,19 @@
       importedGoals: !!((acts && acts.importedGoals) || seed.importedGoals),
       importedGoalData: (acts && acts.importedGoals) || seed.importedGoals || null,
       lateSubmission: lateView,
+      // Lần nhắc gắn với hồ sơ: lần đã nộp bổ sung, hoặc lần đang mở nếu chưa nộp (§27.3)
+      lateRound: lateView ? lateRound(lateView.at) : (lateOpen && !selfDone ? lateRound(now) : null),
+      // Nhân viên đã xác nhận đọc thông báo của lần nhắc nào (phải xác nhận lại ở mỗi lần mới)
+      lateAck: acts.lateAck || null,
       lateWindowOpen: lateOpen,
+      lmDeadline: lmDue,
       lateSubmissionDeadline: lateSubmissionDeadline(),
       goalChangedAfterMyr: seed.goalChangedAfterMyr || [],
       mgrChange: seed.mgrChange || null,
       stopped: stopped,
       self: selfDone ? self : null,
+      selfEditing: selfEditing,
+      selfLog: log,
       selfRequired: !maternity,
       lm: lmView,
       lm2: lm2View,
@@ -235,7 +333,9 @@
 
     var own = role === 'lm' ? p.lm : role === 'lm2' ? p.lm2 : p.hod;
     var submitted = role === 'lm' ? !!(own && !own.synced) : !!own;
-    var stepOpen = stepState(role, p.now) === 'open' || (role === 'lm' && !!p.returned);
+    var stepOpen = stepState(role, p.now) === 'open' || (role === 'lm' && !!p.returned) ||
+      // Hồ sơ nộp bổ sung: QLTT chấm được tới hạn riêng của hồ sơ đó (§27.3)
+      (role === 'lm' && !!p.lateSubmission && stepState('lm', p.now) !== 'future' && cmp(p.now, p.lmDeadline) <= 0);
     var blocked = p.resigned || p.stopped || p.eligibility.reason === 'late-onboard';
     var prerequisite = false;
 
@@ -291,6 +391,70 @@
       return p.lm ? t('Cần đánh giá', 'Review needed') : t('Chờ QLTT đánh giá', 'Awaiting line manager');
     }
     return p.lm2 ? t('Cần đánh giá', 'Review needed') : t('Chờ Quản lý cấp 2', 'Awaiting second-level manager');
+  }
+
+  /* ── Quyền của Nhân viên với bản tự đánh giá (§5, §8) ────
+     mode: 'draft'     chưa gửi, còn hạn: nhập và lưu nháp được
+           'submitted' đã gửi, còn hạn: mở lại để chỉnh sửa được
+           'editing'   đã gửi rồi mở lại, còn hạn: bản đã gửi vẫn giữ tới khi gửi lại
+           'locked'    đã gửi, hết hạn hoặc gửi bằng file nộp trễ: chỉ xem
+           'closed'    chưa gửi, hết hạn
+           'none'      không thuộc kỳ hoặc đã nghỉ việc
+     Thiếu mục tiêu vẫn nhập và lưu nháp được, chỉ không gửi được (submitBlock). */
+  function selfAssessmentState(p) {
+    var deadline = step('self').to;
+    function out(mode, canEdit, canSubmit, canReopen, block) {
+      return { mode: mode, canEdit: canEdit, canSubmit: canSubmit, canReopen: canReopen,
+        submitBlock: block || null, deadline: deadline };
+    }
+    if (!p || p.resigned || p.eligibility.reason === 'late-onboard') return out('none', false, false, false);
+    var open = stepState('self', p.now) === 'open';
+    var block = p.eligibility.reason === 'missing-goal' ? 'missing-goal' : null;
+    if (p.self) {
+      if (p.selfEditing) return out('editing', true, !block, false, block);
+      // File nộp trễ chỉ gửi một lần (§27.1), không mở lại được
+      var canReopen = open && p.self.source !== 'file-import';
+      return out(canReopen ? 'submitted' : 'locked', false, false, canReopen);
+    }
+    if (!open) return out('closed', false, false, false);
+    return out('draft', true, !block, false, block);
+  }
+
+  /* Khác nhau giữa hai bản tự đánh giá, để ghi lịch sử chỉnh sửa. Màn hình tự dựng câu chữ. */
+  function selfChanges(before, after) {
+    before = before || {}; after = after || {};
+    var bo = before.overall || {}, ao = after.overall || {};
+    var res = { overall: null, overallComment: false, goalScores: 0, howScores: 0, comments: [] };
+    if (bo.score !== ao.score) res.overall = [bo.score == null ? null : bo.score, ao.score == null ? null : ao.score];
+    res.overallComment = String(bo.comment || '').trim() !== String(ao.comment || '').trim();
+    var bg = before.goalScores || {}, ag = after.goalScores || {}, seen = {};
+    Object.keys(bg).concat(Object.keys(ag)).forEach(function (id) {
+      if (seen[id]) return; seen[id] = true;
+      if (bg[id] !== ag[id]) res.goalScores++;
+    });
+    var bh = before.howScores || [], ah = after.howScores || [];
+    for (var i = 0; i < Math.max(bh.length, ah.length); i++) if (bh[i] !== ah[i]) res.howScores++;
+    ['what', 'dev', 'how'].forEach(function (t) {
+      if (String((before.comments || {})[t] || '').trim() !== String((after.comments || {})[t] || '').trim()) res.comments.push(t);
+    });
+    return res;
+  }
+
+  /* ── Giai đoạn của kỳ cuối năm, dùng cho nhãn tab của Nhân viên (§18.4) ──
+     Nhãn tab nói kỳ đang ở giai đoạn nào, không đổi theo trạng thái của từng người. */
+  function yerPhase(now) {
+    now = now || today();
+    if (cmp(now, step('self').from) < 0) return 'not-open';
+    if (cmp(now, step('publish').from) >= 0) return 'done';
+    return 'active';
+  }
+
+  /* Mục tiêu nhân viên còn phải thiết lập, cho nhãn tab Mục tiêu. Hết hạn tự đánh giá thì
+     mục tiêu còn thiếu đi theo file nộp trễ (§27.1), không bổ sung ở tab Mục tiêu nữa. */
+  function goalAction(p) {
+    if (!p || p.eligibility.reason !== 'missing-goal') return null;
+    if (stepState('self', p.now) === 'closed') return null;
+    return { what: !!p.eligibility.missingWhat, dev: !!p.eligibility.missingDev };
   }
 
   /* ── Quyền xem điểm theo vai trò ────────────────────────── */
@@ -450,12 +614,23 @@
     stepState: stepState,
     lateSubmissionDeadline: lateSubmissionDeadline,
     lateDays: lateDays,
+    lateRounds: lateRounds,
+    lmDeadline: lmDeadline,
+    lateRound: lateRound,
+    lateText: lateText,
+    isWorkingDay: isWorkingDay,
+    addWorkingDays: addWorkingDays,
+    workingDaysBetween: workingDaysBetween,
     lateWindowOpen: lateWindowOpen,
     currentStep: currentStep,
     profile: profile,
     status: status,
     managerReviewState: managerReviewState,
     managerTabLabel: managerTabLabel,
+    selfAssessmentState: selfAssessmentState,
+    selfChanges: selfChanges,
+    yerPhase: yerPhase,
+    goalAction: goalAction,
     canSee: canSee,
     roster: roster,
     completion: completion,

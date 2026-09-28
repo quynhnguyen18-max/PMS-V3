@@ -39,7 +39,7 @@ Chốt ngày 27/09/2026. Màn MYR (06/2026) và màn YER (09/2026) được dự
 Thanh Chế độ demo sinh ra ở giai đoạn YER.
 
 - **MYR-09a** Mặc định, tab Giữa năm (E-05, M-06) và chu kỳ Giữa năm (M-05) hiển thị **bình thường và độc lập** như lúc đang ở kỳ giữa năm: nhãn tab `Đang hoạt động`, nhân viên tự đánh giá, lưu nháp, gửi; Quản lý chấm được.
-- **MYR-09b** Chỉ khi người xem **chọn một use case trên thanh demo** (hoặc mở bằng `?scenario=`) và use case đó là của **chính nhân viên đang mở**, tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm: MYR-13, MYR-31, MYR-32, MYR-52, nhãn `Đã hoàn tất` / `Đã hoàn thành` / `Không có kết quả` / `Không có dữ liệu`, và mọi vai chỉ xem.
+- **MYR-09b** Chỉ khi người xem **chọn một use case trên thanh demo** (hoặc mở bằng `?scenario=`) và use case đó là của **chính nhân viên đang mở**, tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm: MYR-13, MYR-31, MYR-32, MYR-52, nhãn `Đã hoàn tất` / `Đã hoàn thành` / `Không có dữ liệu`, và mọi vai chỉ xem. Trên E-05 nhãn tab luôn là `Đã hoàn tất` với mọi nhân viên (YER-SPEC §18.4, chốt 27/09/2026).
 - **MYR-09c** Rời use case (đổi vai, chọn `Hồ sơ khác`, Đặt lại) là quay về MYR-09a. Luật nằm ở `PMSYer.myrAsHistory(empId)` trong `assets/yer-model.js`; thanh demo ghi `scenario` vào phiên, `?scenario=` đọc xong thì gỡ khỏi URL.
 
 ## 3. Điều kiện tham gia
@@ -49,10 +49,12 @@ Thanh Chế độ demo sinh ra ở giai đoạn YER.
 - **MYR-12** Chỉ mục tiêu **đã duyệt** được đưa vào bảng đánh giá. Khối Lưu ý phía Nhân viên nhắc: `Chỉ những mục tiêu đã được Quản lý trực tiếp phê duyệt mới đủ điều kiện đánh giá giữa năm. Vui lòng kiểm tra Danh sách mục tiêu trước khi Tự đánh giá.` (code E-05)
 - **MYR-13** Ở use case của thanh demo (MYR-09b), tab Giữa năm có hai lý do "không có kết quả", cho hai hành vi khác nhau (YER-SPEC §18.2):
 
-  | Lý do | Tab | Nhãn tab |
-  |---|---|---|
-  | Onboard sau 01/04/2026 | **Khóa**, tooltip `Onboard sau 01/04/2026 nên không thuộc kỳ Đánh giá giữa năm 2026` | `Không đánh giá` |
-  | Thuộc kỳ nhưng không hoàn tất bước bắt buộc | Mở, chỉ xem | `Không có kết quả` |
+  | Lý do | Tab |
+  |---|---|
+  | Onboard sau 01/04/2026 | **Khóa**, tooltip `Onboard sau 01/04/2026 nên không thuộc kỳ Đánh giá giữa năm 2026` |
+  | Thuộc kỳ nhưng không hoàn tất bước bắt buộc | Mở, chỉ xem |
+
+  Nhãn tab không phân biệt hai lý do: luôn `Đã hoàn tất` (chốt 27/09/2026). Tab Đánh giá cuối năm không nhắc gì tới việc không có kết quả giữa năm (YER-SPEC §40.5c).
 
   Đang đứng ở tab vừa bị khóa thì đưa về tab Mục tiêu.
 
