@@ -457,6 +457,12 @@
     return '<div class="section-cmt">' + left + right + '</div>';
   }
 
+  /* Domain của cấp quản lý cạnh tiêu đề ô: nhân viên biết ai đánh giá, ai nhận xét.
+     Người thực hiện lấy từ Y.actors(p), cùng nguồn với dải quy trình. */
+  function actorDomain(a){
+    return a && a.login ? '<span class="op-hd-dom">- ' + esc(a.login) + '</span>' : '';
+  }
+
   /* ── đánh giá toàn diện ──────────────────────────────── */
   function overallCard(p, editable){
     var sub = shown(p);
@@ -479,15 +485,12 @@
 
     var lmCmt = (p.lm && !p.lm.synced && p.lm.overall) ? p.lm.overall.comment : null;
     var right = '<div class="overall-panel yer-op-manager' + (lmCmt ? '' : ' locked') + '">' +
-      '<div class="op-hd"><i class="bx bx-user-check"></i>' + L('Quản lý trực tiếp đánh giá','Line manager assessment') + '</div>' +
+      '<div class="op-hd"><i class="bx bx-user-check"></i>' + L('Quản lý trực tiếp đánh giá','Line manager assessment') +
+        actorDomain(Y.actors(p).lm) + '</div>' +
       (lmCmt
-        /* Nhân viên không thấy điểm toàn diện của QLTT (§7). Trước khi công bố vẫn giữ dòng
-           Điểm toàn diện để hai ô cân nhau và nói rõ điểm chưa công bố; sau khi công bố thì
-           kết quả cuối cùng đã nằm ở banner nên chỉ giữ khoảng trống. */
-        ? (p.published
-            ? '<div class="yer-manager-score-gap" aria-hidden="true"></div>'
-            : '<div class="op-score-row"><span class="op-score-lbl">' + L('Điểm toàn diện:','Overall rating:') + '</span>' +
-              '<span class="yer-hidden-score">' + L('- Chưa công bố','- Not published') + '</span></div>') +
+        /* Nhân viên không thấy điểm toàn diện của QLTT (§7), nên ô này không có dòng điểm,
+           kể cả dòng báo chưa công bố (bỏ 28/09/2026). Khoảng trống giữ cho hai ô nhận xét thẳng hàng. */
+        ? '<div class="yer-manager-score-gap" aria-hidden="true"></div>' +
           '<label class="op-flbl">' + L('Đánh giá toàn diện của Quản lý','Manager overall assessment') + '</label>' +
           editorHtml('yer-lm-op-cmt', '', 1000, lmCmt, 'yer-cc-lmop', true)
         : '<div class="locked-placeholder"><i class="bx bx-lock-alt"></i><p>' +
@@ -562,9 +565,16 @@
         // Hồ sơ nộp bằng file chỉ gửi một lần nên không có lịch sử chỉnh sửa
         (!p.lateSubmission && p.selfLog && p.selfLog.length ? '<button class="btn btn-outline btn-sm" type="button" id="yer-btn-history"><i class="bx bx-history"></i>' +
           L('Lịch sử chỉnh sửa','Edit history') + '</button>' : '') +
-        '<button class="btn btn-outline sb-icon-action" type="button" id="yer-pdf" ' +
-        'aria-label="' + esc(L('Tải kết quả PDF','Download PDF')) + '" title="' + esc(L('Tải kết quả PDF','Download PDF')) + '">' +
-        '<i class="bx bxs-file-pdf"></i></button></div></div>';
+        /* Nút tải xuống dùng chung kiểu với tab Mục tiêu (.download-menu của E-05): bấm vào thì
+           chọn định dạng PDF hoặc Excel (chốt 28/09/2026). */
+        '<div class="download-menu yer-dl-menu">' +
+          '<button class="btn btn-outline sb-icon-action download-toggle" type="button" id="yer-dl" aria-haspopup="menu" aria-expanded="false" ' +
+          'aria-label="' + esc(L('Tải kết quả đánh giá','Download review result')) + '" title="' + esc(L('Tải kết quả đánh giá','Download review result')) + '">' +
+          '<i class="bx bx-download"></i></button>' +
+          '<div class="download-popover" role="menu">' +
+            '<button class="download-option" type="button" role="menuitem" data-yer-dl="pdf"><i class="bx bxs-file-pdf"></i> PDF (.pdf)</button>' +
+            '<button class="download-option" type="button" role="menuitem" data-yer-dl="xlsx"><i class="bx bx-spreadsheet"></i> Excel (.xlsx)</button>' +
+          '</div></div></div></div>';
   }
 
   /* ── toolbar ─────────────────────────────────────────── */
@@ -616,8 +626,8 @@
   function noteItems(p, opts){
     opts = opts || {};
     if(p.maternity){
-      return [L('Do đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong>, bạn <strong>không bắt buộc</strong> phải thực hiện <strong>Tự đánh giá</strong> cuối năm. Tuy nhiên, bạn vẫn có thể chủ động tự đánh giá nếu muốn. Sau thời hạn Tự đánh giá, Quản lý trực tiếp sẽ tiến hành đánh giá theo đúng quy trình của Công ty.',
-               'As you are on <strong class="yer-hl">maternity leave</strong>, the year-end <strong>Self assessment</strong> is <strong>not required</strong>. You can still complete it if you wish. After the self-assessment deadline, your line manager will complete the review following the Company process.')];
+      return [L('Bạn đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong> nên <strong>không bắt buộc</strong> phải thực hiện <strong>Tự đánh giá</strong> cuối năm. Hệ thống vẫn mở để bạn có thể chủ động hoàn thành. Sau thời hạn Tự đánh giá, Quản lý trực tiếp sẽ tiến hành đánh giá theo đúng quy trình của Công ty.',
+               'You are on <strong class="yer-hl">maternity leave</strong>, so the year-end <strong>Self assessment</strong> is <strong>not required</strong>. The system stays open so you can still complete it if you wish. After the self-assessment deadline, your line manager will complete the review following the Company process.')];
     }
     var items = [];
     if(!opts.skipGoalRule){
@@ -654,8 +664,8 @@
   function consequenceText(key){ return Y.lateText(key, lg()); }
   /* Chỉ in đậm từ khóa của hình thức xử lý, phần còn lại để chữ thường cho dễ đọc */
   var LATE_KEYWORDS = {
-    vi: ['tối đa là 3', 'cắt giảm một phần tiền thưởng', 'tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo'],
-    en: ['capped at 3', 'Part of the bonus may be cut', 'promotion and salary increase deferred for the next 6 months']
+    vi: ['tối đa là 3', 'Cắt giảm một phần tiền thưởng', 'tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo'],
+    en: ['capped at 3', 'Part of the bonus is cut', 'promotion and salary increase are deferred for the next 6 months']
   };
   function emphasize(text){
     var out = esc(text);
@@ -676,8 +686,8 @@
       return L('các biện pháp xử lý tiếp theo sẽ được áp dụng theo quy định Công ty, bắt đầu từ việc giới hạn điểm đánh giá toàn diện tối đa là 3.',
                'further measures will apply under Company policy, starting with the overall rating being capped at 3.');
     if(r.next === 'bonus')
-      return L('bạn có thể bị cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ ngày nhắc nhở lần thứ tư (' + Y.fmt(all[3].remindAt, lg()) + ').',
-               'part of your bonus may be cut and promotion and salary increase deferred for the next 6 months, from the fourth reminder (' + Y.fmt(all[3].remindAt, lg()) + ').');
+      return L('bạn có thể bị cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo. Thời gian tạm hoãn tính từ thời điểm nhắc nhở thứ tư. Việc áp dụng cụ thể do Trưởng đơn vị (HOD) phối hợp với HOHR đề xuất và được Giám đốc điều hành (CEO) hoặc người được ủy quyền phê duyệt.',
+               'part of your bonus may be cut and promotion and salary increase deferred for the next 6 months. The deferral counts from the fourth reminder. The Head of Department (HOD) and HOHR propose the specifics for approval by the Chief Executive Officer (CEO) or an authorised person.');
     return Y.lateText('discipline', lg());
   }
   /* Xác nhận đã đọc chỉ giữ trong trang đang mở, không ghi vào dữ liệu (§27.3): tải lại trang (F5)
@@ -703,21 +713,33 @@
     return '<div class="yer-note yer-late-note"><i class="bx bx-time-five"></i><div class="yer-late-note-body">' +
       '<div class="yer-late-note-title">' + L('Bạn đã quá hạn Tự đánh giá cuối năm - Lần nhắc thứ ' + r.round,
                      'Your Year-End self assessment is overdue - Reminder ' + r.round) + '</div>' +
-      L('Hạn Tự đánh giá đã kết thúc ngày ' + Y.fmt(Y.step('self').to, lg()) + ' <strong>(trễ ' + days + ' ngày làm việc)</strong>. Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày ' + deadline + '</strong>.',
-        'The self-assessment deadline was ' + Y.fmt(Y.step('self').to, lg()) + ' <strong>(' + days + ' working days late)</strong>. Submit your late file before <strong>18:00 on ' + deadline + '</strong>.') +
+      L('Hạn Tự đánh giá đã kết thúc ngày ' + Y.fmt(Y.step('self').to, lg()) + ', <strong>trễ ' + days + ' ngày làm việc</strong>. Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày ' + deadline + '</strong>.',
+        'The self-assessment deadline was ' + Y.fmt(Y.step('self').to, lg()) + ', <strong>' + days + ' working days late</strong>. Submit your late file before <strong>18:00 on ' + deadline + '</strong>.') +
       '<ul class="yer-note-list">' +
         (nowText ? '<li>' + L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + lateNowHtml(r) + '</li>' : '') +
-        '<li>' + L('<strong>Lưu ý:</strong> nếu quá hạn trên mà vẫn chưa nộp, ','<strong>Note:</strong> if still not submitted by then, ') + esc(lateNextText(r)) + '</li>' +
+        '<li>' + L('<strong>Lưu ý:</strong> nếu quá hạn trên mà bạn vẫn chưa nộp, ','<strong>Note:</strong> if you still have not submitted by then, ') + esc(lateNextText(r)) + '</li>' +
       '</ul>' +
-      (acked
-        ? '<div class="yer-late-note-act"><span class="yer-late-acked"><i class="bx bx-check"></i>' +
-            L('Bạn đã xác nhận ngày ' + Y.fmt(lateAckOf(p).at, lg()),'Confirmed on ' + Y.fmt(lateAckOf(p).at, lg())) + '</span>' +
-            '<button type="button" class="btn btn-default btn-sm" id="yer-late-open"><i class="bx bx-cloud-upload"></i>' +
-            L('Nộp bổ sung','Submit late file') + '</button></div>'
-        : '<div class="yer-late-note-act"><label class="yer-late-ack-check"><input type="checkbox" id="yer-late-ack-check">' +
-            '<span>' + L('Tôi đã đọc, hiểu và xác nhận tiếp tục.','I have read and understood, and wish to continue.') + '</span></label>' +
-            '<button type="button" class="btn btn-default btn-sm" id="yer-late-ack-btn" disabled><i class="bx bx-check"></i>' +
-            L('Xác nhận và tiếp tục','Confirm and continue') + '</button></div>') +
+      /* Hai bước đánh số để người mới hiểu tick xác nhận là bước đầu tiên của việc nộp bổ sung,
+         còn nút ở bước 2 nói đúng việc sẽ làm (chốt 28/09/2026). */
+      '<div class="yer-late-note-act">' +
+        '<div class="yer-late-act-lead">' + L('<strong>Để nộp bổ sung Tự đánh giá</strong>, bạn thực hiện 2 bước:',
+                                              '<strong>To submit your late self assessment</strong>, complete 2 steps:') + '</div>' +
+        '<ol class="yer-late-act-steps">' +
+          (acked
+            ? '<li class="yer-late-act-step done"><span class="yer-late-act-no"><i class="bx bx-check"></i></span>' +
+                '<span class="yer-late-acked">' + L('Bạn đã xác nhận ngày ' + Y.fmt(lateAckOf(p).at, lg()),'Confirmed on ' + Y.fmt(lateAckOf(p).at, lg())) + '</span></li>'
+            : '<li class="yer-late-act-step"><span class="yer-late-act-no">1</span>' +
+                '<label class="yer-late-ack-check"><input type="checkbox" id="yer-late-ack-check">' +
+                '<span>' + L('Tôi đã đọc, hiểu và xác nhận tiếp tục.','I have read and understood, and wish to continue.') + '</span></label></li>') +
+          '<li class="yer-late-act-sep" aria-hidden="true"><i class="bx bx-right-arrow-alt"></i></li>' +
+          '<li class="yer-late-act-step"><span class="yer-late-act-no">2</span>' +
+            (acked
+              ? '<button type="button" class="btn btn-default btn-sm" id="yer-late-open"><i class="bx bx-cloud-upload"></i>' +
+                  L('Nộp bổ sung','Submit late file') + '</button>'
+              : '<button type="button" class="btn btn-default btn-sm" id="yer-late-ack-btn" disabled title="' +
+                  esc(L('Đánh dấu xác nhận ở bước 1 để tiếp tục','Tick the confirmation in step 1 to continue')) + '"><i class="bx bx-cloud-upload"></i>' +
+                  L('Nộp bổ sung','Submit late file') + '</button>') + '</li>' +
+        '</ol></div>' +
       '</div></div>';
   }
 
@@ -884,9 +906,14 @@
     var lateOpen = !p.self && p.lateWindowOpen && !p.resigned && !p.maternity && !!p.lateRound;
     if(lateOpen) html += lateNoteBlock(p);
 
+    /* Hết cả bốn lần nộp bổ sung mà chưa nộp (§27.3): chỉ còn một khối vàng báo đã hết hạn, làm nổi
+       để nhân viên thấy ngay. Không dựng khối Lưu ý nữa vì không còn việc gì để chuẩn bị.
+       Thiếu mục tiêu cũng dùng khối này, không dùng khối hồng thiếu mục tiêu (chốt 28/09/2026, nv21). */
+    var lateClosed = !p.self && !editable && selfOpen === false && !p.maternity && !p.lateWindowOpen;
+
     /* Thiếu mục tiêu (§5): còn hạn thì vẫn tự đánh giá và lưu nháp, chỉ khóa nút Gửi.
-       Hết hạn thì hồ sơ là Không đánh giá. */
-    if(p.eligibility.reason === 'missing-goal' && !lateOpen){
+       Hết hạn nộp bổ sung thì đi theo khối vàng lateClosed ở dưới. */
+    if(p.eligibility.reason === 'missing-goal' && !lateOpen && !lateClosed){
       var overdueMissing = !editable;
       var missName = '<strong class="yer-missing-goal">' + esc(missingGoalNames(p)) + '</strong>';
       html += '<div class="yer-note action"><i class="bx bx-error-circle"></i><div>' +
@@ -896,15 +923,15 @@
               'The profile is missing an approved ' + missName + '. Self assessment closed on ' + Y.fmt(Y.step('self').to, lg()) + '; this profile is recorded as Not evaluated.')
           : '<strong>' + L('Bạn chưa đủ điều kiện gửi Tự đánh giá cuối năm do thiếu ','You cannot submit your Year-End self assessment yet: missing an approved ') +
               missName + L(' được duyệt.','.') + '</strong><br>' +
-            L('Vui lòng sang tab <a href="#" class="yer-note-link" data-go-tab="0">Danh sách mục tiêu</a> để tạo và gửi Quản lý trực tiếp phê duyệt.',
-              'Please go to the <a href="#" class="yer-note-link" data-go-tab="0">Goal list</a> tab to create it and send it to your line manager for approval.') + '<br>' +
+            L('Vui lòng tạo và gửi Quản lý trực tiếp phê duyệt tại tab <a href="#" class="yer-note-link" data-go-tab="0">Danh sách mục tiêu</a>.',
+              'Please create it and send it to your line manager for approval in the <a href="#" class="yer-note-link" data-go-tab="0">Goal list</a> tab.') + '<br>' +
             L('Trong lúc này, bạn vẫn có thể nhập thông tin và lưu nháp bản tự đánh giá.',
               'Meanwhile, you can still enter your assessment and save it as a draft.')) +
         /* Gộp luôn các gạch đầu dòng Lưu ý vào đây. Tách thành hai box rồi để dải quy trình
            chen vào giữa thì rối mắt, mà hai box lại nói trùng chuyện mục tiêu đã duyệt. */
         noteList(p, { skipGoalRule: true }) +
-        '</div><button class="btn btn-cta-outline btn-sm yn-cta" id="yer-go-goals"><i class="bx bx-target-lock"></i>' +
-        (overdueMissing ? L('Xem danh sách mục tiêu','View goal list') : L('Tới Danh sách mục tiêu','Go to Goals')) + '</button></div>';
+        // Không có nút riêng: cụm Danh sách mục tiêu trong câu đã là liên kết sang tab đó (chốt 28/09/2026)
+        '</div></div>';
       // KHÔNG dừng ở đây: phần mục tiêu đã có vẫn hiện ra để nhân viên biết mình đang ở đâu.
     }
 
@@ -927,24 +954,30 @@
         L('Hủy chỉnh sửa','Discard changes') + '</button></div>';
     }
 
-    /* Hết cả bốn lần nộp bổ sung mà chưa nộp (§27.3): chỉ còn một khối báo đã hết hạn, làm nổi
-       để nhân viên thấy ngay. Không dựng khối Lưu ý nữa vì không còn việc gì để chuẩn bị. */
-    var lateClosed = !p.self && !editable && selfOpen === false && !p.maternity && !p.lateWindowOpen;
-
     // Thiếu mục tiêu hoặc đang chỉnh sửa thì khối phía trên đã là box thông tin duy nhất (§40.5a)
-    var hasWarnNote = p.eligibility.reason === 'missing-goal' || st.mode === 'editing' || lateOpen;
+    var hasWarnNote = (p.eligibility.reason === 'missing-goal' && !lateClosed) || st.mode === 'editing' || lateOpen;
     html += toolbar(p, editable) + submitBanner(p) + stepper() +
       ((p.self || hasWarnNote || lateClosed) ? '' : noteBlock(p));
 
     // Thông báo thai sản nằm trong khối Lưu ý ở trên (xem noteBlock), không dựng riêng.
     // Ngày nghỉ việc hiển thị bằng badge LWD trên thẻ thông tin nhân viên (xem syncChrome).
-    // Thiếu mục tiêu thì khối cảnh báo ở trên đã nói hồ sơ không đánh giá; không dựng box thứ hai (§40.5a)
+    // Chỉ một box thông tin (§40.5a): các khối phía trên đã hiện thì không dựng thêm
     if(lateClosed && !hasWarnNote){
       var lateEnd = Y.fmt(Y.lateSubmissionDeadline(), lg());
       html += '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div>' +
         '<strong>' + L('Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc 18:00 ngày ' + lateEnd + '.',
                        'The late self-assessment window closed at 18:00 on ' + lateEnd + '.') + '</strong><br>' +
-        L('Bạn đã không nộp sau 4 lần nhắc nhở. ','You did not submit after 4 reminders. ') + esc(Y.lateText('discipline', lg())) +
+        L('Bạn đã không nộp sau 4 lần nhắc nhở. ','You did not submit after 4 reminders. ') +
+        /* Thiếu mục tiêu (nv21, chốt 28/09/2026): nói rõ quy trình dừng hẳn vì cấp quản lý không chấm
+           tiếp được, hồ sơ không có điểm. Đủ mục tiêu (nv20) giữ câu kỷ luật chung của model. */
+        (p.eligibility.reason === 'missing-goal'
+          ? L('Vì còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, các bước đánh giá tiếp theo của cấp quản lý sẽ không thể tiếp tục. ' +
+                'Quy trình Đánh giá cuối năm của bạn chính thức dừng tại đây và không có điểm trên hệ thống. ' +
+                'Việc không tuân thủ tiến độ này sẽ được xem xét và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động.',
+              'Because an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is still missing, the next review steps by your managers cannot proceed. ' +
+                'Your Year-End Review ends here and has no rating in the system. ' +
+                'Not keeping to this schedule will be reviewed and suitable disciplinary action applied under the Labour Regulations.')
+          : esc(Y.lateText('discipline', lg()))) +
         '</div></div>';
     }
 
@@ -959,15 +992,16 @@
      điểm của hai cấp này. Không có nhận xét nào thì không dựng khối, màn giữ như bình thường. */
   function upperCommentsCard(p){
     var rows = [];
+    var who = Y.actors(p);
     if(p.lm2 && !p.lm2.synced && String(p.lm2.comment || '').trim())
-      rows.push({ id:'lm2', title:L('Nhận xét của Quản lý cấp 2','Second-level manager comment'), text:p.lm2.comment });
+      rows.push({ id:'lm2', title:L('Nhận xét của Quản lý cấp 2','Second-level manager comment'), text:p.lm2.comment, by:who.lm2 });
     if(p.hod && String(p.hod.comment || '').trim())
-      rows.push({ id:'hod', title:L('Nhận xét của Trưởng đơn vị','Head of department comment'), text:p.hod.comment });
+      rows.push({ id:'hod', title:L('Nhận xét của Trưởng đơn vị','Head of department comment'), text:p.hod.comment, by:who.hod });
     if(!rows.length) return '';
     return '<div class="overall-card yer-upper-card"><div class="overall-hd"><i class="bx bx-message-square-detail"></i>' +
       '<span class="overall-title">' + L('Nhận xét của các cấp quản lý','Comments from upper management') + '</span></div>' +
       '<div class="overall-grid' + (rows.length === 1 ? ' yer-upper-one' : '') + '">' + rows.map(function(r){
-        return '<div class="overall-panel"><div class="op-hd"><i class="bx bx-user-check"></i>' + esc(r.title) + '</div>' +
+        return '<div class="overall-panel"><div class="op-hd"><i class="bx bx-user-check"></i>' + esc(r.title) + actorDomain(r.by) + '</div>' +
           editorHtml('yer-' + r.id + '-cmt', '', 1000, r.text, 'yer-cc-' + r.id, true) + '</div>';
       }).join('') + '</div></div>';
   }
@@ -996,11 +1030,14 @@
       b.addEventListener('click', function(){ el(b.dataset.toggle).classList.toggle('open'); });
     });
     document.querySelectorAll('#yer-root .ev-content[contenteditable="true"]').forEach(function(ed){
-      ed.addEventListener('input', function(){ collectEditors(); U.dirty.mark(); });
+      var missKey = ed.id === 'yer-op-cmt' ? 'op-cmt' : 'cmt:' + ed.id.replace('yer-cmt-', '');
+      ed.addEventListener('input', function(){
+        collectEditors(); U.dirty.mark();
+        if(ed.textContent.trim()) unmarkMissing(missKey);
+      });
     });
+    paintMissing();
 
-    var go = el('yer-go-goals');
-    if(go) go.addEventListener('click', function(){ window.switchMainTab(0); });
     // Liên kết trong khối Lưu ý: đổi tab ngay trong màn, không rời trang
     document.querySelectorAll('#yer-root .yer-note-link').forEach(function(a){
       a.addEventListener('click', function(ev){
@@ -1033,7 +1070,11 @@
     var ackCheck = el('yer-late-ack-check');
     var ackBtn = el('yer-late-ack-btn');
     if(ackCheck && ackBtn){
-      ackCheck.addEventListener('change', function(){ ackBtn.disabled = !ackCheck.checked; });
+      var ackTip = ackBtn.title;
+      ackCheck.addEventListener('change', function(){
+        ackBtn.disabled = !ackCheck.checked;
+        ackBtn.title = ackCheck.checked ? '' : ackTip;
+      });
       ackBtn.addEventListener('click', function(){
         if(!ackCheck.checked) return;
         var s = S.session();
@@ -1045,9 +1086,19 @@
     }
     var lateOpenBtn = el('yer-late-open');
     if(lateOpenBtn) lateOpenBtn.addEventListener('click', function(){ openLateDialog(p); });
-    var pdf = el('yer-pdf');
-    if(pdf) pdf.addEventListener('click', function(){
-      U.toast(L('Đang chuẩn bị file PDF kết quả đánh giá','Preparing the result PDF'));
+    // Menu tải kết quả: đóng mở bằng toggleDownloadMenu của E-05, bấm ra ngoài thì E-05 tự đóng
+    var dl = el('yer-dl');
+    if(dl) dl.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if(window.toggleDownloadMenu) window.toggleDownloadMenu(dl);
+    });
+    document.querySelectorAll('#yer-root [data-yer-dl]').forEach(function(b){
+      b.addEventListener('click', function(){
+        if(window.closeDownloadMenus) window.closeDownloadMenus();
+        U.toast(b.dataset.yerDl === 'pdf'
+          ? L('Đang chuẩn bị file PDF kết quả đánh giá','Preparing the result PDF')
+          : L('Đang chuẩn bị file Excel kết quả đánh giá','Preparing the result Excel file'));
+      });
     });
   }
 
@@ -1099,6 +1150,7 @@
     if(bits[0] === 'goal') draft.goalScores[bits[1]] = v;
     else if(bits[0] === 'how') draft.howScores[bits[1]] = v;
     else if(key === 'overall'){ draft.overall = draft.overall || {}; draft.overall.score = v; }
+    if(v != null) unmarkMissing(key);
     U.dirty.mark();
   }
 
@@ -1111,25 +1163,71 @@
     if(op){ draft.overall = draft.overall || {}; draft.overall.comment = op.textContent.trim(); }
   }
 
-  function missingFields(p){
-    var miss = [];
+  /* Ô còn thiếu khi bấm Gửi, gom theo từng khối trên màn để popup liệt kê mỗi khối một dòng.
+     key là mã ô để tô viền đỏ sau khi đóng popup (markMissing). */
+  function missingGroups(p){
+    var groups = [];
+    function typeName(t){ return lg()==='en' ? TYPE[t].en : TYPE[t].vi; }
     ['what','dev'].forEach(function(type){
       var list = approvedGoals(p, type);
+      var names = [], keys = [];
       list.forEach(function(g){
         // Mục tiêu đã chốt hoàn thành thì không có ô để nhập, nên không được đòi
         if((p.completedGoals||{})[g.id]) return;
-        if(draft.goalScores[g.id] == null) miss.push(L('Điểm mục tiêu: ','Goal score: ') + g.title);
+        if(draft.goalScores[g.id] == null){ names.push('“' + g.title + '”'); keys.push('goal:' + g.id); }
       });
-      if(list.length && !(draft.comments[type]||'').trim())
-        miss.push(L('Đánh giá ','Assessment for ') + (lg()==='en'?TYPE[type].en:TYPE[type].vi));
+      var parts = [];
+      if(names.length) parts.push(L('điểm mục tiêu ','rating for goal ') + names.join(', '));
+      if(list.length && !(draft.comments[type]||'').trim()){
+        parts.push(L('ô Đánh giá của Nhân viên','the Employee assessment box')); keys.push('cmt:' + type);
+      }
+      if(parts.length) groups.push({ title:typeName(type), parts:parts, keys:keys });
     });
+    var cvNames = [], howKeys = [], howParts = [];
     CORE_VALUES.forEach(function(cv, i){
-      if(draft.howScores[i] == null) miss.push(L('Điểm giá trị cốt lõi: ','Core value score: ') + (lg()==='en'?cv.en:cv.vi));
+      if(draft.howScores[i] == null){ cvNames.push(lg()==='en'?cv.en:cv.vi); howKeys.push('how:' + i); }
     });
-    if(!(draft.comments.how||'').trim()) miss.push(L('Đánh giá Mục tiêu hành vi','Behavioral goals assessment'));
-    if(!draft.overall || draft.overall.score == null) miss.push(L('Điểm toàn diện','Overall rating'));
-    if(!draft.overall || !(draft.overall.comment||'').trim()) miss.push(L('Đánh giá toàn diện của nhân viên','Employee overall assessment'));
-    return miss;
+    if(cvNames.length) howParts.push(L('điểm ','rating for ') + cvNames.join(', '));
+    if(!(draft.comments.how||'').trim()){
+      howParts.push(L('ô Đánh giá của Nhân viên','the Employee assessment box')); howKeys.push('cmt:how');
+    }
+    if(howParts.length) groups.push({ title:typeName('how'), parts:howParts, keys:howKeys });
+    var opParts = [], opKeys = [];
+    if(!draft.overall || draft.overall.score == null){ opParts.push(L('điểm toàn diện','overall rating')); opKeys.push('overall'); }
+    if(!draft.overall || !(draft.overall.comment||'').trim()){
+      opParts.push(L('ô Đánh giá toàn diện của nhân viên','the Employee overall assessment box')); opKeys.push('op-cmt');
+    }
+    if(opParts.length) groups.push({ title:L('Đánh giá toàn diện','Overall assessment'), parts:opParts, keys:opKeys });
+    return groups;
+  }
+
+  /* Viền đỏ cho ô còn thiếu (DS §14, lỗi form dùng --err). Giữ trong biến để render lại vẫn còn;
+     nhân viên điền ô nào thì ô đó hết đỏ (unmarkMissing). */
+  var missKeys = [];
+  function missNode(key){
+    if(key === 'cmt:what' || key === 'cmt:dev' || key === 'cmt:how' || key === 'op-cmt'){
+      var ed = el(key === 'op-cmt' ? 'yer-op-cmt' : 'yer-cmt-' + key.slice(4));
+      return ed ? ed.closest('.ev-editor-wrap') : null;
+    }
+    return document.querySelector('#yer-root [data-rt="' + key + '"]');
+  }
+  function paintMissing(){
+    document.querySelectorAll('#yer-root .yer-miss').forEach(function(n){ n.classList.remove('yer-miss'); });
+    missKeys.forEach(function(k){ var n = missNode(k); if(n) n.classList.add('yer-miss'); });
+  }
+  function unmarkMissing(key){
+    var i = missKeys.indexOf(key);
+    if(i < 0) return;
+    missKeys.splice(i, 1);
+    var n = missNode(key);
+    if(n) n.classList.remove('yer-miss');
+  }
+  function markMissing(groups){
+    missKeys = [];
+    groups.forEach(function(g){ missKeys = missKeys.concat(g.keys); });
+    paintMissing();
+    var first = missKeys.length ? missNode(missKeys[0]) : null;
+    if(first) first.scrollIntoView({ behavior:'smooth', block:'center' });
   }
 
   function missingGoalNames(p){
@@ -1175,34 +1273,47 @@
   }
 
   function submitSelf(p){
-    var miss = missingFields(p);
-    if(miss.length){
+    var groups = missingGroups(p);
+    if(groups.length){
+      /* Mỗi khối còn thiếu một gạch đầu dòng. Đóng popup (Đã hiểu hay dấu x) thì các ô thiếu
+         có viền đỏ và màn cuộn tới ô đầu tiên (chốt 28/09/2026). */
+      var mark = function(){ markMissing(groups); };
       U.dialog({
-        title: L('Vui lòng bổ sung thông tin','Please complete the required fields'),
-        text: L('Còn thiếu: ','Still missing: ') + miss.slice(0,6).join('; ') +
-          (miss.length > 6 ? L(' và ' + (miss.length-6) + ' mục khác.',' and ' + (miss.length-6) + ' more.') : '.'),
-        buttons: [{ label:L('Đã hiểu','Got it'), variant:'default' }]
+        className: 'yer-miss-dialog',
+        title: L('Bạn chưa thể gửi Tự đánh giá vì thiếu thông tin','You cannot submit your self assessment yet: information is missing'),
+        html: '<p>' + L('Bạn vui lòng bổ sung:','Please complete:') + '</p>' +
+          '<ul class="yer-dlg-list">' + groups.map(function(g){
+            return '<li><strong>' + esc(g.title) + ':</strong> ' + esc(g.parts.join('; ')) + '</li>';
+          }).join('') + '</ul>' +
+          '<p class="yer-dlg-p">' + L('Các ô còn thiếu sẽ được đánh dấu viền đỏ trên màn hình.','Missing fields will be outlined in red on the page.') + '</p>',
+        buttons: [{ label:L('Đã hiểu','Got it'), variant:'default', act:mark }],
+        onDismiss: mark
       });
       return;
     }
+    missKeys = [];
     var st = Y.selfAssessmentState(p);
     var again = st.mode === 'editing';
     var deadline = Y.fmt(st.deadline, lg());
+    /* Mỗi ý một gạch đầu dòng, hạn chỉnh sửa in đậm (chốt 28/09/2026) */
     U.dialog({
-      title: again ? L('Gửi lại tự đánh giá cuối năm?','Resubmit your year-end self assessment?')
-                   : L('Gửi tự đánh giá cuối năm?','Submit your year-end self assessment?'),
-      text: again
-        ? L('Bản này sẽ thay bản đã gửi ngày ' + Y.fmt(p.self.at, lg()) + '. Bạn vẫn chỉnh sửa được tới hết ngày ' + deadline + '.',
-            'This version replaces the one submitted on ' + Y.fmt(p.self.at, lg()) + '. You can still edit until ' + deadline + '.')
-        : L('Nội dung sẽ được chuyển tới Quản lý trực tiếp. Bạn vẫn chỉnh sửa được tới hết ngày ' + deadline + '.',
-            'Your line manager will receive the content. You can still edit until ' + deadline + '.'),
+      title: again ? L('Xác nhận gửi lại Tự đánh giá cuối năm','Confirm resubmitting your year-end self assessment')
+                   : L('Xác nhận gửi Tự đánh giá cuối năm','Confirm submitting your year-end self assessment'),
+      html: '<ul class="yer-dlg-list">' + (again
+        ? '<li>' + L('Bản Tự đánh giá này sẽ thay bản đã gửi ngày ' + Y.fmt(p.self.at, lg()) + '.',
+                     'This self assessment replaces the one submitted on ' + Y.fmt(p.self.at, lg()) + '.') + '</li>'
+        : '<li>' + L('Bản Tự đánh giá sẽ được chuyển tới Quản lý trực tiếp.','Your self assessment will be sent to your line manager.') + '</li>') +
+        '<li>' + L('Bạn vẫn chỉnh sửa được tới hết ngày <strong>' + deadline + '</strong>.',
+                   'You can still edit until the end of <strong>' + deadline + '</strong>.') + '</li></ul>',
       buttons: [
         { label:L('Kiểm tra lại','Review again'), variant:'quiet' },
         { label: again ? L('Gửi lại','Resubmit') : L('Gửi tự đánh giá','Submit'), variant:'default', icon:'bx-send', act:function(){
             var s = S.session();
             var next = Object.assign({ at: s.date }, snapshotDraft());
             if(again){
-              appendLog({ type:'resubmit', changes: Y.selfChanges(p.self, next) });
+              var goalTypes = {};
+              (p.emp.goals || []).forEach(function(g){ goalTypes[g.id] = g.type; });
+              appendLog({ type:'resubmit', changes: Y.selfChanges(p.self, next, goalTypes) });
               S.clearAct(s.emp, 'selfEditing');
             } else {
               appendLog({ type:'submit', overall: next.overall ? next.overall.score : null });
@@ -1212,6 +1323,9 @@
             U.dirty.clear();
             U.toast(again ? L('Đã gửi lại tự đánh giá','Self assessment resubmitted') : L('Đã gửi tự đánh giá','Self assessment submitted'));
             render();
+            // Gửi xong thì đưa nhân viên lên banner xanh đầu tab để thấy ngay kết quả (chốt 28/09/2026)
+            var banner = document.querySelector('#yer-root .submit-banner');
+            if(banner) banner.scrollIntoView({ behavior:'smooth', block:'center' });
           } }
       ]
     });
@@ -1264,20 +1378,22 @@
     });
   }
 
-  /* Lịch sử chỉnh sửa (§8.2), dựng lại cho dễ đọc:
-     - Mỗi lần gửi đánh số `Lần gửi 1, 2…`. Dòng trên cùng là bản đang được ghi nhận.
-     - Lần gửi lại liệt kê từng thay đổi so với lần trước, mỗi thay đổi một dòng.
-     - Mở chỉnh sửa và hủy chỉnh sửa là mốc phụ, chữ nhỏ, không đánh số.
+  /* Lịch sử chỉnh sửa (§8.2), dựng lại ngày 28/09/2026 thành từng thẻ theo lần gửi:
+     - Mỗi lần gửi là một thẻ `Lần gửi N`, mới nhất ở trên. Thẻ đang có hiệu lực mang nhãn xanh.
+     - Trong thẻ: giờ gửi, nội dung gửi (lần đầu) hoặc thay đổi so với lần trước (lần gửi lại),
+       rồi các thao tác sau khi gửi trên chính bản đó (mở chỉnh sửa, hủy, hết hạn).
+     - Không ghi domain của nhân viên: người xem là chính họ. Chỉ ghi `Hệ thống` khi hệ thống tự làm.
      Model chỉ trả mã và số liệu, câu chữ dựng ở đây. */
   function logEntries(p){
-    var n = 0, current = 0;
-    var list = (p.selfLog || []).map(function(it){
-      var e = { it: it, version: null };
-      if(it.type === 'submit' || it.type === 'resubmit' || it.type === 'late-file'){ n++; e.version = n; current = n; }
-      e.kept = current;
-      return e;
+    var versions = [];
+    (p.selfLog || []).forEach(function(it){
+      if(it.type === 'submit' || it.type === 'resubmit' || it.type === 'late-file'){
+        versions.push({ no: versions.length + 1, it: it, events: [] });
+      } else if(versions.length){
+        versions[versions.length - 1].events.push(it);
+      }
     });
-    return { list: list, current: current };
+    return { versions: versions, current: versions.length };
   }
 
   function changeLines(c){
@@ -1285,7 +1401,17 @@
     if(!c) return out;
     var none = L('trống','empty');
     if(c.overall) out.push(L('Điểm toàn diện: ','Overall rating: ') + (c.overall[0] == null ? none : c.overall[0]) + ' → ' + (c.overall[1] == null ? none : c.overall[1]));
-    if(c.goalScores) out.push(L('Điểm mục tiêu: sửa ' + c.goalScores + ' mục tiêu','Goal ratings: ' + c.goalScores + ' changed'));
+    /* Điểm mục tiêu ghi rõ nhóm công việc hay phát triển (chốt 28/09/2026). Bản ghi cũ chỉ có
+       tổng số (không có goalScoresByType) thì giữ câu chung. */
+    var byType = c.goalScoresByType;
+    if(byType && (byType.what || byType.dev)){
+      ['what','dev'].forEach(function(t){
+        if(byType[t]) out.push(L('Điểm ' + TYPE[t].vi + ': sửa ' + byType[t] + ' mục tiêu',
+                                 TYPE[t].en + ' ratings: ' + byType[t] + ' changed'));
+      });
+    } else if(c.goalScores){
+      out.push(L('Điểm mục tiêu: sửa ' + c.goalScores + ' mục tiêu','Goal ratings: ' + c.goalScores + ' changed'));
+    }
     if(c.howScores) out.push(L('Điểm giá trị cốt lõi: sửa ' + c.howScores + ' giá trị','Core value ratings: ' + c.howScores + ' changed'));
     var cm = (c.comments || []).map(function(t){ return lg()==='en' ? TYPE[t].en : TYPE[t].vi; });
     if(c.overallComment) cm.push(L('Đánh giá toàn diện','Overall assessment'));
@@ -1294,54 +1420,61 @@
     return out;
   }
 
-  function logRow(e, p, isCurrent){
-    var it = e.it;
-    var when = Y.fmt(it.at, lg()) + (it.time ? ' ' + it.time : '');
-    var who = it.type === 'expired' ? L('Hệ thống','System') : (it.by || p.emp.login);
-    var title, lines = [], minor = false;
-    if(it.type === 'submit' || it.type === 'late-file'){
-      title = L('Lần gửi ' + e.version,'Submission ' + e.version) + (it.type === 'late-file' ? L(' (nộp bổ sung bằng file)',' (late file)') : '');
-      if(it.overall != null) lines.push(L('Điểm toàn diện: ','Overall rating: ') + it.overall);
-    } else if(it.type === 'resubmit'){
-      title = L('Lần gửi ' + e.version + ' - thay lần gửi ' + (e.version - 1),'Submission ' + e.version + ' - replaces submission ' + (e.version - 1));
-      lines = changeLines(it.changes);
-    } else if(it.type === 'reopen'){
-      title = L('Mở chỉnh sửa lần gửi ' + e.kept,'Opened submission ' + e.kept + ' for editing'); minor = true;
-    } else if(it.type === 'cancel'){
-      title = L('Hủy chỉnh sửa, giữ nguyên lần gửi ' + e.kept,'Discarded changes, kept submission ' + e.kept); minor = true;
-    } else if(it.type === 'expired'){
-      title = L('Hết hạn chỉnh sửa khi chưa gửi lại','Editing closed without resubmitting');
-      lines.push(L('Hệ thống ghi nhận lần gửi ' + e.kept + ' (ngày ' + Y.fmt(it.keptAt, lg()) + ')','The system keeps submission ' + e.kept + ' (' + Y.fmt(it.keptAt, lg()) + ')'));
-    } else { title = it.type; }
-    return '<li class="yer-log-item' + (minor ? ' minor' : '') + (e.version ? ' version' : '') + (isCurrent ? ' latest' : '') + '">' +
-      '<span class="yer-log-dot" aria-hidden="true"></span><div class="yer-log-body">' +
-      '<div class="yer-log-hd"><strong>' + esc(title) + '</strong>' +
-        (isCurrent ? '<span class="yer-log-cur">' + L('Đang được ghi nhận','Current') + '</span>' : '') +
-        '<span class="yer-log-when">' + esc(when + ' - ' + who) + '</span></div>' +
-      (lines.length ? '<ul class="yer-log-tx">' + lines.map(function(l){ return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>' : '') +
-      '</div></li>';
+  // `lúc hh:mm ngày dd/mm/yyyy`; bản ghi không có giờ thì chỉ nói ngày
+  function logWhen(it){
+    return it.time ? L('lúc ' + it.time + ' ngày ' + Y.fmt(it.at, lg()), 'at ' + it.time + ' on ' + Y.fmt(it.at, lg()))
+                   : L('ngày ' + Y.fmt(it.at, lg()), 'on ' + Y.fmt(it.at, lg()));
+  }
+
+  /* Thao tác trên một bản sau khi gửi, viết thành câu đầy đủ (chốt 28/09/2026): bảng ngày giờ và
+     nhãn `Sau khi gửi` cũ khó hiểu nên bỏ. */
+  function logEvent(it){
+    var when = logWhen(it);
+    var ev = it.type === 'reopen'
+        ? { icon:'bx-edit-alt', text:L('Bạn mở bản này để chỉnh sửa ' + when + '.','You opened this version for editing ' + when + '.') }
+      : it.type === 'cancel'
+        ? { icon:'bx-undo', text:L('Bạn hủy chỉnh sửa ' + when + ', bản này được giữ nguyên.','You discarded your changes ' + when + '; this version was kept.') }
+      : it.type === 'expired'
+        ? { icon:'bx-time-five', text:L('Hết hạn chỉnh sửa ' + when + ' mà bạn chưa gửi lại, hệ thống giữ bản này.','Editing closed ' + when + ' before you resubmitted; the system kept this version.') }
+      : { icon:'bx-info-circle', text:it.type };
+    return '<li><i class="bx ' + ev.icon + '" aria-hidden="true"></i><span>' + esc(ev.text) + '</span></li>';
+  }
+
+  /* Thẻ một lần gửi: tiêu đề, giờ gửi, thay đổi so với lần trước (chỉ lần gửi lại), các thao tác sau đó.
+     Lần gửi đầu không có phần nội dung; thẻ cũ không ghi `Đã thay bằng…` vì thứ tự và nhãn xanh
+     của thẻ mới nhất đã nói đủ (chốt 28/09/2026). */
+  function logCard(v, total){
+    var it = v.it;
+    var isCur = v.no === total;
+    var lines = it.type === 'resubmit' ? changeLines(it.changes) : [];
+    return '<li class="yer-ver' + (isCur ? ' current' : '') + '">' +
+      '<div class="yer-ver-hd"><strong>' + esc(L('Lần gửi ' + v.no,'Submission ' + v.no) +
+          (it.type === 'late-file' ? L(' (nộp bổ sung bằng file)',' (late file)') : '')) + '</strong>' +
+        (isCur ? '<span class="yer-log-cur"><i class="bx bx-check"></i>' + L('Đang được ghi nhận','Current') + '</span>' : '') +
+      '</div>' +
+      '<div class="yer-ver-when"><i class="bx bx-time-five"></i>' + esc(L('Gửi ','Sent ') + logWhen(it)) + '</div>' +
+      (lines.length ? '<div class="yer-ver-sec"><div class="yer-ver-lbl">' + esc(L('Thay đổi so với lần gửi ' + (v.no - 1),'Changes from submission ' + (v.no - 1))) + '</div>' +
+        '<ul class="yer-log-tx">' + lines.map(function(l){ return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>' : '') +
+      (v.events.length ? '<div class="yer-ver-sec"><ul class="yer-ver-ev">' + v.events.map(logEvent).join('') + '</ul></div>' : '') +
+      '</li>';
   }
 
   function historyDialog(p){
     var data = logEntries(p);
-    var rows = data.list.slice().reverse();
     var cur = p.self;
-    var summary = cur
+    var last = data.versions[data.versions.length - 1];
+    var summary = cur && last
       ? '<div class="yer-log-sum"><i class="bx bx-check-shield"></i><div>' +
-          L('Bản đang được ghi nhận: <strong>Lần gửi ' + data.current + '</strong> ngày ' + Y.fmt(cur.at, lg()),
-            'Current version: <strong>submission ' + data.current + '</strong> on ' + Y.fmt(cur.at, lg())) +
-          (cur.overall && cur.overall.score != null ? L(' - điểm toàn diện ',' - overall rating ') + '<strong>' + cur.overall.score + '</strong>' : '') +
+          L('Bản đang được ghi nhận: <strong>Lần gửi ' + data.current + '</strong>, gửi ' + esc(logWhen(last.it)),
+            'Current version: <strong>submission ' + data.current + '</strong>, sent ' + esc(logWhen(last.it))) +
           (p.selfEditing ? '<br>' + L('Bạn đang chỉnh sửa. Bản này vẫn được giữ cho tới khi bạn gửi lại.','You are editing. This version is kept until you resubmit.') : '') +
         '</div></div>'
       : '';
-    var seenCurrent = false;
     U.dialog({
       className: 'yer-log-dialog',
       title: L('Lịch sử chỉnh sửa Tự đánh giá','Self assessment edit history'),
-      html: summary + '<ol class="yer-log">' + rows.map(function(e){
-        var isCur = !seenCurrent && e.version === data.current;
-        if(isCur) seenCurrent = true;
-        return logRow(e, p, isCur);
+      html: summary + '<ol class="yer-vers">' + data.versions.slice().reverse().map(function(v){
+        return logCard(v, data.current);
       }).join('') + '</ol>',
       buttons: [{ label:L('Đóng','Close'), variant:'quiet' }]
     });
@@ -1507,7 +1640,7 @@
      giống nhau cho mọi người. Trạng thái riêng của từng hồ sơ không lên nhãn tab (§18.4). */
   var PHASE_LABEL = {
     'not-open': ['Chưa mở',        'Not open yet'],
-    'active':   ['Đang hoạt động', 'Active'],
+    'active':   ['Cần hoàn tất',   'To complete'],
     'done':     ['Đã hoàn tất',    'Completed']
   };
 
@@ -1621,25 +1754,34 @@
       '.btn.yer-btn-locked,.btn.yer-btn-locked:hover{background:var(--z200);border-color:var(--z200);color:var(--z600);cursor:not-allowed}' +
       '.yer-edit-note .yer-note-list{margin-top:6px}' +
       '.yer-dlg-p{margin-top:8px}' +
+      // Danh sách gạch đầu dòng trong popup xác nhận gửi và popup thiếu thông tin
+      '.yer-dlg-list{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:5px}' +
+      '.yer-dlg-list:first-child{margin-top:0}' +
+      '.yer-dlg-list strong{color:var(--z900);font-weight:600}' +
+      '.yer-miss-dialog{max-width:500px}' +
+      // Ô còn thiếu sau khi đóng popup thiếu thông tin: viền đỏ theo lỗi form (DS §14)
+      '#yer-root [data-rt].yer-miss select{border-color:var(--err);box-shadow:0 0 0 3px var(--err-bg)}' +
+      '#yer-root .ev-editor-wrap.yer-miss{border-color:var(--err);box-shadow:inset 3px 0 0 var(--err),0 0 0 3px var(--err-bg)}' +
       '.sb-actions .btn-sm{height:30px}' +
-      // Lịch sử chỉnh sửa: dạng timeline dọc, dòng mới nhất ở trên và chấm hồng
-      '.yer-log-dialog{max-width:520px}' +
-      '.yer-log{list-style:none;margin:6px 0 0;padding:0;position:relative}' +
-      '.yer-log-item{position:relative;display:grid;grid-template-columns:14px minmax(0,1fr);gap:10px;padding-bottom:14px}' +
-      '.yer-log-item:last-child{padding-bottom:0}' +
-      '.yer-log-item:not(:last-child)::before{content:"";position:absolute;left:6px;top:14px;bottom:0;width:2px;background:var(--z200)}' +
-      '.yer-log-dot{width:10px;height:10px;margin:4px 0 0 1px;border-radius:50%;background:var(--z300)}' +
-      '.yer-log-item.latest .yer-log-dot{background:var(--brand);box-shadow:0 0 0 3px var(--brand-muted)}' +
-      '.yer-log-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}' +
-      '.yer-log-hd strong{font-size:13px;font-weight:600;color:var(--z900)}' +
-      '.yer-log-hd span{font-size:12px;color:var(--z600);font-variant-numeric:tabular-nums}' +
-      '.yer-log-tx{margin:3px 0 0;padding-left:16px;font-size:12.5px;color:var(--z700);line-height:1.5}' +
-      '.yer-log-hd .yer-log-when{margin-left:auto}' +
-      '.yer-log-hd .yer-log-cur{display:inline-flex;align-items:center;height:18px;padding:0 7px;border:1px solid var(--ok-bd);border-radius:50px;' +
-        'background:var(--ok-bg);color:var(--ok);font-size:10.5px;font-weight:600}' +
-      '.yer-log-item.latest .yer-log-dot{background:var(--ok);box-shadow:0 0 0 3px var(--ok-bg)}' +
-      '.yer-log-item.minor .yer-log-hd strong{font-size:12px;font-weight:500;color:var(--z600)}' +
-      '.yer-log-item.minor .yer-log-dot{width:8px;height:8px;margin:5px 0 0 2px}' +
+      // Lịch sử chỉnh sửa: mỗi lần gửi một thẻ, mới nhất ở trên, thẻ đang ghi nhận viền xanh
+      '.yer-log-dialog{max-width:540px}' +
+      '.yer-vers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto}' +
+      '.yer-ver{padding:12px 14px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0)}' +
+      '.yer-ver.current{border-color:var(--ok-bd)}' +
+      '.yer-ver-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}' +
+      '.yer-ver-hd strong{font-size:13.5px;font-weight:700;color:var(--z900)}' +
+      '.yer-ver:not(.current) .yer-ver-hd strong{color:var(--z700)}' +
+      '.yer-log-cur{display:inline-flex;align-items:center;gap:3px;height:20px;padding:0 8px;border:1px solid var(--ok-bd);border-radius:50px;' +
+        'background:var(--ok-bg);color:var(--ok);font-size:11px;font-weight:600}' +
+      '.yer-log-cur i{font-size:13px}' +
+      '.yer-ver-when{display:inline-flex;align-items:center;gap:4px;margin-top:2px;font-size:12px;color:var(--z600);font-variant-numeric:tabular-nums}' +
+      '.yer-ver-when i{font-size:13px;color:var(--z500)}' +
+      '.yer-ver-sec{margin-top:9px;padding-top:9px;border-top:1px dashed var(--z200)}' +
+      '.yer-ver-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:3px}' +
+      '.yer-log-tx{margin:0;padding-left:16px;font-size:12.5px;color:var(--z800);line-height:1.55}' +
+      '.yer-ver-ev{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--z700);line-height:1.5}' +
+      '.yer-ver-ev li{display:flex;align-items:flex-start;gap:6px}' +
+      '.yer-ver-ev i{flex:none;margin-top:2px;font-size:14px;color:var(--z500)}' +
       '.yer-log-sum{display:flex;gap:8px;align-items:flex-start;margin:4px 0 14px;padding:10px 12px;border:1px solid var(--ok-bd);' +
         'border-radius:var(--rsm);background:var(--ok-bg);font-size:12.5px;color:var(--z700);line-height:1.5}' +
       '.yer-log-sum>i{font-size:16px;color:var(--ok);margin-top:1px}' +
@@ -1652,7 +1794,7 @@
       '#yer-root .overall-card .overall-panel{border:0;border-radius:0;padding:16px 18px;background:transparent}' +
       '#yer-root .overall-card .overall-panel + .overall-panel{border-left:1px solid var(--z200)}' +
       '#yer-root .overall-card .yer-ed-ro{border:0}' +
-      '.yer-hidden-score{font-size:13px;font-weight:500;color:var(--z600)}' +
+      '#yer-root .op-hd-dom{text-transform:none;letter-spacing:0;font-size:12px;font-weight:500;color:var(--z600)}' +
       '.overall-grid.yer-upper-one{grid-template-columns:1fr}' +
       // Khối thông báo quá hạn: dòng xác nhận và nút đi tiếp
       // Khối quá hạn dùng tông vàng cảnh báo (--warn), tách khỏi khối hồng của việc cần làm thường
@@ -1660,9 +1802,16 @@
       '#yer-root .yer-late-note>i{color:var(--warn);font-size:18px}' +
       '#yer-root .yer-late-note strong{color:var(--z900);font-weight:700}' +
       '.yer-late-note-title{font-size:14.5px;font-weight:700;color:var(--z900);line-height:1.4;margin-bottom:3px}' +
-      '.yer-late-note-act{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--warn-bd)}' +
-      '.yer-late-acked{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--z600)}' +
-      '.yer-late-acked i{color:var(--ok);font-size:15px}' +
+      '.yer-late-note-act{margin-top:10px;padding-top:10px;border-top:1px solid var(--warn-bd)}' +
+      '.yer-late-act-lead{font-size:12.5px;color:var(--z800);margin-bottom:8px}' +
+      '.yer-late-act-steps{list-style:none;margin:0;padding:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}' +
+      '.yer-late-act-step{display:flex;align-items:center;gap:8px;min-height:30px}' +
+      '.yer-late-act-no{flex:none;display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;' +
+        'background:var(--z0);border:1px solid var(--warn-bd);color:var(--z900);font-size:11px;font-weight:700}' +
+      '.yer-late-act-step.done .yer-late-act-no{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok)}' +
+      '.yer-late-act-no i{font-size:13px}' +
+      '.yer-late-act-sep{display:inline-flex;color:var(--z500);font-size:16px}' +
+      '.yer-late-acked{font-size:12.5px;color:var(--z700)}' +
       '.yer-late-note .yer-late-note-body{flex:1;min-width:0}' +
       '.yer-late-csq{line-height:1.55}' +
       '.yer-late-csq strong{color:var(--z900);font-weight:700}' +
@@ -1676,8 +1825,8 @@
       '.yer-late-dialog .yer-late-flow{margin:10px 0 16px}' +
       '.yer-late-dialog .yer-late-footer{padding:0}' +
       '.yer-late-lead{font-size:12.5px;color:var(--z700);margin-top:2px}' +
-      '.yer-late-ack-check{display:flex;align-items:flex-start;gap:8px;margin:0;font-size:12.5px;font-weight:600;color:var(--z900);cursor:pointer}' +
-      '.yer-late-ack-check input{margin-top:2px;accent-color:var(--brand)}' +
+      '.yer-late-ack-check{display:flex;align-items:center;gap:7px;margin:0;font-size:12.5px;font-weight:600;color:var(--z900);cursor:pointer}' +
+      '.yer-late-ack-check input{margin:0;width:15px;height:15px;accent-color:var(--brand)}' +
       '.btn[disabled]{opacity:.5;cursor:not-allowed}' +
       '.yer-late-closed strong{font-weight:700}' +
       '.yer-cv-desc{line-height:1.55}' +
@@ -1705,6 +1854,7 @@
       if(e.detail && (e.detail.reason === 'emp' || e.detail.reason === 'reset')){
         U.dirty.clear();
         lateFileDraft = null;
+        missKeys = [];
       }
       render();
     });

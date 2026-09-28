@@ -233,7 +233,9 @@
      auto-sync, quá hạn... đều tính runtime, không hardcode.  */
   var Y = {};
 
-  function ev(at, extra) { return Object.assign({ at: at }, extra || {}); }
+  /* Mọi mốc dựng sẵn có giờ, để lịch sử chỉnh sửa của Nhân viên lần gửi nào cũng ghi giờ (§8.2).
+     Dữ liệu mẫu dùng chung một giờ; mốc nào cần giờ riêng thì ghi time trong extra. */
+  function ev(at, extra) { return Object.assign({ at: at, time: '16:30' }, extra || {}); }
 
   // s01 — luồng chuẩn, đã đi tới bước HOD
   Y.e1 = {
@@ -312,7 +314,7 @@
     selfLog: [
       { type: 'submit', at: '2027-01-07', time: '16:20', overall: 4 },
       { type: 'reopen', at: '2027-01-09', time: '09:05' },
-      { type: 'resubmit', at: '2027-01-10', time: '14:40', overall: 4.5, changes: { overall: [4, 4.5], overallComment: true, goalScores: 1, howScores: 0, comments: ['what'] } }
+      { type: 'resubmit', at: '2027-01-10', time: '14:40', overall: 4.5, changes: { overall: [4, 4.5], overallComment: true, goalScores: 1, goalScoresByType: { what: 1, dev: 0 }, howScores: 0, comments: ['what'] } }
     ],
     self: ev('2027-01-10', { overall: { score: 4.5, comment: 'Nền tảng MLOps đã phục vụ ổn định nhiều mô hình và giảm chi phí vận hành đáng kể.' },
       comments: { what: 'Platform phục vụ 18 mô hình production, vượt mục tiêu 15.', dev: 'Hoàn thành nghiên cứu fine-tuning và chia sẻ nội bộ.', how: 'Chủ động chuẩn hóa quy trình cho cả nhóm.' } }),
@@ -624,8 +626,8 @@
       wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Measure: rating capped at 3; missing this round may lead to a bonus cut and deferral.' },
     { id: 'nv15', g: 'r-nv', fresh: true, emp: 'y16', role: 'nv', date: '2027-02-01', screen: 'E-05',
       vi: 'Chưa nộp - đang bị nhắc nhở lần 4', en: 'Not submitted - reminder 4',
-      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Hình thức xử lý cộng dồn: điểm tối đa là 3, có thể cắt giảm thưởng và tạm hoãn thăng chức, tăng lương 6 tháng; quá hạn lần này thì có thể bị kỷ luật.',
-      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Cumulative measures; missing this round may lead to disciplinary action.' },
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Hình thức xử lý: cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương 6 tháng; quá hạn lần này thì có thể bị kỷ luật.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Measure: bonus cut and a 6-month deferral; missing this round may lead to disciplinary action.' },
     { id: 'nv16', g: 'r-nv', fresh: true, emp: 'y9', role: 'nv', date: '2027-01-21', screen: 'E-05',
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 1', en: 'Late file submitted at reminder 1',
       wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn; lần này chưa có hình thức xử lý.',
@@ -646,6 +648,11 @@
       vi: 'Không nộp sau 4 lần nhắc nhở', en: 'Not submitted after 4 reminders',
       wvi: 'Hết thời gian nộp bổ sung: chỉ còn một khối vàng báo đã hết hạn và hình thức kỷ luật, các ô đều khóa.',
       wen: 'The late window has closed: one yellow notice about the deadline and disciplinary action; all fields are locked.' },
+    // Cùng hồ sơ với nv06 nhưng đã qua hạn nộp bổ sung. fresh: file đã nộp thử ở nv06 không lọt sang đây.
+    { id: 'nv21', g: 'r-nv', fresh: true, emp: 'y10', role: 'nv', date: '2027-02-05', screen: 'E-05',
+      vi: 'Thiếu mục tiêu và không nộp sau 4 lần nhắc nhở', en: 'Goal missing and not submitted after 4 reminders',
+      wvi: 'Giống nv20 nhưng hồ sơ còn thiếu mục tiêu phát triển: cùng một khối vàng báo đã hết hạn, thêm dòng nói loại mục tiêu còn thiếu nên hồ sơ là Không đánh giá.',
+      wen: 'Like nv20 but the development goal is missing: the same yellow notice, plus a line naming the missing goal type, so the profile is Not evaluated.' },
 
     /* ── Quản lý trực tiếp ── */
     { id: 'lm01', g: 'r-lm', emp: 'y6', role: 'lm', date: '2027-01-25', screen: 'M-05',

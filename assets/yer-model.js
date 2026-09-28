@@ -56,24 +56,25 @@
   /* ── Nộp bổ sung sau hạn tự đánh giá: bốn lần nhắc (§27.3) ──
      Lần 1 nhắc ngay ngày làm việc đầu tiên sau hạn chót. Các lần sau cách nhau 3 ngày làm việc.
      Mỗi lần là một cơ hội nộp bổ sung, hạn là 18:00 ngày làm việc thứ ba của lần đó.
-     consequence: hình thức xử lý áp cho hồ sơ nộp trong lần đó (cộng dồn).
-     next: điều xảy ra nếu hết lần đó mà vẫn chưa nộp.                                        */
+     consequence: hình thức xử lý áp cho hồ sơ nộp trong lần đó.
+     next: điều xảy ra nếu hết lần đó mà vẫn chưa nộp.
+     Chốt 28/09/2026: lần 4 chỉ còn cắt giảm thưởng và tạm hoãn, không cộng thêm giới hạn điểm 3. */
   var LATE_ROUND_RULE = [
-    { consequence: [],                 next: 'remind' },
-    { consequence: [],                 next: 'cap3' },
-    { consequence: ['cap3'],           next: 'bonus' },
-    { consequence: ['cap3', 'bonus'],  next: 'discipline' }
+    { consequence: [],         next: 'remind' },
+    { consequence: [],         next: 'cap3' },
+    { consequence: ['cap3'],   next: 'bonus' },
+    { consequence: ['bonus'],  next: 'discipline' }
   ];
   /* Câu chữ của các hình thức xử lý: dùng chung cho màn Nhân viên và màn Quản lý (DS §20.1) */
   var LATE_TEXT = {
     remind: { vi: 'Hệ thống sẽ gửi nhắc nhở lần tiếp theo.',
               en: 'The system will send the next reminder.' },
-    policy: { vi: 'Sau 2 lần nhắc nhở và cho cơ hội mà nhân viên vẫn chưa hoàn thành Tự đánh giá, các biện pháp xử lý tiếp theo sẽ được áp dụng theo quy định Công ty.',
-              en: 'If, after 2 reminders and chances, the self assessment is still not completed, further measures will apply under Company policy.' },
+    policy: { vi: 'Sau 2 lần nhắc nhở mà nhân viên vẫn chưa hoàn thành Tự đánh giá, các biện pháp xử lý tiếp theo sẽ được áp dụng theo quy định Công ty.',
+              en: 'If the self assessment is still not completed after 2 reminders, further measures will apply under Company policy.' },
     cap3:   { vi: 'Điểm đánh giá toàn diện được giới hạn tối đa là 3.',
               en: 'The overall rating is capped at 3.' },
-    bonus:  { vi: 'Có thể cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ thời điểm nhắc nhở lần thứ tư. Việc áp dụng cụ thể do Trưởng đơn vị phối hợp với HOHR đề xuất và được CEO hoặc người được ủy quyền phê duyệt.',
-              en: 'Part of the bonus may be cut and promotion and salary increase deferred for the next 6 months, counted from the fourth reminder. The Head of Department and HOHR propose the specifics for approval by the CEO or an authorised person.' },
+    bonus:  { vi: 'Cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo. Thời gian tạm hoãn tính từ thời điểm nhắc nhở thứ tư. Việc áp dụng cụ thể do Trưởng đơn vị (HOD) phối hợp với HOHR đề xuất và được Giám đốc điều hành (CEO) hoặc người được ủy quyền phê duyệt.',
+              en: 'Part of the bonus is cut and promotion and salary increase are deferred for the next 6 months. The deferral counts from the fourth reminder. The Head of Department (HOD) and HOHR propose the specifics for approval by the Chief Executive Officer (CEO) or an authorised person.' },
     discipline: { vi: 'Công ty có thể sẽ đánh giá và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động đã quy định.',
                   en: 'The Company may review and apply suitable disciplinary action under the Labour Regulations.' }
   };
@@ -238,8 +239,9 @@
     var selfEditing = (selfDone && editAct && selfOpenNow) ? editAct : null;
     var log = (seed.selfLog || []).concat((acts.selfLog && acts.selfLog.items) || [])
       .filter(function (it) { return it && it.at && cmp(now, it.at) >= 0; });
+    // Dòng suy ra lấy luôn giờ gửi của bản đã gửi: lịch sử lần gửi nào cũng có giờ (§8.2)
     if (!log.length && selfDone) {
-      log = [{ type: self.source === 'file-import' ? 'late-file' : 'submit', at: self.at,
+      log = [{ type: self.source === 'file-import' ? 'late-file' : 'submit', at: self.at, time: self.time || null,
         overall: self.overall ? self.overall.score : null }];
     }
     if (selfDone && editAct && !selfOpenNow) {
@@ -419,16 +421,21 @@
   }
 
   /* Khác nhau giữa hai bản tự đánh giá, để ghi lịch sử chỉnh sửa. Màn hình tự dựng câu chữ. */
-  function selfChanges(before, after) {
+  /* goalTypes (tùy chọn): { goalId: 'what' | 'dev' }. Có thì đếm thêm số mục tiêu sửa điểm theo
+     từng nhóm (goalScoresByType), để lịch sử ghi rõ sửa mục tiêu công việc hay phát triển (§8.2). */
+  function selfChanges(before, after, goalTypes) {
     before = before || {}; after = after || {};
     var bo = before.overall || {}, ao = after.overall || {};
-    var res = { overall: null, overallComment: false, goalScores: 0, howScores: 0, comments: [] };
+    var res = { overall: null, overallComment: false, goalScores: 0, goalScoresByType: { what: 0, dev: 0 }, howScores: 0, comments: [] };
     if (bo.score !== ao.score) res.overall = [bo.score == null ? null : bo.score, ao.score == null ? null : ao.score];
     res.overallComment = String(bo.comment || '').trim() !== String(ao.comment || '').trim();
     var bg = before.goalScores || {}, ag = after.goalScores || {}, seen = {};
     Object.keys(bg).concat(Object.keys(ag)).forEach(function (id) {
       if (seen[id]) return; seen[id] = true;
-      if (bg[id] !== ag[id]) res.goalScores++;
+      if (bg[id] === ag[id]) return;
+      res.goalScores++;
+      var t = goalTypes && goalTypes[id];
+      if (t === 'what' || t === 'dev') res.goalScoresByType[t]++;
     });
     var bh = before.howScores || [], ah = after.howScores || [];
     for (var i = 0; i < Math.max(bh.length, ah.length); i++) if (bh[i] !== ah[i]) res.howScores++;

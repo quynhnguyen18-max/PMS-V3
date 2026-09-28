@@ -32,7 +32,7 @@ test('demo scenarios are grouped by role, not by process stage', () => {
 
   const scenarioIds = Array.from(w.PMS_YER_SCENARIOS, s => s.id);
   assert.equal(new Set(scenarioIds).size, scenarioIds.length, 'ma tinh huong phai duy nhat');
-  assert.equal(scenarioIds.filter(id => id.startsWith('nv')).length, 20);
+  assert.equal(scenarioIds.filter(id => id.startsWith('nv')).length, 21);
   // Array.from de doi sang mang cua tien trinh test: mang tao trong vm co prototype khac.
   assert.deepEqual(Array.from(w.PMS_YER_SCENARIO_ORDER), scenarioIds);
 
@@ -53,11 +53,11 @@ test('demo scenarios are grouped by role, not by process stage', () => {
   }
 });
 
-test('the 20 employee scenarios follow the requested order and states', () => {
+test('the 21 employee scenarios follow the requested order and states', () => {
   const w = loadYer();
   const Y = w.PMSYer;
   const nv = w.PMS_YER_SCENARIOS.filter(s => s.g === 'r-nv');
-  assert.deepEqual(Array.from(nv, s => s.id), Array.from({ length: 20 }, (_, i) => 'nv' + String(i + 1).padStart(2, '0')));
+  assert.deepEqual(Array.from(nv, s => s.id), Array.from({ length: 21 }, (_, i) => 'nv' + String(i + 1).padStart(2, '0')));
   const prof = id => { const sc = nv.find(s => s.id === id); return Y.profile(sc.emp, sc.date); };
 
   assert.equal(Y.selfAssessmentState(prof('nv01')).mode, 'draft');
@@ -100,14 +100,33 @@ test('the 20 employee scenarios follow the requested order and states', () => {
     assert.equal(Y.status(p, 'vi').key, 'wait-lm', id);
     assert.equal(p.emp.id, prof(pending).emp.id, id + ' va ' + pending + ' la cung mot nguoi');
   }
-  // Tinh huong nop bo sung (nv12 den nv19) lam lai tu dau sau moi lan tai trang
-  assert.deepEqual(Array.from(nv.filter(x => x.fresh), x => x.id), ['nv12', 'nv13', 'nv14', 'nv15', 'nv16', 'nv17', 'nv18', 'nv19']);
+  // Tinh huong nop bo sung (nv12 den nv19) va nv21 lam lai tu dau sau moi lan tai trang
+  assert.deepEqual(Array.from(nv.filter(x => x.fresh), x => x.id), ['nv12', 'nv13', 'nv14', 'nv15', 'nv16', 'nv17', 'nv18', 'nv19', 'nv21']);
   const demoSrc = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
   assert.match(demoSrc, /if \(wantScreen && goScreen\(wantScreen\)\) return;\s*freshStart\(currentScenario\(\)\);/);
   const never = prof('nv20');
   assert.equal(never.self, null);
   assert.equal(never.lateWindowOpen, false);
   assert.equal(Y.status(never, 'vi').key, 'noeval');
+  // Lan gui nao cung co gio, ke ca dong lich su model tu suy ra tu ban da gui (§8.2)
+  for (const sc of nv) {
+    for (const it of prof(sc.id).selfLog || []) assert.ok(it.time, sc.id + ' dong ' + it.type + ' thieu gio');
+  }
+  assert.ok(prof('nv11').selfLog.length === 1 && prof('nv11').selfLog[0].time, 'nv11 chi co mot lan gui nhung van co gio');
+  // nv21: cung ho so nv06, thieu muc tieu va da qua han nop bo sung
+  const missNever = prof('nv21');
+  assert.equal(missNever.emp.id, prof('nv06').emp.id);
+  assert.equal(missNever.eligibility.reason, 'missing-goal');
+  assert.equal(missNever.self, null);
+  assert.equal(missNever.lateWindowOpen, false);
+  assert.equal(Y.status(missNever, 'vi').key, 'noeval');
+  // Man Nhan vien: thieu muc tieu ma het han nop bo sung thi dung khoi vang lateClosed, khong dung khoi hong
+  const empSrc = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(empSrc, /if\(p\.eligibility\.reason === 'missing-goal' && !lateOpen && !lateClosed\)\{/);
+  assert.match(empSrc, /var hasWarnNote = \(p\.eligibility\.reason === 'missing-goal' && !lateClosed\)/);
+  assert.match(empSrc, /L\('Vì còn thiếu <strong>' \+ esc\(missingGoalNames\(p\)\) \+ '<\/strong> được duyệt, các bước đánh giá tiếp theo của cấp quản lý sẽ không thể tiếp tục\. '/);
+  assert.match(empSrc, /Quy trình Đánh giá cuối năm của bạn chính thức dừng tại đây và không có điểm trên hệ thống\. /);
+  assert.match(empSrc, /Việc không tuân thủ tiến độ này sẽ được xem xét và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động\./);
 
   // Khong con nhom Ho so khac tren man Nhan vien
   assert.equal(w.PMS_YER_PROFILE_NOTES, undefined);
@@ -139,7 +158,7 @@ test('employee tab only reports results after publication and has no response fl
   const model = fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8');
 
   // Nhan tab Danh gia cuoi nam theo giai doan cua ky, khong theo trang thai tung nguoi (§18.4)
-  assert.match(employee, /'active':\s+\['Đang hoạt động',\s+'Active'\]/);
+  assert.match(employee, /'active':\s+\['Cần hoàn tất',\s+'To complete'\]/);
   assert.match(employee, /'done':\s+\['Đã hoàn tất',\s+'Completed'\]/);
   assert.doesNotMatch(employee, /var TAB_LABEL = /);
   assert.doesNotMatch(employee, /Cần xem kết quả|responseCard|submitResponse|yer-btn-resp|Phản hồi của Nhân viên/);
@@ -154,9 +173,13 @@ test('published employee result keeps prior-cycle status muted and hides manager
   assert.match(employee, /myrLbl\.classList\.toggle\('yer-past-cycle-label', Y\.cmp\(s\.date, Y\.step\('self'\)\.from\) >= 0\)/);
   assert.match(employee, /\.tabs \.tab-active-label\.yer-past-cycle-label\{color:var\(--z600\);background:var\(--z100\);border-color:var\(--z300\)\}/);
   assert.doesNotMatch(employee, /class="sb-score-tag yer-final-tag"/);
-  // Truoc khi cong bo, o cua QLTT co dong Diem toan dien - Chua cong bo; sau khi cong bo chi giu khoang trong
-  assert.match(employee, /L\('- Chưa công bố','- Not published'\)/);
-  assert.match(employee, /\(p\.published\s*\? '<div class="yer-manager-score-gap" aria-hidden="true"><\/div>'/);
+  // O cua QLTT khong co dong diem, ke ca dong Chua cong bo (bo 28/09/2026); chi giu khoang trong cho thang hang
+  assert.doesNotMatch(employee, /Chưa công bố/);
+  assert.match(employee, /\? '<div class="yer-manager-score-gap" aria-hidden="true"><\/div>' \+/);
+  // Tieu de o co domain cua cap quan ly, lay tu Y.actors
+  assert.match(employee, /actorDomain\(Y\.actors\(p\)\.lm\)/);
+  assert.match(employee, /by:who\.lm2/);
+  assert.match(employee, /by:who\.hod/);
   assert.match(employee, /class="yer-manager-score-gap" aria-hidden="true"/);
   assert.match(employee, /\.yer-manager-score-gap\{height:20px;margin-bottom:12px\}/);
 });
@@ -437,6 +460,11 @@ test('a submitted self assessment can be reopened, resubmitted and logged until 
     { overall: { score: 4.5, comment: 'a' }, goalScores: { g1: 3, g2: 5 }, howScores: [3, 4], comments: { what: 'y' } });
   assert.deepEqual(Array.from(diff.overall), [4, 4.5]);
   assert.equal(diff.goalScores, 1);
+  assert.equal(diff.goalScoresByType.what, 0, 'khong truyen loai muc tieu thi khong dem theo nhom');
+  // Truyen loai muc tieu thi lich su ghi ro sua muc tieu cong viec hay phat trien
+  const typed = Y.selfChanges({ goalScores: { g1: 3, g2: 4 } }, { goalScores: { g1: 4, g2: 5 } }, { g1: 'what', g2: 'dev' });
+  assert.equal(typed.goalScoresByType.what, 1);
+  assert.equal(typed.goalScoresByType.dev, 1);
   assert.equal(diff.howScores, 1);
   assert.deepEqual(Array.from(diff.comments), ['what']);
   assert.equal(diff.overallComment, false);
@@ -445,7 +473,7 @@ test('a submitted self assessment can be reopened, resubmitted and logged until 
   assert.match(emp, /id="yer-btn-edit"/);
   assert.match(emp, /id="yer-btn-history"/);
   assert.match(emp, /id="yer-btn-cancel-edit"/);
-  assert.match(emp, /appendLog\(\{ type:'resubmit', changes: Y\.selfChanges\(p\.self, next\) \}\)/);
+  assert.match(emp, /appendLog\(\{ type:'resubmit', changes: Y\.selfChanges\(p\.self, next, goalTypes\) \}\)/);
   assert.match(emp, /L\('Gửi lại tự đánh giá','Resubmit self assessment'\)/);
   assert.doesNotMatch(emp, /Sau khi gửi, bạn không thể thu hồi hoặc chỉnh sửa/);
 });
@@ -619,19 +647,24 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   const note = employee.slice(employee.indexOf('function lateNoteBlock(p)'), employee.indexOf('function lateApprovedGoals(p)'));
   assert.match(note, /Lần nhắc thứ ' \+ r\.round/);
   assert.doesNotMatch(note, /\/4/);
-  assert.match(note, /<strong>\(trễ ' \+ days \+ ' ngày làm việc\)<\/strong>/);
+  assert.match(note, /, <strong>trễ ' \+ days \+ ' ngày làm việc<\/strong>\./);
+  assert.doesNotMatch(note, /\(trễ /);
   assert.match(note, /class="yer-late-note-title"/);
   assert.match(employee, /\.yer-note\.yer-late-note\{background:var\(--warn-bg\);border-color:var\(--warn-bd\)/);
   assert.match(note, /Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày/);
   // Chi hien dong Hinh thuc xu ly khi lan nay da co hinh thuc ap dung; Luu y la cau day du theo quy dinh
   assert.match(note, /\(nowText \? '<li>' \+ L\('<strong>Hình thức xử lý:<\/strong> '/);
-  assert.match(note, /<strong>Lưu ý:<\/strong> nếu quá hạn trên mà vẫn chưa nộp, /);
+  assert.match(note, /<strong>Lưu ý:<\/strong> nếu quá hạn trên mà bạn vẫn chưa nộp, /);
   assert.doesNotMatch(employee, /LATE_SHORT|lg\(\), true\)/);
   assert.doesNotMatch(note, /Cảnh báo/);
   assert.match(note, /id="yer-late-ack-check"/);
   assert.match(note, /Tôi đã đọc, hiểu và xác nhận tiếp tục\./);
   assert.match(note, /id="yer-late-ack-btn" disabled/);
   assert.match(note, /id="yer-late-open"/);
+  // Hai buoc danh so: tick xac nhan la buoc 1, nut Nop bo sung la buoc 2
+  assert.match(note, /class="yer-late-act-steps"/);
+  assert.match(note, /bạn thực hiện 2 bước/);
+  assert.doesNotMatch(employee, /Xác nhận và tiếp tục/);
   assert.doesNotMatch(employee, /yer-late-rounds|yer-late-count|yer-late-terms|yer-late-notice/);
   // Man van dung nhu binh thuong, cac o khoa; popup chi mo sau khi xac nhan
   assert.match(employee, /if\(lateOpen\) html \+= lateNoteBlock\(p\);/);
@@ -700,8 +733,9 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.doesNotMatch(employee, /\.yer-late-flow\{[^}]*grid-template-columns:repeat\(4/);
   assert.match(e05, /\.yer-note\.action\{background:var\(--brand-muted\);border-color:var\(--brand-ring\)/);
   assert.match(e05, /\.yer-note\.action>i\{color:var\(--brand\)\}/);
-  assert.match(employee, /class="btn btn-cta-outline btn-sm yn-cta" id="yer-go-goals"/);
-  assert.doesNotMatch(employee, /class="btn btn-default btn-sm yn-cta" id="yer-go-goals"/);
+  // Khoi thieu muc tieu khong co nut rieng, lien ket nam trong cau (28/09/2026)
+  assert.doesNotMatch(employee, /id="yer-go-goals"/);
+  assert.match(employee, /Vui lòng tạo và gửi Quản lý trực tiếp phê duyệt tại tab <a href="#" class="yer-note-link" data-go-tab="0">Danh sách mục tiêu<\/a>\./);
   assert.match(e05, /\.btn-cta-outline\{background:var\(--z0\);border-color:var\(--brand\);color:var\(--brand\);font-weight:600\}/);
 });
 
@@ -1051,14 +1085,15 @@ test('late submission has four reminders three working days apart, counted in wo
   assert.equal(Y.lateDays('2027-01-25'), 5);
   assert.equal(Y.lateRound('2027-01-24').round, 2, 'cuoi tuan thuoc lan nhac dang mo');
   assert.equal(Y.lateRound('2027-02-04'), null);
-  // Hinh thuc xu ly cong don theo lan nop
+  // Hinh thuc xu ly theo lan nop; lan 4 khong con gioi han diem 3 (28/09/2026)
   assert.deepEqual(Array.from(Y.lateRounds()[0].consequence), []);
   assert.deepEqual(Array.from(Y.lateRounds()[2].consequence), ['cap3']);
-  assert.deepEqual(Array.from(Y.lateRounds()[3].consequence), ['cap3', 'bonus']);
+  assert.deepEqual(Array.from(Y.lateRounds()[3].consequence), ['bonus']);
   assert.equal(Y.lateRounds()[3].next, 'discipline');
   assert.match(Y.lateText('cap3', 'vi'), /tối đa là 3/);
-  assert.match(Y.lateText('policy', 'vi'), /Sau 2 lần nhắc nhở và cho cơ hội/);
-  assert.match(Y.lateText('bonus', 'vi'), /HOHR đề xuất và được CEO hoặc người được ủy quyền phê duyệt/);
+  assert.match(Y.lateText('policy', 'vi'), /^Sau 2 lần nhắc nhở mà nhân viên vẫn chưa hoàn thành/);
+  assert.match(Y.lateText('bonus', 'vi'), /^Cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo\. Thời gian tạm hoãn tính từ thời điểm nhắc nhở thứ tư\./);
+  assert.match(Y.lateText('bonus', 'vi'), /Trưởng đơn vị \(HOD\) phối hợp với HOHR đề xuất và được Giám đốc điều hành \(CEO\) hoặc người được ủy quyền phê duyệt\.$/);
 
   const emp = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   assert.doesNotMatch(emp, /lateInfoBlock/);
@@ -1088,5 +1123,37 @@ test('edit history groups entries by submission and names the version in force',
   assert.match(emp, /L\('Đang được ghi nhận','Current'\)/);
   assert.match(emp, /Bản đang được ghi nhận: <strong>Lần gửi /);
   assert.match(emp, /L\('Xác nhận chỉnh sửa Tự đánh giá đã gửi\?'/);
-  assert.match(emp, /Do đang trong thời gian <strong class="yer-hl">nghỉ thai sản<\/strong>/);
+  assert.match(emp, /Bạn đang trong thời gian <strong class="yer-hl">nghỉ thai sản<\/strong> nên <strong>không bắt buộc<\/strong>/);
+  assert.match(emp, /Hệ thống vẫn mở để bạn có thể chủ động hoàn thành\./);
+  // Moi lan gui mot the, khong ghi domain nhan vien, tom tat co gio va khong co diem toan dien
+  assert.match(emp, /function logCard\(v, total\)/);
+  // The cu khong ghi Da thay bang, lan gui dau khong co phan noi dung, thao tac viet thanh cau
+  assert.doesNotMatch(emp, /Đã thay bằng lần gửi|Nội dung gửi|'Sau khi gửi'/);
+  assert.match(emp, /Bạn mở bản này để chỉnh sửa ' \+ when/);
+  assert.match(emp, /L\('Điểm ' \+ TYPE\[t\]\.vi \+ ': sửa '/);
+  assert.match(emp, /Y\.selfChanges\(p\.self, next, goalTypes\)/);
+  assert.doesNotMatch(emp, /it\.by \|\| p\.emp\.login/);
+  assert.doesNotMatch(emp, /L\(' - điểm toàn diện '/);
+  assert.match(emp, /gửi ' \+ esc\(logWhen\(last\.it\)\)/);
+});
+
+test('submit dialogs list items as bullets, outline missing fields and offer PDF or Excel download', () => {
+  const emp = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  // Thieu thong tin: tieu de moi, moi khoi mot gach dau dong, dong popup thi to vien do
+  assert.match(emp, /L\('Bạn chưa thể gửi Tự đánh giá vì thiếu thông tin'/);
+  assert.match(emp, /L\('Bạn vui lòng bổ sung:'/);
+  assert.match(emp, /buttons: \[\{ label:L\('Đã hiểu','Got it'\), variant:'default', act:mark \}\],\s+onDismiss: mark/);
+  assert.match(emp, /#yer-root \[data-rt\]\.yer-miss select\{border-color:var\(--err\)/);
+  assert.match(emp, /#yer-root \.ev-editor-wrap\.yer-miss\{border-color:var\(--err\)/);
+  assert.doesNotMatch(emp, /Vui lòng bổ sung thông tin/);
+  // Xac nhan gui: tieu de moi, hai gach dau dong, han in dam; gui xong cuon toi banner xanh
+  assert.match(emp, /L\('Xác nhận gửi Tự đánh giá cuối năm'/);
+  assert.match(emp, /L\('Bản Tự đánh giá sẽ được chuyển tới Quản lý trực tiếp\.'/);
+  assert.match(emp, /Bạn vẫn chỉnh sửa được tới hết ngày <strong>' \+ deadline \+ '<\/strong>\./);
+  assert.match(emp, /querySelector\('#yer-root \.submit-banner'\);\s+if\(banner\) banner\.scrollIntoView/);
+  // Nut tai xuong dung kieu .download-menu cua E-05, chon PDF hoac Excel
+  assert.match(emp, /class="download-menu yer-dl-menu"/);
+  assert.match(emp, /data-yer-dl="pdf"/);
+  assert.match(emp, /data-yer-dl="xlsx"/);
+  assert.doesNotMatch(emp, /id="yer-pdf"/);
 });
