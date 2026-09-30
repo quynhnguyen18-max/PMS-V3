@@ -113,15 +113,30 @@
   }
 
   // `(HR system)` là chữ thường trong ngoặc, không viền, không nền (chốt 30/09/2026)
+  /* (HR system): quá hạn của một cấp mà cấp đó không đánh giá thì hệ thống tự lấy điểm của cấp trước (§6).
+     Rê chuột vào nhãn để đọc giải thích. */
   function syncTag() {
-    return '<span class="yer-sync-tag" title="' +
-      esc(L('Hệ thống tự chép điểm vì quá deadline', 'Copied by the system after the deadline')) +
-      '">(HR system)</span>';
+    var text = L('Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.',
+      'This level did not rate before its deadline, so the system copied the previous level rating, without a comment.');
+    return '<span class="yer-sync-tag" tabindex="0" aria-label="' + esc(text) + '" data-tip="' + esc(text) +
+      '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()">(HR system)</span>';
   }
 
-  function scoreCell(value, synced) {
+  /* p: hồ sơ, truyền vào ở các cột điểm của cấp quản lý để đánh dấu điểm cao hơn mức tối đa theo hình thức
+     xử lý (§27.3). Chỉ là cảnh báo, hệ thống không chặn điểm. */
+  function capMark(p, value) {
+    if (!p || !Y.overRatingCap(p, value)) return '';
+    var text = Y.lateMeasureText(p, lg());
+    return '<i class="bx bx-error yer-cap-mark" role="img" aria-label="' + esc(text) + '" data-tip="' + esc(text) +
+      '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()"></i>';
+  }
+
+  /* Số điểm luôn nằm đúng giữa hàng ở mọi cột: nhãn (HR system) treo dưới số, icon cảnh báo treo bên phải số,
+     cả hai đặt tuyệt đối nên không đẩy số lệch lên hay lệch sang (chốt 30/09/2026). */
+  function scoreCell(value, synced, p) {
     if (value == null || value === '') return '<span class="myr-score empty">—</span>';
-    return '<span class="myr-score">' + esc(numText(value)) + '</span>' + (synced ? syncTag() : '');
+    return '<span class="yer-sc"><span class="myr-score">' + esc(numText(value)) + '</span>' + capMark(p, value) +
+      (synced ? syncTag() : '') + '</span>';
   }
 
   function empTags(p) {
@@ -324,7 +339,8 @@
         '" data-tip="' + esc(tipText) + '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()"' +
         (active || has ? '' : ' disabled') + '>' +
         '<span>' + (has ? esc(numText(mine.score)) : esc(L('Chọn điểm', 'Rate'))) + '</span>' +
-        (active ? '<i class="bx bx-chevron-down"></i>' : '') + '</button>';
+        (active ? '<i class="bx bx-chevron-down"></i>' : '') + '</button>' +
+        (has ? '<span class="yer-sc-mark">' + capMark(p, mine.score) + '</span>' : '');
     }
     return '<div class="yer-rt-cell">' + inner + '</div>';
   }
@@ -355,9 +371,9 @@
     if (r === 'hod') cells.push(mgrCell(actors.lm2));
     cells.push('<td><span class="myr-status ' + st.tone + '">' + esc(st.label) + '</span></td>');
     cells.push('<td class="score">' + scoreCell(p.self && p.self.overall ? p.self.overall.score : null) + '</td>');
-    cells.push('<td class="score">' + scoreCell(p.lm && p.lm.overall ? p.lm.overall.score : null, p.lm && p.lm.synced) + '</td>');
-    cells.push('<td class="score">' + (r === 'lm2' ? ratingCell(p) : scoreCell(p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced)) + '</td>');
-    cells.push('<td class="score">' + (r === 'hod' ? ratingCell(p) : scoreCell(p.hod ? p.hod.score : null)) + '</td>');
+    cells.push('<td class="score">' + scoreCell(p.lm && p.lm.overall ? p.lm.overall.score : null, p.lm && p.lm.synced, p) + '</td>');
+    cells.push('<td class="score">' + (r === 'lm2' ? ratingCell(p) : scoreCell(p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced, p)) + '</td>');
+    cells.push('<td class="score">' + (r === 'hod' ? ratingCell(p) : scoreCell(p.hod ? p.hod.score : null, false, p)) + '</td>');
     cells.push('<td class="score">' + scoreCell(p.final ? p.final.score : null) + '</td>');
     cells.push(actionCell(p));
     return '<tr data-emp="' + esc(p.id) + '">' + cells.join('') + '</tr>';
@@ -373,7 +389,9 @@
     var mine = myEntry(p);
     var text = comment != null ? comment : (mine && !mine.synced ? mine.comment || '' : '');
     var at = S.session().date, time = clock();
-    S.setAct(p.id, role(), { score: score, comment: text, at: at, time: time, source: 'manual' });
+    // Điểm cao hơn mức tối đa chỉ lưu được sau khi người chấm xác nhận (§27.3); ghi lại để truy vết
+    var capConfirmed = Y.overRatingCap(p, score) ? { max: Y.lateMeasure(p).cap, score: score, at: at } : null;
+    S.setAct(p.id, role(), { score: score, comment: text, at: at, time: time, source: 'manual', capConfirmed: capConfirmed });
     S.setAct(p.id, role() + 'Log', { items: Y.nextManagerLog(role(), p,
       { at: at, time: time, score: score, comment: text, source: source || 'grid' }) });
   }
@@ -391,6 +409,43 @@
       }).join('') + '</ol></details>';
   }
 
+  /* Duyệt điểm cấp trước, Upload điểm, Duyệt điểm hiệu chuẩn: có dòng cao hơn mức tối đa thì phải tick
+     xác nhận trước khi ghi (§27.3). rows: [{ p, score }]. Không có dòng nào vượt thì chạy luôn. */
+  function confirmOverCap(rows, go) {
+    var over = rows.filter(function (r) { return Y.overRatingCap(r.p, r.score); });
+    if (!over.length) { go(); return; }
+    U.dialog({
+      title: L('Có điểm cao hơn mức tối đa theo quy định', 'Some ratings are above the maximum under policy'),
+      html: '<p>' + L('Các nhân viên dưới đây nộp bổ sung Tự đánh giá ở lần nhắc có giới hạn điểm toàn diện tối đa. Hệ thống không chặn điểm, bạn cần xác nhận trước khi lưu:',
+          'These employees submitted late at a reminder that caps the overall rating. The system does not block ratings; confirm before saving:') + '</p>' +
+        '<ul class="yer-calib-conflicts">' + over.map(function (r) {
+          var m = Y.lateMeasure(r.p);
+          return '<li><strong>' + esc(r.p.emp.name) + '</strong> (' + esc(r.p.emp.login) + '): ' +
+            esc(L('điểm ' + numText(r.score) + ', tối đa ' + m.cap + ' (lần nhắc thứ ' + m.round + ')',
+                  'rating ' + numText(r.score) + ', maximum ' + m.cap + ' (reminder ' + m.round + ')')) + '</li>';
+        }).join('') + '</ul>' +
+        '<label class="yer-cap-ack"><input type="checkbox" id="yer-bulk-cap-ack"><span>' +
+          esc(L('Tôi xác nhận giữ các điểm trên dù cao hơn mức tối đa theo quy định.', 'I confirm keeping these ratings although they are above the maximum under policy.')) +
+        '</span></label>',
+      buttons: [
+        { label: L('Quay lại', 'Go back'), variant: 'quiet' },
+        { label: L('Xác nhận', 'Confirm'), variant: 'default', icon: 'bx-check', act: go }
+      ]
+    });
+    lockUntilAck('yer-bulk-cap-ack');
+  }
+
+  // Nút chính của popup vừa mở chỉ bấm được khi đã tick ô xác nhận
+  function lockUntilAck(ackId) {
+    var ovs = document.querySelectorAll('.pms-ov');
+    var btn = ovs.length ? ovs[ovs.length - 1].querySelector('.pms-btn-default') : null;
+    var ack = el(ackId);
+    if (!btn || !ack) return;
+    btn.disabled = !ack.checked;
+    btn.title = L('Tick xác nhận ở trên để tiếp tục', 'Tick the confirmation above to continue');
+    ack.addEventListener('change', function () { btn.disabled = !ack.checked; });
+  }
+
   function findProfile(id) {
     return Y.profile(id, S.session().date);
   }
@@ -405,34 +460,56 @@
     var draftText = keep ? keep.comment : (mine.synced ? '' : mine.comment || '');
     var a = Y.actors(p);
     var who = role() === 'lm2' ? L('Quản lý cấp 2', 'Second-level manager') : L('Trưởng đơn vị', 'Head of department');
-    // Điểm các cấp trước để tham khảo, có domain của cấp quản lý (chốt 30/09/2026)
+    /* Điểm các cấp trước để tham khảo: mỗi người một cột (thẻ), cùng khung: vai, điểm, domain (chốt 30/09/2026) */
     function ref(label, person, value, synced) {
-      return '<div class="yer-cm-ref-item"><span class="yer-cm-ref-lbl">' + esc(label) +
-        (person && person.login ? ' <span class="er-login">(' + esc(person.login) + ')</span>' : '') + '</span>' +
-        '<strong>' + esc(value != null ? numText(value) : '—') + '</strong>' + (synced ? syncTag() : '') + '</div>';
+      // Thứ tự trong thẻ: vai, domain, điểm (chốt 30/09/2026)
+      return '<div class="yer-cm-ref"><div class="yer-cm-ref-lbl">' + esc(label) + '</div>' +
+        '<div class="yer-cm-ref-dom">' + esc(person && person.login ? person.login : '—') + '</div>' +
+        '<div class="yer-cm-ref-val">' + esc(value != null ? numText(value) : '—') + (synced ? syncTag() : '') + '</div></div>';
     }
-    var refs = ref(L('Điểm của nhân viên', 'Employee rating'), null, p.self && p.self.overall ? p.self.overall.score : null) +
+    var refs = ref(L('Điểm của nhân viên', 'Employee rating'), p.emp, p.self && p.self.overall ? p.self.overall.score : null) +
       ref(L('Điểm của QLTT', 'Line manager rating'), a.lm, p.lm && p.lm.overall ? p.lm.overall.score : null, p.lm && p.lm.synced) +
       (role() === 'hod' ? ref(L('Điểm của QL cấp 2', 'Second-level rating'), a.lm2, p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced) : '');
     var until = Y.fmt(Y.managerEditWindow(role(), p).to, lg());
     var html =
-      '<div class="yer-cm-emp"><strong>' + esc(p.emp.name) + '</strong> <span class="er-login">(' + esc(p.emp.login) + ')</span></div>' +
-      '<div class="yer-cm-refs">' + refs + '</div>' +
+      '<div class="yer-cm-emp"><span class="yer-cm-emp-lbl">' + L('Nhân viên:', 'Employee:') + '</span> <strong>' + esc(p.emp.name) +
+        '</strong> <span class="er-login">(' + esc(p.emp.login) + ')</span></div>' +
+      '<div class="yer-cm-refs" style="grid-template-columns:repeat(' + (role() === 'hod' ? 3 : 2) + ',minmax(0,1fr))">' + refs + '</div>' +
+      // Hình thức xử lý đứng trên ô chấm điểm để người chấm đọc trước khi chọn (chốt 30/09/2026)
+      '<div id="yer-cm-cap" class="yer-cm-cap"></div>' +
       '<div class="yer-cm-score">' +
         '<span class="yer-cm-flbl">' + L('Điểm toàn diện của bạn', 'Your overall rating') +
           (active ? '<span class="yer-req" aria-hidden="true">*</span>' : '') + '</span>' +
-        // Cùng component chọn điểm với màn chi tiết: tên mức có màu, ô Ý nghĩa thang điểm ngay dưới (§41.2b)
-        '<div id="yer-cm-rating"></div></div>' +
+        // Cùng component chọn điểm với màn chi tiết: tên mức có màu (§41.2b). Ô Ý nghĩa thang điểm chỉ hiện
+        // khi đang chọn điểm; mở lại popup của điểm đã xác nhận thì ẩn cho tới khi đổi điểm.
+        '<div id="yer-cm-rating"></div>' +
+        '<div id="yer-cm-def" class="yer-cm-def" data-shown="' + (keep || draftScore == null || draftScore === '' ? '1' : '0') + '"></div></div>' +
       '<label class="yer-cm-flbl" for="yer-cm-text">' + L('Nhận xét', 'Comment') + '</label>' +
-      '<textarea id="yer-cm-text" class="yer-cm-text" rows="5" maxlength="1000"' + (active ? '' : ' readonly') +
-        ' placeholder="' + esc(L('Ghi nhận xét của bạn về kết quả và đóng góp của nhân viên trong năm, không bắt buộc.',
-          'Your comment on the employee\'s results and contribution this year, optional.')) + '">' + esc(draftText) + '</textarea>' +
+      '<textarea id="yer-cm-text" class="yer-cm-text" rows="2" maxlength="1000"' + (active ? '' : ' readonly') +
+        ' placeholder="' + esc(L('Ghi nhận xét của bạn về kết quả và đóng góp của nhân viên trong năm.',
+          'Your comment on the results and contribution of the employee this year.')) + '">' + esc(draftText) + '</textarea>' +
       '<div class="yer-cm-foot">' +
-        (active ? '<span class="yer-cm-until"><i class="bx bx-time-five"></i>' + L('Bạn sửa được tới hết ngày ', 'Editable until the end of ') +
+        (active ? '<span class="yer-cm-until"><i class="bx bx-time-five"></i>' +
+          L('Bạn được điều chỉnh điểm cho nhân viên tới hết 18:00, ngày ', 'You can adjust the rating until 18:00 on ') +
           '<strong>' + esc(until) + '</strong></span>' : '<span></span>') +
         '<span id="yer-cm-count" class="yer-cm-count">' + String(draftText).length + ' / 1000</span></div>' +
       historyHtml(p);
-    var cur = { score: draftScore, comment: draftText };
+    var cur = { score: draftScore, comment: draftText, ack: !!(keep && keep.ack) };
+    // Hồ sơ nộp bổ sung có hình thức xử lý: nhắc ngay dưới ô điểm; vượt mức tối đa thì phải tick xác nhận (§27.3)
+    function drawCap() {
+      var node = el('yer-cm-cap');
+      if (!node) return;
+      var text = Y.lateMeasureText(p, lg());
+      if (!text) { node.innerHTML = ''; return; }
+      var cap = Y.ratingCapText(p, cur.score, lg());
+      var over = active && Y.overRatingCap(p, cur.score);
+      node.innerHTML = '<i class="bx bx-error"></i><div>' + esc(text) +
+        (over ? '<div class="yer-cap-over">' + esc(cap.over) + '</div>' +
+          '<label class="yer-cap-ack"><input type="checkbox" id="yer-cm-cap-ack"' + (cur.ack ? ' checked' : '') + '><span>' + esc(cap.ack) + '</span></label>' : '') +
+        '</div>';
+      var ack = el('yer-cm-cap-ack');
+      if (ack) ack.addEventListener('change', function () { cur.ack = ack.checked; });
+    }
     U.dialog({
       title: active ? L('Đánh giá toàn diện của ', 'Overall review by ') + who : L('Đánh giá toàn diện của bạn', 'Your overall review'),
       className: 'yer-cm-dlg',
@@ -442,6 +519,11 @@
         { label: L('Xác nhận', 'Confirm'), variant: 'default', icon: 'bx-check', act: function () {
             if (cur.score == null || cur.score === '') {
               U.toast(L('Cần chọn điểm toàn diện trước khi lưu', 'Select an overall rating before saving'));
+              openComment(p, cur);
+              return;
+            }
+            if (Y.overRatingCap(p, cur.score) && !cur.ack) {
+              U.toast(L('Cần tick xác nhận giữ điểm cao hơn mức tối đa', 'Tick the confirmation to keep a rating above the maximum'));
               openComment(p, cur);
               return;
             }
@@ -455,8 +537,14 @@
       step: 'half',
       value: draftScore == null || draftScore === '' ? null : Number(draftScore),
       readonly: !active,
-      onChange: function (v) { cur.score = v; }
+      defInto: '#yer-cm-def',
+      onChange: function (v) {
+        cur.score = v; cur.ack = false; drawCap();
+        var def = el('yer-cm-def');
+        if (def) def.dataset.shown = '1';
+      }
     });
+    drawCap();
     var box = el('yer-cm-text');
     if (box) box.addEventListener('input', function () {
       cur.comment = box.value;
@@ -464,90 +552,20 @@
     });
   }
 
-  /* ── AI Summary (mock, hợp cảnh từng hồ sơ, §14) ─────── */
-  function plain(text) {
-    return String(text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  }
-  function firstSentence(text) {
-    var t = plain(text);
-    var cut = t.search(/[.!?](\s|$)/);
-    t = cut > 0 ? t.slice(0, cut + 1) : t;
-    return t.length > 170 ? t.slice(0, 167) + '…' : t;
-  }
-  function avg(obj) {
-    var vals = Object.keys(obj || {}).map(function (k) { return obj[k]; }).filter(function (v) { return v != null; });
-    if (!vals.length) return null;
-    return Math.round(vals.reduce(function (s, v) { return s + Number(v); }, 0) / vals.length * 10) / 10;
-  }
-
-  function aiSummaryHtml(p) {
-    var items = [];
-    var selfS = p.self && p.self.overall ? p.self.overall.score : null;
-    var lmS = p.lm && p.lm.overall ? p.lm.overall.score : null;
-    var scores = [];
-    if (selfS != null) scores.push(L('Nhân viên tự chấm ', 'Self rating ') + '<strong>' + numText(selfS) + '</strong>');
-    if (lmS != null) scores.push(L('QLTT ', 'Line manager ') + '<strong>' + numText(lmS) + '</strong>' + (p.lm.synced ? ' (HR system)' : ''));
-    if (p.lm2 && role() === 'hod') scores.push(L('Quản lý cấp 2 ', 'Second level ') + '<strong>' + numText(p.lm2.score) + '</strong>');
-    if (scores.length) {
-      var gap = selfS != null && lmS != null ? Math.abs(selfS - lmS) : 0;
-      items.push({ h: L('Điểm các cấp', 'Ratings so far'), t: scores.join(' - ') + '.' +
-        (gap >= 1 ? ' ' + L('Chênh lệch ' + numText(gap) + ' điểm giữa Nhân viên và QLTT, nên đọc kỹ nhận xét của QLTT.',
-          'A ' + numText(gap) + '-point gap between the employee and the line manager; read the manager comments closely.') : '') });
-    }
-    var goalAvg = p.lm && !p.lm.synced ? avg(p.lm.goalScores) : null;
-    var howAvg = p.lm && !p.lm.synced ? avg(p.lm.howScores) : null;
-    if (goalAvg != null || howAvg != null) {
-      items.push({ h: L('Mục tiêu', 'Goals'), t:
-        (goalAvg != null ? L('Điểm mục tiêu QLTT chấm trung bình ', 'Average goal rating from the line manager ') + '<strong>' + goalAvg + '</strong>' : '') +
-        (goalAvg != null && howAvg != null ? ', ' : '') +
-        (howAvg != null ? L('giá trị cốt lõi trung bình ', 'core values average ') + '<strong>' + howAvg + '</strong>' : '') + '.' });
-    }
-    var src = p.lm && !p.lm.synced && p.lm.comments ? p.lm.comments : (p.self && p.self.comments) || {};
-    var srcBy = p.lm && !p.lm.synced && p.lm.comments ? L('QLTT', 'line manager') : L('nhân viên', 'employee');
-    if (src.what) items.push({ h: L('Kết quả nổi bật', 'Key results'), t: esc(firstSentence(src.what)) + ' <span class="yer-ai-src">(' + L('theo ', 'per ') + srcBy + ')</span>' });
-    if (src.dev) items.push({ h: L('Phát triển', 'Development'), t: esc(firstSentence(src.dev)) });
-    var flags = [];
-    if (p.lateSubmission) flags.push(L('Hồ sơ nộp bổ sung', 'Late submission') + (p.lateRound ? L(' ở lần nhắc thứ ', ' at reminder ') + p.lateRound.round : '') + '.');
-    if (p.maternity) flags.push(L('Nhân viên nghỉ thai sản, QLTT chịu trách nhiệm đánh giá chính.', 'On maternity leave; the line manager leads the review.'));
-    if (p.resignFrom && !p.resigned) flags.push(L('Có ngày làm việc cuối cùng ', 'Last working day ') + Y.fmt(p.resignFrom, lg()) + '.');
-    if (p.lm && p.lm.synced) flags.push(L('QLTT không gửi đánh giá chi tiết, điểm do hệ thống chép.', 'No detailed line manager review; the score was copied by the system.'));
-    if (flags.length) items.push({ h: L('Cần lưu ý', 'Watch out'), t: esc(flags.join(' ')) });
-    return '<ul class="yer-ai-list">' + items.map(function (it) {
-      return '<li><span class="yer-ai-h">' + esc(it.h) + '</span>' + it.t + '</li>';
-    }).join('') + '</ul>' +
-      '<div class="yer-ai-note">' + L('Nội dung do AI tổng hợp từ đánh giá của Nhân viên và các cấp quản lý, chỉ để tham khảo.',
-        'Generated by AI from the employee and manager reviews, for reference only.') + '</div>';
-  }
-
-  function openAi(p) {
-    U.dialog({
-      title: L('AI Summary', 'AI Summary'),
-      className: 'yer-ai-dlg',
-      html: '<div class="yer-ai-hd"><img class="dialog-ai-summary-mascot" src="../assets/mascot/think.png" alt=""/>' +
-        '<div><strong>' + esc(p.emp.name) + '</strong> <span class="er-login">(' + esc(p.emp.login) + ')</span></div></div>' +
-        '<div id="yer-ai-body" class="yer-ai-body"><div class="yer-ai-loading"><i class="bx bx-loader-alt bx-spin"></i>' +
-        L('Đang tổng hợp đánh giá…', 'Summarising the review…') + '</div></div>',
-      buttons: [{ label: L('Đóng', 'Close'), variant: 'default' }]
-    });
-    setTimeout(function () {
-      var body = el('yer-ai-body');
-      if (body) body.innerHTML = aiSummaryHtml(p);
-    }, 700);
-  }
+  /* AI Summary: nội dung và popup dùng chung với M-06, ở assets/yer-ai.js (§14) */
+  function openAi(p) { window.PMSYerAi.openSummary(p); }
 
   /* ── duyệt điểm cấp trước và upload điểm (như tab Giữa năm) ─ */
   function approveSelected() {
-    var n = 0;
-    Object.keys(state.selected).forEach(function (id) {
-      var p = findProfile(id);
-      if (!p || !canApprove(p)) return;
-      saveMine(p, Number(prevScore(p)), null, 'approve-prev');
-      n++;
+    var rows = Object.keys(state.selected).map(findProfile).filter(function (p) { return p && canApprove(p); })
+      .map(function (p) { return { p: p, score: Number(prevScore(p)) }; });
+    confirmOverCap(rows, function () {
+      rows.forEach(function (r) { saveMine(r.p, r.score, null, 'approve-prev'); });
+      state.selected = {};
+      refreshRows();
+      U.toast(L('Đã duyệt điểm ' + PREV_LABEL[role()] + ' cho ' + rows.length + ' nhân viên.',
+        'Approved ' + PREV_LABEL[role()] + ' ratings for ' + rows.length + ' employees.'));
     });
-    state.selected = {};
-    refreshRows();
-    U.toast(L('Đã duyệt điểm ' + PREV_LABEL[role()] + ' cho ' + n + ' nhân viên.',
-      'Approved ' + PREV_LABEL[role()] + ' ratings for ' + n + ' employees.'));
   }
 
   var ROLE_COL = { lm2: 'Điểm LM2', hod: 'Điểm HOD' };
@@ -600,19 +618,21 @@
         U.toast(L('File không đúng mẫu: thiếu cột Mã nhân viên hoặc ' + ROLE_COL[role()], 'Wrong template: missing employee ID or rating column'));
         return;
       }
-      var done = 0, skipped = 0;
+      var valid = [], skipped = 0;
       rows.forEach(function (r) {
         var raw = String(r[iScore] || '').trim().replace(',', '.');
         if (!raw) return;
         var p = findProfile(String(r[iId] || '').trim());
         var v = Number(raw);
         if (!p || !canAct(p) || SCORE_OPTIONS.indexOf(String(v)) < 0) { skipped++; return; }
-        saveMine(p, v, iCmt >= 0 ? String(r[iCmt] || '').trim() : null, 'upload');
-        done++;
+        valid.push({ p: p, score: v, comment: iCmt >= 0 ? String(r[iCmt] || '').trim() : null });
       });
-      refreshRows();
-      U.toast(L('Đã cập nhật điểm cho ' + done + ' nhân viên', 'Updated ' + done + ' employees') +
-        (skipped ? L(', bỏ qua ' + skipped + ' dòng không hợp lệ', ', skipped ' + skipped + ' invalid rows') : ''));
+      confirmOverCap(valid, function () {
+        valid.forEach(function (r) { saveMine(r.p, r.score, r.comment, 'upload'); });
+        refreshRows();
+        U.toast(L('Đã cập nhật điểm cho ' + valid.length + ' nhân viên', 'Updated ' + valid.length + ' employees') +
+          (skipped ? L(', bỏ qua ' + skipped + ' dòng không hợp lệ', ', skipped ' + skipped + ' invalid rows') : ''));
+      });
     };
     reader.readAsText(file, 'utf-8');
   }
@@ -622,27 +642,44 @@
     var win = Y.managerEditWindow(role(), sample || { now: S.session().date });
     var open = win.state === 'open';
     var col = ROLE_COL[role()];
+    /* Thông báo timeline là thông tin quan trọng nhất nên đứng đầu popup, ngay dưới tiêu đề (chốt 30/09/2026).
+       Đang mở: hạn cập nhật; bị khóa: lý do khóa, tông vàng. */
+    var notice = open
+      ? '<div class="yer-up-alert"><i class="bx bx-time-five"></i><span>' +
+          L('Bạn cập nhật điểm được tới hết 18:00, ngày ', 'You can update ratings until 18:00 on ') + '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>. ' +
+          L('Hệ thống kiểm tra mã nhân viên và giá trị điểm trước khi cập nhật.', 'Employee IDs and values are checked before updating.') + '</span></div>'
+      : '<div class="yer-up-alert locked"><i class="bx bx-lock-alt"></i><span>' + (win.state === 'future'
+          ? L('Chưa đến timeline đánh giá của bạn (mở từ ', 'Your review step has not opened yet (opens ') + '<strong>' + esc(Y.fmt(win.from, lg())) + '</strong>' +
+            L(') nên chức năng tải file lên đang bị khóa.', '), so uploading is locked.')
+          : L('Đã hết hạn đánh giá của bạn (', 'Your review step closed on ') + '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>' +
+            L(') nên chức năng tải file lên đang bị khóa.', ', so uploading is locked.')) + '</span></div>';
+    function step(no, title, desc, actions, upload) {
+      return '<div class="upload-guide-step' + (upload ? ' is-upload' : '') + '"><div class="upload-step-no">' + no + '</div><div>' +
+        '<div class="upload-step-title">' + title + '</div><div class="upload-step-desc">' + desc + '</div>' +
+        (actions ? '<div class="upload-step-actions">' + actions + '</div>' : '') + '</div></div>';
+    }
     U.dialog({
       title: L('Upload điểm đánh giá cuối năm', 'Upload year-end ratings'),
       className: 'yer-up-dlg',
-      html: '<ol class="yer-up-steps">' +
-        '<li><div class="yer-up-t">' + L('Tải file mẫu', 'Download the template') + '</div>' +
-          '<div class="yer-up-d">' + L('File có sẵn danh sách nhân viên bạn đang được đánh giá.', 'The file lists the employees you can rate.') + '</div>' +
-          '<button type="button" class="btn btn-outline btn-sm" id="yer-up-tpl"><i class="bx bx-download"></i>' + L('Tải file mẫu (.csv)', 'Download template (.csv)') + '</button></li>' +
-        '<li><div class="yer-up-t">' + L('Điền điểm', 'Fill in ratings') + '</div>' +
-          '<div class="yer-up-d">' + L('Điền điểm từ 1 đến 5, theo bước 0.5, vào cột ', 'Enter ratings from 1 to 5 in steps of 0.5 in the column ') +
-          '<strong>' + esc(col) + '</strong>' + L(', nhận xét (tùy chọn) vào cột ', ', optional comments in the column ') + '<strong>' + L('Nhận xét', 'Nhận xét') + '</strong>' +
-          L('. Không thay đổi mã nhân viên hoặc cấu trúc các cột còn lại.', '. Do not change employee IDs or the other columns.') + '</div></li>' +
-        '<li><div class="yer-up-t">' + L('Tải file lên', 'Upload the file') + '</div>' +
-          '<button type="button" class="btn btn-default btn-sm" id="yer-up-file"' + (open ? '' : ' disabled') + '><i class="bx bx-upload"></i>' +
-            L('Chọn file để upload', 'Choose a file') + '</button>' +
-          '<input type="file" id="yer-up-input" accept=".csv" hidden></li></ol>' +
-        '<div class="yer-up-note"><i class="bx bx-info-circle"></i><span>' + (open
-          ? L('Hệ thống kiểm tra mã nhân viên và giá trị điểm trước khi cập nhật. Bạn cập nhật được tới hết ngày ', 'IDs and values are checked before updating. You can update until the end of ') + esc(Y.fmt(win.to, lg())) + '.'
-          : win.state === 'future'
-            ? L('Chưa đến timeline đánh giá của bạn (mở từ ', 'Your review step has not opened yet (opens ') + esc(Y.fmt(win.from, lg())) + L(') nên chức năng chọn file đang bị khóa.', '), so uploading is locked.')
-            : L('Đã hết hạn đánh giá của bạn (', 'Your review step closed on ') + esc(Y.fmt(win.to, lg())) + L(') nên chức năng chọn file đang bị khóa.', ', so uploading is locked.')) +
-        '</span></div>',
+      html: notice +
+        '<div class="upload-guide-intro">' + L('Thực hiện lần lượt 3 bước dưới đây để cập nhật điểm hàng loạt cho nhân viên.',
+          'Follow the 3 steps below to update ratings for many employees at once.') + '</div>' +
+        '<div class="upload-guide-steps">' +
+          // Một nút tải mẫu là đủ (không tách Excel, CSV như tab Giữa năm)
+          step(1, L('Tải file mẫu', 'Download the template'),
+            L('File có sẵn danh sách nhân viên bạn đang được đánh giá.', 'The file already lists the employees you can rate.'),
+            '<button type="button" class="btn btn-outline btn-sm" id="yer-up-tpl"><i class="bx bx-download"></i> ' + L('Tải file mẫu', 'Download template') + '</button>') +
+          step(2, L('Điền điểm đánh giá', 'Fill in the ratings'),
+            L('Mở file vừa tải, tìm dòng của từng nhân viên và điền điểm toàn diện từ 1 đến 5 vào cột ', 'Open the file, find each employee and enter the overall rating from 1 to 5 in the column ') +
+              '<span class="upload-column-name">' + esc(col) + '</span>' +
+              L('. Được dùng mức lẻ 0.5, ví dụ 3.5. Muốn ghi nhận xét thì điền vào cột ', '. Half points such as 3.5 are allowed. To add a comment, use the column ') +
+              '<span class="upload-column-name">' + L('Nhận xét', 'Nhận xét') + '</span>' +
+              L(', không bắt buộc. Giữ nguyên mã nhân viên và các cột khác để hệ thống nhận đúng người.', ' (optional). Keep employee IDs and the other columns as they are so each row matches the right person.'), '') +
+          step(3, L('Tải file đã điền điểm lên', 'Upload the completed file'),
+            L('Chọn file CSV đã điền để cập nhật điểm lên hệ thống.', 'Choose the completed CSV file to update the ratings.'),
+            '<button type="button" class="btn btn-default btn-sm" id="yer-up-file"' + (open ? '' : ' disabled') + '><i class="bx bx-upload"></i> ' +
+              L('Chọn file để upload', 'Choose a file') + '</button><input type="file" id="yer-up-input" accept=".csv" hidden>', true) +
+        '</div>',
       buttons: [{ label: L('Đóng', 'Close'), variant: 'quiet' }]
     });
     var tpl = el('yer-up-tpl'), pick = el('yer-up-file'), input = el('yer-up-input');
@@ -882,11 +919,16 @@
       });
       return;
     }
+    confirmOverCap(picked.map(function (p) { return { p: p, score: Y.calibrationState(p).score }; }), function () { applyCalib(picked); });
+  }
+
+  function applyCalib(picked) {
     var now = S.session().date;
     picked.forEach(function (p) {
       var c = Y.calibrationState(p);
       var hodComment = c.comment || (p.hod && p.hod.comment) || '', time = clock();
-      S.setAct(p.id, 'hod', { score: c.score, comment: hodComment, at: now, time: time, source: 'hrbp-upload' });
+      S.setAct(p.id, 'hod', { score: c.score, comment: hodComment, at: now, time: time, source: 'hrbp-upload',
+        capConfirmed: Y.overRatingCap(p, c.score) ? { max: Y.lateMeasure(p).cap, score: c.score, at: now } : null });
       S.setAct(p.id, 'hodLog', { items: Y.nextManagerLog('hod', p, { at: now, time: time, score: c.score, comment: hodComment, source: 'hrbp-upload' }) });
       S.setAct(p.id, 'hrbpUpload', { approved: true, approvedAt: now });
     });
@@ -1379,7 +1421,11 @@
       '.yer-mgr-table .myr-check-cell{padding-left:8px!important}' +
       '.yer-mgr-table .myr-emp-name,.yer-mgr-table .myr-emp-meta{white-space:normal;overflow:visible;text-overflow:clip}' +
       '.yer-mgr-table .myr-status{border-radius:50px;white-space:normal;overflow-wrap:normal;word-break:normal;padding:4px 8px}' +
-      '.yer-mgr-table .yer-sync-tag{display:block;width:max-content;margin:2px auto 0}' +
+      '.yer-mgr-table .yer-sc{position:relative;display:inline-block}' +
+      '.yer-mgr-table .yer-sc .yer-sync-tag{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin:1px 0 0;display:block;width:max-content}' +
+      '.yer-mgr-table .yer-sc .yer-cap-mark,.yer-sc-mark .yer-cap-mark{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:3px}' +
+      '.yer-rt-cell{position:relative}' +
+      '.yer-sc-mark{position:absolute;right:0;top:50%}' +
       '.yer-rt-cell{display:inline-flex;align-items:center;justify-content:center;gap:4px}' +
       // Ô điểm dạng nút: cùng dáng ô chọn điểm của tab Giữa năm, bấm là mở popup
       '.yer-rt-btn{display:inline-flex;align-items:center;justify-content:center;gap:2px;min-width:64px;height:26px;padding:0 6px 0 9px;' +
@@ -1416,13 +1462,19 @@
       '#yer-mgr-tbody tr[data-emp]{cursor:pointer}' +
       // Popup đánh giá toàn diện của LM2, HOD
       '.yer-cm-dlg{width:min(640px,calc(100vw - 32px));max-width:none}' +
-      '.yer-cm-emp{font-size:14px;color:var(--z900);margin-bottom:8px}' +
-      '.yer-cm-refs{display:flex;flex-wrap:wrap;gap:6px 18px;padding:9px 12px;margin-bottom:16px;border:1px solid var(--z200);' +
-        'border-radius:var(--rsm);background:var(--z50)}' +
-      '.yer-cm-ref-item{display:inline-flex;align-items:baseline;gap:6px;font-size:12.5px;color:var(--z600)}' +
-      '.yer-cm-ref-item strong{font-size:13.5px;color:var(--z900);font-weight:700}' +
+      '.yer-cm-emp{font-size:14px;color:var(--z900);margin-bottom:12px}' +
+      '.yer-cm-emp-lbl{color:var(--z600)}' +
+      '.yer-cm-refs{display:grid;gap:8px;margin-bottom:18px}' +
+      '.yer-cm-ref{padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50);min-width:0}' +
+      '.yer-cm-ref-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500)}' +
+      '.yer-cm-ref-val{margin-top:4px;font-size:20px;font-weight:700;color:var(--z900);line-height:1.2;display:flex;align-items:baseline;gap:4px}' +
+      '.yer-cm-ref-val .yer-sync-tag{margin:0}' +
+      '.yer-cm-ref-dom{margin-top:1px;font-size:12px;color:var(--z600);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '.yer-cm-flbl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin:0 0 6px}' +
       '.yer-cm-score{margin-bottom:16px}' +
+      '.yer-cm-def[data-shown="0"]{display:none}' +
+      '.yer-cm-def .rt-def{margin-top:10px}' +
+      '.yer-sync-tag[data-tip]{cursor:help}' +
       // Ô chọn điểm toàn diện và tên mức: cùng kiểu với M-06 (M-05 không có sẵn các class này)
       '.yer-cm-dlg .op-select{padding:5px 26px 5px 10px;border:1px solid var(--brand-ring);border-radius:var(--rsm);font-family:inherit;font-size:13px;' +
         'font-weight:700;color:var(--z900);background:var(--z0);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;' +
@@ -1444,34 +1496,30 @@
       '.yer-cm-text[readonly]{background:var(--z50)}' +
       // Hạn sửa bên trái, nhấn màu thương hiệu; bộ đếm ký tự bên phải
       '.yer-cm-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px}' +
-      '.yer-cm-until{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid var(--brand-ring);border-radius:50px;' +
-        'background:var(--brand-muted);color:var(--brand);font-size:11.5px;font-weight:500}' +
+      '.yer-cm-until{display:inline-flex;align-items:center;gap:5px;color:var(--brand);font-size:12px;font-weight:500}' +
       '.yer-cm-until i{font-size:13px}' +
       '.yer-cm-until strong{font-weight:700;color:var(--brand)}' +
       '.yer-cm-count{font-size:11.5px;color:var(--z600)}' +
+      // Hình thức xử lý và giới hạn điểm: tông vàng cảnh báo (DS §19 rule 24)
+      '.yer-cm-cap{display:flex;gap:7px;align-items:flex-start;margin:0 0 16px;padding:8px 11px;border:1px solid var(--warn-bd);' +
+        'border-radius:var(--rsm);background:var(--warn-bg);font-size:12px;line-height:1.5;color:var(--z800)}' +
+      '.yer-cm-cap:empty{display:none}' +
+      '.yer-cm-cap>i{flex:none;margin-top:1px;font-size:15px;color:var(--warn)}' +
+      '.yer-cap-over{margin-top:3px;font-weight:700;color:var(--z900)}' +
+      '.yer-cap-ack{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-size:12.5px;font-weight:600;color:var(--z900);cursor:pointer}' +
+      '.yer-cap-ack input{margin:2px 0 0;width:15px;height:15px;flex:none;accent-color:var(--brand)}' +
+      '.pms-btn:disabled{opacity:.5;cursor:not-allowed}' +
+      '.yer-cap-mark{margin-left:3px;font-size:13px;color:var(--warn);vertical-align:-2px;cursor:help}' +
       '.yer-req{color:var(--err);font-weight:700;margin-left:3px}' +
-      // Popup AI Summary
-      '.yer-ai-dlg{width:min(560px,calc(100vw - 32px))}' +
-      '.yer-ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;color:var(--z900)}' +
-      '.dialog-ai-summary-mascot{width:20px;height:20px;object-fit:contain;flex:none}' +
-      '.yer-ai-body{min-height:80px}' +
-      '.yer-ai-loading{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--z600)}' +
-      '.yer-ai-loading i{font-size:16px;color:var(--brand)}' +
-      '.yer-ai-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}' +
-      '.yer-ai-list li{font-size:13px;line-height:1.55;color:var(--z700)}' +
-      '.yer-ai-list strong{color:var(--z900);font-weight:600}' +
-      '.yer-ai-h{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:2px}' +
-      '.yer-ai-src{color:var(--z600);font-size:12px}' +
-      '.yer-ai-note{margin-top:14px;padding-top:10px;border-top:1px solid var(--z200);font-size:11.5px;color:var(--z600)}' +
-      // Popup Upload điểm
-      '.yer-up-dlg{width:min(560px,calc(100vw - 32px))}' +
-      '.yer-up-steps{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:14px}' +
-      '.yer-up-steps li{font-size:13px;color:var(--z700)}' +
-      '.yer-up-t{font-weight:600;color:var(--z900);margin-bottom:2px}' +
-      '.yer-up-d{font-size:12.5px;color:var(--z600);margin-bottom:6px}' +
-      '.yer-up-note{display:flex;gap:6px;align-items:flex-start;margin-top:14px;padding:9px 12px;border:1px solid var(--z200);' +
-        'border-radius:var(--rsm);background:var(--z50);font-size:12px;color:var(--z600)}' +
-      '.yer-up-note i{font-size:14px;margin-top:1px;color:var(--z500)}' +
+      // Popup Upload điểm: thẻ bước dùng class .upload-guide-* của tab Giữa năm; thông báo timeline đứng đầu
+      '.yer-up-dlg{width:min(540px,calc(100vw - 32px));max-width:none}' +
+      '.yer-up-alert{display:flex;gap:7px;align-items:flex-start;margin-bottom:14px;padding:9px 12px;border:1px solid var(--z200);' +
+        'border-radius:var(--rsm);background:var(--z50);font-size:12.5px;line-height:1.5;color:var(--z800)}' +
+      '.yer-up-alert i{flex:none;font-size:15px;margin-top:1px;color:var(--brand)}' +
+      '.yer-up-alert strong{color:var(--z900);font-weight:700}' +
+      '.yer-up-alert.locked{background:var(--warn-bg);border-color:var(--warn-bd)}' +
+      '.yer-up-alert.locked i{color:var(--warn)}' +
+      '.yer-up-dlg .btn[disabled]{opacity:.5;cursor:not-allowed}' +
       // Màn phê duyệt điểm hiệu chuẩn: khung .calib-* dùng chung với tab Giữa năm (M-05)
       '.yer-upd{color:var(--upd)}' +
       '.yer-calib-table .myr-emp-name,.yer-calib-table .myr-emp-meta{white-space:normal}' +

@@ -55,15 +55,9 @@
   function prof(){ var s = S.session(); return Y.profile(s.emp, s.date); }
   function actsOf(){ return S.acts(S.session().emp) || {}; }
   function deletedIds(){ return ((actsOf().deletedGoals || {}).ids) || []; }
+  // Luật danh sách mục tiêu ở model (Y.reviewGoals), M-06 đọc cùng hàm; gồm cả mục tiêu QLTT thêm cho nhân viên thai sản (§33)
   function approvedGoals(p, type){
-    var base = (p.emp.goals||[]).filter(function(g){
-      return g.type === type && g.status === 'approved' && deletedIds().indexOf(g.id) < 0;
-    });
-    var imported = (p.lateSubmission && p.lateSubmission.goals) || [];
-    imported.filter(function(g){ return g.type === type; }).forEach(function(g){
-      if(!base.some(function(x){ return x.id === g.id; })) base.push(g);
-    });
-    return base;
+    return Y.reviewGoals(p, type);
   }
   /* Bản đang hiển thị ở chế độ chỉ xem: bản đã gửi. Đang chỉnh sửa lại bản đã gửi (§8)
      thì màn đọc bản nháp như lúc chưa gửi, nên trả về null. */
@@ -358,7 +352,10 @@
         ' data-name="' + esc(g.title) + '" data-result="' + esc(g.result) + '"' +
         (done ? doneData(p, done) : '') +
         '><td><div class="g-name">' + esc(g.title) + '</div>' +
-        (done ? doneChip() : '') + '</td>' +
+        (done ? doneChip() : '') +
+        // Mục tiêu Quản lý trực tiếp thêm khi nhân viên nghỉ thai sản: nhãn riêng, đã duyệt (§33)
+        (g.byLm ? '<div class="g-lm-row"><span class="g-lm-chip"><i class="bx bx-user-check"></i>' +
+          L('Quản lý trực tiếp thêm','Added by your manager') + '</span></div>' : '') + '</td>' +
         '<td><div class="g-result">' + esc(g.result) + '</div></td>' +
         (type === 'what' ? '<td><div class="g-meta">' + (prio ? '<span class="prio ' + prio.cls + '">' +
             esc(lg()==='en'?prio.en:prio.vi) + '</span>' : '—') + '</div></td>' : '') +
@@ -1688,6 +1685,10 @@
       '.yer-lwd{border-color:var(--err-bd);background:var(--err-bg);color:var(--err)}' +
       '.yer-mtn{border-color:var(--brand-ring);background:var(--brand-muted);color:var(--brand)}' +
       '.yer-op-def:empty{display:none}' +
+      '.g-lm-row{display:flex;align-items:center;gap:4px;margin-top:5px}' +
+      '.g-lm-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border:1px solid var(--info-bd);border-radius:50px;' +
+        'background:var(--info-bg);color:var(--info);font-size:11px;font-weight:500;white-space:nowrap}' +
+      '.g-lm-chip i{font-size:12px}' +
       '.yer-op-def .rt-def{margin-top:12px}' +
       '.rt-def p{margin:0}' +
       '.rt-def p + p{margin-top:7px}' +

@@ -138,13 +138,14 @@
   }
 
   /* ── Điều kiện tham gia kỳ ──────────────────────────────── */
-  function eligibility(emp, hr, seed, acts) {
+  /* lmGoals: mục tiêu QLTT thêm cho nhân viên thai sản (§33), tự `Đã duyệt` nên tính như mục tiêu đã duyệt */
+  function eligibility(emp, hr, seed, acts, lmGoals) {
     if (!emp) return { eligible: false, reason: 'not-found' };
     var hired = hr && hr.hired;
     if (hired && cmp(hired, TL.onboardCutoff) >= 0) {
       return { eligible: false, reason: 'late-onboard', hidden: true };
     }
-    var goals = (emp.goals || []).filter(function (g) { return g.status === 'approved'; });
+    var goals = (emp.goals || []).filter(function (g) { return g.status === 'approved'; }).concat(lmGoals || []);
     var imported = (acts && acts.importedGoals) || (seed && seed.importedGoals);
     var importedList = imported && imported.goals;
     // Dữ liệu cũ dùng boolean cho luồng thai sản. File nộp trễ mới lưu rõ
@@ -181,7 +182,9 @@
     // Sự kiện chỉ được coi là đã xảy ra nếu ngày hệ thống đã qua thời điểm đó
     function happened(block) { return block && block.at && cmp(now, block.at) >= 0; }
 
-    var elig = eligibility(emp, hr, seed, acts);
+    // Mục tiêu QLTT thêm cho nhân viên thai sản (§33): { id, type, title, result, prio, s, e, at, time, via, by }
+    var lmGoals = ((acts.lmGoals || {}).items || []).filter(function (g) { return g && g.at && cmp(now, g.at) >= 0; });
+    var elig = eligibility(emp, hr, seed, acts, lmGoals);
     var cycleOpen = step('self').from;
     var maternity = !!(hr.maternityFrom && cmp(cycleOpen, hr.maternityFrom) >= 0 &&
       (!hr.maternityTo || cmp(cycleOpen, hr.maternityTo) < 0)) || !!emp.maternity;
@@ -226,8 +229,9 @@
     var lateClosed = cmp(now, lateSubmissionDeadline()) > 0;
     // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: NV còn một luồng riêng
     // để import goal + self assessment tới hạn nộp bổ sung (hạn QLTT trừ 3 ngày).
+    // Thai sản không đi luồng nộp bổ sung (§12): QLTT thêm mục tiêu trong timeline của QLTT, nên không dừng ở đây
     var stopped = !elig.eligible && elig.reason === 'missing-goal' &&
-      lateClosed && !lateView;
+      lateClosed && !lateView && !maternity;
     // Đủ mục tiêu mà không tự đánh giá: QLTT vẫn chấm tới hết hạn của QLTT (§6). Chỉ khi hết
     // hạn QLTT mà vẫn không có điểm nào thì hồ sơ mới dừng.
     var noScoreAtAll = !selfDone && !lmView;
@@ -269,6 +273,8 @@
       // Ngày kết thúc nghỉ chế độ, để màn hình hiện badge nhận diện. Có thể null khi
       // dữ liệu chỉ đánh dấu đang nghỉ mà không ghi hạn.
       maternityTo: maternity ? (hr.maternityTo || null) : null,
+      lmGoals: lmGoals,
+      deletedGoalIds: ((acts.deletedGoals || {}).ids) || [],
       importedGoals: !!((acts && acts.importedGoals) || seed.importedGoals),
       importedGoalData: (acts && acts.importedGoals) || seed.importedGoals || null,
       lateSubmission: lateView,
@@ -363,6 +369,75 @@
       submitted: submitted,
       pending: pending,
       canEdit: !!(stepOpen && !blocked && prerequisite)
+    };
+  }
+
+  /* ── Mục tiêu dùng để đánh giá cuối năm (E-05 và M-06 cùng đọc, DS §20.1) ──
+     Mục tiêu đã duyệt của nhân viên (trừ mục tiêu đã xóa) + mục tiêu trong file nộp bổ sung (§27.1)
+     + mục tiêu QLTT thêm cho nhân viên thai sản (§33, gắn byLm để màn hình phân biệt). */
+  function reviewGoals(p, type) {
+    var deleted = p.deletedGoalIds || [];
+    var out = (p.emp.goals || []).filter(function (g) {
+      return g.type === type && g.status === 'approved' && deleted.indexOf(g.id) < 0;
+    });
+    var imported = (p.lateSubmission && p.lateSubmission.goals) || [];
+    imported.concat((p.lmGoals || []).map(function (g) { return Object.assign({ byLm: true, status: 'approved' }, g); }))
+      .filter(function (g) { return g.type === type; })
+      .forEach(function (g) { if (!out.some(function (x) { return x.id === g.id; })) out.push(g); });
+    return out;
+  }
+
+  /* QLTT thêm mục tiêu (tải file hoặc nhập tay) cho nhân viên thai sản, dù nhân viên đã có, còn thiếu hay chưa có
+     mục tiêu (chốt 30/09/2026). Chỉ trong timeline của QLTT. Mục tiêu nhân viên tự tạo thì QLTT không sửa, không xóa;
+     mục tiêu QLTT thêm thì QLTT xóa được trong timeline. */
+  function canAddGoals(role, p) {
+    return role === 'lm' && !!p && p.maternity && !p.resigned && managerEditWindow('lm', p).state === 'open';
+  }
+
+  /* ── Hình thức xử lý của hồ sơ nộp bổ sung với cấp quản lý (§27.3, chốt 30/09/2026) ──
+     Hồ sơ nộp ở lần nhắc có hình thức xử lý thì mọi cấp quản lý đều thấy. cap: điểm toàn diện tối đa (lần 3).
+     Giới hạn điểm chỉ là thông báo: hệ thống KHÔNG chặn điểm, nhưng cho cao hơn thì người chấm phải xác nhận.
+     Câu chữ dùng chung cho M-05 và M-06 (DS §20.2). */
+  function lateMeasure(p) {
+    if (!p || !p.lateSubmission || !p.lateRound || !p.lateRound.consequence.length) return null;
+    var keys = p.lateRound.consequence.slice();
+    return { round: p.lateRound.round, keys: keys, cap: keys.indexOf('cap3') >= 0 ? 3 : null };
+  }
+  function overRatingCap(p, score) {
+    var m = lateMeasure(p);
+    return !!(m && m.cap != null && score != null && score !== '' && Number(score) > m.cap);
+  }
+  /* Câu thông báo cho cấp quản lý (chốt 30/09/2026): nói nhân viên trễ bao nhiêu ngày, ở lần nhắc nào, và
+     theo quy định nhân viên chịu hình thức gì. Không nhắc chuyện hệ thống có chặn điểm hay không. */
+  var MANAGER_MEASURE = {
+    cap3: ['nhân viên sẽ bị giới hạn điểm đánh giá toàn diện tối đa là 3.',
+           'the overall rating of the employee is capped at 3.'],
+    bonus: ['nhân viên sẽ bị cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ thời điểm nhắc nhở thứ tư.',
+            'part of the bonus of the employee is cut and promotion and salary increase are deferred for the next 6 months, counted from the fourth reminder.']
+  };
+  function lateMeasureText(p, lang) {
+    var m = lateMeasure(p);
+    if (!m) return '';
+    var days = lateDays(p.lateSubmission.at);
+    var en = lang === 'en';
+    var body = m.keys.map(function (k) {
+      var pair = MANAGER_MEASURE[k];
+      return pair ? (en ? pair[1] : pair[0]) : lateText(k, lang);
+    }).join(' ');
+    return en
+      ? 'The employee completed the self assessment ' + days + ' working day' + (days === 1 ? '' : 's') + ' late (at reminder ' + m.round + '), so under policy ' + body
+      : 'Nhân viên hoàn thành trễ Tự đánh giá ' + days + ' ngày làm việc (nộp bổ sung ở lần nhắc thứ ' + m.round + '), vậy theo quy định, ' + body;
+  }
+  function ratingCapText(p, score, lang) {
+    var m = lateMeasure(p);
+    if (!m || m.cap == null) return { over: '', ack: '' };
+    var v = score == null || score === '' ? '' : String(score);
+    return lang === 'en' ? {
+      over: 'You are rating ' + v + ', above the maximum of ' + m.cap + '.',
+      ack: 'I confirm keeping ' + v + ' although it is above the maximum of ' + m.cap + ' under policy.'
+    } : {
+      over: 'Bạn đang cho ' + v + ', cao hơn mức tối đa ' + m.cap + '.',
+      ack: 'Tôi xác nhận giữ điểm ' + v + ' dù cao hơn mức tối đa ' + m.cap + ' theo quy định.'
     };
   }
 
@@ -699,6 +774,12 @@
     managerEditWindow: managerEditWindow,
     calibrationState: calibrationState,
     nextManagerLog: nextManagerLog,
+    lateMeasure: lateMeasure,
+    reviewGoals: reviewGoals,
+    canAddGoals: canAddGoals,
+    overRatingCap: overRatingCap,
+    lateMeasureText: lateMeasureText,
+    ratingCapText: ratingCapText,
     managerRosterRank: managerRosterRank,
     selfAssessmentState: selfAssessmentState,
     selfChanges: selfChanges,

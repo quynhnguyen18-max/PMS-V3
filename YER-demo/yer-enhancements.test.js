@@ -650,7 +650,7 @@ test('manager detail keeps one Lưu ý box like the employee screen (§40.5a)', 
   // Hồ sơ Không đánh giá: một khối vàng như màn Nhân viên
   assert.match(detail, /'<div class="yer-note yer-late-closed"><i class="bx bx-time-five"><\/i><div>'/);
   assert.match(detail, /#yer-mgr-detail-root \.yer-note\.yer-late-closed\{background:var\(--warn-bg\);border-color:var\(--warn-bd\);color:var\(--z800\)\}/);
-  assert.match(detail, /querySelectorAll\('#yer-mgr-detail-root \.yer-note-link'\)/);
+  assert.match(detail, /querySelectorAll\('#yer-mgr-detail-root \.yer-note-link\[data-go-tab\]'\)/);
   assert.match(detail, /window\.switchMainTab\(Number\(link\.dataset\.goTab\)\)/);
   assert.match(detail, /\.yer-note-link\{color:var\(--brand\);font-weight:600;text-decoration:underline/);
 });
@@ -732,7 +732,7 @@ test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the
 test('LM2 and HOD rate by clicking the score cell, which opens the popup at once and keeps a history', () => {
   const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
   const bindRows = manager.slice(manager.indexOf('function bindRows()'), manager.indexOf('function bind()'));
-  const popup = manager.slice(manager.indexOf('function openComment(p, keep)'), manager.indexOf('/* ── AI Summary'));
+  const popup = manager.slice(manager.indexOf('function openComment(p, keep)'), manager.indexOf('function openAi(p)'));
   const actions = manager.slice(manager.indexOf('function actionBtn(p)'), manager.indexOf('function listStatus(p)'));
   // Ô điểm là nút, bấm là mở popup ngay; không còn ô chọn và nút nhận xét riêng
   assert.match(manager, /'<button type="button" class="yer-rt-btn'/);
@@ -741,14 +741,43 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.match(popup, /L\('Xác nhận', 'Confirm'\)/);
   assert.match(popup, /historyHtml\(p\)/);
   // Popup: điểm nhân viên và điểm QLTT kèm domain; ô điểm cùng component với màn chi tiết (tên mức có màu, Ý nghĩa thang điểm)
-  assert.match(popup, /ref\(L\('Điểm của nhân viên', 'Employee rating'\), null,/);
+  assert.match(popup, /ref\(L\('Điểm của nhân viên', 'Employee rating'\), p\.emp,/);
+  assert.match(popup, /L\('Nhân viên:', 'Employee:'\)/);
+  // Thẻ điểm: vai, domain, điểm; khối hình thức xử lý đứng trên ô chấm điểm; Ý nghĩa thang điểm chỉ hiện lúc đang chọn
+  assert.ok(popup.indexOf("'<div class=\"yer-cm-ref-dom\">'") < popup.indexOf("'<div class=\"yer-cm-ref-val\">'"));
+  assert.ok(popup.indexOf('<div id="yer-cm-cap"') < popup.indexOf('<div class="yer-cm-score">'));
+  assert.match(popup, /defInto: '#yer-cm-def'/);
+  assert.match(popup, /data-shown="' \+ \(keep \|\| draftScore == null \|\| draftScore === '' \? '1' : '0'\)/);
+  assert.match(manager, /'\.yer-cm-def\[data-shown="0"\]\{display:none\}'/);
+  // (HR system) có giải thích khi rê chuột
+  assert.match(manager, /Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét\./);
+  assert.match(popup, /grid-template-columns:repeat\(' \+ \(role\(\) === 'hod' \? 3 : 2\) \+ ',minmax\(0,1fr\)\)/);
+  assert.match(popup, /rows="2"/);
+  assert.match(popup, /L\('Bạn được điều chỉnh điểm cho nhân viên tới hết 18:00, ngày '/);
   assert.match(popup, /ref\(L\('Điểm của QLTT', 'Line manager rating'\), a\.lm,/);
   assert.match(popup, /U\.rating\(el\('yer-cm-rating'\), \{\s*step: 'half'/);
   assert.match(popup, /L\('Nhận xét', 'Comment'\)/);
   assert.doesNotMatch(popup, /Nhận xét toàn diện \(tùy chọn\)|Nhìn chung, nhân viên đã/);
-  assert.match(popup, /Ghi nhận xét của bạn về kết quả và đóng góp của nhân viên trong năm, không bắt buộc\./);
+  assert.match(popup, /Ghi nhận xét của bạn về kết quả và đóng góp của nhân viên trong năm\./);
+  assert.doesNotMatch(popup, /không bắt buộc\./);
   // Hạn sửa bên trái có nhấn màu, bộ đếm bên phải
   assert.match(popup, /'<span class="yer-cm-until">[\s\S]*'<span id="yer-cm-count" class="yer-cm-count">'/);
+  assert.match(manager, /'\.yer-cm-until\{display:inline-flex;align-items:center;gap:5px;color:var\(--brand\);font-size:12px;font-weight:500\}'/);
+  // Điểm trên lưới thẳng hàng: nhãn (HR system) và icon cảnh báo đặt tuyệt đối quanh số
+  assert.match(manager, /'<span class="yer-sc"><span class="myr-score">'/);
+  assert.match(manager, /\.yer-mgr-table \.yer-sc \.yer-sync-tag\{position:absolute;top:100%/);
+  // Popup Upload điểm cùng khuôn tab Giữa năm: thông báo timeline đứng đầu, 3 thẻ bước, 1 nút tải mẫu
+  const upload = manager.slice(manager.indexOf('function openUpload()'), manager.indexOf('/* ── Phê duyệt điểm hiệu chuẩn'));
+  assert.ok(upload.indexOf('html: notice +') > 0);
+  assert.equal((upload.match(/step\(\d,/g) || []).length, 3);
+  assert.equal((upload.match(/id="yer-up-tpl"/g) || []).length, 1);
+  assert.match(upload, /upload-guide-step/);
+  // AI Summary: điểm các cấp theo cột, lưu ý tách khỏi phần AI, phần AI chia nhân viên và quản lý
+  const ai = fs.readFileSync(path.join(root, 'assets/yer-ai.js'), 'utf8');
+  assert.match(ai, /class="yer-ai-scores">/);
+  assert.match(ai, /L\('Nhân viên tự đánh giá', 'Employee self assessment'\)/);
+  assert.match(ai, /L\('Các cấp quản lý đánh giá', 'Manager reviews'\)/);
+  assert.ok(ai.indexOf("scores + flagHtml + '</section>'") > 0, 'luu y nam duoi diem cac cap, ngoai khoi AI');
   // Lịch sử: ngày giờ và `Điểm toàn diện: x`, không ghi nguồn
   assert.match(manager, /L\('Điểm toàn diện: ', 'Overall rating: '\)/);
   assert.match(manager, /'\.yer-cm-dlg\{width:min\(640px,calc\(100vw - 32px\)\);max-width:none\}'/);
@@ -775,6 +804,109 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.equal(edited.lm2Log[1].source, 'grid');
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   assert.match(detail, /S\.setAct\(S\.session\(\)\.emp, role\(\) \+ 'Log', \{ items: Y\.nextManagerLog\(role\(\), p,/);
+});
+
+test('late measures and the rating cap of 3 are shown to every manager level and need a confirmation (§27.3)', () => {
+  const w = loadYer();
+  const Y = w.PMSYer;
+  // Lần 3: giới hạn điểm 3; lần 4: cắt thưởng, không giới hạn điểm; lần 1: chưa có hình thức
+  const r3 = Y.profile('y12', '2027-02-10');
+  assert.deepEqual({ ...Y.lateMeasure(r3), keys: Array.from(Y.lateMeasure(r3).keys) }, { round: 3, keys: ['cap3'], cap: 3 });
+  assert.equal(Y.overRatingCap(r3, 3), false);
+  assert.equal(Y.overRatingCap(r3, 3.5), true);
+  // Câu cho cấp quản lý: trễ bao nhiêu ngày, lần nhắc nào, hình thức gì; không nhắc chuyện hệ thống chặn điểm
+  assert.equal(Y.lateMeasureText(r3, 'vi'), 'Nhân viên hoàn thành trễ Tự đánh giá 8 ngày làm việc (nộp bổ sung ở lần nhắc thứ 3), vậy theo quy định, nhân viên sẽ bị giới hạn điểm đánh giá toàn diện tối đa là 3.');
+  assert.equal(Y.ratingCapText(r3, 4, 'vi').rule, undefined);
+  assert.equal(Y.ratingCapText(r3, 4, 'vi').ack, 'Tôi xác nhận giữ điểm 4 dù cao hơn mức tối đa 3 theo quy định.');
+  const r4 = Y.profile('y16', '2027-02-10');
+  assert.equal(Y.lateMeasure(r4).cap, null);
+  assert.equal(Y.overRatingCap(r4, 5), false);
+  assert.match(Y.lateMeasureText(r4, 'vi'), /vậy theo quy định, nhân viên sẽ bị cắt giảm một phần tiền thưởng/);
+  assert.equal(Y.lateMeasure(Y.profile('y9', '2027-02-10')), null);
+
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  // M-06: ô Ý nghĩa thang điểm dưới ô nhận xét như E-05; hình thức xử lý trong ô Đánh giá toàn diện; gửi phải tick xác nhận
+  assert.match(detail, /def: o\.editable \? '#yer-md-op-def' : null/);
+  assert.match(detail, /defInto: node\.dataset\.def \|\| null/);
+  assert.match(detail, /measure: measureHtml\(p, mine\.score == null \? null : mine\.score\)/);
+  assert.match(detail, /id="yer-md-cap-ack"/);
+  assert.match(detail, /payload\.capConfirmed = capConfirmed \?/);
+  assert.match(detail, /overCap: capOf\(p, r\.score\)/);
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
+  // M-05: popup chấm điểm, duyệt hàng loạt, upload, duyệt hiệu chuẩn đều hỏi xác nhận khi vượt mức
+  assert.match(manager, /if \(Y\.overRatingCap\(p, cur\.score\) && !cur\.ack\)/);
+  assert.match(manager, /confirmOverCap\(rows, function \(\) \{/);
+  assert.match(manager, /confirmOverCap\(valid, function \(\) \{/);
+  assert.match(manager, /confirmOverCap\(picked\.map\(/);
+  assert.match(manager, /lockUntilAck\('yer-bulk-cap-ack'\)/);
+  assert.match(manager, /capConfirmed: capConfirmed/);
+  assert.match(manager, /function capMark\(p, value\)/);
+});
+
+test('line manager adds approved goals for an employee on maternity leave, by file or by hand (§33)', () => {
+  const w = loadYer();
+  const Y = w.PMSYer;
+  const date = '2027-01-22';
+  const before = Y.profile('e4', date);
+  assert.equal(before.maternity, true);
+  assert.equal(before.eligibility.reason, 'missing-goal', 'e4 thieu muc tieu phat trien');
+  assert.equal(Y.canAddGoals('lm', before), true);
+  assert.equal(Y.canAddGoals('lm2', before), false);
+  assert.equal(Y.canAddGoals('lm', Y.profile('e4', '2027-01-12')), false, 'chua toi timeline QLTT');
+  assert.equal(Y.canAddGoals('lm', Y.profile('e1', date)), false, 'khong phai thai san');
+  // Mục tiêu QLTT thêm tính như đã duyệt, gắn byLm để màn hình phân biệt
+  w.PMSStore.acts = id => id === 'e4' ? { lmGoals: { items: [{ id: 'lmg-1', type: 'dev', title: 'T', result: 'R', s: '01/01', e: '31/12', at: date, via: 'manual', by: { login: 'thanh.le' } }] } } : {};
+  const after = Y.profile('e4', date);
+  assert.equal(after.eligibility.eligible, true);
+  const dev = Array.from(Y.reviewGoals(after, 'dev'));
+  assert.equal(dev.length, 1);
+  assert.equal(dev[0].byLm, true);
+  assert.equal(dev[0].status, 'approved');
+  // Thai sản không bị dừng vì thiếu mục tiêu sau cửa sổ nộp bổ sung (§12)
+  w.PMSStore.acts = () => ({});
+  assert.equal(Y.profile('e4', Y.addDays(Y.lateSubmissionDeadline(), 1)).stopped, false);
+
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(detail, /return Y\.reviewGoals\(p, type\);/);
+  assert.match(employee, /return Y\.reviewGoals\(p, type\);/);
+  assert.match(detail, /data-add-goal="' \+ type \+ '"/);
+  assert.match(detail, /L\('Nhập tay', 'Enter by hand'\)/);
+  assert.match(detail, /L\('Tải file', 'Upload a file'\)/);
+  assert.match(detail, /S\.setAct\(p\.id, 'lmGoals', \{ items: items \}\)/);
+  assert.match(detail, /L\('QLTT thêm - Đã duyệt', 'Added by manager - Approved'\)/);
+  assert.match(detail, /data-del-goal=/);
+  assert.match(employee, /L\('Quản lý trực tiếp thêm','Added by your manager'\)/);
+  assert.doesNotMatch(detail, /function importGoals|Bản dựng demo chưa gắn file thật/);
+});
+
+test('AI Summary runs on click for every manager role and the writing assistant only helps the line manager (§14)', () => {
+  const ai = fs.readFileSync(path.join(root, 'assets/yer-ai.js'), 'utf8');
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
+  for (const page of ['M-05/index.html', 'M-06/index.html']) {
+    assert.match(fs.readFileSync(path.join(root, page), 'utf8'), /<script src="\.\.\/assets\/yer-ai\.js"><\/script>/);
+  }
+  // Một nguồn nội dung AI Summary cho hai màn
+  assert.match(manager, /window\.PMSYerAi\.openSummary\(p\)/);
+  assert.doesNotMatch(manager, /function aiSummaryHtml/);
+  assert.match(detail, /id="yer-md-ai"><i class="bx bxs-magic-wand"><\/i>AI Summary/);
+  assert.match(detail, /window\.PMSYerAi\.openSummary\(p\)/);
+  // Trợ lý viết: chỉ QLTT, ô đang sửa; AI không tự chèn
+  assert.match(detail, /canEdit && isLm\(\) \? req\(\) \+ aiWriteBtn\(type\) : ''/);
+  assert.match(detail, /L\('Cải thiện với AI', 'Improve with AI'\)/);
+  assert.match(ai, /L\('Chèn vào ô nhận xét', 'Insert into comment'\)/);
+  assert.match(ai, /if \(ctx\.onInsert\) ctx\.onInsert\(text\);/);
+  assert.match(ai, /think\.png/);
+  assert.doesNotMatch(ai, /bx-sparkles|bx-magic\b/);
+
+  // Nội dung gợi ý dựa trên điểm đã chấm và bỏ nhãn cũ khi viết lại
+  const window = { PMSYer: { scoreLabel: v => ({ 4: 'Hoàn thành trên mức kỳ vọng', 3: 'Hoàn thành kỳ vọng' })[v] || '' }, PMSI18n: { lang: () => 'vi' } };
+  vm.runInContext(ai, vm.createContext({ window, document: {}, setTimeout, console }));
+  const ctx = { p: { emp: { name: 'An' } }, kind: 'what', current: '', goals: { what: [{ title: 'A', score: 4 }, { title: 'B', score: 3 }] } };
+  assert.match(window.PMSYerAi.draftFor(ctx), /Nổi bật là mục tiêu “A” ở mức hoàn thành trên mức kỳ vọng\./);
+  const again = window.PMSYerAi.rewrite(Object.assign({}, ctx, { current: 'Kết quả: Tốt. Gợi ý phát triển: làm thêm.' }), 'short');
+  assert.equal(again, 'Tốt. Làm thêm.');
 });
 
 test('manager roster puts work for the viewing role first, finished work and LWD last', () => {
@@ -1063,7 +1195,9 @@ test('demo controls stay hidden but the Demo pill is always reachable', () => {
 test('manager detail reads imported late goals and keeps review editable', () => {
   const source = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   assert.match(source, /if \(!p\.lateSubmission\) return ''/);
-  assert.match(source, /p\.lateSubmission && p\.lateSubmission\.goals/);
+  // Mục tiêu trong file nộp bổ sung đọc qua luật chung của model (Y.reviewGoals)
+  assert.match(source, /return Y\.reviewGoals\(p, type\);/);
+  assert.match(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), /var imported = \(p\.lateSubmission && p\.lateSubmission\.goals\) \|\| \[\];/);
   assert.match(source, /không qua bước duyệt/);
   // Nộp bổ sung là một gạch đầu dòng trong khối Lưu ý; sau khi gửi, banner mang nhãn Trễ hạn như E-05
   assert.match(source, /Nhân viên <strong>nộp bổ sung<\/strong> Tự đánh giá ngày/);
@@ -1263,7 +1397,7 @@ test('manager detail keeps the timeline, empty goal groups, goal popups and the 
   assert.match(detail, /domain: person \? person\.login : ''/);
   // §40.5d: nhóm trống vẫn giữ khối
   assert.doesNotMatch(detail, /if \(type !== 'how' && !list\.length\) return '';/);
-  assert.match(detail, /function emptyRow\(type\)/);
+  assert.match(detail, /function emptyRow\(type, p\)/);
   // §13.1, §13.2: dòng mang data-* và popup ghi ai đánh giá hoàn thành
   assert.match(detail, /data-name="' \+ esc\(r\.name\)/);
   assert.match(detail, /data-done-by="/);

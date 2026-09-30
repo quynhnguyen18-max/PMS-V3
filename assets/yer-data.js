@@ -255,10 +255,9 @@
   // e3 đã nghỉ việc nên hồ sơ tự ẩn khỏi danh sách. Không đặt tình huống demo:
   // đã nghỉ thì không vào được màn Đánh giá cuối năm, không có gì để xem.
 
-  // s09 — thai sản, không tự đánh giá, LM phải import goal rồi mới đánh giá được
+  // s09 — thai sản, không tự đánh giá, còn thiếu mục tiêu phát triển: QLTT thêm mục tiêu cho nhân viên (§33)
   Y.e4 = {
     scenario: 's09',
-    importedGoals: true,
     lm: ev('2027-01-28', { overall: { score: 3, comment: 'Ghi nhận nỗ lực duy trì chất lượng kiểm thử trong giai đoạn trước khi nghỉ chế độ.' },
       comments: { what: 'Bộ regression test hoàn thành đúng kế hoạch trước thời điểm nghỉ chế độ.', dev: 'Lộ trình chứng chỉ tạm hoãn, sẽ tiếp tục sau khi quay lại.', how: 'Bàn giao công việc rõ ràng, hỗ trợ đồng đội tiếp nhận thuận lợi.' } })
   };
@@ -668,9 +667,9 @@
       wvi: 'Xem lại cả chuỗi: điểm nhân viên, điểm quản lý, cấp 2, trưởng đơn vị và điểm cuối cùng.',
       wen: 'The full chain: employee, manager, second-level, head of department and the final rating.' },
     { id: 'lm03', g: 'r-lm', emp: 'e4', role: 'lm', date: '2027-01-22', screen: 'M-06',
-      vi: 'Nhân viên thai sản - quản lý import mục tiêu', en: 'Maternity case - manager imports goals',
-      wvi: 'Không yêu cầu tự đánh giá, quản lý tải mục tiêu lên rồi mới chấm được.',
-      wen: 'Self assessment is not required; the manager imports the goals before scoring.' },
+      vi: 'Nhân viên thai sản - quản lý thêm mục tiêu', en: 'Maternity case - manager adds goals',
+      wvi: 'Không yêu cầu tự đánh giá, còn thiếu mục tiêu phát triển: quản lý thêm mục tiêu bằng file hoặc nhập tay, mục tiêu tự Đã duyệt, rồi chấm.',
+      wen: 'Self assessment is not required and a development goal is missing: the manager adds goals by file or by hand, they are approved at once, then scores.' },
     { id: 'lm04', g: 'r-lm', emp: 'e13', role: 'lm', date: '2027-01-29', screen: 'M-06',
       vi: 'Nhân viên không tự đánh giá', en: 'Employee skipped the self assessment',
       wvi: 'Cột điểm nhân viên để trống nhưng quy trình không dừng, quản lý vẫn chấm.',

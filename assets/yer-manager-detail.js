@@ -115,6 +115,7 @@
     opts = opts || {};
     return '<div data-rt="' + esc(key) + '"' +
       (opts.half ? ' data-half="1"' : '') +
+      (opts.def ? ' data-def="' + esc(opts.def) + '"' : '') +
       ' data-ro="' + (opts.readonly ? '1' : '0') + '"' +
       ' data-val="' + (value == null ? '' : value) + '"></div>';
   }
@@ -148,6 +149,8 @@
       '<button type="button" class="manager-back" id="yer-md-back"><i class="bx bx-left-arrow-alt"></i>' +
         L('Quay lại danh sách nhân viên', 'Back to employee list') + '</button>' +
       '<div class="manager-nav-right">' + toolbar(p, canEdit) +
+        // AI Summary bấm mới chạy, cho cả QLTT, LM2, HOD (§14)
+        '<button type="button" class="btn btn-outline btn-sm yer-md-ai" id="yer-md-ai"><i class="bx bxs-magic-wand"></i>AI Summary</button>' +
         '<button type="button" class="btn btn-cta-outline btn-sm" id="yer-md-feedback"><i class="bx bx-message-square-dots"></i>' +
           L('Phản hồi đã nhận', 'Feedback received') + '</button>' +
       '</div></div>';
@@ -286,10 +289,14 @@
             'Bạn là người <strong>chịu trách nhiệm chính</strong> đánh giá cuối năm cho nhân viên này: kiểm tra mục tiêu, bổ sung mục tiêu nếu còn thiếu, rồi đánh giá theo quy trình.',
             'The employee is on <strong class="yer-hl">maternity leave</strong>, so the self assessment is <strong>not required</strong>. ' +
             'You are <strong>responsible</strong> for this year-end review: check the goals, add any missing ones, then review as usual.') +
-          (noGoal && stepOpen(p)
-            ? ' ' + L('Nhân viên chưa có mục tiêu nào được duyệt, bạn ', 'No goals are approved yet; ') +
-              '<a href="#" class="yer-note-link" id="yer-md-import">' + L('tải mục tiêu lên', 'upload goals') + '</a>' +
-              L(' trước khi đánh giá.', ' before rating.')
+          (canAdd(p)
+            ? ' ' + (noGoal
+                ? L('Nhân viên còn thiếu ' + esc(missingGoalNames(p)) + ' được duyệt, bạn ', 'An approved ' + esc(missingGoalNames(p)) + ' is missing; ') +
+                  '<a href="#" class="yer-note-link" data-add-goal="">' + L('thêm mục tiêu', 'add goals') + '</a>' +
+                  L(' (tải file hoặc nhập tay) trước khi đánh giá.', ' (upload or enter by hand) before rating.')
+                : L('Bạn có thể ', 'You can ') + '<a href="#" class="yer-note-link" data-add-goal="">' + L('thêm mục tiêu', 'add goals') + '</a>' +
+                  L(' cho nhân viên nếu cần (tải file hoặc nhập tay).', ' for the employee if needed (upload or enter by hand).')) +
+              ' ' + L('Mục tiêu bạn thêm tự động Đã duyệt.', 'Goals you add are approved automatically.')
             : '')
         : L('Nhân viên đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong> nên <strong>không bắt buộc</strong> Tự đánh giá. Quản lý trực tiếp chịu trách nhiệm chính đánh giá cuối năm cho nhân viên này.',
             'The employee is on <strong class="yer-hl">maternity leave</strong>, so the self assessment is <strong>not required</strong>. The line manager leads this year-end review.'));
@@ -379,17 +386,12 @@
   }
 
   /* ── bảng mục tiêu ───────────────────────────────────── */
+  // Luật danh sách mục tiêu ở model (Y.reviewGoals), E-05 đọc cùng hàm (DS §20.1)
   function approvedGoals(p, type) {
-    var deleted = ((actsOf().deletedGoals || {}).ids) || [];
-    var base = (p.emp.goals || []).filter(function (g) {
-      return g.type === type && g.status === 'approved' && deleted.indexOf(g.id) < 0;
-    });
-    var imported = (p.lateSubmission && p.lateSubmission.goals) || [];
-    imported.filter(function(g){ return g.type === type; }).forEach(function(g){
-      if(!base.some(function(x){ return x.id === g.id; })) base.push(g);
-    });
-    return base;
+    return Y.reviewGoals(p, type);
   }
+
+  function canAdd(p) { return Y.canAddGoals(role(), p); }
 
   function goalSection(p, type, canEdit) {
     /* Nhóm chưa có mục tiêu vẫn giữ khối, thân bảng là một dòng xám mờ, giống màn
@@ -410,7 +412,7 @@
         // done: mục tiêu Quản lý trước đã đánh giá hoàn thành, Quản lý hiện tại không chấm lại
         return { id: 'goal:' + g.id, name: g.title, result: g.result || '', prio: g.prio || '',
                  time: [g.s, g.e].filter(Boolean).join(' – '),
-                 done: (p.completedGoals || {})[g.id] || null };
+                 done: (p.completedGoals || {})[g.id] || null, byLm: g.byLm ? g : null };
       });
     }
 
@@ -443,7 +445,10 @@
         '<th class="th-c th-ql" style="width:8%">' + esc(myColHead) + '</th>';
 
     return '<div class="rv-section"><div class="rv-section-hd"><i class="bx ' + t.icon + '"></i>' +
-        esc(lg() === 'en' ? t.en : t.vi) + '</div>' +
+        esc(lg() === 'en' ? t.en : t.vi) +
+        // QLTT thêm mục tiêu cho nhân viên thai sản ngay tại nhóm (§33, chốt 30/09/2026)
+        (type !== 'how' && canAdd(p) ? '<button type="button" class="yer-add-goal" data-add-goal="' + type + '"><i class="bx bx-plus"></i>' +
+          L('Thêm mục tiêu', 'Add goal') + '</button>' : '') + '</div>' +
       '<div class="rv-grid-wrap"><table class="rv-grid"><thead><tr>' + header + '</tr></thead><tbody>' +
       rows.map(function (r) {
         var key = r.id.split(':');
@@ -460,7 +465,7 @@
           ' data-name="' + esc(r.name) + '" data-result="' + esc(r.result) + '"' +
           (doneBy ? ' data-done-by="' + esc(doneBy.name + ' (' + doneBy.login + ')') + '"' : '') +
           '><td><div class="g-name">' + esc(r.name) + '</div>' +
-          (r.done ? doneChip() : '') + '</td>' +
+          (r.done ? doneChip() : '') + (r.byLm ? lmGoalChip(r.byLm, canAdd(p)) : '') + '</td>' +
           '<td><div class="g-result">' + esc(r.result) + '</div></td>' +
           (type === 'what' ? '<td><div class="g-meta">' +
             (r.prio ? '<span class="prio prio-' + esc(r.prio) + '">' +
@@ -469,16 +474,33 @@
           '<td class="sc-cell">' + ratingCell('self:' + bucket + ':' + idx, selfVal == null ? null : selfVal, { readonly: true }) + '</td>' +
           '<td class="ql-cell">' + ratingCell('my:' + bucket + ':' + idx, myVal == null ? null : myVal,
             { readonly: r.done ? true : !(canEdit && isLm()) }) + byLine(r.done && r.done.mgr) + '</td></tr>';
-      }).join('') + (rows.length ? '' : emptyRow(type)) + '</tbody></table></div>' +
+      }).join('') + (rows.length ? '' : emptyRow(type, p)) + '</tbody></table></div>' +
       commentPair(p, type, canEdit) + '</div>';
   }
 
-  function emptyRow(type) {
+  function emptyRow(type, p) {
     var name = (lg() === 'en' ? TYPE[type].en : TYPE[type].vi).toLowerCase();
     return '<tr class="g-none-row"><td colspan="' + (type === 'what' ? 6 : 5) + '"><div class="g-none">' +
       L('Chưa có ' + name + ' nào được Quản lý trực tiếp phê duyệt.',
         'No ' + ({ what: 'work goal', dev: 'development goal' }[type] || 'goal') + ' has been approved by the line manager yet.') +
+      (p && canAdd(p) ? ' ' + L('Bấm Thêm mục tiêu để thêm cho nhân viên.', 'Use Add goal to add one for the employee.') : '') +
       '</div></td></tr>';
+  }
+
+  /* Mục tiêu QLTT thêm: nhãn riêng để phân biệt với mục tiêu nhân viên tự tạo, tooltip ghi ai thêm, khi nào,
+     bằng cách nào; QLTT xóa được trong timeline của mình (§33). */
+  function lmGoalChip(g, removable) {
+    var by = g.by || {};
+    var tipText = L('Quản lý trực tiếp ' + (by.login ? '(' + by.login + ') ' : '') + 'thêm ngày ' + Y.fmt(g.at, lg()) +
+        (g.via === 'upload' ? ' bằng file' : ' bằng nhập tay') + ', tự động Đã duyệt.',
+      'Added by the line manager ' + (by.login ? '(' + by.login + ') ' : '') + 'on ' + Y.fmt(g.at, lg()) +
+        (g.via === 'upload' ? ' from a file' : ' by hand') + ', approved automatically.');
+    return '<div class="g-lm-row"><span class="g-lm-chip" data-tip="' + esc(tipText) +
+        '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()"><i class="bx bx-user-check"></i>' +
+        L('QLTT thêm - Đã duyệt', 'Added by manager - Approved') + '</span>' +
+      (removable ? '<button type="button" class="g-lm-del" data-del-goal="' + esc(g.id) + '" aria-label="' +
+        esc(L('Xóa mục tiêu bạn đã thêm', 'Remove the goal you added')) + '" data-tip="' + esc(L('Xóa mục tiêu bạn đã thêm', 'Remove the goal you added')) +
+        '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()"><i class="bx bx-trash"></i></button>' : '') + '</div>';
   }
 
   function commentPair(p, type, canEdit) {
@@ -494,7 +516,7 @@
       '<div class="scmt-panel' + (canEdit && isLm() ? ' editable-panel' : ' scmt-locked') + '">' +
         '<div class="scmt-hd"><i class="bx bx-user-check"></i>' +
           L('Đánh giá của Quản lý trực tiếp', 'Line manager review') +
-          (canEdit && isLm() ? req() : '') +
+          (canEdit && isLm() ? req() + aiWriteBtn(type) : '') +
         '</div>' +
         editorHtml('yer-md-cmt-' + type, placeholder, 500, myCmt, 'cc-cmt-' + type, !(canEdit && isLm())) + '</div>' +
     '</div>';
@@ -515,6 +537,7 @@
       cols.push(panelHtml({
         icon: 'bx-user-check', title: L('Quản lý trực tiếp', 'Line manager'), by: who.lm,
         key: 'lm:overall', value: p.lm && p.lm.overall ? p.lm.overall.score : null,
+        overCap: capOf(p, p.lm && p.lm.overall ? p.lm.overall.score : null),
         comment: p.lm && p.lm.overall ? p.lm.overall.comment : '', readonly: true,
         synced: p.lm && p.lm.synced
       }));
@@ -523,6 +546,7 @@
       cols.push(panelHtml({
         icon: 'bx-sitemap', title: L('Quản lý cấp 2', 'Second-level manager'), by: who.lm2,
         key: 'lm2:overall', value: p.lm2 ? p.lm2.score : null,
+        overCap: capOf(p, p.lm2 ? p.lm2.score : null),
         comment: p.lm2 ? p.lm2.comment : '', readonly: true, synced: p.lm2 && p.lm2.synced
       }));
     }
@@ -540,6 +564,8 @@
       value: mine.score == null ? null : mine.score,
       comment: mine.comment || '',
       readonly: !canEdit, editable: canEdit,
+      measure: measureHtml(p, mine.score == null ? null : mine.score),
+      overCap: canEdit ? null : capOf(p, mine.score),
       required: isLm(),
       hint: isLm()
         ? L('Điểm này không hiển thị cho nhân viên, kể cả sau khi công bố.', 'This rating is never shown to the employee.')
@@ -572,10 +598,10 @@
       '<span class="overall-title">' + L('Đánh giá của các cấp quản lý', 'Reviews from upper management') + '</span></div>' +
       '<div class="overall-grid yer-overall-grid" style="grid-template-columns:repeat(' + rows.length + ',minmax(0,1fr))">' +
       rows.map(function (r) {
-        return panelHtml({ icon: r.icon, title: r.title, by: r.by, key: r.key + ':overall', value: r.score,
+        return panelHtml({ icon: r.icon, title: r.title, by: r.by, key: r.key + ':overall', value: r.score, overCap: capOf(p, r.score),
           comment: r.comment || '', readonly: true, synced: r.synced,
-          hint: r.synced ? L('Hệ thống tự chép điểm vì quá deadline, không kèm nhận xét.',
-            'Copied by the system after the deadline, without a comment.') : '' });
+          hint: r.synced ? L('Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.',
+            'This level did not rate before its deadline, so the system copied the previous level rating, without a comment.') : '' });
       }).join('') + '</div></div>';
   }
 
@@ -587,16 +613,69 @@
       '<div class="op-score-row">' +
         '<span class="op-score-lbl">' + L('Điểm toàn diện:', 'Overall rating:') +
           (o.editable ? req() : '') + '</span>' +
-        ratingCell(o.key, o.value, { half: true, readonly: o.readonly }) +
+        ratingCell(o.key, o.value, { half: true, readonly: o.readonly, def: o.editable ? '#yer-md-op-def' : null }) +
+        (o.overCap ? '<span class="yer-cap-chip"><i class="bx bx-error"></i>' +
+          esc(L('Cao hơn mức tối đa ' + o.overCap, 'Above the maximum of ' + o.overCap)) + '</span>' : '') +
       '</div>' +
+      (o.measure != null ? '<div class="yer-cap-note" id="yer-md-cap-note">' + o.measure + '</div>' : '') +
       (o.hint ? '<div class="yer-op-hint">' + esc(o.hint) + '</div>' : '') +
-      '<label class="op-flbl">' + (o.editable
-        ? L('Nhận xét toàn diện của bạn', 'Your overall comment') + (o.required ? req() : '')
+      '<label class="op-flbl' + (o.editable && isLm() ? ' yer-flbl-ai' : '') + '">' + (o.editable
+        ? L('Nhận xét toàn diện của bạn', 'Your overall comment') + (o.required ? req() : '') + (isLm() ? aiWriteBtn('overall') : '')
         : L('Nhận xét toàn diện', 'Overall comment')) + '</label>' +
       editorHtml('yer-md-ov-' + o.key.replace(/:/g, '-'),
         L('Nhìn chung, nhân viên đã…', 'Overall, this employee has…'),
         1000, o.comment, 'cc-ov-' + o.key.replace(/:/g, '-'), !o.editable) +
+      // Ô Ý nghĩa thang điểm nằm dưới ô nhận xét, như màn Nhân viên (§41.2b)
+      (o.editable ? '<div id="yer-md-op-def" class="yer-op-def"></div>' : '') +
     '</div>';
+  }
+
+  /* Trợ lý viết nhận xét của QLTT (§14): nút nhỏ `Cải thiện với AI` ở góc ô nhận xét (DS §19 rule 20) */
+  function aiWriteBtn(kind) {
+    return '<button type="button" class="yer-ai-write" data-ai-write="' + kind + '"><i class="bx bxs-magic-wand"></i>' +
+      L('Cải thiện với AI', 'Improve with AI') + '</button>';
+  }
+
+  function openWriter(p, kind) {
+    collectEditors();
+    var edId = kind === 'overall' ? 'yer-md-ov-my-overall' : 'yer-md-cmt-' + kind;
+    var ed = el(edId);
+    if (!ed) return;
+    var goalsOf = function (type) {
+      return approvedGoals(p, type).map(function (g) { return { title: g.title, score: (draft.goalScores || {})[g.id] }; });
+    };
+    window.PMSYerAi.openWriter({
+      p: p, kind: kind, current: ed.innerText, max: kind === 'overall' ? 1000 : 500,
+      goals: { what: goalsOf('what'), dev: goalsOf('dev') },
+      how: CORE_VALUES.map(function (cv, i) { return { name: lg() === 'en' ? cv.en : cv.vi, score: (draft.howScores || {})[i] }; }),
+      overall: draft.overall ? draft.overall.score : null,
+      // Chỉ áp dụng khi QLTT bấm Chèn; nội dung vẫn sửa tiếp được trong ô như bình thường
+      onInsert: function (text) {
+        var target = el(edId);
+        if (!target) return;
+        target.innerText = text;
+        if (typeof window.edCount === 'function') window.edCount(target, kind === 'overall' ? 'cc-ov-my-overall' : 'cc-cmt-' + kind, kind === 'overall' ? 1000 : 500);
+        collectEditors();
+        U.dirty.mark();
+        U.toast(L('Đã chèn gợi ý vào ô nhận xét', 'Suggestion inserted'));
+      }
+    });
+  }
+
+  /* ── Hình thức xử lý và giới hạn điểm (§27.3, chốt 30/09/2026) ──
+     Nhắc lại ngay trong ô Đánh giá toàn diện của vai đang xem, ở mọi cấp. Điểm vượt mức tối đa thì
+     thêm dòng cảnh báo; khi gửi phải tick xác nhận (submit). Câu chữ lấy từ model. */
+  function measureHtml(p, score) {
+    var text = Y.lateMeasureText(p, lg());
+    if (!text) return null;
+    var cap = Y.ratingCapText(p, score, lg());
+    var over = Y.overRatingCap(p, score);
+    return '<i class="bx bx-error"></i><div>' + esc(text) +
+      (over ? '<div class="yer-cap-over">' + esc(cap.over) + '</div>' : '') + '</div>';
+  }
+  function capOf(p, score) {
+    var m = Y.lateMeasure(p);
+    return m && m.cap != null && Y.overRatingCap(p, score) ? m.cap : null;
   }
 
   /* ── render ──────────────────────────────────────────── */
@@ -690,6 +769,7 @@
       var key = node.dataset.rt;
       var val = node.dataset.val === '' ? null : Number(node.dataset.val);
       U.rating(node, {
+        defInto: node.dataset.def || null,
         step: node.dataset.half === '1' ? 'half' : 'int',
         value: val,
         readonly: node.dataset.ro === '1',
@@ -712,14 +792,35 @@
     if (feedback) feedback.addEventListener('click', function () {
       if (typeof window.openFbPopup === 'function') window.openFbPopup();
     });
-    document.querySelectorAll('#yer-mgr-detail-root .yer-note-link').forEach(function (link) {
+    document.querySelectorAll('#yer-mgr-detail-root .yer-note-link[data-go-tab]').forEach(function (link) {
       link.addEventListener('click', function (event) {
         event.preventDefault();
         window.switchMainTab(Number(link.dataset.goTab));
       });
     });
-    var imp = el('yer-md-import');
-    if (imp) imp.addEventListener('click', function () { importGoals(p); });
+    document.querySelectorAll('#yer-mgr-detail-root [data-add-goal]').forEach(function (b) {
+      b.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        openGoalDialog(p, { type: b.dataset.addGoal || '' });
+      });
+    });
+    document.querySelectorAll('#yer-mgr-detail-root [data-del-goal]').forEach(function (b) {
+      b.addEventListener('click', function (event) {
+        event.stopPropagation();
+        hideTipSafe();
+        removeLmGoal(p, b.dataset.delGoal);
+      });
+    });
+    var ai = el('yer-md-ai');
+    if (ai) ai.addEventListener('click', function () { window.PMSYerAi.openSummary(p); });
+    document.querySelectorAll('#yer-mgr-detail-root [data-ai-write]').forEach(function (b) {
+      b.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        openWriter(p, b.dataset.aiWrite);
+      });
+    });
   }
 
   function onRating(key, v) {
@@ -727,7 +828,11 @@
     if (bits[0] !== 'my') return;
     if (bits[1] === 'goal') draft.goalScores[bits[2]] = v;
     else if (bits[1] === 'how') draft.howScores[bits[2]] = v;
-    else if (bits[1] === 'overall') { draft.overall = draft.overall || {}; draft.overall.score = v; }
+    else if (bits[1] === 'overall') {
+      draft.overall = draft.overall || {}; draft.overall.score = v;
+      var note = el('yer-md-cap-note');
+      if (note) note.innerHTML = measureHtml(prof(), v) || '';
+    }
     U.dirty.mark();
   }
 
@@ -782,28 +887,46 @@
       return;
     }
 
-    U.dialog({
-      title: updating
-        ? L('Lưu thay đổi đánh giá?', 'Save review changes?')
-        : isLm() ? L('Gửi đánh giá cho nhân viên này?', 'Submit this review?')
-                 : L('Lưu điểm cho nhân viên này?', 'Save this rating?'),
-      text: L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết ngày ',
+    var score = draft.overall.score;
+    var over = Y.overRatingCap(p, score);
+    var cap = Y.ratingCapText(p, score, lg());
+    var lead = L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết ngày ',
               'You can continue editing your review until the end of ') + Y.fmt(Y.managerEditWindow(role(), p).to, lg()) + '. ' +
         (isLm()
           ? L('Nhân viên đọc được điểm từng mục tiêu và các ô nhận xét của bạn, nhưng không thấy điểm toàn diện.',
               'The employee can see your goal scores and comments, but never your overall rating.')
           : L('Nhân viên không thấy điểm toàn diện của cấp quản lý.',
-              'The employee cannot see manager-level overall ratings.')),
+              'The employee cannot see manager-level overall ratings.'));
+    U.dialog({
+      title: updating
+        ? L('Lưu thay đổi đánh giá?', 'Save review changes?')
+        : isLm() ? L('Gửi đánh giá cho nhân viên này?', 'Submit this review?')
+                 : L('Lưu điểm cho nhân viên này?', 'Save this rating?'),
+      html: '<p>' + esc(lead) + '</p>' + (over
+        // Hệ thống không chặn điểm, nhưng người chấm phải tự xác nhận (§27.3)
+        ? '<div class="yer-cap-confirm"><i class="bx bx-error"></i><div>' +
+            '<div>' + esc(Y.lateMeasureText(p, lg())) + '</div>' +
+            '<div class="yer-cap-over">' + esc(cap.over) + '</div>' +
+            '<label class="yer-cap-ack"><input type="checkbox" id="yer-md-cap-ack"><span>' + esc(cap.ack) + '</span></label>' +
+          '</div></div>'
+        : ''),
       buttons: [
         { label: L('Quay lại', 'Go back'), variant: 'quiet' },
         { label: updating ? L('Lưu thay đổi', 'Save changes')
             : isLm() ? L('Gửi đánh giá', 'Submit review') : L('Lưu điểm', 'Save rating'),
-          variant: 'default', icon: 'bx-send', act: function () { doSubmit(p); } }
+          variant: 'default', icon: 'bx-send', act: function () { doSubmit(p, over); } }
       ]
     });
+    if (over) {
+      var ack = el('yer-md-cap-ack');
+      var ovs = document.querySelectorAll('.pms-ov');
+      var go = ovs.length ? ovs[ovs.length - 1].querySelector('.pms-btn-default') : null;
+      if (go) { go.disabled = true; go.title = L('Tick xác nhận ở trên để tiếp tục', 'Tick the confirmation above to continue'); }
+      if (ack) ack.addEventListener('change', function () { if (go) go.disabled = !ack.checked; });
+    }
   }
 
-  function doSubmit(p) {
+  function doSubmit(p, capConfirmed) {
     var updating = mySubmitted(p);
     var now = S.session().date;
     var payload;
@@ -819,6 +942,8 @@
       S.setAct(S.session().emp, role() + 'Log', { items: Y.nextManagerLog(role(), p,
         { at: now, time: time, score: payload.score, comment: payload.comment, source: 'detail' }) });
     }
+    // Ghi lại việc người chấm đã xác nhận giữ điểm cao hơn mức tối đa (§27.3), để truy vết
+    payload.capConfirmed = capConfirmed ? { max: Y.lateMeasure(p).cap, score: draft.overall.score, at: now } : null;
     S.setAct(S.session().emp, role(), payload);
     S.clearAct(S.session().emp, draftKey());
     U.dirty.clear();
@@ -827,21 +952,218 @@
     render();
   }
 
-  /* ENH-E10: Quản lý import mục tiêu thay nhân viên nghỉ thai sản */
-  function importGoals(p) {
+  /* ── QLTT thêm mục tiêu cho nhân viên thai sản (§33, chốt 30/09/2026) ──
+     Một popup, hai cách: `Nhập tay` từng mục tiêu hoặc `Tải file` nhiều mục tiêu. Mục tiêu thêm vào tự `Đã duyệt`,
+     ghi ở acts[emp].lmGoals. Chỉ mở cho nhân viên thai sản, trong timeline QLTT (Y.canAddGoals). */
+  function hideTipSafe() { if (typeof window.hideTip === 'function') window.hideTip(); }
+  function nowTime() {
+    var d = new Date();
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  var DATE_RE = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])$/;
+  var PRIO_TEXT = { 'cao': 'h', 'high': 'h', 'trung bình': 'm', 'medium': 'm', 'thấp': 'l', 'low': 'l' };
+
+  function saveLmGoals(p, goals, via) {
+    var now = S.session().date, time = nowTime();
+    var me = Y.actors(p).lm || {};
+    var items = ((actsOf().lmGoals || {}).items || []).slice();
+    goals.forEach(function (g, i) {
+      items.push(Object.assign({ id: 'lmg-' + p.id + '-' + Date.now() + '-' + i, at: now, time: time, via: via,
+        by: { name: me.name, login: me.login } }, g));
+    });
+    S.setAct(p.id, 'lmGoals', { items: items });
+  }
+
+  function removeLmGoal(p, id) {
+    var g = (p.lmGoals || []).filter(function (x) { return x.id === id; })[0];
+    if (!g) return;
     U.dialog({
-      title: L('Import mục tiêu thay nhân viên', 'Import goals on their behalf'),
-      text: L('File Excel 2 sheet WHAT Goals và DEVELOPMENT Goals, giống mẫu ở màn Mục tiêu. ' +
-              'Chỉ import được trong thời gian bạn đánh giá. Mục tiêu nhân viên đã tạo và đã được duyệt thì bạn không sửa được.',
-              'An Excel file with two sheets, WHAT Goals and DEVELOPMENT Goals, same template as the Goals screen. ' +
-              'Only available during your review window. Goals the employee created and had approved cannot be edited.'),
+      title: L('Xóa mục tiêu bạn đã thêm?', 'Remove the goal you added?'),
+      text: L('Mục tiêu “' + g.title + '” và điểm bạn đã chấm cho mục tiêu này sẽ bị xóa khỏi hồ sơ.',
+        'The goal “' + g.title + '” and any rating you gave it will be removed.'),
       buttons: [
         { label: L('Quay lại', 'Go back'), variant: 'quiet' },
-        { label: L('Chọn file', 'Choose a file'), variant: 'default', icon: 'bx-upload', act: function () {
-            U.toast(L('Bản dựng demo chưa gắn file thật', 'File upload is not wired in this prototype'));
+        { label: L('Xóa mục tiêu', 'Remove goal'), variant: 'default', icon: 'bx-trash', act: function () {
+            var items = ((actsOf().lmGoals || {}).items || []).filter(function (x) { return x.id !== id; });
+            S.setAct(p.id, 'lmGoals', { items: items });
+            if (draft.goalScores) delete draft.goalScores[id];
+            saveDraft(true);
+            U.toast(L('Đã xóa mục tiêu', 'Goal removed'));
+            render();
           } }
       ]
     });
+  }
+
+  function typeOptions(selected) {
+    return ['what', 'dev'].map(function (t) {
+      return '<option value="' + t + '"' + (selected === t ? ' selected' : '') + '>' + esc(lg() === 'en' ? TYPE[t].en : TYPE[t].vi) + '</option>';
+    }).join('');
+  }
+
+  function goalNote() {
+    return '<div class="yer-gd-note"><i class="bx bx-info-circle"></i><span>' +
+      L('Mục tiêu bạn thêm được ghi nhận <strong>Đã duyệt</strong> ngay, không qua bước phê duyệt, và mang nhãn <strong>QLTT thêm</strong> để phân biệt với mục tiêu nhân viên tự tạo. Nhân viên thấy mục tiêu này ở tab Đánh giá cuối năm. Bạn không sửa được mục tiêu nhân viên đã tạo.',
+        'Goals you add are <strong>approved</strong> at once, skip the approval step and carry an <strong>Added by manager</strong> label to set them apart from the employee\'s own goals. The employee sees them in the Year-End Review tab. You cannot edit goals the employee created.') +
+      '</span></div>';
+  }
+
+  /* keep: { mode: 'manual'|'upload', type, title, result, prio, s, e, parsed, fileName } */
+  function openGoalDialog(p, keep) {
+    keep = Object.assign({ mode: 'manual', type: '', title: '', result: '', prio: 'm', s: '01/01', e: '31/12', parsed: null, fileName: '' }, keep || {});
+    if (!keep.type) keep.type = p.eligibility.missingWhat ? 'what' : 'dev';
+    var manual = keep.mode === 'manual';
+    var tabs = '<div class="yer-gd-tabs" role="tablist">' +
+      '<button type="button" class="yer-gd-tab' + (manual ? ' on' : '') + '" data-gd-mode="manual"><i class="bx bx-edit"></i>' + L('Nhập tay', 'Enter by hand') + '</button>' +
+      '<button type="button" class="yer-gd-tab' + (!manual ? ' on' : '') + '" data-gd-mode="upload"><i class="bx bx-upload"></i>' + L('Tải file', 'Upload a file') + '</button></div>';
+    var body = manual
+      ? '<div class="yer-gd-grid">' +
+          '<label class="yer-gd-f"><span>' + L('Loại mục tiêu', 'Goal type') + '<b>*</b></span><select id="yer-gd-type" class="yer-gd-in">' + typeOptions(keep.type) + '</select></label>' +
+          '<label class="yer-gd-f yer-gd-prio"' + (keep.type === 'what' ? '' : ' hidden') + '><span>' + L('Ưu tiên', 'Priority') + '</span><select id="yer-gd-prio" class="yer-gd-in">' +
+            ['h', 'm', 'l'].map(function (k) { return '<option value="' + k + '"' + (keep.prio === k ? ' selected' : '') + '>' + esc(lg() === 'en' ? PRIO[k].en : PRIO[k].vi) + '</option>'; }).join('') +
+          '</select></label>' +
+          '<label class="yer-gd-f yer-gd-wide"><span>' + L('Tên mục tiêu', 'Goal title') + '<b>*</b></span><input id="yer-gd-title" class="yer-gd-in" maxlength="200" value="' + esc(keep.title) + '"></label>' +
+          '<label class="yer-gd-f yer-gd-wide"><span>' + L('Kết quả cần đạt', 'Expected result') + '<b>*</b></span><textarea id="yer-gd-result" class="yer-gd-in" rows="3" maxlength="500">' + esc(keep.result) + '</textarea></label>' +
+          '<label class="yer-gd-f"><span>' + L('Bắt đầu (dd/mm)', 'Start (dd/mm)') + '</span><input id="yer-gd-s" class="yer-gd-in" value="' + esc(keep.s) + '"></label>' +
+          '<label class="yer-gd-f"><span>' + L('Kết thúc (dd/mm)', 'End (dd/mm)') + '</span><input id="yer-gd-e" class="yer-gd-in" value="' + esc(keep.e) + '"></label>' +
+        '</div>'
+      : '<ol class="yer-up-steps">' +
+          '<li><div class="yer-up-t">' + L('Tải file mẫu', 'Download the template') + '</div>' +
+            '<div class="yer-up-d">' + L('Mỗi dòng một mục tiêu: loại (WHAT hoặc DEVELOPMENT), tên, kết quả cần đạt, ưu tiên, thời gian.', 'One goal per row: type (WHAT or DEVELOPMENT), title, expected result, priority, dates.') + '</div>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="yer-gd-tpl"><i class="bx bx-download"></i>' + L('Tải file mẫu (.csv)', 'Download template (.csv)') + '</button></li>' +
+          '<li><div class="yer-up-t">' + L('Tải file lên', 'Upload the file') + '</div>' +
+            '<button type="button" class="btn btn-default btn-sm" id="yer-gd-pick"><i class="bx bx-upload"></i>' + L('Chọn file', 'Choose a file') + '</button>' +
+            (keep.fileName ? '<span class="yer-gd-file"><i class="bx bx-file"></i>' + esc(keep.fileName) + '</span>' : '') +
+            '<input type="file" id="yer-gd-input" accept=".csv" hidden></li>' +
+        '</ol>' +
+        (keep.parsed ? '<div class="yer-gd-prev"><div class="yer-gd-prev-hd">' +
+            L('Xem trước: ' + keep.parsed.ok.length + ' mục tiêu hợp lệ', 'Preview: ' + keep.parsed.ok.length + ' valid goals') +
+            (keep.parsed.bad ? L(', bỏ qua ' + keep.parsed.bad + ' dòng thiếu thông tin', ', ' + keep.parsed.bad + ' incomplete rows skipped') : '') + '</div>' +
+            '<ul>' + keep.parsed.ok.map(function (g) {
+              return '<li><span class="yer-gd-tag">' + esc(lg() === 'en' ? TYPE[g.type].en : TYPE[g.type].vi) + '</span>' + esc(g.title) + '</li>';
+            }).join('') + '</ul></div>' : '');
+    U.dialog({
+      title: L('Thêm mục tiêu cho nhân viên thai sản', 'Add goals for the employee on maternity leave'),
+      className: 'yer-gd-dlg',
+      html: '<div class="yer-gd-emp"><strong>' + esc(p.emp.name) + '</strong> <span class="er-login">(' + esc(p.emp.login) + ')</span></div>' +
+        tabs + body + goalNote(),
+      buttons: [
+        { label: L('Hủy', 'Cancel'), variant: 'quiet' },
+        manual
+          ? { label: L('Thêm mục tiêu', 'Add goal'), variant: 'default', icon: 'bx-plus', act: function () {
+                var v = readManual();
+                var miss = [];
+                if (!v.title) miss.push(L('tên mục tiêu', 'title'));
+                if (!v.result) miss.push(L('kết quả cần đạt', 'expected result'));
+                if (!DATE_RE.test(v.s) || !DATE_RE.test(v.e)) miss.push(L('thời gian dạng dd/mm', 'dates as dd/mm'));
+                if (miss.length) {
+                  U.toast(L('Cần nhập: ', 'Please fill in: ') + miss.join(', '));
+                  openGoalDialog(p, Object.assign(v, { mode: 'manual' }));
+                  return;
+                }
+                saveLmGoals(p, [{ type: v.type, title: v.title, result: v.result, prio: v.type === 'what' ? v.prio : null, s: v.s, e: v.e }], 'manual');
+                U.toast(L('Đã thêm mục tiêu, trạng thái Đã duyệt', 'Goal added and approved'));
+                render();
+              } }
+          : { label: keep.parsed && keep.parsed.ok.length ? L('Thêm ' + keep.parsed.ok.length + ' mục tiêu', 'Add ' + keep.parsed.ok.length + ' goals') : L('Thêm mục tiêu', 'Add goals'),
+              variant: 'default', icon: 'bx-plus', act: function () {
+                if (!keep.parsed || !keep.parsed.ok.length) {
+                  U.toast(L('Chọn file có ít nhất một mục tiêu hợp lệ', 'Choose a file with at least one valid goal'));
+                  openGoalDialog(p, keep);
+                  return;
+                }
+                saveLmGoals(p, keep.parsed.ok, 'upload');
+                U.toast(L('Đã thêm ' + keep.parsed.ok.length + ' mục tiêu, trạng thái Đã duyệt', keep.parsed.ok.length + ' goals added and approved'));
+                render();
+              } }
+      ]
+    });
+    // Popup đóng trước khi chạy nút, nên giá trị các ô được ghi vào keep ngay khi nhập
+    ['type', 'prio', 'title', 'result', 's', 'e'].forEach(function (k) {
+      var f = el('yer-gd-' + k);
+      if (!f) return;
+      ['input', 'change'].forEach(function (ev) { f.addEventListener(ev, function () { keep[k] = f.value; }); });
+    });
+    function readManual() {
+      return {
+        type: keep.type, prio: keep.prio,
+        title: String(keep.title || '').trim(), result: String(keep.result || '').trim(),
+        s: String(keep.s || '').trim(), e: String(keep.e || '').trim()
+      };
+    }
+    function closeTop() { var ovs = document.querySelectorAll('.pms-ov'); if (ovs.length) ovs[ovs.length - 1].remove(); }
+    document.querySelectorAll('.yer-gd-dlg [data-gd-mode]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (b.dataset.gdMode === keep.mode) return;
+        var next = manual ? Object.assign(keep, readManual()) : keep;
+        closeTop();
+        openGoalDialog(p, Object.assign(next, { mode: b.dataset.gdMode }));
+      });
+    });
+    var typeSel = el('yer-gd-type');
+    if (typeSel) typeSel.addEventListener('change', function () {
+      var pr = document.querySelector('.yer-gd-prio');
+      if (pr) pr.hidden = typeSel.value !== 'what';
+    });
+    var tpl = el('yer-gd-tpl'), pick = el('yer-gd-pick'), input = el('yer-gd-input');
+    if (tpl) tpl.addEventListener('click', downloadGoalTemplate);
+    if (pick) pick.addEventListener('click', function () { input.click(); });
+    if (input) input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        closeTop();
+        openGoalDialog(p, Object.assign(keep, { mode: 'upload', fileName: f.name, parsed: parseGoalCsv(String(reader.result || '')) }));
+      };
+      reader.readAsText(f, 'utf-8');
+    });
+  }
+
+  function csvCell(v) {
+    var t = String(v == null ? '' : v);
+    return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  function downloadGoalTemplate() {
+    var rows = [['Loại mục tiêu', 'Tên mục tiêu', 'Kết quả cần đạt', 'Ưu tiên', 'Bắt đầu', 'Kết thúc'],
+      ['WHAT', 'Ví dụ: Duy trì chất lượng kiểm thử hồi quy', 'Ví dụ: 95% ca kiểm thử trọng yếu chạy tự động trước mỗi đợt phát hành', 'Trung bình', '01/01', '31/12'],
+      ['DEVELOPMENT', 'Ví dụ: Hoàn thành khóa kiểm thử hiệu năng', 'Ví dụ: Áp dụng vào 1 dự án của nhóm', '', '01/01', '31/12']];
+    var blob = new Blob(['\ufeff' + rows.map(function (r) { return r.map(csvCell).join(','); }).join('\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'YER-2026-muc-tieu-QLTT-them.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+  function parseGoalCsv(text) {
+    var rows = [], row = [], cell = '', q = false;
+    text = text.replace(/^\ufeff/, '');
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') q = false;
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    rows.shift(); // dòng tiêu đề
+    var ok = [], bad = 0;
+    rows.forEach(function (r) {
+      if (!r.some(function (v) { return String(v).trim(); })) return;
+      var kind = String(r[0] || '').trim().toUpperCase();
+      var type = kind === 'WHAT' ? 'what' : kind === 'DEVELOPMENT' ? 'dev' : null;
+      var title = String(r[1] || '').trim(), result = String(r[2] || '').trim();
+      var s = String(r[4] || '').trim() || '01/01', e = String(r[5] || '').trim() || '31/12';
+      if (!type || !title || !result || !DATE_RE.test(s) || !DATE_RE.test(e) || /^Ví dụ:/.test(title)) { bad++; return; }
+      ok.push({ type: type, title: title, result: result, prio: type === 'what' ? (PRIO_TEXT[String(r[3] || '').trim().toLowerCase()] || 'm') : null, s: s, e: e });
+    });
+    return { ok: ok, bad: bad };
   }
 
   /* ── CSS riêng ───────────────────────────────────────── */
@@ -895,6 +1217,71 @@
       '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;' +
         'clip:rect(0,0,0,0);white-space:nowrap;border:0}' +
       '.yer-op-hint{font-size:11.5px;color:var(--z500);line-height:1.45;margin:-6px 0 10px}' +
+      // Nút AI: AI Summary ở hàng nút, `Cải thiện với AI` ở góc ô nhận xét của QLTT (§14)
+      '.yer-md-ai{color:var(--brand);border-color:var(--brand-ring)}' +
+      '.yer-md-ai:hover{background:var(--brand-muted);border-color:var(--brand)}' +
+      '.yer-ai-write{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid var(--brand-ring);' +
+        'border-radius:50px;background:var(--brand-muted);color:var(--brand);font-family:inherit;font-size:11px;font-weight:600;' +
+        'text-transform:none;letter-spacing:0;cursor:pointer;transition:var(--t)}' +
+      '.yer-ai-write:hover{background:var(--brand);color:var(--brand-fg)}' +
+      '.yer-ai-write i{font-size:12px}' +
+      '.yer-flbl-ai{display:flex!important;align-items:center;gap:4px}' +
+      // Thêm mục tiêu cho nhân viên thai sản (§33)
+      '.rv-section-hd .yer-add-goal{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;' +
+        'border:1px solid var(--brand);border-radius:var(--rsm);background:var(--z0);color:var(--brand);font-family:inherit;' +
+        'font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer}' +
+      '.rv-section-hd .yer-add-goal:hover{background:var(--brand-muted)}' +
+      '.g-lm-row{display:flex;align-items:center;gap:4px;margin-top:5px}' +
+      '.g-lm-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border:1px solid var(--info-bd);border-radius:50px;' +
+        'background:var(--info-bg);color:var(--info);font-size:11px;font-weight:500;white-space:nowrap;cursor:help}' +
+      '.g-lm-chip i{font-size:12px}' +
+      '.g-lm-del{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:var(--rxs);' +
+        'background:transparent;color:var(--z500);font-size:14px;cursor:pointer}' +
+      '.g-lm-del:hover{background:var(--err-bg);color:var(--err)}' +
+      '.yer-gd-dlg{width:min(620px,calc(100vw - 32px));max-width:none}' +
+      '.yer-gd-emp{font-size:13.5px;color:var(--z900);margin-bottom:10px}' +
+      '.yer-gd-tabs{display:inline-flex;gap:2px;padding:3px;margin-bottom:14px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}' +
+      '.yer-gd-tab{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:0;border-radius:var(--rxs);background:transparent;' +
+        'font-family:inherit;font-size:12.5px;color:var(--z600);cursor:pointer}' +
+      '.yer-gd-tab.on{background:var(--z0);color:var(--brand);font-weight:600;box-shadow:var(--sh-sm)}' +
+      '.yer-gd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}' +
+      '.yer-gd-f{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500)}' +
+      '.yer-gd-f[hidden]{display:none}' +
+      '.yer-gd-f b{color:var(--err);margin-left:2px}' +
+      '.yer-gd-wide{grid-column:1 / -1}' +
+      '.yer-gd-in{width:100%;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-family:inherit;font-size:13px;' +
+        'font-weight:400;text-transform:none;letter-spacing:0;color:var(--z900);background:var(--z0);resize:vertical}' +
+      '.yer-gd-in:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}' +
+      '.yer-gd-note{display:flex;gap:6px;align-items:flex-start;margin-top:14px;padding:9px 12px;border:1px solid var(--z200);' +
+        'border-radius:var(--rsm);background:var(--z50);font-size:12px;color:var(--z600);line-height:1.5}' +
+      '.yer-gd-note i{font-size:14px;margin-top:1px;color:var(--z500)}' +
+      '.yer-gd-note strong{color:var(--z800);font-weight:600}' +
+      '.yer-up-steps{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:14px}' +
+      '.yer-up-steps li{font-size:13px;color:var(--z700)}' +
+      '.yer-up-t{font-weight:600;color:var(--z900);margin-bottom:2px}' +
+      '.yer-up-d{font-size:12.5px;color:var(--z600);margin-bottom:6px}' +
+      '.yer-gd-file{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:12px;color:var(--z700)}' +
+      '.yer-gd-prev{margin-top:12px;padding:9px 12px;border:1px solid var(--ok-bd);border-radius:var(--rsm);background:var(--ok-bg)}' +
+      '.yer-gd-prev-hd{font-size:12px;font-weight:600;color:var(--z800);margin-bottom:6px}' +
+      '.yer-gd-prev ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}' +
+      '.yer-gd-prev li{font-size:12.5px;color:var(--z800);display:flex;align-items:center;gap:6px}' +
+      '.yer-gd-tag{flex:none;padding:0 6px;border:1px solid var(--z200);border-radius:var(--rxs);background:var(--z0);font-size:10.5px;color:var(--z600)}' +
+      // Ô Ý nghĩa thang điểm dưới ô nhận xét, như E-05 (§41.2b)
+      '#yer-mgr-detail-root .yer-op-def:empty{display:none}' +
+      '#yer-mgr-detail-root .yer-op-def .rt-def{margin-top:12px}' +
+      // Hình thức xử lý và giới hạn điểm: tông vàng cảnh báo (DS §19 rule 24)
+      '.yer-cap-note,.yer-cap-confirm{display:flex;gap:7px;align-items:flex-start;padding:8px 11px;margin:-4px 0 12px;border:1px solid var(--warn-bd);' +
+        'border-radius:var(--rsm);background:var(--warn-bg);font-size:12px;line-height:1.5;color:var(--z800)}' +
+      '.yer-cap-note:empty{display:none}' +
+      '.yer-cap-note>i,.yer-cap-confirm>i{flex:none;margin-top:1px;font-size:15px;color:var(--warn)}' +
+      '.yer-cap-over{margin-top:3px;font-weight:700;color:var(--z900)}' +
+      '.yer-cap-confirm{margin:12px 0 0}' +
+      '.yer-cap-ack{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-weight:600;color:var(--z900);cursor:pointer}' +
+      '.yer-cap-ack input{margin:2px 0 0;width:15px;height:15px;flex:none;accent-color:var(--brand)}' +
+      '.pms-btn:disabled{opacity:.5;cursor:not-allowed}' +
+      '.yer-cap-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border:1px solid var(--warn-bd);border-radius:50px;' +
+        'background:var(--warn-bg);color:var(--warn);font-size:10.5px;font-weight:600;white-space:nowrap}' +
+      '.yer-cap-chip i{font-size:12px}' +
       '.yer-overall-grid{display:grid;gap:0}' +
       '.yer-overall-grid .overall-panel+.overall-panel{border-left:1px solid var(--z200)}' +
       // Nhãn mục tiêu đã chốt hoàn thành và domain người chấm
