@@ -210,6 +210,17 @@
     // KHÔNG đồng bộ từ LM2 sang HOD
     var hodView = hodDone ? Object.assign({}, hod, { source: hod.source || 'manual' }) : null;
 
+    /* Lịch sử chấm điểm và nhận xét của LM2, HOD (chốt 30/09/2026): mỗi lần lưu là một dòng
+       { at, time, score, comment, source }. Dữ liệu mẫu chưa có lịch sử thì suy ra một dòng từ bản đang có;
+       điểm hệ thống tự chép không phải lần chấm của vai nên không vào lịch sử. */
+    function managerLog(key, view) {
+      var items = ((acts[key + 'Log'] || {}).items || []).filter(function (it) { return it && it.at && cmp(now, it.at) >= 0; });
+      if (!items.length && view && !view.synced && view.at) {
+        items = [{ at: view.at, time: view.time || null, score: view.score, comment: view.comment || '', source: view.source || 'manual' }];
+      }
+      return items;
+    }
+
     var lateView = happened(lateSubmission) ? lateSubmission : null;
     var lateOpen = lateWindowOpen(now);
     var lateClosed = cmp(now, lateSubmissionDeadline()) > 0;
@@ -221,13 +232,6 @@
     // hạn QLTT mà vẫn không có điểm nào thì hồ sơ mới dừng.
     var noScoreAtAll = !selfDone && !lmView;
     if (lmClosed && noScoreAtAll) stopped = true;
-
-    /* LM2 trả về cho QLTT (§27.2). Còn hiệu lực trong 24 giờ, prototype tính theo ngày nên
-       hết hiệu lực từ ngày thứ hai sau ngày trả về. QLTT gửi lại thì màn hình xóa bản ghi này.
-       Hết hạn mà QLTT chưa gửi lại: hồ sơ quay về trạng thái trước khi trả về. */
-    var ret = acts.returned || null;
-    var returnedView = (ret && ret.at && cmp(now, ret.at) >= 0 && cmp(now, addDays(ret.at, 1)) <= 0)
-      ? Object.assign({ due: addDays(ret.at, 1) }, ret) : null;
 
     var finalView = happened({ at: final && final.uploadedAt }) ? final : null;
     var published = !!(final && final.publishedAt && cmp(now, final.publishedAt) >= 0);
@@ -282,8 +286,9 @@
       selfRequired: !maternity,
       lm: lmView,
       lm2: lm2View,
-      returned: returnedView,
       hod: hodView,
+      lm2Log: managerLog('lm2', lm2View),
+      hodLog: managerLog('hod', hodView),
       hrbpUpload: happened(hrbpUpload) ? hrbpUpload : null,
       final: finalView,
       published: published,
@@ -307,10 +312,8 @@
     // Thai sản không bắt buộc tự đánh giá (§12) nên không rơi vào luồng nộp trễ.
     if (!p.self && p.lateWindowOpen && !p.maternity) return { key: 'late-upload', label: t('Cần nộp file trễ hạn', 'Late file submission needed'), tone: 'action' };
     if (p.stopped) return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
-    if (p.eligibility.reason === 'missing-goal') return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
     if (p.published) return { key: 'published', label: t('Đã công bố kết quả', 'Results published'), tone: 'done' };
     if (p.hod) return { key: 'wait-tr', label: t('Chờ tải điểm cuối cùng', 'Awaiting final upload'), tone: 'muted' };
-    if (p.returned) return { key: 'returned', label: t('Bị trả về để chỉnh sửa', 'Returned for editing'), tone: 'action' };
     if (p.lm2) return { key: 'wait-hod', label: t('Chờ HOD đánh giá', 'Awaiting HOD'), tone: 'action' };
     if (p.lm) return { key: 'wait-lm2', label: t('Chờ Quản lý cấp 2', 'Awaiting second-level manager'), tone: 'action' };
     if (p.self) return { key: 'wait-lm', label: p.lateSubmission
@@ -333,9 +336,7 @@
 
     var own = role === 'lm' ? p.lm : role === 'lm2' ? p.lm2 : p.hod;
     var submitted = role === 'lm' ? !!(own && !own.synced) : !!own;
-    var stepOpen = stepState(role, p.now) === 'open' || (role === 'lm' && !!p.returned) ||
-      // Hồ sơ nộp bổ sung: QLTT chấm được tới hạn riêng của hồ sơ đó (§27.3)
-      (role === 'lm' && !!p.lateSubmission && stepState('lm', p.now) !== 'future' && cmp(p.now, p.lmDeadline) <= 0);
+    var stepOpen = managerEditWindow(role, p).state === 'open';
     var blocked = p.resigned || p.stopped || p.eligibility.reason === 'late-onboard';
     var prerequisite = false;
 
@@ -352,7 +353,6 @@
 
     var key = status(p, 'vi').key;
     var pendingKey = role === 'lm' ? 'wait-lm' : role === 'lm2' ? 'wait-lm2' : 'wait-hod';
-    if (role === 'lm' && key === 'returned') pendingKey = 'returned';
     // Thai sản không cần Self Assessment nhưng chuyển thành việc của QLTT khi
     // timeline QLTT bắt đầu.
     var pending = key === pendingKey ||
@@ -366,31 +366,95 @@
     };
   }
 
-  /* ── Nhãn tab Đánh giá cuối năm của ba vai quản lý ──────
-     Nói việc của vai đang xem, không dùng nguyên văn trạng thái hồ sơ: cùng một hồ sơ
-     "Chờ Quản lý" mang ý nghĩa hành động khác nhau với QLTT, LM2 và HOD.
-     M-05 và M-06 cùng đọc hàm này (DESIGN-SYSTEM.md §20.1). */
-  function managerTabLabel(role, p, lang) {
-    if (!p) return '';
-    function t(vi, en) { return lang === 'en' ? en : vi; }
-    var st = status(p, lang);
-    if (st.key === 'published') return t('Đã có kết quả', 'Results available');
-    if (st.key === 'out' || st.key === 'resigned' || st.key === 'noeval') return st.label;
-    if (role === 'lm' && st.key === 'returned') return st.label;
-    if (role === 'hod' && p.hrbpUpload && !p.hrbpUpload.approved) return t('Cần phê duyệt', 'Approval needed');
-    if ((role === 'lm' && p.lm) || (role === 'lm2' && p.lm2) || (role === 'hod' && p.hod)) {
-      return t('Đã hoàn thành', 'Completed');
+  /* ── Lịch sử chấm điểm của LM2, HOD ─────────────────────────
+     Màn hình ghi thêm một dòng mỗi lần lưu: S.setAct(id, role + 'Log', { items: nextManagerLog(role, p, entry) }).
+     source (grid, detail, approve-prev, upload, hrbp-upload) chỉ để truy vết dữ liệu, không hiện trên màn. */
+  function nextManagerLog(role, p, entry) {
+    return ((role === 'lm2' ? p.lm2Log : p.hodLog) || []).concat([entry]);
+  }
+  /* ── Điểm hiệu chuẩn HRBP tải lên hộ HOD (§9) ──────────────
+     Điểm tải lên chưa duyệt không phải điểm HOD và không hiện ở lưới chính; HOD duyệt ở màn
+     `Phê duyệt điểm hiệu chuẩn`, không sửa điểm trước khi duyệt. Duyệt được trong timeline HOD và khi
+     HOD chấm được hồ sơ (managerReviewState). conflict: HOD đã chấm tay một điểm khác điểm tải lên. */
+  function calibrationState(p) {
+    var up = p && p.hrbpUpload;
+    if (!up) return { has: false, approved: false, canApprove: false, conflict: false };
+    var approved = !!up.approved;
+    var manual = p.hod && p.hod.source !== 'hrbp-upload' ? p.hod.score : null;
+    return {
+      has: true, score: up.score, comment: up.comment || '', by: up.by || '', at: up.at,
+      approved: approved, approvedAt: up.approvedAt || null,
+      canApprove: !approved && managerReviewState('hod', p).canEdit,
+      manual: manual,
+      conflict: !approved && manual != null && Number(manual) !== Number(up.score)
+    };
+  }
+
+  /* ── Cửa sổ đánh giá và chỉnh sửa của từng vai quản lý (§8.3) ──
+     Một nguồn cho cả quyền sửa (managerReviewState) lẫn câu chữ "sửa được tới khi nào" ở M-05, M-06.
+     reason: 'late'     hồ sơ nộp bổ sung, QLTT có hạn riêng 3 ngày làm việc từ ngày nộp (§27.3)
+     state:  'future' chưa tới bước của vai, 'open' đang sửa được, 'closed' đã hết hạn. */
+  function managerEditWindow(role, p) {
+    var s = step(role);
+    var to = s.to, reason = null;
+    if (role === 'lm' && p && p.lateSubmission && cmp(p.lmDeadline, s.to) > 0) { to = p.lmDeadline; reason = 'late'; }
+    var now = (p && p.now) || today();
+    var state = cmp(now, s.from) < 0 ? 'future'
+      : cmp(now, to) > 0 ? 'closed' : 'open';
+    return { from: s.from, to: to, reason: reason, state: state };
+  }
+
+  /* ── Thứ tự danh sách của Quản lý (§47, chốt lại 30/09/2026) ──
+     Việc cần làm lên đầu, việc đã xong xuống dưới, hồ sơ có LWD rồi hồ sơ `Không đánh giá` ở cuối cùng.
+     Giai đoạn Tự đánh giá (trước ngày mở bước QLTT), mọi vai:
+       0  nhân viên chưa tự đánh giá
+       1  nhân viên đã tự đánh giá
+       2  nhân viên thai sản (không bắt buộc tự đánh giá)
+     Từ bước QLTT trở đi, theo vai đang xem:
+       0  thai sản đang chờ QLTT (QLTT phải kiểm tra, tải mục tiêu cho nhân viên)
+       1  nộp bổ sung đang chờ QLTT
+       2  các hồ sơ khác đang chờ đúng vai đang xem, trong timeline của vai đó
+       3  hồ sơ vai đang xem chưa làm được: chờ cấp khác, chưa tự đánh giá, chưa tới timeline
+       4  vai đang xem đã đánh giá xong, hoặc đã công bố kết quả
+     Mọi giai đoạn: 5 hồ sơ có ngày làm việc cuối cùng (LWD), 6 hồ sơ `Không đánh giá`.
+     Trong từng nhóm, màn hình giữ thứ tự dữ liệu ban đầu. */
+  function managerRosterRank(role, p) {
+    if (p.stopped) return 6;
+    if (p.resignFrom) return 5;
+    if (stepState('lm', p.now) === 'future') {
+      if (p.maternity) return 2;
+      return p.self ? 1 : 0;
     }
-    if (role === 'lm') {
-      if (p.self || p.maternity || p.lateSubmission) return t('Cần đánh giá', 'Review needed');
-      if (st.key === 'late-upload') return t('Chưa Tự đánh giá', 'Self assessment missing');
-      return st.label;
+    var review = managerReviewState(role, p);
+    if (review.pending && review.stepOpen && !review.submitted) {
+      if (role === 'lm' && p.maternity) return 0;
+      if (role === 'lm' && p.lateSubmission) return 1;
+      return 2;
     }
-    if (role === 'lm2') {
-      if (st.key === 'returned') return t('Chờ QLTT đánh giá', 'Awaiting line manager');
-      return p.lm ? t('Cần đánh giá', 'Review needed') : t('Chờ QLTT đánh giá', 'Awaiting line manager');
+    if (review.submitted || p.published) return 4;
+    return 3;
+  }
+
+  /* ── Nhãn trên hai tab đánh giá, dùng chung cho E-05, M-05, M-06 (§18.4, chốt 30/09/2026) ──
+     Nhãn nói GIAI ĐOẠN của kỳ, giống nhau cho mọi người và mọi vai tại cùng một ngày; việc riêng của
+     từng hồ sơ nằm trong nội dung tab. past = true thì nhãn xám (`.yer-past-cycle-label`), false thì xanh.
+     cycle: 'yer' | 'myr'. empId: hồ sơ đang mở, để biết tab Giữa năm có phải dữ liệu lịch sử của use case
+     demo hay không (MYR-SPEC §2a); danh sách không truyền empId. */
+  var PHASE_LABEL = {
+    'not-open': ['Chưa mở', 'Not open yet'],
+    'active':   ['Cần hoàn tất', 'To complete'],
+    'done':     ['Đã hoàn tất', 'Completed']
+  };
+  function cycleTabLabel(cycle, now, lang, empId) {
+    now = now || today();
+    function t(pair) { return lang === 'en' ? pair[1] : pair[0]; }
+    if (cycle === 'yer') {
+      var phase = yerPhase(now);
+      return { text: t(PHASE_LABEL[phase]), past: phase !== 'active' };
     }
-    return p.lm2 ? t('Cần đánh giá', 'Review needed') : t('Chờ Quản lý cấp 2', 'Awaiting second-level manager');
+    if (!myrAsHistory(empId)) return { text: t(['Đang hoạt động', 'Active']), past: false };
+    // Kỳ cuối năm đã mở thì kỳ giữa năm luôn Đã hoàn tất, kể cả người không có kết quả
+    return { text: t(PHASE_LABEL.done), past: cmp(now, step('self').from) >= 0 };
   }
 
   /* ── Quyền của Nhân viên với bản tự đánh giá (§5, §8) ────
@@ -631,7 +695,11 @@
     profile: profile,
     status: status,
     managerReviewState: managerReviewState,
-    managerTabLabel: managerTabLabel,
+    cycleTabLabel: cycleTabLabel,
+    managerEditWindow: managerEditWindow,
+    calibrationState: calibrationState,
+    nextManagerLog: nextManagerLog,
+    managerRosterRank: managerRosterRank,
     selfAssessmentState: selfAssessmentState,
     selfChanges: selfChanges,
     yerPhase: yerPhase,

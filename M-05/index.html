@@ -459,6 +459,8 @@ textarea.fc{resize:vertical}
 .cy-tab-btn.on .cy-tab-cnt{background:var(--z0);color:var(--brand)}
 .cy-tab-btn.has-active-label{position:relative}
 .cy-active-label{position:absolute;top:-6px;right:4px;height:13px;padding:0 4px;font-size:8px;font-weight:500;line-height:11px;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:50px;pointer-events:none}
+/* Nhãn giai đoạn đã qua hoặc chưa mở: xám, giống E-05 (YER-SPEC §18.4) */
+.cy-active-label.yer-past-cycle-label{color:var(--z600);background:var(--z100);border-color:var(--z300)}
 
 /* ── MYR PROCESS ── */
 .myr-process{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:16px 18px 14px;margin-bottom:14px}
@@ -2548,10 +2550,14 @@ function approveCalibRatings(){
 <script>
 /* Đổi vai trò ở sidebar: đặt vai vào phiên rồi mới chuyển trang,
    nếu không màn đích sẽ mở bằng vai cũ và hiện khối rỗng. */
-/* MYR-SPEC §2a: nhãn tab Giữa năm chỉ là "Đã hoàn thành" khi đang ở use case của thanh demo. */
+/* Nhãn tab Giữa năm dùng chung luật với E-05 và M-06 (PMSYer.cycleTabLabel, YER-SPEC §18.4, MYR-SPEC §2a). */
 function syncMyrCycleLabel(){
   var lbl=document.getElementById('cy-1-lbl');
-  if(lbl&&window.PMSYer) lbl.textContent=window.PMSYer.myrAsHistory()?'Đã hoàn thành':'Đang hoạt động';
+  if(!lbl||!window.PMSYer||!window.PMSStore) return;
+  var st=window.PMSStore.session();
+  var tab=window.PMSYer.cycleTabLabel('myr',st.date,st.lang);
+  lbl.textContent=tab.text;
+  lbl.classList.toggle('yer-past-cycle-label',tab.past);
 }
 document.addEventListener('DOMContentLoaded',syncMyrCycleLabel);
 document.addEventListener('pms:demo-change',syncMyrCycleLabel);

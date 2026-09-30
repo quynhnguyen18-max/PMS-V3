@@ -39,7 +39,7 @@ Chốt ngày 27/09/2026. Màn MYR (06/2026) và màn YER (09/2026) được dự
 Thanh Chế độ demo sinh ra ở giai đoạn YER.
 
 - **MYR-09a** Mặc định, tab Giữa năm (E-05, M-06) và chu kỳ Giữa năm (M-05) hiển thị **bình thường và độc lập** như lúc đang ở kỳ giữa năm: nhãn tab `Đang hoạt động`, nhân viên tự đánh giá, lưu nháp, gửi; Quản lý chấm được.
-- **MYR-09b** Chỉ khi người xem **chọn một use case trên thanh demo** (hoặc mở bằng `?scenario=`) và use case đó là của **chính nhân viên đang mở**, tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm: MYR-13, MYR-31, MYR-32, MYR-52, nhãn `Đã hoàn tất` / `Đã hoàn thành` / `Không có dữ liệu`, và mọi vai chỉ xem. Trên E-05 nhãn tab luôn là `Đã hoàn tất` với mọi nhân viên (YER-SPEC §18.4, chốt 27/09/2026).
+- **MYR-09b** Chỉ khi người xem **chọn một use case trên thanh demo** (hoặc mở bằng `?scenario=`) và use case đó là của **chính nhân viên đang mở**, tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm: MYR-13, MYR-31, MYR-32, MYR-52, nhãn tab `Đã hoàn tất` màu xám, và mọi vai chỉ xem. Trên E-05, M-05 và M-06 nhãn tab luôn là `Đã hoàn tất` với mọi nhân viên, kể cả không có kết quả (YER-SPEC §18.4, `PMSYer.cycleTabLabel`, chốt 30/09/2026).
 - **MYR-09c** Rời use case (đổi vai, chọn `Hồ sơ khác`, Đặt lại) là quay về MYR-09a. Luật nằm ở `PMSYer.myrAsHistory(empId)` trong `assets/yer-model.js`; thanh demo ghi `scenario` vào phiên, `?scenario=` đọc xong thì gỡ khỏi URL.
 
 ## 3. Điều kiện tham gia
@@ -99,7 +99,7 @@ Thanh Chế độ demo sinh ra ở giai đoạn YER.
 - **MYR-39** Bộ lọc: như chu kỳ Mục tiêu (GOAL-SPEC GS-45). (commit 07f5f94)
 - **MYR-40** Nút chức năng: QLTT `Xem & đánh giá`, LM2/HOD `Xem`. Bấm dòng hoặc nút mở chi tiết ở `M-06` tab Giữa năm. `Split View` nhúng chi tiết trong khung bên phải. (code M-05)
 - **MYR-40a** Sắp xếp: người **đang chờ chính vai mình đánh giá** lên đầu (QLTT: `Chờ QLTT đánh giá`; LM2: `Chờ QL Cấp 2 đánh giá`; HOD: `Chờ HOD đánh giá`), tiếp theo các hồ sơ còn dở, `Hoàn thành` xuống cuối; cùng nhóm thì theo tên. (chị chốt 27/09/2026)
-- **MYR-41** Tab chu kỳ ở thời điểm kỳ cuối năm dùng nhãn xanh `Đã hoàn thành`. (YER-SPEC §47)
+- **MYR-41** Tab chu kỳ ở thời điểm kỳ cuối năm dùng nhãn xám `Đã hoàn tất`, cùng luật và màu với màn Nhân viên (YER-SPEC §18.4, chốt 30/09/2026).
 
 ### 6.2 LM2 và HOD chấm điểm toàn diện ngay trên danh sách
 

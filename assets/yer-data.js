@@ -304,7 +304,7 @@
     lm: ev('2027-01-30', { overall: { score: 4, comment: 'Kết quả bảo mật năm nay đáng ghi nhận, đặc biệt là việc duy trì chứng nhận ISO.' },
       comments: { what: 'Không phát sinh NC Major trong kỳ audit.', dev: 'Kiến thức mới được áp dụng ngay vào quy trình.', how: 'Cách tiếp cận hợp tác giúp các nhóm tuân thủ dễ dàng hơn.' } }),
     lm2: ev('2027-02-11', { score: 4, comment: '', source: 'manual' }),
-    hrbpUpload: ev('2027-02-19', { score: 4, comment: 'Điểm thống nhất sau phiên rà soát cấp khối.', approved: false, by: 'Nguyễn Thị Hoa (hoa.nguyen)' })
+    hrbpUpload: ev('2027-02-19', { score: 4, comment: 'Điểm thống nhất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' })
   };
 
   // s16 — Quản lý trực tiếp đã hoàn tất.
@@ -329,7 +329,9 @@
       comments: { what: 'Nâng cấp Kubernetes không downtime và hoàn thành DR site đúng hạn.', dev: 'Tiếp tục đầu tư vào năng lực vận hành hệ thống quy mô lớn.', how: 'Đặt độ tin cậy hệ thống lên hàng đầu trong mọi quyết định.' } }),
     lm: ev('2027-01-23', { overall: { score: 4.5, comment: 'Đóng góp rất có giá trị cho sự ổn định của hệ thống production trong năm.' },
       comments: { what: 'Chất lượng thực thi vượt kỳ vọng ở cả hai mục tiêu hạ tầng.', dev: 'Chia sẻ kiến thức hiệu quả trong nhóm Infra.', how: 'Tinh thần trách nhiệm cao và nhất quán.' } }),
-    lm2: ev('2027-02-12', { score: 4.5, comment: 'Đồng thuận với đánh giá của quản lý trực tiếp.', source: 'manual' })
+    lm2: ev('2027-02-12', { score: 4.5, comment: 'Đồng thuận với đánh giá của quản lý trực tiếp.', source: 'manual' }),
+    // §9: HRBP tải điểm hộ HOD, HOD chưa chấm tay nên duyệt là thành điểm HOD
+    hrbpUpload: ev('2027-02-19', { score: 4.5, comment: 'Giữ nguyên mức đề xuất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' })
   };
 
   // s20 — đã công bố, điểm cuối khác điểm HOD
@@ -341,6 +343,8 @@
       comments: { what: 'Chỉ số chất lượng đạt mục tiêu ở cả hai nền tảng.', dev: 'Việc kèm cặp junior mang lại kết quả đo lường được.', how: 'Thể hiện tốt tinh thần dẫn dắt.' } }),
     lm2: ev('2027-02-06', { score: 4, comment: 'Đồng thuận với đánh giá của Quản lý trực tiếp. Năm tới nên chủ động chia sẻ kinh nghiệm chất lượng ứng dụng cho các nhóm khác.', source: 'manual' }),
     hod: ev('2027-02-18', { score: 4.5, comment: 'Ghi nhận thêm đóng góp trong việc phát triển đội ngũ kỹ sư di động.', source: 'manual' }),
+    // §9: điểm HRBP tải lên khác điểm HOD đã chấm tay, màn phê duyệt báo khác biệt trước khi thay
+    hrbpUpload: ev('2027-02-19', { score: 4, comment: 'Điều chỉnh theo phân bổ chung của khối sau phiên hiệu chuẩn.', approved: false, by: 'Lý Minh Châu (chau.ly)' }),
     final: { score: 4, uploadedAt: '2027-03-04', approvedAt: '2027-03-18', publishedAt: '2027-03-30' }
   };
 

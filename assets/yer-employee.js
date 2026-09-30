@@ -1534,11 +1534,12 @@
     /* Nhãn trên hai tab đánh giá nói GIAI ĐOẠN của kỳ, dùng chung cho mọi nhân viên,
        không đổi theo trạng thái của từng người (§18.4, chốt 27/09/2026). Việc cụ thể
        của từng người nằm trong nội dung tab, không nằm trên nhãn. */
+    // Luật nhãn nằm ở model để E-05, M-05 và M-06 nói cùng một câu (Y.cycleTabLabel)
     var yerLbl = el('tablbl-yer');
     if(yerLbl){
-      var phase = Y.yerPhase(s.date);
-      yerLbl.textContent = yerTabState(p);
-      yerLbl.classList.toggle('yer-past-cycle-label', phase !== 'active');
+      var yerTab = Y.cycleTabLabel('yer', s.date, lg());
+      yerLbl.textContent = yerTab.text;
+      yerLbl.classList.toggle('yer-past-cycle-label', yerTab.past);
     }
     /* MYR-SPEC §2a: chỉ khi đang ở use case của thanh demo thì tab Giữa năm mới là
        dữ liệu lịch sử của kỳ cuối năm. Không có use case thì tab là màn MYR bình thường. */
@@ -1547,13 +1548,10 @@
     lastMyrHistory = myrHistory;
     var myrDone = !!(p.myr && p.myr.final !== null && p.myr.final !== undefined);
     var myrLbl = el('tablbl-myr');
-    if(myrLbl && !myrHistory){
-      myrLbl.textContent = L('Đang hoạt động','Active');
-      myrLbl.classList.remove('yer-past-cycle-label');
-    } else if(myrLbl){
-      // Kỳ cuối năm đã mở thì kỳ giữa năm luôn Đã hoàn tất, kể cả người không có kết quả
-      myrLbl.textContent = L('Đã hoàn tất','Completed');
-      myrLbl.classList.toggle('yer-past-cycle-label', Y.cmp(s.date, Y.step('self').from) >= 0);
+    if(myrLbl){
+      var myrTab = Y.cycleTabLabel('myr', s.date, lg(), p.emp.id);
+      myrLbl.textContent = myrTab.text;
+      myrLbl.classList.toggle('yer-past-cycle-label', myrTab.past);
     }
     /* Tab Mục tiêu có nhãn theo việc cần làm: thiếu loại mục tiêu nào thì nói đúng loại đó */
     var goalLbl = el('tablbl-goals');
@@ -1634,19 +1632,6 @@
     if(finalGroup) finalGroup.hidden = false;
     var finalScore = el('myr-final-score');
     if(finalScore) finalScore.textContent = String(p.myr.final);
-  }
-
-  /* Nhãn tab Đánh giá cuối năm của Nhân viên: theo giai đoạn của kỳ (Y.yerPhase),
-     giống nhau cho mọi người. Trạng thái riêng của từng hồ sơ không lên nhãn tab (§18.4). */
-  var PHASE_LABEL = {
-    'not-open': ['Chưa mở',        'Not open yet'],
-    'active':   ['Cần hoàn tất',   'To complete'],
-    'done':     ['Đã hoàn tất',    'Completed']
-  };
-
-  function yerTabState(p){
-    var pair = PHASE_LABEL[Y.yerPhase(p.now)];
-    return pair ? L(pair[0], pair[1]) : '';
   }
 
   /* ── CSS cho trạng thái bước trong stepper ── */

@@ -135,8 +135,6 @@
     if (!canEdit) return '';
     var submitted = mySubmitted(p);
     return '<div class="cycle-actions yer-mgr-actions">' +
-      (role() === 'lm2' ? '<button class="btn btn-outline btn-sm" id="yer-md-return"><i class="bx bx-undo"></i>' +
-        L('Trả về cho Quản lý trực tiếp', 'Return to line manager') + '</button>' : '') +
       (!submitted ? '<button class="btn btn-outline btn-sm" id="yer-md-draft"><i class="bx bx-save"></i>' +
         L('Lưu nháp', 'Save draft') + '</button>' : '') +
       '<button class="btn btn-default btn-sm" id="yer-md-submit"><i class="bx bx-send"></i>' +
@@ -155,6 +153,17 @@
       '</div></div>';
   }
 
+  // Hồ sơ nộp bổ sung luôn mang nhãn trễ hạn trong banner, như banner của Nhân viên (§27.3)
+  function lateBannerLine(p) {
+    if (!p.lateSubmission) return '';
+    var days = Y.lateDays(p.lateSubmission.at);
+    var csq = lateConsequence(p.lateRound);
+    return '<div class="sb-sub"><span class="yer-late-status">' +
+        esc(L('Trễ hạn ' + days + ' ngày làm việc', 'Late by ' + days + ' working day' + (days === 1 ? '' : 's'))) + '</span>' +
+        (p.lateRound ? ' ' + L('Nhân viên nộp bổ sung ở lần nhắc thứ ', 'Submitted at reminder ') + p.lateRound.round : '') + '</div>' +
+      (csq ? '<div class="sb-sub yer-late-csq"><strong>' + L('Hình thức xử lý theo quy định:', 'Measure under policy:') + '</strong> ' + csq + '</div>' : '');
+  }
+
   function banner(p) {
     if (!mySubmitted(p)) return '';
     var score = role() === 'lm' ? (p.lm.overall && p.lm.overall.score)
@@ -164,11 +173,58 @@
       '<div class="sb-info"><div class="sb-title">' +
         L('Bạn đã hoàn thành đánh giá cho nhân viên này', 'You have completed this review') + '</div>' +
       '<div class="sb-sub">' + L('Cập nhật lần cuối: ', 'Last updated: ') + esc(Y.fmt(at, lg())) +
-        ' - ' + L('Bạn có thể chỉnh sửa tới hết hạn ', 'You can edit until ') + esc(Y.fmt(Y.step(role()).to, lg())) +
-      '</div></div><div class="sb-score-wrap"><div class="sb-score-group">' +
+        ' - ' + untilText(p) + '</div>' + lateBannerLine(p) +
+      '</div><div class="sb-score-wrap"><div class="sb-score-group">' +
       '<span class="sb-score-lbl">' + L('Điểm toàn diện của bạn:', 'Your overall rating:') + '</span>' +
       '<span class="sb-score-val">' + (score == null ? '—' : esc(String(score))) + '</span>' +
       '</div></div></div>';
+  }
+
+  /* ── Hạn đánh giá và chỉnh sửa của vai đang xem (§8.3) ──
+     Hạn lấy từ PMSYer.managerEditWindow: hạn chung của bước, hoặc hạn riêng của hồ sơ nộp bổ sung
+     (§27.3). Danh sách M-05 đọc cùng helper. */
+  function untilText(p) {
+    var win = Y.managerEditWindow(role(), p);
+    var day = '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>';
+    return win.state === 'closed'
+      ? L('Đã hết hạn chỉnh sửa ngày ', 'Editing closed on ') + day
+      : L('Bạn có thể chỉnh sửa tới hết ngày ', 'You can edit until the end of ') + day;
+  }
+
+  var WAIT_FOR = {
+    lm2: ['Quản lý trực tiếp gửi đánh giá', 'the line manager submits their review'],
+    hod: ['Quản lý cấp 2 lưu điểm', 'the second-level manager saves a rating']
+  };
+  function windowText(p, canEdit) {
+    if (mySubmitted(p) || p.stopped || p.resigned) return '';
+    var win = Y.managerEditWindow(role(), p);
+    var from = '<strong>' + esc(Y.fmt(win.from, lg())) + '</strong>';
+    var to = '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>';
+    var text;
+    if (win.state === 'future') {
+      text = L('Bước đánh giá của bạn mở từ ', 'Your review step opens on ') + from +
+        L(' tới hết ngày ', ' and runs until the end of ') + to + '. ' +
+        (isLm()
+          ? L('Trước ngày mở, bạn chỉ xem được hồ sơ, kể cả khi nhân viên đã gửi Tự đánh giá sớm.',
+              'Until then you can only view the profile, even if the employee submitted early.')
+          : L('Trước ngày mở, bạn chỉ xem được hồ sơ.', 'Until then you can only view the profile.'));
+    } else if (win.state === 'closed') {
+      text = L('Bước đánh giá của bạn đã hết hạn ngày ', 'Your review step closed on ') + to +
+        L(' nên màn này chỉ để xem.', ', so this screen is read-only.');
+    } else if (canEdit) {
+      text = (win.reason === 'late'
+          ? L('Hồ sơ nộp bổ sung có hạn chấm riêng. ', 'Late submissions have their own review deadline. ')
+          : '') +
+        L('Bạn đánh giá được tới hết ngày ', 'You can review until the end of ') + to + '.' +
+        ' ' + L('Sau khi gửi, bạn vẫn chỉnh sửa được tới hạn này; hết hạn thì đánh giá chuyển sang chỉ xem.',
+          'After you submit you can still edit until then; after that it becomes read-only.');
+    } else if (WAIT_FOR[role()]) {
+      var w = WAIT_FOR[role()];
+      text = L('Bạn đánh giá được sau khi ' + w[0] + ', tới hết ngày ', 'You can review once ' + w[1] + ', until the end of ') + to + '.';
+    } else {
+      return '';
+    }
+    return text;
   }
 
   /* ── Dải quy trình (§40) ─────────────────────────────────
@@ -200,91 +256,111 @@
     });
   }
 
-  /* ── ENH-E03: điều hướng sang kết quả giữa năm ───────── */
-  function myrLine(p) {
-    // Hồ sơ có LWD gộp thông tin Mid-Year vào chính box Lưu ý để không dựng hai box rời.
-    if (p.resignFrom && !p.resigned) return '';
-    var hasMyr = !!(p.myr && p.myr.submitted);
-    if (!hasMyr) {
-      return '<div class="info-note yer-myr-note"><i class="bx bx-calendar-x"></i><div>' +
-        L('<strong>Không có kết quả Đánh giá giữa năm.</strong> Nhân viên này không tham gia kỳ Đánh giá giữa năm 2026.',
-          '<strong>No Mid-Year result.</strong> This employee did not take part in the 2026 mid-year cycle.') +
-      '</div></div>';
+  /* ── Khối Lưu ý (§40.5a, chốt 30/09/2026) ─────────────────
+     Cùng luật với màn Nhân viên: không bao giờ hai box thông tin cùng lúc. Mọi thông tin tham khảo của hồ sơ
+     gom thành gạch đầu dòng trong MỘT khối `Lưu ý` (.info-note, icon ⓘ) ngay dưới dải quy trình, câu chữ viết cho
+     người quản lý. Vai đang xem đã gửi thì banner thay khối này, như banner `Đã hoàn thành` của Nhân viên.
+     Hồ sơ `Không đánh giá` chỉ có một khối vàng (.yer-note.yer-late-closed), không dựng khối Lưu ý. */
+  function missingGoalNames(p) {
+    var e = p.eligibility || {};
+    var names = [];
+    if (e.missingWhat) names.push(L('Mục tiêu công việc', 'work goal'));
+    if (e.missingDev) names.push(L('Mục tiêu phát triển', 'development goal'));
+    return names.join(L(' và ', ' and '));
+  }
+
+  function lateConsequence(r) {
+    return r && r.consequence.length
+      ? r.consequence.map(function (k) { return esc(Y.lateText(k, lg())); }).join(' ') : '';
+  }
+
+  function noteItems(p, canEdit) {
+    var items = [];
+    var win = windowText(p, canEdit);
+    if (win) items.push(win);
+
+    if (p.maternity) {
+      var noGoal = p.eligibility.reason === 'missing-goal';
+      items.push(isLm()
+        ? L('Nhân viên đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong> nên <strong>không bắt buộc</strong> Tự đánh giá. ' +
+            'Bạn là người <strong>chịu trách nhiệm chính</strong> đánh giá cuối năm cho nhân viên này: kiểm tra mục tiêu, bổ sung mục tiêu nếu còn thiếu, rồi đánh giá theo quy trình.',
+            'The employee is on <strong class="yer-hl">maternity leave</strong>, so the self assessment is <strong>not required</strong>. ' +
+            'You are <strong>responsible</strong> for this year-end review: check the goals, add any missing ones, then review as usual.') +
+          (noGoal && stepOpen(p)
+            ? ' ' + L('Nhân viên chưa có mục tiêu nào được duyệt, bạn ', 'No goals are approved yet; ') +
+              '<a href="#" class="yer-note-link" id="yer-md-import">' + L('tải mục tiêu lên', 'upload goals') + '</a>' +
+              L(' trước khi đánh giá.', ' before rating.')
+            : '')
+        : L('Nhân viên đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong> nên <strong>không bắt buộc</strong> Tự đánh giá. Quản lý trực tiếp chịu trách nhiệm chính đánh giá cuối năm cho nhân viên này.',
+            'The employee is on <strong class="yer-hl">maternity leave</strong>, so the self assessment is <strong>not required</strong>. The line manager leads this year-end review.'));
     }
-    return '<div class="info-note yer-myr-note"><i class="bx bx-calendar-star"></i><div>' +
-      L('Cần tham khảo kết quả giữa năm thì sang tab <strong>Đánh giá giữa năm</strong> của chính màn này.',
-        'To review the mid-year result, switch to the <strong>Mid-Year Review</strong> tab on this same screen.') +
-      '</div></div>';
-  }
 
-  /* ── ENH-E10: hướng dẫn cho Quản lý khi nhân viên thai sản ── */
-  function maternityBlock(p) {
-    if (!p.maternity) return '';
-    var noGoal = p.eligibility.reason === 'missing-goal';
-    return '<div class="info-note yer-note-mat"><i class="bx bx-heart-circle"></i><div>' +
-      '<strong>' + L('Nhân viên đang nghỉ thai sản', 'This employee is on maternity leave') + '</strong><br>' +
-      L('Bước tự đánh giá của nhân viên chuyển sang <strong>Không yêu cầu</strong>, không tính là chưa hoàn thành và hệ thống không gửi nhắc. Bạn vẫn đánh giá theo quy định.',
-        'Their self assessment step is set to <strong>Not required</strong>, is not counted as outstanding, and no reminders are sent. You still complete the review as usual.') +
-      (noGoal ? '<br>' + L('Nhân viên chưa có mục tiêu nào được duyệt. Bạn import mục tiêu thay nhân viên rồi duyệt, sau đó mới đánh giá được. Mục tiêu nhân viên đã tạo và đã được duyệt thì bạn không sửa.',
-        'They have no approved goals yet. Import goals on their behalf and approve them before you can rate. Goals the employee created and had approved cannot be edited by you.') : '') +
-      '</div>' +
-      (noGoal && stepOpen(p) ? '<button class="btn btn-default btn-sm yer-myr-go" id="yer-md-import">' +
-        '<i class="bx bx-upload"></i>' + L('Import mục tiêu hộ', 'Import goals on their behalf') + '</button>' : '') +
-    '</div>';
-  }
+    if (p.lateSubmission) {
+      var ls = p.lateSubmission;
+      var days = Y.lateDays(ls.at);
+      var csq = lateConsequence(p.lateRound);
+      items.push(L('Nhân viên <strong>nộp bổ sung</strong> Tự đánh giá ngày ' + esc(Y.fmt(ls.at, lg())) + ', <strong>trễ ' + days + ' ngày làm việc</strong>' +
+            (p.lateRound ? ' ở lần nhắc thứ ' + p.lateRound.round : '') + (ls.fileName ? ' (file ' + esc(ls.fileName) + ')' : '') +
+            '. Mục tiêu trong file <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với ' +
+            (isLm() ? 'bạn' : 'Quản lý trực tiếp') + ' từ trước.',
+          'The employee <strong>submitted late</strong> on ' + esc(Y.fmt(ls.at, lg())) + ', <strong>' + days + ' working day' + (days === 1 ? '' : 's') + ' late</strong>' +
+            (p.lateRound ? ' at reminder ' + p.lateRound.round : '') + (ls.fileName ? ' (file ' + esc(ls.fileName) + ')' : '') +
+            '. Goals in the file <strong>skip the approval step</strong>; the employee confirms they were agreed with ' +
+            (isLm() ? 'you' : 'the line manager') + ' earlier.') +
+        (csq ? ' <strong>' + L('Hình thức xử lý theo quy định:', 'Measure under policy:') + '</strong> ' + csq : ''));
+    } else if (!p.self && !p.maternity && p.lateWindowOpen && p.lateRound) {
+      var r = p.lateRound;
+      var now = lateConsequence(r);
+      items.push(L('Nhân viên <strong>chưa Tự đánh giá</strong> và đang trong thời gian nộp bổ sung: lần nhắc thứ ' + r.round +
+            ', hạn <strong>18:00 ngày ' + esc(Y.fmt(r.deadline, lg())) + '</strong>.',
+          'The employee has <strong>not self-assessed</strong> and is in the late window: reminder ' + r.round +
+            ', due <strong>18:00 on ' + esc(Y.fmt(r.deadline, lg())) + '</strong>.') +
+        (now ? ' ' + L('Nộp ở lần này thì áp dụng: ', 'Submitting now carries: ') + now : ''));
+    }
 
-  /* ── ENH-E02: hồ sơ nộp trễ ──────────────────────────── */
-  function lateBlock(p) {
-    if (!p.lateSubmission) return '';
-    var daysLate = Y.lateDays(p.lateSubmission.at);
-    return '<div class="info-note yer-note-late"><i class="bx bx-time-five"></i><div>' +
-      '<strong>' + L('Hồ sơ nộp bổ sung Tự đánh giá cuối năm', 'Supplemental year-end self assessment') + '</strong>' +
-      '<span class="yer-md-late-status"><strong>' + L('Trễ hạn','Late') + '</strong> ' +
-        // Đếm theo ngày làm việc, kèm lần nhắc nhở lúc nhân viên nộp (YER-SPEC §27.3)
-        esc(daysLate + L(' ngày làm việc',' working day' + (daysLate === 1 ? '' : 's')) +
-          (p.lateRound ? L(' - lần nhắc thứ ',' - reminder ') + p.lateRound.round : '')) + '</span>' +
-      '<span class="yer-late-file-tag"><i class="bx bx-file"></i>' + esc(p.lateSubmission.fileName || '') + ' - ' + esc(Y.fmt(p.lateSubmission.at, lg())) + '</span><br>' +
-      L('Nhân viên đã tải lên mục tiêu và nội dung tự đánh giá sau thời hạn. Mục tiêu <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với bạn từ trước. Bạn tiếp tục đánh giá như bình thường.',
-        'The employee imported their goals and self assessment after their window closed. The goals were taken as-is, <strong>with no approval step</strong>; the employee is responsible for having agreed them with you earlier. You review as usual.') +
-    '</div></div>';
-  }
-
-  /* ── LM2 trả về cho QLTT (§27.2) ─────────────────────── */
-  function returnedBlock(p) {
-    if (!p.returned) return '';
-    var by = p.returned.by || {};
-    return '<div class="info-note yer-note-returned"><i class="bx bx-undo"></i><div>' +
-      '<strong>' + L('Bị trả về để chỉnh sửa', 'Returned for editing') + '</strong><br>' +
-      L('Trả về bởi ', 'Returned by ') + '<strong>' + esc(by.login || by.name || '—') + '</strong>' +
-      L(' - Hạn nộp lại: ', ' - Due back: ') + esc(Y.fmt(p.returned.due, lg())) +
-      (p.returned.reason ? '<br>' + L('Lý do: ', 'Reason: ') + esc(p.returned.reason) : '') +
-    '</div></div>';
-  }
-
-  function stoppedBlock(p) {
-    if (!p.stopped) return '';
-    return '<div class="info-note yer-note-stop"><i class="bx bx-error-circle"></i><div>' +
-      '<strong>' + L('Hồ sơ không đánh giá', 'This profile is not evaluated') + '</strong><br>' +
-      L('Nhân viên không đủ điều kiện tham gia kỳ này: thiếu mục tiêu công việc hoặc mục tiêu phát triển đã được duyệt, và cũng không nộp trễ. Quy trình dừng ở đây, vẫn tính vào mẫu số tỷ lệ hoàn thành.',
-        'The employee is not eligible this cycle: a required approved work or development goal is missing and nothing was submitted late. The process stops here and still counts in the completion denominator.') +
-    '</div></div>';
-  }
-
-  function resignBlock(p) {
-    if (!p.resignFrom || p.resigned) return '';
-    var items = [
-      L('Nhân viên có Ngày làm việc cuối cùng: <strong>', 'The employee\'s last working day is <strong>') +
+    if (p.resignFrom && !p.resigned) {
+      items.push(L('Nhân viên có Ngày làm việc cuối cùng là <strong>', 'The employee\'s last working day is <strong>') +
         esc(Y.fmt(p.resignFrom, lg())) + '</strong>. ' +
-        L('Hãy hoàn thành đánh giá trước ngày này. Hồ sơ không tính vào tỷ lệ hoàn thành và hệ thống không gửi nhắc.',
-          'Complete the review before this date. The profile is excluded from the completion rate and no reminders are sent.')
-    ];
-    if (p.myr && p.myr.submitted) {
-      items.push(L('Bạn có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm</a> 2026 của nhân viên trước khi tự đánh giá cuối năm.',
-        'You can review the employee\'s <a href="#" class="yer-note-link" data-go-tab="1">Mid-Year Review</a> 2026 result before the year-end self assessment.'));
+        L('Hãy hoàn thành đánh giá trước ngày này.', 'Complete the review before this date.'));
     }
-    return '<div class="info-note yer-note-block yer-note-resign"><i class="bx bx-info-circle"></i><div>' +
-      '<strong>' + L('Lưu ý:', 'Note:') + '</strong><ul class="yer-note-list"><li>' +
-      items.join('</li><li>') + '</li></ul></div></div>';
+
+    // Chỉ nhắc kỳ giữa năm khi có kết quả để xem lại, không có thì không nói gì (§40.5c)
+    if (p.myr && p.myr.submitted) {
+      items.push(L('Bạn có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm 2026</a> của nhân viên trước khi đánh giá cuối năm.',
+        'You can look back at the employee\'s <a href="#" class="yer-note-link" data-go-tab="1">Mid-Year Review 2026</a> result before the year-end review.'));
+    }
+    return items;
+  }
+
+  function noteBlock(p, canEdit) {
+    if (p.resigned || mySubmitted(p)) return '';
+    if (p.stopped) return closedBlock(p);
+    var items = noteItems(p, canEdit);
+    // Không còn dòng nào thì không dựng thẻ rỗng
+    if (!items.length) return '';
+    return '<div class="info-note yer-note-block"><i class="bx bx-info-circle"></i><div>' +
+      '<strong>' + L('Lưu ý:', 'Please note:') + '</strong>' +
+      '<ul class="yer-note-list"><li>' + items.join('</li><li>') + '</li></ul></div></div>';
+  }
+
+  /* Hồ sơ `Không đánh giá`: một khối vàng như `.yer-late-closed` của màn Nhân viên (§27.1, §6) */
+  function closedBlock(p) {
+    var missing = p.eligibility.reason === 'missing-goal';
+    var lateEnd = Y.fmt(Y.lateSubmissionDeadline(), lg());
+    return '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div>' +
+      '<strong>' + L('Hồ sơ không đánh giá', 'This profile is not evaluated') + '</strong><br>' +
+      (missing
+        ? L('Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc 18:00 ngày ' + lateEnd + ' và nhân viên đã không nộp sau 4 lần nhắc nhở. ' +
+              'Vì còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, các bước đánh giá của cấp quản lý không thể tiếp tục. ' +
+              'Quy trình Đánh giá cuối năm của nhân viên dừng tại đây và không có điểm trên hệ thống.',
+            'The late self-assessment window closed at 18:00 on ' + lateEnd + ' and the employee did not submit after 4 reminders. ' +
+              'Because an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is missing, the manager review steps cannot continue. ' +
+              'The year-end review stops here with no rating in the system.')
+        : L('Nhân viên không Tự đánh giá và Quản lý trực tiếp không đánh giá tới hết hạn ngày ' + esc(Y.fmt(p.lmDeadline, lg())) +
+              ', nên hồ sơ không có điểm để hệ thống đồng bộ. Quy trình Đánh giá cuối năm của nhân viên dừng tại đây.',
+            'The employee did not self-assess and the line manager did not review by ' + esc(Y.fmt(p.lmDeadline, lg())) +
+              ', so there is no rating to sync. The year-end review stops here.')) +
+      '</div></div>';
   }
 
   /* ── mục tiêu Quản lý trước đã đánh giá hoàn thành ──
@@ -434,9 +510,10 @@
       comment: p.self && p.self.overall ? p.self.overall.comment : '', readonly: true
     }));
 
+    var who = Y.actors(p);
     if (!isLm()) {
       cols.push(panelHtml({
-        icon: 'bx-user-check', title: L('Quản lý trực tiếp', 'Line manager'),
+        icon: 'bx-user-check', title: L('Quản lý trực tiếp', 'Line manager'), by: who.lm,
         key: 'lm:overall', value: p.lm && p.lm.overall ? p.lm.overall.score : null,
         comment: p.lm && p.lm.overall ? p.lm.overall.comment : '', readonly: true,
         synced: p.lm && p.lm.synced
@@ -444,7 +521,7 @@
     }
     if (role() === 'hod') {
       cols.push(panelHtml({
-        icon: 'bx-sitemap', title: L('Quản lý cấp 2', 'Second-level manager'),
+        icon: 'bx-sitemap', title: L('Quản lý cấp 2', 'Second-level manager'), by: who.lm2,
         key: 'lm2:overall', value: p.lm2 ? p.lm2.score : null,
         comment: p.lm2 ? p.lm2.comment : '', readonly: true, synced: p.lm2 && p.lm2.synced
       }));
@@ -475,9 +552,37 @@
       cols.join('') + '</div></div>';
   }
 
+  /* ── Đánh giá của các cấp quản lý phía trên (§7) ──
+     QLTT xem được điểm và nhận xét toàn diện của Quản lý cấp 2 và Trưởng đơn vị, Quản lý cấp 2 xem
+     được của Trưởng đơn vị. Cùng vị trí và kết cấu với khối `Nhận xét của các cấp quản lý` của E-05,
+     khác ở chỗ Quản lý thấy cả điểm. Cấp nào chưa đánh giá thì không có ô, không cấp nào thì không dựng khối. */
+  function upperCard(p) {
+    var who = Y.actors(p);
+    var rows = [];
+    if (isLm() && p.lm2) {
+      rows.push({ key: 'up-lm2', icon: 'bx-sitemap', title: L('Quản lý cấp 2 đánh giá', 'Second-level manager review'),
+        by: who.lm2, score: p.lm2.score, comment: p.lm2.comment, synced: p.lm2.synced });
+    }
+    if (role() !== 'hod' && p.hod) {
+      rows.push({ key: 'up-hod', icon: 'bx-buildings', title: L('Trưởng đơn vị đánh giá', 'Head of department review'),
+        by: who.hod, score: p.hod.score, comment: p.hod.comment });
+    }
+    if (!rows.length) return '';
+    return '<div class="overall-card yer-upper-card"><div class="overall-hd"><i class="bx bx-message-square-detail"></i>' +
+      '<span class="overall-title">' + L('Đánh giá của các cấp quản lý', 'Reviews from upper management') + '</span></div>' +
+      '<div class="overall-grid yer-overall-grid" style="grid-template-columns:repeat(' + rows.length + ',minmax(0,1fr))">' +
+      rows.map(function (r) {
+        return panelHtml({ icon: r.icon, title: r.title, by: r.by, key: r.key + ':overall', value: r.score,
+          comment: r.comment || '', readonly: true, synced: r.synced,
+          hint: r.synced ? L('Hệ thống tự chép điểm vì quá deadline, không kèm nhận xét.',
+            'Copied by the system after the deadline, without a comment.') : '' });
+      }).join('') + '</div></div>';
+  }
+
   function panelHtml(o) {
     return '<div class="overall-panel' + (o.editable ? ' editable-panel' : '') + '">' +
       '<div class="op-hd"><i class="bx ' + o.icon + '"></i>' + esc(o.title) +
+        (o.by && o.by.login ? '<span class="op-hd-dom">- ' + esc(o.by.login) + '</span>' : '') +
         (o.synced ? '<span class="yer-sync-tag">(HR system)</span>' : '') + '</div>' +
       '<div class="op-score-row">' +
         '<span class="op-score-lbl">' + L('Điểm toàn diện:', 'Overall rating:') +
@@ -512,20 +617,13 @@
     var canEdit = editable(p);
     var html = detailNav(p, canEdit) + banner(p) + '<div id="yer-md-steps" class="yer-md-steps"></div>';
 
-    html += returnedBlock(p) + stoppedBlock(p) + lateBlock(p) + maternityBlock(p) + resignBlock(p);
-    html += myrLine(p);
+    html += noteBlock(p, canEdit);
 
     if (!p.stopped) {
       html += goalSection(p, 'what', canEdit);
       html += goalSection(p, 'dev', canEdit);
       html += goalSection(p, 'how', canEdit);
-      html += overallCard(p, canEdit);
-    }
-
-    if (!canEdit && !mySubmitted(p) && !p.stopped) {
-      html += '<div class="info-note"><i class="bx bx-lock-alt"></i><div>' +
-        L('Ngoài thời gian đánh giá của bạn nên màn này chỉ để xem.',
-          'Outside your review window, so this screen is read-only.') + '</div></div>';
+      html += overallCard(p, canEdit) + upperCard(p);
     }
 
     root.innerHTML = html;
@@ -533,20 +631,18 @@
   }
 
   function syncChrome(p) {
-    var lbl = el('tablbl-yer');
-    if (lbl) {
-      lbl.textContent = Y.managerTabLabel(role(), p, lg());
-    }
+    // Nhãn hai tab đánh giá nói giai đoạn của kỳ, cùng câu chữ và màu với E-05 và M-05 (§18.4)
+    [['tablbl-yer', 'yer'], ['tablbl-myr', 'myr']].forEach(function (pair) {
+      var node = el(pair[0]);
+      if (!node) return;
+      var tab = Y.cycleTabLabel(pair[1], p.now, lg(), p.emp.id);
+      node.textContent = tab.text;
+      node.classList.toggle('yer-past-cycle-label', tab.past);
+    });
     var tabs = document.querySelectorAll('.tabs .tab-btn');
     if (tabs[0]) {
       var cnt = tabs[0].querySelector('.tab-cnt');
       if (cnt) cnt.textContent = approvedGoals(p, 'what').concat(approvedGoals(p, 'dev')).length;
-    }
-    if (tabs[1]) {
-      var myrBadge = tabs[1].querySelector('.tab-active-label');
-      // Ngoài use case của thanh demo, tab Giữa năm là màn MYR bình thường (MYR-SPEC §2a)
-      if (myrBadge) myrBadge.textContent = !Y.myrAsHistory(p.emp.id) ? L('Đang hoạt động', 'Active')
-        : p.myr && p.myr.submitted ? L('Đã hoàn thành', 'Completed') : L('Không có dữ liệu', 'No data');
     }
     var chip = document.querySelector('.emp-chip');
     if (chip) {
@@ -610,8 +706,6 @@
     if (d) d.addEventListener('click', function () { collectEditors(); saveDraft(); });
     var sb = el('yer-md-submit');
     if (sb) sb.addEventListener('click', function () { collectEditors(); submit(p); });
-    var rt = el('yer-md-return');
-    if (rt) rt.addEventListener('click', function () { returnForEdit(p); });
     var back = el('yer-md-back');
     if (back) back.addEventListener('click', function () { location.href = '../M-05/index.html'; });
     var feedback = el('yer-md-feedback');
@@ -693,8 +787,8 @@
         ? L('Lưu thay đổi đánh giá?', 'Save review changes?')
         : isLm() ? L('Gửi đánh giá cho nhân viên này?', 'Submit this review?')
                  : L('Lưu điểm cho nhân viên này?', 'Save this rating?'),
-      text: L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết hạn ',
-              'You can continue editing your review until ') + Y.fmt(Y.step(role()).to, lg()) + '. ' +
+      text: L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết ngày ',
+              'You can continue editing your review until the end of ') + Y.fmt(Y.managerEditWindow(role(), p).to, lg()) + '. ' +
         (isLm()
           ? L('Nhân viên đọc được điểm từng mục tiêu và các ô nhận xét của bạn, nhưng không thấy điểm toàn diện.',
               'The employee can see your goal scores and comments, but never your overall rating.')
@@ -717,56 +811,20 @@
       payload = { goalScores: draft.goalScores, howScores: draft.howScores,
                   comments: draft.comments, overall: draft.overall, at: now, source: 'manual' };
     } else {
+      var d = new Date();
+      var time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
       payload = { score: draft.overall.score, comment: (draft.overall || {}).comment || '',
-                  at: now, source: 'manual' };
+                  at: now, time: time, source: 'manual' };
+      // Mỗi lần LM2, HOD lưu là một dòng lịch sử, chung với lần chấm trên danh sách M-05 (§47)
+      S.setAct(S.session().emp, role() + 'Log', { items: Y.nextManagerLog(role(), p,
+        { at: now, time: time, score: payload.score, comment: payload.comment, source: 'detail' }) });
     }
     S.setAct(S.session().emp, role(), payload);
     S.clearAct(S.session().emp, draftKey());
-    // QLTT gửi lại thì lần trả về hết hiệu lực
-    if (role() === 'lm') S.clearAct(S.session().emp, 'returned');
     U.dirty.clear();
     U.toast(updating ? L('Đã lưu thay đổi đánh giá', 'Review changes saved')
       : isLm() ? L('Đã gửi đánh giá', 'Review submitted') : L('Đã lưu điểm', 'Rating saved'));
     render();
-  }
-
-  /* Chỉ LM2 còn luồng trả về cho QLTT; đã bỏ trả Self Assessment về cho Nhân viên. */
-  function returnForEdit(p, prev) {
-    // Hộp thoại đóng trước khi chạy act, nên lý do được giữ lại qua sự kiện input
-    var reason = prev || '';
-    U.dialog({
-      title: L('Trả về để chỉnh sửa?', 'Return for editing?'),
-      html: '<p>' + esc(L('Hồ sơ chuyển sang trạng thái Bị trả về để chỉnh sửa và Quản lý trực tiếp' +
-              ' phải nộp lại trong 24 giờ. Deadline của các bước sau giữ nguyên, không giãn ra. ' +
-              'Quá 24 giờ mà chưa nộp lại thì hồ sơ quay về trạng thái trước khi trả về và quy trình đi tiếp.',
-              'The profile moves to Returned for editing and the line manager' +
-              ' must resubmit within 24 hours. Later deadlines are unchanged. ' +
-              'If nothing comes back in time the profile reverts and the process moves on.')) + '</p>' +
-        '<label class="op-flbl" for="yer-md-return-reason">' + L('Lý do trả về', 'Reason') + req() + '</label>' +
-        '<textarea id="yer-md-return-reason" class="yer-md-return-reason" rows="3" maxlength="500">' + esc(reason) + '</textarea>',
-      buttons: [
-        { label: L('Quay lại', 'Go back'), variant: 'quiet' },
-        { label: L('Trả về', 'Return it'), variant: 'default', icon: 'bx-undo', act: function () {
-            if (!reason.trim()) {
-              U.toast(L('Cần nhập lý do trả về', 'Please enter a reason'));
-              returnForEdit(p, reason);
-              return;
-            }
-            var me = Y.actors(p).lm2 || {};
-            S.setAct(S.session().emp, 'returned', {
-              by: { name: me.name, login: me.login }, at: S.session().date,
-              dueHours: 24, reason: reason.trim()
-            });
-            U.toast(L('Đã trả về, hạn nộp lại trong 24 giờ', 'Returned, due back within 24 hours'));
-            render();
-          } }
-      ]
-    });
-    var box = el('yer-md-return-reason');
-    if (box) {
-      box.addEventListener('input', function () { reason = box.value; });
-      box.focus();
-    }
   }
 
   /* ENH-E10: Quản lý import mục tiêu thay nhân viên nghỉ thai sản */
@@ -798,9 +856,6 @@
       '#yer-mgr-detail-root .rv-grid .g-none-row td{padding:16px 12px}' +
       '#yer-mgr-detail-root .g-none{text-align:center;font-size:12.5px;color:var(--z400);font-style:italic}' +
       '#yer-mgr-detail-root .rv-grid tbody tr[data-name]{cursor:pointer}' +
-      '.yer-md-return-reason{width:100%;margin-top:6px;border:1px solid var(--z200);border-radius:var(--rsm);padding:8px 10px;' +
-        'font-family:inherit;font-size:13px;color:var(--z700);resize:vertical}' +
-      '.yer-md-return-reason:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}' +
       '#yer-mgr-detail-root .yer-md-submit-banner{margin-bottom:14px}' +
       '.yer-hd-sub{margin-left:auto;font-size:11.5px;font-weight:400;color:var(--z500);text-transform:none;letter-spacing:0}' +
       '#yer-mgr-detail-root>.info-note{display:flex;gap:8px;align-items:flex-start;margin-bottom:18px;' +
@@ -808,16 +863,25 @@
         'font-size:12px;color:var(--z600);line-height:1.5}' +
       '#yer-mgr-detail-root>.info-note>i{flex-shrink:0;margin-top:1px;font-size:15px;color:var(--brand)}' +
       '#yer-mgr-detail-root>.info-note strong{color:var(--z700);font-weight:600}' +
-      '.yer-myr-note{align-items:center}' +
-      '.yer-myr-go{margin-left:auto;flex:none;white-space:nowrap}' +
-      '.yer-note-mat>i{color:var(--info)}' +
-      '.yer-note-late>i{color:var(--warn)}' +
-      '.yer-md-late-status{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:3px 8px;border:1px solid var(--err-bd);border-radius:99px;background:var(--err-bg);color:var(--err);font-size:10.5px;font-weight:600;vertical-align:middle}' +
-      '.yer-md-late-status strong{font-weight:800}' +
-      '.yer-late-file-tag{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:3px 7px;border-radius:99px;background:var(--warn-bg);color:var(--warn);font-size:10.5px;font-weight:600;vertical-align:middle}' +
-      '.yer-note-stop>i{color:var(--err)}' +
-      '.yer-note-resign>i{color:var(--err)}' +
+      // (HR system): chữ thường trong ngoặc, không viền, không nền (giống M-05)
+      '#yer-mgr-detail-root .yer-sync-tag{display:inline-block;margin-left:4px;font-size:11px;font-weight:500;color:var(--z600);' +
+        'text-transform:none;letter-spacing:0;white-space:nowrap}' +
+      '#yer-mgr-detail-root .yer-upper-card{margin-top:16px}' +
+      '#yer-mgr-detail-root .op-hd-dom{text-transform:none;letter-spacing:0;font-size:12px;font-weight:500;color:var(--z600)}' +
       '.yer-note-list{margin:5px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:3px}' +
+      // Khối Lưu ý và khối vàng dùng cùng kiểu với màn Nhân viên (§40.5a)
+      '#yer-mgr-detail-root .yer-note-list .yer-hl{color:var(--brand);font-weight:700}' +
+      '#yer-mgr-detail-root .yer-note{display:flex;gap:8px;padding:11px 13px;margin-bottom:18px;border:1px solid;border-radius:var(--rsm);' +
+        'font-size:12.5px;line-height:1.55}' +
+      '#yer-mgr-detail-root .yer-note>i{font-size:18px;flex:none;margin-top:1px}' +
+      '#yer-mgr-detail-root .yer-note.yer-late-closed{background:var(--warn-bg);border-color:var(--warn-bd);color:var(--z800)}' +
+      '#yer-mgr-detail-root .yer-late-closed>i{color:var(--warn)}' +
+      '#yer-mgr-detail-root .yer-late-closed strong{color:var(--z900);font-weight:700}' +
+      // Nhãn Trễ hạn trong banner: màu đỏ như E-05 (DS §19 rule 24)
+      '.yer-late-status{display:inline-flex;align-items:center;padding:1px 6px;border:1px solid var(--err-bd);border-radius:99px;' +
+        'background:var(--err-bg);color:var(--err);font-size:10.5px;font-weight:700;line-height:1.5}' +
+      '.yer-late-csq{line-height:1.55}' +
+      '.yer-late-csq strong{color:var(--z900);font-weight:700}' +
       '.yer-note-list li{line-height:1.55}' +
       '.yer-note-link{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}' +
       '.yer-note-link:hover{color:var(--brand-h)}' +
