@@ -59,7 +59,7 @@
     '.rt-def p + p{margin-top:7px}',
     '.rt-def strong,.pms-tip-body strong{font-weight:600}',
     '.rt-def strong{color:var(--z900)}',
-    '.pms-tip-body strong{color:#fff}',
+    '.pms-tip-body strong{color:var(--z0)}',
     '.rt-empty{font-size:12.5px;color:var(--z500)}',
     /* Ô chưa chọn điểm: nới rộng cho vừa chữ gợi ý, chữ thường và nhạt hơn điểm đã chọn */
     '.sc-select.rt-unset,.op-select.rt-unset{width:auto;min-width:112px;font-weight:500;font-size:12px;color:var(--z600);text-align:left}',
@@ -71,13 +71,19 @@
     /* tooltip dùng chung */
     '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;',
     'clip:rect(0,0,0,0);white-space:nowrap;border:0}',
+    /* Tooltip nằm position:fixed, vị trí do placeTip() tính theo nút: khung chứa có overflow:hidden (thẻ Đánh giá
+       toàn diện, bảng) cũng không cắt mất tooltip; thiếu chỗ phía trên thì lật xuống dưới (sửa 02/10/2026). */
     '.pms-tip{position:relative;display:inline-flex}',
-    '.pms-tip-body{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:60;',
-    'background:var(--z900);color:#fff;font-size:12px;font-weight:500;line-height:1.45;padding:7px 10px;border-radius:6px;',
-    'width:max-content;max-width:280px;text-align:left;opacity:0;visibility:hidden;transition:opacity .12s ease;pointer-events:none}',
+    '.pms-tip-body{position:fixed;left:0;top:0;z-index:1600;',
+    'background:var(--z900);color:var(--z0);font-size:12px;font-weight:500;line-height:1.5;padding:8px 11px;border-radius:var(--rsm);',
+    'width:max-content;max-width:320px;text-align:left;white-space:normal;text-transform:none;letter-spacing:0;',
+    'box-shadow:var(--sh-md);opacity:0;visibility:hidden;transition:opacity .12s ease;pointer-events:none}',
+    '.pms-tip-body p{margin:0}',
+    '.pms-tip-body p + p{margin-top:6px}',
     '.pms-tip:hover .pms-tip-body,.pms-tip:focus-within .pms-tip-body{opacity:1;visibility:visible}',
-    '.pms-tip-body::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);',
+    '.pms-tip-body::after{content:"";position:absolute;top:100%;left:var(--tip-x,50%);transform:translateX(-50%);',
     'border:5px solid transparent;border-top-color:var(--z900)}',
+    '.pms-tip-body.below::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--z900)}',
 
     /* ── tabs chu kỳ ── */
     '.yt{display:flex;gap:6px;border-bottom:2px solid var(--z200);margin-bottom:16px;overflow-x:auto}',
@@ -195,6 +201,24 @@
     s.id = 'pms-ui-css';
     s.textContent = CSS;
     document.head.appendChild(s);
+    document.addEventListener('mouseover', placeTip, true);
+    document.addEventListener('focusin', placeTip, true);
+  }
+  /* Đặt tooltip .pms-tip-body ngay trên nút (thiếu chỗ thì dưới), giữ trong màn hình, mũi tên chỉ đúng nút. */
+  function placeTip(e) {
+    var host = e.target && e.target.closest ? e.target.closest('.pms-tip') : null;
+    var body = host && host.querySelector('.pms-tip-body');
+    if (!body) return;
+    var trigger = host.firstElementChild === body ? host : host.firstElementChild;
+    var r = trigger.getBoundingClientRect();
+    var w = body.offsetWidth, h = body.offsetHeight, gap = 8, pad = 8;
+    var cx = r.left + r.width / 2;
+    var left = Math.min(Math.max(cx - w / 2, pad), window.innerWidth - w - pad);
+    var below = r.top - h - gap < pad;
+    body.classList.toggle('below', below);
+    body.style.left = left + 'px';
+    body.style.top = (below ? r.bottom + gap : r.top - h - gap) + 'px';
+    body.style.setProperty('--tip-x', Math.min(Math.max(cx - left, 10), w - 10) + 'px');
   }
 
   /* ═══ 1. Rating selector ════════════════════════

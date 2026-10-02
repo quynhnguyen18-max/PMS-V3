@@ -14,10 +14,12 @@
 
 | File | Được dùng bởi |
 |---|---|
-| `H-05/feedback-program-model.js`, `H-05/feedback-program-data.js` | E-04, M-04 (index, feedback-detail), H-05 (index, create-campaign), H-06, H-07 |
-| `H-05/feedback-report-view.js` | E-04, M-04 (index, feedback-detail), H-07 |
+| `H-05/feedback-program-model.js`, `H-05/feedback-program-data.js` | E-04, M-04 (index, feedback-detail), H-05 (index, create-campaign), H-06, H-07, M-06 |
+| `H-05/feedback-report-view.js` | E-04, M-04 (index, feedback-detail), H-07, M-06 |
 | `M-04/manager-request-model.js` | E-04, M-04 (index, request-detail) |
-| `M-04/manager-thanks.js` | E-04, M-04 (index, feedback-detail) |
+| `M-04/manager-thanks.js` | E-04, M-04 (index, feedback-detail), M-06 |
+| `M-04/manager-feedback-data.js`, `M-04/manager-ai-summary.js` | M-04 (index, feedback-detail), M-06 |
+| `M-04/manager-feedback-dialog.js` | M-06 (nút `Phản hồi đã nhận` của tab Giữa năm và Cuối năm). Dựng lại popup `#feedbackDialog` của M-04, CSS chỉ áp trong `#mgrFbDialog`. Sửa popup ở M-04 thì sửa cả file này |
 | `H-05/questionnaire-library-*.js` | H-05 thư viện bộ câu hỏi, tạo yêu cầu |
 | `assets/org-chain.js` | H-06 |
 

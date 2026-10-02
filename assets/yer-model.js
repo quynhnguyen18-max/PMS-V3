@@ -105,15 +105,16 @@
     if (!submittedAt) return 0;
     return workingDaysBetween(step('self').to, submittedAt);
   }
-  /* Hạn chấm của QLTT (§27.3, chốt 28/09/2026). Hồ sơ nộp bổ sung có thêm 3 ngày làm việc kể từ
-     ngày nhân viên nộp, nếu mốc đó muộn hơn hạn chung của bước QLTT. Hồ sơ khác dùng hạn chung. */
-  function lmDeadline(late) {
-    var due = step('lm').to;
-    if (late && late.at) {
-      var extra = addWorkingDays(late.at, 3);
-      if (cmp(extra, due) > 0) due = extra;
-    }
-    return due;
+  /* Hạn chấm của QLTT (§27.3, chốt lại 02/10/2026): mọi hồ sơ, kể cả hồ sơ nộp bổ sung, dùng chung hạn của bước QLTT.
+     Bỏ hạn chấm riêng 3 ngày làm việc của 28/09/2026: cửa sổ nộp bổ sung phải nằm trọn trong timeline QLTT (ENH-E02
+     "Thời gian submit cho NV trễ là trong timeline của LM"), nên hạn lần nhắc cuối không bao giờ muộn hơn hạn QLTT.
+     Kiểm tra lịch ở lateWindowFitsLm(). Giữ tham số để chỗ gọi cũ không phải đổi. */
+  function lmDeadline() {
+    return step('lm').to;
+  }
+  // Lịch hợp lệ khi hạn của lần nhắc cuối không muộn hơn hạn QLTT (test chặn lịch sai)
+  function lateWindowFitsLm() {
+    return cmp(lateSubmissionDeadline(), step('lm').to) <= 0;
   }
   function lateWindowOpen(now) {
     now = now || today();
@@ -197,8 +198,8 @@
     var lm2Done = happened(lm2);
     var hodDone = happened(hod);
 
-    // Hồ sơ nộp bổ sung có hạn chấm riêng của QLTT (§27.3), nên đồng bộ theo hạn đó
-    var lmDue = lmDeadline(happened(lateSubmission) ? lateSubmission : null);
+    // Hạn QLTT chung cho mọi hồ sơ (§27.3, chốt lại 02/10/2026)
+    var lmDue = lmDeadline();
     var lmClosed = cmp(now, lmDue) > 0;
 
     // Auto-sync quá deadline — chỉ điểm toàn diện, không kèm nhận xét
@@ -228,7 +229,7 @@
     var lateOpen = lateWindowOpen(now);
     var lateClosed = cmp(now, lateSubmissionDeadline()) > 0;
     // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: NV còn một luồng riêng
-    // để import goal + self assessment tới hạn nộp bổ sung (hạn QLTT trừ 3 ngày).
+    // để import goal + self assessment tới hạn lần nhắc thứ tư, nằm trong timeline QLTT (§27.1, §27.3).
     // Thai sản không đi luồng nộp bổ sung (§12): QLTT thêm mục tiêu trong timeline của QLTT, nên không dừng ở đây
     var stopped = !elig.eligible && elig.reason === 'missing-goal' &&
       lateClosed && !lateView && !maternity;
@@ -347,10 +348,12 @@
     var prerequisite = false;
 
     if (role === 'lm') {
-      // Hồ sơ đủ goal vẫn được QLTT đánh giá khi NV bỏ Self Assessment. Nếu thiếu
-      // goal thì chỉ mở sau khi có file nộp trễ; thai sản dùng luồng import riêng.
-      prerequisite = submitted || p.eligibility.reason !== 'missing-goal' ||
-        !!p.lateSubmission || !!p.maternity;
+      /* Nộp trễ (chốt 02/10/2026): nhân viên quá hạn chỉ nộp bổ sung một lần; nộp xong là QLTT chấm được ngay.
+         Chưa nộp mà còn trong thời gian nộp bổ sung thì QLTT chờ (lateWaiting). Hết mọi lần nhắc mà không nộp:
+         đủ mục tiêu thì QLTT vẫn chấm tới hết hạn QLTT (§6, chốt 27/09/2026), thiếu mục tiêu thì `Không đánh giá`
+         (p.stopped). Thai sản dùng luồng thêm mục tiêu riêng (§33). */
+      prerequisite = submitted || !!p.maternity || !!p.self ||
+        (!lateWaiting(p) && p.eligibility.reason !== 'missing-goal');
     } else if (role === 'lm2') {
       prerequisite = submitted || !!p.lm;
     } else {
@@ -362,7 +365,9 @@
     // Thai sản không cần Self Assessment nhưng chuyển thành việc của QLTT khi
     // timeline QLTT bắt đầu.
     var pending = key === pendingKey ||
-      (role === 'lm' && key === 'maternity' && stepState('lm', p.now) !== 'future');
+      (role === 'lm' && key === 'maternity' && stepState('lm', p.now) !== 'future') ||
+      // Hết thời gian nộp bổ sung mà không nộp, đủ mục tiêu: việc của QLTT tới hết hạn QLTT
+      (role === 'lm' && key === 'no-self' && stepState('lm', p.now) === 'open');
 
     return {
       stepOpen: stepOpen,
@@ -370,6 +375,14 @@
       pending: pending,
       canEdit: !!(stepOpen && !blocked && prerequisite)
     };
+  }
+
+  /* ── Đang chờ nhân viên nộp bổ sung (chốt 02/10/2026) ──
+     Nhân viên quá hạn Tự đánh giá, chưa nộp và còn trong thời gian nộp bổ sung: QLTT chưa chấm được. Trả về lần nhắc
+     đang mở để màn Quản lý báo bằng khối vàng; null khi không phải tình huống này. Thai sản không đi luồng nộp trễ (§12). */
+  function lateWaiting(p) {
+    if (!p || p.self || p.maternity || p.resigned || !p.lateWindowOpen || !p.lateRound) return null;
+    return p.lateRound;
   }
 
   /* ── Mục tiêu dùng để đánh giá cuối năm (E-05 và M-06 cùng đọc, DS §20.1) ──
@@ -428,6 +441,13 @@
       ? 'The employee completed the self assessment ' + days + ' working day' + (days === 1 ? '' : 's') + ' late (at reminder ' + m.round + '), so under policy ' + body
       : 'Nhân viên hoàn thành trễ Tự đánh giá ' + days + ' ngày làm việc (nộp bổ sung ở lần nhắc thứ ' + m.round + '), vậy theo quy định, ' + body;
   }
+  /* Khối vàng trong ô Đánh giá toàn diện (M-06) và popup chấm trên lưới (M-05) chỉ dành cho hồ sơ bị giới hạn điểm
+     (nộp ở lần nhắc thứ 3), chốt 02/10/2026. Nộp ở lần 1, 2 (không có hình thức) hay lần 4 (không giới hạn điểm) thì
+     không có khối này; hình thức xử lý của lần 4 vẫn nằm ở khối Lưu ý và banner của M-06. */
+  function lateCapNotice(p, lang) {
+    var m = lateMeasure(p);
+    return m && m.cap != null ? lateMeasureText(p, lang) : '';
+  }
   function ratingCapText(p, score, lang) {
     var m = lateMeasure(p);
     if (!m || m.cap == null) return { over: '', ack: '' };
@@ -467,47 +487,79 @@
 
   /* ── Cửa sổ đánh giá và chỉnh sửa của từng vai quản lý (§8.3) ──
      Một nguồn cho cả quyền sửa (managerReviewState) lẫn câu chữ "sửa được tới khi nào" ở M-05, M-06.
-     reason: 'late'     hồ sơ nộp bổ sung, QLTT có hạn riêng 3 ngày làm việc từ ngày nộp (§27.3)
      state:  'future' chưa tới bước của vai, 'open' đang sửa được, 'closed' đã hết hạn. */
   function managerEditWindow(role, p) {
     var s = step(role);
-    var to = s.to, reason = null;
-    if (role === 'lm' && p && p.lateSubmission && cmp(p.lmDeadline, s.to) > 0) { to = p.lmDeadline; reason = 'late'; }
     var now = (p && p.now) || today();
     var state = cmp(now, s.from) < 0 ? 'future'
-      : cmp(now, to) > 0 ? 'closed' : 'open';
-    return { from: s.from, to: to, reason: reason, state: state };
+      : cmp(now, s.to) > 0 ? 'closed' : 'open';
+    return { from: s.from, to: s.to, state: state };
   }
 
-  /* ── Thứ tự danh sách của Quản lý (§47, chốt lại 30/09/2026) ──
-     Việc cần làm lên đầu, việc đã xong xuống dưới, hồ sơ có LWD rồi hồ sơ `Không đánh giá` ở cuối cùng.
-     Giai đoạn Tự đánh giá (trước ngày mở bước QLTT), mọi vai:
-       0  nhân viên chưa tự đánh giá
-       1  nhân viên đã tự đánh giá
-       2  nhân viên thai sản (không bắt buộc tự đánh giá)
-     Từ bước QLTT trở đi, theo vai đang xem:
-       0  thai sản đang chờ QLTT (QLTT phải kiểm tra, tải mục tiêu cho nhân viên)
-       1  nộp bổ sung đang chờ QLTT
-       2  các hồ sơ khác đang chờ đúng vai đang xem, trong timeline của vai đó
-       3  hồ sơ vai đang xem chưa làm được: chờ cấp khác, chưa tự đánh giá, chưa tới timeline
-       4  vai đang xem đã đánh giá xong, hoặc đã công bố kết quả
-     Mọi giai đoạn: 5 hồ sơ có ngày làm việc cuối cùng (LWD), 6 hồ sơ `Không đánh giá`.
+  /* ── Thứ tự danh sách và màu trạng thái của Quản lý (§47, chốt lại 02/10/2026) ──
+     Giai đoạn của kỳ tính theo ngày, giống nhau cho mọi người: 'self' trước ngày mở bước QLTT, rồi 'lm', 'lm2', 'hod'
+     (bước quản lý mở gần nhất; qua hết bước HOD vẫn là 'hod'). */
+  function managerStage(now) {
+    if (stepState('lm', now) === 'future') return 'self';
+    return ['hod', 'lm2', 'lm'].filter(function (k) { return stepState(k, now) !== 'future'; })[0];
+  }
+  function roleDone(role, p) {
+    return !!(role === 'lm' ? p.lm : role === 'lm2' ? p.lm2 : p.hod);
+  }
+  /* Vai đang xem có việc phải làm ngay với hồ sơ này: hồ sơ đang chờ đúng vai, vai còn trong timeline, chưa gửi.
+     Danh sách dùng cho cả thứ tự (nhóm đầu) lẫn màu hồng của trạng thái, để hai thứ không nói khác nhau. */
+  function managerActionable(role, p) {
+    var r = managerReviewState(role, p);
+    return !!(r.pending && r.canEdit && !r.submitted);
+  }
+  /* Thứ tự trong nhóm đang chờ một vai:
+       QLTT:          thai sản, nộp bổ sung, bình thường, có LWD
+       LM2, HOD:      nộp bổ sung, bình thường, thai sản, có LWD */
+  function pendingOrder(role, p) {
+    if (role === 'lm') {
+      if (p.maternity) return 0;
+      if (p.lateSubmission) return 1;
+      return p.resignFrom ? 3 : 2;
+    }
+    if (p.lateSubmission) return 0;
+    if (p.maternity) return 2;
+    return p.resignFrom ? 3 : 1;
+  }
+  /* Giai đoạn Tự đánh giá (trước ngày mở bước QLTT), mọi vai, giữ như chốt 30/09/2026:
+       0 chưa tự đánh giá, 1 đã tự đánh giá, 2 thai sản, 5 có LWD, 6 `Không đánh giá`.
+     Từ bước QLTT trở đi (chốt 02/10/2026), số = nhóm * 10 + thứ tự trong nhóm (pendingOrder):
+       0x  việc của vai đang xem, làm được ngay (gồm hồ sơ nộp bổ sung QLTT còn hạn riêng khi kỳ đã sang bước sau)
+       1x  hồ sơ đang chờ vai của giai đoạn hiện tại mà vai đang xem không làm được (vd LM2 xem lúc kỳ đang ở bước
+           QLTT, hay QLTT xem lúc kỳ đã sang bước LM2): vẫn xếp theo thứ tự của giai đoạn đó
+       20  chưa tới lượt ai làm: `Chưa tự đánh giá` trong cửa sổ nộp bổ sung, chờ cấp trước
+       30  vai của giai đoạn hoặc vai đang xem đã đánh giá xong, hoặc đã công bố kết quả
+       40  `Không đánh giá`: thiếu mục tiêu, không nộp bổ sung, hệ thống chặn mọi bước sau
      Trong từng nhóm, màn hình giữ thứ tự dữ liệu ban đầu. */
   function managerRosterRank(role, p) {
-    if (p.stopped) return 6;
-    if (p.resignFrom) return 5;
-    if (stepState('lm', p.now) === 'future') {
+    var stage = managerStage(p.now);
+    if (stage === 'self') {
+      if (p.stopped) return 6;
+      if (p.resignFrom) return 5;
       if (p.maternity) return 2;
       return p.self ? 1 : 0;
     }
-    var review = managerReviewState(role, p);
-    if (review.pending && review.stepOpen && !review.submitted) {
-      if (role === 'lm' && p.maternity) return 0;
-      if (role === 'lm' && p.lateSubmission) return 1;
-      return 2;
+    if (p.stopped) return 40;
+    if (managerActionable(role, p)) return pendingOrder(role, p);
+    if (p.published || roleDone(stage, p)) return 30;
+    if (managerReviewState(stage, p).pending) return 10 + pendingOrder(stage, p);
+    return roleDone(role, p) ? 30 : 20;
+  }
+  /* Màu trạng thái trên danh sách (chốt 02/10/2026): hồng khi hồ sơ đang chờ đúng vai đang xem và vai đó làm được ngay
+     (managerActionable), và `Chưa tự đánh giá` trong giai đoạn Tự đánh giá. Người vừa là QLTT vừa là LM2 xem từng vai ở
+     Direct reports / Indirect reports nên mỗi vai thấy hồng đúng việc của vai đó. Đã công bố là xanh, còn lại xám. */
+  function managerStatusTone(role, p) {
+    if (p.published) return 'completed';
+    if (managerActionable(role, p)) return 'incomplete';
+    var key = status(p, 'vi').key;
+    if ((key === 'need-self' || key === 'late-upload') && managerStage(p.now) === 'self' && !managerReviewState(role, p).submitted) {
+      return 'incomplete';
     }
-    if (review.submitted || p.published) return 4;
-    return 3;
+    return 'pending';
   }
 
   /* ── Nhãn trên hai tab đánh giá, dùng chung cho E-05, M-05, M-06 (§18.4, chốt 30/09/2026) ──
@@ -760,6 +812,7 @@
     lateDays: lateDays,
     lateRounds: lateRounds,
     lmDeadline: lmDeadline,
+    lateWindowFitsLm: lateWindowFitsLm,
     lateRound: lateRound,
     lateText: lateText,
     isWorkingDay: isWorkingDay,
@@ -779,8 +832,13 @@
     canAddGoals: canAddGoals,
     overRatingCap: overRatingCap,
     lateMeasureText: lateMeasureText,
+    lateCapNotice: lateCapNotice,
+    lateWaiting: lateWaiting,
     ratingCapText: ratingCapText,
     managerRosterRank: managerRosterRank,
+    managerStage: managerStage,
+    managerActionable: managerActionable,
+    managerStatusTone: managerStatusTone,
     selfAssessmentState: selfAssessmentState,
     selfChanges: selfChanges,
     yerPhase: yerPhase,

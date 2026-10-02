@@ -123,6 +123,11 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 - Loại: `.gt-type` = icon hồng + nhãn (Công việc/Phát triển/Hành vi). Kết quả: `.gt-result` clamp 2 dòng. Thời gian: dạng "01/01 – 31/12".
 - Chức năng: nút ô vuông 27px `.gt-actbtn` (bx-show / bx-check-square / bx-edit-alt), hover bg z100.
 - Wrapper `.gtable-wrap`: viền z300 + `--sh` + bo `--r`.
+- **Cột sắp xếp được** (chốt 02/10/2026, mẫu `.yer-th-sort` ở danh sách Đánh giá cuối năm M-05): chữ tiêu đề bọc trong nút
+  `inline-flex`, giữ nguyên kiểu chữ tiêu đề bảng (kế thừa font, hoa, giãn chữ), icon 13px `--z400` bên phải chữ: `bx-sort-alt-2`
+  khi chưa xếp, `bx-sort-up` / `bx-sort-down` khi đang xếp; cột đang xếp đổi chữ và icon sang `--brand`. Bấm vòng ba bước
+  A → Z (số tăng dần), Z → A (giảm dần), về thứ tự mặc định. Ô trống luôn nằm cuối. `th` mang `aria-sort`, tooltip nói lần bấm
+  kế tiếp làm gì. Ô chọn và cột Chức năng không sắp xếp.
 
 ## 12. CARDS & GRID 3 CỘT (Mục tiêu)
 `.goal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start}` → 3 cột: **Mục tiêu công việc** (target-lock, đếm) · **Mục tiêu phát triển** (line-chart) · **Mục tiêu hành vi** (heart).
@@ -146,7 +151,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 ## 15. RICH-TEXT EDITOR — 2 dạng
 **(A) Neutral `.rte-wrap`** (dùng cho tạo/nhập mục tiêu): viền XÁM z200, focus ring hồng. Toolbar: B / I / U / màu chữ (A + gạch hồng) / list / link. **KHÔNG có dropdown Normal/Heading.** `.rte-body` placeholder z400 + đếm ký tự "0 / 1000".
 
-**(B) Evaluation `.ev-editor-wrap`** (ô nhận xét NV & Quản lý): viền hồng `--brand-ring` + cạnh trái nhấn 3px `inset box-shadow` hồng (2 sắc: nhạt ở toolbar, đậm ở nội dung). Nền nội dung trong suốt, `padding-left:11px`.
+**(B) Evaluation `.ev-editor-wrap`** (ô nhận xét NV & Quản lý): viền hồng `--brand-ring` + cạnh trái nhấn 3px `inset box-shadow` hồng **chạy liền cả toolbar và nội dung** (chốt 02/10/2026): toolbar có nền `--z50` nên tự vẽ lại cạnh trái (`.ev-toolbar{box-shadow:inset 3px 0 0 var(--brand)}`), không thì cạnh hồng chỉ còn ở phần nội dung. Ô khóa có toolbar `opacity:.4` nên đoạn cạnh ở toolbar nhạt hơn. Nền nội dung trong suốt, `padding-left:11px`.
 - **Editable & Locked dùng CÙNG viền hồng.** Trạng thái **locked/chỉ xem: BỎ toolbar format** (chỉ hiện nội dung), không làm mờ nội dung.
 - Không hardcode màu; không phủ pseudo-element toàn cạnh trái; không đặt nền trắng trên `.ev-content`.
 
@@ -159,7 +164,8 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 `.dlg-hd` (badges + title 15px/600 + close). **Rule header dialog module Feedback (E-04, M-04, H-05, H-06, H-07):** header chỉ có **title 1 dòng** (không có `.dlg-sub` hay metadata) → nền hồng nhạt `#fbe4f0` với `border-bottom:1px solid #f3cfe1` (dùng modifier `.dlg-hd--brand`, áp cho `.dlg-hd`, `.dialog-head`, `.review-modal-head` và tương đương). Header có **nhiều dòng** (title + `.dlg-sub`, metadata, người gửi, deadline…) → nền trắng `var(--z0)` với `border-bottom:1px solid var(--z200)` để tránh nhiễu thị giác. Áp dụng cho E-04: pink cho `dlg-give`, `dlg-newreq`, `dlg-queue`, `dlg-received-reader`; white cho `dlg-req`, `dlg-reply`, `dlg-confirm`. Kèm `.dlg-tabs` (tab dialog), `.dlg-body` scroll, `.dlg-foot` (border-top, justify-end).
 **Review-confirmation modal:** Trước hành động gửi một yêu cầu, mở overlay dialog theo pattern này; không thay form bằng màn hình riêng. Đóng modal hoặc chọn “Quay lại chỉnh sửa” phải giữ nguyên dữ liệu đã nhập. Footer của modal rà soát dùng action compact `32px / 12px`, padding `12px 18px 16px` để nút không sát mép dưới.
 **Popup Tạo mục tiêu:** Loại mục tiêu (select: Mục tiêu Công việc / Mục tiêu Phát triển) · hàng 3 cột (Ưu tiên · Từ ngày · Đến ngày) · Tên mục tiêu (RTE neutral + đếm) · Kết quả cần đạt (RTE neutral) · footer: Lưu nháp (outline) + Gửi quản lý (default).
-**Popup Phản hồi đã nhận:** title + badge đếm hồng; các `.fb-card` (avatar, tên + domain, org, ngày; `.fb-qbox` nếu có câu hỏi — **nền hồng #fbe4f0, chữ z900/500** để tương phản rõ; `.fb-body`; `.fb-badges` core value nếu được ghi nhận).
+**Popup Phản hồi đã nhận của Quản lý:** dùng đúng popup `#feedbackDialog` của M-04; màn khác (M-06) mở qua `M-04/manager-feedback-dialog.js`, không tự dựng bản riêng (chốt 02/10/2026).
+**Popup Phản hồi đã nhận (Nhân viên, E-05):** title + badge đếm hồng; các `.fb-card` (avatar, tên + domain, org, ngày; `.fb-qbox` nếu có câu hỏi — **nền hồng #fbe4f0, chữ z900/500** để tương phản rõ; `.fb-body`; `.fb-badges` core value nếu được ghi nhận).
 **Popup trả lời yêu cầu từ chương trình HR:** chỉ với request có nguồn HR, metadata header trên desktop dùng grid 2 cột / 2 hàng: hàng 1 `Người yêu cầu` và `Phản hồi về`; hàng 2 `Ngày gửi` và `Hạn phản hồi`. Trên màn hẹp, xếp một cột. Không áp dụng quy tắc này cho popup trả lời yêu cầu của đồng nghiệp hoặc Quản lý; các popup đó giữ metadata linh hoạt. Khối quyền xem phải nêu rõ kết quả hiện tại chỉ HR xem được khi HR chưa chia sẻ; đồng thời highlight `Danh tính người cho phản hồi: Ẩn danh` hoặc `Hiển thị danh tính` theo cấu hình chương trình.
 
 ## 17. TIMELINE · STEPPER · TOAST

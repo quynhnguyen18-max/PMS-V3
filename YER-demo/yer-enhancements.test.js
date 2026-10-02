@@ -134,21 +134,25 @@ test('the 21 employee scenarios follow the requested order and states', () => {
   assert.doesNotMatch(demo, /Other profiles|otherOptions/);
 });
 
-test('late files give the line manager 3 extra working days past the common deadline', () => {
+test('the late window ends inside the line manager timeline, so late files share the common LM deadline', () => {
   const w = loadYer();
   const Y = w.PMSYer;
-  assert.equal(Y.lmDeadline(null), '2027-02-01');
-  assert.equal(Y.lmDeadline({ at: '2027-01-20' }), '2027-02-01', 'nop som thi van dung han chung');
-  assert.equal(Y.lmDeadline({ at: '2027-01-28' }), '2027-02-02');
-  assert.equal(Y.lmDeadline({ at: '2027-02-02' }), '2027-02-12', 'bo qua ngay le trong lich');
-  // y12 nop ngay 28/01: QLTT cham duoc toi 02/02 du han chung la 01/02
-  const late3 = Y.profile('y12', '2027-02-02');
-  assert.equal(late3.lmDeadline, '2027-02-02');
-  assert.equal(late3.lm, null, 'chua dong bo diem khi QLTT con han rieng');
-  assert.equal(Y.managerReviewState('lm', late3).canEdit, true);
-  const after = Y.profile('y12', '2027-02-03');
+  // ENH-E02: thời gian nộp trễ nằm trong timeline của QLTT (chốt lại 02/10/2026, bỏ hạn chấm riêng)
+  assert.equal(Y.step('lm').to, '2027-02-08');
+  assert.equal(Y.lateSubmissionDeadline(), '2027-02-03');
+  assert.equal(Y.lateWindowFitsLm(), true);
+  assert.equal(Y.lmDeadline(), '2027-02-08');
+  // y12 nộp ngày 28/01 (lần 3): QLTT chấm tới hạn chung, hết hạn thì hệ thống đồng bộ
+  const open = Y.profile('y12', '2027-02-08');
+  assert.equal(open.lmDeadline, '2027-02-08');
+  assert.equal(open.lm, null);
+  assert.equal(Y.managerReviewState('lm', open).canEdit, true);
+  assert.deepEqual({ ...Y.managerEditWindow('lm', open) }, { from: '2027-01-19', to: '2027-02-08', state: 'open' });
+  const after = Y.profile('y12', '2027-02-09');
   assert.equal(after.lm.synced, true);
   assert.equal(Y.managerReviewState('lm', after).canEdit, false);
+  const model = fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8');
+  assert.doesNotMatch(model, /reason = 'late'|addWorkingDays\(late\.at, 3\)/);
 });
 
 test('employee tab only reports results after publication and has no response flow', () => {
@@ -291,13 +295,13 @@ test('review tab labels follow the cycle phase, not the person', () => {
   const Y = w.PMSYer;
   assert.equal(Y.yerPhase('2027-01-04'), 'not-open');
   assert.equal(Y.yerPhase('2027-01-05'), 'active');
-  assert.equal(Y.yerPhase('2027-03-29'), 'active');
-  assert.equal(Y.yerPhase('2027-03-30'), 'done');
+  assert.equal(Y.yerPhase('2027-04-05'), 'active');
+  assert.equal(Y.yerPhase('2027-04-06'), 'done');
 
   // Mot luat nhan tab cho E-05, M-05, M-06 (chot 30/09/2026): nhan theo giai doan, khong theo vai, khong theo nguoi
   assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-01-04', 'vi') }, { text: 'Chưa mở', past: true });
   assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-01-20', 'vi') }, { text: 'Cần hoàn tất', past: false });
-  assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-03-30', 'vi') }, { text: 'Đã hoàn tất', past: true });
+  assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-04-06', 'vi') }, { text: 'Đã hoàn tất', past: true });
   // Khong o use case demo: tab Giua nam la man MYR binh thuong
   assert.deepEqual({ ...Y.cycleTabLabel('myr', '2027-01-20', 'vi') }, { text: 'Đang hoạt động', past: false });
   w.PMSStore.session = () => ({ emp: 'y9', date: '2027-01-20', role: 'lm', scenario: w.PMS_YER_SCENARIOS[0].id });
@@ -623,14 +627,14 @@ test('y3 mid-year tab shows the completed result and the historical line manager
   assert.match(employee, /finalScore\.textContent = String\(p\.myr\.final\)/);
 
   const yerManager = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
-  const notes = yerManager.slice(yerManager.indexOf('function noteItems(p, canEdit)'), yerManager.indexOf('function noteBlock(p, canEdit)'));
+  const notes = yerManager.slice(yerManager.indexOf('function noteItems(p, canEdit, opts)'), yerManager.indexOf('function noteBlock(p, canEdit)'));
   assert.doesNotMatch(notes, /Người đã chấm giữa năm|Rated at mid-year by|p\.emp\.myrMgr/);
   assert.doesNotMatch(notes, /Mở tab giữa năm|yer-md-myr/);
 });
 
 test('manager detail keeps one Lưu ý box like the employee screen (§40.5a)', () => {
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
-  const items = detail.slice(detail.indexOf('function noteItems(p, canEdit)'), detail.indexOf('function noteBlock(p, canEdit)'));
+  const items = detail.slice(detail.indexOf('function noteItems(p, canEdit, opts)'), detail.indexOf('function noteBlock(p, canEdit)'));
   const block = detail.slice(detail.indexOf('function noteBlock(p, canEdit)'), detail.indexOf('function closedBlock(p)'));
   // Một khối duy nhất, các thông tin là gạch đầu dòng: hạn, thai sản, nộp bổ sung, LWD, giữa năm
   assert.match(detail, /html \+= noteBlock\(p, canEdit\);/);
@@ -640,11 +644,25 @@ test('manager detail keeps one Lưu ý box like the employee screen (§40.5a)', 
   assert.match(block, /items\.join\('<\/li><li>'\)/);
   assert.match(block, /if \(p\.resigned \|\| mySubmitted\(p\)\) return '';/);
   assert.match(block, /if \(p\.stopped\) return closedBlock\(p\);/);
-  assert.match(items, /var win = windowText\(p, canEdit\);/);
+  assert.match(items, /var win = guide \? '' : windowText\(p, canEdit\);/);
   assert.match(items, /class="yer-hl">nghỉ thai sản<\/strong>/);
   assert.match(items, /chịu trách nhiệm chính/);
+  // QLTT xem hồ sơ thai sản: khối hướng dẫn ba bước thay khối Lưu ý thường, vẫn là một khối (chốt 02/10/2026)
+  assert.match(block, /if \(isLm\(\) && p\.maternity\) return maternityGuide\(p, canEdit\);/);
+  const guide = detail.slice(detail.indexOf('function maternityGuide(p, canEdit)'), detail.indexOf('function closedBlock(p)'));
+  assert.match(guide, /L\('Hướng dẫn đánh giá cho Nhân viên đang nghỉ thai sản:'/);
+  assert.match(guide, /QLTT <strong>chịu trách nhiệm chính<\/strong> thực hiện đánh giá nhân viên theo các bước sau:/);
+  assert.match(guide, /Rà soát các mục tiêu hiện có tại tab Đánh giá cuối năm\./);
+  assert.match(guide, /cho nhân viên \(nếu cần\)\. Các mục tiêu do QLTT tạo sẽ được ghi nhận ở trạng thái <strong>Đã duyệt<\/strong>\./);
+  assert.match(guide, /Hoàn thành Đánh giá chi tiết cho nhân viên và gửi\./);
+  assert.match(guide, /QLTT có thể chỉnh sửa kết quả đánh giá trước 18:00 ngày <strong>/);
+  assert.match(guide, /<ol class="yer-guide-steps">/);
   assert.match(items, /Ngày làm việc cuối cùng là <strong>/);
-  assert.match(items, /Bạn có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm 2026<\/a> của nhân viên trước khi đánh giá cuối năm\./);
+  // Câu chữ gọi tên vai thay cho `Bạn` (chốt 02/10/2026); hạn của vai đứng cuối khối
+  assert.match(items, /L\(roleName\(\) \+ ' có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm 2026<\/a> của nhân viên trước khi đánh giá cuối năm\.'/);
+  assert.ok(items.indexOf('data-go-tab="1"') < items.indexOf('var win = guide'));
+  assert.match(detail, /L\('Sau khi gửi đánh giá, ' \+ R \+ ' có thể chỉnh sửa tới hết 18:00 ngày ' \+ to \+ '\.'/);
+  assert.match(detail, /lm: \['QLTT', 'The line manager'\]/);
   // Không có kết quả giữa năm thì không nói gì (§40.5c)
   assert.doesNotMatch(detail, /Không có kết quả Đánh giá giữa năm/);
   // Hồ sơ Không đánh giá: một khối vàng như màn Nhân viên
@@ -665,14 +683,12 @@ test('manager YER list uses the mid-year colours and concise labels', () => {
   assert.match(listStatus, /L\('Chưa tự đánh giá', 'Self assessment missing'\)/);
   assert.doesNotMatch(listStatus, /Nộp trễ hạn - Chờ QLTT đánh giá/);
   assert.match(listStatus, /key === 'maternity'/);
-  // Cùng câu chữ và bộ màu với tab Giữa năm (chốt 30/09/2026): hồng chỉ cho `Chưa tự đánh giá`,
-  // xanh cho đã công bố, mọi trạng thái chờ là xám. Không còn tông đỏ.
+  // Màu theo luật ở model (chốt 02/10/2026): hồng cho việc vai đang xem làm được ngay, xanh khi đã công bố. Không tông đỏ.
   assert.match(listStatus, /key === 'need-self' \|\| key === 'late-upload'/);
-  assert.match(listStatus, /tone = review\.submitted \? 'pending' : 'incomplete'/);
-  assert.match(listStatus, /key === 'published'\) \{\s*tone = 'completed'/);
+  assert.match(listStatus, /tone: Y\.managerStatusTone\(role\(\), p\)/);
   assert.match(listStatus, /L\('Chờ QL Cấp 2 đánh giá'/);
   assert.match(listStatus, /L\('Chờ HOD đánh giá'/);
-  assert.doesNotMatch(listStatus, /review\.pending && review\.stepOpen/);
+  assert.doesNotMatch(listStatus, /review\.pending && review\.stepOpen|tone = /);
   // (HR system) là chữ thường, không viền, không nền
   assert.match(manager, /'\.yer-sync-tag\{display:inline-block;margin-left:4px;font-size:11px;font-weight:500;color:var\(--z600\);white-space:nowrap\}'/);
   assert.doesNotMatch(manager, /\.yer-sync-tag\{[^}]*border/);
@@ -681,12 +697,20 @@ test('manager YER list uses the mid-year colours and concise labels', () => {
   // Luật thứ tự nằm ở model, màn chỉ gọi (DS §20.1)
   assert.match(manager, /return Y\.managerRosterRank\(role\(\), p\)/);
   assert.match(roster, /rosterRank\(a\.p\) - rosterRank\(b\.p\) \|\| a\.index - b\.index/);
+  // Sắp xếp theo cột: A → Z, Z → A, rồi về thứ tự ưu tiên; ô trống luôn ở cuối (chốt 02/10/2026)
+  assert.match(roster, /return sortList\(list\);/);
+  assert.match(manager, /state\.sort = cur === '' \? \{ key: key, dir: 'asc' \} : cur === 'asc' \? \{ key: key, dir: 'desc' \} : null;/);
+  assert.match(manager, /if \(ea \|\| eb\) return \(ea - eb\) \|\| a\.index - b\.index;/);
+  for (const key of ['emp', 'lm1', 'lm2name', 'status', 'self', 'lm', 'lm2', 'hod', 'final']) {
+    assert.match(manager, new RegExp("sortTh\\('" + key + "'"), key);
+  }
+  assert.match(manager, /state\.sort = null; \/\/ mỗi vai có bộ cột riêng/);
 });
 
 test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the main grid (§9)', () => {
   const w = loadYer();
   const Y = w.PMSYer;
-  const date = '2027-02-22';
+  const date = '2027-03-01';
   const pending = Y.calibrationState(Y.profile('e9', date));
   assert.equal(pending.has, true);
   assert.equal(pending.approved, false);
@@ -695,12 +719,12 @@ test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the
   // Điểm tải lên chưa duyệt không phải điểm HOD
   assert.equal(Y.profile('e9', date).hod, null);
   // HOD đã chấm tay khác điểm tải lên thì báo khác biệt
-  const clash = Y.calibrationState(Y.profile('e12', '2027-02-20'));
+  const clash = Y.calibrationState(Y.profile('e12', '2027-02-27'));
   assert.equal(clash.conflict, true);
   assert.equal(clash.manual, 4.5);
   assert.equal(clash.score, 4);
   // Hết timeline HOD thì không duyệt được nữa
-  assert.equal(Y.calibrationState(Y.profile('e9', '2027-03-05')).canApprove, false);
+  assert.equal(Y.calibrationState(Y.profile('e9', '2027-03-12')).canApprove, false);
   // Đã duyệt thì không còn chờ duyệt
   w.PMSStore.acts = id => id === 'e9' ? { hrbpUpload: { approved: true, approvedAt: date }, hod: { score: 4, at: date, source: 'hrbp-upload' } } : {};
   const done = Y.calibrationState(Y.profile('e9', date));
@@ -754,6 +778,8 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.match(popup, /grid-template-columns:repeat\(' \+ \(role\(\) === 'hod' \? 3 : 2\) \+ ',minmax\(0,1fr\)\)/);
   assert.match(popup, /rows="2"/);
   assert.match(popup, /L\('Bạn được điều chỉnh điểm cho nhân viên tới hết 18:00, ngày '/);
+  // Khối vàng trong popup chỉ cho hồ sơ bị giới hạn điểm 3 (chốt 02/10/2026)
+  assert.match(popup, /var text = Y\.lateCapNotice\(p, lg\(\)\);/);
   assert.match(popup, /ref\(L\('Điểm của QLTT', 'Line manager rating'\), a\.lm,/);
   assert.match(popup, /U\.rating\(el\('yer-cm-rating'\), \{\s*step: 'half'/);
   assert.match(popup, /L\('Nhận xét', 'Comment'\)/);
@@ -785,20 +811,20 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.doesNotMatch(actions, /accent/);
   assert.match(actions, /L\('Xem chi tiết đánh giá', 'View review details'\)/);
   // ⓘ ở tiêu đề cột điểm của chính vai
-  assert.match(manager, /L\('Điểm của QL cấp 2', 'Second level'\) \+ \(r === 'lm2' \? rateInfo\(\) : ''\)/);
-  assert.match(manager, /L\('Điểm của Trưởng đơn vị', 'Head of dept'\) \+ \(r === 'hod' \? rateInfo\(\) : ''\)/);
+  assert.match(manager, /sortTh\('lm2', L\('Điểm của QL cấp 2', 'Second level'\), r === 'lm2' \? rateInfo\(\) : '', 'score'\)/);
+  assert.match(manager, /sortTh\('hod', L\('Điểm của Trưởng đơn vị', 'Head of dept'\), r === 'hod' \? rateInfo\(\) : '', 'score'\)/);
   assert.match(manager, /mỗi lần lưu đều có trong lịch sử chỉnh sửa/);
 
   // Lịch sử: dữ liệu mẫu suy ra một dòng, mỗi lần lưu thêm một dòng, điểm tự chép không vào lịch sử
   const w = loadYer();
   const Y = w.PMSYer;
-  const seeded = Y.profile('e11', '2027-02-20');
+  const seeded = Y.profile('e11', '2027-02-27');
   assert.equal(seeded.lm2Log.length, 1);
   assert.equal(seeded.lm2Log[0].score, 4.5);
-  const next = Array.from(Y.nextManagerLog('lm2', seeded, { at: '2027-02-20', time: '10:00', score: 4, comment: 'x', source: 'grid' }));
+  const next = Array.from(Y.nextManagerLog('lm2', seeded, { at: '2027-02-27', time: '10:00', score: 4, comment: 'x', source: 'grid' }));
   assert.equal(next.length, 2);
-  w.PMSStore.acts = id => id === 'e11' ? { lm2: { score: 4, comment: 'x', at: '2027-02-20', source: 'manual' }, lm2Log: { items: next } } : {};
-  const edited = Y.profile('e11', '2027-02-20');
+  w.PMSStore.acts = id => id === 'e11' ? { lm2: { score: 4, comment: 'x', at: '2027-02-27', source: 'manual' }, lm2Log: { items: next } } : {};
+  const edited = Y.profile('e11', '2027-02-27');
   assert.equal(edited.lm2Log.length, 2);
   assert.equal(edited.lm2.score, 4);
   assert.equal(edited.lm2Log[1].source, 'grid');
@@ -875,7 +901,9 @@ test('line manager adds approved goals for an employee on maternity leave, by fi
   assert.match(detail, /L\('Tải file', 'Upload a file'\)/);
   assert.match(detail, /S\.setAct\(p\.id, 'lmGoals', \{ items: items \}\)/);
   assert.match(detail, /L\('QLTT thêm - Đã duyệt', 'Added by manager - Approved'\)/);
-  assert.match(detail, /data-del-goal=/);
+  // Mục tiêu QLTT thêm tạm thời không sửa, không xóa được (chốt 02/10/2026)
+  assert.doesNotMatch(detail, /data-del-goal|function removeLmGoal|g-lm-del/);
+  assert.match(detail, /không thêm vào tab Danh sách mục tiêu của nhân viên/);
   assert.match(employee, /L\('Quản lý trực tiếp thêm','Added by your manager'\)/);
   assert.doesNotMatch(detail, /function importGoals|Bản dựng demo chưa gắn file thật/);
 });
@@ -927,29 +955,47 @@ test('manager roster puts work for the viewing role first, finished work and LWD
   const missing = selfPhase.find(p => p.eligibility.reason === 'missing-goal' && !p.maternity);
   assert.ok(missing);
   assert.equal(Y.status(missing, 'vi').key, 'need-self');
-  // `Không đánh giá` luôn ở cuối cùng, sau cả hồ sơ LWD
-  const stopped = Y.profile('e2', Y.addDays(Y.lateSubmissionDeadline(), 1));
+  // `Không đánh giá` luôn ở cuối cùng
+  const stopped = Y.profile('e2', Y.addDays(Y.step('lm').to, 1));
   assert.equal(Y.status(stopped, 'vi').key, 'noeval');
-  assert.equal(Y.managerRosterRank('lm', stopped), 6);
+  assert.equal(Y.managerRosterRank('lm', stopped), 40);
 
-  // Trong timeline QLTT: thai sản đứng đầu, rồi nộp bổ sung, rồi hồ sơ chờ QLTT khác
+  // Giai đoạn QLTT (chốt 02/10/2026): thai sản, nộp bổ sung, bình thường, có LWD, rồi đã xong, cuối là Không đánh giá
+  assert.equal(Y.managerStage('2027-01-29'), 'lm');
   assert.equal(rank('lm', 'e4', '2027-01-22'), 0, 'thai san cho QLTT');
   assert.equal(rank('lm', 'y12', '2027-01-29'), 1, 'nop bo sung cho QLTT');
   assert.equal(rank('lm', 'e1', '2027-01-25'), 2, 'ho so cho QLTT thong thuong');
-  // QLTT đã gửi thì xuống nhóm đã xong
-  assert.equal(rank('lm', 'e10', '2027-01-27'), 4, 'QLTT da gui');
-  // Hồ sơ còn trong cửa sổ nộp bổ sung: QLTT chưa làm được gì nên xuống sau nhóm cần chấm
+  assert.equal(rank('lm', 'y6', '2027-01-29'), 3, 'cho QLTT, co LWD');
+  // Hồ sơ còn trong cửa sổ nộp bổ sung: chưa tới lượt QLTT nên đứng sau nhóm cần chấm, trước nhóm đã xong
   assert.equal(Y.status(Y.profile('e2', '2027-01-25'), 'vi').key, 'late-upload');
-  assert.equal(rank('lm', 'e2', '2027-01-25'), 3, 'chua tu danh gia khong dung dau');
-  // Ưu tiên thai sản chỉ ở vai QLTT; LM2 đang chờ chấm là nhóm 2
-  assert.equal(rank('lm2', 'y8', '2027-02-10'), 2, 'LM2 dang can cham');
-  assert.equal(rank('lm2', 'e11', '2027-02-13'), 4, 'LM2 da luu diem');
-  // Đã công bố là nhóm đã xong
-  assert.equal(rank('lm', 'e1', '2027-03-20'), 4, 'da cong bo');
-  // Có LWD luôn cuối cùng
-  const lwd = Array.from(w.PMS_EMPLOYEES).map(e => Y.profile(e.id, '2027-01-25')).find(p => p && p.resignFrom && !p.resigned);
-  assert.ok(lwd, 'co ho so LWD trong du lieu mau');
-  assert.equal(Y.managerRosterRank('lm', lwd), 5);
+  assert.equal(rank('lm', 'e2', '2027-01-25'), 20, 'chua tu danh gia khong dung dau');
+  assert.equal(rank('lm', 'e10', '2027-01-27'), 30, 'QLTT da gui');
+  // LM2 xem lúc kỳ đang ở bước QLTT: không làm được gì, vẫn xếp theo thứ tự của bước QLTT
+  assert.equal(rank('lm2', 'e6', '2027-01-29'), 12);
+
+  // Giai đoạn LM2, HOD: nộp bổ sung, bình thường, thai sản, có LWD, rồi đã xong
+  assert.equal(Y.managerStage('2027-02-17'), 'lm2');
+  assert.equal(rank('lm2', 'y8', '2027-02-17'), 1, 'LM2 dang can cham');
+  assert.equal(rank('lm2', 'e11', '2027-02-20'), 30, 'LM2 da luu diem');
+  assert.equal(rank('lm', 'y12', '2027-02-17'), 10, 'QLTT xem: cho LM2, nop bo sung');
+  assert.equal(rank('lm', 'y8', '2027-02-17'), 11, 'QLTT xem: cho LM2, binh thuong');
+  assert.equal(rank('lm', 'e4', '2027-02-17'), 12, 'QLTT xem: cho LM2, thai san');
+  // Hồ sơ nộp ở lần nhắc thứ tư vẫn trong timeline QLTT: việc của QLTT
+  assert.equal(rank('lm', 'y16', '2027-02-04'), 1);
+  assert.equal(Y.managerStage('2027-03-01'), 'hod');
+  assert.equal(rank('hod', 'e8', '2027-03-01'), 0, 'HOD: nop bo sung');
+  assert.equal(rank('hod', 'e9', '2027-03-01'), 1, 'HOD: binh thuong');
+  assert.equal(rank('lm', 'e1', '2027-03-27'), 30, 'da cong bo');
+
+  // Màu trạng thái: hồng khi hồ sơ chờ đúng vai đang xem và vai đó làm được ngay
+  const tone = (role, id, date) => Y.managerStatusTone(role, Y.profile(id, date));
+  assert.equal(tone('lm', 'y12', '2027-01-29'), 'incomplete');
+  assert.equal(tone('lm2', 'e6', '2027-01-29'), 'pending', 'LM2 xem luc dang buoc QLTT: xam');
+  assert.equal(tone('lm2', 'y8', '2027-02-17'), 'incomplete', 'buoc LM2: Cho QL cap 2 danh gia la hong');
+  assert.equal(tone('lm', 'y8', '2027-02-17'), 'pending', 'QLTT xem luc buoc LM2: xam');
+  assert.equal(tone('lm', 'e2', '2027-01-25'), 'pending', 'Chua tu danh gia sau giai doan Tu danh gia: xam');
+  assert.equal(tone('lm', notYet.id, '2027-01-12'), 'incomplete', 'Chua tu danh gia trong giai doan Tu danh gia: hong');
+  assert.equal(tone('lm', 'e1', '2027-04-06'), 'completed', 'da cong bo');
 });
 
 test('manager edit window matches the edit permission and names the right deadline', () => {
@@ -957,17 +1003,16 @@ test('manager edit window matches the edit permission and names the right deadli
   const Y = w.PMSYer;
   const win = (role, id, date) => Y.managerEditWindow(role, Y.profile(id, date));
 
-  assert.deepEqual({ ...win('lm', 'e13', '2027-01-15') }, { from: '2027-01-19', to: '2027-02-01', reason: null, state: 'future' });
+  assert.deepEqual({ ...win('lm', 'e13', '2027-01-15') }, { from: '2027-01-19', to: '2027-02-08', state: 'future' });
   assert.equal(win('lm', 'e10', '2027-01-27').state, 'open');
-  assert.equal(win('lm', 'e10', '2027-02-05').state, 'closed');
-  // Hồ sơ nộp bổ sung: hạn riêng 3 ngày làm việc từ ngày nộp (§27.3)
-  const late = win('lm', 'y12', '2027-02-02');
-  assert.equal(late.to, '2027-02-02');
-  assert.equal(late.reason, 'late');
+  assert.equal(win('lm', 'e10', '2027-02-12').state, 'closed');
+  // Hồ sơ nộp bổ sung dùng chung hạn QLTT (chốt lại 02/10/2026)
+  const late = win('lm', 'y12', '2027-02-08');
+  assert.equal(late.to, '2027-02-08');
   assert.equal(late.state, 'open');
-  assert.equal(win('lm2', 'y8', '2027-02-10').to, '2027-02-15');
+  assert.equal(win('lm2', 'y8', '2027-02-17').to, '2027-02-22');
   // Quyền sửa và cửa sổ đọc cùng một luật
-  for (const [role, id, date] of [['lm', 'e10', '2027-01-27'], ['lm', 'y12', '2027-02-02'], ['lm', 'e10', '2027-02-05'], ['lm2', 'y8', '2027-02-10']]) {
+  for (const [role, id, date] of [['lm', 'e10', '2027-01-27'], ['lm', 'y12', '2027-02-08'], ['lm', 'e10', '2027-02-12'], ['lm2', 'y8', '2027-02-17']]) {
     const p = Y.profile(id, date);
     assert.equal(Y.managerReviewState(role, p).stepOpen, Y.managerEditWindow(role, p).state === 'open', `${role} ${id} ${date}`);
   }
@@ -1199,9 +1244,11 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /return Y\.reviewGoals\(p, type\);/);
   assert.match(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), /var imported = \(p\.lateSubmission && p\.lateSubmission\.goals\) \|\| \[\];/);
   assert.match(source, /không qua bước duyệt/);
-  // Nộp bổ sung là một gạch đầu dòng trong khối Lưu ý; sau khi gửi, banner mang nhãn Trễ hạn như E-05
-  assert.match(source, /Nhân viên <strong>nộp bổ sung<\/strong> Tự đánh giá ngày/);
-  assert.match(source, /'<div class="sb-sub"><span class="yer-late-status">'/);
+  // Nộp bổ sung nổi bật bằng banner như E-05 (chốt 02/10/2026), không còn là gạch đầu dòng trong khối Lưu ý
+  assert.match(source, /L\('Nhân viên đã hoàn thành bổ sung Tự đánh giá cuối năm'/);
+  assert.match(source, /if \(!mySubmitted\(p\)\) return lateBanner\(p\);/);
+  assert.doesNotMatch(source, /Nhân viên <strong>nộp bổ sung<\/strong> Tự đánh giá ngày/);
+  assert.match(source, /' <span class="yer-late-status">'/);
   assert.match(source, /Y\.lateDays\(p\.lateSubmission\.at\)/);
   assert.match(source, /'\.yer-late-status\{[^}]*' \+\s*'background:var\(--err-bg\);color:var\(--err\)/);
 });
@@ -1212,20 +1259,39 @@ test('manager demo separates roster phases from role-filtered detail scenarios',
   assert.match(demo, /var MANAGER_STEPS = \['self', 'lm', 'lm2', 'hod', 'publish'\]/);
   assert.match(demo, /var managerList = onScreen\('M-05\/index\.html'\)/);
   assert.match(demo, /var managerDetail = onScreen\('M-06\/index\.html'\)/);
-  assert.match(demo, /sc\.role === s\.role && sc\.screen === 'M-06'/);
-  assert.match(demo, /managerDetail[\s\S]*Tình huống chi tiết/);
+  // M-06 (chốt 02/10/2026): một dropdown cho ba vai, nhóm theo vai và nhóm con; không còn ô Vai trò và thanh kéo ngày,
+  // thay bằng mốc thời gian của tình huống; dòng Cần xem; nút Xem phía Nhân viên; làm lại riêng tình huống đang xem
+  assert.match(demo, /return sc\.g === g\.id && sc\.screen === 'M-06';/);
+  assert.match(demo, /label\(g\) \+ ': ' \+ label\(sb\)/);
   assert.match(demo, /var scenarioControl = managerDetail/);
+  const detailBar = demo.slice(demo.indexOf('Thanh demo của màn chi tiết'), demo.indexOf("goScreen('E-05');"));
+  assert.doesNotMatch(detailBar, /dm-role|type="range"/);
+  assert.match(detailBar, /data-moment="/);
+  assert.match(detailBar, /Cần xem:/);
+  assert.match(detailBar, /Xem phía Nhân viên/);
+  assert.match(demo, /function optionText\(sc\) \{ return sc\.id \+ ' - ' \+ label\(sc\) \+ ' \(' \+ empName\(sc\) \+ '\)'; \}/);
+  assert.doesNotMatch(demo, /' — '/);
+  assert.match(demo, /Object\.keys\(acts\)\.forEach\(function \(k\) \{ S\.clearAct\(s\.emp, k\); \}\);/);
+  // M-05 giữ thanh ngày và giai đoạn
   assert.match(demo, /return !managerScreen \|\| MANAGER_STEPS\.indexOf\(st\.key\) >= 0/);
   assert.match(demo, /Giai đoạn/);
-  assert.match(demo, /var empSelect = bar\.querySelector\('#dm-emp'\)/);
+  // Dữ liệu: mọi tình huống M-06 có cần xem; mốc thời gian nằm trong khoảng của thanh demo; pair trỏ đúng tình huống Nhân viên cùng hồ sơ
+  const w = loadYer();
+  const byId = Object.fromEntries(Array.from(w.PMS_YER_SCENARIOS, x => [x.id, x]));
+  for (const sc of w.PMS_YER_SCENARIOS.filter(x => x.screen === 'M-06')) {
+    assert.ok(sc.wvi, sc.id);
+    for (const m of sc.moments || []) assert.ok(m.date && m.vi, sc.id);
+    if (sc.pair) { assert.equal(byId[sc.pair].role, 'nv', sc.id); assert.equal(byId[sc.pair].emp, sc.emp, sc.id); }
+  }
+  assert.equal(byId.lm07, undefined, 'lm07 gop vao lm06');
 });
 
 test('all manager levels can edit a submitted review while their own timeline remains open', () => {
   const w = loadYer();
   const cases = [
     ['lm09', 'lm', 'e10', '2027-01-27'],
-    ['lm2-05', 'lm2', 'e11', '2027-02-13'],
-    ['hod05', 'hod', 'e12', '2027-02-20']
+    ['lm2-05', 'lm2', 'e11', '2027-02-20'],
+    ['hod05', 'hod', 'e12', '2027-02-27']
   ];
   for (const [scenarioId, role, emp, date] of cases) {
     const scenario = w.PMS_YER_SCENARIOS.find(item => item.id === scenarioId);
@@ -1246,8 +1312,17 @@ test('all manager levels can edit a submitted review while their own timeline re
 
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   const editable = detail.slice(detail.indexOf('function editable(p)'), detail.indexOf('function toolbar(p'));
-  assert.match(editable, /Y\.managerReviewState\(role\(\), p\)\.canEdit/);
-  assert.doesNotMatch(editable, /return !mySubmitted\(p\)/);
+  assert.match(editable, /Y\.managerReviewState\(role\(\), p\)\.canEdit && \(!mySubmitted\(p\) \|\| isEditing\(p\)\)/);
+  // Sau khi gửi là chế độ xem; bấm Chỉnh sửa ở banner mới mở lại các ô (chốt 02/10/2026)
+  assert.match(detail, /\(canReopen\(p\) \? '<button class="btn btn-cta-outline btn-sm" type="button" id="yer-md-edit"/);
+  assert.match(detail, /L\('Hủy chỉnh sửa', 'Cancel editing'\)/);
+  assert.match(detail, /delete editingMem\[editKey\(p\)\]; \/\/ lưu xong thì về chế độ xem/);
+  // Nhóm nút nổi khi cuộn như E-05 (§49, chốt 02/10/2026)
+  assert.match(detail, /'<div class="yer-md-actbar"><div class="cycle-actions yer-mgr-actions">'/);
+  assert.match(detail, /actions\.classList\.toggle\('floating', float\);/);
+  assert.match(detail, /#yer-mgr-detail-root \.yer-mgr-actions\.floating\{position:fixed;/);
+  // Cạnh trái hồng chạy liền cả toolbar (COMPONENTS §15)
+  assert.match(fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8'), /\.editable-panel \.ev-toolbar\{box-shadow:inset 3px 0 0 var\(--brand\)\}/);
   assert.match(detail, /function submittedDraft\(p\)/);
   assert.match(detail, /loadDraft\(p\)/);
   assert.match(detail, /L\('Lưu thay đổi', 'Save changes'\)/);
@@ -1314,8 +1389,7 @@ test('MYR tab is shown as year-end history only inside a demo-bar use case of th
 
   const demo = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
   assert.match(demo, /patch\.scenario = sc\.id/);
-  assert.match(demo, /S\.setSession\(\{ emp: sc\.emp, role: sc\.role, date: sc\.date, scenario: sc\.id \}\)/);
-  assert.match(demo, /S\.setSession\(\{ emp: v\.slice\(4\), scenario: null \}\)/);
+  assert.match(demo, /S\.setSession\(\{ emp: sc\.emp, role: sc\.role, date: sc\.date, scenario: sc\.id, from: null \}\)/);
   assert.match(demo, /S\.setSession\(\{ role: e\.target\.value, scenario: null \}\)/);
 
   const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
@@ -1344,23 +1418,51 @@ test('mid-year list puts people waiting on my role first and HOD timeline matche
   assert.match(e05, /HOD đánh giá<\/div>\s*<div class="step-timeline">22\/07 – 25\/07\/2026<\/div>/);
 });
 
+test('late submission: one file only, the manager rates right after it, waits while the window is open (02/10/2026)', () => {
+  const w = loadYer();
+  const Y = w.PMSYer;
+  // e8 chưa nộp ở lần nhắc 3: QLTT chờ, có lần nhắc để màn Quản lý báo khối vàng
+  const before = Y.profile('e8', '2027-01-27');
+  assert.equal(Y.lateWaiting(before).round, 3);
+  assert.equal(Y.managerReviewState('lm', before).canEdit, false);
+  // Nộp ngày 28/01: QLTT chấm được ngay, không chờ hết thời gian nộp bổ sung
+  const after = Y.profile('e8', '2027-01-28');
+  assert.equal(Y.lateWaiting(after), null);
+  assert.ok(after.lateSubmission);
+  assert.equal(Y.managerReviewState('lm', after).canEdit, true);
+  // Thiếu mục tiêu, không nộp sau mọi lần nhắc: Không đánh giá
+  assert.equal(Y.profile('y10', '2027-02-04').stopped, true);
+  // Thai sản không đi luồng nộp trễ
+  assert.equal(Y.lateWaiting(Y.profile('e4', '2027-01-22')), null);
+  const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  assert.match(detail, /if \(Y\.lateWaiting\(p\)\) return waitingBlock\(p, canEdit\);/);
+  assert.match(detail, /L\('Đang chờ nhân viên nộp bổ sung Tự đánh giá'/);
+  assert.match(detail, /'<div class="yer-note yer-late-closed yer-late-wait">/);
+});
+
 test('an employee with enough goals but no self assessment is still rated by the line manager until the LM deadline', () => {
   const w = loadYer();
   const Y = w.PMSYer;
   // e2 đủ mục tiêu, không tự đánh giá, QLTT chưa chấm (YER-SPEC §6)
-  const lastLmDays = ['2027-01-30', Y.step('lm').to];
-  for (const date of lastLmDays) {
-    const p = Y.profile('e2', date);
-    assert.equal(p.eligibility.eligible, true);
-    assert.equal(p.self, null);
-    assert.equal(p.stopped, false, `${date} must not stop the profile`);
-    assert.equal(Y.managerReviewState('lm', p).canEdit, true);
-  }
+  // Còn trong thời gian nộp bổ sung: QLTT chờ, chưa chấm được (chốt 02/10/2026)
+  const waiting = Y.profile('e2', '2027-01-30');
+  assert.equal(waiting.stopped, false);
+  assert.ok(Y.lateWaiting(waiting));
+  assert.equal(Y.managerReviewState('lm', waiting).canEdit, false);
+  // Hết các lần nhắc mà không nộp: QLTT chấm tới hết hạn QLTT
+  const lastDay = Y.profile('e2', Y.step('lm').to);
+  assert.equal(lastDay.eligibility.eligible, true);
+  assert.equal(lastDay.self, null);
+  assert.equal(Y.lateWaiting(lastDay), null);
+  assert.equal(Y.managerReviewState('lm', lastDay).canEdit, true);
+  assert.equal(Y.managerReviewState('lm', lastDay).pending, true, 'viec cua QLTT');
+  // Hết bốn lần nhắc mà vẫn trong timeline QLTT: QLTT vẫn chấm được, chưa phải Không đánh giá
+  const afterLate = Y.profile('e2', Y.addDays(Y.lateSubmissionDeadline(), 1));
+  assert.equal(afterLate.stopped, false);
+  assert.equal(Y.managerReviewState('lm', afterLate).canEdit, true);
   const afterLm = Y.profile('e2', Y.addDays(Y.step('lm').to, 1));
   assert.equal(afterLm.stopped, true);
-  // Con trong bon lan nhac nop bo sung (§27.3) thi van la nop tre, het ca bon lan moi la Khong danh gia
-  assert.equal(Y.status(afterLm, 'vi').key, 'late-upload');
-  assert.equal(Y.status(Y.profile('e2', Y.addDays(Y.lateSubmissionDeadline(), 1)), 'vi').key, 'noeval');
+  assert.equal(Y.status(afterLm, 'vi').key, 'noeval');
 
   const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   assert.doesNotMatch(employee, /Bạn không có kết quả Đánh giá giữa năm/);
@@ -1371,7 +1473,7 @@ test('an employee with enough goals but no self assessment is still rated by the
 test('the return-for-edit flow is gone: each role only edits its own review inside its own timeline', () => {
   const w = loadYer();
   const Y = w.PMSYer;
-  const date = '2027-02-05';
+  const date = '2027-02-12';
   const emp = w.PMS_EMPLOYEES.map(e => Y.profile(e.id, date)).find(p => p && p.lm && !p.lm.synced && !p.lm2);
   assert.ok(emp, 'need a profile waiting for LM2');
   // Du lieu cu con ban ghi tra ve cung khong mo lai quyen sua cua QLTT (chot 30/09/2026)

@@ -23,7 +23,8 @@
   var MGR_ROLES = ['lm', 'lm2', 'hod'];
   /* filters: các ô của Bộ lọc; selected: hồ sơ đã tick để duyệt điểm cấp trước (LM2, HOD);
      split, spEmp, spSearch: Split View như tab Giữa năm */
-  var state = { filters: null, filterOpen: false, selected: {}, split: false, spEmp: null, spSearch: '' };
+  /* sort: { key, dir: 'asc'|'desc' } khi người dùng bấm tiêu đề cột, null là thứ tự ưu tiên của §47 */
+  var state = { filters: null, filterOpen: false, selected: {}, split: false, spEmp: null, spSearch: '', sort: null };
   // Màn Quản lý dùng cùng 5 mốc nghiệp vụ mà Nhân viên nhìn thấy. Hai bước xử lý
   // nội bộ của HR không thuộc quy trình chấm điểm của ba vai quản lý này.
   var MGR_STEPS = ['self', 'lm', 'lm2', 'hod', 'publish'];
@@ -36,7 +37,7 @@
   /* ── quy trình và thời gian ───────────────────
      Dùng cùng cấu trúc 5 bước của màn Nhân viên, nhưng danh sách Quản lý không
      gắn domain cá nhân vào từng bước. */
-  /* Mọi bước chỉ hiện hạn chót. Ngày bắt đầu của cả kỳ đưa lên tiêu đề dải (ENH-E14). */
+  /* Mọi bước chỉ hiện hạn chót. Tiêu đề dải không ghi ngày bắt đầu kỳ (bỏ 02/10/2026). */
   function stepDate(st) {
     return L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg());
   }
@@ -101,11 +102,79 @@
       return true;
     });
     // Giữ thứ tự ban đầu bên trong từng nhóm ưu tiên để danh sách không nhảy khó theo dõi.
-    return list.map(function (p, index) { return { p: p, index: index }; })
+    list = list.map(function (p, index) { return { p: p, index: index }; })
       .sort(function (a, b) {
         return rosterRank(a.p) - rosterRank(b.p) || a.index - b.index;
       })
       .map(function (item) { return item.p; });
+    return sortList(list);
+  }
+
+  /* ── Sắp xếp theo cột (chốt 02/10/2026) ──────────────────
+     Bấm tiêu đề cột: lần 1 A → Z (điểm tăng dần), lần 2 Z → A (điểm giảm dần), lần 3 về thứ tự ưu tiên của §47.
+     Ô trống (chưa có điểm, chưa có quản lý) luôn nằm cuối dù sắp xếp chiều nào. Cùng giá trị thì giữ thứ tự ưu tiên. */
+  function scoreOf(entry) { return entry == null || entry === '' ? null : Number(entry); }
+  var SORT_COLS = {
+    emp: { text: true, get: function (p) { return p.emp.name; } },
+    lm1: { text: true, get: function (p) { var a = Y.actors(p).lm; return a ? a.name : null; } },
+    lm2name: { text: true, get: function (p) { var a = Y.actors(p).lm2; return a ? a.name : null; } },
+    status: { text: true, get: function (p) { return listStatus(p).label; } },
+    self: { get: function (p) { return scoreOf(p.self && p.self.overall ? p.self.overall.score : null); } },
+    lm: { get: function (p) { return scoreOf(p.lm && p.lm.overall ? p.lm.overall.score : null); } },
+    lm2: { get: function (p) { return scoreOf(p.lm2 ? p.lm2.score : null); } },
+    hod: { get: function (p) { return scoreOf(p.hod ? p.hod.score : null); } },
+    final: { get: function (p) { return scoreOf(p.final ? p.final.score : null); } }
+  };
+  function sortList(list) {
+    var sort = state.sort, col = sort && SORT_COLS[sort.key];
+    if (!col) return list;
+    var dir = sort.dir === 'desc' ? -1 : 1;
+    return list.map(function (p, index) { return { p: p, index: index, v: col.get(p) }; })
+      .sort(function (a, b) {
+        var ea = a.v == null || a.v === '', eb = b.v == null || b.v === '';
+        if (ea || eb) return (ea - eb) || a.index - b.index;
+        var c = col.text ? String(a.v).localeCompare(String(b.v), 'vi', { sensitivity: 'base' }) : a.v - b.v;
+        return c * dir || a.index - b.index;
+      })
+      .map(function (item) { return item.p; });
+  }
+  function sortTh(key, label, extra, cls) {
+    var on = state.sort && state.sort.key === key ? state.sort.dir : '';
+    var text = SORT_COLS[key].text;
+    var tipText = on === 'asc'
+      ? (text ? L('Đang xếp A → Z. Bấm để xếp Z → A', 'Sorted A to Z. Click for Z to A')
+              : L('Đang xếp tăng dần. Bấm để xếp giảm dần', 'Sorted ascending. Click for descending'))
+      : on === 'desc'
+        ? L('Bấm để về thứ tự ưu tiên', 'Click to return to the priority order')
+        : (text ? L('Sắp xếp A → Z', 'Sort A to Z') : L('Sắp xếp tăng dần', 'Sort ascending'));
+    var icon = on === 'asc' ? 'bx-sort-up' : on === 'desc' ? 'bx-sort-down' : 'bx-sort-alt-2';
+    var aria = on === 'asc' ? 'ascending' : on === 'desc' ? 'descending' : 'none';
+    return '<th' + (cls ? ' class="' + cls + '"' : '') + ' aria-sort="' + aria + '">' +
+      '<button type="button" class="yer-th-sort' + (on ? ' on' : '') + '" data-sort="' + key + '" aria-label="' + esc(label + ': ' + tipText) +
+      '" data-tip="' + esc(tipText) + '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()">' +
+      '<span>' + label + '</span><i class="bx ' + icon + '"></i></button>' + (extra || '') + '</th>';
+  }
+  function toggleSort(key) {
+    var cur = state.sort && state.sort.key === key ? state.sort.dir : '';
+    state.sort = cur === '' ? { key: key, dir: 'asc' } : cur === 'asc' ? { key: key, dir: 'desc' } : null;
+    var thead = el('yer-mgr-thead');
+    if (thead) { thead.innerHTML = headerRow(); bindHead(); }
+    refreshRows();
+  }
+  // Tiêu đề bảng: nút sắp xếp và ô chọn tất cả. Dựng lại tiêu đề khi đổi chiều sắp xếp thì gắn lại.
+  function bindHead() {
+    document.querySelectorAll('#yer-mgr-thead [data-sort]').forEach(function (b) {
+      b.addEventListener('click', function () { hideTip(); toggleSort(b.dataset.sort); });
+    });
+    var all = el('yer-mgr-all');
+    if (all) all.addEventListener('change', function () {
+      document.querySelectorAll('#yer-mgr-tbody [data-check-emp]:not(:disabled)').forEach(function (box) {
+        box.checked = all.checked;
+        if (all.checked) state.selected[box.dataset.checkEmp] = true;
+        else delete state.selected[box.dataset.checkEmp];
+      });
+      syncBulk();
+    });
   }
 
   function numText(value) {
@@ -153,6 +222,8 @@
     if (p.maternity) tags.push('<span class="emp-tag emp-tag-maternity">' + L('Đang nghỉ thai sản', 'On maternity leave') + '</span>');
     // ENH-E02: hồ sơ nộp trễ đi theo luồng riêng
     if (p.lateSubmission) tags.push('<span class="emp-tag emp-tag-late">' + L('Nộp trễ hạn', 'Submitted late') + '</span>');
+    // Hết mọi lần nhắc mà không nộp bổ sung, đủ mục tiêu: QLTT vẫn chấm, cột điểm NV trống (chốt 02/10/2026)
+    if (Y.status(p, 'vi').key === 'no-self') tags.push('<span class="emp-tag emp-tag-noself">' + L('Không tự đánh giá', 'No self assessment') + '</span>');
     if (!tags.length) return '';
     return '<div class="myr-emp-tags">' + tags.join('') + '</div>';
   }
@@ -205,15 +276,15 @@
         esc(L('Chọn tất cả nhân viên đủ điều kiện', 'Select all eligible employees')) + '" title="' +
         esc(L('Chọn tất cả nhân viên đủ điều kiện', 'Select all eligible employees')) + '"></th>');
     }
-    cols.push('<th>' + L('Nhân viên', 'Employee') + '</th>');
-    if (r === 'lm2' || r === 'hod') cols.push('<th>' + L('Quản lý trực tiếp', 'Line manager') + '</th>');
-    if (r === 'hod') cols.push('<th>' + L('Quản lý cấp 2', 'Second-level manager') + '</th>');
-    cols.push('<th>' + L('Trạng thái', 'Status') + '</th>');
-    cols.push('<th class="score">' + L('Điểm của NV', 'Employee') + '</th>');
-    cols.push('<th class="score">' + L('Điểm của QLTT', 'Line manager') + '</th>');
-    cols.push('<th class="score">' + L('Điểm của QL cấp 2', 'Second level') + (r === 'lm2' ? rateInfo() : '') + '</th>');
-    cols.push('<th class="score">' + L('Điểm của Trưởng đơn vị', 'Head of dept') + (r === 'hod' ? rateInfo() : '') + '</th>');
-    cols.push('<th class="score">' + L('Điểm cuối cùng', 'Final') + '</th>');
+    cols.push(sortTh('emp', L('Nhân viên', 'Employee')));
+    if (r === 'lm2' || r === 'hod') cols.push(sortTh('lm1', L('Quản lý trực tiếp', 'Line manager')));
+    if (r === 'hod') cols.push(sortTh('lm2name', L('Quản lý cấp 2', 'Second-level manager')));
+    cols.push(sortTh('status', L('Trạng thái', 'Status')));
+    cols.push(sortTh('self', L('Điểm của NV', 'Employee'), '', 'score'));
+    cols.push(sortTh('lm', L('Điểm của QLTT', 'Line manager'), '', 'score'));
+    cols.push(sortTh('lm2', L('Điểm của QL cấp 2', 'Second level'), r === 'lm2' ? rateInfo() : '', 'score'));
+    cols.push(sortTh('hod', L('Điểm của Trưởng đơn vị', 'Head of dept'), r === 'hod' ? rateInfo() : '', 'score'));
+    cols.push(sortTh('final', L('Điểm cuối cùng', 'Final'), '', 'score'));
     cols.push('<th class="score">' + L('Chức năng', 'Action') + '</th>');
     return '<tr>' + cols.join('') + '</tr>';
   }
@@ -250,35 +321,30 @@
     return '<td class="myr-action-cell"><div class="yer-mgr-acts">' + (gridRole() ? aiBtn(p) : '') + actionBtn(p) + '</div></td>';
   }
 
-  /* Trạng thái trên danh sách: cùng câu chữ và cùng bộ màu với tab Đánh giá giữa năm (chốt 30/09/2026).
-     Hồng chỉ cho `Chưa tự đánh giá`, xanh cho đã công bố kết quả, mọi trạng thái chờ là xám.
-     Việc của vai đang xem nhận ra bằng thứ tự danh sách và nút bút, không bằng màu. */
+  /* Trạng thái trên danh sách: cùng câu chữ với tab Đánh giá giữa năm (chốt 30/09/2026).
+     Màu theo luật PMSYer.managerStatusTone (chốt 02/10/2026): hồng khi hồ sơ đang chờ đúng vai đang xem và vai đó làm
+     được ngay, cùng `Chưa tự đánh giá` trong giai đoạn Tự đánh giá; xanh khi đã công bố; còn lại xám. */
   function listStatus(p) {
     var st = Y.status(p, lg());
     var key = st.key;
     var label = st.label;
-    var tone = 'pending';
-    var review = Y.managerReviewState(role(), p);
 
     if (key === 'need-self' || key === 'late-upload') {
       label = L('Chưa tự đánh giá', 'Self assessment missing');
-      // QLTT đã chấm hồ sơ chưa tự đánh giá thì không còn việc cho QLTT nên về xám
-      tone = review.submitted ? 'pending' : 'incomplete';
     } else if (key === 'maternity') {
       // Thai sản là thông tin hồ sơ (đã có badge ở cột Nhân viên), cột Trạng thái nói việc đang chờ
       label = Y.stepState('lm', p.now) === 'future'
         ? L('Không yêu cầu Tự đánh giá', 'Self assessment not required')
         : L('Chờ QLTT đánh giá', 'Awaiting line manager review');
-    } else if (key === 'wait-lm') {
+    } else if (key === 'wait-lm' || key === 'no-self') {
+      // no-self: hết thời gian nộp bổ sung mà không nộp, đủ mục tiêu, nên vẫn chờ QLTT chấm (tag dưới tên nói rõ)
       label = L('Chờ QLTT đánh giá', 'Awaiting line manager review');
     } else if (key === 'wait-lm2') {
       label = L('Chờ QL Cấp 2 đánh giá', 'Awaiting second-level manager');
     } else if (key === 'wait-hod') {
       label = L('Chờ HOD đánh giá', 'Awaiting HOD');
-    } else if (key === 'published') {
-      tone = 'completed';
     }
-    return { key: key, label: label, tone: tone };
+    return { key: key, label: label, tone: Y.managerStatusTone(role(), p) };
   }
 
   /* ── chấm điểm trên lưới (LM2, HOD) ──────────────────── */
@@ -495,11 +561,11 @@
         '<span id="yer-cm-count" class="yer-cm-count">' + String(draftText).length + ' / 1000</span></div>' +
       historyHtml(p);
     var cur = { score: draftScore, comment: draftText, ack: !!(keep && keep.ack) };
-    // Hồ sơ nộp bổ sung có hình thức xử lý: nhắc ngay dưới ô điểm; vượt mức tối đa thì phải tick xác nhận (§27.3)
+    // Hồ sơ bị giới hạn điểm 3 (nộp ở lần nhắc thứ 3): nhắc ngay trên ô điểm; vượt mức tối đa thì phải tick xác nhận (§27.3)
     function drawCap() {
       var node = el('yer-cm-cap');
       if (!node) return;
-      var text = Y.lateMeasureText(p, lg());
+      var text = Y.lateCapNotice(p, lg());
       if (!text) { node.innerHTML = ''; return; }
       var cap = Y.ratingCapText(p, cur.score, lg());
       var over = active && Y.overRatingCap(p, cur.score);
@@ -1137,11 +1203,10 @@
   function mountSteps() {
     var node = el('yer-mgr-steps');
     if (!node) return;
-    var opens = Y.fmt(Y.step('self').from, lg());
     U.steps(node, {
-      // Ngày bắt đầu kỳ nằm ở tiêu đề, từng bước bên dưới chỉ còn hạn chót
-      title: L('Quy trình và Thời gian đánh giá cuối năm 2026 - bắt đầu ' + opens,
-               'Year-End Review 2026 process and timeline - opens ' + opens),
+      // Tiêu đề không ghi ngày bắt đầu kỳ (bỏ 02/10/2026), từng bước chỉ ghi hạn chót
+      title: L('Quy trình và Thời gian đánh giá cuối năm 2026',
+               'Year-End Review 2026 process and timeline'),
       collapseKey: 'yer-mgr',
       items: stepItems()
     });
@@ -1285,6 +1350,7 @@
 
   function switchRole(next) {
     state.filters = blankFilters();
+    state.sort = null; // mỗi vai có bộ cột riêng
     state.filterOpen = false;
     state.selected = {};
     S.setSession({ role: next });
@@ -1373,15 +1439,7 @@
       if (role() === 'lm') switchRole('lm2');
     });
     bindFilterRow();
-    var all = el('yer-mgr-all');
-    if (all) all.addEventListener('change', function () {
-      document.querySelectorAll('#yer-mgr-tbody [data-check-emp]:not(:disabled)').forEach(function (box) {
-        box.checked = all.checked;
-        if (all.checked) state.selected[box.dataset.checkEmp] = true;
-        else delete state.selected[box.dataset.checkEmp];
-      });
-      syncBulk();
-    });
+    bindHead();
     var split = el('yer-mgr-split');
     if (split) split.addEventListener('click', function () { setSplit(!state.split); });
     var spSearch = el('yer-mgr-sp-search');
@@ -1411,6 +1469,7 @@
       '#yer-mgr-filter-row{display:flex;align-items:center}' +
       '#yer-mgr-filter-row .filter-shell{margin-bottom:0}' +
       '.emp-tag-late{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bd)}' +
+      '.emp-tag-noself{background:var(--z100);color:var(--z700);border-color:var(--z200)}' +
       // (HR system): chữ thường trong ngoặc, không viền, không nền
       '.yer-sync-tag{display:inline-block;margin-left:4px;font-size:11px;font-weight:500;color:var(--z600);white-space:nowrap}' +
       '.yer-mgr-table-wrap{overflow-x:auto}' +
@@ -1450,6 +1509,13 @@
       '.yer-cm-log-tx{margin-top:3px;font-size:12.5px;color:var(--z700);line-height:1.5;white-space:pre-wrap}' +
       '#yer-mgr-calib:disabled{opacity:.5;cursor:not-allowed}' +
       '.yer-th-info{font-size:13px;color:var(--z500);vertical-align:-2px;cursor:help;margin-left:2px}' +
+      // Tiêu đề cột bấm được để sắp xếp (chốt 02/10/2026): chữ giữ kiểu tiêu đề bảng, icon nhạt, cột đang xếp màu nhấn
+      '.yer-th-sort{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:transparent;font:inherit;color:inherit;' +
+        'text-transform:inherit;letter-spacing:inherit;text-align:inherit;line-height:inherit;cursor:pointer;border-radius:var(--rxs)}' +
+      '.yer-th-sort i{flex:none;font-size:13px;color:var(--z400);transition:var(--t)}' +
+      '.yer-th-sort:hover,.yer-th-sort:hover i{color:var(--z800)}' +
+      '.yer-th-sort.on,.yer-th-sort.on i{color:var(--brand)}' +
+      '.yer-th-sort:focus-visible{outline:2px solid var(--brand-ring);outline-offset:2px}' +
       '.yer-th-info:hover,.yer-th-info:focus-visible{color:var(--brand);outline:none}' +
       '.sp-en .er-login{font-weight:400;color:var(--z600)}' +
       '.yer-ai-btn{width:24px;height:24px;flex:none;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--brand-ring);' +

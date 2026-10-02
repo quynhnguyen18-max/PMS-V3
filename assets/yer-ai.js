@@ -32,39 +32,44 @@
     var t = sentences(text)[0] || '';
     return t.length > 170 ? t.slice(0, 167) + '…' : t;
   }
-  function avg(obj) {
-    var vals = Object.keys(obj || {}).map(function (k) { return obj[k]; }).filter(function (v) { return v != null; });
-    if (!vals.length) return null;
-    return Math.round(vals.reduce(function (s, v) { return s + Number(v); }, 0) / vals.length * 10) / 10;
-  }
   function mascot() { return '<img class="dialog-ai-summary-mascot" src="../assets/mascot/think.png" alt=""/>'; }
 
   /* ── AI Summary ──────────────────────────────────────── *
-     Bố cục (chốt 30/09/2026):
+     Bố cục (chốt lại 02/10/2026):
        1. Dòng `Nhân viên: Tên (domain)` tách hẳn khỏi phần nội dung.
-       2. `Điểm toàn diện các cấp`: dữ liệu, không phải AI. Mỗi cấp một cột: Nhân viên, QLTT, QL cấp 2, Trưởng đơn vị.
-          Ngay dưới là `Lưu ý về hồ sơ` (nộp bổ sung, thai sản, LWD, điểm hệ thống chép): thông tin độc lập, không do AI tổng hợp.
-       3. Khối AI (mascot): `Nhân viên tự đánh giá` và `Các cấp quản lý đánh giá` tách riêng. */
-  function scoreCard(label, value, synced) {
-    return '<div class="yer-ai-sc"><div class="yer-ai-sc-lbl">' + esc(label) + '</div>' +
-      '<div class="yer-ai-sc-val">' + (value != null ? esc(numText(value)) : '—') + '</div>' +
-      (synced ? '<div class="yer-ai-sc-sub">(HR system)</div>' : '') + '</div>';
+       2. `Điểm toàn diện các cấp`: dữ liệu, không phải AI. Bốn thẻ nhỏ theo thứ tự vai, mỗi thẻ là tên vai, domain người chấm
+          và điểm (cỡ chữ vừa, không nổi hơn nội dung). Ngay dưới là lưu ý về hồ sơ (nộp bổ sung, thai sản, LWD, điểm hệ thống chép).
+       3. Khối AI (mascot): `Nhân viên tự đánh giá` và `Các cấp quản lý đánh giá`, mỗi ý là một gạch đầu dòng, không chia mục con.
+          Chỉ tổng hợp nhận xét về mục tiêu công việc, mục tiêu phát triển, hành vi (giá trị cốt lõi) và toàn diện;
+          không nhắc tới điểm trong phần này.
+       Popup cao tối đa bằng màn hình, phần nội dung cuộn, tiêu đề và nút Đóng đứng yên. */
+  function scoreCard(label, login, value, synced) {
+    return '<div class="yer-ai-sc"><div class="yer-ai-sc-who"><div class="yer-ai-sc-lbl">' + esc(label) + '</div>' +
+        (login ? '<div class="yer-ai-sc-dom">' + esc(login) + '</div>' : '') + '</div>' +
+      '<div class="yer-ai-sc-num"><div class="yer-ai-sc-val">' + (value != null ? esc(numText(value)) : '—') + '</div>' +
+        (synced ? '<div class="yer-ai-sc-sub">(HR system)</div>' : '') + '</div></div>';
   }
 
   function bullets(items) {
-    return '<ul class="yer-ai-list">' + items.map(function (it) {
-      return '<li><span class="yer-ai-h">' + esc(it.h) + '</span>' + it.t + '</li>';
-    }).join('') + '</ul>';
+    return '<ul class="yer-ai-list">' + items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+  }
+
+  // Một ý cho mỗi ô nhận xét: câu đầu của nhận xét nhóm công việc, phát triển, hành vi, rồi nhận xét toàn diện
+  function commentPoints(comments, overall) {
+    var c = comments || {};
+    return [c.what, c.dev, c.how, overall].filter(function (t) { return plain(t); }).map(firstSentence);
   }
 
   function summaryHtml(p) {
+    var who = Y().actors(p);
+    function dom(person) { return person && person.login ? person.login : ''; }
     var selfS = p.self && p.self.overall ? p.self.overall.score : null;
     var lmS = p.lm && p.lm.overall ? p.lm.overall.score : null;
     var scores = '<div class="yer-ai-scores">' +
-      scoreCard(L('Nhân viên', 'Employee'), selfS) +
-      scoreCard(L('QLTT', 'Line manager'), lmS, p.lm && p.lm.synced) +
-      scoreCard(L('Quản lý cấp 2', 'Second level'), p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced) +
-      scoreCard(L('Trưởng đơn vị', 'Head of dept'), p.hod ? p.hod.score : null) + '</div>';
+      scoreCard(L('Nhân viên', 'Employee'), p.emp.login, selfS) +
+      scoreCard(L('QLTT', 'Line manager'), dom(who.lm), lmS, p.lm && p.lm.synced) +
+      scoreCard(L('Quản lý cấp 2', 'Second level'), dom(who.lm2), p.lm2 ? p.lm2.score : null, p.lm2 && p.lm2.synced) +
+      scoreCard(L('Trưởng đơn vị', 'Head of dept'), dom(who.hod), p.hod ? p.hod.score : null) + '</div>';
 
     // Lưu ý về hồ sơ: thông tin độc lập, không phải nội dung AI
     var flags = [];
@@ -77,32 +82,13 @@
       return '<div class="yer-ai-flag' + (f.warn ? ' warn' : '') + '"><i class="bx ' + (f.warn ? 'bx-error' : 'bx-info-circle') + '"></i><span>' + esc(f.t) + '</span></div>';
     }).join('') + '</div>' : '';
 
-    // Nhân viên tự đánh giá
-    var selfItems = [];
-    var sc = (p.self && p.self.comments) || {};
-    if (sc.what) selfItems.push({ h: L('Kết quả nổi bật', 'Key results'), t: esc(firstSentence(sc.what)) });
-    if (sc.dev) selfItems.push({ h: L('Phát triển', 'Development'), t: esc(firstSentence(sc.dev)) });
-    if (p.self && p.self.overall && p.self.overall.comment) selfItems.push({ h: L('Tự nhận xét toàn diện', 'Overall self comment'), t: esc(firstSentence(p.self.overall.comment)) });
-
-    // Các cấp quản lý đánh giá
-    var mgrItems = [];
-    if (selfS != null && lmS != null && Math.abs(selfS - lmS) >= 1) {
-      mgrItems.push({ h: L('Nhận định', 'Insight'), t: esc(L('Chênh lệch ' + numText(Math.abs(selfS - lmS)) + ' điểm giữa Nhân viên và QLTT, nên đọc kỹ nhận xét của QLTT.',
-        'A ' + numText(Math.abs(selfS - lmS)) + '-point gap between the employee and the line manager; read the manager comments closely.')) });
-    }
-    var goalAvg = p.lm && !p.lm.synced ? avg(p.lm.goalScores) : null;
-    var howAvg = p.lm && !p.lm.synced ? avg(p.lm.howScores) : null;
-    if (goalAvg != null || howAvg != null) {
-      mgrItems.push({ h: L('Điểm mục tiêu của QLTT', 'Line manager goal ratings'), t:
-        (goalAvg != null ? L('Mục tiêu trung bình ', 'Goals average ') + '<strong>' + goalAvg + '</strong>' : '') +
-        (goalAvg != null && howAvg != null ? ', ' : '') +
-        (howAvg != null ? L('giá trị cốt lõi trung bình ', 'core values average ') + '<strong>' + howAvg + '</strong>' : '') + '.' });
-    }
-    var lc = p.lm && !p.lm.synced ? (p.lm.comments || {}) : {};
-    if (lc.what) mgrItems.push({ h: L('QLTT về kết quả công việc', 'Line manager on results'), t: esc(firstSentence(lc.what)) });
-    if (lc.dev) mgrItems.push({ h: L('QLTT về phát triển', 'Line manager on development'), t: esc(firstSentence(lc.dev)) });
-    if (p.lm2 && !p.lm2.synced && p.lm2.comment) mgrItems.push({ h: L('Quản lý cấp 2', 'Second-level manager'), t: esc(firstSentence(p.lm2.comment)) });
-    if (p.hod && p.hod.comment) mgrItems.push({ h: L('Trưởng đơn vị', 'Head of department'), t: esc(firstSentence(p.hod.comment)) });
+    // Nhân viên tự đánh giá: nhận xét công việc, phát triển, hành vi, toàn diện
+    var selfItems = p.self ? commentPoints(p.self.comments, p.self.overall && p.self.overall.comment) : [];
+    // Các cấp quản lý: nhận xét của QLTT (bốn ô), rồi nhận xét toàn diện của Quản lý cấp 2, Trưởng đơn vị.
+    // Điểm hệ thống tự chép không kèm nhận xét nên không có ý nào.
+    var mgrItems = p.lm && !p.lm.synced ? commentPoints(p.lm.comments, p.lm.overall && p.lm.overall.comment) : [];
+    if (p.lm2 && !p.lm2.synced && plain(p.lm2.comment)) mgrItems.push(firstSentence(p.lm2.comment));
+    if (p.hod && plain(p.hod.comment)) mgrItems.push(firstSentence(p.hod.comment));
 
     var empty = function (text) { return '<div class="yer-ai-empty">' + esc(text) + '</div>'; };
     return '<section class="yer-ai-sec"><div class="yer-ai-sec-hd">' + L('Điểm toàn diện các cấp', 'Overall ratings by level') + '</div>' +
@@ -334,19 +320,28 @@
     st.id = 'yer-ai-css';
     st.textContent =
       // Popup AI Summary
-      '.yer-ai-dlg{width:min(640px,calc(100vw - 32px));max-width:none}' +
+      // Cao tối đa bằng màn hình: tiêu đề và nút Đóng đứng yên, phần nội dung cuộn (chốt 02/10/2026)
+      '.yer-ai-dlg{width:min(640px,calc(100vw - 32px));max-width:none;max-height:calc(100vh - 32px);display:flex;flex-direction:column}' +
+      '.yer-ai-dlg .pms-dlg-bd{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding-bottom:0}' +
+      '.yer-ai-dlg .pms-dlg-tx{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}' +
+      '.yer-ai-dlg .pms-dlg-ft{flex:none}' +
       '.yer-ai-hd{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--z200);font-size:13.5px;color:var(--z900)}' +
       '.yer-ai-hd-lbl{color:var(--z600)}' +
       '.dialog-ai-summary-mascot{width:20px;height:20px;object-fit:contain;flex:none}' +
-      '.yer-ai-body{min-height:80px}' +
+      '.yer-ai-body{min-height:80px;flex:1 1 auto;overflow-y:auto;margin-right:-10px;padding:0 10px 18px 0}' +
       '.yer-ai-loading{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--z600)}' +
       '.yer-ai-loading i{font-size:16px;color:var(--brand)}' +
       '.yer-ai-sec-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:8px}' +
       '.yer-ai-scores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}' +
-      '.yer-ai-sc{padding:9px 11px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50);min-width:0}' +
-      '.yer-ai-sc-lbl{font-size:11.5px;color:var(--z600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-      '.yer-ai-sc-val{margin-top:3px;font-size:20px;font-weight:700;color:var(--z900);line-height:1.2}' +
-      '.yer-ai-sc-sub{margin-top:1px;font-size:11px;color:var(--z600)}' +
+      // Thẻ điểm gọn: tên vai và domain bên trái, điểm cỡ vừa bên phải (chốt 02/10/2026)
+      '.yer-ai-sc{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 9px;border:1px solid var(--z200);' +
+        'border-radius:var(--rsm);background:var(--z50);min-width:0}' +
+      '.yer-ai-sc-who{min-width:0}' +
+      '.yer-ai-sc-lbl{font-size:11.5px;font-weight:600;color:var(--z700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+      '.yer-ai-sc-dom{font-size:11px;color:var(--z600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+      '.yer-ai-sc-num{flex:none;text-align:right}' +
+      '.yer-ai-sc-val{font-size:15px;font-weight:600;color:var(--z900);line-height:1.2}' +
+      '.yer-ai-sc-sub{font-size:10.5px;color:var(--z600);white-space:nowrap}' +
       '.yer-ai-flags{display:flex;flex-direction:column;gap:6px;margin-top:10px}' +
       '.yer-ai-flag{display:flex;gap:7px;align-items:flex-start;padding:8px 11px;border:1px solid var(--z200);border-radius:var(--rsm);' +
         'background:var(--z0);font-size:12.5px;line-height:1.5;color:var(--z700)}' +
@@ -359,10 +354,9 @@
       '.yer-ai-part + .yer-ai-part{margin-top:14px}' +
       '.yer-ai-part-hd{display:flex;align-items:center;gap:5px;margin-bottom:6px;font-size:12.5px;font-weight:600;color:var(--brand)}' +
       '.yer-ai-part-hd i{font-size:14px}' +
-      '.yer-ai-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}' +
+      '.yer-ai-list{list-style:disc;margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}' +
       '.yer-ai-list li{font-size:13px;line-height:1.55;color:var(--z700)}' +
-      '.yer-ai-list strong{color:var(--z900);font-weight:600}' +
-      '.yer-ai-h{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:1px}' +
+      '.yer-ai-list li::marker{color:var(--z400)}' +
       '.yer-ai-empty{font-size:12.5px;color:var(--z500);font-style:italic}' +
       '.yer-ai-note{margin-top:14px;padding-top:10px;border-top:1px solid var(--z200);font-size:11.5px;color:var(--z600)}' +
       '@media(max-width:560px){.yer-ai-scores{grid-template-columns:repeat(2,minmax(0,1fr))}}' +

@@ -58,6 +58,10 @@
     '#pms-demo .dm-step.on{background:#ff2e93;border-color:#ff2e93;color:#fff}',
     '#pms-demo .dm-step.past{color:rgba(255,255,255,.82)}',
     '#pms-demo .dm-spacer{flex:1}',
+    '#pms-demo .dm-moments{display:flex;gap:4px;flex-wrap:wrap}',
+    '#pms-demo .dm-hint{padding:6px 16px 8px;color:rgba(255,255,255,.78);font-size:12px;line-height:1.45}',
+    '#pms-demo .dm-hint strong{color:#fff;font-weight:700;margin-right:4px}',
+    '#pms-demo .dm-quiet{background:transparent;border-color:transparent;color:rgba(255,255,255,.6)}',
     '#pms-demo-pill{position:fixed;right:16px;bottom:16px;z-index:900;background:var(--z900);color:#fff;',
     'border:0;border-radius:50px;padding:7px 14px;font-family:"Public Sans",sans-serif;font-size:11.5px;font-weight:700;',
     'cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.22);display:none}',
@@ -178,26 +182,50 @@
       // định danh theo MÃ TÌNH HUỐNG chứ không theo mã nhân sự.
       var scById = {}, usedEmp = {};
       sortedScenarios.forEach(function (x) { scById[x.id] = x; usedEmp[x.emp] = true; });
-      var current = sortedScenarios.filter(function (x) {
-        return x.emp === s.emp && x.date === s.date && x.role === s.role;
-      })[0];
+      /* Tình huống đang xem: ưu tiên mã trong phiên (đổi mốc thời gian không làm mất tình huống), không có thì
+         khớp theo hồ sơ, vai và ngày */
+      var current = (s.scenario && scById[s.scenario] && scById[s.scenario].emp === s.emp && scById[s.scenario].role === s.role)
+        ? scById[s.scenario]
+        : sortedScenarios.filter(function (x) { return x.emp === s.emp && x.date === s.date && x.role === s.role; })[0];
+      function empName(sc) {
+        var e = emps.filter(function (item) { return item.id === sc.emp; })[0];
+        return e ? e.name : sc.emp;
+      }
+      // Mã tình huống đứng đầu để dễ dò và trao đổi, rồi tình trạng hồ sơ và tên nhân viên (không dùng gạch dài, DS §19.0)
+      function optionText(sc) { return sc.id + ' - ' + label(sc) + ' (' + empName(sc) + ')'; }
+      function onScenario(e) {
+        var v = String(e.target.value || '');
+        var sc = scById[v.slice(3)];
+        if (!sc) return;
+        S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id, from: null });
+        freshStart(sc);
+        if (goScreen(sc.screen || DEFAULT_SCREEN[sc.role])) return;
+        render(); notify('emp');
+      }
 
       var scenarioOptions = '';
       if (managerDetail) {
         // Màn chi tiết chỉ liệt kê use case của đúng vai đang xem; không cho một
         // lựa chọn âm thầm đổi cả vai trò và màn hình như thanh demo cũ.
-        var detailRows = sortedScenarios.filter(function (sc) {
-          return sc.role === s.role && sc.screen === 'M-06';
-        });
-        if (!current || current.screen !== 'M-06' || current.role !== s.role) {
+        /* Màn chi tiết (chốt 02/10/2026): một dropdown cho cả ba vai, chia nhóm theo vai và nhóm con của QLTT.
+           Chọn tình huống thì vai đổi theo, vẫn ở M-06; không còn ô Vai trò riêng. */
+        var subs = window.PMS_YER_SUBGROUPS || [];
+        if (!current || current.screen !== 'M-06') {
           scenarioOptions += '<option value="" selected disabled>' +
-            (lg === 'en' ? 'Select a detail scenario' : 'Chọn tình huống chi tiết') + '</option>';
+            (lg === 'en' ? 'Select a scenario' : 'Chọn tình huống') + '</option>';
         }
-        scenarioOptions += detailRows.map(function (sc) {
-          var e = emps.filter(function(item){ return item.id === sc.emp; })[0];
-          return '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' +
-            sc.id + ' — ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
-        }).join('');
+        groups.filter(function (g) { return MANAGER_ROLES.indexOf(g.role) >= 0; }).forEach(function (g) {
+          var rows = sortedScenarios.filter(function (sc) { return sc.g === g.id && sc.screen === 'M-06'; });
+          var buckets = subs.length && rows.some(function (sc) { return sc.sub; })
+            ? subs.map(function (sb) { return { name: label(g) + ': ' + label(sb), rows: rows.filter(function (sc) { return sc.sub === sb.id; }) }; })
+            : [{ name: label(g), rows: rows }];
+          buckets.forEach(function (bk) {
+            if (!bk.rows.length) return;
+            scenarioOptions += '<optgroup label="' + bk.name + '">' + bk.rows.map(function (sc) {
+              return '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' + optionText(sc) + '</option>';
+            }).join('') + '</optgroup>';
+          });
+        });
       } else if (!managerList) {
         // Màn Nhân viên chỉ liệt kê tình huống của vai Nhân viên (§44.1)
         if (!current) {
@@ -208,9 +236,7 @@
           var rows = sortedScenarios.filter(function(sc){ return sc.g === g.id; });
           if(!rows.length) return '';
           return '<optgroup label="' + label(g) + '">' + rows.map(function(sc){
-            var e = emps.filter(function(item){ return item.id === sc.emp; })[0];
-            return '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' +
-              sc.id + ' — ' + label(sc) + ' — ' + (e ? e.name : sc.emp) + '</option>';
+            return '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' + optionText(sc) + '</option>';
           }).join('') + '</optgroup>';
         }).join('');
         // Không còn nhóm Hồ sơ khác: hồ sơ lẻ giữ nguyên ngày hệ thống của tình huống trước nên
@@ -221,7 +247,7 @@
         ? ROLES.filter(function (r) { return MANAGER_ROLES.indexOf(r.key) >= 0; })
         : ROLES;
       var scenarioControl = managerDetail
-        ? '<label>' + (lg === 'en' ? 'Detail scenario' : 'Tình huống chi tiết') +
+        ? '<label>' + (lg === 'en' ? 'Scenario' : 'Tình huống') +
             '<select id="dm-emp">' + scenarioOptions + '</select></label>'
         : !managerList
           ? '<label>' + (lg === 'en' ? 'Scenario' : 'Tình huống') +
@@ -230,6 +256,53 @@
       var visibleSteps = window.PMS_YER_TIMELINE.steps.filter(function (st) {
         return !managerScreen || MANAGER_STEPS.indexOf(st.key) >= 0;
       });
+
+      // Tình huống Nhân viên và tình huống màn chi tiết của Quản lý dẫn qua lại (trường pair)
+      var counterpart = null;
+      if (managerDetail && current && current.pair) counterpart = scById[current.pair] || null;
+      if (!managerScreen && current) {
+        counterpart = sortedScenarios.filter(function (x) { return x.pair === current.id && x.screen === 'M-06'; })[0] || null;
+      }
+      // `Làm lại tình huống` chỉ có khi đang ở một tình huống (M-05 xem cả danh sách nên không có)
+      var resetBtns = (current && !managerList ? '<button id="dm-reset-one" title="' + (lg === 'en' ? 'Clear what was done on this profile' : 'Xóa các thao tác đã làm trên hồ sơ này') + '">' +
+          '<i class="bx bx-revision"></i> ' + (lg === 'en' ? 'Restart scenario' : 'Làm lại tình huống') + '</button>' : '') +
+        '<button id="dm-reset" class="dm-quiet">' + (lg === 'en' ? 'Reset all' : 'Đặt lại tất cả') + '</button>';
+
+      if (managerDetail) {
+        /* Thanh demo của màn chi tiết (chốt 02/10/2026): một hàng điều khiển, một dòng `Cần xem`.
+           Không có ô Vai trò và thanh kéo ngày; thay bằng các mốc thời gian có ý nghĩa của tình huống. */
+        var moments = current && current.moments && current.moments.length > 1 ? current.moments : [];
+        bar.innerHTML =
+          '<div class="dm-row">' +
+            '<span class="dm-tag"><i class="bx bx-slider-alt"></i> ' + (lg === 'en' ? 'Demo mode' : 'Chế độ demo') + '</span>' +
+            scenarioControl +
+            (moments.length ? '<label>' + (lg === 'en' ? 'Moment' : 'Mốc thời gian') + '</label><div class="dm-moments">' +
+              moments.map(function (m) {
+                return '<span class="dm-step' + (m.date === s.date ? ' on' : '') + '" data-moment="' + m.date + '">' +
+                  label(m) + ' (' + fmtDate(m.date, lg) + ')</span>';
+              }).join('') + '</div>'
+              : '<span class="dm-date">' + fmtDate(s.date, lg) + '</span>') +
+            '<div class="dm-spacer"></div>' +
+            '<button id="dm-pair"><i class="bx bx-transfer"></i> ' + (lg === 'en' ? 'Employee side' : 'Xem phía Nhân viên') + '</button>' +
+            resetBtns +
+            '<button id="dm-hide"><i class="bx bx-chevron-down"></i> ' + (lg === 'en' ? 'Hide (D)' : 'Ẩn (D)') + '</button>' +
+          '</div>' +
+          (current ? '<div class="dm-hint"><strong>' + (lg === 'en' ? 'What to check:' : 'Cần xem:') + '</strong>' +
+            (lg === 'en' ? current.wen : current.wvi) + '</div>' : '');
+        bindCommon();
+        bar.querySelectorAll('[data-moment]').forEach(function (chip) {
+          chip.addEventListener('click', function () {
+            S.setSession({ date: chip.dataset.moment }); render(); notify('date');
+          });
+        });
+        bar.querySelector('#dm-pair').addEventListener('click', function () {
+          // Cùng hồ sơ, cùng ngày, sang màn Nhân viên; nhớ tình huống để quay lại được
+          S.setSession({ role: 'nv', emp: s.emp, scenario: counterpart ? counterpart.id : null, from: current ? current.id : null });
+          goScreen('E-05');
+        });
+        syncPad();
+        return;
+      }
 
       bar.innerHTML =
         '<div class="dm-row">' +
@@ -241,7 +314,10 @@
           '</label>' +
           scenarioControl +
           '<div class="dm-spacer"></div>' +
-          '<button id="dm-reset"><i class="bx bx-reset"></i> ' + (lg === 'en' ? 'Reset data' : 'Đặt lại dữ liệu') + '</button>' +
+          // Màn Nhân viên: quay về đúng tình huống Quản lý đã mở sang, hoặc tình huống Quản lý của cùng hồ sơ
+          (!managerScreen && (s.from || counterpart) ? '<button id="dm-pair"><i class="bx bx-transfer"></i> ' +
+            (lg === 'en' ? 'Manager side' : 'Xem phía Quản lý') + '</button>' : '') +
+          resetBtns +
           '<button id="dm-hide"><i class="bx bx-chevron-down"></i> ' + (lg === 'en' ? 'Hide (D)' : 'Ẩn (D)') + '</button>' +
         '</div>' +
         '<div class="dm-row">' +
@@ -263,19 +339,6 @@
         if (goScreen(DEFAULT_SCREEN[e.target.value])) return;
         render(); notify('role');
       });
-      var empSelect = bar.querySelector('#dm-emp');
-      if (empSelect) empSelect.addEventListener('change', function (e) {
-          var v = String(e.target.value || '');
-          if (v.indexOf('emp:') === 0) {
-            S.setSession({ emp: v.slice(4), scenario: null }); render(); notify('emp'); return;
-          }
-          var sc = scById[v.slice(3)];
-          if (!sc) return;
-          S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id });
-          freshStart(sc);
-          if (goScreen(sc.screen || DEFAULT_SCREEN[sc.role])) return;
-          render(); notify('emp');
-        });
       bar.querySelector('#dm-date').addEventListener('input', function (e) {
         S.setSession({ date: dayValue(+e.target.value) }); render(); notify('date');
       });
@@ -286,11 +349,42 @@
           S.setSession({ date: mid }); render(); notify('date');
         });
       });
-      bar.querySelector('#dm-reset').addEventListener('click', function () {
-        S.reset(); render(); notify('reset');
+      bindCommon();
+      var pairBtn = bar.querySelector('#dm-pair');
+      if (pairBtn) pairBtn.addEventListener('click', function () {
+        var back = scById[s.from] || counterpart;
+        if (!back) return;
+        S.setSession({ role: back.role, emp: back.emp, scenario: back.id, from: null,
+          date: s.from && back.emp === s.emp ? s.date : back.date });
+        goScreen(back.screen);
       });
-      bar.querySelector('#dm-hide').addEventListener('click', function () { toggle(false); });
       syncPad();
+
+      /* Nút chung của mọi bố cục: chọn tình huống, làm lại tình huống, đặt lại tất cả, ẩn */
+      function bindCommon() {
+        var sel = bar.querySelector('#dm-emp');
+        if (sel) sel.addEventListener('change', onScenario);
+        var one = bar.querySelector('#dm-reset-one');
+        if (one) one.addEventListener('click', function () {
+          // Chỉ xóa thao tác trên hồ sơ đang xem, dữ liệu dựng sẵn giữ nguyên
+          var acts = S.acts(s.emp) || {};
+          Object.keys(acts).forEach(function (k) { S.clearAct(s.emp, k); });
+          render(); notify('reset');
+        });
+        bar.querySelector('#dm-reset').addEventListener('click', function () {
+          var go = function () { S.reset(); render(); notify('reset'); };
+          if (window.PMSUi && window.PMSUi.dialog) {
+            window.PMSUi.dialog({
+              title: lg === 'en' ? 'Reset all demo data?' : 'Đặt lại toàn bộ dữ liệu demo?',
+              text: lg === 'en' ? 'Every action on every profile is cleared and the session returns to its default.'
+                : 'Mọi thao tác trên mọi hồ sơ sẽ bị xóa, phiên demo về mặc định.',
+              buttons: [{ label: lg === 'en' ? 'Cancel' : 'Hủy', variant: 'quiet' },
+                        { label: lg === 'en' ? 'Reset all' : 'Đặt lại tất cả', variant: 'default', act: go }]
+            });
+          } else if (window.confirm('Đặt lại toàn bộ dữ liệu demo?')) go();
+        });
+        bar.querySelector('#dm-hide').addEventListener('click', function () { toggle(false); });
+      }
     }
 
     document.body.appendChild(bar);

@@ -23,28 +23,8 @@
     dev:{ vi:'Mục tiêu phát triển', en:'Development goals', icon:'bx-line-chart' },
     how:{ vi:'Mục tiêu hành vi', en:'Behavioral goals', icon:'bx-heart' }
   };
-  var CORE_VALUES = [
-    { vi:'Tập trung vào khách hàng', en:'Customer focus', lines:[
-      'Thấu hiểu khách hàng: Chúng tôi chủ động lắng nghe khách hàng và thấu hiểu các nhu cầu của họ.',
-      'Nghĩ về khách hàng trước tiên: Chúng tôi cân nhắc góc nhìn của khách hàng trước tất cả góc nhìn khác trong quá trình ra quyết định.',
-      'Cung cấp trải nghiệm khách hàng vượt trội: Chúng tôi nỗ lực hết mình để tạo ra trải nghiệm vượt xa kỳ vọng hợp lý của khách hàng.'] },
-    { vi:'Đổi mới sáng tạo', en:'Innovation', lines:[
-      'Chúng tôi được khuyến khích xây dựng tư duy khác biệt.',
-      'Chúng tôi luôn hướng đến những sự thay đổi tích cực.',
-      'Chúng tôi luôn trân trọng tất cả những ý tưởng, vì những thành công lớn đều khởi nguồn từ những ý tưởng nhỏ.'] },
-    { vi:'Tinh thần đồng đội', en:'Teamwork', lines:[
-      'Chúng tôi làm việc hướng về một mục tiêu chung.',
-      'Chúng tôi tôn trọng đồng nghiệp và đánh giá cao tất cả những đóng góp từ họ.',
-      'Chúng tôi nỗ lực thấu hiểu để hỗ trợ nhau tốt nhất.'] },
-    { vi:'Thực thi xuất sắc', en:'Excellence', lines:[
-      'Chúng tôi được trao quyền và luôn nỗ lực hết mình để vươn xa hơn, khám phá ra những tiềm năng của bản thân.',
-      'Chúng tôi làm việc hiệu quả.',
-      'Chúng tôi làm việc hết mình với thái độ trách nhiệm và tinh thần lãnh đạo tích cực.'] },
-    { vi:'Tinh thần học hỏi không ngừng', en:'Constant learning', lines:[
-      'Chúng tôi luôn chủ động nắm bắt cơ hội phát triển.',
-      'Chúng tôi dám đối diện với thất bại và lựa chọn thái độ học hỏi từ những sai lầm.',
-      'Chúng tôi mở rộng tầm nhìn để đón nhận những ý tưởng khác biệt.'] }
-  ];
+  // Năm giá trị cốt lõi: một nguồn ở yer-data.js, cùng câu chữ với tab Giữa năm (M-06 đọc chung)
+  var CORE_VALUES = window.PMS_CORE_VALUES;
 
   var PRIO = { h:{vi:'Cao',en:'High',cls:'prio-h'}, m:{vi:'Trung bình',en:'Medium',cls:'prio-m'}, l:{vi:'Thấp',en:'Low',cls:'prio-l'} };
 
@@ -133,11 +113,10 @@
   function mountSteps(){
     var node = el('yer-steps');
     if(!node) return;
-    var opens = Y.fmt(Y.step('self').from, lg());
     U.steps(node, {
-      // Ngày bắt đầu kỳ nằm ở tiêu đề, từng bước bên dưới chỉ còn hạn chót
-      title: L('Quy trình và Thời gian đánh giá cuối năm 2026 - bắt đầu ' + opens,
-               'Year-End Review 2026 process and timeline - opens ' + opens),
+      // Tiêu đề không ghi ngày bắt đầu kỳ (bỏ 02/10/2026), từng bước chỉ ghi hạn chót
+      title: L('Quy trình và Thời gian đánh giá cuối năm 2026',
+               'Year-End Review 2026 process and timeline'),
       collapseKey: 'yer-emp',
       items: stepItems()
     });

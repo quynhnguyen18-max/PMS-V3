@@ -28,12 +28,12 @@
     myrOnboardCutoff: '2026-04-01', // onboard sau ngày này không thuộc kỳ giữa năm
     steps: [
       { key: 'self',    from: '2027-01-05', to: '2027-01-18', vi: 'Tự đánh giá',            en: 'Self Assessment' },
-      { key: 'lm',      from: '2027-01-19', to: '2027-02-01', vi: 'Quản lý trực tiếp',      en: 'Line Manager' },
-      { key: 'lm2',     from: '2027-02-02', to: '2027-02-15', vi: 'Quản lý cấp 2',          en: 'Second-level Manager' },
-      { key: 'hod',     from: '2027-02-16', to: '2027-03-01', vi: 'Trưởng đơn vị',          en: 'Head of Department' },
-      { key: 'tr',      from: '2027-03-02', to: '2027-03-15', vi: 'Total Reward tải điểm',  en: 'Total Reward Upload' },
-      { key: 'hrd',     from: '2027-03-16', to: '2027-03-29', vi: 'HR Director duyệt',      en: 'HR Director Approval' },
-      { key: 'publish', from: '2027-03-30', to: '2027-03-30', vi: 'Công bố kết quả',        en: 'Publish Results' }
+      { key: 'lm',      from: '2027-01-19', to: '2027-02-08', vi: 'Quản lý trực tiếp',      en: 'Line Manager' },
+      { key: 'lm2',     from: '2027-02-09', to: '2027-02-22', vi: 'Quản lý cấp 2',          en: 'Second-level Manager' },
+      { key: 'hod',     from: '2027-02-23', to: '2027-03-08', vi: 'Trưởng đơn vị',          en: 'Head of Department' },
+      { key: 'tr',      from: '2027-03-09', to: '2027-03-22', vi: 'Total Reward tải điểm',  en: 'Total Reward Upload' },
+      { key: 'hrd',     from: '2027-03-23', to: '2027-04-05', vi: 'HR Director duyệt',      en: 'HR Director Approval' },
+      { key: 'publish', from: '2027-04-06', to: '2027-04-06', vi: 'Công bố kết quả',        en: 'Publish Results' }
     ]
   };
 
@@ -42,6 +42,31 @@
   window.PMS_YER_HOLIDAYS = [
     '2027-01-01',
     '2027-02-05', '2027-02-08', '2027-02-09', '2027-02-10', '2027-02-11'
+  ];
+
+  /* Năm giá trị cốt lõi của MoMo, đúng câu chữ của tab Đánh giá giữa năm (M-06 #how-tbody). Một nguồn cho E-05 và M-06
+     ở tab Đánh giá cuối năm (DS §20.1), chốt 02/10/2026. lines: ba ý mô tả, hiện cách nhau bằng xuống dòng. */
+  window.PMS_CORE_VALUES = [
+    { vi:'Tập trung vào khách hàng', en:'Customer focus', lines:[
+      'Thấu hiểu khách hàng: Chúng tôi chủ động lắng nghe khách hàng và thấu hiểu các nhu cầu của họ.',
+      'Nghĩ về khách hàng trước tiên: Chúng tôi cân nhắc góc nhìn của khách hàng trước tất cả góc nhìn khác trong quá trình ra quyết định.',
+      'Cung cấp trải nghiệm khách hàng vượt trội: Chúng tôi nỗ lực hết mình để tạo ra trải nghiệm vượt xa kỳ vọng hợp lý của khách hàng.'] },
+    { vi:'Đổi mới sáng tạo', en:'Innovation', lines:[
+      'Chúng tôi được khuyến khích xây dựng tư duy khác biệt.',
+      'Chúng tôi luôn hướng đến những sự thay đổi tích cực.',
+      'Chúng tôi luôn trân trọng tất cả những ý tưởng, vì những thành công lớn đều khởi nguồn từ những ý tưởng nhỏ.'] },
+    { vi:'Tinh thần đồng đội', en:'Teamwork', lines:[
+      'Chúng tôi làm việc hướng về một mục tiêu chung.',
+      'Chúng tôi tôn trọng đồng nghiệp và đánh giá cao tất cả những đóng góp từ họ.',
+      'Chúng tôi nỗ lực thấu hiểu để hỗ trợ nhau tốt nhất.'] },
+    { vi:'Thực thi xuất sắc', en:'Excellence', lines:[
+      'Chúng tôi được trao quyền và luôn nỗ lực hết mình để vươn xa hơn, khám phá ra những tiềm năng của bản thân.',
+      'Chúng tôi làm việc hiệu quả.',
+      'Chúng tôi làm việc hết mình với thái độ trách nhiệm và tinh thần lãnh đạo tích cực.'] },
+    { vi:'Tinh thần học hỏi không ngừng', en:'Constant learning', lines:[
+      'Chúng tôi luôn chủ động nắm bắt cơ hội phát triển.',
+      'Chúng tôi dám đối diện với thất bại và lựa chọn thái độ học hỏi từ những sai lầm.',
+      'Chúng tôi mở rộng tầm nhìn để đón nhận những ý tưởng khác biệt.'] }
   ];
 
   /* ── 2. Thang điểm ──────────────────────────────────────── */
@@ -244,9 +269,9 @@
       comments: { what: 'Hệ thống thanh toán real-time đạt P99 85ms, vượt mục tiêu 100ms và sớm hơn kế hoạch 2 tháng.', dev: 'Đã đạt chứng chỉ AWS SAA và áp dụng vào thiết kế hạ tầng cho nhóm.', how: 'Chủ động hỗ trợ đồng đội và duy trì tinh thần học hỏi trong suốt năm.' } }),
     lm: ev('2027-01-26', { overall: { score: 4, comment: 'Kết quả năm nay ổn định và có đóng góp rõ ràng vào độ tin cậy của hệ thống thanh toán.' },
       comments: { what: 'Các mục tiêu hiệu năng và giám sát đều đạt, số liệu đo lường rõ ràng.', dev: 'Chứng chỉ AWS được áp dụng thực tế chứ không dừng ở lý thuyết.', how: 'Thể hiện tốt tinh thần đồng đội và thực thi xuất sắc.' } }),
-    lm2: ev('2027-02-09', { score: 4, comment: '', source: 'approve' }),
-    hod: ev('2027-02-21', { score: 4, comment: '', source: 'approve' }),
-    final: { score: 4, uploadedAt: '2027-03-06', approvedAt: '2027-03-20', publishedAt: '2027-03-30' }
+    lm2: ev('2027-02-16', { score: 4, comment: '', source: 'approve' }),
+    hod: ev('2027-02-28', { score: 4, comment: '', source: 'approve' }),
+    final: { score: 4, uploadedAt: '2027-03-13', approvedAt: '2027-03-27', publishedAt: '2027-04-06' }
   };
 
   // s02 — chưa tự đánh giá, vẫn còn hạn
@@ -262,10 +287,11 @@
       comments: { what: 'Bộ regression test hoàn thành đúng kế hoạch trước thời điểm nghỉ chế độ.', dev: 'Lộ trình chứng chỉ tạm hoãn, sẽ tiếp tục sau khi quay lại.', how: 'Bàn giao công việc rõ ràng, hỗ trợ đồng đội tiếp nhận thuận lợi.' } })
   };
 
-  // s03 — quá hạn tự đánh giá, LM vẫn chấm bình thường, cột NV trống
+  // s03 — quá hạn tự đánh giá và không nộp bổ sung, đủ mục tiêu: QLTT chỉ chấm được sau khi hết thời gian
+  // nộp bổ sung (03/02/2027), tới hết hạn QLTT; cột NV trống (chốt 02/10/2026)
   Y.e13 = {
     scenario: 's03',
-    lm: ev('2027-01-29', { overall: { score: 3.5, comment: 'Kết quả công việc đạt yêu cầu, tuy nhiên cần chủ động hơn trong việc cập nhật tiến độ trên hệ thống.' },
+    lm: ev('2027-02-08', { overall: { score: 3.5, comment: 'Kết quả công việc đạt yêu cầu, tuy nhiên cần chủ động hơn trong việc cập nhật tiến độ trên hệ thống.' },
       comments: { what: 'Các mục tiêu chính hoàn thành nhưng một số hạng mục trễ so với mốc cam kết.', dev: 'Cần đặt lộ trình phát triển cụ thể hơn cho năm sau.', how: 'Phối hợp tốt trong nhóm, cần chủ động chia sẻ thông tin sớm hơn.' } })
   };
 
@@ -292,7 +318,7 @@
       comments: { what: 'Thời gian build trung bình giảm gần một nửa so với đầu năm.', dev: 'Hoàn thành lộ trình Platform Engineering nội bộ.', how: 'Hỗ trợ các nhóm khác nhanh chóng khi có sự cố hạ tầng.' } }),
     lm: ev('2027-01-27', { overall: { score: 4, comment: 'Đóng góp rõ ràng vào năng suất chung của khối kỹ thuật.' },
       comments: { what: 'Kết quả tối ưu pipeline có số liệu đo lường thuyết phục.', dev: 'Chủ động học và áp dụng công nghệ mới vào hạ tầng.', how: 'Luôn sẵn sàng hỗ trợ nhóm khác, tinh thần đồng đội tốt.' } }),
-    lm2: ev('2027-02-10', { score: 4, comment: '', source: 'manual' })
+    lm2: ev('2027-02-17', { score: 4, comment: '', source: 'manual' })
   };
 
   // s07 — HRBP tải điểm hộ HOD, chờ HOD duyệt
@@ -302,8 +328,8 @@
       comments: { what: 'SAST/DAST đã bao phủ toàn bộ repo và duy trì SLA xử lý lỗ hổng.', dev: 'Hoàn thành lộ trình nâng cao về cloud security.', how: 'Phối hợp chặt với các nhóm phát triển để giảm ma sát khi áp dụng chuẩn bảo mật.' } }),
     lm: ev('2027-01-30', { overall: { score: 4, comment: 'Kết quả bảo mật năm nay đáng ghi nhận, đặc biệt là việc duy trì chứng nhận ISO.' },
       comments: { what: 'Không phát sinh NC Major trong kỳ audit.', dev: 'Kiến thức mới được áp dụng ngay vào quy trình.', how: 'Cách tiếp cận hợp tác giúp các nhóm tuân thủ dễ dàng hơn.' } }),
-    lm2: ev('2027-02-11', { score: 4, comment: '', source: 'manual' }),
-    hrbpUpload: ev('2027-02-19', { score: 4, comment: 'Điểm thống nhất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' })
+    lm2: ev('2027-02-18', { score: 4, comment: '', source: 'manual' }),
+    hrbpUpload: ev('2027-02-26', { score: 4, comment: 'Điểm thống nhất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' })
   };
 
   // s16 — Quản lý trực tiếp đã hoàn tất.
@@ -328,9 +354,9 @@
       comments: { what: 'Nâng cấp Kubernetes không downtime và hoàn thành DR site đúng hạn.', dev: 'Tiếp tục đầu tư vào năng lực vận hành hệ thống quy mô lớn.', how: 'Đặt độ tin cậy hệ thống lên hàng đầu trong mọi quyết định.' } }),
     lm: ev('2027-01-23', { overall: { score: 4.5, comment: 'Đóng góp rất có giá trị cho sự ổn định của hệ thống production trong năm.' },
       comments: { what: 'Chất lượng thực thi vượt kỳ vọng ở cả hai mục tiêu hạ tầng.', dev: 'Chia sẻ kiến thức hiệu quả trong nhóm Infra.', how: 'Tinh thần trách nhiệm cao và nhất quán.' } }),
-    lm2: ev('2027-02-12', { score: 4.5, comment: 'Đồng thuận với đánh giá của quản lý trực tiếp.', source: 'manual' }),
+    lm2: ev('2027-02-19', { score: 4.5, comment: 'Đồng thuận với đánh giá của quản lý trực tiếp.', source: 'manual' }),
     // §9: HRBP tải điểm hộ HOD, HOD chưa chấm tay nên duyệt là thành điểm HOD
-    hrbpUpload: ev('2027-02-19', { score: 4.5, comment: 'Giữ nguyên mức đề xuất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' })
+    hrbpUpload: ev('2027-02-26', { score: 4.5, comment: 'Giữ nguyên mức đề xuất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' })
   };
 
   // s20 — đã công bố, điểm cuối khác điểm HOD
@@ -340,11 +366,11 @@
       comments: { what: 'Crash rate iOS giảm dưới 0.1% và tính năng Predictive Back đã phát hành đúng hạn.', dev: 'Hai kỹ sư junior đạt mức mid-level theo đánh giá năng lực.', how: 'Chú trọng chất lượng và hỗ trợ phát triển đồng đội.' } }),
     lm: ev('2027-01-22', { overall: { score: 4, comment: 'Các mục tiêu chất lượng ứng dụng được hoàn thành đúng kế hoạch, có đóng góp rõ trong việc phát triển đội ngũ.' },
       comments: { what: 'Chỉ số chất lượng đạt mục tiêu ở cả hai nền tảng.', dev: 'Việc kèm cặp junior mang lại kết quả đo lường được.', how: 'Thể hiện tốt tinh thần dẫn dắt.' } }),
-    lm2: ev('2027-02-06', { score: 4, comment: 'Đồng thuận với đánh giá của Quản lý trực tiếp. Năm tới nên chủ động chia sẻ kinh nghiệm chất lượng ứng dụng cho các nhóm khác.', source: 'manual' }),
-    hod: ev('2027-02-18', { score: 4.5, comment: 'Ghi nhận thêm đóng góp trong việc phát triển đội ngũ kỹ sư di động.', source: 'manual' }),
+    lm2: ev('2027-02-13', { score: 4, comment: 'Đồng thuận với đánh giá của Quản lý trực tiếp. Năm tới nên chủ động chia sẻ kinh nghiệm chất lượng ứng dụng cho các nhóm khác.', source: 'manual' }),
+    hod: ev('2027-02-25', { score: 4.5, comment: 'Ghi nhận thêm đóng góp trong việc phát triển đội ngũ kỹ sư di động.', source: 'manual' }),
     // §9: điểm HRBP tải lên khác điểm HOD đã chấm tay, màn phê duyệt báo khác biệt trước khi thay
-    hrbpUpload: ev('2027-02-19', { score: 4, comment: 'Điều chỉnh theo phân bổ chung của khối sau phiên hiệu chuẩn.', approved: false, by: 'Lý Minh Châu (chau.ly)' }),
-    final: { score: 4, uploadedAt: '2027-03-04', approvedAt: '2027-03-18', publishedAt: '2027-03-30' }
+    hrbpUpload: ev('2027-02-26', { score: 4, comment: 'Điều chỉnh theo phân bổ chung của khối sau phiên hiệu chuẩn.', approved: false, by: 'Lý Minh Châu (chau.ly)' }),
+    final: { score: 4, uploadedAt: '2027-03-11', approvedAt: '2027-03-25', publishedAt: '2027-04-06' }
   };
 
   // s18 — mục tiêu thay đổi sau kỳ giữa năm
@@ -567,6 +593,14 @@
     { id: 'r-hod', role: 'hod', vi: 'Trưởng đơn vị',      en: 'Head of Department' }
   ];
 
+  // Nhóm con của tình huống QLTT trên thanh demo M-06 (chốt 02/10/2026)
+  window.PMS_YER_SUBGROUPS = [
+    { id: 'std',     vi: 'Luồng chuẩn', en: 'Standard flow' },
+    { id: 'goal',    vi: 'Mục tiêu',    en: 'Goals' },
+    { id: 'late',    vi: 'Nộp trễ',     en: 'Late submission' },
+    { id: 'special', vi: 'Đặc biệt',    en: 'Special cases' }
+  ];
+
   window.PMS_YER_SCENARIOS = [
     /* ── Nhân viên ──
        Chốt 28/09/2026: mọi hồ sơ demo của Nhân viên đều là một tình huống có số, không còn nhóm
@@ -611,7 +645,7 @@
       vi: 'Có mục tiêu đã đánh giá hoàn thành với Quản lý cũ', en: 'Goals already closed with the previous manager',
       wvi: 'Mục tiêu đã chốt hoàn thành có nhãn riêng, điểm đã khóa; cột Điểm QLTT ghi domain Quản lý cũ ngay dưới điểm.',
       wen: 'Closed goals carry their own label and a locked score; the manager column shows the previous manager domain under the score.' },
-    { id: 'nv11', g: 'r-nv', emp: 'e12', role: 'nv', date: '2027-02-25', screen: 'E-05',
+    { id: 'nv11', g: 'r-nv', emp: 'e12', role: 'nv', date: '2027-03-04', screen: 'E-05',
       vi: 'Có nhận xét của Quản lý cấp 2 và Trưởng đơn vị', en: 'Comments from the second-level manager and HOD',
       wvi: 'Đã tự đánh giá, có điểm QLTT. Cuối trang có thêm ô nhận xét của Quản lý cấp 2 và Trưởng đơn vị, không hiện điểm của hai cấp này.',
       wen: 'Self assessment done with line-manager scores. A comment box from the second-level manager and HOD is added at the bottom, without their ratings.' },
@@ -647,7 +681,7 @@
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 4', en: 'Late file submitted at reminder 4',
       wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn và hình thức xử lý theo quy định.',
       wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure.' },
-    { id: 'nv20', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-05', screen: 'E-05',
+    { id: 'nv20', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-12', screen: 'E-05',
       vi: 'Không nộp sau 4 lần nhắc nhở', en: 'Not submitted after 4 reminders',
       wvi: 'Hết thời gian nộp bổ sung: chỉ còn một khối vàng báo đã hết hạn và hình thức kỷ luật, các ô đều khóa.',
       wen: 'The late window has closed: one yellow notice about the deadline and disciplinary action; all fields are locked.' },
@@ -658,84 +692,152 @@
       wen: 'Like nv20 but the development goal is missing: the same yellow notice, plus a line naming the missing goal type, so the profile is Not evaluated.' },
 
     /* ── Quản lý trực tiếp ── */
+    /* Tình huống của màn Quản lý (chốt lại 02/10/2026, YER-SPEC §44, §46). Trường riêng của màn chi tiết M-06:
+       sub     nhóm trong dropdown của thanh demo (Luồng chuẩn, Mục tiêu, Nộp trễ, Đặc biệt)
+       pair    tình huống Nhân viên cùng hồ sơ, để nút `Xem phía Nhân viên` / `Xem phía Quản lý` dẫn qua lại
+       moments các mốc thời gian có ý nghĩa với hồ sơ, thay cho thanh kéo ngày ở M-06 */
     { id: 'lm01', g: 'r-lm', emp: 'y6', role: 'lm', date: '2027-01-25', screen: 'M-05',
       vi: 'Danh sách có đủ ba nhóm cần lưu ý', en: 'Roster showing all three flags at once',
       wvi: 'Cùng một danh sách có nhân viên thai sản, nhân viên có badge LWD và nhóm phải nộp trễ.',
       wen: 'One roster with a maternity case, an LWD badge and the people who must submit late.' },
-    { id: 'lm02', g: 'r-lm', emp: 'e1', role: 'lm', date: '2027-03-20', screen: 'M-06',
-      vi: 'Một hồ sơ đi qua đủ các bước', en: 'One profile through every step',
-      wvi: 'Xem lại cả chuỗi: điểm nhân viên, điểm quản lý, cấp 2, trưởng đơn vị và điểm cuối cùng.',
-      wen: 'The full chain: employee, manager, second-level, head of department and the final rating.' },
-    { id: 'lm03', g: 'r-lm', emp: 'e4', role: 'lm', date: '2027-01-22', screen: 'M-06',
-      vi: 'Nhân viên thai sản - quản lý thêm mục tiêu', en: 'Maternity case - manager adds goals',
-      wvi: 'Không yêu cầu tự đánh giá, còn thiếu mục tiêu phát triển: quản lý thêm mục tiêu bằng file hoặc nhập tay, mục tiêu tự Đã duyệt, rồi chấm.',
-      wen: 'Self assessment is not required and a development goal is missing: the manager adds goals by file or by hand, they are approved at once, then scores.' },
-    { id: 'lm04', g: 'r-lm', emp: 'e13', role: 'lm', date: '2027-01-29', screen: 'M-06',
-      vi: 'Nhân viên không tự đánh giá', en: 'Employee skipped the self assessment',
-      wvi: 'Cột điểm nhân viên để trống nhưng quy trình không dừng, quản lý vẫn chấm.',
-      wen: 'The employee column stays empty but the process continues and the manager still scores.' },
-    { id: 'lm05', g: 'r-lm', emp: 'y12', role: 'lm', date: '2027-01-29', screen: 'M-06',
-      vi: 'Nhận hồ sơ nhân viên nộp trễ', en: 'Late employee file received',
-      wvi: 'Nhãn nộp trễ, mục tiêu đọc từ file và không phải qua bước duyệt mục tiêu.',
-      wen: 'A late badge, goals read from the file, and no goal approval step required.' },
-    { id: 'lm06', g: 'r-lm', emp: 'y4', role: 'lm', date: '2027-01-20', screen: 'M-06',
-      vi: 'Đổi Quản lý - một mục tiêu đã chốt', en: 'Manager changed - one goal already closed',
-      wvi: 'Quản lý mới chỉ chấm những mục tiêu còn lại; ô điểm của mục tiêu đã chốt không sửa được.',
-      wen: 'The new manager only rates the remaining goals; the closed goal score cannot be edited.' },
-    { id: 'lm07', g: 'r-lm', emp: 'y5', role: 'lm', date: '2027-01-20', screen: 'M-06',
-      vi: 'Quản lý cũ đã nghỉ việc', en: 'Former manager has resigned',
-      wvi: 'Điểm Quản lý cũ đã chốt vẫn giữ nguyên và vẫn ghi tên họ; nghỉ việc không xóa việc họ đã làm.',
-      wen: 'Scores the former manager closed stay valid and keep their name; resigning does not erase their work.' },
-    { id: 'lm08', g: 'r-lm', emp: 'e14', role: 'lm', date: '2027-02-05', screen: 'M-05',
+    { id: 'lm08', g: 'r-lm', emp: 'e14', role: 'lm', date: '2027-02-12', screen: 'M-05',
       vi: 'Quá hạn - hệ thống đồng bộ điểm', en: 'Overdue - score synced by the system',
       wvi: 'Badge HR system cạnh điểm của quản lý, không có nhận xét kèm theo.',
       wen: 'An HR system badge next to the manager score, with no comment attached.' },
-    { id: 'lm09', g: 'r-lm', emp: 'e10', role: 'lm', date: '2027-01-27', screen: 'M-06',
-      vi: 'Đã đánh giá - vẫn được chỉnh sửa', en: 'Submitted review remains editable',
-      wvi: 'QLTT đã gửi đánh giá nhưng timeline của QLTT vẫn mở, nên điểm mục tiêu, nhận xét và điểm toàn diện vẫn chỉnh sửa được.',
-      wen: 'The line manager already submitted, but their timeline is still open, so goal scores, comments and the overall rating remain editable.' },
+
+    // Luồng chuẩn
+    { id: 'lm10', g: 'r-lm', sub: 'std', emp: 'e10', role: 'lm', date: '2027-01-14', screen: 'M-06', pair: 'nv07',
+      vi: 'Trước timeline QLTT, nhân viên đã gửi sớm', en: 'Before the manager timeline, employee submitted early',
+      wvi: 'QLTT chỉ xem được hồ sơ, chưa chấm được cho tới ngày mở bước QLTT, kể cả khi nhân viên đã gửi Tự đánh giá.',
+      wen: 'The manager can only view the profile until the manager step opens, even though the employee already submitted.',
+      moments: [{ date: '2027-01-14', vi: 'Trước timeline QLTT', en: 'Before the manager step' },
+                { date: '2027-01-19', vi: 'Ngày mở bước QLTT', en: 'Manager step opens' }] },
+    { id: 'lm11', g: 'r-lm', sub: 'std', emp: 'e1', role: 'lm', date: '2027-01-22', screen: 'M-06',
+      vi: 'Chờ QLTT đánh giá, hồ sơ bình thường', en: 'Awaiting the manager, regular profile',
+      wvi: 'Luồng chuẩn: chấm điểm từng mục tiêu, giá trị cốt lõi, nhận xét và điểm toàn diện; khối Lưu ý có liên kết sang kết quả giữa năm và hạn chỉnh sửa.',
+      wen: 'Standard flow: rate each goal and core value, comment, then the overall rating; the note links to the mid-year result and the edit deadline.',
+      moments: [{ date: '2027-01-22', vi: 'Chưa đánh giá', en: 'Not reviewed yet' },
+                { date: '2027-01-26', vi: 'Vừa gửi đánh giá', en: 'Just submitted' },
+                { date: '2027-02-09', vi: 'Sau hạn QLTT, chỉ xem', en: 'After the deadline, view only' }] },
+    { id: 'lm09', g: 'r-lm', sub: 'std', emp: 'e10', role: 'lm', date: '2027-01-27', screen: 'M-06', pair: 'nv08',
+      vi: 'Đã gửi đánh giá, còn chỉnh sửa được', en: 'Submitted review remains editable',
+      wvi: 'Sau khi gửi là chế độ xem; còn trong timeline QLTT thì bấm Chỉnh sửa ở banner để mở lại các ô.',
+      wen: 'After submitting the screen is view-only; while the manager timeline is open, Edit on the banner reopens the fields.',
+      moments: [{ date: '2027-01-27', vi: 'Còn trong timeline QLTT', en: 'Manager timeline open' },
+                { date: '2027-02-09', vi: 'Sau hạn QLTT, chỉ xem', en: 'After the deadline, view only' }] },
+    { id: 'lm02', g: 'r-lm', sub: 'std', emp: 'e1', role: 'lm', date: '2027-04-06', screen: 'M-06',
+      vi: 'Hồ sơ đi qua đủ các bước, đã công bố', en: 'Profile through every step, published',
+      wvi: 'Đủ chuỗi điểm và nhận xét của các cấp; banner có Điểm cuối cùng sau khi công bố.',
+      wen: 'The full chain of ratings and comments; the banner shows the final rating once published.',
+      moments: [{ date: '2027-03-27', vi: 'Chờ công bố', en: 'Awaiting publication' },
+                { date: '2027-04-06', vi: 'Đã công bố', en: 'Published' }] },
+
+    // Mục tiêu
+    { id: 'lm06', g: 'r-lm', sub: 'goal', emp: 'y4', role: 'lm', date: '2027-01-20', screen: 'M-06',
+      vi: 'Đổi Quản lý, có mục tiêu đã chốt với Quản lý cũ', en: 'Manager changed, one goal closed with the former manager',
+      wvi: 'Quản lý mới chỉ chấm những mục tiêu còn lại; mục tiêu đã chốt giữ điểm và tên Quản lý cũ (kể cả khi Quản lý cũ đã nghỉ việc), không sửa được.',
+      wen: 'The new manager rates only the remaining goals; a closed goal keeps the former manager score and name, even if they resigned, and cannot be edited.' },
+    { id: 'lm03', g: 'r-lm', sub: 'goal', emp: 'e4', role: 'lm', date: '2027-01-22', screen: 'M-06',
+      vi: 'Nghỉ thai sản, QLTT thêm mục tiêu và đánh giá', en: 'Maternity leave, the manager adds goals and reviews',
+      wvi: 'Khối hướng dẫn ba bước; còn thiếu mục tiêu phát triển: QLTT thêm bằng file hoặc nhập tay, mục tiêu tự Đã duyệt, không sửa hay xóa được.',
+      wen: 'A three-step guide; a development goal is missing: the manager adds goals by file or by hand, approved at once and not editable.',
+      moments: [{ date: '2027-01-12', vi: 'Trước timeline QLTT', en: 'Before the manager step' },
+                { date: '2027-01-22', vi: 'Trong timeline QLTT', en: 'Manager timeline open' }] },
+
+    // Nộp trễ
+    { id: 'lm12', g: 'r-lm', sub: 'late', emp: 'y15', role: 'lm', date: '2027-01-27', screen: 'M-06',
+      vi: 'Đang chờ nhân viên nộp bổ sung, đủ mục tiêu', en: 'Waiting for the late file, goals complete',
+      wvi: 'Khối vàng nói lần nhắc đang mở, hạn nộp, hình thức xử lý nếu nộp ở lần này; QLTT chưa chấm được. Hết các lần nhắc mà không nộp thì QLTT vẫn chấm.',
+      wen: 'A yellow block with the open reminder, its deadline and the measure for submitting now; the manager cannot rate yet. If nothing arrives, the manager still rates.',
+      moments: [{ date: '2027-01-20', vi: 'Lần nhắc 1', en: 'Reminder 1' },
+                { date: '2027-01-27', vi: 'Lần nhắc 3', en: 'Reminder 3' },
+                { date: '2027-02-04', vi: 'Hết thời gian nộp bổ sung', en: 'Late window closed' }] },
+    { id: 'lm16', g: 'r-lm', sub: 'late', emp: 'y10', role: 'lm', date: '2027-01-22', screen: 'M-06', pair: 'nv06',
+      vi: 'Đang chờ nhân viên nộp bổ sung, thiếu mục tiêu', en: 'Waiting for the late file, goals missing',
+      wvi: 'Khối vàng nói lần nhắc đang mở và loại mục tiêu còn thiếu; nếu hết các lần nhắc mà không nộp, hồ sơ thành Không đánh giá.',
+      wen: 'A yellow block with the open reminder and the missing goal type; if nothing arrives, the profile becomes Not evaluated.',
+      moments: [{ date: '2027-01-22', vi: 'Lần nhắc 2', en: 'Reminder 2' },
+                { date: '2027-02-04', vi: 'Hết thời gian nộp bổ sung', en: 'Late window closed' }] },
+    { id: 'lm05', g: 'r-lm', sub: 'late', emp: 'y12', role: 'lm', date: '2027-01-29', screen: 'M-06',
+      vi: 'Nộp bổ sung ở lần nhắc 3, giới hạn điểm 3', en: 'Late file at reminder 3, rating capped at 3',
+      wvi: 'Banner nộp trễ như E-05, khối vàng giới hạn điểm 3 trong ô Đánh giá toàn diện; chấm cao hơn 3 phải tick xác nhận.',
+      wen: 'A late banner like E-05 and a yellow cap notice in the overall rating; rating above 3 needs a confirmation tick.',
+      moments: [{ date: '2027-01-29', vi: 'Vừa nhận hồ sơ', en: 'File just received' },
+                { date: '2027-02-08', vi: 'Ngày cuối của QLTT', en: 'Last manager day' },
+                { date: '2027-02-09', vi: 'Sau hạn, hệ thống đồng bộ', en: 'After the deadline, synced' }] },
+    { id: 'lm13', g: 'r-lm', sub: 'late', emp: 'y16', role: 'lm', date: '2027-02-04', screen: 'M-06', pair: 'nv19',
+      vi: 'Nộp bổ sung ở lần nhắc 4, cắt giảm thưởng', en: 'Late file at reminder 4, bonus cut',
+      wvi: 'Hồ sơ nộp ở lần cuối vẫn nằm trong timeline QLTT; banner ghi hình thức cắt giảm thưởng, ô điểm không có khối giới hạn điểm.',
+      wen: 'The last-reminder file still lands inside the manager timeline; the banner shows the bonus cut, with no cap notice on the rating.',
+      moments: [{ date: '2027-02-04', vi: 'Vừa nhận hồ sơ', en: 'File just received' },
+                { date: '2027-02-09', vi: 'Sau hạn, hệ thống đồng bộ', en: 'After the deadline, synced' }] },
+    { id: 'lm04', g: 'r-lm', sub: 'late', emp: 'e13', role: 'lm', date: '2027-02-04', screen: 'M-06',
+      vi: 'Không nộp bổ sung, đủ mục tiêu: QLTT vẫn đánh giá', en: 'No late file, goals complete: the manager still reviews',
+      wvi: 'Trong thời gian nộp bổ sung QLTT phải chờ; hết các lần nhắc thì QLTT chấm tới hết hạn QLTT, cột điểm nhân viên để trống.',
+      wen: 'During the late window the manager waits; once it closes the manager rates until the manager deadline, with an empty employee column.',
+      moments: [{ date: '2027-01-29', vi: 'Đang chờ nộp bổ sung', en: 'Late window open' },
+                { date: '2027-02-04', vi: 'Hết thời gian nộp, QLTT chấm', en: 'Window closed, manager rates' },
+                { date: '2027-02-09', vi: 'Sau khi QLTT gửi', en: 'After the manager submits' }] },
+    { id: 'lm14', g: 'r-lm', sub: 'late', emp: 'y10', role: 'lm', date: '2027-02-04', screen: 'M-06', pair: 'nv21',
+      vi: 'Không đánh giá: thiếu mục tiêu, không nộp bổ sung', en: 'Not evaluated: goals missing, no late file',
+      wvi: 'Một khối vàng Hồ sơ không đánh giá; bảng mục tiêu và ô Đánh giá toàn diện không còn, quy trình dừng.',
+      wen: 'One yellow Not evaluated block; the goal tables and the overall rating are gone and the process stops.' },
+
+    // Đặc biệt
+    { id: 'lm15', g: 'r-lm', sub: 'special', emp: 'y6', role: 'lm', date: '2027-01-25', screen: 'M-06', pair: 'nv09',
+      vi: 'Nhân viên có ngày làm việc cuối cùng (LWD)', en: 'Employee with a last working day',
+      wvi: 'Badge LWD dưới thông tin nhân viên và dòng nhắc hoàn thành đánh giá trước ngày làm việc cuối cùng.',
+      wen: 'An LWD badge under the employee info and a reminder to finish the review before the last working day.' },
 
     /* ── Quản lý cấp 2 ── */
-    { id: 'lm2-01', g: 'r-lm2', emp: 'y8', role: 'lm2', date: '2027-02-10', screen: 'M-06',
-      vi: 'Đang chờ chấm điểm toàn diện', en: 'Awaiting the overall rating',
+    { id: 'lm2-01', g: 'r-lm2', emp: 'y8', role: 'lm2', date: '2027-02-17', screen: 'M-06',
+      moments: [{ date: '2027-02-17', vi: 'Trong timeline cấp 2', en: 'Second-level timeline open' },
+                { date: '2027-02-23', vi: 'Sau hạn cấp 2', en: 'After the deadline' }],
+      vi: 'Chờ Quản lý cấp 2 chấm điểm toàn diện', en: 'Awaiting the overall rating',
       wvi: 'Quản lý cấp 2 chỉ chấm điểm toàn diện, điểm từng mục tiêu chỉ để tham khảo.',
       wen: 'The second-level manager scores only the overall rating; per-goal scores are reference only.' },
-    { id: 'lm2-02', g: 'r-lm2', emp: 'e13', role: 'lm2', date: '2027-02-10', screen: 'M-06',
-      vi: 'Hồ sơ không có điểm nhân viên', en: 'Profile with no employee rating',
+    { id: 'lm2-02', g: 'r-lm2', emp: 'e13', role: 'lm2', date: '2027-02-17', screen: 'M-06',
+      vi: 'Nhân viên không tự đánh giá, không có điểm nhân viên', en: 'Profile with no employee rating',
       wvi: 'Nhân viên không tự đánh giá nhưng hồ sơ vẫn đi lên tới cấp 2 bình thường.',
       wen: 'The employee skipped the self assessment, yet the profile still reaches the second level.' },
-    { id: 'lm2-03', g: 'r-lm2', emp: 'y12', role: 'lm2', date: '2027-02-10', screen: 'M-06',
-      vi: 'Hồ sơ có mục tiêu nhập từ file', en: 'Profile with goals imported from a file',
+    { id: 'lm2-03', g: 'r-lm2', emp: 'y12', role: 'lm2', date: '2027-02-17', screen: 'M-06',
+      vi: 'Hồ sơ nộp bổ sung, mục tiêu từ file', en: 'Late profile, goals imported from a file',
       wvi: 'Mục tiêu đến từ file nộp trễ của nhân viên, không qua bước duyệt mục tiêu.',
       wen: 'Goals come from the employee late file and never went through goal approval.' },
-    { id: 'lm2-04', g: 'r-lm2', emp: 'e15', role: 'lm2', date: '2027-02-20', screen: 'M-05',
+    { id: 'lm2-04', g: 'r-lm2', emp: 'e15', role: 'lm2', date: '2027-02-27', screen: 'M-05',
       vi: 'Quá hạn - đồng bộ điểm từ quản lý', en: 'Overdue - score synced from the manager',
       wvi: 'Đồng bộ ở tầng thứ hai, vẫn dùng chung một nhãn HR system.',
       wen: 'Second-level sync, still using the same shared HR system label.' },
-    { id: 'lm2-05', g: 'r-lm2', emp: 'e11', role: 'lm2', date: '2027-02-13', screen: 'M-06',
-      vi: 'Đã đánh giá - vẫn được chỉnh sửa', en: 'Saved rating remains editable',
+    { id: 'lm2-05', g: 'r-lm2', emp: 'e11', role: 'lm2', date: '2027-02-20', screen: 'M-06',
+      moments: [{ date: '2027-02-20', vi: 'Còn trong timeline cấp 2', en: 'Second-level timeline open' },
+                { date: '2027-02-23', vi: 'Sau hạn cấp 2, chỉ xem', en: 'After the deadline, view only' }],
+      vi: 'Đã lưu điểm, còn chỉnh sửa được', en: 'Saved rating remains editable',
       wvi: 'Quản lý cấp 2 đã lưu điểm nhưng timeline cấp 2 vẫn mở, nên điểm toàn diện và nhận xét vẫn chỉnh sửa được.',
       wen: 'The second-level manager already saved a rating, but their timeline is still open, so the overall rating and comment remain editable.' },
 
     /* ── Trưởng đơn vị ── */
-    { id: 'hod01', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-02-20', screen: 'M-06',
-      vi: 'Đang chờ Trưởng đơn vị chấm', en: 'Awaiting the Head of Department',
+    { id: 'hod01', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-02-27', screen: 'M-06',
+      moments: [{ date: '2027-02-27', vi: 'Trong timeline HOD', en: 'HOD timeline open' },
+                { date: '2027-03-09', vi: 'Sau hạn HOD', en: 'After the deadline' }],
+      vi: 'Chờ Trưởng đơn vị chấm điểm toàn diện', en: 'Awaiting the Head of Department',
       wvi: 'Bước chấm cuối cùng trong chuỗi quản lý, trước khi Total Reward tải điểm.',
       wen: 'The last scoring step in the manager chain, before Total Reward uploads the final rating.' },
-    { id: 'hod02', g: 'r-hod', emp: 'e1', role: 'hod', date: '2027-02-20', screen: 'M-05',
+    { id: 'hod02', g: 'r-hod', emp: 'e1', role: 'hod', date: '2027-02-27', screen: 'M-05',
       vi: 'Lưới điểm toàn đơn vị', en: 'Department-wide score grid',
       wvi: 'Lưới đủ bốn cột điểm để theo dõi phân bổ và độ lệch giữa các tầng.',
       wen: 'The four-column grid used to watch the distribution and the gaps between levels.' },
-    { id: 'hod03', g: 'r-hod', emp: 'e9', role: 'hod', date: '2027-02-22', screen: 'M-05',
+    { id: 'hod03', g: 'r-hod', emp: 'e9', role: 'hod', date: '2027-03-01', screen: 'M-05',
       vi: 'HRBP tải điểm hộ - chờ duyệt', en: 'HRBP uploaded scores - awaiting approval',
       wvi: 'Điểm chưa duyệt nằm ở màn phê duyệt riêng, không hiện ở lưới chính.',
       wen: 'Unapproved scores sit in their own approval screen, not in the main grid.' },
-    { id: 'hod04', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-03-05', screen: 'M-05',
+    { id: 'hod04', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-03-12', screen: 'M-05',
       vi: 'Quá hạn - không đồng bộ', en: 'Overdue - no sync',
       wvi: 'Hồ sơ giữ trạng thái Chờ Trưởng đơn vị, quy trình vẫn đi tiếp sang bước sau.',
       wen: 'The profile stays in Awaiting HOD and the process still moves on to the next step.' },
-    { id: 'hod05', g: 'r-hod', emp: 'e12', role: 'hod', date: '2027-02-20', screen: 'M-06',
-      vi: 'Đã đánh giá - vẫn được chỉnh sửa', en: 'Saved HOD rating remains editable',
+    { id: 'hod05', g: 'r-hod', emp: 'e12', role: 'hod', date: '2027-02-27', screen: 'M-06',
+      moments: [{ date: '2027-02-27', vi: 'Còn trong timeline HOD', en: 'HOD timeline open' },
+                { date: '2027-03-09', vi: 'Sau hạn HOD, chỉ xem', en: 'After the deadline, view only' }],
+      vi: 'Đã lưu điểm, còn chỉnh sửa được', en: 'Saved HOD rating remains editable',
       wvi: 'Trưởng đơn vị đã lưu điểm nhưng timeline HOD vẫn mở, nên điểm toàn diện và nhận xét vẫn chỉnh sửa được.',
       wen: 'The head of department already saved a rating, but the HOD timeline is still open, so the overall rating and comment remain editable.' }
   ];
