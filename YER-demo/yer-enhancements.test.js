@@ -656,13 +656,17 @@ test('manager detail keeps one Lưu ý box like the employee screen (§40.5a)', 
   assert.match(guide, /Rà soát các mục tiêu hiện có tại tab Đánh giá cuối năm\./);
   assert.match(guide, /cho nhân viên \(nếu cần\)\. Các mục tiêu do QLTT tạo sẽ được ghi nhận ở trạng thái <strong>Đã duyệt<\/strong>\./);
   assert.match(guide, /Hoàn thành Đánh giá chi tiết cho nhân viên và gửi\./);
-  assert.match(guide, /QLTT có thể chỉnh sửa kết quả đánh giá trước 18:00 ngày <strong>/);
+  // Hạn trong khối thai sản dùng cùng câu với khối Lưu ý thường (windowText, chốt 04/10/2026)
+  assert.match(guide, /var deadline = windowText\(p, canEdit\);/);
+  assert.match(detail, /function at18\(d\)/);
   assert.match(guide, /<ol class="yer-guide-steps">/);
   assert.match(items, /Ngày làm việc cuối cùng là <strong>/);
   // Câu chữ gọi tên vai thay cho `Bạn` (chốt 02/10/2026); hạn của vai đứng cuối khối
   assert.match(items, /L\(roleName\(\) \+ ' có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm 2026<\/a> của nhân viên trước khi đánh giá cuối năm\.'/);
   assert.ok(items.indexOf('data-go-tab="1"') < items.indexOf('var win = guide'));
-  assert.match(detail, /L\('Sau khi gửi đánh giá, ' \+ R \+ ' có thể chỉnh sửa tới hết 18:00 ngày ' \+ to \+ '\.'/);
+  // `to` là at18(win.to): `<strong>18:00 ngày dd/mm/yyyy</strong>` (chốt 04/10/2026)
+  assert.match(detail, /L\('Sau khi gửi đánh giá, ' \+ R \+ ' có thể chỉnh sửa tới hết ' \+ to \+ '\.'/);
+  assert.match(detail, /var to = at18\(win\.to\);/);
   assert.match(detail, /lm: \['QLTT', 'The line manager'\]/);
   // Không có kết quả giữa năm thì không nói gì (§40.5c)
   assert.doesNotMatch(detail, /Không có kết quả Đánh giá giữa năm/);
@@ -780,9 +784,10 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.match(manager, /Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét\./);
   assert.match(popup, /grid-template-columns:repeat\(' \+ \(role\(\) === 'hod' \? 3 : 2\) \+ ',minmax\(0,1fr\)\)/);
   assert.match(popup, /rows="2"/);
-  assert.match(popup, /L\('Bạn được điều chỉnh điểm cho nhân viên tới hết 18:00, ngày '/);
+  // Gọi tên vai, mốc giờ đậm đủ `18:00 ngày` (chốt 04/10/2026)
+  assert.match(popup, /L\(roleName\(\) \+ ' được điều chỉnh điểm cho nhân viên tới hết <strong>18:00 ngày '/);
   // Khối vàng trong popup chỉ cho hồ sơ bị giới hạn điểm 3 (chốt 02/10/2026)
-  assert.match(popup, /var text = Y\.lateCapNotice\(p, lg\(\)\);/);
+  assert.match(popup, /var text = Y\.lateCapNoticeHtml\(p, lg\(\)\);/);
   assert.match(popup, /ref\(L\('Điểm của QLTT', 'Line manager rating'\), a\.lm,/);
   assert.match(popup, /U\.rating\(el\('yer-cm-rating'\), \{\s*step: 'half'/);
   assert.match(popup, /L\('Nhận xét', 'Comment'\)/);
@@ -844,20 +849,24 @@ test('late measures and the rating cap of 3 are shown to every manager level and
   assert.equal(Y.overRatingCap(r3, 3), false);
   assert.equal(Y.overRatingCap(r3, 3.5), true);
   // Câu cho cấp quản lý: trễ bao nhiêu ngày, lần nhắc nào, hình thức gì; không nhắc chuyện hệ thống chặn điểm
-  assert.equal(Y.lateMeasureText(r3, 'vi'), 'Nhân viên hoàn thành trễ Tự đánh giá 8 ngày làm việc (nộp bổ sung ở lần nhắc thứ 3), vậy theo quy định, nhân viên sẽ bị giới hạn điểm đánh giá toàn diện tối đa là 3.');
+  // Câu chữ chị chốt 04/10/2026: `hoàn thành Tự đánh giá trễ hạn n ngày`, bỏ `vậy`; bản HTML in đậm số ngày và từ khóa
+  assert.equal(Y.lateMeasureText(r3, 'vi'), 'Nhân viên hoàn thành Tự đánh giá trễ hạn 8 ngày làm việc (nộp bổ sung ở lần nhắc thứ 3), theo quy định, nhân viên sẽ bị giới hạn điểm đánh giá toàn diện tối đa là 3.');
+  assert.match(Y.lateMeasureHtml(r3, 'vi'), /<strong>trễ hạn 8 ngày làm việc<\/strong>/);
+  assert.match(Y.lateMeasureHtml(r3, 'vi'), /<strong>tối đa là 3<\/strong>/);
   assert.equal(Y.ratingCapText(r3, 4, 'vi').rule, undefined);
-  assert.equal(Y.ratingCapText(r3, 4, 'vi').ack, 'Tôi xác nhận giữ điểm 4 dù cao hơn mức tối đa 3 theo quy định.');
+  assert.equal(Y.ratingCapText(r3, 4, 'vi').ack, 'Tôi xác nhận giữ điểm 4.');
   const r4 = Y.profile('y16', '2027-02-10');
   assert.equal(Y.lateMeasure(r4).cap, null);
   assert.equal(Y.overRatingCap(r4, 5), false);
-  assert.match(Y.lateMeasureText(r4, 'vi'), /vậy theo quy định, nhân viên sẽ bị cắt giảm một phần tiền thưởng/);
+  assert.match(Y.lateMeasureText(r4, 'vi'), /, theo quy định, nhân viên sẽ bị cắt giảm một phần tiền thưởng/);
   assert.equal(Y.lateMeasure(Y.profile('y9', '2027-02-10')), null);
 
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   // M-06: ô Ý nghĩa thang điểm dưới ô nhận xét như E-05; hình thức xử lý trong ô Đánh giá toàn diện; gửi phải tick xác nhận
   assert.match(detail, /def: o\.editable \? '#yer-md-op-def' : null/);
   assert.match(detail, /defInto: node\.dataset\.def \|\| null/);
-  assert.match(detail, /measure: measureHtml\(p, mine\.score == null \? null : mine\.score\)/);
+  // Ô giới hạn điểm chỉ hiện khi đang chấm; đã gửi thì bỏ vì thừa (chị chốt 04/10/2026)
+  assert.match(detail, /measure: canEdit \? measureHtml\(p, mine\.score == null \? null : mine\.score\) : null/);
   assert.match(detail, /id="yer-md-cap-ack"/);
   assert.match(detail, /payload\.capConfirmed = capConfirmed \?/);
   assert.match(detail, /overCap: capOf\(p, r\.score\)/);
@@ -908,7 +917,8 @@ test('line manager adds approved goals for an employee on maternity leave, by fi
   assert.match(detail, /rteHtml\('yer-gd-title'/);
   assert.match(detail, /<ol class="imp-steps">/);
   assert.match(detail, /L\('Đọc file', 'Read file'\)/);
-  assert.match(detail, /Mục tiêu QLTT thêm được ghi nhận <strong>Đã duyệt<\/strong> ngay/);
+  assert.match(detail, /Mục tiêu do QLTT thêm được hệ thống ghi nhận ở trạng thái <strong>Đã duyệt<\/strong>\./);
+  assert.match(detail, /QLTT <strong>không thể sửa hoặc xóa<\/strong> được mục tiêu này\./);
   assert.match(detail, /S\.setAct\(p\.id, 'lmGoals', \{ items: items \}\)/);
   assert.match(detail, /L\('QLTT thêm - Đã duyệt', 'Added by manager - Approved'\)/);
   // Mục tiêu QLTT thêm tạm thời không sửa, không xóa được (chốt 02/10/2026)
@@ -1161,7 +1171,8 @@ test('late completion banner identifies the supplemental file and overdue days',
   assert.match(banner, /L\(' \(nộp ở lần nhắc thứ ' \+ p\.lateRound\.round \+ '\): '/);
   assert.match(banner, /lateNowHtml\(p\.lateRound\)/);
   assert.doesNotMatch(employee, /Thời gian tạm hoãn: từ|'\/4/);
-  assert.match(employee, /function emphasize\(text\)/);
+  // Từ khóa in đậm của hình thức xử lý nằm ở model, dùng chung E-05 và màn Quản lý (04/10/2026)
+  assert.match(employee, /return Y\.lateTextHtml\(k, lg\(\)\);/);
   assert.match(employee, /\.yer-note\.yer-late-closed\{background:var\(--warn-bg\);border-color:var\(--warn-bd\)/);
   assert.match(banner, /!p\.lateSubmission && p\.selfLog && p\.selfLog\.length/);
   assert.match(employee, /\.yer-late-status\{[^}]*background:var\(--err-bg\);[^}]*color:var\(--err\)/);
@@ -1255,15 +1266,21 @@ test('demo controls stay hidden but the Demo pill is always reachable', () => {
 
 test('manager detail reads imported late goals and keeps review editable', () => {
   const source = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
-  assert.match(source, /if \(!p\.lateSubmission\) return ''/);
+  assert.match(source, /if \(!p\.lateSubmission\) return null;/);
+  // Banner hai tầng: dòng dài xuống tầng dưới, Lịch sử chỉnh sửa là liên kết sau dòng ngày (chốt 04/10/2026)
+  assert.match(source, /function bannerBox\(o\)/);
+  assert.match(source, /'<div class="yer-sb-more">'/);
+  assert.match(source, /id="yer-md-history"/);
   // Mục tiêu trong file nộp bổ sung đọc qua luật chung của model (Y.reviewGoals)
   assert.match(source, /return Y\.reviewGoals\(p, type\);/);
   assert.match(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), /var imported = \(p\.lateSubmission && p\.lateSubmission\.goals\) \|\| \[\];/);
-  assert.match(source, /Nhân viên xác nhận các mục tiêu được đề xuất đã được thống nhất và đồng thuận với QLTT\./);
+  assert.match(source, /Nhân viên xác nhận các mục tiêu đã được thống nhất và đồng thuận với QLTT\./);
   assert.doesNotMatch(source, /L\('File: '/);
   // Nộp bổ sung nổi bật bằng banner như E-05 (chốt 02/10/2026), không còn là gạch đầu dòng trong khối Lưu ý
   assert.match(source, /L\('Nhân viên đã hoàn thành bổ sung Tự đánh giá cuối năm'/);
-  assert.match(source, /if \(!mySubmitted\(p\)\) return lateBanner\(p\);/);
+  // Vai chưa gửi: banner tình trạng Tự đánh giá như tab Giữa năm (chốt 04/10/2026)
+  // Vai chưa gửi thấy bước gần nhất đã xong (QLTT, Quản lý cấp 2), không có thì tình trạng Tự đánh giá (chốt 04/10/2026)
+  assert.match(source, /if \(!mySubmitted\(p\)\) return priorBanner\(p\) \|\| lateBanner\(p\) \|\| selfBanner\(p\) \|\| pendingBanner\(p\);/);
   assert.doesNotMatch(source, /Nhân viên <strong>nộp bổ sung<\/strong> Tự đánh giá ngày/);
   assert.match(source, /' <span class="yer-late-status">'/);
   assert.match(source, /Y\.lateDays\(p\.lateSubmission\.at\)/);
@@ -1276,14 +1293,16 @@ test('manager demo separates roster phases from role-filtered detail scenarios',
   assert.match(demo, /var MANAGER_STEPS = \['self', 'lm', 'lm2', 'hod', 'publish'\]/);
   assert.match(demo, /var managerList = onScreen\('M-05\/index\.html'\)/);
   assert.match(demo, /var managerDetail = onScreen\('M-06\/index\.html'\)/);
-  // M-06 (chốt 02/10/2026): một dropdown cho ba vai, nhóm theo vai và nhóm con; không còn ô Vai trò và thanh kéo ngày,
-  // thay bằng mốc thời gian của tình huống; dòng Cần xem; nút Xem phía Nhân viên; làm lại riêng tình huống đang xem
-  assert.match(demo, /return sc\.g === g\.id && sc\.screen === 'M-06';/);
-  assert.match(demo, /label\(g\) \+ ': ' \+ label\(sb\)/);
+  // M-06 (chốt lại 04/10/2026): một dropdown cho ba vai, nhóm theo vai và đúng tên bước; mỗi tình huống một giao diện ở một ngày,
+  // đánh số liên tục, nút ◀ ▶ và bộ đếm; dòng Cần xem; nút Xem phía Nhân viên; làm lại riêng tình huống đang xem
+  assert.match(demo, /var detailList = sortedScenarios\.filter\(function \(sc\) \{ return sc\.screen === 'M-06' && sc\.sub; \}\)/);
+  assert.match(demo, /id="dm-prev"/);
+  assert.match(demo, /id="dm-next"/);
+  assert.match(demo, /'<span class="dm-count">'/);
   assert.match(demo, /var scenarioControl = managerDetail/);
   const detailBar = demo.slice(demo.indexOf('Thanh demo của màn chi tiết'), demo.indexOf("goScreen('E-05');"));
   assert.doesNotMatch(detailBar, /dm-role|type="range"/);
-  assert.match(detailBar, /data-moment="/);
+  assert.doesNotMatch(detailBar, /data-moment="/);
   assert.match(detailBar, /Cần xem:/);
   assert.match(detailBar, /Xem phía Nhân viên/);
   assert.match(demo, /function optionText\(sc\) \{ return sc\.id \+ ' - ' \+ label\(sc\) \+ ' \(' \+ empName\(sc\) \+ '\)'; \}/);
@@ -1297,18 +1316,29 @@ test('manager demo separates roster phases from role-filtered detail scenarios',
   const byId = Object.fromEntries(Array.from(w.PMS_YER_SCENARIOS, x => [x.id, x]));
   for (const sc of w.PMS_YER_SCENARIOS.filter(x => x.screen === 'M-06')) {
     assert.ok(sc.wvi, sc.id);
-    for (const m of sc.moments || []) assert.ok(m.date && m.vi, sc.id);
+    assert.equal(sc.moments, undefined, sc.id + ': mỗi tình huống một ngày');
+    assert.ok(w.PMS_YER_SUBGROUPS.some(g => g.id === sc.sub), sc.id + ': thuộc một nhóm bước');
     if (sc.pair) { assert.equal(byId[sc.pair].role, 'nv', sc.id); assert.equal(byId[sc.pair].emp, sc.emp, sc.id); }
+    // Tên nhóm Trước / Trong / Sau bước luôn khớp với dải quy trình tại ngày của tình huống (sắp lại 04/10/2026)
+    const phase = /-pre$/.test(sc.sub) ? 'future' : /-post$/.test(sc.sub) ? 'closed' : 'open';
+    assert.equal(w.PMSYer.stepState(sc.role, sc.date), phase, sc.id + ' nằm sai nhóm ' + sc.sub);
   }
-  assert.equal(byId.lm07, undefined, 'lm07 gop vao lm06');
+  // Tình huống mới: QLTT đã gửi trên hồ sơ nộp bổ sung
+  const lateDone = w.PMSYer.profile(byId.lm19.emp, byId.lm19.date);
+  assert.ok(lateDone.lateSubmission && lateDone.lm && !lateDone.lm.synced);
+  // Đủ các trường hợp chị liệt kê (04/10/2026): bốn lần nhắc khi QLTT chờ nộp bổ sung
+  for (let r = 1; r <= 4; r++) {
+    const sc = byId['lm' + String(8 + r).padStart(2, '0')];
+    assert.equal(w.PMSYer.profile(sc.emp, sc.date).lateRound.round, r);
+  }
 });
 
 test('all manager levels can edit a submitted review while their own timeline remains open', () => {
   const w = loadYer();
   const cases = [
-    ['lm09', 'lm', 'e10', '2027-01-27'],
+    ['lm18', 'lm', 'e10', '2027-01-27'],
     ['lm2-05', 'lm2', 'e11', '2027-02-20'],
-    ['hod05', 'hod', 'e12', '2027-02-27']
+    ['hod03', 'hod', 'e12', '2027-02-27']
   ];
   for (const [scenarioId, role, emp, date] of cases) {
     const scenario = w.PMS_YER_SCENARIOS.find(item => item.id === scenarioId);
@@ -1322,6 +1352,8 @@ test('all manager levels can edit a submitted review while their own timeline re
     const review = w.PMSYer.managerReviewState(role, profile);
     assert.equal(review.submitted, true);
     assert.equal(review.canEdit, true);
+    // Màn chi tiết M-06: chỉ QLTT sửa trực tiếp; LM2, HOD chỉ xem và sửa ở danh sách M-05 (chốt 04/10/2026)
+    assert.equal(review.canEditDetail, role === 'lm');
 
     const afterDeadline = w.PMSYer.profile(emp, w.PMSYer.addDays(w.PMSYer.step(role).to, 1));
     assert.equal(w.PMSYer.managerReviewState(role, afterDeadline).canEdit, false);
@@ -1329,7 +1361,8 @@ test('all manager levels can edit a submitted review while their own timeline re
 
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   const editable = detail.slice(detail.indexOf('function editable(p)'), detail.indexOf('function toolbar(p'));
-  assert.match(editable, /Y\.managerReviewState\(role\(\), p\)\.canEdit && \(!mySubmitted\(p\) \|\| isEditing\(p\)\)/);
+  assert.match(editable, /Y\.managerReviewState\(role\(\), p\)\.canEditDetail && \(!mySubmitted\(p\) \|\| isEditing\(p\)\)/);
+  assert.match(detail, /return isLm\(\) && myLog\(p\)\.length \?/);
   // Sau khi gửi là chế độ xem; bấm Chỉnh sửa ở banner mới mở lại các ô (chốt 02/10/2026)
   assert.match(detail, /\(canReopen\(p\) \? '<button class="btn btn-cta-outline btn-sm" type="button" id="yer-md-edit"/);
   // Bấm Chỉnh sửa thì hỏi xác nhận; đang sửa thì khối màu nhẹ thay banner, có nút Hủy chỉnh sửa (như E-05, 04/10/2026)
@@ -1522,13 +1555,24 @@ test('manager detail keeps the timeline, empty goal groups, goal popups and the 
   assert.match(detail, /function emptyRow\(type, p\)/);
   // §13.1, §13.2: dòng mang data-* và popup ghi ai đánh giá hoàn thành
   assert.match(detail, /data-name="' \+ esc\(r\.name\)/);
-  assert.match(detail, /data-done-by="/);
+  // Dòng mang data-done-* như E-05, bảng Cuối năm mở #dlg-detail bằng openDetailFromRow (chốt 04/10/2026)
+  assert.match(detail, /data-done-self-score="/);
+  assert.match(detail, /data-done-mgr-by="/);
+  assert.match(page, /function openDetailFromRow\(tr\)/);
+  assert.match(page, /if \(tr\.closest\('#yer-mgr-detail-root'\)\) \{ openDetailFromRow\(tr\); return; \}/);
+  assert.match(page, /#dlg-detail\.from-review \.ev-steps\{display:none\}/);
   assert.match(detail, /window\.bindReviewGoalRows\(el\('yer-mgr-detail-root'\)\)/);
   assert.match(page, /window\.bindReviewGoalRows = bindReviewGoalRows;/);
-  assert.match(page, /Đã đánh giá hoàn thành bởi/);
+  assert.doesNotMatch(page, /gd-done-wrap/);
   // §39.1: QLTT không bị đòi điểm mục tiêu đã khóa, phải có nhận xét toàn diện
-  assert.match(detail, /!\(p\.completedGoals \|\| \{\}\)\[g\.id\] && draft\.goalScores\[g\.id\] == null/);
-  assert.match(detail, /L\('nhận xét toàn diện', 'the overall comment'\)/);
+  // Popup thiếu thông tin gom theo khối như E-05, ô thiếu viền đỏ (chốt 04/10/2026)
+  assert.match(detail, /if \(\(p\.completedGoals \|\| \{\}\)\[g\.id\]\) return;/);
+  assert.match(detail, /if \(isLm\(\) && !\(\(draft\.overall \|\| \{\}\)\.comment \|\| ''\)\.trim\(\)\)/);
+  assert.match(detail, /className: 'yer-miss-dialog'/);
+  assert.match(detail, /function markMissing\(groups\)/);
+  // Lịch sử chỉnh sửa trong banner cho cả ba vai, QLTT có lmLog
+  assert.match(detail, /id="yer-md-history"/);
+  assert.match(detail, /S\.setAct\(S\.session\(\)\.emp, 'lmLog'/);
   // §41.5: tên kỳ tiếng Việt
   assert.doesNotMatch(detail, /Không có kết quả Mid-Year/);
   // §18.4: M-05 và M-06 cùng một luật nhãn tab với E-05

@@ -478,6 +478,8 @@ input,select,textarea{font-family:inherit}
 #dlg-detail.from-review .ev-meta strong{color:var(--z700);font-weight:700}
 /* Không có chân hộp thoại thì nội dung sát mép dưới, nhìn như bị cụt */
 #dlg-detail.from-review .dlg-body{padding-bottom:24px}
+/* Bỏ đường kẻ thừa trên khối hai lượt chấm, như M-06 (chị góp ý 04/10/2026) */
+#dlg-detail.from-review #d-eval-section{border-top:0!important;margin-top:0!important;padding-top:6px!important}
 /* Mục tiêu hành vi chỉ để đọc, không có bình luận nên không chia tab.
    Bỏ dải tab thì phải trả đường kẻ ngăn cho chính phần đầu hộp thoại. */
 /* Không có dải tab thì phần đầu tự mang đường kẻ ngăn; không có chân hộp thì nới đáy */
@@ -2438,6 +2440,8 @@ function openDetail(el) {
     if (showEval) renderEvalTab(el);
   }
   // Mở từ màn Mục tiêu thì trả hộp thoại về đầy đủ: tab Bình luận, dải bước, chân hộp
+  var mgrHdBack = document.querySelector('#ev-mgr-card .ev-card-hd');
+  if (mgrHdBack) mgrHdBack.textContent = 'Quản lý đánh giá';
   document.getElementById('dlg-detail').classList.remove('from-review');
   var cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
   if (cmtTab) cmtTab.style.display = '';
@@ -3103,6 +3107,9 @@ document.addEventListener('DOMContentLoaded', function initGoalInteractions() {
       proxy.dataset.evMgrCmt = d.doneMgrCmt || '';
       proxy.dataset.evMgrBy = d.doneMgrBy || '';
       renderEvalTab(proxy);
+      // Người chấm hoàn thành là Quản lý trực tiếp, cùng tiêu đề với M-06 (04/10/2026)
+      const mgrHd = document.querySelector('#ev-mgr-card .ev-card-hd');
+      if (mgrHd) mgrHd.textContent = 'Quản lý trực tiếp đánh giá';
       /* Cú pháp riêng của màn đánh giá: ghi luôn ai chấm và chấm khi nào,
          thay cho dòng chỉ có domain của màn Mục tiêu. */
       const metaLine = (by, at) => {

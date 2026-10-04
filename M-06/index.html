@@ -456,6 +456,17 @@ input,select,textarea{font-family:inherit}
 /* Bố cục so sánh NV / Quản lý song song */
 .ev-cards.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
 .ev-cards.compare .ev-card{margin-bottom:0}
+/* Mở từ bảng Đánh giá cuối năm (`openDetailFromRow`) thì hộp thoại chỉ để xem lại, giống hệt E-05 (YER-SPEC §13.2) */
+#dlg-detail.from-review .ev-steps{display:none}
+#dlg-detail.from-review .ev-cmt-lbl{display:none}
+#dlg-detail.from-review .dlg-foot{display:none}
+#dlg-detail.from-review .ev-card-hd{color:var(--brand)}
+#dlg-detail.from-review .ev-who-ico{color:var(--brand)}
+#dlg-detail.from-review .ev-meta strong{color:var(--z700);font-weight:700}
+#dlg-detail.from-review .dlg-body{padding-bottom:24px}
+/* Mở từ bảng đánh giá: bỏ đường kẻ thừa trên khối hai lượt chấm (chị góp ý 04/10/2026) */
+#dlg-detail.from-review #d-eval-section{border-top:0!important;margin-top:0!important;padding-top:6px!important}
+#dlg-how.from-review .info-note{display:none}
 .ev-card-hd-row{display:flex;align-items:center;gap:6px;margin-bottom:9px}
 .ev-card-hd-row .ev-card-hd{margin-bottom:0}
 .ev-who-ico{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--z200);color:var(--z600)}
@@ -1965,7 +1976,7 @@ body.embedded-detail .page-title{font-size:16px}
         </div>
         <div class="cmt-empty" id="d-cmt-empty" style="display:none">
           <i class="bx bx-message-square-dots"></i>
-          <span>Chưa có bình luận. Mục tiêu cần được gửi cho quản lý trước khi có thể trao đổi.</span>
+          <span id="d-cmt-empty-txt">Chưa có bình luận. Mục tiêu cần được gửi cho quản lý trước khi có thể trao đổi.</span>
         </div>
         <div class="cin-row" id="d-cmt-input">
           <div class="av av-brand av-sm" style="flex-shrink:0;margin-bottom:2px">NT</div>
@@ -2329,12 +2340,86 @@ function openDetail(el) {
     var evalSection = document.getElementById('d-eval-section');
     if (evalSection) evalSection.style.display = showEval ? 'block' : 'none';
     if (showEval) renderEvalTab(el);
+    document.getElementById('d-cmt-empty-txt').textContent = 'Chưa có bình luận. Mục tiêu cần được gửi cho quản lý trước khi có thể trao đổi.';
   }
+  // Mở từ màn Mục tiêu thì trả hộp thoại về đầy đủ: tab Bình luận, dải bước, chân hộp, hàng ưu tiên và thời gian
+  document.getElementById('dlg-detail').classList.remove('from-review');
+  var mgrHdBack = document.querySelector('#ev-mgr-card .ev-card-hd');
+  if (mgrHdBack) mgrHdBack.textContent = 'Quản lý đánh giá';
+  var cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
+  if (cmtTab) cmtTab.style.display = '';
+  var dgRow = document.getElementById('d-date-grid');
+  if (dgRow && dgRow.closest('.detail-row')) dgRow.closest('.detail-row').style.display = '';
+  openOverlay('dlg-detail');
+  switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
+}
+
+/* Mở đúng hộp thoại Chi tiết mục tiêu của màn Mục tiêu (#dlg-detail) từ một dòng của bảng
+   Đánh giá cuối năm, chép nguyên openDetailFromRow của E-05 (YER-SPEC §13.2). Không dựng popup rút gọn riêng. */
+function openDetailFromRow(tr) {
+  const d = tr.dataset;
+  if (d.kind === 'how') { openHowFromRow(tr, true); return; }
+  const done = d.doneSelfScore != null || d.doneMgrScore != null;
+  const sec = tr.closest('.rv-section');
+  const typeEl = sec && (sec.querySelector('.rv-type') || sec.querySelector('.rv-section-hd'));
+  document.getElementById('d-type').textContent = typeEl ? typeEl.textContent.trim() : '';
+  const st = document.getElementById('d-status');
+  st.textContent = done ? 'Hoàn thành' : 'Đã duyệt';
+  st.className = 'badge b-ok';
+  document.getElementById('d-title').textContent = d.name || '';
+  const res = document.getElementById('d-result');
+  res.textContent = d.result || '—';
+  res.style.whiteSpace = (d.result || '').indexOf('\n') >= 0 ? 'pre-line' : '';
+  const prioEl = tr.querySelector('.prio');
+  const dateMeta = Array.from(tr.querySelectorAll('.g-meta')).find(m => !m.querySelector('.prio'));
+  const dateStr = dateMeta ? dateMeta.textContent.trim() : '';
+  const parts = dateStr.split('–');
+  const grid = document.getElementById('d-date-grid');
+  const prioWrap = document.getElementById('d-prio-wrap');
+  grid.closest('.detail-row').style.display = (prioEl || dateStr) ? '' : 'none';
+  prioWrap.style.display = prioEl ? '' : 'none';
+  grid.style.gridTemplateColumns = prioEl ? '1fr 1fr 1fr' : '1fr 1fr';
+  if (prioEl) document.getElementById('d-prio').textContent = prioEl.textContent.trim();
+  document.getElementById('d-from').textContent = (parts[0] || '').trim() || '—';
+  document.getElementById('d-to').textContent = (parts[1] || '').trim() || '—';
+  const cmtTab = document.querySelectorAll('#dlg-detail .dlg-tab')[1];
+  if (cmtTab) cmtTab.style.display = '';
+  const cmtCount = document.getElementById('d-cmt-count');
+  if (cmtCount) cmtCount.style.display = 'none';
+  document.getElementById('d-comments').style.display = 'none';
+  document.getElementById('d-cmt-input').style.display = 'none';
+  document.getElementById('d-cmt-empty').style.display = 'flex';
+  document.getElementById('d-cmt-empty-txt').textContent = 'Chưa có bình luận nào cho mục tiêu này.';
+  // Khối hai lượt chấm: dùng lại renderEvalTab, chỉ cần một phần tử mang đúng dataset
+  const evalSection = document.getElementById('d-eval-section');
+  evalSection.style.display = done ? 'block' : 'none';
+  if (done) {
+    const proxy = document.createElement('div');
+    proxy.dataset.eval = 'done';
+    proxy.dataset.evSelf = d.doneSelfScore || '';
+    proxy.dataset.evSelfCmt = d.doneSelfCmt || '';
+    proxy.dataset.evMgr = d.doneMgrScore || '';
+    proxy.dataset.evMgrCmt = d.doneMgrCmt || '';
+    renderEvalTab(proxy);
+    // Người chấm ở đây là Quản lý trực tiếp (chị chốt 04/10/2026)
+    const mgrHd = document.querySelector('#ev-mgr-card .ev-card-hd');
+    if (mgrHd) mgrHd.textContent = 'Quản lý trực tiếp đánh giá';
+    const metaLine = (by, at) => {
+      if (!by && !at) return '';
+      return 'Đánh giá bởi <strong>' + (by || '—') + '</strong>' + (at ? ' - ' + at : '');
+    };
+    document.getElementById('ev-self-meta').innerHTML = metaLine(d.doneSelfBy, d.doneSelfAt);
+    document.getElementById('ev-mgr-meta').innerHTML = metaLine(d.doneMgrBy, d.doneMgrAt);
+  }
+  const cta = document.getElementById('d-foot-cta');
+  if (cta) { cta.style.display = 'none'; cta.onclick = null; }
+  document.getElementById('dlg-detail').classList.add('from-review');
   openOverlay('dlg-detail');
   switchTab(0, document.querySelector('#dlg-detail .dlg-tab'));
 }
 /* Giá trị cốt lõi ở tab Đánh giá cuối năm: dòng không có .how-name nên đọc từ data-* */
-function openHowFromRow(tr) {
+function openHowFromRow(tr, fromReview) {
+  document.getElementById('dlg-how').classList.toggle('from-review', !!fromReview);
   document.getElementById('dh-name').textContent = tr.dataset.name || '';
   const desc = document.getElementById('dh-desc');
   desc.textContent = tr.dataset.result || '—';
@@ -2342,6 +2427,7 @@ function openHowFromRow(tr) {
   openOverlay('dlg-how');
 }
 function openHow(el) {
+  document.getElementById('dlg-how').classList.remove('from-review');
   document.getElementById('dh-name').textContent = el.querySelector('.how-name').textContent.trim();
   document.getElementById('dh-desc').textContent = el.dataset.desc || '—';
   openOverlay('dlg-how');
@@ -2775,12 +2861,6 @@ function openGoalDetail(tr) {
     metaGrid.style.display = 'none';
   }
 
-  const doneWrap = document.getElementById('gd-done-wrap');
-  if (doneWrap) {
-    doneWrap.style.display = tr.dataset.doneBy ? '' : 'none';
-    document.getElementById('gd-done').textContent = tr.dataset.doneBy || '';
-  }
-
   document.getElementById('goal-detail-overlay').classList.add('open');
 }
 function closeGoalDetail() { document.getElementById('goal-detail-overlay').classList.remove('open'); }
@@ -2940,6 +3020,8 @@ function toggleDet(id, btn) {
     tr.addEventListener('click', e => {
       if (e.target.closest('.sc-select, .op-select, .det-btn, select, input, a, button')) return;
       if (tip) tip.style.display = 'none';
+      // Tab Đánh giá cuối năm dùng đúng hộp thoại của màn Mục tiêu như E-05 (YER-SPEC §13.2)
+      if (tr.closest('#yer-mgr-detail-root')) { openDetailFromRow(tr); return; }
       if (tr.dataset.kind === 'how') { openHowFromRow(tr); return; }
       openGoalDetail(tr);
     });
@@ -3510,11 +3592,6 @@ document.addEventListener('DOMContentLoaded',function(){
       <div class="gd-field">
         <div class="gd-field-lbl">Kết quả cần đạt</div>
         <div class="gd-field-box" id="gd-result" style="white-space:pre-line"></div>
-      </div>
-      <!-- Chỉ hiện với mục tiêu đã đánh giá hoàn thành ở tab Đánh giá cuối năm (YER-SPEC §13.1) -->
-      <div class="gd-field" id="gd-done-wrap" style="margin-top:12px;display:none">
-        <div class="gd-field-lbl">Đã đánh giá hoàn thành bởi</div>
-        <div class="gd-field-box" id="gd-done"></div>
       </div>
     </div>
     <div class="dlg-foot">

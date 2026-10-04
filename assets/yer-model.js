@@ -96,6 +96,25 @@
     var t = LATE_TEXT[key];
     return t ? (lang === 'en' ? t.en : t.vi) : '';
   }
+  /* Từ khóa của hình thức xử lý được in đậm ở mọi màn (E-05, M-05, M-06), chuyển từ E-05 vào model ngày 04/10/2026
+     để mọi nơi in đậm giống nhau. */
+  var LATE_KEYWORDS = {
+    vi: ['tối đa là 3', 'Cắt giảm một phần tiền thưởng', 'cắt giảm một phần tiền thưởng',
+         'tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo'],
+    en: ['capped at 3', 'Part of the bonus is cut', 'part of the bonus of the employee is cut',
+         'promotion and salary increase are deferred for the next 6 months']
+  };
+  function escHtml(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function emphasizeLate(text, lang) {
+    var out = escHtml(text);
+    (LATE_KEYWORDS[lang === 'en' ? 'en' : 'vi'] || []).forEach(function (k) {
+      out = out.split(escHtml(k)).join('<strong>' + escHtml(k) + '</strong>');
+    });
+    return out;
+  }
+  function lateTextHtml(key, lang) { return emphasizeLate(lateText(key, lang), lang); }
   function lateSubmissionDeadline() {
     var all = lateRounds();
     return all[all.length - 1].deadline;
@@ -214,13 +233,16 @@
     // KHÔNG đồng bộ từ LM2 sang HOD
     var hodView = hodDone ? Object.assign({}, hod, { source: hod.source || 'manual' }) : null;
 
-    /* Lịch sử chấm điểm và nhận xét của LM2, HOD (chốt 30/09/2026): mỗi lần lưu là một dòng
+    /* Lịch sử chấm điểm và nhận xét của QLTT, LM2, HOD (chốt 30/09/2026, thêm QLTT 04/10/2026): mỗi lần lưu là một dòng
        { at, time, score, comment, source }. Dữ liệu mẫu chưa có lịch sử thì suy ra một dòng từ bản đang có;
        điểm hệ thống tự chép không phải lần chấm của vai nên không vào lịch sử. */
     function managerLog(key, view) {
       var items = ((acts[key + 'Log'] || {}).items || []).filter(function (it) { return it && it.at && cmp(now, it.at) >= 0; });
       if (!items.length && view && !view.synced && view.at) {
-        items = [{ at: view.at, time: view.time || null, score: view.score, comment: view.comment || '', source: view.source || 'manual' }];
+        // QLTT lưu điểm toàn diện trong view.overall; LM2, HOD lưu thẳng view.score
+        var ov = view.overall || {};
+        items = [{ at: view.at, time: view.time || null, score: view.score != null ? view.score : ov.score,
+                   comment: (view.overall ? ov.comment : view.comment) || '', source: view.source || 'manual' }];
       }
       return items;
     }
@@ -294,6 +316,7 @@
       lm: lmView,
       lm2: lm2View,
       hod: hodView,
+      lmLog: managerLog('lm', lmView),
       lm2Log: managerLog('lm2', lm2View),
       hodLog: managerLog('hod', hodView),
       hrbpUpload: happened(hrbpUpload) ? hrbpUpload : null,
@@ -373,7 +396,10 @@
       stepOpen: stepOpen,
       submitted: submitted,
       pending: pending,
-      canEdit: !!(stepOpen && !blocked && prerequisite)
+      canEdit: !!(stepOpen && !blocked && prerequisite),
+      /* Màn chi tiết M-06 (chị chốt 04/10/2026): chỉ QLTT đánh giá và chỉnh sửa trực tiếp ở đây. Quản lý cấp 2 và Trưởng đơn vị
+         chỉ vào xem; họ chấm và sửa điểm ở danh sách M-05, nên M-06 không có nút lưu, Chỉnh sửa hay Lịch sử chỉnh sửa cho hai vai này. */
+      canEditDetail: !!(stepOpen && !blocked && prerequisite) && role === 'lm'
     };
   }
 
@@ -437,9 +463,21 @@
       var pair = MANAGER_MEASURE[k];
       return pair ? (en ? pair[1] : pair[0]) : lateText(k, lang);
     }).join(' ');
+    // Câu chữ chị chốt 04/10/2026: `Nhân viên hoàn thành Tự đánh giá trễ hạn n ngày làm việc (…), theo quy định, …` (bỏ `vậy`)
     return en
-      ? 'The employee completed the self assessment ' + days + ' working day' + (days === 1 ? '' : 's') + ' late (at reminder ' + m.round + '), so under policy ' + body
-      : 'Nhân viên hoàn thành trễ Tự đánh giá ' + days + ' ngày làm việc (nộp bổ sung ở lần nhắc thứ ' + m.round + '), vậy theo quy định, ' + body;
+      ? 'The employee completed the self assessment ' + days + ' working day' + (days === 1 ? '' : 's') + ' late (at reminder ' + m.round + '); under policy, ' + body
+      : 'Nhân viên hoàn thành Tự đánh giá trễ hạn ' + days + ' ngày làm việc (nộp bổ sung ở lần nhắc thứ ' + m.round + '), theo quy định, ' + body;
+  }
+  // Bản HTML: in đậm số ngày trễ hạn và từ khóa của hình thức xử lý (chị chốt 04/10/2026)
+  function lateMeasureHtml(p, lang) {
+    var m = lateMeasure(p);
+    if (!m) return '';
+    var days = lateDays(p.lateSubmission.at);
+    var lateVi = 'trễ hạn ' + days + ' ngày làm việc';
+    var lateEn = days + ' working day' + (days === 1 ? '' : 's') + ' late';
+    var text = lateMeasureText(p, lang);
+    var key = lang === 'en' ? lateEn : lateVi;
+    return emphasizeLate(text, lang).split(escHtml(key)).join('<strong>' + escHtml(key) + '</strong>');
   }
   /* Khối vàng trong ô Đánh giá toàn diện (M-06) và popup chấm trên lưới (M-05) chỉ dành cho hồ sơ bị giới hạn điểm
      (nộp ở lần nhắc thứ 3), chốt 02/10/2026. Nộp ở lần 1, 2 (không có hình thức) hay lần 4 (không giới hạn điểm) thì
@@ -448,24 +486,29 @@
     var m = lateMeasure(p);
     return m && m.cap != null ? lateMeasureText(p, lang) : '';
   }
+  function lateCapNoticeHtml(p, lang) {
+    var m = lateMeasure(p);
+    return m && m.cap != null ? lateMeasureHtml(p, lang) : '';
+  }
   function ratingCapText(p, score, lang) {
     var m = lateMeasure(p);
     if (!m || m.cap == null) return { over: '', ack: '' };
     var v = score == null || score === '' ? '' : String(score);
     return lang === 'en' ? {
-      over: 'You are rating ' + v + ', above the maximum of ' + m.cap + '.',
-      ack: 'I confirm keeping ' + v + ' although it is above the maximum of ' + m.cap + ' under policy.'
+      over: 'The selected rating is ' + v + ', above the maximum of ' + m.cap + '.',
+      ack: 'I confirm keeping ' + v + '.'
     } : {
-      over: 'Bạn đang cho ' + v + ', cao hơn mức tối đa ' + m.cap + '.',
-      ack: 'Tôi xác nhận giữ điểm ' + v + ' dù cao hơn mức tối đa ' + m.cap + ' theo quy định.'
+      over: 'Điểm đang chọn là ' + v + ', cao hơn mức tối đa ' + m.cap + '.',
+      // Câu xác nhận ngắn (chị chốt 04/10/2026): bỏ `dù cao hơn mức tối đa … theo quy định`
+      ack: 'Tôi xác nhận giữ điểm ' + v + '.'
     };
   }
 
-  /* ── Lịch sử chấm điểm của LM2, HOD ─────────────────────────
+  /* ── Lịch sử chấm điểm của QLTT, LM2, HOD ───────────────────
      Màn hình ghi thêm một dòng mỗi lần lưu: S.setAct(id, role + 'Log', { items: nextManagerLog(role, p, entry) }).
      source (grid, detail, approve-prev, upload, hrbp-upload) chỉ để truy vết dữ liệu, không hiện trên màn. */
   function nextManagerLog(role, p, entry) {
-    return ((role === 'lm2' ? p.lm2Log : p.hodLog) || []).concat([entry]);
+    return ((role === 'lm' ? p.lmLog : role === 'lm2' ? p.lm2Log : p.hodLog) || []).concat([entry]);
   }
   /* ── Điểm hiệu chuẩn HRBP tải lên hộ HOD (§9) ──────────────
      Điểm tải lên chưa duyệt không phải điểm HOD và không hiện ở lưới chính; HOD duyệt ở màn
@@ -816,6 +859,7 @@
     lateWindowFitsLm: lateWindowFitsLm,
     lateRound: lateRound,
     lateText: lateText,
+    lateTextHtml: lateTextHtml,
     isWorkingDay: isWorkingDay,
     addWorkingDays: addWorkingDays,
     workingDaysBetween: workingDaysBetween,
@@ -833,7 +877,9 @@
     canAddGoals: canAddGoals,
     overRatingCap: overRatingCap,
     lateMeasureText: lateMeasureText,
+    lateMeasureHtml: lateMeasureHtml,
     lateCapNotice: lateCapNotice,
+    lateCapNoticeHtml: lateCapNoticeHtml,
     lateWaiting: lateWaiting,
     ratingCapText: ratingCapText,
     managerRosterRank: managerRosterRank,

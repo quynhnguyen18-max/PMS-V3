@@ -64,6 +64,13 @@
     /* Ô chưa chọn điểm: nới rộng cho vừa chữ gợi ý, chữ thường và nhạt hơn điểm đã chọn */
     '.sc-select.rt-unset,.op-select.rt-unset{width:auto;min-width:112px;font-weight:500;font-size:12px;color:var(--z600);text-align:left}',
     '.rt-unset option{color:var(--z900);font-weight:600}',
+    /* Chị chốt 04/10/2026: chữ trong ô chọn điểm căn trái ở mọi trạng thái (chưa chọn, đã chọn, mở lại danh sách) */
+    '[data-rt] .sc-select,[data-rt] .op-select{text-align:left;text-align-last:left}',
+    /* Tên mức luôn một dòng; không đủ chỗ thì cả nhãn xuống dòng (rt-line flex-wrap). Tên mức in đậm, phần nối giữ chữ thường */
+    /* Chip không co lại để chen cạnh điểm: không đủ chỗ thì cả chip xuống dòng; chỉ khi một dòng riêng vẫn không đủ mới xuống dòng chữ */
+    '[data-rt] .sc-lbl.show{flex-shrink:0;max-width:100%;height:auto;min-height:20px;white-space:normal;line-height:1.4;padding:2px 7px}',
+    '[data-rt] .sc-lbl strong{font-weight:700}',
+    '.rt-tagline{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-width:0;flex-shrink:0}',
     '.rt-i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;',
     'border:1px solid var(--z300);color:var(--z500);font-size:11px;cursor:help;background:var(--z0);flex:none}',
     '.rt-i:hover,.rt-i:focus-visible{border-color:var(--brand);color:var(--brand);outline:none}',
@@ -191,6 +198,30 @@
     '.tabs:has(.yer-mascot-guide){position:relative;padding-right:48px}',
     '.yer-mascot-guide{position:absolute;right:5px;top:50%;z-index:12;transform:translateY(-50%);display:none}.tabs:has(#tab-yer.on) .yer-mascot-guide{display:block}.yer-mascot-trigger{position:relative;width:34px;height:34px;padding:2px;border:1px solid var(--brand-ring);border-radius:11px;background:linear-gradient(145deg,#fff 15%,var(--brand-muted));box-shadow:0 3px 11px rgba(65,18,47,.13);cursor:pointer;display:grid;place-items:center;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.yer-mascot-trigger:hover,.yer-mascot-trigger:focus-visible{transform:translateY(-1px);background:#fff;box-shadow:0 5px 16px rgba(165,0,100,.19);outline:none}.yer-mascot-trigger:focus-visible{box-shadow:0 0 0 3px rgba(249,83,150,.22),0 6px 18px rgba(165,0,100,.20)}.yer-mascot-trigger img{width:28px;height:28px;object-fit:contain;display:block}.yer-mascot-trigger:hover img,.yer-mascot-trigger:focus-visible img{animation:yer-hello .72s ease-in-out 1}.yer-mascot-dot{position:absolute;left:-2px;top:-3px;width:8px;height:8px;border:2px solid #fff;border-radius:50%;background:var(--brand)}.yer-mascot-bubble{position:absolute;right:42px;top:50%;width:300px;padding:12px 14px;border:1px solid var(--brand-ring);border-radius:12px;background:#fff;color:var(--z600);font-size:12px;line-height:1.5;box-shadow:0 12px 32px rgba(24,24,27,.16);opacity:0;visibility:hidden;pointer-events:none;transform:translate(7px,-50%) scale(.985);transform-origin:right center;transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s}.yer-mascot-guide:hover .yer-mascot-bubble,.yer-mascot-guide:focus-within .yer-mascot-bubble{opacity:1;visibility:visible;transform:translate(0,-50%);transition-delay:0s}.yer-mascot-bubble:after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);border:7px solid transparent;border-left-color:#fff}.yer-mascot-step{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-weight:700;white-space:nowrap}.yer-mascot-guide.stuck{position:fixed;right:10px;top:50%;transform:translateY(-50%)}.yer-mascot-title{font-size:13px;font-weight:700;color:var(--z900);margin-bottom:3px}.yer-mascot-state{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-size:10.5px;font-weight:700}body.pms-tour-open .yer-mascot-guide{display:none!important}@keyframes yer-hello{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-4deg) translateY(-1px)}65%{transform:rotate(3deg)}}@media(prefers-reduced-motion:reduce){.yer-mascot-trigger,.yer-mascot-bubble{transition:none}.yer-mascot-trigger img{animation:none!important}}@media(max-width:700px){.yer-mascot-bubble{width:min(284px,calc(100vw - 64px))}}',
 
+    /* ── Lịch sử chỉnh sửa: mỗi lần gửi một thẻ, mới nhất ở trên, thẻ đang ghi nhận viền xanh (E-05, M-06) ── */
+    '.yer-log-dialog{max-width:540px}',
+    '.yer-vers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto}',
+    '.yer-ver{padding:12px 14px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0)}',
+    '.yer-ver.current{border-color:var(--ok-bd)}',
+    '.yer-ver-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}',
+    '.yer-ver-hd strong{font-size:13.5px;font-weight:700;color:var(--z900)}',
+    '.yer-ver:not(.current) .yer-ver-hd strong{color:var(--z700)}',
+    '.yer-log-cur{display:inline-flex;align-items:center;gap:3px;height:20px;padding:0 8px;border:1px solid var(--ok-bd);border-radius:50px;',
+    'background:var(--ok-bg);color:var(--ok);font-size:11px;font-weight:600}',
+    '.yer-log-cur i{font-size:13px}',
+    '.yer-ver-when{display:inline-flex;align-items:center;gap:4px;margin-top:2px;font-size:12px;color:var(--z600);font-variant-numeric:tabular-nums}',
+    '.yer-ver-when i{font-size:13px;color:var(--z500)}',
+    '.yer-ver-sec{margin-top:9px;padding-top:9px;border-top:1px dashed var(--z200)}',
+    '.yer-ver-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:3px}',
+    '.yer-log-tx{margin:0;padding-left:16px;font-size:12.5px;color:var(--z800);line-height:1.55}',
+    '.yer-ver-ev{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--z700);line-height:1.5}',
+    '.yer-ver-ev li{display:flex;align-items:flex-start;gap:6px}',
+    '.yer-ver-ev i{flex:none;margin-top:2px;font-size:14px;color:var(--z500)}',
+    '.yer-log-sum{display:flex;gap:8px;align-items:flex-start;margin:4px 0 14px;padding:10px 12px;border:1px solid var(--ok-bd);',
+    'border-radius:var(--rsm);background:var(--ok-bg);font-size:12.5px;color:var(--z700);line-height:1.5}',
+    '.yer-log-sum>i{font-size:16px;color:var(--ok);margin-top:1px}',
+    '.yer-log-sum strong{color:var(--z900);font-weight:600}',
+
     /* ── toast ── */
     '.pms-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:1500;background:var(--z900);',
     'color:#fff;font-size:13px;font-weight:500;padding:9px 15px;border-radius:var(--rsm);display:flex;align-items:center;',
@@ -254,10 +285,18 @@
     }
     function toneOf(v) { return TONE[Math.floor(v)] || ''; }
 
+    // Tên mức in đậm, nhất quán ở mọi mức: mức nguyên đậm cả tên, mức nửa bậc đậm hai tên mức, chữ nối thường (04/10/2026)
+    function nameHtml(v) {
+      var n = nameOf(v);
+      if (!isHalf(v)) return '<strong>' + esc(n) + '</strong>';
+      var m = String(n).match(/^(Giữa mức |Between )(.+?)( và | and )(.+)$/);
+      return m ? esc(m[1]) + '<strong>' + esc(m[2]) + '</strong>' + esc(m[3]) + '<strong>' + esc(m[4]) + '</strong>' : esc(n);
+    }
     function nameTag(v) {
       var n = nameOf(v);
       if (!n) return '';
-      return '<span class="sc-lbl show ' + toneOf(v) + '">' + esc(n) + '</span>';
+      // Bọc chữ trong một span: chip là inline-flex, để chữ và thẻ đậm làm con trực tiếp thì mất khoảng trắng giữa chúng
+      return '<span class="sc-lbl show ' + toneOf(v) + '"><span class="sc-lbl-tx">' + nameHtml(v) + '</span></span>';
     }
     /* Ô định nghĩa có tiêu đề riêng: không có nó thì đoạn chữ nằm trơ dưới ô nhận xét,
        người đọc không biết đây là giải thích mức điểm hay là gợi ý viết nhận xét.
@@ -281,8 +320,9 @@
         return;
       }
       if (opts.compact) { el.innerHTML = '<div class="ql-val">' + fmtNum(state.value) + '</div>'; return; }
+      // Tên mức và ⓘ đi cùng nhau: xuống dòng thì xuống cả cụm, ⓘ không đứng lẻ một dòng (04/10/2026)
       el.innerHTML = '<div class="rt-line"><span class="ql-val">' + fmtNum(state.value) + '</span>' +
-        nameTag(state.value) + (half ? tipHtml(state.value) : '') + '</div>';
+        '<span class="rt-tagline">' + nameTag(state.value) + (half ? tipHtml(state.value) : '') + '</span></div>';
     }
 
     function renderEditable() {

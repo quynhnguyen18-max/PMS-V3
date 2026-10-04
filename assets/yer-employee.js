@@ -569,9 +569,14 @@
      opts.skipGoalRule: khối cảnh báo đã nói về điều kiện mục tiêu rồi, không lặp lại. */
   function noteItems(p, opts){
     opts = opts || {};
+    // LWD (chị chốt 04/10/2026): cùng câu với khối Lưu ý của màn Quản lý M-06
+    var lwd = p.resignFrom && !p.resigned
+      ? L('Nhân viên có Ngày làm việc cuối cùng là <strong>' + esc(Y.fmt(p.resignFrom, lg())) + '</strong>. Nhân viên và QLTT vẫn cần hoàn thành đánh giá trong thời gian nhân viên còn đang làm việc.',
+          'The employee\'s last working day is <strong>' + esc(Y.fmt(p.resignFrom, lg())) + '</strong>. The employee and the line manager still need to complete the review while the employee is still working.')
+      : '';
     if(p.maternity){
       return [L('Bạn đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong> nên <strong>không bắt buộc</strong> phải thực hiện <strong>Tự đánh giá</strong> cuối năm. Hệ thống vẫn mở để bạn có thể chủ động hoàn thành. Sau thời hạn Tự đánh giá, Quản lý trực tiếp sẽ tiến hành đánh giá theo đúng quy trình của Công ty.',
-               'You are on <strong class="yer-hl">maternity leave</strong>, so the year-end <strong>Self assessment</strong> is <strong>not required</strong>. The system stays open so you can still complete it if you wish. After the self-assessment deadline, your line manager will complete the review following the Company process.')];
+               'You are on <strong class="yer-hl">maternity leave</strong>, so the year-end <strong>Self assessment</strong> is <strong>not required</strong>. The system stays open so you can still complete it if you wish. After the self-assessment deadline, your line manager will complete the review following the Company process.')].concat(lwd ? [lwd] : []);
     }
     var items = [];
     if(!opts.skipGoalRule){
@@ -584,6 +589,7 @@
       items.push(L('Bạn có thể xem lại kết quả <a href="#" class="yer-note-link" data-go-tab="1">Đánh giá giữa năm 2026</a> của mình trước khi tự đánh giá cuối năm.',
                    'You can look back at your <a href="#" class="yer-note-link" data-go-tab="1">Mid-Year Review 2026</a> result before self-assessing.'));
     }
+    if(lwd) items.push(lwd);
     return items;
   }
 
@@ -605,18 +611,9 @@
      Đây là luồng riêng chỉ mở trong timeline của LM. Một file duy nhất,
      goal đi thẳng vào hồ sơ và không phát sinh bước phê duyệt goal. */
   /* ── Bốn lần nhắc nộp bổ sung (§27.3). Luật và câu chữ hình thức xử lý ở model. ── */
-  function consequenceText(key){ return Y.lateText(key, lg()); }
   /* Chỉ in đậm từ khóa của hình thức xử lý, phần còn lại để chữ thường cho dễ đọc */
-  var LATE_KEYWORDS = {
-    vi: ['tối đa là 3', 'Cắt giảm một phần tiền thưởng', 'tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo'],
-    en: ['capped at 3', 'Part of the bonus is cut', 'promotion and salary increase are deferred for the next 6 months']
-  };
-  function emphasize(text){
-    var out = esc(text);
-    (LATE_KEYWORDS[lg()] || []).forEach(function(k){ out = out.split(esc(k)).join('<strong>' + esc(k) + '</strong>'); });
-    return out;
-  }
-  function lateNowHtml(r){ return r.consequence.map(function(k){ return emphasize(consequenceText(k)); }).join(' '); }
+  // Từ khóa in đậm nằm ở model (Y.lateTextHtml), dùng chung với màn Quản lý (04/10/2026)
+  function lateNowHtml(r){ return r.consequence.map(function(k){ return Y.lateTextHtml(k, lg()); }).join(' '); }
   // Điều xảy ra nếu hết lần nhắc này mà vẫn chưa nộp
   /* Câu cảnh báo nếu hết lần nhắc này mà vẫn chưa nộp. Bám đúng nội dung quy định (§27.3),
      chỉ nối thành câu hoàn chỉnh cho từng lần, không rút gọn thành cụm từ. */
@@ -1672,28 +1669,7 @@
       '#yer-root .ev-editor-wrap.yer-miss{border-color:var(--err);box-shadow:inset 3px 0 0 var(--err),0 0 0 3px var(--err-bg)}' +
       '.sb-actions .btn-sm{height:30px}' +
       // Lịch sử chỉnh sửa: mỗi lần gửi một thẻ, mới nhất ở trên, thẻ đang ghi nhận viền xanh
-      '.yer-log-dialog{max-width:540px}' +
-      '.yer-vers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto}' +
-      '.yer-ver{padding:12px 14px;border:1px solid var(--z200);border-radius:var(--r);background:var(--z0)}' +
-      '.yer-ver.current{border-color:var(--ok-bd)}' +
-      '.yer-ver-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}' +
-      '.yer-ver-hd strong{font-size:13.5px;font-weight:700;color:var(--z900)}' +
-      '.yer-ver:not(.current) .yer-ver-hd strong{color:var(--z700)}' +
-      '.yer-log-cur{display:inline-flex;align-items:center;gap:3px;height:20px;padding:0 8px;border:1px solid var(--ok-bd);border-radius:50px;' +
-        'background:var(--ok-bg);color:var(--ok);font-size:11px;font-weight:600}' +
-      '.yer-log-cur i{font-size:13px}' +
-      '.yer-ver-when{display:inline-flex;align-items:center;gap:4px;margin-top:2px;font-size:12px;color:var(--z600);font-variant-numeric:tabular-nums}' +
-      '.yer-ver-when i{font-size:13px;color:var(--z500)}' +
-      '.yer-ver-sec{margin-top:9px;padding-top:9px;border-top:1px dashed var(--z200)}' +
-      '.yer-ver-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:3px}' +
-      '.yer-log-tx{margin:0;padding-left:16px;font-size:12.5px;color:var(--z800);line-height:1.55}' +
-      '.yer-ver-ev{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--z700);line-height:1.5}' +
-      '.yer-ver-ev li{display:flex;align-items:flex-start;gap:6px}' +
-      '.yer-ver-ev i{flex:none;margin-top:2px;font-size:14px;color:var(--z500)}' +
-      '.yer-log-sum{display:flex;gap:8px;align-items:flex-start;margin:4px 0 14px;padding:10px 12px;border:1px solid var(--ok-bd);' +
-        'border-radius:var(--rsm);background:var(--ok-bg);font-size:12.5px;color:var(--z700);line-height:1.5}' +
-      '.yer-log-sum>i{font-size:16px;color:var(--ok);margin-top:1px}' +
-      '.yer-log-sum strong{color:var(--z900);font-weight:600}' +
+      // Thẻ Lịch sử chỉnh sửa (.yer-log-dialog, .yer-ver…) nằm ở assets/yer-ui.js, dùng chung với M-06
       // Nhận xét của Quản lý cấp 2 và Trưởng đơn vị: một ô thì chiếm cả hàng
       '.yer-upper-card{margin-top:16px}' +
       // Bớt viền trong hai khối cuối trang: bỏ khung của từng ô, chỉ giữ một vạch chia giữa hai cột,

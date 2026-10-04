@@ -58,7 +58,10 @@
     '#pms-demo .dm-step.on{background:#ff2e93;border-color:#ff2e93;color:#fff}',
     '#pms-demo .dm-step.past{color:rgba(255,255,255,.82)}',
     '#pms-demo .dm-spacer{flex:1}',
-    '#pms-demo .dm-moments{display:flex;gap:4px;flex-wrap:wrap}',
+    '#pms-demo button:disabled{opacity:.35;cursor:not-allowed}',
+    '#pms-demo .dm-count{font-variant-numeric:tabular-nums;font-weight:700;color:rgba(255,255,255,.78)}',
+    '#pms-demo .dm-seen{font-variant-numeric:tabular-nums;color:rgba(255,255,255,.62)}',
+    '#pms-demo select{max-width:520px}',
     '#pms-demo .dm-hint{padding:6px 16px 8px;color:rgba(255,255,255,.78);font-size:12px;line-height:1.45}',
     '#pms-demo .dm-hint strong{color:#fff;font-weight:700;margin-right:4px}',
     '#pms-demo .dm-quiet{background:transparent;border-color:transparent;color:rgba(255,255,255,.6)}',
@@ -128,6 +131,21 @@
   function currentScenario() {
     var id = window.PMSStore.session().scenario;
     return (window.PMS_YER_SCENARIOS || []).filter(function (x) { return x.id === id; })[0] || null;
+  }
+
+  /* Tình huống đã xem trên thanh demo M-06 (04/10/2026): chỉ lưu trên máy người review để biết còn sót mục nào */
+  var SEEN_KEY = 'pms-yer-demo-seen';
+  function seenList() {
+    try { return JSON.parse(window.localStorage.getItem(SEEN_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function markSeen(id) {
+    var list = seenList();
+    if (list.indexOf(id) >= 0) return;
+    list.push(id);
+    try { window.localStorage.setItem(SEEN_KEY, JSON.stringify(list)); } catch (e) { /* trình duyệt chặn lưu thì bỏ qua */ }
+  }
+  function clearSeen() {
+    try { window.localStorage.removeItem(SEEN_KEY); } catch (e) { /* bỏ qua */ }
   }
 
   function notify(reason) {
@@ -204,28 +222,32 @@
       }
 
       var scenarioOptions = '';
+      // Danh sách tình huống của màn chi tiết theo đúng thứ tự nhóm, dùng cho dropdown và nút ◀ ▶
+      var subOrder = (window.PMS_YER_SUBGROUPS || []).map(function (x) { return x.id; });
+      var detailList = sortedScenarios.filter(function (sc) { return sc.screen === 'M-06' && sc.sub; })
+        .sort(function (a, b) { return subOrder.indexOf(a.sub) - subOrder.indexOf(b.sub) || (rank[a.id] - rank[b.id]); });
       if (managerDetail) {
         // Màn chi tiết chỉ liệt kê use case của đúng vai đang xem; không cho một
         // lựa chọn âm thầm đổi cả vai trò và màn hình như thanh demo cũ.
         /* Màn chi tiết (chốt 02/10/2026): một dropdown cho cả ba vai, chia nhóm theo vai và nhóm con của QLTT.
            Chọn tình huống thì vai đổi theo, vẫn ở M-06; không còn ô Vai trò riêng. */
-        var subs = window.PMS_YER_SUBGROUPS || [];
+        /* Chốt lại 04/10/2026: nhóm theo vai đang xem và đúng tên bước trên dải quy trình (PMS_YER_SUBGROUPS),
+           mỗi tình huống là một giao diện ở một ngày; số thứ tự liên tục để đi lần lượt bằng ◀ ▶. */
         if (!current || current.screen !== 'M-06') {
           scenarioOptions += '<option value="" selected disabled>' +
             (lg === 'en' ? 'Select a scenario' : 'Chọn tình huống') + '</option>';
         }
-        groups.filter(function (g) { return MANAGER_ROLES.indexOf(g.role) >= 0; }).forEach(function (g) {
-          var rows = sortedScenarios.filter(function (sc) { return sc.g === g.id && sc.screen === 'M-06'; });
-          var buckets = subs.length && rows.some(function (sc) { return sc.sub; })
-            ? subs.map(function (sb) { return { name: label(g) + ': ' + label(sb), rows: rows.filter(function (sc) { return sc.sub === sb.id; }) }; })
-            : [{ name: label(g), rows: rows }];
-          buckets.forEach(function (bk) {
-            if (!bk.rows.length) return;
-            scenarioOptions += '<optgroup label="' + bk.name + '">' + bk.rows.map(function (sc) {
-              return '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' + optionText(sc) + '</option>';
-            }).join('') + '</optgroup>';
-          });
+        // Đang xem tình huống nào thì đánh dấu đã xem; mục đã xem có dấu ✓ đứng đầu
+        if (current && current.screen === 'M-06') markSeen(current.id);
+        var seen = seenList();
+        detailList.forEach(function (sc, i) {
+          var sb = (window.PMS_YER_SUBGROUPS || []).filter(function (x) { return x.id === sc.sub; })[0];
+          var prev = detailList[i - 1];
+          if (!prev || prev.sub !== sc.sub) scenarioOptions += (prev ? '</optgroup>' : '') + '<optgroup label="' + (sb ? label(sb) : '') + '">';
+          scenarioOptions += '<option value="sc:' + sc.id + '"' + (current && current.id === sc.id ? ' selected' : '') + '>' +
+            (seen.indexOf(sc.id) >= 0 ? '✓ ' : '') + optionText(sc) + '</option>';
         });
+        if (detailList.length) scenarioOptions += '</optgroup>';
       } else if (!managerList) {
         // Màn Nhân viên chỉ liệt kê tình huống của vai Nhân viên (§44.1)
         if (!current) {
@@ -269,19 +291,23 @@
         '<button id="dm-reset" class="dm-quiet">' + (lg === 'en' ? 'Reset all' : 'Đặt lại tất cả') + '</button>';
 
       if (managerDetail) {
-        /* Thanh demo của màn chi tiết (chốt 02/10/2026): một hàng điều khiển, một dòng `Cần xem`.
-           Không có ô Vai trò và thanh kéo ngày; thay bằng các mốc thời gian có ý nghĩa của tình huống. */
-        var moments = current && current.moments && current.moments.length > 1 ? current.moments : [];
+        /* Thanh demo của màn chi tiết (chốt lại 04/10/2026): một hàng điều khiển, một dòng `Cần xem`.
+           Mỗi tình huống là một giao diện ở một ngày; ◀ ▶ đi lần lượt hết danh sách, bộ đếm cho biết đang ở đâu. */
+        var pos = current ? detailList.indexOf(current) : -1;
         bar.innerHTML =
           '<div class="dm-row">' +
             '<span class="dm-tag"><i class="bx bx-slider-alt"></i> ' + (lg === 'en' ? 'Demo mode' : 'Chế độ demo') + '</span>' +
+            '<button id="dm-prev" aria-label="' + (lg === 'en' ? 'Previous scenario' : 'Tình huống trước') + '"' + (pos <= 0 ? ' disabled' : '') + '>' +
+              '<i class="bx bx-chevron-left"></i></button>' +
             scenarioControl +
-            (moments.length ? '<label>' + (lg === 'en' ? 'Moment' : 'Mốc thời gian') + '</label><div class="dm-moments">' +
-              moments.map(function (m) {
-                return '<span class="dm-step' + (m.date === s.date ? ' on' : '') + '" data-moment="' + m.date + '">' +
-                  label(m) + ' (' + fmtDate(m.date, lg) + ')</span>';
-              }).join('') + '</div>'
-              : '<span class="dm-date">' + fmtDate(s.date, lg) + '</span>') +
+            '<button id="dm-next" aria-label="' + (lg === 'en' ? 'Next scenario' : 'Tình huống tiếp theo') + '"' + (pos >= detailList.length - 1 ? ' disabled' : '') + '>' +
+              '<i class="bx bx-chevron-right"></i></button>' +
+            '<span class="dm-count">' + (pos >= 0 ? (pos + 1) + '/' + detailList.length : '') + '</span>' +
+            '<span class="dm-seen">' + (lg === 'en' ? 'Viewed ' : 'Đã xem ') + detailList.filter(function (x) { return seenList().indexOf(x.id) >= 0; }).length +
+              '</span>' +
+            '<button id="dm-seen-clear" class="dm-quiet" title="' + (lg === 'en' ? 'Clear the viewed marks to review again' : 'Xóa dấu đã xem để review lại từ đầu') + '">' +
+              (lg === 'en' ? 'Clear viewed' : 'Xóa dấu đã xem') + '</button>' +
+            '<span class="dm-date">' + fmtDate(s.date, lg) + '</span>' +
             '<div class="dm-spacer"></div>' +
             '<button id="dm-pair"><i class="bx bx-transfer"></i> ' + (lg === 'en' ? 'Employee side' : 'Xem phía Nhân viên') + '</button>' +
             resetBtns +
@@ -290,11 +316,15 @@
           (current ? '<div class="dm-hint"><strong>' + (lg === 'en' ? 'What to check:' : 'Cần xem:') + '</strong>' +
             (lg === 'en' ? current.wen : current.wvi) + '</div>' : '');
         bindCommon();
-        bar.querySelectorAll('[data-moment]').forEach(function (chip) {
-          chip.addEventListener('click', function () {
-            S.setSession({ date: chip.dataset.moment }); render(); notify('date');
-          });
-        });
+        function go(sc) {
+          if (!sc) return;
+          S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id, from: null });
+          freshStart(sc);
+          render(); notify('emp');
+        }
+        bar.querySelector('#dm-prev').addEventListener('click', function () { go(detailList[pos - 1]); });
+        bar.querySelector('#dm-seen-clear').addEventListener('click', function () { clearSeen(); render(); });
+        bar.querySelector('#dm-next').addEventListener('click', function () { go(detailList[pos < 0 ? 0 : pos + 1]); });
         bar.querySelector('#dm-pair').addEventListener('click', function () {
           // Cùng hồ sơ, cùng ngày, sang màn Nhân viên; nhớ tình huống để quay lại được
           S.setSession({ role: 'nv', emp: s.emp, scenario: counterpart ? counterpart.id : null, from: current ? current.id : null });

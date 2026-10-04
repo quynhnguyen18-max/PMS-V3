@@ -33,6 +33,20 @@
     var r = S.session().role;
     return MGR_ROLES.indexOf(r) >= 0 ? r : 'lm';
   }
+  /* Câu hướng dẫn gọi tên vai, không dùng `Bạn` (DS §19, cùng ROLE_NAME với M-06); mốc giờ ghi đủ
+     `18:00 ngày dd/mm/yyyy` và in đậm khi nằm trong HTML (chốt 04/10/2026) */
+  var ROLE_NAME = {
+    lm: ['QLTT', 'The line manager'],
+    lm2: ['Quản lý cấp 2', 'The second-level manager'],
+    hod: ['Trưởng đơn vị', 'The head of department']
+  };
+  function roleName(r) { return L(ROLE_NAME[r || role()][0], ROLE_NAME[r || role()][1]); }
+  // Tên vai đứng giữa câu tiếng Anh viết thường (`the line manager`); đầu câu dùng roleName()
+  function roleLow(r) { var n = roleName(r); return lg() === 'en' ? n.charAt(0).toLowerCase() + n.slice(1) : n; }
+  function at18(d) {
+    var t = esc(Y.fmt(d, lg()));
+    return L('<strong>18:00 ngày ' + t + '</strong>', '<strong>18:00 on ' + t + '</strong>');
+  }
 
   /* ── quy trình và thời gian ───────────────────
      Dùng cùng cấu trúc 5 bước của màn Nhân viên, nhưng danh sách Quản lý không
@@ -256,14 +270,15 @@
   function rateInfo() {
     var win = Y.managerEditWindow(role(), { now: S.session().date });
     var from = Y.fmt(win.from, lg()), to = Y.fmt(win.to, lg());
+    var R = roleName();
     var text = win.state === 'open'
-      ? L('Bấm vào ô điểm để chấm điểm và ghi nhận xét toàn diện. Muốn sửa thì bấm lại ô đó: bạn chỉnh sửa được nhiều lần tới hết ngày ' + to + ' (timeline đánh giá của bạn), mỗi lần lưu đều có trong lịch sử chỉnh sửa; sau đó chỉ xem.',
-          'Click the rating cell to rate and add an overall comment. Click it again to edit: you can edit as often as you like until the end of ' + to + ' (your review timeline), and every save is kept in the edit history; after that it is read-only.')
+      ? L('Bấm vào ô điểm để chấm điểm và ghi nhận xét toàn diện. Muốn sửa thì bấm lại ô đó: ' + R + ' chỉnh sửa được nhiều lần tới hết 18:00 ngày ' + to + ', mỗi lần lưu đều có trong lịch sử chỉnh sửa. Sau đó điểm chỉ còn để xem.',
+          'Click the rating cell to rate and add an overall comment. Click it again to edit: ' + roleLow() + ' can edit as often as needed until 18:00 on ' + to + ', and every save is kept in the edit history. After that ratings are read-only.')
       : win.state === 'future'
-        ? L('Bạn chấm và chỉnh sửa điểm được từ ' + from + ' tới hết ngày ' + to + ' (timeline đánh giá của bạn).',
-            'You can rate and edit from ' + from + ' until the end of ' + to + ' (your review timeline).')
-        : L('Timeline đánh giá của bạn đã kết thúc ngày ' + to + ', điểm chỉ còn để xem.',
-            'Your review timeline ended on ' + to + '; ratings are read-only.');
+        ? L('Bước đánh giá của ' + R + ' mở từ ' + from + ' tới hết 18:00 ngày ' + to + '.',
+            R + ' can rate from ' + from + ' until 18:00 on ' + to + '.')
+        : L('Bước đánh giá của ' + R + ' đã kết thúc lúc 18:00 ngày ' + to + ', điểm chỉ còn để xem.',
+            'The review step of ' + roleLow() + ' ended at 18:00 on ' + to + '; ratings are read-only.');
     return ' <i class="bx bx-info-circle yer-th-info" tabindex="0" role="img" aria-label="' + esc(text) + '" data-tip="' + esc(text) +
       '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()" onfocus="tip(this,this.dataset.tip)" onblur="hideTip()"></i>';
   }
@@ -362,7 +377,7 @@
   function lockReason(p) {
     var win = Y.managerEditWindow(role(), p);
     if (win.state === 'future') return L('Mở từ ', 'Opens on ') + Y.fmt(win.from, lg());
-    if (win.state === 'closed') return L('Đã hết hạn ngày ', 'Closed on ') + Y.fmt(win.to, lg());
+    if (win.state === 'closed') return L('Đã hết hạn lúc 18:00 ngày ', 'Closed at 18:00 on ') + Y.fmt(win.to, lg());
     return role() === 'lm2'
       ? L('Chỉ mở sau khi QLTT gửi đánh giá', 'Opens once the line manager submits')
       : L('Chỉ mở sau khi Quản lý cấp 2 lưu điểm', 'Opens once the second-level manager saves a rating');
@@ -483,8 +498,9 @@
     if (!over.length) { go(); return; }
     U.dialog({
       title: L('Có điểm cao hơn mức tối đa theo quy định', 'Some ratings are above the maximum under policy'),
-      html: '<p>' + L('Các nhân viên dưới đây nộp bổ sung Tự đánh giá ở lần nhắc có giới hạn điểm toàn diện tối đa. Hệ thống không chặn điểm, bạn cần xác nhận trước khi lưu:',
-          'These employees submitted late at a reminder that caps the overall rating. The system does not block ratings; confirm before saving:') + '</p>' +
+      // Không nói về cơ chế hệ thống (`hệ thống không chặn…`), chỉ nói việc cần làm (chốt 04/10/2026)
+      html: '<p>' + L('Các nhân viên dưới đây nộp bổ sung Tự đánh giá ở lần nhắc có giới hạn điểm toàn diện tối đa. Vui lòng xác nhận trước khi lưu:',
+          'These employees submitted late at a reminder that caps the overall rating. Please confirm before saving:') + '</p>' +
         '<ul class="yer-calib-conflicts">' + over.map(function (r) {
           var m = Y.lateMeasure(r.p);
           return '<li><strong>' + esc(r.p.emp.name) + '</strong> (' + esc(r.p.emp.login) + '): ' +
@@ -557,8 +573,8 @@
           'Your comment on the results and contribution of the employee this year.')) + '">' + esc(draftText) + '</textarea>' +
       '<div class="yer-cm-foot">' +
         (active ? '<span class="yer-cm-until"><i class="bx bx-time-five"></i>' +
-          L('Bạn được điều chỉnh điểm cho nhân viên tới hết 18:00, ngày ', 'You can adjust the rating until 18:00 on ') +
-          '<strong>' + esc(until) + '</strong></span>' : '<span></span>') +
+          L(roleName() + ' được điều chỉnh điểm cho nhân viên tới hết <strong>18:00 ngày ' + esc(until) + '</strong>',
+            roleName() + ' can adjust the rating until <strong>18:00 on ' + esc(until) + '</strong>') + '</span>' : '<span></span>') +
         '<span id="yer-cm-count" class="yer-cm-count">' + String(draftText).length + ' / 1000</span></div>' +
       historyHtml(p);
     var cur = { score: draftScore, comment: draftText, ack: !!(keep && keep.ack) };
@@ -566,11 +582,12 @@
     function drawCap() {
       var node = el('yer-cm-cap');
       if (!node) return;
-      var text = Y.lateCapNotice(p, lg());
+      // Câu có in đậm số ngày trễ hạn và từ khóa hình thức xử lý, dùng chung với M-06 (Y.lateCapNoticeHtml, 04/10/2026)
+      var text = Y.lateCapNoticeHtml(p, lg());
       if (!text) { node.innerHTML = ''; return; }
       var cap = Y.ratingCapText(p, cur.score, lg());
       var over = active && Y.overRatingCap(p, cur.score);
-      node.innerHTML = '<i class="bx bx-error"></i><div>' + esc(text) +
+      node.innerHTML = '<i class="bx bx-error"></i><div>' + text +
         (over ? '<div class="yer-cap-over">' + esc(cap.over) + '</div>' +
           '<label class="yer-cap-ack"><input type="checkbox" id="yer-cm-cap-ack"' + (cur.ack ? ' checked' : '') + '><span>' + esc(cap.ack) + '</span></label>' : '') +
         '</div>';
@@ -713,13 +730,13 @@
        Đang mở: hạn cập nhật; bị khóa: lý do khóa, tông vàng. */
     var notice = open
       ? '<div class="yer-up-alert"><i class="bx bx-time-five"></i><span>' +
-          L('Bạn cập nhật điểm được tới hết 18:00, ngày ', 'You can update ratings until 18:00 on ') + '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>. ' +
-          L('Hệ thống kiểm tra mã nhân viên và giá trị điểm trước khi cập nhật.', 'Employee IDs and values are checked before updating.') + '</span></div>'
+          // Chỉ nói hạn, không thêm câu về cơ chế kiểm tra của hệ thống (tab Giữa năm không có, chốt 04/10/2026)
+          L(roleName() + ' cập nhật điểm được tới hết ' + at18(win.to) + '.', roleName() + ' can update ratings until ' + at18(win.to) + '.') + '</span></div>'
       : '<div class="yer-up-alert locked"><i class="bx bx-lock-alt"></i><span>' + (win.state === 'future'
-          ? L('Chưa đến timeline đánh giá của bạn (mở từ ', 'Your review step has not opened yet (opens ') + '<strong>' + esc(Y.fmt(win.from, lg())) + '</strong>' +
+          ? L('Chưa tới bước đánh giá của ' + roleName() + ' (mở từ ', 'The review step of ' + roleLow() + ' has not opened yet (opens ') + '<strong>' + esc(Y.fmt(win.from, lg())) + '</strong>' +
             L(') nên chức năng tải file lên đang bị khóa.', '), so uploading is locked.')
-          : L('Đã hết hạn đánh giá của bạn (', 'Your review step closed on ') + '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>' +
-            L(') nên chức năng tải file lên đang bị khóa.', ', so uploading is locked.')) + '</span></div>';
+          : L('Bước đánh giá của ' + roleName() + ' đã kết thúc lúc ' + at18(win.to), 'The review step of ' + roleLow() + ' closed at ' + at18(win.to)) +
+            L(' nên chức năng tải file lên đang bị khóa.', ', so uploading is locked.')) + '</span></div>';
     function step(no, title, desc, actions, upload) {
       return '<div class="upload-guide-step' + (upload ? ' is-upload' : '') + '"><div class="upload-step-no">' + no + '</div><div>' +
         '<div class="upload-step-title">' + title + '</div><div class="upload-step-desc">' + desc + '</div>' +
@@ -734,7 +751,7 @@
         '<div class="upload-guide-steps">' +
           // Một nút tải mẫu là đủ (không tách Excel, CSV như tab Giữa năm)
           step(1, L('Tải file mẫu', 'Download the template'),
-            L('File có sẵn danh sách nhân viên bạn đang được đánh giá.', 'The file already lists the employees you can rate.'),
+            L('File có sẵn danh sách nhân viên mà ' + roleName() + ' đánh giá.', 'The file already lists the employees ' + roleLow() + ' rates.'),
             '<button type="button" class="btn btn-outline btn-sm" id="yer-up-tpl"><i class="bx bx-download"></i> ' + L('Tải file mẫu', 'Download template') + '</button>') +
           step(2, L('Điền điểm đánh giá', 'Fill in the ratings'),
             L('Mở file vừa tải, tìm dòng của từng nhân viên và điền điểm toàn diện từ 1 đến 5 vào cột ', 'Open the file, find each employee and enter the overall rating from 1 to 5 in the column ') +
@@ -857,15 +874,23 @@
   function calibNoteHtml() {
     var win = Y.managerEditWindow('hod', { now: S.session().date });
     var when = win.state === 'open'
-      ? L('Bạn duyệt được tới hết ngày ', 'You can approve until the end of ') + '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>' +
-        L('; trong thời gian này HRBP có thể tải lại điểm và bạn duyệt lại.', '; HRBP may re-upload in this window and you approve again.')
+      ? L('Trưởng đơn vị duyệt được tới hết ' + at18(win.to) + '. Trong thời gian này HRBP có thể tải lại điểm và Trưởng đơn vị duyệt lại.',
+          'The head of department can approve until ' + at18(win.to) + '. HRBP may re-upload in this window and the head of department approves again.')
       : win.state === 'future'
         ? L('Bước Trưởng đơn vị đánh giá mở từ ', 'The head of department step opens on ') + '<strong>' + esc(Y.fmt(win.from, lg())) + '</strong>' + L(' nên chưa duyệt được.', ', so approval is locked.')
-        : L('Bước Trưởng đơn vị đánh giá đã hết hạn ngày ', 'The head of department step closed on ') + '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>' + L(' nên không duyệt được nữa.', ', so approval is closed.');
-    return '<div class="calib-info-note"><i class="bx bx-info-circle"></i><span>' +
-      L('Cột <strong class="yer-upd">Điểm Upload</strong> là điểm HRBP tải lên hệ thống thay bạn. Bạn hãy tick chọn nhân viên và nhấn <strong>Duyệt điểm</strong>: điểm tải lên thành điểm Trưởng đơn vị. Bạn không sửa được điểm tải lên trước khi duyệt; muốn chấm khác thì chấm ở lưới chính. ',
-        'The <strong class="yer-upd">Upload</strong> column holds the rating HRBP uploaded on your behalf. Tick employees and press <strong>Approve</strong> to make it your rating. You cannot edit an upload before approving; to rate differently, rate in the main grid. ') +
-      when + '</span></div>';
+        : L('Bước Trưởng đơn vị đánh giá đã kết thúc lúc ' + at18(win.to) + ' nên không duyệt được nữa.', 'The head of department step closed at ' + at18(win.to) + ', so approval is closed.');
+    // Nhiều ý thì gạch đầu dòng (DS §19, chốt 04/10/2026); hạn duyệt đứng cuối
+    var items = [
+      L('Cột <strong class="yer-upd">Điểm Upload</strong> là điểm HRBP tải lên hệ thống thay Trưởng đơn vị.',
+        'The <strong class="yer-upd">Upload</strong> column holds the rating HRBP uploaded on behalf of the head of department.'),
+      L('Tick chọn nhân viên và nhấn <strong>Duyệt điểm</strong> để điểm tải lên thành điểm Trưởng đơn vị.',
+        'Tick employees and press <strong>Approve</strong> to make it the head of department rating.'),
+      L('Trưởng đơn vị không sửa được điểm tải lên trước khi duyệt; muốn chấm khác thì chấm ở lưới chính.',
+        'The upload cannot be edited before approving; to rate differently, rate in the main grid.'),
+      when
+    ];
+    return '<div class="calib-info-note"><i class="bx bx-info-circle"></i>' +
+      '<ul class="yer-calib-note-list"><li>' + items.join('</li><li>') + '</li></ul></div>';
   }
 
   function calibShellHtml() {
@@ -1597,6 +1622,7 @@
       '.yer-calib-meta{display:block;margin-top:3px;font-size:10.5px;color:var(--z600);white-space:nowrap}' +
       '.yer-calib-meta.ok{color:var(--ok);font-weight:600}' +
       '.yer-calib-conflict{display:block;margin-top:3px;font-size:10.5px;font-weight:600;color:var(--warn);white-space:nowrap}' +
+      '.yer-calib-note-list{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px}' +
       '.yer-calib-conflicts{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--z700)}' +
       '.yer-calib-dl-pop{width:auto;min-width:170px;padding:4px;right:0;left:auto}' +
       '.yer-calib-dl-opt{display:flex;align-items:center;gap:7px;width:100%;padding:7px 10px;border:0;border-radius:var(--rxs);' +

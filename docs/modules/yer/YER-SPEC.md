@@ -242,7 +242,18 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
     (chốt 28/09/2026). Hồ sơ chưa có dòng lịch sử thì model suy ra dòng `submit` và lấy giờ từ bản đã gửi
     (`self.time`); dữ liệu mẫu dựng bằng `ev()` trong `yer-data.js` luôn có giờ (mặc định 16:30).
 - Hồ sơ nộp bổ sung bằng file chỉ gửi một lần nên **không có** nút `Lịch sử chỉnh sửa` (chốt 28/09/2026).
-- Chưa dựng phần Quản lý xem lịch sử này ở M-06.
+- **Phía Quản lý (M-06, chốt 04/10/2026):** chỉ QLTT có `Lịch sử chỉnh sửa` trên M-06 (liên kết sau dòng ngày gửi của banner),
+  cùng thẻ `.yer-ver` (CSS chuyển sang `assets/yer-ui.js` để E-05 và M-06 dùng chung). Quản lý cấp 2 và Trưởng đơn vị chỉ xem ở M-06
+  nên **không có** lịch sử chỉnh sửa ở màn này; lịch sử lần lưu của họ nằm trong popup chấm điểm của M-05 (§47).
+  - Dữ liệu: `p.lmLog`, `p.lm2Log`, `p.hodLog` (`managerLog` trong model, mỗi dòng `{ at, time, score, comment, source,
+    changes }`). QLTT ghi `acts.lmLog` mỗi lần gửi; LM2, HOD ghi `lm2Log` / `hodLog` như trước (§47). Hồ sơ mẫu chưa có
+    lịch sử thì model suy ra một dòng từ bản đã gửi.
+  - Tiêu đề: `Lịch sử chỉnh sửa đánh giá của QLTT` / `Lịch sử chỉnh sửa điểm của [Vai]`. Thẻ `Lần gửi N` (QLTT) hoặc
+    `Lần lưu N` (LM2, HOD); lưu ngoài màn chi tiết thì ghi cách lưu: `(lưu trên danh sách)`, `(tải lên từ file)`,
+    `(duyệt điểm cấp trước)`, `(HRBP tải lên điểm hiệu chuẩn)`.
+  - Thẻ đầu ghi `Điểm toàn diện: x`. Thẻ sau ghi `Thay đổi so với lần gửi / lần lưu N-1`: điểm toàn diện, điểm mục tiêu theo
+    nhóm và giá trị cốt lõi (QLTT, `changes` tính lúc gửi), nhóm nhận xét đã sửa, hoặc `Không thay đổi nội dung`.
+  - Giờ lấy từ đồng hồ máy; cùng ngày thì không sớm hơn lần trước để thứ tự thẻ đúng.
 
 ### 8.3 Quản lý
 
@@ -251,23 +262,35 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
 - QLTT, Quản lý cấp 2 và HOD không cần thu hồi bản đánh giá đã gửi: cả ba vai đều mở lại,
   chỉnh sửa và lưu cập nhật được tới hết deadline của chính mình.
 - Sau deadline, đánh giá của vai đó chuyển sang chỉ xem.
+- **Quản lý cấp 2 và Trưởng đơn vị chỉ xem ở màn chi tiết M-06** (chị chốt 04/10/2026, nguyên tắc quan trọng): hai vai này chấm
+  và sửa điểm toàn diện ở danh sách M-05 (ô điểm trên lưới, Upload điểm, Duyệt điểm cấp trước, Duyệt điểm hiệu chuẩn). M-06 của
+  hai vai này không có `Lưu nháp`, `Lưu điểm`, `Chỉnh sửa`, liên kết `Lịch sử chỉnh sửa`, ô chọn điểm hay ô nhập nhận xét. Luật ở
+  model: `PMSYer.managerReviewState(role, p).canEditDetail` (chỉ đúng với QLTT); `canEdit` vẫn là quyền chấm trên danh sách M-05.
 - **Hạn của từng vai** (chốt 30/09/2026) lấy từ một helper `PMSYer.managerEditWindow(role, p)`, trả về `from`, `to`,
   `state` (`future`, `open`, `closed`). `to` là hạn chung của bước cho mọi hồ sơ, kể cả hồ sơ nộp bổ sung (bỏ hạn riêng
   ngày 02/10/2026, §27.3). `managerReviewState` cũng đọc helper này, nên quyền sửa và câu chữ báo hạn không lệch nhau.
 - **Màn hình cho biết được sửa tới khi nào** (M-06, **gạch đầu dòng cuối của khối `Lưu ý`** dưới dải quy trình, §48).
   Chốt lại 02/10/2026: câu chữ **gọi tên vai** (`QLTT`, `Quản lý cấp 2`, `Trưởng đơn vị`, viết `[Vai]` dưới đây) thay cho `Bạn`,
   vì một người có thể giữ nhiều vai; mốc giờ là 18:00 ngày hạn.
+  **Quy ước câu chữ màn Quản lý YER** (04/10/2026, chỉ áp cho YER, không phải rule DS chung): câu hướng dẫn, khối Lưu ý,
+  tooltip nói hạn và popup xác nhận gửi gọi tên vai; nhãn của chính người xem (`Điểm của bạn`) giữ `bạn`. Một khối từ ba ý trở lên
+  thì tách gạch đầu dòng. Không thêm câu nói về cơ chế hệ thống (`Hệ thống không chặn…`, `Hệ thống kiểm tra…`).
+  Chốt thêm 04/10/2026: mốc giờ **in đậm đủ cụm** `**18:00 ngày dd/mm/yyyy**` (helper `at18` ở M-05 và M-06), dùng cho mọi câu
+  hạn trên hai màn: khối Lưu ý, khối hướng dẫn thai sản (dùng **cùng câu** với khối Lưu ý, bỏ câu riêng `QLTT có thể chỉnh sửa kết
+  quả đánh giá trước…`), khối vàng chờ nộp bổ sung, khối `Hồ sơ không đánh giá`, popup chấm điểm và popup Upload của M-05,
+  ghi chú màn Duyệt điểm hiệu chuẩn. Tooltip là chữ thường nên chỉ ghi `tới hết 18:00 ngày dd/mm/yyyy`, không đậm.
 
   | Tình huống | Câu chữ |
   |---|---|
   | Trước timeline | `Bước đánh giá của [Vai] mở từ dd/mm/yyyy tới hết 18:00 ngày dd/mm/yyyy.` (bỏ câu `Trước ngày mở, … chỉ xem được hồ sơ…` ngày 04/10/2026) |
-  | Đang mở, chưa gửi | QLTT: `Sau khi gửi đánh giá, QLTT có thể chỉnh sửa tới hết 18:00 ngày dd/mm/yyyy.`; LM2, HOD: `Sau khi lưu điểm, [Vai] có thể chỉnh sửa tới hết 18:00 ngày dd/mm/yyyy.` |
+  | Đang mở, chưa gửi | QLTT: `Sau khi gửi đánh giá, QLTT có thể chỉnh sửa tới hết 18:00 ngày dd/mm/yyyy.`; LM2, HOD: `Màn này chỉ để xem. [Vai] chấm và chỉnh sửa điểm toàn diện tại danh sách nhân viên của tab Đánh giá cuối năm, tới hết **18:00 ngày dd/mm/yyyy**.` (04/10/2026) |
   | Đang mở, cấp dưới chưa xong | LM2: `Quản lý cấp 2 đánh giá được sau khi Quản lý trực tiếp gửi đánh giá, tới hết 18:00 ngày dd/mm/yyyy.`; HOD: `… sau khi Quản lý cấp 2 lưu điểm, …` |
   | Đã gửi, còn hạn | banner có nút `Chỉnh sửa`, tooltip `[Vai] chỉnh sửa được tới hết 18:00 ngày dd/mm/yyyy`; bấm thì hỏi xác nhận rồi khối `đang chỉnh sửa` thay banner (§48) |
   | Đã gửi, hết hạn | banner không có nút `Chỉnh sửa` |
   | Chưa gửi, hết hạn | `Bước đánh giá của [Vai] đã kết thúc lúc 18:00 ngày dd/mm/yyyy, màn này chỉ để xem.` |
 
   Hồ sơ `Không đánh giá` hoặc đã nghỉ việc không có khối này. Popup xác nhận gửi cũng lấy hạn từ helper này.
+  Hồ sơ không Tự đánh giá (hết các lần nhắc, đủ mục tiêu): tình trạng nằm ở banner xám (§48), khối `Lưu ý` không nhắc lại.
   Danh sách M-05 ghi hạn vào tooltip của nút bút, popup đánh giá toàn diện và popup Upload điểm (§47).
 
 ## 9. HRBP upload hộ HOD
@@ -290,8 +313,9 @@ Dựng ngày 30/09/2026 (phía HOD; màn HRBP tải file và bước đối soá
   (chốt 30/09/2026). Không có thì nút khóa, tooltip nói lý do: `Chưa có điểm HRBP tải lên cần duyệt`, `Mở từ dd/mm/yyyy`
   hoặc `Đã hết hạn duyệt ngày dd/mm/yyyy`.
 - Màn `Phê duyệt điểm hiệu chuẩn` cùng bố cục với tab Giữa năm (MYR-56): phủ vùng nội dung, `Quay lại`, dòng phụ
-  `Đánh giá cuối năm 2026 - HOD - Indirect reports`, nút `Duyệt điểm` kèm số dòng đã tick. Khối ghi chú nói điểm tải lên thay
-  bạn, duyệt là thành điểm Trưởng đơn vị, không sửa trước khi duyệt, và hạn duyệt (tới hết ngày của bước HOD; trước hoặc sau
+  `Đánh giá cuối năm 2026 - HOD - Indirect reports`, nút `Duyệt điểm` kèm số dòng đã tick. Khối ghi chú là **bốn gạch đầu dòng**
+  gọi tên vai (chốt 04/10/2026): điểm tải lên là điểm HRBP tải lên thay Trưởng đơn vị; tick và `Duyệt điểm` thì thành điểm Trưởng
+  đơn vị; Trưởng đơn vị không sửa điểm tải lên trước khi duyệt; hạn duyệt `tới hết **18:00 ngày dd/mm/yyyy**` (trước hoặc sau
   timeline thì nói lý do khóa). Bộ lọc: Nhân viên, Quản lý trực tiếp, Quản lý cấp 2. `Tải xuống`: Excel (.xls) hoặc CSV.
 - Cột: chọn, Nhân viên, Quản lý trực tiếp, Quản lý cấp 2, Điểm của NV, QLTT, QL cấp 2, **Điểm Upload** (màu `--upd`, dòng dưới
   ghi domain người tải lên và ngày, tooltip thêm nhận xét; đã duyệt thì dòng dưới là `Đã duyệt` màu xanh), Điểm của Trưởng đơn
@@ -299,7 +323,7 @@ Dựng ngày 30/09/2026 (phía HOD; màn HRBP tải file và bước đối soá
   duyệt, rồi dòng không có điểm tải lên. Ô chọn khóa kèm lý do: `Chưa có điểm HRBP tải lên`, `Đã duyệt` hoặc lý do timeline.
 - Duyệt mà có dòng khác điểm chấm tay thì hiện popup `Thay điểm bạn đã chấm?` liệt kê `Tên (domain): điểm cũ → điểm tải lên`,
   nút `Quay lại` / `Duyệt điểm`.
-- Tình huống demo: `hod03` (ba hồ sơ chờ duyệt: `e9`, `e11`, và `e12` có điểm chấm tay khác). Người tải lên mẫu là HRBP
+- Tình huống demo: `hod06` (ba hồ sơ chờ duyệt: `e9`, `e11`, và `e12` có điểm chấm tay khác). Người tải lên mẫu là HRBP
   `Lý Minh Châu (chau.ly)`, không trùng nhân viên nào trong danh sách.
 
 ## 10. Employee Response (Enh 5)
@@ -390,8 +414,8 @@ tab Đánh giá giữa năm, và màn chấm điểm của Quản lý `M-06`:
 | Dòng mục tiêu | viền trái xanh lá 3px (`.g-row-done`) |
 | Cột **Điểm NV** | điểm chỉ xem, không có dropdown |
 | Dưới tên mục tiêu | chip xanh lá `Đã đánh giá hoàn thành` (`.g-done-chip`) |
-| Cột **Điểm QLTT** | điểm chỉ xem, dưới là **domain người chấm** 10.5px màu `--z500` (`.ql-by`) |
-| Popup chi tiết mục tiêu | dòng `Đã đánh giá hoàn thành bởi` với tên đầy đủ kèm domain |
+| Cột **Điểm QLTT** | điểm chỉ xem, dưới là **domain người chấm** 10.5px màu `--z500` (`.ql-by`), đặt tuyệt đối nên điểm NV và điểm QLTT cùng hàng (M-06 sửa 04/10/2026) |
+| Popup chi tiết mục tiêu | `#dlg-detail` mở bằng `openDetailFromRow` (§13.2), khối hai lượt chấm ghi `Đánh giá bởi **domain** - dd/mm/yyyy`; thẻ thứ hai tên `Quản lý trực tiếp đánh giá`, không có đường kẻ thừa trên khối (chị chốt 04/10/2026, E-05 và M-06). E-05 và **M-06** cùng cách (M-06 sửa 04/10/2026, trước đó dùng popup rút gọn `Đã đánh giá hoàn thành bởi`) |
 
 ### 13.2 Hover và popup chi tiết mục tiêu
 
@@ -967,14 +991,18 @@ M-05 và M-06 chỉ render.
 - **Khối vàng trong ô Đánh giá toàn diện** của vai đang xem (M-06) và trong popup chấm điểm trên lưới (M-05) **chỉ có khi nhân
   viên nộp ở lần nhắc thứ 3**, tức hồ sơ bị giới hạn điểm toàn diện tối đa 3 (chốt 02/10/2026, `PMSYer.lateCapNotice(p, lang)`).
   Nộp ở lần 1, 2 (chưa có hình thức) hay lần 4 (cắt giảm thưởng, không giới hạn điểm) thì ô điểm không có khối vàng; hình thức
-  của lần 4 chỉ còn ở khối `Lưu ý` và banner. Câu (chốt lại 30/09/2026, `lateMeasureText`): `Nhân viên hoàn thành trễ Tự đánh giá n ngày làm việc (nộp bổ sung ở lần nhắc
-  thứ k), vậy theo quy định, nhân viên sẽ bị giới hạn điểm đánh giá toàn diện tối đa là 3.` (lần 3); lần 4 là `… nhân viên sẽ bị
+  của lần 4 chỉ còn ở khối `Lưu ý` và banner. Câu (chị chốt lại 04/10/2026, `lateMeasureText`, bản in đậm `lateMeasureHtml`):
+  `Nhân viên hoàn thành Tự đánh giá **trễ hạn n ngày làm việc** (nộp bổ sung ở lần nhắc thứ k), theo quy định, nhân viên sẽ bị giới
+  hạn điểm đánh giá toàn diện **tối đa là 3**.` (lần 3, bỏ chữ `vậy`); lần 4 là `… nhân viên sẽ bị
   cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ thời điểm nhắc nhở thứ tư.`
-  Không nhắc chuyện hệ thống có chặn điểm hay không. Gạch đầu dòng nộp bổ sung trong khối `Lưu ý` và banner của M-06 vẫn ghi
+  Không nhắc chuyện hệ thống có chặn điểm hay không. Khối vàng **chỉ hiện khi đang chấm**; QLTT gửi xong thì ô chỉ xem không còn
+  khối này (thừa, chị chốt 04/10/2026), chỉ còn chip `Cao hơn mức tối đa 3` cạnh điểm. Từ khóa của mọi hình thức xử lý in đậm ở mọi
+  màn (`PMSYer.lateTextHtml`, danh sách từ khóa ở model, E-05 dùng chung). Gạch đầu dòng nộp bổ sung trong khối `Lưu ý` và banner của M-06 vẫn ghi
   `Hình thức xử lý theo quy định: …` như §48.
-- **Giới hạn điểm 3 không chặn điểm, nhưng người chấm phải xác nhận.** Chọn cao hơn 3 thì khối vàng thêm dòng đậm `Bạn đang cho
-  x, cao hơn mức tối đa 3.` Khi lưu, người chấm phải tick `Tôi xác nhận giữ điểm x dù cao hơn mức tối đa 3 theo quy định.`,
-  nút lưu khóa cho tới khi tick: trong popup gửi của M-06 (`Gửi đánh giá`, `Lưu điểm`, `Lưu thay đổi`), trong popup chấm điểm
+- **Giới hạn điểm 3 không chặn điểm, nhưng người chấm phải xác nhận.** Đang chấm mà chọn cao hơn 3 thì khối vàng thêm dòng đậm
+  `Điểm đang chọn là x, cao hơn mức tối đa 3.` Khi lưu, người chấm phải tick `Tôi xác nhận giữ điểm x.` (chị chốt 04/10/2026, bỏ
+  `dù cao hơn mức tối đa 3 theo quy định`); popup gửi của M-06 chỉ có câu của khối vàng và ô tick, không lặp dòng `Điểm đang chọn…`,
+  nút lưu khóa cho tới khi tick: trong popup gửi của M-06 (`Gửi đánh giá`, `Lưu thay đổi`, chỉ QLTT), trong popup chấm điểm
   trên lưới M-05 (chưa tick mà bấm `Xác nhận` thì nhắc và mở lại popup, giữ nguyên điểm và nhận xét), và trong popup chung
   `Có điểm cao hơn mức tối đa theo quy định` của `Duyệt điểm LM1/LM2`, `Upload điểm`, `Duyệt điểm hiệu chuẩn` (liệt kê từng
   người: `điểm x, tối đa 3 (lần nhắc thứ k)`). Bản lưu ghi `capConfirmed: { max, score, at }` để truy vết.
@@ -1083,14 +1111,15 @@ Giữ §12, bổ sung:
     - `Import mục tiêu`: cùng các bước của popup **Import mục tiêu** của E-05 (`.imp-steps`): 1 tải Template (CSV, mỗi dòng một mục
       tiêu, loại WHAT hoặc DEVELOPMENT), 2 kéo thả hoặc bấm để chọn tập tin, 3 bấm `Đọc file` để kiểm tra (hiện `n mục tiêu hợp lệ,
       bỏ qua m dòng thiếu thông tin`), 4 bấm `Import`. Nút `Hủy` / `Đọc file` / `Import n mục tiêu`.
-    - Ghi chú chung là khối `Lưu ý` có gạch đầu dòng, gọi tên vai `QLTT`: mục tiêu QLTT thêm được ghi nhận `Đã duyệt` ngay, mang
-      nhãn `QLTT thêm`; chỉ nằm ở tab Đánh giá cuối năm, không thêm vào tab Danh sách mục tiêu; sau khi thêm QLTT không sửa hay
-      xóa được, và không sửa được mục tiêu nhân viên đã tạo.
+    - Ghi chú chung (chị chốt 04/10/2026): `Lưu ý:` một hàng riêng, bên dưới ba gạch đầu dòng, từ khóa in đậm: `Mục tiêu do QLTT
+      thêm được hệ thống ghi nhận ở trạng thái **Đã duyệt**.` / `Mục tiêu này **chỉ nằm ở tab Đánh giá cuối năm**, không thêm vào
+      tab Danh sách mục tiêu của nhân viên.` / `Sau khi thêm mục tiêu, QLTT **không thể sửa hoặc xóa** được mục tiêu này.` Ô chọn
+      tập tin ở tab Import gọn một hàng.
   - Phân biệt với mục tiêu nhân viên tự tạo: M-06 có chip xanh `QLTT thêm - Đã duyệt` dưới tên mục tiêu, tooltip ghi domain QLTT,
     ngày thêm, bằng file hay nhập tay; E-05 có chip `Quản lý trực tiếp thêm`.
   - **Không sửa, không xóa** (chốt 02/10/2026, thay rule xóa bằng nút thùng rác của 30/09/2026): mục tiêu QLTT thêm mặc định
     `Đã duyệt` và tạm thời không có nút sửa hay xóa, kể cả trong timeline QLTT. QLTT vẫn chấm điểm cho mục tiêu đó như mục tiêu khác.
-  - Tình huống demo `lm03` (`e4`): còn thiếu mục tiêu phát triển.
+  - Tình huống demo `lm03`, `lm07` (`e4`): còn thiếu mục tiêu phát triển.
 - Hai mốc nhắc: lúc nhân viên nộp đơn thai sản, và lúc mở kỳ đánh giá.
 - Màn hình hiện **hai khối hướng dẫn riêng**: một cho nhân viên thai sản, một cho Quản lý.
 
@@ -1163,9 +1192,11 @@ Từ ngày 27/09/2026, `M-02` đã gộp hẳn vào `M-06` (xem `docs/modules/my
 |---|---|---|---|
 | Điểm từng mục tiêu | nhập | chỉ xem | chỉ xem |
 | 3 nhận xét nhóm | nhập, bắt buộc | chỉ xem | chỉ xem |
-| Điểm toàn diện | nhập, bắt buộc | nhập, bắt buộc | nhập, bắt buộc |
-| Nhận xét toàn diện | bắt buộc | tùy chọn | tùy chọn |
-| Sửa sau khi gửi | được, tới hết deadline | được, tới hết deadline | được, tới hết deadline |
+| Điểm toàn diện | nhập, bắt buộc | chỉ xem (chấm ở M-05) | chỉ xem (chấm ở M-05) |
+| Nhận xét toàn diện | bắt buộc | chỉ xem (nhập ở M-05, tùy chọn) | chỉ xem (nhập ở M-05, tùy chọn) |
+| Sửa sau khi gửi | được, tới hết deadline | ở M-05, tới hết deadline | ở M-05, tới hết deadline |
+
+Từ 04/10/2026 Quản lý cấp 2 và Trưởng đơn vị chỉ xem ở M-06 (§8.3).
 | Cột điểm đọc thêm | — | của QLTT | của QLTT và QL cấp 2 |
 
 ### 39.2 Quy ước dữ liệu ghi vào store
@@ -1246,6 +1277,9 @@ Nằm ngay dưới dải quy trình, dùng `info-note` giống tab Đánh giá g
    sang tab Mục tiêu ngay trong màn, không rời trang.
 2. Kết quả kỳ giữa năm, **chỉ khi có kết quả**, xem §40.5c. Cụm **Đánh giá giữa năm 2026**
    là liên kết sang tab đó.
+3. Hồ sơ có LWD (chị chốt 04/10/2026, cùng câu với khối Lưu ý của M-06 §48): `Nhân viên có Ngày làm việc cuối cùng là
+   **dd/mm/yyyy**. Nhân viên và QLTT vẫn cần hoàn thành đánh giá trong thời gian nhân viên còn đang làm việc.` Hồ sơ thai sản
+   có LWD thì câu này nối sau dòng thai sản.
 
 ##### 40.5a Logic hiển thị box thông tin
 
@@ -1263,8 +1297,8 @@ Chốt ngày 18/09/2026. Hai nguyên tắc:
 | 1 | Đã gửi tự đánh giá (`p.self`) | **không box nào** | — | banner `Đã hoàn thành` thay thế |
 | 1b | Đang chỉnh sửa bản đã gửi (`mode === 'editing'`, §8) | khối `.yer-note.action.yer-edit-note` | **trên** toolbar và dải quy trình | câu chữ ở §8.1 + nút `Hủy chỉnh sửa` |
 | 2 | Thiếu mục tiêu (`eligibility.reason === 'missing-goal'`) | khối cảnh báo `.yer-note.action`, nền rose-neutral rất nhạt `#FFF7FB`, viền `#F0D7E5`, icon màu thương hiệu | **trên** dải quy trình | còn hạn: `Bạn chưa đủ điều kiện gửi Tự đánh giá cuối năm do thiếu [loại mục tiêu] được duyệt.` / `Vui lòng tạo và gửi Quản lý trực tiếp phê duyệt tại tab Danh sách mục tiêu.` (chốt 28/09/2026, cụm `Danh sách mục tiêu` là liên kết sang tab) / `Trong lúc này, bạn vẫn có thể nhập thông tin và lưu nháp bản tự đánh giá.` (thiếu cả hai: `Mục tiêu công việc và Mục tiêu phát triển`); hết hạn tự đánh giá mà ngoài luồng nộp bổ sung: `Bạn không thể thực hiện Tự đánh giá cuối năm`; hết cả hạn nộp bổ sung thì theo dòng 6. **Không có nút** `Tới Danh sách mục tiêu` (bỏ 28/09/2026 ở mọi tình huống thiếu mục tiêu), liên kết trong câu đã đủ |
-| 3 | Nghỉ thai sản | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | một dòng thai sản, xem §40.5b |
-| 4 | Các trường hợp còn lại | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | điều kiện mục tiêu + kết quả kỳ giữa năm |
+| 3 | Nghỉ thai sản | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | một dòng thai sản, xem §40.5b (+ dòng LWD nếu có) |
+| 4 | Các trường hợp còn lại | khối `Lưu ý` (`.info-note`) | **dưới** dải quy trình | điều kiện mục tiêu + kết quả kỳ giữa năm + LWD (nếu có) |
 | 5 | Không còn gạch đầu dòng nào | **không box nào** | — | không dựng thẻ rỗng |
 | 5b | Quá hạn, còn trong bốn lần nhắc, chưa nộp (§27.1) | **chỉ** khối vàng `.yer-note.yer-late-note` | **trên** dải quy trình | lần nhắc, hạn, hình thức xử lý (nếu có), lưu ý, xác nhận; các ô bên dưới khóa |
 | 6 | Hết cả bốn lần nộp bổ sung mà chưa nộp (§27.3), **kể cả khi thiếu mục tiêu** | **chỉ** khối vàng `.yer-note.yer-late-closed` | dưới dải quy trình | không dựng khối Lưu ý; thiếu mục tiêu thì câu sau nói loại mục tiêu còn thiếu, quy trình dừng và không có điểm (§27.1, chốt 28/09/2026). Dòng này thắng dòng 2 |
@@ -1411,6 +1445,9 @@ Lấy **nguyên văn** từ file đề xuất, không rút gọn:
 
 - Tên mức: `Giữa mức 1 - Không đạt yêu cầu và 2 - Hoàn thành một phần`,
   chứ không phải `Giữa mức 1 và 2`.
+- Trong chip tên mức (chị chốt 04/10/2026, mọi màn dùng `PMSUi.rating`): tên mức in đậm, chữ nối thường: mức nguyên đậm cả tên,
+  mức nửa bậc `Giữa mức **1 - Không đạt yêu cầu** và **2 - Hoàn thành một phần**`. Chip luôn một dòng, không đủ chỗ thì cả chip
+  (cùng ⓘ) xuống dòng. Chữ trong ô chọn điểm căn trái ở mọi trạng thái (chưa chọn, đã chọn, mở lại danh sách).
 - Định nghĩa: `Hiệu quả công việc của nhân viên đã vượt trên các tiêu chí của mức X - …
   và chưa đạt trọn vẹn các tiêu chí cần thiết của mức Y - …`
 
@@ -1456,8 +1493,8 @@ Chốt ngày 17/09/2026. Thay nút `Xem hướng dẫn` ở §40.4.
 
 - Mascot là component dùng chung `PMSUi.mascotGuide(opts)` trong `assets/yer-ui.js` (chốt 04/10/2026), E-05 và **M-06** cùng gọi,
   mỗi màn chỉ đưa câu chữ và các bước. M-06: bóng thoại `Hồ sơ đang ở bước [X]`, [X] là `Đánh giá cuối năm`, `Đánh giá nhân viên
-  thai sản`, `Chờ nhân viên nộp bổ sung`, `Đã hoàn thành đánh giá`, `Chỉnh sửa đánh giá`, `Hồ sơ không đánh giá`, `Chưa tới bước
-  của bạn`, `Đã hết hạn đánh giá` hoặc `Chờ cấp trước đánh giá`. Tour M-06 đi qua tab, dải quy trình, khối của tình trạng hồ sơ
+  thai sản`, `Chờ nhân viên nộp bổ sung`, `Đã hoàn thành đánh giá`, `Chỉnh sửa đánh giá`, `Hồ sơ không đánh giá`, `Chờ mở bước
+  đánh giá của [Vai]` (thay `Chưa tới bước của bạn`, 04/10/2026), `Đã hết hạn đánh giá` hoặc `Chờ cấp trước đánh giá`. Tour M-06 đi qua tab, dải quy trình, khối của tình trạng hồ sơ
   (khối vàng, banner nộp trễ, banner đã hoàn thành, khối đang chỉnh sửa, hướng dẫn thai sản hoặc Lưu ý), AI Summary và Phản hồi
   đã nhận, rồi khi đang sửa được: ba nhóm mục tiêu (QLTT), ô Đánh giá toàn diện, `Lưu nháp`, nút gửi. Chỉ giữ bước có khối đang
   hiện trên màn. Nút tab Cuối năm của M-06 có `id="tab-yer"` như E-05.
@@ -1520,7 +1557,7 @@ chỉ thấy màn trống. Thanh demo tự chuyển sang đúng màn:
 Tên tình huống trong mọi dropdown của thanh demo (E-05 và M-06) viết `mã - Tình trạng (Tên nhân viên)` (chốt 02/10/2026,
 bỏ gạch dài). Dropdown thứ hai của thanh demo định danh theo **mã tình huống** (`sc:<id>`) chứ
 không theo mã nhân sự: một người có thể xuất hiện ở nhiều tình huống của nhiều vai
-(ví dụ `e1` ở `lm02` và `hod02`, `e10` ở `nv07`, `nv08` và `lm09`).
+(ví dụ `e1` ở `lm04`, `lm22` đến `lm24` và `hod05`; `e10` ở `nv07`, `nv08`, `lm01`, `lm18`, `lm20`).
 
 Màn `E-05` có dropdown `Tình huống` chỉ gồm tình huống có số của vai Nhân viên (§46). **Không còn nhóm
 `Hồ sơ khác`** (bỏ ngày 28/09/2026): chọn hồ sơ lẻ thì ngày hệ thống vẫn là ngày của tình huống trước, nên màn
@@ -1532,19 +1569,25 @@ Riêng hai màn Quản lý tách rõ hai mục đích demo:
 - `M-05` là **tổng quan roster theo thời điểm**: thanh demo chỉ có Vai trò, Ngày hệ thống
   và 5 giai đoạn `Tự đánh giá → QLTT → QL cấp 2 → HOD → Công bố`. Không có dropdown
   nhân viên/tình huống; đổi giai đoạn chỉ đổi ngày của toàn roster, không chuyển màn.
-- `M-06` là **chi tiết use case** (chốt lại 02/10/2026). Thanh demo một hàng điều khiển và một dòng gợi ý:
-  - `Tình huống`: một dropdown cho cả ba vai, chia nhóm `Quản lý trực tiếp: Luồng chuẩn / Mục tiêu / Nộp trễ / Đặc biệt`,
-    `Quản lý cấp 2`, `Trưởng đơn vị` (`PMS_YER_SUBGROUPS`, trường `sub`). Tên tình huống: mã đứng đầu, rồi tình trạng hồ sơ và tên
-    nhân viên: `lm05 - Nộp bổ sung ở lần nhắc 3, giới hạn điểm 3 (Phạm Thu Trang)`. Chọn tình huống thì vai đổi theo, vẫn ở M-06.
-    **Không còn ô Vai trò** (đổi vai từng đẩy người xem về M-05).
-  - `Mốc thời gian`: thay thanh kéo ngày và chip giai đoạn. Mỗi tình huống khai vài mốc có ý nghĩa với hồ sơ (trường
-    `moments`: `{ date, vi, en }`), ví dụ `Lần nhắc 1`, `Lần nhắc 3`, `Hết thời gian nộp bổ sung`. Đổi mốc giữ nguyên tình huống
-    (thanh demo nhận tình huống theo mã trong phiên, không theo ngày). Tình huống chỉ một mốc thì hiện ngày.
-  - `Cần xem:` dòng gợi ý dưới hàng điều khiển (trường `wvi` / `wen`).
+- `M-06` là **chi tiết use case** (chốt lại 04/10/2026): thanh demo để xem UI ở từng use case, nên **mỗi tình huống là một
+  giao diện khác nhau ở đúng một ngày** (không còn mốc thời gian con `moments`). Một hàng điều khiển và một dòng gợi ý:
+  - `Tình huống`: một dropdown cho cả ba vai (sắp lại 04/10/2026). Nhóm theo **vai đang xem, rồi Trước / Trong / Sau bước của chính
+    vai đó**, gọi đúng tên bước trên dải quy trình (`PMS_YER_SUBGROUPS`, trường `sub`), nên tên nhóm luôn khớp với bước đang mở trên
+    màn (test khóa: nhóm `-pre` thì bước của vai còn `future`, `-in` là `open`, `-post` là `closed`). Nhóm Trong bước của QLTT có ba
+    nhóm con: `Hồ sơ cần đánh giá`, `Nộp bổ sung Tự đánh giá`, `QLTT đã gửi`. Tên tình huống một khuôn `[Ai] + [tình trạng]` (NV, QLTT,
+    Quản lý cấp 2, Trưởng đơn vị), mã đứng đầu, không còn số thứ tự trong ô chọn: `lm15 - NV đã nộp bổ sung ở lần nhắc 3, giới hạn
+    điểm 3 (Phạm Thu Trang)`. Chọn tình huống thì vai và ngày đổi theo, vẫn ở M-06. Không có ô Vai trò. Hiện có 34 tình huống:
+    QLTT 24, Quản lý cấp 2 6, Trưởng đơn vị 4.
+  - Nút `◀` `▶` hai bên dropdown, bộ đếm `19/34`, số `Đã xem n` và nút `Xóa dấu đã xem`. Tình huống đã mở có dấu `✓` đứng đầu
+    trong ô chọn. Dấu đã xem chỉ lưu trên máy người review (`localStorage` khóa `pms-yer-demo-seen`, bọc try/catch); không ảnh hưởng
+    dữ liệu demo, `Đặt lại tất cả` không xóa nó. Bên cạnh là ngày hệ thống của tình huống.
+  - `Cần xem:` dòng gợi ý dưới hàng điều khiển (trường `wvi` / `wen`), gồm cả thao tác cần thử trên màn (bấm Chỉnh sửa, bấm Gửi
+    khi còn thiếu…), vì các trạng thái do thao tác tạo ra không tách thành tình huống riêng.
   - `Xem phía Nhân viên`: mở E-05 cùng hồ sơ, cùng ngày; nếu có tình huống Nhân viên tương ứng (trường `pair`) thì chọn sẵn.
     E-05 có nút `Xem phía Quản lý` để quay lại đúng tình huống (phiên ghi `from`), hoặc sang tình huống Quản lý có `pair` trỏ về.
   - `Làm lại tình huống`: xóa thao tác trên hồ sơ đang xem, dữ liệu dựng sẵn giữ nguyên. `Đặt lại tất cả` (chữ nhạt) xóa mọi
-    thao tác, có popup xác nhận. Hai nút này thay nút `Đặt lại dữ liệu` cũ; M-05 chỉ có `Đặt lại tất cả`.
+    thao tác, có popup xác nhận. M-05 chỉ có `Đặt lại tất cả`.
+  - Danh sách `M-05` **không thêm gì** để phục vụ demo (chị chốt 04/10/2026).
 - Hai bước nội bộ `Total Reward` và `HR Director` không hiện trên thanh demo của màn Quản lý,
   đồng nhất với dải quy trình 5 bước trên màn hình.
 
@@ -1590,16 +1633,16 @@ mới (QLTT tới 08/02/2027), chế độ xem và nút Chỉnh sửa sau khi g�
 
 ## 46. Bảng điều hướng tình huống
 
-`YER-demo/index.html` gom **40 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
+`YER-demo/index.html` gom **61 tình huống** theo **vai trò**, không theo giai đoạn quy trình:
 người review thường duyệt hết phần của một vai rồi mới sang vai khác. Hàng chip đầu bảng
 lọc theo vai; mỗi dòng đặt sẵn vai trò, nhân sự, ngày hệ thống và **màn hình sẽ mở**.
 
 | Nhóm | Mã | Số tình huống |
 |---|---|---|
 | Nhân viên | `nv01`–`nv21` | 21 |
-| Quản lý trực tiếp | `lm01`–`lm16`, không còn `lm07` (gộp vào `lm06` ngày 02/10/2026) | 15 |
-| Quản lý cấp 2 | `lm2-01`–`lm2-05` | 5 |
-| Trưởng đơn vị | `hod01`–`hod05` | 5 |
+| Quản lý trực tiếp | `lm01`–`lm24` (M-06), `lm25`, `lm26` (M-05) | 26 |
+| Quản lý cấp 2 | `lm2-01`–`lm2-06` (M-06), `lm2-07` (M-05) | 7 |
+| Trưởng đơn vị | `hod01`–`hod04` (M-06), `hod05`–`hod07` (M-05) | 7 |
 
 Hai mươi mốt tình huống của Nhân viên, chốt 28/09/2026:
 
@@ -1627,27 +1670,48 @@ Hai mươi mốt tình huống của Nhân viên, chốt 28/09/2026:
 | `nv20` | Không nộp sau 4 lần nhắc, đã qua hạn QLTT nên hồ sơ `Không đánh giá` | `e2`, 12/02/2027 |
 | `nv21` | Thiếu mục tiêu và không nộp sau 4 lần nhắc: khối vàng như `nv20`, câu chữ nói loại mục tiêu còn thiếu và quy trình dừng, không có điểm (§27.1) | `y10` (cùng hồ sơ `nv06`), 05/02/2027 |
 
-Tình huống của màn chi tiết Quản lý trực tiếp (`M-06`), chốt 02/10/2026, đối chiếu với màn Nhân viên. `lm01`, `lm08` là
-tình huống của danh sách `M-05`. Mốc thời gian là các nút trên thanh demo (§44.1).
+Tình huống của màn chi tiết Quản lý (`M-06`), sắp lại 04/10/2026 theo danh sách chị đưa. Mỗi dòng một giao diện ở một ngày;
+thứ tự trên thanh demo là thứ tự bảng (§44.1).
 
-| Nhóm | Mã | Tình huống | Hồ sơ, ngày | Mốc thời gian | Nhân viên tương ứng |
-|---|---|---|---|---|---|
-| Luồng chuẩn | `lm10` | Trước timeline QLTT, nhân viên đã gửi sớm | `e10`, 14/01 | 14/01, 19/01 | `nv07` |
-| | `lm11` | Chờ QLTT đánh giá, hồ sơ bình thường | `e1`, 22/01 | 22/01, 26/01, 09/02 | |
-| | `lm09` | Đã gửi đánh giá, còn chỉnh sửa được | `e10`, 27/01 | 27/01, 09/02 | `nv08` |
-| | `lm02` | Hồ sơ đi qua đủ các bước, đã công bố | `e1`, 06/04 | 27/03, 06/04 | |
-| Mục tiêu | `lm06` | Đổi Quản lý, có mục tiêu đã chốt với Quản lý cũ | `y4`, 20/01 | | |
-| | `lm03` | Nghỉ thai sản, QLTT thêm mục tiêu và đánh giá | `e4`, 22/01 | 12/01, 22/01 | |
-| Nộp trễ | `lm12` | Đang chờ nhân viên nộp bổ sung, đủ mục tiêu | `y15`, 27/01 | 20/01, 27/01, 04/02 | |
-| | `lm16` | Đang chờ nhân viên nộp bổ sung, thiếu mục tiêu | `y10`, 22/01 | 22/01, 04/02 | `nv06` |
-| | `lm05` | Nộp bổ sung ở lần nhắc 3, giới hạn điểm 3 | `y12`, 29/01 | 29/01, 08/02, 09/02 | |
-| | `lm13` | Nộp bổ sung ở lần nhắc 4, cắt giảm thưởng | `y16`, 04/02 | 04/02, 09/02 | `nv19` |
-| | `lm04` | Không nộp bổ sung, đủ mục tiêu: QLTT vẫn đánh giá | `e13`, 04/02 | 29/01, 04/02, 09/02 | |
-| | `lm14` | Không đánh giá: thiếu mục tiêu, không nộp bổ sung | `y10`, 04/02 | | `nv21` |
-| Đặc biệt | `lm15` | Nhân viên có ngày làm việc cuối cùng (LWD) | `y6`, 25/01 | | `nv09` |
+| Nhóm | Mã | Tình huống | Hồ sơ, ngày | Nhân viên tương ứng |
+|---|---|---|---|---|
+| QLTT - Trước bước Quản lý trực tiếp | `lm01` | NV đã hoàn thành Tự đánh giá | `e10`, 14/01 | `nv07` |
+| | `lm02` | NV chưa hoàn thành Tự đánh giá, có LWD | `y6`, 08/01 | `nv09` |
+| | `lm03` | NV nghỉ thai sản | `e4`, 12/01 | |
+| QLTT - Trong bước Quản lý trực tiếp: Hồ sơ cần đánh giá | `lm04` | NV đã hoàn thành Tự đánh giá, QLTT chưa đánh giá | `e1`, 22/01 | |
+| | `lm05` | NV có mục tiêu QLTT cũ đã đánh giá hoàn thành | `y4`, 20/01 | |
+| | `lm06` | NV có LWD | `y6`, 25/01 | `nv09` |
+| | `lm07` | NV nghỉ thai sản, QLTT thêm mục tiêu và đánh giá | `e4`, 22/01 | |
+| | `lm08` | NV quá hạn sau 4 lần nhắc, đủ mục tiêu: QLTT vẫn đánh giá | `e13`, 04/02 | |
+| QLTT - Trong bước Quản lý trực tiếp: Nộp bổ sung Tự đánh giá | `lm09`–`lm12` | NV chưa nộp, đang ở lần nhắc 1, 2, 3, 4 | `y15`, 20/01, 23/01, 27/01, 01/02 | |
+| | `lm13` | NV chưa nộp, đang ở lần nhắc 2, còn thiếu mục tiêu | `y10`, 22/01 | `nv06` |
+| | `lm14` | NV đã nộp bổ sung ở lần nhắc 1 | `y9`, 22/01 | `nv16` |
+| | `lm15` | NV đã nộp bổ sung ở lần nhắc 3, giới hạn điểm 3 | `y12`, 29/01 | |
+| | `lm16` | NV đã nộp bổ sung ở lần nhắc 4, cắt giảm thưởng | `y16`, 04/02 | `nv19` |
+| | `lm17` | NV quá hạn sau 4 lần nhắc, thiếu mục tiêu: Không đánh giá | `y10`, 04/02 | `nv21` |
+| QLTT - Trong bước Quản lý trực tiếp: QLTT đã gửi | `lm18` | QLTT đã gửi, còn thời gian chỉnh sửa | `e10`, 27/01 | `nv08` |
+| | `lm19` | QLTT đã gửi trên hồ sơ nộp bổ sung (banner hai tầng) | `y16`, 06/02 | |
+| QLTT - Sau bước Quản lý trực tiếp | `lm20` | QLTT đã gửi, hết thời gian chỉnh sửa | `e10`, 09/02 | |
+| | `lm21` | QLTT không đánh giá trước hạn | `y12`, 09/02 | |
+| | `lm22` | Quản lý cấp 2 đã đánh giá | `e1`, 20/02 | |
+| | `lm23` | Trưởng đơn vị đã đánh giá | `e1`, 03/03 | |
+| | `lm24` | Đã công bố kết quả | `e1`, 06/04 | |
+| Quản lý cấp 2 - Trước bước Quản lý cấp 2 | `lm2-01` | Quản lý cấp 2 chưa tới bước, QLTT đã gửi | `y8`, 05/02 | |
+| Quản lý cấp 2 - Trong bước Quản lý cấp 2 | `lm2-02` | Quản lý cấp 2 chưa đánh giá, có điểm NV và QLTT | `y8`, 17/02 | |
+| | `lm2-03` | NV không Tự đánh giá | `e13`, 17/02 | |
+| | `lm2-04` | NV nộp bổ sung, điểm QLTT do hệ thống lấy | `y12`, 17/02 | |
+| | `lm2-05` | Quản lý cấp 2 đã đánh giá (chỉ xem, không Chỉnh sửa, không Lịch sử chỉnh sửa) | `e11`, 20/02 | |
+| Quản lý cấp 2 - Sau bước Quản lý cấp 2 | `lm2-06` | Quản lý cấp 2 không đánh giá trước hạn | `y8`, 23/02 | |
+| Trưởng đơn vị - Trước bước Trưởng đơn vị | `hod01` | Trưởng đơn vị chưa tới bước, Quản lý cấp 2 đã đánh giá | `e16`, 17/02 | |
+| Trưởng đơn vị - Trong bước Trưởng đơn vị | `hod02` | Trưởng đơn vị chưa đánh giá, có điểm NV, QLTT và Quản lý cấp 2 | `e16`, 27/02 | |
+| | `hod03` | Trưởng đơn vị đã đánh giá (chỉ xem, không Chỉnh sửa, không Lịch sử chỉnh sửa) | `e12`, 27/02 | |
+| Trưởng đơn vị - Sau bước Trưởng đơn vị | `hod04` | Trưởng đơn vị không đánh giá trước hạn | `e16`, 09/03 | |
 
-`e13` có điểm QLTT ngày 08/02/2027 (dời từ 29/01 ngày 02/10/2026): QLTT chỉ chấm được hồ sơ không tự đánh giá sau khi hết
-thời gian nộp bổ sung (§27.4). Ca nộp ở lần nhắc 1, 2 (chưa có hình thức xử lý) chưa dựng riêng.
+Tình huống của danh sách `M-05`: `lm25` (danh sách đủ ba nhóm cần lưu ý), `lm26` (quá hạn, hệ thống đồng bộ điểm), `lm2-07`,
+`hod05`, `hod06`, `hod07`.
+`e13` có điểm QLTT ngày 08/02/2027: QLTT chỉ chấm được hồ sơ không tự đánh giá sau khi hết thời gian nộp bổ sung (§27.4).
+`y16` có bản đánh giá của QLTT ngày 05/02/2027 (thêm 04/10/2026 cho `lm19`), sau mọi tình huống khác đang dùng `y16`
+(`nv15` 01/02, `nv19` 03/02, `lm16` 04/02).
 
 `nv07` và `nv08` là cùng một người ở hai thời điểm; `e10` có sẵn lịch sử gửi, mở lại, gửi lại (§8.2).
 Nộp bổ sung ở từng lần nhắc dùng **một nhân viên ở hai thời điểm** (chốt 28/09/2026): ngày nhắc đầu tiên của lần
@@ -1658,9 +1722,9 @@ Nộp bổ sung ở từng lần nhắc dùng **một nhân viên ở hai thời
 `nv12` đến `nv19` và `nv21` có cờ `fresh` (chốt 28/09/2026; `nv21` có cờ để file đã nộp thử ở `nv06` không lọt sang): mỗi lần tải trang (F5) hoặc chọn lại tình huống, thanh demo xóa
 thao tác cũ của nhân viên đó (`self`, `selfDraft`, `selfEditing`, `selfLog`, `lateSubmission`, `importedGoals`, hàm
 `freshStart` trong `yer-demo.js`), nên tình huống luôn bắt đầu lại đúng như dữ liệu dựng sẵn.
-`y12` nộp bổ sung ngày 28/01/2027 (lần nhắc 3) nên tình huống `lm05` của Quản lý là ngày 29/01/2027.
+`y12` nộp bổ sung ngày 28/01/2027 (lần nhắc 3) nên tình huống `lm15` của Quản lý là ngày 29/01/2027.
 Ngày 02/10/2026 lịch demo kéo timeline QLTT tới 08/02/2027 (§2), nên mọi tình huống và dữ liệu mẫu của bước LM2 trở đi
-dời 7 ngày (vd `lm2-01` 17/02, `hod05` 27/02, `lm08` 12/02, `lm02` 27/03); tình huống của luồng nộp bổ sung giữ nguyên ngày.
+dời 7 ngày (vd `lm2-02` 17/02, `hod03` 27/02, `lm26` 12/02); tình huống của luồng nộp bổ sung giữ nguyên ngày.
 
 Tại thời điểm kỳ cuối năm đã mở, nhãn trên tab Đánh giá giữa năm dùng hệ màu xám trung tính để
 không cạnh tranh thị giác với tab cuối năm (§18.4). Hồ sơ đã công bố (`e12`) có banner kết quả chỉ
@@ -1693,8 +1757,8 @@ Chốt ngày 22/09/2026.
     đóng, `Xóa bộ lọc` xóa hết, đổi vai thì xóa bộ lọc. Không còn ô tìm kiếm riêng.
   - `Split View`: danh sách bên trái (ô tìm nhân viên; mỗi dòng có tên kèm domain `Tên (domain)`, phòng ban, trạng thái,
     `Điểm của bạn`), bên phải là M-06 nhúng
-    (`M-06/index.html?emp=…&tab=yer&embed=1`). Khung nhúng giữ hàng nút đánh giá (`Lưu nháp`, `Gửi đánh giá`,
-    `Lưu điểm`, `Lưu thay đổi`), chỉ ẩn nút quay lại. Khung lưu thì danh sách bên trái cập nhật theo, không nạp lại khung.
+    (`M-06/index.html?emp=…&tab=yer&embed=1`). Khung nhúng giữ hàng nút đánh giá của QLTT (`Lưu nháp`, `Gửi đánh giá`,
+    `Lưu thay đổi`; Quản lý cấp 2, Trưởng đơn vị chỉ xem, §8.3), chỉ ẩn nút quay lại. Khung lưu thì danh sách bên trái cập nhật theo, không nạp lại khung.
     `Mở toàn trang` mở M-06 ở trang riêng. Khung Split View cao gần bằng màn hình (`calc(100vh - 84px)`), danh sách bên trái tự
     cuộn, bật Split View thì trang cuộn để khung nằm ngay dưới thanh trên cùng (sửa 04/10/2026): trước đó khung nhúng bị kéo cao
     theo danh sách nên popup trong khung (căn giữa khung) rơi xuống dưới màn hình.
@@ -1714,13 +1778,13 @@ Chốt ngày 22/09/2026.
       mở lại popup của điểm đã xác nhận thì ẩn, đổi điểm thì hiện lại (chốt 30/09/2026). Chỉ xem thì hiện số, tên mức và ⓘ.
     - Ô `Nhận xét` (không ghi `toàn diện (tùy chọn)` trên nhãn), mặc định cao 2 dòng, placeholder `Ghi nhận xét của bạn về kết quả
       và đóng góp của nhân viên trong năm.`, tối đa 1000 ký tự.
-    - Dưới ô nhận xét: bên trái là hạn, chữ và icon đồng hồ màu thương hiệu, không viền, không nền: `Bạn được điều chỉnh điểm cho
-      nhân viên tới hết 18:00, ngày dd/mm/yyyy`; bên phải là bộ đếm `n / 1000`.
+    - Dưới ô nhận xét: bên trái là hạn, chữ và icon đồng hồ màu thương hiệu, không viền, không nền: `[Vai] được điều chỉnh điểm cho
+      nhân viên tới hết **18:00 ngày dd/mm/yyyy**` (gọi tên vai, chốt 04/10/2026); bên phải là bộ đếm `n / 1000`.
     - Khối thu gọn `Lịch sử chỉnh sửa (n)`, rồi nút `Hủy` / `Xác nhận`. `Xác nhận` thì popup đóng, điểm ghi vào cột của vai, dòng
       đứng yên tại chỗ cho tới lần dựng lại kế tiếp. Chưa chọn điểm mà xác nhận thì nhắc và giữ lại nội dung. `Hủy`, dấu x hay
       Esc thì không ghi gì.
   - Hết quyền sửa: đã có điểm thì ô vẫn bấm được để mở popup chỉ xem (nút `Đóng`); chưa có điểm thì ô khóa. Tooltip của ô nói
-    lý do: `Mở từ dd/mm/yyyy`, `Đã hết hạn ngày dd/mm/yyyy`, `Chỉ mở sau khi QLTT gửi đánh giá`, `Chỉ mở sau khi Quản lý cấp 2
+    lý do: `Mở từ dd/mm/yyyy`, `Đã hết hạn lúc 18:00 ngày dd/mm/yyyy`, `Chỉ mở sau khi QLTT gửi đánh giá`, `Chỉ mở sau khi Quản lý cấp 2
     lưu điểm`. Điểm hệ thống tự chép và hồ sơ `Không đánh giá` chỉ hiện số.
   - Tiêu đề cột điểm của chính vai có ⓘ (`.yer-th-info`), rê chuột hoặc focus thì nói: đang mở `Bấm vào ô điểm để chấm điểm và
     ghi nhận xét toàn diện. Muốn sửa thì bấm lại ô đó: bạn chỉnh sửa được nhiều lần tới hết ngày dd/mm/yyyy (timeline đánh giá
@@ -1738,9 +1802,10 @@ Chốt ngày 22/09/2026.
   - `Upload điểm` mở popup `Upload điểm đánh giá cuối năm` **cùng khuôn với tab Giữa năm** (chốt lại 30/09/2026): thẻ bước có
     số tròn hồng (`.upload-guide-step`), thẻ bước 3 nền hồng nhạt, câu dẫn `Thực hiện lần lượt 3 bước dưới đây để cập nhật điểm
     hàng loạt cho nhân viên.` Khác tab Giữa năm ở ba chỗ:
-    - Thông báo timeline là thông tin quan trọng nhất nên **đứng đầu popup, ngay dưới tiêu đề**: đang mở `Bạn cập nhật điểm được
-      tới hết 18:00, ngày dd/mm/yyyy. Hệ thống kiểm tra mã nhân viên và giá trị điểm trước khi cập nhật.`; bị khóa thì tông vàng,
-      icon khóa, nói lý do (`Chưa đến timeline đánh giá của bạn (mở từ …)` hoặc `Đã hết hạn đánh giá của bạn (…)`).
+    - Thông báo timeline là thông tin quan trọng nhất nên **đứng đầu popup, ngay dưới tiêu đề**: đang mở `[Vai] cập nhật điểm được
+      tới hết **18:00 ngày dd/mm/yyyy**.` (bỏ câu về cơ chế kiểm tra của hệ thống, chốt 04/10/2026); bị khóa thì tông vàng,
+      icon khóa, nói lý do (`Chưa tới bước đánh giá của [Vai] (mở từ …)` hoặc `Bước đánh giá của [Vai] đã kết thúc lúc 18:00 ngày …`).
+    - Bước 1: `File có sẵn danh sách nhân viên mà [Vai] đánh giá.`
     - Bước 1 `Tải file mẫu` chỉ **một nút** (CSV gồm Mã nhân viên, Họ tên, Domain, Điểm QLTT, với HOD thêm Điểm LM2, cột điểm của
       vai `Điểm LM2`/`Điểm HOD`, Nhận xét; chỉ gồm nhân viên vai đang xem sửa được).
     - Bước 2 `Điền điểm đánh giá` viết lại cho dễ hiểu: `Mở file vừa tải, tìm dòng của từng nhân viên và điền điểm toàn diện từ 1
@@ -1876,7 +1941,7 @@ Chốt ngày 22/09/2026.
 - Quản lý cấp 2 và HOD chỉ nhập **điểm toàn diện (overall rating)** và nhận xét toàn diện cho
   nhân viên đã nằm trong roster được lọc sẵn của vai mình; điểm từng mục tiêu của các cấp trước
   chỉ để tham khảo.
-- Ba tình huống `lm09`, `lm2-05`, `hod05` lần lượt kiểm tra trạng thái đã đánh giá nhưng vẫn
+- Ba tình huống `lm18`, `lm2-05`, `hod03` (Quản lý cấp 2, Trưởng đơn vị sửa ở M-05, M-06 chỉ xem) lần lượt kiểm tra trạng thái đã đánh giá nhưng vẫn
   chỉnh sửa được của từng cấp quản lý.
 - Tab Cuối năm dùng đúng cấu trúc tab Giữa năm: một hàng điều hướng có `Quay lại danh sách
   nhân viên` bên trái và các action bên phải; không đặt thêm nút `Danh sách` trên topbar.
@@ -1901,8 +1966,8 @@ Chốt ngày 22/09/2026.
        cần). Các mục tiêu do QLTT tạo sẽ được ghi nhận ở trạng thái **Đã duyệt**.` (cụm `Thêm mới mục tiêu` là liên kết mở popup
        thêm mục tiêu khi còn trong timeline QLTT, §33; còn thiếu thì thêm `Nhân viên còn thiếu **[loại]** được duyệt.`) /
        `3. Hoàn thành Đánh giá chi tiết cho nhân viên và gửi.`
-     - Dòng cuối `**Lưu ý:** QLTT có thể chỉnh sửa kết quả đánh giá trước 18:00 ngày **dd/mm/yyyy**.` (hạn từ `managerEditWindow`;
-       chưa tới hoặc đã qua timeline thì dùng câu hạn của mục 1). Hồ sơ có LWD hay kết quả giữa năm thì các câu đó đứng trước
+     - Dòng cuối `**Lưu ý:**` dùng **đúng câu hạn của mục 1** (`windowText`, chốt 04/10/2026), ví dụ `Sau khi gửi đánh giá, QLTT có
+       thể chỉnh sửa tới hết **18:00 ngày dd/mm/yyyy**.` Bỏ câu riêng `QLTT có thể chỉnh sửa kết quả đánh giá trước…`. Hồ sơ có LWD hay kết quả giữa năm thì các câu đó đứng trước
        câu hạn trong dòng `Lưu ý`, thành gạch đầu dòng.
   3. Nộp bổ sung (chốt lại 02/10/2026): hồ sơ **đã nộp** bổ sung không còn là gạch đầu dòng mà được làm nổi bật bằng
      **banner nộp trễ** như banner của E-05 (`lateBanner`, `.submit-banner.yer-md-late-banner`), khi vai đang xem chưa gửi:
@@ -1912,16 +1977,16 @@ Chốt ngày 22/09/2026.
      bên phải `Điểm NV tự đánh giá`. Banner và khối `Lưu ý` (hạn của vai) đi cùng nhau như banner và nội dung của E-05.
      Nhân viên **chưa nộp, còn trong thời gian nộp bổ sung** (chốt 02/10/2026, §27.4): khối `Lưu ý` được thay bằng **một khối
      vàng** `.yer-note.yer-late-closed.yer-late-wait` (hàm `waitingBlock`, DS §19 rule 24), mọi vai đều thấy:
-     tiêu đề `Đang chờ nhân viên nộp bổ sung Tự đánh giá`; `Nhân viên đã quá hạn Tự đánh giá và chưa nộp bổ sung. Đang ở **lần
-     nhắc thứ k**, hạn nộp **18:00 ngày dd/mm/yyyy**. Nhân viên chỉ được nộp bổ sung **một lần**; QLTT đánh giá được ngay sau khi
-     nhân viên nộp.`; `**Nộp ở lần nhắc này thì áp dụng:** …` khi lần đó có hình thức; rồi điều xảy ra nếu không nộp: thiếu
-     mục tiêu `Nhân viên còn thiếu **[loại]** được duyệt. Nếu hết các lần nhắc (18:00 ngày dd/mm/yyyy) mà nhân viên không nộp,
-     hồ sơ chuyển **Không đánh giá** và không có điểm.`, đủ mục tiêu `Nếu hết các lần nhắc (…) mà nhân viên không nộp, QLTT vẫn
-     đánh giá dựa trên mục tiêu tới hết 18:00 ngày dd/mm/yyyy, cột điểm nhân viên để trống.` LWD, kết quả giữa năm thành gạch
-     đầu dòng cuối khối. Các ô điểm, nhận xét khóa, không có hàng nút gửi.
-     Hết mọi lần nhắc mà không nộp, đủ mục tiêu: gạch đầu dòng `Nhân viên **không Tự đánh giá** và không nộp bổ sung sau các lần
-     nhắc. QLTT vẫn đánh giá dựa trên mục tiêu tới hết 18:00 ngày **dd/mm/yyyy**, cột điểm nhân viên để trống.`
-  4. LWD: `Nhân viên có Ngày làm việc cuối cùng là **dd/mm/yyyy**. Hãy hoàn thành đánh giá trước ngày này.`
+     tiêu đề `Đang chờ nhân viên nộp bổ sung Tự đánh giá`, câu `Nhân viên đã quá hạn Tự đánh giá và chưa nộp bổ sung.`, rồi
+     **gạch đầu dòng** (chốt 04/10/2026): `Đang ở **lần nhắc thứ k**, hạn nộp **18:00 ngày dd/mm/yyyy**.` / `Nhân viên chỉ được nộp
+     bổ sung **một lần**. QLTT đánh giá được ngay sau khi nhân viên nộp.` / `**Hình thức xử lý khi nộp ở lần nhắc này:** …` khi lần đó có
+     hình thức / điều xảy ra nếu không nộp: thiếu mục tiêu `Nhân viên còn thiếu **[loại]** được duyệt. Nếu hết các lần nhắc
+     (**18:00 ngày dd/mm/yyyy**) mà nhân viên không nộp, hồ sơ chuyển **Không đánh giá** và không có điểm.`, đủ mục tiêu `Nếu hết
+     các lần nhắc (…) mà nhân viên không nộp, QLTT sẽ tiếp tục đánh giá tới hết **18:00 ngày dd/mm/yyyy**.` (chị chốt 04/10/2026) /
+     LWD, kết quả giữa năm nếu có. Các ô điểm, nhận xét khóa, không có hàng nút gửi.
+     Hết mọi lần nhắc mà không nộp, đủ mục tiêu: tình trạng nằm ở banner xám, khối `Lưu ý` không nhắc lại.
+  4. LWD (chị chốt 04/10/2026): `Nhân viên có Ngày làm việc cuối cùng là **dd/mm/yyyy**. Nhân viên và QLTT vẫn cần hoàn thành
+     đánh giá trong thời gian nhân viên còn đang làm việc.`
   5. Kết quả giữa năm, chỉ khi có (§28).
   Không còn dòng nào thì không dựng khối. **Vai đang xem đã gửi** thì không có khối `Lưu ý`, banner thay thế (như dòng 1 của
   §40.5a); hồ sơ nộp bổ sung thì banner có thêm dòng `Ngày gửi` với nhãn đỏ `Trễ hạn x ngày làm việc`, lần nhắc và dòng
@@ -1937,35 +2002,56 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
 - **Có dải quy trình** giống màn Nhân viên, ngay dưới hàng điều hướng và banner. Màn chi tiết là
   của một nhân viên nên mọi bước có domain, kể cả Tự đánh giá (§40.2). Trạng thái thu gọn nhớ riêng.
 - Dưới dải quy trình chỉ có một khối: `Lưu ý` hoặc khối vàng `Hồ sơ không đánh giá` (xem mục khối thông tin ở trên).
-  Hồ sơ `Không đánh giá` ẩn toàn bộ bảng mục tiêu và thẻ đánh giá toàn diện.
+  Hồ sơ `Không đánh giá` **vẫn hiện đủ** ba nhóm mục tiêu và thẻ đánh giá toàn diện như hồ sơ thường, chỉ để xem; nhóm thiếu mục
+  tiêu là bảng trống (chị chốt 04/10/2026, trước đó ẩn hết).
 - Ba nhóm mục tiêu **luôn giữ khối** như màn Nhân viên (§40.5d); nhóm trống có một dòng xám mờ.
-- Dòng mục tiêu có tooltip ở hai cột đầu và bấm mở popup `Chi tiết mục tiêu` của chính M-06
-  (cùng cơ chế tab Giữa năm trong màn này). Mục tiêu đã đánh giá hoàn thành có thêm ô
-  `Đã đánh giá hoàn thành bởi` với tên đầy đủ kèm domain (§13.1). Giá trị cốt lõi mở `#dlg-how`.
-- Hàng nút: `Lưu nháp` chỉ có trước lần gửi đầu. Nút gửi:
-  QLTT `Gửi đánh giá`, LM2 và HOD `Lưu điểm`; sau lần gửi đầu đổi thành `Lưu thay đổi`.
-  Bên phải luôn có `Phản hồi đã nhận`.
+- Dòng mục tiêu có tooltip ở hai cột đầu và bấm mở popup `#dlg-detail` bằng `openDetailFromRow` như E-05 (§13.2); mục tiêu đã
+  đánh giá hoàn thành có khối hai lượt chấm. Giá trị cốt lõi mở `#dlg-how`.
+- Hàng nút (chỉ QLTT, §8.3): `Lưu nháp` chỉ có trước lần gửi đầu, `Gửi đánh giá`; đang sửa bản đã gửi thì `Lưu thay đổi`.
+  Quản lý cấp 2, Trưởng đơn vị không có nút lưu. Bên phải luôn có `AI Summary` và `Phản hồi đã nhận`.
+- **Bố cục banner xanh** (sắp lại 04/10/2026, chị góp ý chữ tràn sang phần điểm): hai tầng. Tầng trên: icon, tiêu đề, **một**
+  dòng ngày; bên phải `Điểm NV tự đánh giá`, `Điểm cuối cùng`, `Chỉnh sửa` (khi còn sửa được) và nút tải. Tầng dưới (`.yer-sb-more`,
+  trải hết chiều ngang, thẳng lề tiêu đề, kẻ nét đứt): các dòng dài như `**Nộp bổ sung ở lần nhắc thứ k** - Hình thức xử lý theo
+  quy định: …`, câu xác nhận mục tiêu. `Lịch sử chỉnh sửa` không còn là nút bên phải mà là **liên kết ngay sau dòng ngày gửi**
+  (`Ngày gửi: dd/mm/yyyy - Lịch sử chỉnh sửa`), vì nó thuộc về lần gửi đó; liên kết màu xám `--z600` (chị chốt 04/10/2026). Tầng dưới
+  rộng `calc(100% - 50px)` nên chữ dài không tràn khỏi viền banner.
+- **Vai đang xem chưa gửi** (chốt 04/10/2026, như tab Giữa năm của M-06 và banner E-05): đầu tab có banner tình trạng Tự đánh giá
+  của nhân viên. Đã gửi: banner xanh `Nhân viên đã hoàn thành Tự đánh giá cuối năm`, dòng `Ngày gửi: dd/mm/yyyy`, bên phải điểm và
+  nút tải như banner sau khi gửi. Nộp bổ sung: banner nộp trễ (mục khối thông tin). Chưa gửi: banner xám `.submit-banner--pending`
+  `Nhân viên chưa hoàn thành Tự đánh giá cuối năm`, **không có dòng phụ**; hết mọi lần nhắc mà không nộp: `Nhân viên không Tự đánh
+  giá cuối năm`, QLTT có dòng `QLTT tiến hành đánh giá theo quy trình.`, LM2 và HOD không có dòng phụ (chị chốt 04/10/2026).
+  **Quản lý cấp 2, Trưởng đơn vị chưa chấm** (chị chốt 04/10/2026): banner nói **bước gần nhất đã xong** trước vai mình (`priorBanner`):
+  LM2 thấy `QLTT đã hoàn thành đánh giá cuối năm` + `Ngày gửi`; HOD thấy `Quản lý cấp 2 đã hoàn thành đánh giá cuối năm` + `Ngày lưu
+  điểm` (cấp trước được hệ thống đồng bộ thì lùi về cấp trước nữa, không có thì về tình trạng Tự đánh giá). Hồ sơ nộp bổ sung thêm
+  tầng dưới ngày nhân viên nộp, nhãn Trễ hạn, lần nhắc và hình thức xử lý. Chờ nộp bổ sung, `Không đánh giá`, thai sản đã có khối riêng nên không có banner.
 - Sau khi gửi (chốt lại 02/10/2026): banner ghi rõ vai đã xong theo mẫu `[Vai trò] đã hoàn thành đánh giá cuối năm`
   (`QLTT …`, `Quản lý cấp 2 …`, `Trưởng đơn vị …`), **không còn** dòng `Cập nhật lần cuối … - Bạn có thể chỉnh sửa
-  tới …`. Hồ sơ nộp bổ sung vẫn có nhãn trễ hạn và dòng hình thức xử lý (mục khối thông tin ở trên). Phần điểm như tab Giữa năm:
+  tới …`; dòng phụ `Ngày gửi: dd/mm/yyyy` (LM2, HOD `Ngày lưu điểm: …`), như E-05 (04/10/2026). Đã công bố thì tiêu đề `Đã công bố
+  kết quả đánh giá cuối năm 2026`, dòng `Ngày công bố: dd/mm/yyyy` như E-05. Hồ sơ nộp bổ sung vẫn có nhãn trễ hạn và dòng hình thức xử lý (mục khối thông tin ở trên). Phần điểm như tab Giữa năm:
   `Điểm NV tự đánh giá:` và `Điểm cuối cùng:`. **Điểm cuối cùng để `—`** khi quy trình đi qua các bước và các vai đánh giá, chỉ có
   số khi quy trình xong và hệ thống công bố kết quả (`p.published`); rê chuột vào `—` thì đọc lý do. Bên phải có nút tải
   `bx-download` (tooltip `Tải kết quả đánh giá`), bấm chọn PDF hoặc Excel như banner của E-05 (§42). Chưa gửi thì hạn nằm ở khối
   hạn đánh giá (§8.3). Phần bên phải (`bannerRight`) dùng chung cho banner nộp trễ: `Điểm cuối cùng` và nút tải **luôn hiện**,
   kể cả khi chưa có kết quả cuối cùng (chốt 04/10/2026).
 - Banner nộp trễ khi vai đang xem chưa gửi (chốt lại 04/10/2026): `Ngày gửi … ` + nhãn đỏ `Trễ hạn x ngày làm việc` + `- Nộp bổ sung
-  ở **lần nhắc thứ k**` (lần nhắc in đậm); dòng hình thức xử lý nếu có; dòng `Nhân viên xác nhận các mục tiêu được đề xuất đã được
-  thống nhất và đồng thuận với QLTT.` (không còn tên file).
+  ở **lần nhắc thứ k**` (lần nhắc in đậm); dòng hình thức xử lý nếu có, từ khóa in đậm (vd **tối đa là 3**); dòng `Nhân viên xác
+  nhận các mục tiêu đã được thống nhất và đồng thuận với QLTT.` (bỏ `được đề xuất`, chị chốt 04/10/2026; không còn tên file).
 - **Luồng Chỉnh sửa sau khi gửi** (chốt 04/10/2026, cùng luồng với E-05 §8): bấm `Chỉnh sửa` ở banner mở popup `Xác nhận chỉnh sửa
   đánh giá cuối năm đã gửi?` (`[Vai] có thể sửa điểm và nhận xét đến **18:00 ngày dd/mm/yyyy**.` / `Nếu không lưu thay đổi trước
   thời hạn trên, hệ thống giữ bản đánh giá đã gửi ngày **dd/mm/yyyy**.`, nút `Để sau` / `Chỉnh sửa`). Xác nhận thì khối màu nhẹ
   `.yer-note.action.yer-edit-note` thay cho banner: `[Vai] đang chỉnh sửa đánh giá đã gửi ngày dd/mm/yyyy`, hai gạch đầu dòng
   `Phạm vi chỉnh sửa` và `Thời hạn và lưu ý`, nút `Hủy chỉnh sửa` trong khối (hỏi xác nhận, bỏ thay đổi chưa lưu). Hàng nút chỉ
   còn `Lưu thay đổi`.
-- **Popup xác nhận gửi** (chốt 04/10/2026): tiêu đề `Xác nhận gửi đánh giá cho nhân viên` (LM2, HOD `Xác nhận lưu điểm cho nhân
-  viên`; đang sửa `Lưu thay đổi đánh giá?`), hai gạch đầu dòng, ngày giờ in đậm: `Bạn có thể tiếp tục chỉnh sửa đánh giá của mình
-  tới hết **18:00 ngày dd/mm/yyyy**.` / QLTT: `Nhân viên có thể xem được điểm từng mục tiêu và ô nhận xét của bạn, nhưng không thấy
-  điểm toàn diện.`; LM2, HOD: `Nhân viên không thấy điểm toàn diện của cấp quản lý.`
+- **Popup thiếu thông tin** (chốt 04/10/2026, cùng kiểu E-05 §8.1): QLTT bấm `Gửi đánh giá` khi còn thiếu thì popup
+  `.yer-miss-dialog` tiêu đề `Chưa thể gửi đánh giá vì thiếu thông tin`, dòng
+  `Vui lòng bổ sung:` rồi **mỗi khối một gạch đầu dòng** `**[Khối]:** phần còn thiếu` (QLTT: điểm từng mục tiêu theo tên, `ô Đánh giá
+  của Quản lý trực tiếp` của từng nhóm, điểm từng giá trị cốt lõi, `điểm toàn diện`, `ô Đánh giá toàn diện của QLTT`), cuối popup `Các ô còn thiếu sẽ được đánh dấu viền đỏ trên màn hình.` Đóng popup thì các ô thiếu viền đỏ (`--err`) và màn
+  cuộn tới ô đầu tiên; điền ô nào thì ô đó hết đỏ. Mục tiêu đã đánh giá hoàn thành không bị đòi (§13.1).
+- Gửi / lưu xong thì màn cuộn lên banner xanh, như E-05.
+- **Popup xác nhận gửi** (chốt 04/10/2026, chỉ QLTT): tiêu đề `Xác nhận gửi đánh giá cho nhân viên` (đang sửa `Lưu thay đổi
+  đánh giá?`), hai gạch đầu dòng, ngày giờ in đậm, **gọi tên vai** (chị chốt 04/10/2026): `[Vai] có
+  thể tiếp tục chỉnh sửa đánh giá tới hết **18:00 ngày dd/mm/yyyy**.` / QLTT: `Nhân viên có thể xem được điểm từng mục tiêu và ô
+  nhận xét của QLTT, nhưng không thấy điểm toàn diện.`
 - Tooltip của tab Cuối năm trên M-06 (nút tải, `Chỉnh sửa`, `—` của Điểm cuối cùng, chip `QLTT thêm`): M-06 chỉ có `showTip(el)`,
   nên `yer-manager-detail.js` khai `window.tip(el, text)` dựa trên `showTip` khi màn chưa có (sửa 04/10/2026).
 - Nút `Phản hồi đã nhận` (chốt 02/10/2026) mở **đúng popup của M-04** (`M-04/manager-feedback-dialog.js`, dùng chung cho tab
@@ -1973,8 +2059,12 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
   và mở tab mới, dòng `Kết quả phản hồi được chia sẻ từ HR (n)` + `Xem chi tiết`, thẻ phản hồi có tim cảm ơn và câu hỏi, nút
   `Đóng`. Dữ liệu và luật lấy từ file dùng chung của M-04, H-05; tab Cuối năm truyền đúng hồ sơ đang xem.
 - Thẻ đánh giá toàn diện theo vai: QLTT thấy Nhân viên và ô của mình; LM2 thấy thêm QLTT; HOD thấy
-  thêm QLTT và LM2. Ô của QLTT **không còn** dòng `Điểm này không hiển thị cho nhân viên…` (bỏ 02/10/2026); LM2 và HOD có dòng
-  `Nhận xét là tùy chọn.` (hạn sửa đã nằm ở khối `Lưu ý`).
+  thêm QLTT và LM2. Bố cục theo thẻ của E-05 (chốt 04/10/2026): **tối đa hai ô một hàng** (HOD bốn ô thành hai hàng), tiêu đề ô
+  `[Người chấm] đánh giá - domain` (`Nhân viên tự đánh giá`, `Quản lý trực tiếp đánh giá`, `Quản lý cấp 2 đánh giá`), dòng
+  `Điểm toàn diện: 4 [tên mức] ⓘ`; **tên mức luôn một dòng**, không đủ chỗ cạnh điểm thì cả cụm tên mức và ⓘ xuống dòng (chị chốt
+  04/10/2026, không để chữ trong chip vỡ hai dòng). Các ô **cách nhau 12px**, mỗi ô có viền bo riêng, không dính vào nhau. Nhãn
+  ô nhận xét `Đánh giá toàn diện của [nhân viên / QLTT / Quản lý cấp 2 / Trưởng đơn vị]` như tab Giữa năm và E-05, bỏ `… của bạn`. Ô của QLTT **không còn** dòng `Điểm này không hiển thị cho nhân viên…` (bỏ 02/10/2026). Ô của Quản lý cấp 2,
+  Trưởng đơn vị chỉ xem (không còn dòng `Nhận xét là tùy chọn.`, 04/10/2026).
 - **Lưu ý cuối phần Đánh giá toàn diện** (chốt 02/10/2026, mọi vai): sau thẻ Đánh giá toàn diện và khối `Đánh giá của các cấp quản
   lý` có một dòng `.info-note.yer-visibility-note`: `**Lưu ý:** Nhân viên chỉ xem được nhận xét toàn diện của các cấp quản lý,
   không xem được Điểm đánh giá. Kết quả cuối cùng của nhân viên sẽ hiển thị sau khi hoàn tất quy trình.`
@@ -2017,8 +2107,8 @@ Chốt ngày 27/09/2026.
 - Thiếu mục tiêu thì nút Gửi ở trạng thái khóa (`.yer-btn-locked`, icon khóa, nền `--z200`), vẫn bấm được
   để mở dialog `Chưa gửi được Tự đánh giá` nói thiếu gì và hạn bổ sung, kèm nút `Tới tab Mục tiêu`.
 - Code: `toolbar()` và `bindFloatingToolbar()` trong `assets/yer-employee.js`.
-- **Màn chi tiết của Quản lý (M-06) dùng cùng cách** (chốt 02/10/2026): nhóm `Lưu nháp` / `Gửi đánh giá` (LM2, HOD `Lưu điểm`;
-  đang sửa bản đã gửi thì `Hủy chỉnh sửa` / `Lưu thay đổi`) trong hàng điều hướng nổi ở giữa mép dưới khi chỗ cũ khuất
+- **Màn chi tiết của Quản lý (M-06) dùng cùng cách** (chốt 02/10/2026, chỉ QLTT từ 04/10/2026): nhóm `Lưu nháp` / `Gửi đánh giá`
+  (đang sửa bản đã gửi thì `Lưu thay đổi`) trong hàng điều hướng nổi ở giữa mép dưới khi chỗ cũ khuất
   (`.yer-mgr-actions.floating`); `.yer-md-actbar` giữ đúng kích thước chỗ cũ. Nút AI Summary và Phản hồi đã nhận không nổi.
   Trong Split View (`embedded-detail`) nhóm nút căn giữa khung nhúng. Code: `toolbar()`, `bindFloatingToolbar()` trong
   `assets/yer-manager-detail.js`.
