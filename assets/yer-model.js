@@ -579,9 +579,10 @@
       var phase = yerPhase(now);
       return { text: t(PHASE_LABEL[phase]), past: phase !== 'active' };
     }
-    if (!myrAsHistory(empId)) return { text: t(['Đang hoạt động', 'Active']), past: false };
-    // Kỳ cuối năm đã mở thì kỳ giữa năm luôn Đã hoàn tất, kể cả người không có kết quả
-    return { text: t(PHASE_LABEL.done), past: cmp(now, step('self').from) >= 0 };
+    /* Chốt lại 04/10/2026: nhãn tab Giữa năm chỉ theo ngày. Kỳ cuối năm đã mở thì kỳ giữa năm luôn `Đã hoàn tất` màu xám,
+       mọi người, mọi vai, có hay không có use case trên thanh demo; trước đó là `Đang hoạt động`. */
+    if (cmp(now, step('self').from) < 0) return { text: t(['Đang hoạt động', 'Active']), past: false };
+    return { text: t(PHASE_LABEL.done), past: true };
   }
 
   /* ── Quyền của Nhân viên với bản tự đánh giá (§5, §8) ────

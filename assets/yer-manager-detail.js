@@ -134,10 +134,9 @@
     var submitted = mySubmitted(p);
     // .yer-md-actbar giữ chỗ cũ khi nhóm nút nổi lên lúc cuộn (bindFloatingToolbar)
     return '<div class="yer-md-actbar"><div class="cycle-actions yer-mgr-actions">' +
+      // Đang sửa bản đã gửi: nút Hủy chỉnh sửa nằm trong khối đang chỉnh sửa (editNote), như E-05
       (!submitted ? '<button class="btn btn-outline btn-sm" id="yer-md-draft"><i class="bx bx-save"></i>' +
-        L('Lưu nháp', 'Save draft') + '</button>'
-        : '<button class="btn btn-outline btn-sm" id="yer-md-cancel-edit"><i class="bx bx-x"></i>' +
-        L('Hủy chỉnh sửa', 'Cancel editing') + '</button>') +
+        L('Lưu nháp', 'Save draft') + '</button>' : '') +
       '<button class="btn btn-default btn-sm" id="yer-md-submit"><i class="bx bx-send"></i>' +
         (submitted ? L('Lưu thay đổi', 'Save changes')
           : isLm() ? L('Gửi đánh giá', 'Submit review') : L('Lưu điểm', 'Save rating')) + '</button>' +
@@ -172,37 +171,17 @@
     return '<div class="sb-sub">' + L('Ngày gửi: ', 'Submitted on: ') + esc(Y.fmt(p.lateSubmission.at, lg())) +
         ' <span class="yer-late-status">' +
         esc(L('Trễ hạn ' + days + ' ngày làm việc', 'Late by ' + days + ' working day' + (days === 1 ? '' : 's'))) + '</span>' +
-        (p.lateRound ? ' - ' + L('Nộp bổ sung ở lần nhắc thứ ', 'Submitted at reminder ') + p.lateRound.round : '') + '</div>' +
+        // Lần nhắc in đậm (04/10/2026)
+        (p.lateRound ? ' - ' + L('Nộp bổ sung ở <strong>lần nhắc thứ ' + p.lateRound.round + '</strong>',
+          'Submitted at <strong>reminder ' + p.lateRound.round + '</strong>') : '') + '</div>' +
       (csq ? '<div class="sb-sub yer-late-csq"><strong>' + L('Hình thức xử lý theo quy định', 'Measure under policy') + '</strong>' +
         (p.lateRound ? L(' (nộp ở lần nhắc thứ ' + p.lateRound.round + '): ', ' (submitted at reminder ' + p.lateRound.round + '): ') : ': ') +
         csq + '</div>' : '');
   }
 
-  /* Hồ sơ nộp bổ sung khi vai đang xem chưa gửi (chốt 02/10/2026): làm nổi bật việc nộp trễ bằng banner như banner
-     `Đã hoàn thành bổ sung Tự đánh giá cuối năm` của E-05, thay cho gạch đầu dòng trong khối Lưu ý. */
-  function lateBanner(p) {
-    if (!p.lateSubmission || mySubmitted(p)) return '';
-    var ls = p.lateSubmission;
-    var selfScore = p.self && p.self.overall ? p.self.overall.score : null;
-    return '<div class="submit-banner yer-md-submit-banner yer-md-late-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
-      '<div class="sb-info"><div class="sb-title">' +
-        L('Nhân viên đã hoàn thành bổ sung Tự đánh giá cuối năm', 'The employee completed a late year-end self assessment') + '</div>' +
-        lateBannerLine(p) +
-        '<div class="sb-sub">' + (ls.fileName ? L('File: ', 'File: ') + esc(ls.fileName) + '. ' : '') +
-          L('Mục tiêu trong file <strong>không qua bước duyệt</strong>; nhân viên xác nhận đã thống nhất với QLTT từ trước.',
-            'Goals in the file <strong>skip the approval step</strong>; the employee confirms they were agreed with the line manager earlier.') + '</div>' +
-      '</div><div class="sb-score-wrap"><div class="sb-score-group"><span class="sb-score-lbl">' + L('Điểm NV tự đánh giá:', 'Employee self rating:') + '</span>' +
-        '<span class="sb-score-val">' + (selfScore == null ? '—' : esc(String(selfScore))) + '</span></div></div></div>';
-  }
-
-  /* Banner sau khi vai đang xem gửi (chốt 02/10/2026):
-     - tiêu đề ghi rõ vai đã xong: `[Vai trò] đã hoàn thành đánh giá cuối năm` (`QLTT …`, `Quản lý cấp 2 …`, `Trưởng đơn vị …`);
-     - không còn dòng `Cập nhật lần cuối …`; hồ sơ nộp bổ sung vẫn giữ nhãn trễ hạn;
-     - điểm như tab Giữa năm: `Điểm NV tự đánh giá` và `Điểm cuối cùng`. Điểm cuối cùng để trống `—` cho tới khi
-       quy trình xong và hệ thống công bố kết quả (p.published), dù các cấp quản lý đã chấm;
-     - còn trong timeline thì có nút `Chỉnh sửa`; nút tải kết quả chọn PDF hoặc Excel như banner của E-05 (§42). */
-  function banner(p) {
-    if (!mySubmitted(p)) return lateBanner(p);
+  /* Phần bên phải dùng chung cho mọi banner của màn chi tiết (chốt 04/10/2026): `Điểm NV tự đánh giá`, `Điểm cuối cùng`
+     (luôn hiện, `—` cho tới khi hệ thống công bố) và nút tải kết quả (luôn hiện); `Chỉnh sửa` khi vai đang xem còn sửa được. */
+  function bannerRight(p) {
     var name = ROLE_NAME[role()];
     var win = Y.managerEditWindow(role(), p);
     var editTip = L(name[0] + ' chỉnh sửa được tới hết 18:00 ngày ' + Y.fmt(win.to, lg()),
@@ -212,11 +191,7 @@
     var finalTip = L('Có điểm khi quy trình đánh giá hoàn tất và hệ thống công bố kết quả.',
       'Shown once the review process is complete and the system publishes the result.');
     var dlLabel = L('Tải kết quả đánh giá', 'Download review result');
-    return '<div class="submit-banner yer-md-submit-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
-      '<div class="sb-info"><div class="sb-title">' +
-        L(name[0] + ' đã hoàn thành đánh giá cuối năm', name[1] + ' has completed the year-end review') + '</div>' +
-        lateBannerLine(p) +
-      '</div><div class="sb-score-wrap">' +
+    return '<div class="sb-score-wrap">' +
         '<div class="sb-score-group"><span class="sb-score-lbl">' + L('Điểm NV tự đánh giá:', 'Employee self rating:') + '</span>' +
           '<span class="sb-score-val">' + (selfScore == null ? '—' : esc(String(selfScore))) + '</span></div>' +
         '<div class="sb-score-group"><span class="sb-score-lbl">' + L('Điểm cuối cùng:', 'Final rating:') + '</span>' +
@@ -234,7 +209,95 @@
         '<div class="yer-dl-pop" role="menu">' +
           '<button class="yer-dl-opt" type="button" role="menuitem" data-md-dl="pdf"><i class="bx bxs-file-pdf"></i> PDF (.pdf)</button>' +
           '<button class="yer-dl-opt" type="button" role="menuitem" data-md-dl="xlsx"><i class="bx bx-spreadsheet"></i> Excel (.xlsx)</button>' +
-        '</div></div></div></div>';
+        '</div></div></div>';
+  }
+
+  /* Hồ sơ nộp bổ sung khi vai đang xem chưa gửi (chốt 02/10/2026, sửa 04/10/2026): banner như banner `Đã hoàn thành bổ sung
+     Tự đánh giá cuối năm` của E-05; không ghi tên file; câu xác nhận của nhân viên về mục tiêu đề xuất. */
+  function lateBanner(p) {
+    if (!p.lateSubmission || mySubmitted(p)) return '';
+    return '<div class="submit-banner yer-md-submit-banner yer-md-late-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
+      '<div class="sb-info"><div class="sb-title">' +
+        L('Nhân viên đã hoàn thành bổ sung Tự đánh giá cuối năm', 'The employee completed a late year-end self assessment') + '</div>' +
+        lateBannerLine(p) +
+        '<div class="sb-sub">' + L('Nhân viên xác nhận các mục tiêu được đề xuất đã được thống nhất và đồng thuận với QLTT.',
+          'The employee confirms the proposed goals were agreed with the line manager.') + '</div>' +
+      '</div>' + bannerRight(p) + '</div>';
+  }
+
+  /* Banner sau khi vai đang xem gửi (chốt 02/10/2026):
+     - tiêu đề ghi rõ vai đã xong: `[Vai trò] đã hoàn thành đánh giá cuối năm` (`QLTT …`, `Quản lý cấp 2 …`, `Trưởng đơn vị …`);
+     - không còn dòng `Cập nhật lần cuối …`; hồ sơ nộp bổ sung vẫn giữ nhãn trễ hạn;
+     - phần bên phải ở bannerRight. Đang chỉnh sửa thì khối `đang chỉnh sửa` thay cho banner (editNote), như E-05. */
+  function banner(p) {
+    if (!mySubmitted(p)) return lateBanner(p);
+    if (isEditing(p)) return editNote(p);
+    var name = ROLE_NAME[role()];
+    return '<div class="submit-banner yer-md-submit-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
+      '<div class="sb-info"><div class="sb-title">' +
+        L(name[0] + ' đã hoàn thành đánh giá cuối năm', name[1] + ' has completed the year-end review') + '</div>' +
+        lateBannerLine(p) +
+      '</div>' + bannerRight(p) + '</div>';
+  }
+
+  function ownAt(p) {
+    var own = role() === 'lm' ? p.lm : role() === 'lm2' ? p.lm2 : p.hod;
+    return own && own.at;
+  }
+  /* Đang chỉnh sửa bản đã gửi (chốt 04/10/2026, cùng luồng với E-05 §8): khối màu nhẹ thay cho banner, nói phạm vi sửa và hạn,
+     nút `Hủy chỉnh sửa` nằm trong khối. */
+  function editNote(p) {
+    var R = roleName();
+    var to = esc(Y.fmt(Y.managerEditWindow(role(), p).to, lg()));
+    return '<div class="yer-note action yer-edit-note"><i class="bx bx-edit-alt"></i><div>' +
+      '<strong>' + L(R + ' đang chỉnh sửa đánh giá đã gửi ngày ' + esc(Y.fmt(ownAt(p), lg())),
+        R + ' is editing the review submitted on ' + esc(Y.fmt(ownAt(p), lg()))) + '</strong>' +
+      '<ul class="yer-note-list"><li>' +
+      (isLm()
+        ? L('<strong>Phạm vi chỉnh sửa:</strong> QLTT có thể sửa điểm, nhận xét của mọi nhóm mục tiêu và phần đánh giá toàn diện.',
+            '<strong>What you can edit:</strong> ratings and comments of every goal group and the overall assessment.')
+        : L('<strong>Phạm vi chỉnh sửa:</strong> ' + R + ' có thể sửa điểm toàn diện và nhận xét toàn diện.',
+            '<strong>What you can edit:</strong> the overall rating and the overall comment.')) + '</li><li>' +
+      L('<strong>Thời hạn và lưu ý:</strong> Vui lòng lưu thay đổi trước <strong>18:00 ngày ' + to + '</strong>. Sau thời hạn này, nếu chưa lưu, hệ thống giữ bản đánh giá đã gửi gần nhất.',
+        '<strong>Deadline:</strong> please save your changes before <strong>18:00 on ' + to + '</strong>. After that, the latest submitted review stands.') +
+      '</li></ul></div>' +
+      '<button class="btn btn-outline btn-sm yn-cta" type="button" id="yer-md-cancel-edit"><i class="bx bx-undo"></i>' +
+        L('Hủy chỉnh sửa', 'Discard changes') + '</button></div>';
+  }
+
+  // Mở lại bản đã gửi: hỏi xác nhận trước như E-05 (chốt 04/10/2026)
+  function confirmReopen(p) {
+    var to = esc(Y.fmt(Y.managerEditWindow(role(), p).to, lg()));
+    U.dialog({
+      title: L('Xác nhận chỉnh sửa đánh giá cuối năm đã gửi?', 'Edit your submitted year-end review?'),
+      html: '<p>' + L(roleName() + ' có thể sửa điểm và nhận xét đến <strong>18:00 ngày ' + to + '</strong>.',
+          roleName() + ' can change ratings and comments until <strong>18:00 on ' + to + '</strong>.') + '</p>' +
+        '<p class="yer-dlg-p">' + L('Nếu không lưu thay đổi trước thời hạn trên, hệ thống giữ bản đánh giá đã gửi ngày <strong>' + esc(Y.fmt(ownAt(p), lg())) + '</strong>.',
+          'If you do not save before then, the review submitted on <strong>' + esc(Y.fmt(ownAt(p), lg())) + '</strong> stands.') + '</p>',
+      buttons: [
+        { label: L('Để sau', 'Later'), variant: 'quiet' },
+        { label: L('Chỉnh sửa', 'Edit'), variant: 'default', icon: 'bx-edit-alt', act: function () {
+            editingMem[editKey(p)] = true;
+            render();
+          } }
+      ]
+    });
+  }
+  function confirmCancelEdit(p) {
+    U.dialog({
+      title: L('Hủy chỉnh sửa?', 'Discard your changes?'),
+      html: L('Mọi thay đổi chưa lưu sẽ bị bỏ. Bản đánh giá gửi ngày <strong>' + esc(Y.fmt(ownAt(p), lg())) + '</strong> được giữ nguyên.',
+        'All unsaved changes are discarded. The review submitted on <strong>' + esc(Y.fmt(ownAt(p), lg())) + '</strong> stays as it is.'),
+      buttons: [
+        { label: L('Tiếp tục chỉnh sửa', 'Keep editing'), variant: 'quiet' },
+        { label: L('Hủy chỉnh sửa', 'Discard changes'), variant: 'default', act: function () {
+            delete editingMem[editKey(p)];
+            S.clearAct(p.id, draftKey());
+            U.dirty.clear();
+            render();
+          } }
+      ]
+    });
   }
 
   /* ── Hạn đánh giá và chỉnh sửa của vai đang xem (§8.3) ──
@@ -251,9 +314,9 @@
     var from = '<strong>' + esc(Y.fmt(win.from, lg())) + '</strong>';
     var to = '<strong>' + esc(Y.fmt(win.to, lg())) + '</strong>';
     if (win.state === 'future') {
-      return L('Bước đánh giá của ' + R + ' mở từ ' + from + ' tới hết 18:00 ngày ' + to + '. Trước ngày mở, ' + R + ' chỉ xem được hồ sơ' +
-          (isLm() ? ', kể cả khi nhân viên đã gửi Tự đánh giá sớm.' : '.'),
-        R + ' can review from ' + from + ' until 18:00 on ' + to + '. Until then the profile is view-only.');
+      // Chỉ nói khi nào mở, bỏ câu `Trước ngày mở, … chỉ xem được hồ sơ…` (04/10/2026)
+      return L('Bước đánh giá của ' + R + ' mở từ ' + from + ' tới hết 18:00 ngày ' + to + '.',
+        R + ' can review from ' + from + ' until 18:00 on ' + to + '.');
     }
     if (win.state === 'closed') {
       return L('Bước đánh giá của ' + R + ' đã kết thúc lúc 18:00 ngày ' + to + ', màn này chỉ để xem.',
@@ -272,6 +335,109 @@
         R + ' can review once ' + w[1] + ', until 18:00 on ' + to + '.');
     }
     return '';
+  }
+
+  /* ── Mascot hướng dẫn (chốt 04/10/2026, cùng component U.mascotGuide với E-05, YER-SPEC §43) ──
+     Bóng thoại nói vai đang xem đang ở bước nào; tour đi qua đúng các khối đang có trên màn, theo vai và tình trạng hồ sơ. */
+  function mascotStep(p, canEdit) {
+    if (p.stopped) return L('Hồ sơ không đánh giá', 'Not evaluated');
+    if (Y.lateWaiting(p)) return L('Chờ nhân viên nộp bổ sung', 'Waiting for the late file');
+    if (mySubmitted(p)) return isEditing(p) ? L('Chỉnh sửa đánh giá', 'Editing the review') : L('Đã hoàn thành đánh giá', 'Review completed');
+    if (canEdit) return isLm() && p.maternity ? L('Đánh giá nhân viên thai sản', 'Maternity review') : L('Đánh giá cuối năm', 'Year-end review');
+    var win = Y.managerEditWindow(role(), p);
+    if (win.state === 'future') return L('Chưa tới bước của bạn', 'Your step has not opened');
+    if (win.state === 'closed') return L('Đã hết hạn đánh giá', 'Review closed');
+    return L('Chờ cấp trước đánh giá', 'Waiting for the previous level');
+  }
+  function tourItems(p, canEdit) {
+    var R = roleName();
+    var to = Y.fmt(Y.managerEditWindow(role(), p).to, lg());
+    var items = [
+      { sel: '#tab-yer', pose: 'wave.png',
+        title: L('Đánh giá cuối năm của nhân viên', 'The employee year-end review'),
+        text: L('Tab Đánh giá giữa năm để xem lại kết quả giữa năm; tab Đánh giá cuối năm là nơi ' + R + ' đánh giá. Nhãn trên tab cho biết kỳ đó đang diễn ra hay đã hoàn tất.',
+          'The Mid-Year tab shows the mid-year result; the Year-End tab is where ' + R + ' reviews. The tab label shows whether the cycle is active or completed.') },
+      { sel: '#yer-md-steps', pose: 'run.png',
+        title: L('Hồ sơ đang ở bước nào', 'Where the profile stands'),
+        text: L('Bước tô hồng là bước đang mở. Mỗi bước ghi người phụ trách và hạn chót.',
+          'The pink step is open now. Each step names its owner and deadline.') }
+    ];
+    var root = '#yer-mgr-detail-root ';
+    if (p.stopped) {
+      items.push({ sel: root + '.yer-late-closed', pose: 'think.png', title: L('Hồ sơ không đánh giá', 'Not evaluated'),
+        text: L('Quy trình của hồ sơ này đã dừng và không có điểm. Khối vàng nói rõ lý do.', 'This profile stopped with no rating. The yellow block explains why.') });
+      return items;
+    }
+    if (Y.lateWaiting(p)) {
+      items.push({ sel: root + '.yer-late-wait', pose: 'think.png', title: L('Đang chờ nhân viên nộp bổ sung', 'Waiting for the late file'),
+        text: L('Nhân viên chỉ được nộp bổ sung một lần. ' + R + ' đánh giá được ngay sau khi nhân viên nộp; khối vàng nói lần nhắc đang mở và điều gì xảy ra nếu không nộp.',
+          'The employee can submit only once. ' + R + ' can review right after that; the yellow block shows the open reminder and what happens otherwise.') });
+      return items;
+    }
+    if (p.lateSubmission && !mySubmitted(p)) {
+      items.push({ sel: root + '.yer-md-late-banner', pose: 'think.png', title: L('Hồ sơ nộp bổ sung', 'Late submission'),
+        text: L('Banner nói số ngày trễ, lần nhắc và hình thức xử lý theo quy định nếu có.', 'The banner shows the days late, the reminder and the measure under policy, if any.') });
+    }
+    if (mySubmitted(p) && !isEditing(p)) {
+      items.push({ sel: root + '.yer-md-submit-banner', pose: 'cheer.png', title: L(R + ' đã hoàn thành đánh giá', R + ' completed the review'),
+        text: canReopen(p)
+          ? L('Bấm Chỉnh sửa để sửa điểm và nhận xét tới hết 18:00 ngày ' + to + '. Điểm cuối cùng có khi hệ thống công bố kết quả.',
+              'Choose Edit to change ratings and comments until 18:00 on ' + to + '. The final rating appears once results are published.')
+          : L('Đã hết hạn chỉnh sửa nên nội dung chỉ còn để xem. Điểm cuối cùng có khi hệ thống công bố kết quả.',
+              'Editing has closed, so the content is view-only. The final rating appears once results are published.') });
+    }
+    if (isEditing(p)) {
+      items.push({ sel: root + '.yer-edit-note', pose: 'think.png', title: L('Đang chỉnh sửa bản đã gửi', 'Editing the submitted review'),
+        text: L('Bản đã gửi vẫn được giữ cho tới khi lưu thay đổi. Hủy chỉnh sửa thì bỏ mọi thay đổi chưa lưu.',
+          'The submitted review stands until you save. Discarding drops every unsaved change.') });
+    }
+    if (isLm() && p.maternity) {
+      items.push({ sel: root + '.yer-mat-guide', pose: 'think.png', title: L('Nhân viên nghỉ thai sản', 'Maternity leave'),
+        text: L('QLTT chịu trách nhiệm chính: rà soát mục tiêu, thêm mục tiêu nếu cần (tự Đã duyệt), rồi đánh giá và gửi.',
+          'The line manager leads: review the goals, add goals if needed (approved at once), then review and submit.') });
+    } else if (!mySubmitted(p)) {
+      items.push({ sel: root + '.yer-note-block', pose: 'think.png', title: L('Lưu ý của hồ sơ', 'Profile notes'),
+        text: L('Những điều cần biết về hồ sơ trước khi đánh giá, và hạn đánh giá của ' + R + '.', 'What to know about the profile before reviewing, and the deadline of ' + R + '.') });
+    }
+    items.push({ sel: '#yer-md-ai', pose: 'wink.png', title: L('Tham khảo trước khi chấm', 'Look things up before rating'),
+      text: L('AI Summary tóm tắt đánh giá của nhân viên và các cấp; Phản hồi đã nhận là phản hồi đồng nghiệp gửi cho nhân viên trong năm.',
+        'AI Summary sums up the employee and manager reviews; Feedback received lists peer feedback the employee got this year.') });
+    if (canEdit) {
+      if (isLm()) {
+        items = items.concat([
+          { sel: root + '.yer-sec-what', pose: 'think.png', title: L('1. Mục tiêu công việc', '1. Work goals'),
+            text: L('Chấm điểm từng mục tiêu và viết nhận xét chung cho nhóm.', 'Rate each goal and write a comment for the group.') },
+          { sel: root + '.yer-sec-dev', pose: 'think.png', title: L('2. Mục tiêu phát triển', '2. Development goals'),
+            text: L('Chấm điểm từng mục tiêu phát triển và nhận xét.', 'Rate each development goal and comment.') },
+          { sel: root + '.yer-sec-how', pose: 'think.png', title: L('3. Mục tiêu hành vi', '3. Behavioural goals'),
+            text: L('Chấm từng giá trị cốt lõi và nhận xét. Bấm một dòng để xem mô tả đầy đủ.', 'Rate each core value and comment. Click a row for the full description.') }
+        ]);
+      }
+      items.push({ sel: root + '.overall-panel.editable-panel', pose: 'wink.png', title: L('Đánh giá toàn diện', 'Overall review'),
+        text: isLm()
+          ? L('Chọn điểm toàn diện và viết nhận xét toàn diện. Nút Cải thiện với AI gợi ý câu chữ, QLTT quyết định có chèn hay không.',
+              'Choose the overall rating and write the overall comment. Improve with AI suggests wording; the line manager decides whether to insert it.')
+          : L('Chọn điểm toàn diện; nhận xét là tùy chọn.', 'Choose the overall rating; a comment is optional.') });
+      if (!mySubmitted(p) && isLm()) items.push({ sel: '#yer-md-draft', pose: 'idle.png', place: 'top', title: L('Lưu nháp', 'Save a draft'),
+        text: L('Màn hình không tự lưu. Lưu nháp để quay lại rà soát trước khi gửi.', 'The screen does not auto-save. Save a draft to review before submitting.') });
+      items.push({ sel: '#yer-md-submit', pose: 'cheer.png', place: 'top',
+        title: mySubmitted(p) ? L('Lưu thay đổi', 'Save changes') : isLm() ? L('Gửi đánh giá', 'Submit the review') : L('Lưu điểm', 'Save the rating'),
+        text: L('Sau khi gửi, ' + R + ' vẫn chỉnh sửa được tới hết 18:00 ngày ' + to + '.', 'After submitting, ' + R + ' can still edit until 18:00 on ' + to + '.') });
+    }
+    // Chỉ giữ bước có khối đang hiện trên màn
+    return items.filter(function (it) { return document.querySelector(it.sel); });
+  }
+  function mountMascot(p, canEdit) {
+    if (!U.mascotGuide) return;
+    U.mascotGuide({
+      tabs: document.querySelector('.tabs'),
+      title: L('Xin chào, mình là tour guide của bạn!', 'Hi, I am your tour guide!'),
+      intro: L('Hồ sơ đang ở bước ', 'This profile is at '),
+      stepLabel: mascotStep(p, canEdit),
+      outro: L('. Mình sẽ dẫn bạn qua các việc cần làm nhé!', '. I will walk you through what to do.'),
+      ariaLabel: L('Bắt đầu hướng dẫn Đánh giá cuối năm', 'Start the Year-End Review guide'),
+      onStart: function () { U.tour.start(tourItems(p, canEdit), { key: 'yer-mgr' }); }
+    });
   }
 
   /* ── Dải quy trình (§40) ─────────────────────────────────
@@ -535,7 +701,7 @@
         '<th class="th-c th-ql" style="width:8%">' + esc(myColHead) + '</th>';
 
     // Header nhóm như tab Giữa năm: icon và tên trong .rv-type, bảng trong .rv-table-wrap
-    return '<div class="rv-section"><div class="rv-section-hd"><i class="bx ' + t.icon + '"></i>' +
+    return '<div class="rv-section yer-sec-' + type + '"><div class="rv-section-hd"><i class="bx ' + t.icon + '"></i>' +
         '<span class="rv-type">' + esc(lg() === 'en' ? t.en : t.vi) + '</span>' +
         // QLTT thêm mục tiêu cho nhân viên thai sản ngay tại nhóm (§33, chốt 30/09/2026)
         (type !== 'how' && canAdd(p) ? '<button type="button" class="yer-add-goal" data-add-goal="' + type + '"><i class="bx bx-plus"></i>' +
@@ -892,6 +1058,7 @@
 
   function afterRender(p, canEdit) {
     mountSteps(p);
+    mountMascot(p, canEdit);
     bindFloatingToolbar();
     // Bảng dựng lại mỗi lần render nên gắn lại tooltip và popup chi tiết mục tiêu
     if (window.bindReviewGoalRows) window.bindReviewGoalRows(el('yer-mgr-detail-root'));
@@ -918,16 +1085,10 @@
     var ed = el('yer-md-edit');
     if (ed) ed.addEventListener('click', function () {
       if (typeof window.hideTip === 'function') window.hideTip();
-      editingMem[editKey(p)] = true;
-      render();
+      confirmReopen(p);
     });
     var cancel = el('yer-md-cancel-edit');
-    if (cancel) cancel.addEventListener('click', function () {
-      delete editingMem[editKey(p)];
-      S.clearAct(p.id, draftKey());
-      U.dirty.clear();
-      render();
-    });
+    if (cancel) cancel.addEventListener('click', function () { confirmCancelEdit(p); });
     var sb = el('yer-md-submit');
     if (sb) sb.addEventListener('click', function () { collectEditors(); submit(p); });
     var back = el('yer-md-back');
@@ -1050,19 +1211,22 @@
     var score = draft.overall.score;
     var over = Y.overRatingCap(p, score);
     var cap = Y.ratingCapText(p, score, lg());
-    var lead = L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết ngày ',
-              'You can continue editing your review until the end of ') + Y.fmt(Y.managerEditWindow(role(), p).to, lg()) + '. ' +
+    /* Popup xác nhận gửi (chốt 04/10/2026): hai gạch đầu dòng, ngày giờ in đậm, như popup gửi của E-05 (§8.1) */
+    var due = esc(Y.fmt(Y.managerEditWindow(role(), p).to, lg()));
+    var lead = '<ul class="yer-dlg-list"><li>' +
+        L('Bạn có thể tiếp tục chỉnh sửa đánh giá của mình tới hết <strong>18:00 ngày ' + due + '</strong>.',
+          'You can keep editing your review until <strong>18:00 on ' + due + '</strong>.') + '</li><li>' +
         (isLm()
-          ? L('Nhân viên đọc được điểm từng mục tiêu và các ô nhận xét của bạn, nhưng không thấy điểm toàn diện.',
-              'The employee can see your goal scores and comments, but never your overall rating.')
+          ? L('Nhân viên có thể xem được điểm từng mục tiêu và ô nhận xét của bạn, nhưng không thấy điểm toàn diện.',
+              'The employee can see your goal scores and comments, but not your overall rating.')
           : L('Nhân viên không thấy điểm toàn diện của cấp quản lý.',
-              'The employee cannot see manager-level overall ratings.'));
+              'The employee cannot see manager-level overall ratings.')) + '</li></ul>';
     U.dialog({
       title: updating
         ? L('Lưu thay đổi đánh giá?', 'Save review changes?')
-        : isLm() ? L('Gửi đánh giá cho nhân viên này?', 'Submit this review?')
-                 : L('Lưu điểm cho nhân viên này?', 'Save this rating?'),
-      html: '<p>' + esc(lead) + '</p>' + (over
+        : isLm() ? L('Xác nhận gửi đánh giá cho nhân viên', 'Confirm submitting the review')
+                 : L('Xác nhận lưu điểm cho nhân viên', 'Confirm saving the rating'),
+      html: lead + (over
         // Hệ thống không chặn điểm, nhưng người chấm phải tự xác nhận (§27.3)
         ? '<div class="yer-cap-confirm"><i class="bx bx-error"></i><div>' +
             '<div>' + esc(Y.lateMeasureText(p, lg())) + '</div>' +
@@ -1140,88 +1304,166 @@
     }).join('');
   }
 
+  // Ghi chú chung của popup, mỗi ý một gạch đầu dòng, gọi tên vai `QLTT` (chốt 04/10/2026)
   function goalNote() {
-    return '<div class="yer-gd-note"><i class="bx bx-info-circle"></i><span>' +
-      L('Mục tiêu bạn thêm được ghi nhận <strong>Đã duyệt</strong> ngay, không qua bước phê duyệt, và mang nhãn <strong>QLTT thêm</strong> để phân biệt với mục tiêu nhân viên tự tạo. Mục tiêu này chỉ nằm ở tab Đánh giá cuối năm, không thêm vào tab Danh sách mục tiêu của nhân viên. Sau khi thêm, bạn không sửa hay xóa được mục tiêu này, và không sửa được mục tiêu nhân viên đã tạo.',
-        'Goals you add are <strong>approved</strong> at once, skip the approval step and carry an <strong>Added by manager</strong> label to set them apart from the employee\'s own goals. They live only in the Year-End Review tab and are not added to the employee goal list. Once added, you cannot edit or remove them, nor edit goals the employee created.') +
-      '</span></div>';
+    return '<div class="info-note yer-gd-note"><span class="proc-lbl">' + L('Lưu ý', 'Note') + '</span><ul>' +
+      '<li>' + L('Mục tiêu QLTT thêm được ghi nhận <strong>Đã duyệt</strong> ngay, không qua bước phê duyệt, và mang nhãn <strong>QLTT thêm</strong>.',
+        'Goals the line manager adds are <strong>approved</strong> at once, skip the approval step and carry an <strong>Added by manager</strong> label.') + '</li>' +
+      '<li>' + L('Mục tiêu này chỉ nằm ở tab Đánh giá cuối năm, không thêm vào tab Danh sách mục tiêu của nhân viên.',
+        'These goals live only in the Year-End Review tab and are not added to the employee goal list.') + '</li>' +
+      '<li>' + L('Sau khi thêm, QLTT không sửa hay xóa được mục tiêu này, và không sửa được mục tiêu nhân viên đã tạo.',
+        'Once added, the line manager cannot edit or remove them, nor edit goals the employee created.') + '</li>' +
+      '</ul></div>';
   }
 
-  /* keep: { mode: 'manual'|'upload', type, title, result, prio, s, e, parsed, fileName } */
+  // Ô soạn thảo dạng (A) neutral của DS COMPONENTS §15, như popup Tạo mục tiêu mới của E-05
+  function rteHtml(id, placeholder, max, value, large) {
+    return '<div class="rte-wrap" id="' + id + '-wrap">' +
+      '<div class="rte-toolbar" onmousedown="event.preventDefault()">' +
+        '<button type="button" class="rte-btn" data-gd-cmd="bold" title="' + esc(L('In đậm', 'Bold')) + '"><b>B</b></button>' +
+        '<button type="button" class="rte-btn" data-gd-cmd="italic" title="' + esc(L('In nghiêng', 'Italic')) + '"><span style="font-style:italic">I</span></button>' +
+        '<button type="button" class="rte-btn" data-gd-cmd="underline" title="' + esc(L('Gạch chân', 'Underline')) + '"><u>U</u></button>' +
+        '<div class="rte-sep"></div>' +
+        '<button type="button" class="rte-btn" data-gd-cmd="insertUnorderedList" title="' + esc(L('Danh sách', 'List')) + '"><i class="bx bx-list-ul" style="font-size:16px"></i></button>' +
+      '</div>' +
+      '<div class="rte-body' + (large ? ' rte-lg' : '') + '" contenteditable="true" id="' + id + '" data-max="' + max + '" data-placeholder="' + esc(placeholder) + '">' +
+        esc(value || '') + '</div></div>' +
+      '<div class="fcnt" id="' + id + '-cnt">' + String(value || '').length + ' / ' + max + '</div>';
+  }
+  function dmyToIso(v, year) {
+    var m = /^(\d{2})\/(\d{2})$/.exec(String(v || ''));
+    return m ? year + '-' + m[2] + '-' + m[1] : '';
+  }
+  function isoToDm(v) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v || ''));
+    return m ? m[3] + '/' + m[2] : '';
+  }
+
+  /* Popup thêm mục tiêu cho nhân viên thai sản (chốt lại 04/10/2026):
+     - Hai thẻ `Nhập tay` / `Import mục tiêu` ở góc phải tiêu đề popup.
+     - `Nhập tay` cùng trường và cùng kiểu với popup Tạo mục tiêu mới của E-05: Loại mục tiêu; hàng Mức độ ưu tiên (chỉ mục
+       tiêu công việc), Từ ngày, Đến ngày; Tên mục tiêu và Kết quả cần đạt dạng ô soạn thảo có bộ đếm.
+     - `Import mục tiêu` cùng các bước của popup Import mục tiêu của E-05: tải Template, chọn file, Đọc file, Import.
+     keep: { mode: 'manual'|'upload', type, title, result, prio, s, e, fileName, fileText, parsed } */
   function openGoalDialog(p, keep) {
-    keep = Object.assign({ mode: 'manual', type: '', title: '', result: '', prio: 'm', s: '01/01', e: '31/12', parsed: null, fileName: '' }, keep || {});
+    keep = Object.assign({ mode: 'manual', type: '', title: '', result: '', prio: 'm', s: '01/01', e: '31/12',
+      fileName: '', fileText: '', parsed: null }, keep || {});
     if (!keep.type) keep.type = p.eligibility.missingWhat ? 'what' : 'dev';
     var manual = keep.mode === 'manual';
+    var year = String(Y.step('self').from).slice(0, 4) - 1; // chu kỳ 2026
     var tabs = '<div class="yer-gd-tabs" role="tablist">' +
       '<button type="button" class="yer-gd-tab' + (manual ? ' on' : '') + '" data-gd-mode="manual"><i class="bx bx-edit"></i>' + L('Nhập tay', 'Enter by hand') + '</button>' +
-      '<button type="button" class="yer-gd-tab' + (!manual ? ' on' : '') + '" data-gd-mode="upload"><i class="bx bx-upload"></i>' + L('Tải file', 'Upload a file') + '</button></div>';
+      '<button type="button" class="yer-gd-tab' + (!manual ? ' on' : '') + '" data-gd-mode="upload"><i class="bx bx-upload"></i>' + L('Import mục tiêu', 'Import goals') + '</button></div>';
+    var isWhat = keep.type === 'what';
     var body = manual
-      ? '<div class="yer-gd-grid">' +
-          '<label class="yer-gd-f"><span>' + L('Loại mục tiêu', 'Goal type') + '<b>*</b></span><select id="yer-gd-type" class="yer-gd-in">' + typeOptions(keep.type) + '</select></label>' +
-          '<label class="yer-gd-f yer-gd-prio"' + (keep.type === 'what' ? '' : ' hidden') + '><span>' + L('Ưu tiên', 'Priority') + '</span><select id="yer-gd-prio" class="yer-gd-in">' +
-            ['h', 'm', 'l'].map(function (k) { return '<option value="' + k + '"' + (keep.prio === k ? ' selected' : '') + '>' + esc(lg() === 'en' ? PRIO[k].en : PRIO[k].vi) + '</option>'; }).join('') +
-          '</select></label>' +
-          '<label class="yer-gd-f yer-gd-wide"><span>' + L('Tên mục tiêu', 'Goal title') + '<b>*</b></span><input id="yer-gd-title" class="yer-gd-in" maxlength="200" value="' + esc(keep.title) + '"></label>' +
-          '<label class="yer-gd-f yer-gd-wide"><span>' + L('Kết quả cần đạt', 'Expected result') + '<b>*</b></span><textarea id="yer-gd-result" class="yer-gd-in" rows="3" maxlength="500">' + esc(keep.result) + '</textarea></label>' +
-          '<label class="yer-gd-f"><span>' + L('Bắt đầu (dd/mm)', 'Start (dd/mm)') + '</span><input id="yer-gd-s" class="yer-gd-in" value="' + esc(keep.s) + '"></label>' +
-          '<label class="yer-gd-f"><span>' + L('Kết thúc (dd/mm)', 'End (dd/mm)') + '</span><input id="yer-gd-e" class="yer-gd-in" value="' + esc(keep.e) + '"></label>' +
-        '</div>'
-      : '<ol class="yer-up-steps">' +
-          '<li><div class="yer-up-t">' + L('Tải file mẫu', 'Download the template') + '</div>' +
-            '<div class="yer-up-d">' + L('Mỗi dòng một mục tiêu: loại (WHAT hoặc DEVELOPMENT), tên, kết quả cần đạt, ưu tiên, thời gian.', 'One goal per row: type (WHAT or DEVELOPMENT), title, expected result, priority, dates.') + '</div>' +
-            '<button type="button" class="btn btn-outline btn-sm" id="yer-gd-tpl"><i class="bx bx-download"></i>' + L('Tải file mẫu (.csv)', 'Download template (.csv)') + '</button></li>' +
-          '<li><div class="yer-up-t">' + L('Tải file lên', 'Upload the file') + '</div>' +
-            '<button type="button" class="btn btn-default btn-sm" id="yer-gd-pick"><i class="bx bx-upload"></i>' + L('Chọn file', 'Choose a file') + '</button>' +
-            (keep.fileName ? '<span class="yer-gd-file"><i class="bx bx-file"></i>' + esc(keep.fileName) + '</span>' : '') +
-            '<input type="file" id="yer-gd-input" accept=".csv" hidden></li>' +
+      ? '<div class="fg"><label class="flbl" for="yer-gd-type">' + L('Loại mục tiêu', 'Goal type') + ' <span class="req">*</span></label>' +
+          '<select class="fc" id="yer-gd-type">' + typeOptions(keep.type) + '</select></div>' +
+        '<div class="fg"><div class="frow3" id="yer-gd-row" style="grid-template-columns:' + (isWhat ? '1fr 1fr 1fr' : '1fr 1fr') + '">' +
+          '<div class="yer-gd-prio"' + (isWhat ? '' : ' hidden') + '><label class="flbl" for="yer-gd-prio">' + L('Mức độ ưu tiên', 'Priority') + ' <span class="req">*</span></label>' +
+            '<select class="fc" id="yer-gd-prio">' + ['h', 'm', 'l'].map(function (k) {
+              return '<option value="' + k + '"' + (keep.prio === k ? ' selected' : '') + '>' + esc(lg() === 'en' ? PRIO[k].en : PRIO[k].vi) + '</option>';
+            }).join('') + '</select></div>' +
+          '<div><label class="flbl" for="yer-gd-s">' + L('Từ ngày', 'From') + ' <span class="req">*</span></label>' +
+            '<input type="date" class="fc" id="yer-gd-s" value="' + esc(dmyToIso(keep.s, year)) + '"></div>' +
+          '<div><label class="flbl" for="yer-gd-e">' + L('Đến ngày', 'To') + ' <span class="req">*</span></label>' +
+            '<input type="date" class="fc" id="yer-gd-e" value="' + esc(dmyToIso(keep.e, year)) + '"></div>' +
+        '</div></div>' +
+        '<div class="fg"><label class="flbl" for="yer-gd-title">' + L('Tên Mục tiêu', 'Goal title') + ' <span class="req">*</span></label>' +
+          rteHtml('yer-gd-title', L('Mô tả ngắn gọn mục tiêu cần đạt...', 'A short description of the goal...'), 1000, keep.title) + '</div>' +
+        '<div class="fg"><label class="flbl" for="yer-gd-result">' + L('Kết quả cần đạt', 'Expected result') + ' <span class="req">*</span></label>' +
+          rteHtml('yer-gd-result', L('KPI, Key Results và cách đo lường định lượng...', 'KPIs, key results and how they are measured...'), 4000, keep.result, true) + '</div>'
+      : '<ol class="imp-steps">' +
+          '<li class="imp-step"><span class="proc-num">1</span><div class="imp-txt">' +
+            L('Tải xuống Template và điền thông tin theo đúng định dạng: mỗi dòng một mục tiêu, loại <strong>WHAT</strong> (Mục tiêu công việc) hoặc <strong>DEVELOPMENT</strong> (Mục tiêu phát triển).',
+              'Download the template and fill it in: one goal per row, type <strong>WHAT</strong> (work goal) or <strong>DEVELOPMENT</strong> (development goal).') +
+            '<div><button type="button" class="btn btn-outline btn-sm" id="yer-gd-tpl" style="margin-top:8px"><i class="bx bx-download"></i> ' + L('Tải Template', 'Download template') + '</button></div></div></li>' +
+          '<li class="imp-step"><span class="proc-num">2</span><div class="imp-txt">' +
+            L('Tải lên tập tin đã điền thông tin.', 'Upload the completed file.') +
+            '<div class="imp-drop" id="yer-gd-pick" role="button" tabindex="0"><i class="bx bx-cloud-upload"></i>' +
+              (keep.fileName ? esc(keep.fileName) : L('Kéo thả hoặc bấm để chọn tập tin (.csv)', 'Drag and drop or click to choose a file (.csv)')) + '</div>' +
+            '<input type="file" id="yer-gd-input" accept=".csv" hidden></div></li>' +
+          '<li class="imp-step"><span class="proc-num">3</span><div class="imp-txt">' +
+            L('Bấm <strong>Đọc file</strong> để hệ thống kiểm tra dữ liệu.', 'Choose <strong>Read file</strong> to check the data.') + '</div></li>' +
+          '<li class="imp-step"><span class="proc-num">4</span><div class="imp-txt">' +
+            L('Bấm <strong>Import</strong> để thêm toàn bộ mục tiêu hợp lệ cho nhân viên.', 'Choose <strong>Import</strong> to add every valid goal for the employee.') + '</div></li>' +
         '</ol>' +
         (keep.parsed ? '<div class="yer-gd-prev"><div class="yer-gd-prev-hd">' +
-            L('Xem trước: ' + keep.parsed.ok.length + ' mục tiêu hợp lệ', 'Preview: ' + keep.parsed.ok.length + ' valid goals') +
+            L('Kết quả đọc file: ' + keep.parsed.ok.length + ' mục tiêu hợp lệ', 'File check: ' + keep.parsed.ok.length + ' valid goals') +
             (keep.parsed.bad ? L(', bỏ qua ' + keep.parsed.bad + ' dòng thiếu thông tin', ', ' + keep.parsed.bad + ' incomplete rows skipped') : '') + '</div>' +
             '<ul>' + keep.parsed.ok.map(function (g) {
               return '<li><span class="yer-gd-tag">' + esc(lg() === 'en' ? TYPE[g.type].en : TYPE[g.type].vi) + '</span>' + esc(g.title) + '</li>';
             }).join('') + '</ul></div>' : '');
+
+    var importCount = keep.parsed ? keep.parsed.ok.length : 0;
     U.dialog({
       title: L('Thêm mục tiêu cho nhân viên thai sản', 'Add goals for the employee on maternity leave'),
       className: 'yer-gd-dlg',
-      html: '<div class="yer-gd-emp"><strong>' + esc(p.emp.name) + '</strong> <span class="er-login">(' + esc(p.emp.login) + ')</span></div>' +
-        tabs + body + goalNote(),
-      buttons: [
+      html: tabs + '<div class="yer-gd-emp"><strong>' + esc(p.emp.name) + '</strong> <span class="er-login">(' + esc(p.emp.login) + ')</span></div>' +
+        body + goalNote(),
+      buttons: manual ? [
         { label: L('Hủy', 'Cancel'), variant: 'quiet' },
-        manual
-          ? { label: L('Thêm mục tiêu', 'Add goal'), variant: 'default', icon: 'bx-plus', act: function () {
-                var v = readManual();
-                var miss = [];
-                if (!v.title) miss.push(L('tên mục tiêu', 'title'));
-                if (!v.result) miss.push(L('kết quả cần đạt', 'expected result'));
-                if (!DATE_RE.test(v.s) || !DATE_RE.test(v.e)) miss.push(L('thời gian dạng dd/mm', 'dates as dd/mm'));
-                if (miss.length) {
-                  U.toast(L('Cần nhập: ', 'Please fill in: ') + miss.join(', '));
-                  openGoalDialog(p, Object.assign(v, { mode: 'manual' }));
-                  return;
-                }
-                saveLmGoals(p, [{ type: v.type, title: v.title, result: v.result, prio: v.type === 'what' ? v.prio : null, s: v.s, e: v.e }], 'manual');
-                U.toast(L('Đã thêm mục tiêu, trạng thái Đã duyệt', 'Goal added and approved'));
-                render();
-              } }
-          : { label: keep.parsed && keep.parsed.ok.length ? L('Thêm ' + keep.parsed.ok.length + ' mục tiêu', 'Add ' + keep.parsed.ok.length + ' goals') : L('Thêm mục tiêu', 'Add goals'),
-              variant: 'default', icon: 'bx-plus', act: function () {
-                if (!keep.parsed || !keep.parsed.ok.length) {
-                  U.toast(L('Chọn file có ít nhất một mục tiêu hợp lệ', 'Choose a file with at least one valid goal'));
-                  openGoalDialog(p, keep);
-                  return;
-                }
-                saveLmGoals(p, keep.parsed.ok, 'upload');
-                U.toast(L('Đã thêm ' + keep.parsed.ok.length + ' mục tiêu, trạng thái Đã duyệt', keep.parsed.ok.length + ' goals added and approved'));
-                render();
-              } }
+        { label: L('Thêm mục tiêu', 'Add goal'), variant: 'default', icon: 'bx-plus', act: function () {
+            var v = readManual();
+            var miss = [];
+            if (v.type === 'what' && !v.prio) miss.push(L('mức độ ưu tiên', 'priority'));
+            if (!v.s || !v.e) miss.push(L('thời gian', 'dates'));
+            if (!v.title) miss.push(L('tên mục tiêu', 'title'));
+            if (!v.result) miss.push(L('kết quả cần đạt', 'expected result'));
+            if (miss.length) {
+              U.toast(L('Cần nhập: ', 'Please fill in: ') + miss.join(', '));
+              openGoalDialog(p, Object.assign(keep, v, { mode: 'manual' }));
+              return;
+            }
+            saveLmGoals(p, [{ type: v.type, title: v.title, result: v.result, prio: v.type === 'what' ? v.prio : null, s: v.s, e: v.e }], 'manual');
+            U.toast(L('Đã thêm mục tiêu, trạng thái Đã duyệt', 'Goal added and approved'));
+            render();
+          } }
+      ] : [
+        { label: L('Hủy', 'Cancel'), variant: 'quiet' },
+        { label: L('Đọc file', 'Read file'), variant: 'outline', act: function () {
+            if (!keep.fileText) {
+              U.toast(L('Chọn tập tin trước khi đọc', 'Choose a file first'));
+              openGoalDialog(p, keep);
+              return;
+            }
+            openGoalDialog(p, Object.assign(keep, { parsed: parseGoalCsv(keep.fileText) }));
+          } },
+        { label: importCount ? L('Import ' + importCount + ' mục tiêu', 'Import ' + importCount + ' goals') : 'Import',
+          variant: 'default', icon: 'bx-upload', act: function () {
+            if (!importCount) {
+              U.toast(L('Đọc file và cần ít nhất một mục tiêu hợp lệ trước khi Import', 'Read a file with at least one valid goal before importing'));
+              openGoalDialog(p, keep);
+              return;
+            }
+            saveLmGoals(p, keep.parsed.ok, 'upload');
+            U.toast(L('Đã thêm ' + importCount + ' mục tiêu, trạng thái Đã duyệt', importCount + ' goals added and approved'));
+            render();
+          } }
       ]
     });
     // Popup đóng trước khi chạy nút, nên giá trị các ô được ghi vào keep ngay khi nhập
-    ['type', 'prio', 'title', 'result', 's', 'e'].forEach(function (k) {
-      var f = el('yer-gd-' + k);
-      if (!f) return;
-      ['input', 'change'].forEach(function (ev) { f.addEventListener(ev, function () { keep[k] = f.value; }); });
+    function bindVal(id, key, map) {
+      var node = el(id);
+      if (!node) return;
+      ['input', 'change'].forEach(function (ev) {
+        node.addEventListener(ev, function () { keep[key] = map ? map(node.value) : node.value; });
+      });
+    }
+    bindVal('yer-gd-type', 'type');
+    bindVal('yer-gd-prio', 'prio');
+    bindVal('yer-gd-s', 's', isoToDm);
+    bindVal('yer-gd-e', 'e', isoToDm);
+    ['title', 'result'].forEach(function (k) {
+      var node = el('yer-gd-' + k);
+      if (!node) return;
+      node.addEventListener('input', function () {
+        keep[k] = node.innerText.trim();
+        var cnt = el('yer-gd-' + k + '-cnt');
+        if (cnt) cnt.textContent = keep[k].length + ' / ' + node.dataset.max;
+      });
+    });
+    document.querySelectorAll('.yer-gd-dlg [data-gd-cmd]').forEach(function (b) {
+      b.addEventListener('click', function () { document.execCommand(b.dataset.gdCmd, false, null); });
     });
     function readManual() {
       return {
@@ -1234,28 +1476,33 @@
     document.querySelectorAll('.yer-gd-dlg [data-gd-mode]').forEach(function (b) {
       b.addEventListener('click', function () {
         if (b.dataset.gdMode === keep.mode) return;
-        var next = manual ? Object.assign(keep, readManual()) : keep;
         closeTop();
-        openGoalDialog(p, Object.assign(next, { mode: b.dataset.gdMode }));
+        openGoalDialog(p, Object.assign(keep, { mode: b.dataset.gdMode }));
       });
     });
     var typeSel = el('yer-gd-type');
     if (typeSel) typeSel.addEventListener('change', function () {
-      var pr = document.querySelector('.yer-gd-prio');
-      if (pr) pr.hidden = typeSel.value !== 'what';
+      // Mục tiêu phát triển không có mức độ ưu tiên, hàng còn hai cột như E-05
+      var pr = document.querySelector('.yer-gd-prio'), row = el('yer-gd-row');
+      var what = typeSel.value === 'what';
+      if (pr) pr.hidden = !what;
+      if (row) row.style.gridTemplateColumns = what ? '1fr 1fr 1fr' : '1fr 1fr';
     });
     var tpl = el('yer-gd-tpl'), pick = el('yer-gd-pick'), input = el('yer-gd-input');
     if (tpl) tpl.addEventListener('click', downloadGoalTemplate);
-    if (pick) pick.addEventListener('click', function () { input.click(); });
+    if (pick) {
+      pick.addEventListener('click', function () { input.click(); });
+      pick.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+    }
     if (input) input.addEventListener('change', function () {
-      var f = input.files && input.files[0];
-      if (!f) return;
+      var file = input.files && input.files[0];
+      if (!file) return;
       var reader = new FileReader();
       reader.onload = function () {
         closeTop();
-        openGoalDialog(p, Object.assign(keep, { mode: 'upload', fileName: f.name, parsed: parseGoalCsv(String(reader.result || '')) }));
+        openGoalDialog(p, Object.assign(keep, { mode: 'upload', fileName: file.name, fileText: String(reader.result || ''), parsed: null }));
       };
-      reader.readAsText(f, 'utf-8');
+      reader.readAsText(file, 'utf-8');
     });
   }
 
@@ -1358,6 +1605,14 @@
       '#yer-mgr-detail-root .yer-late-closed>i{color:var(--warn)}' +
       '#yer-mgr-detail-root .yer-late-closed strong{color:var(--z900);font-weight:700}' +
       '#yer-mgr-detail-root .yer-late-wait p{margin:4px 0 0}' +
+      // Khối đang chỉnh sửa, cùng kiểu .yer-note.action của E-05
+      '#yer-mgr-detail-root .yer-note.action{background:var(--brand-muted);border-color:var(--brand-ring);color:var(--z800)}' +
+      '#yer-mgr-detail-root .yer-note.action>i{color:var(--brand)}' +
+      '#yer-mgr-detail-root .yer-note .yn-cta{margin-left:auto;flex:none;align-self:center}' +
+      '#yer-mgr-detail-root .yer-edit-note strong{color:var(--z900);font-weight:700}' +
+      '.yer-dlg-p{margin-top:8px}' +
+      '.yer-dlg-list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}' +
+      '.yer-dlg-list strong,.yer-dlg-p strong{color:var(--z900);font-weight:600}' +
       // Nhãn Trễ hạn trong banner: màu đỏ như E-05 (DS §19 rule 24)
       '.yer-late-status{display:inline-flex;align-items:center;padding:1px 6px;border:1px solid var(--err-bd);border-radius:99px;' +
         'background:var(--err-bg);color:var(--err);font-size:10.5px;font-weight:700;line-height:1.5}' +
@@ -1400,29 +1655,23 @@
       '.g-lm-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border:1px solid var(--info-bd);border-radius:50px;' +
         'background:var(--info-bg);color:var(--info);font-size:11px;font-weight:500;white-space:nowrap;cursor:help}' +
       '.g-lm-chip i{font-size:12px}' +
-      '.yer-gd-dlg{width:min(620px,calc(100vw - 32px));max-width:none}' +
-      '.yer-gd-emp{font-size:13.5px;color:var(--z900);margin-bottom:10px}' +
-      '.yer-gd-tabs{display:inline-flex;gap:2px;padding:3px;margin-bottom:14px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}' +
-      '.yer-gd-tab{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:0;border-radius:var(--rxs);background:transparent;' +
-        'font-family:inherit;font-size:12.5px;color:var(--z600);cursor:pointer}' +
+      // Popup thêm mục tiêu: rộng như popup Import của E-05, hai thẻ ở góc phải tiêu đề (chốt 04/10/2026)
+      '.yer-gd-dlg{width:min(640px,calc(100vw - 32px));max-width:none;max-height:calc(100vh - 32px);display:flex;flex-direction:column}' +
+      '.yer-gd-dlg .pms-dlg-bd{flex:1 1 auto;min-height:0;overflow-y:auto}' +
+      '.yer-gd-dlg .pms-dlg-ti{padding-right:250px}' +
+      '.yer-gd-dlg .pms-dlg-tx{color:var(--z700)}' +
+      '.yer-gd-tabs{position:absolute;top:13px;right:46px;display:inline-flex;gap:2px;padding:3px;border:1px solid var(--z200);border-radius:var(--rsm);background:var(--z50)}' +
+      '.yer-gd-tab{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:0;border-radius:var(--rxs);background:transparent;' +
+        'font-family:inherit;font-size:12px;color:var(--z600);cursor:pointer}' +
       '.yer-gd-tab.on{background:var(--z0);color:var(--brand);font-weight:600;box-shadow:var(--sh-sm)}' +
-      '.yer-gd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}' +
-      '.yer-gd-f{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500)}' +
-      '.yer-gd-f[hidden]{display:none}' +
-      '.yer-gd-f b{color:var(--err);margin-left:2px}' +
-      '.yer-gd-wide{grid-column:1 / -1}' +
-      '.yer-gd-in{width:100%;padding:7px 10px;border:1px solid var(--z200);border-radius:var(--rsm);font-family:inherit;font-size:13px;' +
-        'font-weight:400;text-transform:none;letter-spacing:0;color:var(--z900);background:var(--z0);resize:vertical}' +
-      '.yer-gd-in:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}' +
-      '.yer-gd-note{display:flex;gap:6px;align-items:flex-start;margin-top:14px;padding:9px 12px;border:1px solid var(--z200);' +
-        'border-radius:var(--rsm);background:var(--z50);font-size:12px;color:var(--z600);line-height:1.5}' +
-      '.yer-gd-note i{font-size:14px;margin-top:1px;color:var(--z500)}' +
-      '.yer-gd-note strong{color:var(--z800);font-weight:600}' +
-      '.yer-up-steps{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:14px}' +
-      '.yer-up-steps li{font-size:13px;color:var(--z700)}' +
-      '.yer-up-t{font-weight:600;color:var(--z900);margin-bottom:2px}' +
-      '.yer-up-d{font-size:12.5px;color:var(--z600);margin-bottom:6px}' +
-      '.yer-gd-file{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:12px;color:var(--z700)}' +
+      '.yer-gd-emp{font-size:13px;color:var(--z900);margin:2px 0 12px}' +
+      '.yer-gd-prio[hidden]{display:none}' +
+      '.yer-gd-dlg .fcnt{margin-top:2px}' +
+      '.yer-gd-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;padding:10px 12px;border:1px solid var(--z200);border-radius:var(--rsm);' +
+        'background:var(--z50);font-size:12.5px;line-height:1.55;color:var(--z700)}' +
+      '.yer-gd-note .proc-lbl{margin-top:1px}' +
+      '.yer-gd-note ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:2px}' +
+      '.yer-gd-note strong{color:var(--z900);font-weight:600}' +
       '.yer-gd-prev{margin-top:12px;padding:9px 12px;border:1px solid var(--ok-bd);border-radius:var(--rsm);background:var(--ok-bg)}' +
       '.yer-gd-prev-hd{font-size:12px;font-weight:600;color:var(--z800);margin-bottom:6px}' +
       '.yer-gd-prev ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}' +
@@ -1470,6 +1719,11 @@
   function boot() {
     Y = window.PMSYer; S = window.PMSStore; I = window.PMSI18n; U = window.PMSUi;
     if (!Y || !S || !I || !U) return;
+    /* M-06 chỉ có showTip(el) đọc data-tip; các nút của tab Cuối năm gọi tip(el, text) như M-05. Thiếu hàm này thì
+       tooltip của nút tải, Chỉnh sửa, chip QLTT thêm không hiện (sửa 04/10/2026). */
+    if (typeof window.tip !== 'function' && typeof window.showTip === 'function') {
+      window.tip = function (node, text) { if (text) node.dataset.tip = text; window.showTip(node); };
+    }
     injectCss();
     var slot = el('lang-slot');
     if (slot && !slot.childElementCount) I.mountToggle(slot);

@@ -187,6 +187,10 @@
     '.pms-btn-quiet{background:var(--z0);border-color:var(--z200);color:var(--z600)}',
     '.pms-btn-quiet:hover{background:var(--z100);border-color:var(--z300);color:var(--z900)}',
 
+    /* ── mascot hướng dẫn (YER-SPEC §43): E-05 và M-06 dùng chung U.mascotGuide ── */
+    '.tabs:has(.yer-mascot-guide){position:relative;padding-right:48px}',
+    '.yer-mascot-guide{position:absolute;right:5px;top:50%;z-index:12;transform:translateY(-50%);display:none}.tabs:has(#tab-yer.on) .yer-mascot-guide{display:block}.yer-mascot-trigger{position:relative;width:34px;height:34px;padding:2px;border:1px solid var(--brand-ring);border-radius:11px;background:linear-gradient(145deg,#fff 15%,var(--brand-muted));box-shadow:0 3px 11px rgba(65,18,47,.13);cursor:pointer;display:grid;place-items:center;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.yer-mascot-trigger:hover,.yer-mascot-trigger:focus-visible{transform:translateY(-1px);background:#fff;box-shadow:0 5px 16px rgba(165,0,100,.19);outline:none}.yer-mascot-trigger:focus-visible{box-shadow:0 0 0 3px rgba(249,83,150,.22),0 6px 18px rgba(165,0,100,.20)}.yer-mascot-trigger img{width:28px;height:28px;object-fit:contain;display:block}.yer-mascot-trigger:hover img,.yer-mascot-trigger:focus-visible img{animation:yer-hello .72s ease-in-out 1}.yer-mascot-dot{position:absolute;left:-2px;top:-3px;width:8px;height:8px;border:2px solid #fff;border-radius:50%;background:var(--brand)}.yer-mascot-bubble{position:absolute;right:42px;top:50%;width:300px;padding:12px 14px;border:1px solid var(--brand-ring);border-radius:12px;background:#fff;color:var(--z600);font-size:12px;line-height:1.5;box-shadow:0 12px 32px rgba(24,24,27,.16);opacity:0;visibility:hidden;pointer-events:none;transform:translate(7px,-50%) scale(.985);transform-origin:right center;transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s}.yer-mascot-guide:hover .yer-mascot-bubble,.yer-mascot-guide:focus-within .yer-mascot-bubble{opacity:1;visibility:visible;transform:translate(0,-50%);transition-delay:0s}.yer-mascot-bubble:after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);border:7px solid transparent;border-left-color:#fff}.yer-mascot-step{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-weight:700;white-space:nowrap}.yer-mascot-guide.stuck{position:fixed;right:10px;top:50%;transform:translateY(-50%)}.yer-mascot-title{font-size:13px;font-weight:700;color:var(--z900);margin-bottom:3px}.yer-mascot-state{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-size:10.5px;font-weight:700}body.pms-tour-open .yer-mascot-guide{display:none!important}@keyframes yer-hello{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-4deg) translateY(-1px)}65%{transform:rotate(3deg)}}@media(prefers-reduced-motion:reduce){.yer-mascot-trigger,.yer-mascot-bubble{transition:none}.yer-mascot-trigger img{animation:none!important}}@media(max-width:700px){.yer-mascot-bubble{width:min(284px,calc(100vw - 64px))}}',
+
     /* ── toast ── */
     '.pms-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:1500;background:var(--z900);',
     'color:#fff;font-size:13px;font-weight:500;padding:9px 15px;border-radius:var(--rsm);display:flex;align-items:center;',
@@ -672,6 +676,44 @@
     return { close: close };
   }
 
+  /* ═══ Mascot hướng dẫn (YER-SPEC §43) ═══════════
+     Đứng ở góc phải thanh tab, rê chuột thì vẫy tay và hiện bóng thoại, bấm thì chạy tourguide; cuộn xuống thì bám mép
+     phải màn hình. E-05 và M-06 cùng dùng, mỗi màn tự đưa câu chữ và các bước.
+     opts: { tabs: phần tử .tabs, title, stepLabel, intro, outro, ariaLabel, onStart } */
+  function mascotGuide(opts) {
+    injectCss();
+    var tabs = opts && opts.tabs;
+    if (!tabs) return null;
+    var old = document.getElementById('yer-mascot-guide');
+    if (old) old.remove();
+    var wrap = document.createElement('div');
+    wrap.id = 'yer-mascot-guide';
+    wrap.className = 'yer-mascot-guide';
+    wrap.innerHTML = '<div class="yer-mascot-bubble" id="yer-mascot-bubble" role="tooltip">' +
+      '<div class="yer-mascot-title">' + esc(opts.title || '') + '</div>' +
+      '<div>' + esc(opts.intro || '') + '<span class="yer-mascot-step">' + esc(opts.stepLabel || '') + '</span>' + esc(opts.outro || '') + '</div></div>' +
+      '<button type="button" class="yer-mascot-trigger" aria-label="' + esc(opts.ariaLabel || '') + '" aria-describedby="yer-mascot-bubble">' +
+      '<img src="../assets/mascot/idle.png" alt=""><span class="yer-mascot-dot" aria-hidden="true"></span></button>';
+    tabs.appendChild(wrap);
+    var btn = wrap.querySelector('.yer-mascot-trigger');
+    var img = wrap.querySelector('img');
+    function pose(name) { img.src = '../assets/mascot/' + name; }
+    btn.addEventListener('mouseenter', function () { pose('wave.png'); });
+    btn.addEventListener('mouseleave', function () { pose('idle.png'); });
+    btn.addEventListener('focus', function () { pose('wave.png'); });
+    btn.addEventListener('blur', function () { pose('idle.png'); });
+    btn.addEventListener('click', function () { btn.blur(); pose('cheer.png'); if (opts.onStart) opts.onStart(); });
+    // Cuộn xuống thì mascot rời thanh tab và bám sát mép phải màn hình
+    function syncStick() { wrap.classList.toggle('stuck', tabs.getBoundingClientRect().bottom < 8); }
+    window.removeEventListener('scroll', mascotGuide._stick, true);
+    window.removeEventListener('resize', mascotGuide._stick);
+    mascotGuide._stick = syncStick;
+    window.addEventListener('scroll', syncStick, true);
+    window.addEventListener('resize', syncStick);
+    syncStick();
+    return wrap;
+  }
+
   var toastEl = null, toastTimer = null;
   function toast(msg) {
     injectCss();
@@ -688,6 +730,7 @@
 
   window.PMSUi = {
     rating: rating,
+    mascotGuide: mascotGuide,
     tabs: tabs,
     steps: steps,
     tour: {

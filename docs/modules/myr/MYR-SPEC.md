@@ -38,8 +38,8 @@ Mã rule: `MYR-xx`. Dữ liệu dùng chung: `assets/employees-data.js` (`PMS_MY
 Chốt ngày 27/09/2026. Màn MYR (06/2026) và màn YER (09/2026) được dựng ở hai thời điểm khác nhau.
 Thanh Chế độ demo sinh ra ở giai đoạn YER.
 
-- **MYR-09a** Mặc định, tab Giữa năm (E-05, M-06) và chu kỳ Giữa năm (M-05) hiển thị **bình thường và độc lập** như lúc đang ở kỳ giữa năm: nhãn tab `Đang hoạt động`, nhân viên tự đánh giá, lưu nháp, gửi; Quản lý chấm được.
-- **MYR-09b** Chỉ khi người xem **chọn một use case trên thanh demo** (hoặc mở bằng `?scenario=`) và use case đó là của **chính nhân viên đang mở**, tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm: MYR-13, MYR-31, MYR-32, MYR-52, nhãn tab `Đã hoàn tất` màu xám, và mọi vai chỉ xem. Trên E-05, M-05 và M-06 nhãn tab luôn là `Đã hoàn tất` với mọi nhân viên, kể cả không có kết quả (YER-SPEC §18.4, `PMSYer.cycleTabLabel`, chốt 30/09/2026).
+- **MYR-09a** Mặc định, tab Giữa năm (E-05, M-06) và chu kỳ Giữa năm (M-05) hiển thị **bình thường và độc lập** như lúc đang ở kỳ giữa năm: nhân viên tự đánh giá, lưu nháp, gửi; Quản lý chấm được. Nhãn tab không theo mục này mà theo ngày (chốt 04/10/2026): trước ngày mở kỳ cuối năm `Đang hoạt động`, từ ngày mở kỳ cuối năm `Đã hoàn tất` màu xám, có hay không có use case (YER-SPEC §18.4, `PMSYer.cycleTabLabel`).
+- **MYR-09b** Chỉ khi người xem **chọn một use case trên thanh demo** (hoặc mở bằng `?scenario=`) và use case đó là của **chính nhân viên đang mở**, tab Giữa năm mới chuyển thành dữ liệu lịch sử của kỳ cuối năm: MYR-13, MYR-31, MYR-32, MYR-52, và mọi vai chỉ xem. Trên E-05, M-05 và M-06 nhãn tab luôn là `Đã hoàn tất` với mọi nhân viên, kể cả không có kết quả (YER-SPEC §18.4, `PMSYer.cycleTabLabel`, chốt 30/09/2026).
 - **MYR-09c** Rời use case (đổi vai, chọn `Hồ sơ khác`, Đặt lại) là quay về MYR-09a. Luật nằm ở `PMSYer.myrAsHistory(empId)` trong `assets/yer-model.js`; thanh demo ghi `scenario` vào phiên, `?scenario=` đọc xong thì gỡ khỏi URL.
 
 ## 3. Điều kiện tham gia

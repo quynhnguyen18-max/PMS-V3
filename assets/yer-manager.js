@@ -317,8 +317,9 @@
   }
 
   function actionCell(p) {
-    // LM2, HOD: AI Summary và xem chi tiết. Không có nút nhận xét riêng: bấm ô điểm là chấm và nhận xét (chốt 30/09/2026)
-    return '<td class="myr-action-cell"><div class="yer-mgr-acts">' + (gridRole() ? aiBtn(p) : '') + actionBtn(p) + '</div></td>';
+    // Mọi vai có AI Summary ở cột Chức năng khi hồ sơ đã có điểm (QLTT thêm 04/10/2026), rồi nút xem / đánh giá.
+    // LM2, HOD không có nút nhận xét riêng: bấm ô điểm là chấm và nhận xét (chốt 30/09/2026)
+    return '<td class="myr-action-cell"><div class="yer-mgr-acts">' + aiBtn(p) + actionBtn(p) + '</div></td>';
   }
 
   /* Trạng thái trên danh sách: cùng câu chữ với tab Đánh giá giữa năm (chốt 30/09/2026).
@@ -1321,6 +1322,10 @@
       state.filterOpen = false;
       render();
       selectSp(state.spEmp && roster().some(function (p) { return p.id === state.spEmp; }) ? state.spEmp : first.id);
+      // Khung Split View cao gần bằng màn hình: cuộn lên ngay dưới thanh trên cùng để thấy trọn khung nhúng,
+      // popup mở trong khung (căn giữa khung) nhờ vậy nằm trong màn hình (sửa 04/10/2026)
+      var shell = document.querySelector('#yer-mgr-split-shell .sp-shell');
+      if (shell) window.scrollTo({ top: Math.max(0, shell.getBoundingClientRect().top + window.scrollY - 64), behavior: 'smooth' });
     } else {
       state.split = false;
       state.spEmp = null;

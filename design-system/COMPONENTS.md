@@ -151,7 +151,7 @@ Cột theo đúng thứ tự: **Loại mục tiêu · Tên mục tiêu · Kết 
 ## 15. RICH-TEXT EDITOR — 2 dạng
 **(A) Neutral `.rte-wrap`** (dùng cho tạo/nhập mục tiêu): viền XÁM z200, focus ring hồng. Toolbar: B / I / U / màu chữ (A + gạch hồng) / list / link. **KHÔNG có dropdown Normal/Heading.** `.rte-body` placeholder z400 + đếm ký tự "0 / 1000".
 
-**(B) Evaluation `.ev-editor-wrap`** (ô nhận xét NV & Quản lý): viền hồng `--brand-ring` + cạnh trái nhấn 3px `inset box-shadow` hồng **chạy liền cả toolbar và nội dung** (chốt 02/10/2026): toolbar có nền `--z50` nên tự vẽ lại cạnh trái (`.ev-toolbar{box-shadow:inset 3px 0 0 var(--brand)}`), không thì cạnh hồng chỉ còn ở phần nội dung. Ô khóa có toolbar `opacity:.4` nên đoạn cạnh ở toolbar nhạt hơn. Nền nội dung trong suốt, `padding-left:11px`.
+**(B) Evaluation `.ev-editor-wrap`** (ô nhận xét NV & Quản lý): viền hồng `--brand-ring` + cạnh trái nhấn 3px `inset box-shadow` hồng **chạy liền cả toolbar và nội dung** (chốt 02/10/2026): toolbar có nền `--z50` nên tự vẽ lại cạnh trái, và đường kẻ dưới toolbar vẽ bằng bóng nằm dưới cạnh hồng để không cắt ngang (`.ev-toolbar{border-bottom:0;padding-bottom:4px;box-shadow:inset 3px 0 0 var(--brand),inset 0 -1px 0 var(--z200)}`, sửa 04/10/2026). Ô khóa có toolbar `opacity:.4` nên đoạn cạnh ở toolbar nhạt hơn. Nền nội dung trong suốt, `padding-left:11px`.
 - **Editable & Locked dùng CÙNG viền hồng.** Trạng thái **locked/chỉ xem: BỎ toolbar format** (chỉ hiện nội dung), không làm mờ nội dung.
 - Không hardcode màu; không phủ pseudo-element toàn cạnh trái; không đặt nền trắng trên `.ev-content`.
 

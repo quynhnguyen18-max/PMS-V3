@@ -302,8 +302,9 @@ test('review tab labels follow the cycle phase, not the person', () => {
   assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-01-04', 'vi') }, { text: 'Chưa mở', past: true });
   assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-01-20', 'vi') }, { text: 'Cần hoàn tất', past: false });
   assert.deepEqual({ ...Y.cycleTabLabel('yer', '2027-04-06', 'vi') }, { text: 'Đã hoàn tất', past: true });
-  // Khong o use case demo: tab Giua nam la man MYR binh thuong
-  assert.deepEqual({ ...Y.cycleTabLabel('myr', '2027-01-20', 'vi') }, { text: 'Đang hoạt động', past: false });
+  // Chốt 04/10/2026: nhãn tab Giữa năm chỉ theo ngày; kỳ cuối năm đã mở thì luôn Đã hoàn tất màu xám, có hay không có use case
+  assert.deepEqual({ ...Y.cycleTabLabel('myr', '2027-01-20', 'vi') }, { text: 'Đã hoàn tất', past: true });
+  assert.deepEqual({ ...Y.cycleTabLabel('myr', '2026-12-20', 'vi') }, { text: 'Đang hoạt động', past: false });
   w.PMSStore.session = () => ({ emp: 'y9', date: '2027-01-20', role: 'lm', scenario: w.PMS_YER_SCENARIOS[0].id });
   // Tab Giua nam o ky cuoi nam luon la Da hoan tat, mau xam, ke ca nguoi khong co ket qua
   assert.deepEqual({ ...Y.cycleTabLabel('myr', '2027-01-20', 'vi') }, { text: 'Đã hoàn tất', past: true });
@@ -747,8 +748,10 @@ test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the
   assert.match(manager, /\(n \? '' : ' disabled title="' \+ esc\(why\) \+ '"'\)/);
   assert.match(manager, /L\('Chưa có điểm HRBP tải lên cần duyệt', 'No HRBP upload awaiting approval'\)/);
   assert.match(manager, /return baseRoster\(\)\.filter\(function \(p\) \{ return Y\.calibrationState\(p\)\.canApprove; \}\)\.length;/);
-  // AI Summary nằm ở cột Chức năng, không nằm trong ô chấm điểm; Split View có domain nhân viên
-  assert.match(manager, /\(gridRole\(\) \? aiBtn\(p\) : ''\) \+ actionBtn\(p\)/);
+  // AI Summary nằm ở cột Chức năng của mọi vai (QLTT thêm 04/10/2026), không nằm trong ô chấm điểm; Split View có domain nhân viên
+  assert.match(manager, /<div class="yer-mgr-acts">' \+ aiBtn\(p\) \+ actionBtn\(p\)/);
+  // Split View có khung nhúng cao bằng vùng nhìn, popup trong khung không rơi xuống dưới (04/10/2026)
+  assert.match(fs.readFileSync(path.join(root, 'M-05/index.html'), 'utf8'), /\.sp-shell:has\(\.myr-sp-frame\)\{height:calc\(100vh - 84px\)/);
   assert.match(manager, /return '<div class="yer-rt-cell">' \+ inner \+ '<\/div>';/);
   assert.match(manager, /'<div class="sp-ec"><div class="sp-en">' \+ esc\(p\.emp\.name\) \+ ' <span class="er-login">\(' \+ esc\(p\.emp\.login\) \+ '\)<\/span><\/div>'/);
 });
@@ -898,12 +901,20 @@ test('line manager adds approved goals for an employee on maternity leave, by fi
   assert.match(employee, /return Y\.reviewGoals\(p, type\);/);
   assert.match(detail, /data-add-goal="' \+ type \+ '"/);
   assert.match(detail, /L\('Nhập tay', 'Enter by hand'\)/);
-  assert.match(detail, /L\('Tải file', 'Upload a file'\)/);
+  // Popup như Tạo mục tiêu mới và Import mục tiêu của E-05; hai thẻ ở góc phải tiêu đề (04/10/2026)
+  assert.match(detail, /L\('Import mục tiêu', 'Import goals'\)/);
+  assert.match(detail, /'\.yer-gd-tabs\{position:absolute;top:13px;right:46px;/);
+  assert.match(detail, /<input type="date" class="fc" id="yer-gd-s"/);
+  assert.match(detail, /rteHtml\('yer-gd-title'/);
+  assert.match(detail, /<ol class="imp-steps">/);
+  assert.match(detail, /L\('Đọc file', 'Read file'\)/);
+  assert.match(detail, /Mục tiêu QLTT thêm được ghi nhận <strong>Đã duyệt<\/strong> ngay/);
   assert.match(detail, /S\.setAct\(p\.id, 'lmGoals', \{ items: items \}\)/);
   assert.match(detail, /L\('QLTT thêm - Đã duyệt', 'Added by manager - Approved'\)/);
   // Mục tiêu QLTT thêm tạm thời không sửa, không xóa được (chốt 02/10/2026)
   assert.doesNotMatch(detail, /data-del-goal|function removeLmGoal|g-lm-del/);
   assert.match(detail, /không thêm vào tab Danh sách mục tiêu của nhân viên/);
+  assert.doesNotMatch(detail, /Mục tiêu bạn thêm/);
   assert.match(employee, /L\('Quản lý trực tiếp thêm','Added by your manager'\)/);
   assert.doesNotMatch(detail, /function importGoals|Bản dựng demo chưa gắn file thật/);
 });
@@ -1200,7 +1211,12 @@ test('employee screen uses the mascot guide and hides the note after submit', ()
   const iStepper = source.indexOf('submitBanner(p) + stepper()');
   assert.ok(iCanhBao > 0 && iStepper > iCanhBao, 'khoi canh bao phai dung truoc dai quy trinh');
   assert.doesNotMatch(source, /function guideBtn\(/);
-  assert.match(source, /body\.pms-tour-open \.yer-mascot-guide/);
+  // Mascot là component dùng chung của yer-ui.js, E-05 và M-06 cùng gọi (04/10/2026)
+  const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
+  assert.match(ui, /body\.pms-tour-open \.yer-mascot-guide/);
+  assert.match(ui, /function mascotGuide\(opts\)/);
+  assert.match(source, /U\.mascotGuide\(\{/);
+  assert.match(fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8'), /U\.mascotGuide\(\{/);
   assert.match(source, /function lateUploadBlock\(p\)/);
   assert.match(source, /function downloadLateTemplate\(p\)/);
   assert.match(source, /id="yer-late-template"/);
@@ -1243,7 +1259,8 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   // Mục tiêu trong file nộp bổ sung đọc qua luật chung của model (Y.reviewGoals)
   assert.match(source, /return Y\.reviewGoals\(p, type\);/);
   assert.match(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), /var imported = \(p\.lateSubmission && p\.lateSubmission\.goals\) \|\| \[\];/);
-  assert.match(source, /không qua bước duyệt/);
+  assert.match(source, /Nhân viên xác nhận các mục tiêu được đề xuất đã được thống nhất và đồng thuận với QLTT\./);
+  assert.doesNotMatch(source, /L\('File: '/);
   // Nộp bổ sung nổi bật bằng banner như E-05 (chốt 02/10/2026), không còn là gạch đầu dòng trong khối Lưu ý
   assert.match(source, /L\('Nhân viên đã hoàn thành bổ sung Tự đánh giá cuối năm'/);
   assert.match(source, /if \(!mySubmitted\(p\)\) return lateBanner\(p\);/);
@@ -1315,14 +1332,17 @@ test('all manager levels can edit a submitted review while their own timeline re
   assert.match(editable, /Y\.managerReviewState\(role\(\), p\)\.canEdit && \(!mySubmitted\(p\) \|\| isEditing\(p\)\)/);
   // Sau khi gửi là chế độ xem; bấm Chỉnh sửa ở banner mới mở lại các ô (chốt 02/10/2026)
   assert.match(detail, /\(canReopen\(p\) \? '<button class="btn btn-cta-outline btn-sm" type="button" id="yer-md-edit"/);
-  assert.match(detail, /L\('Hủy chỉnh sửa', 'Cancel editing'\)/);
+  // Bấm Chỉnh sửa thì hỏi xác nhận; đang sửa thì khối màu nhẹ thay banner, có nút Hủy chỉnh sửa (như E-05, 04/10/2026)
+  assert.match(detail, /if \(ed\) ed\.addEventListener\('click', function \(\) \{[\s\S]*?confirmReopen\(p\);/);
+  assert.match(detail, /if \(isEditing\(p\)\) return editNote\(p\);/);
+  assert.match(detail, /L\('Hủy chỉnh sửa', 'Discard changes'\)/);
   assert.match(detail, /delete editingMem\[editKey\(p\)\]; \/\/ lưu xong thì về chế độ xem/);
   // Nhóm nút nổi khi cuộn như E-05 (§49, chốt 02/10/2026)
   assert.match(detail, /'<div class="yer-md-actbar"><div class="cycle-actions yer-mgr-actions">'/);
   assert.match(detail, /actions\.classList\.toggle\('floating', float\);/);
   assert.match(detail, /#yer-mgr-detail-root \.yer-mgr-actions\.floating\{position:fixed;/);
   // Cạnh trái hồng chạy liền cả toolbar (COMPONENTS §15)
-  assert.match(fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8'), /\.editable-panel \.ev-toolbar\{box-shadow:inset 3px 0 0 var\(--brand\)\}/);
+  assert.match(fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8'), /\.editable-panel \.ev-toolbar\{border-bottom:0;padding-bottom:4px;box-shadow:inset 3px 0 0 var\(--brand\),inset 0 -1px 0 var\(--z200\)\}/);
   assert.match(detail, /function submittedDraft\(p\)/);
   assert.match(detail, /loadDraft\(p\)/);
   assert.match(detail, /L\('Lưu thay đổi', 'Save changes'\)/);

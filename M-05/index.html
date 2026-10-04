@@ -78,6 +78,13 @@ input,select,textarea{font-family:inherit}
 .sp-ia.danger{color:var(--err)}.sp-ia.danger:hover{background:var(--err-bg)}
 .myr-sp-right{min-height:calc(100vh - 220px)}
 .myr-sp-frame{display:block;width:100%;min-height:calc(100vh - 275px);flex:1;border:0;background:var(--z50)}
+/* Split View có khung nhúng M-06 (Giữa năm, Cuối năm): khung cao đúng bằng vùng nhìn, danh sách bên trái tự cuộn. Không giới hạn thì
+   khung bị kéo cao theo danh sách và popup trong khung (căn giữa khung) rơi xuống dưới màn hình (sửa 04/10/2026). */
+.sp-shell:has(.myr-sp-frame){height:calc(100vh - 84px);min-height:520px}
+.sp-shell:has(.myr-sp-frame) .sp-left{min-height:0}
+.sp-shell:has(.myr-sp-frame) .sp-emp-list{min-height:0}
+.sp-shell:has(.myr-sp-frame) .myr-sp-right{min-height:0;overflow:hidden}
+.sp-shell:has(.myr-sp-frame) .myr-sp-frame{min-height:0;height:100%}
 .myr-sp-toolbar{border-bottom:1px solid var(--z200);padding-bottom:12px;background:var(--z0)}
 
 /* ── SIDEBAR ── */

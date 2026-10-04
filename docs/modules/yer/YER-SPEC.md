@@ -260,10 +260,10 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
 
   | Tình huống | Câu chữ |
   |---|---|
-  | Trước timeline | `Bước đánh giá của [Vai] mở từ dd/mm/yyyy tới hết 18:00 ngày dd/mm/yyyy. Trước ngày mở, [Vai] chỉ xem được hồ sơ` + QLTT: `, kể cả khi nhân viên đã gửi Tự đánh giá sớm.` |
+  | Trước timeline | `Bước đánh giá của [Vai] mở từ dd/mm/yyyy tới hết 18:00 ngày dd/mm/yyyy.` (bỏ câu `Trước ngày mở, … chỉ xem được hồ sơ…` ngày 04/10/2026) |
   | Đang mở, chưa gửi | QLTT: `Sau khi gửi đánh giá, QLTT có thể chỉnh sửa tới hết 18:00 ngày dd/mm/yyyy.`; LM2, HOD: `Sau khi lưu điểm, [Vai] có thể chỉnh sửa tới hết 18:00 ngày dd/mm/yyyy.` |
   | Đang mở, cấp dưới chưa xong | LM2: `Quản lý cấp 2 đánh giá được sau khi Quản lý trực tiếp gửi đánh giá, tới hết 18:00 ngày dd/mm/yyyy.`; HOD: `… sau khi Quản lý cấp 2 lưu điểm, …` |
-  | Đã gửi, còn hạn | banner có nút `Chỉnh sửa`, tooltip `[Vai] chỉnh sửa được tới hết 18:00 ngày dd/mm/yyyy` (§48) |
+  | Đã gửi, còn hạn | banner có nút `Chỉnh sửa`, tooltip `[Vai] chỉnh sửa được tới hết 18:00 ngày dd/mm/yyyy`; bấm thì hỏi xác nhận rồi khối `đang chỉnh sửa` thay banner (§48) |
   | Đã gửi, hết hạn | banner không có nút `Chỉnh sửa` |
   | Chưa gửi, hết hạn | `Bước đánh giá của [Vai] đã kết thúc lúc 18:00 ngày dd/mm/yyyy, màn này chỉ để xem.` |
 
@@ -491,6 +491,9 @@ và ở popup chi tiết nơi có đủ chỗ.
      chỉ tổng hợp nhận xét về mục tiêu công việc, mục tiêu phát triển, hành vi (giá trị cốt lõi) và nhận xét toàn diện. Phần quản lý
      gồm bốn nhận xét của QLTT rồi nhận xét toàn diện của Quản lý cấp 2, Trưởng đơn vị; điểm hệ thống chép không có nhận xét nên
      không có ý. Phần nào chưa có thì một dòng xám nghiêng. Cuối khối ghi nội dung do AI tổng hợp, chỉ để tham khảo.
+  Từ 04/10/2026 **QLTT cũng có nút AI Summary** ở cột Chức năng của danh sách (đứng trước nút bút / mắt), như LM2, HOD.
+  Lưu ý về hồ sơ nộp bổ sung ở lần chưa có hình thức xử lý ghi `Nhân viên nộp Tự đánh giá trễ hạn n ngày làm việc - Lần nhắc thứ k.`;
+  lần có hình thức thì dùng câu hình thức xử lý (§27.3).
   Dòng chưa có tự đánh giá và chưa có điểm QLTT thì không có nút. M-06 có nút `AI Summary` (`bxs-magic-wand`, chữ và viền màu
   thương hiệu) ở hàng nút của màn chi tiết, cho cả ba vai, cũng bấm mới chạy và mở cùng popup. Nội dung và popup viết một lần
   ở `assets/yer-ai.js` (`PMSYerAi.openSummary`), M-05 và M-06 cùng gọi. Không có bản summary cả team.
@@ -620,8 +623,8 @@ người (cần tự đánh giá, chờ Quản lý, thiếu mục tiêu…) nằ
 | Đánh giá cuối năm | `PMSYer.yerPhase(now)`: trước ngày mở Tự đánh giá | `Chưa mở` (tab khóa) | xám |
 | | từ ngày mở tới trước ngày Công bố | `Cần hoàn tất` (đổi từ `Đang hoạt động` ngày 28/09/2026) | xanh |
 | | từ ngày Công bố | `Đã hoàn tất` | xám |
-| Đánh giá giữa năm | không ở tình huống demo (MYR-09a) | `Đang hoạt động` | xanh |
-| | ở tình huống demo, kỳ cuối năm đã mở | `Đã hoàn tất`, **mọi người**, kể cả không có kết quả | xám |
+| Đánh giá giữa năm | trước ngày mở kỳ cuối năm | `Đang hoạt động` | xanh |
+| | kỳ cuối năm đã mở (chốt lại 04/10/2026: **chỉ theo ngày**, có hay không có tình huống demo) | `Đã hoàn tất`, **mọi người**, kể cả không có kết quả | xám |
 | Danh sách mục tiêu | `PMSYer.goalAction(p)`: thiếu mục tiêu và hạn Tự đánh giá chưa qua | `Cần thiết lập mục tiêu công việc` / `Cần thiết lập mục tiêu phát triển` / `Cần thiết lập mục tiêu` (thiếu cả hai) | xanh, cùng kiểu nhãn `Cần hoàn tất` |
 | | còn lại | không có nhãn | |
 
@@ -1071,13 +1074,18 @@ Giữ §12, bổ sung:
   - Lối vào trên M-06 (tab Đánh giá cuối năm; M-06 không có tab mục tiêu riêng, tab đầu quay về danh sách M-05): nút `Thêm mục
     tiêu` ở tiêu đề nhóm Mục tiêu công việc và Mục tiêu phát triển; liên kết `Thêm mới mục tiêu` ở bước 2 của khối hướng dẫn thai
     sản (§48, thiếu mục tiêu thì nói loại còn thiếu); dòng xám của nhóm trống thêm câu `Bấm Thêm mục tiêu để thêm cho nhân viên.`
-  - Popup `Thêm mục tiêu cho nhân viên thai sản`, hai thẻ:
-    - `Nhập tay`: Loại mục tiêu, Ưu tiên (chỉ mục tiêu công việc), Tên mục tiêu, Kết quả cần đạt, Bắt đầu, Kết thúc (dd/mm,
-      mặc định 01/01, 31/12). Thiếu tên, kết quả hoặc ngày sai dạng thì nhắc và giữ nội dung.
-    - `Tải file`: `Tải file mẫu (.csv)` (Loại mục tiêu WHAT/DEVELOPMENT, Tên mục tiêu, Kết quả cần đạt, Ưu tiên, Bắt đầu, Kết thúc),
-      `Chọn file`, rồi xem trước `n mục tiêu hợp lệ, bỏ qua m dòng thiếu thông tin`, nút `Thêm n mục tiêu`.
-    - Ghi chú chung: mục tiêu thêm vào được ghi nhận `Đã duyệt` ngay, mang nhãn `QLTT thêm`, chỉ nằm ở tab Đánh giá cuối năm, không
-      thêm vào tab Danh sách mục tiêu; sau khi thêm thì không sửa hay xóa được; QLTT không sửa được mục tiêu nhân viên đã tạo.
+  - Popup `Thêm mục tiêu cho nhân viên thai sản` (chốt lại 04/10/2026), rộng 640px, hai thẻ `Nhập tay` / `Import mục tiêu` ở
+    **góc phải tiêu đề popup**:
+    - `Nhập tay`: cùng trường và cùng kiểu với popup **Tạo mục tiêu mới** của E-05 (`.fg`, `.flbl`, `.fc`, `.frow3`, `.rte-wrap`):
+      `Loại mục tiêu`; hàng `Mức độ ưu tiên` (chỉ mục tiêu công việc, mục tiêu phát triển thì hàng còn hai cột), `Từ ngày`,
+      `Đến ngày` (ô ngày, mặc định 01/01 và 31/12 của chu kỳ); `Tên Mục tiêu` và `Kết quả cần đạt` là ô soạn thảo (B, I, U, danh
+      sách) có bộ đếm `n / 1000`, `n / 4000`. Thiếu ô nào thì nhắc và giữ nội dung. Nút `Hủy` / `Thêm mục tiêu`.
+    - `Import mục tiêu`: cùng các bước của popup **Import mục tiêu** của E-05 (`.imp-steps`): 1 tải Template (CSV, mỗi dòng một mục
+      tiêu, loại WHAT hoặc DEVELOPMENT), 2 kéo thả hoặc bấm để chọn tập tin, 3 bấm `Đọc file` để kiểm tra (hiện `n mục tiêu hợp lệ,
+      bỏ qua m dòng thiếu thông tin`), 4 bấm `Import`. Nút `Hủy` / `Đọc file` / `Import n mục tiêu`.
+    - Ghi chú chung là khối `Lưu ý` có gạch đầu dòng, gọi tên vai `QLTT`: mục tiêu QLTT thêm được ghi nhận `Đã duyệt` ngay, mang
+      nhãn `QLTT thêm`; chỉ nằm ở tab Đánh giá cuối năm, không thêm vào tab Danh sách mục tiêu; sau khi thêm QLTT không sửa hay
+      xóa được, và không sửa được mục tiêu nhân viên đã tạo.
   - Phân biệt với mục tiêu nhân viên tự tạo: M-06 có chip xanh `QLTT thêm - Đã duyệt` dưới tên mục tiêu, tooltip ghi domain QLTT,
     ngày thêm, bằng file hay nhập tay; E-05 có chip `Quản lý trực tiếp thêm`.
   - **Không sửa, không xóa** (chốt 02/10/2026, thay rule xóa bằng nút thùng rác của 30/09/2026): mục tiêu QLTT thêm mặc định
@@ -1099,8 +1107,8 @@ Giữ §12, bổ sung:
 - Tab: 3 trạng thái `Đang xem` / `Bấm để mở` / `Chưa khả dụng`, phân biệt bằng **nhiều tín
   hiệu cùng lúc**: nền, viền, độ đậm chữ, màu, con trỏ. Không chỉ bằng màu.
 - Wording: tab Đánh giá cuối năm không dùng `Đang diễn ra`, `Đang hoạt động`. Dùng nhãn theo việc
-  người dùng cần làm, theo §18 (nhãn hiện tại `Cần hoàn tất`, §18.4). Ngoại lệ: tab Đánh giá giữa năm ngoài use case của thanh demo dùng
-  `Đang hoạt động` theo `MYR-SPEC.md` MYR-09a (chốt 27/09/2026, mới hơn mục này).
+  người dùng cần làm, theo §18 (nhãn hiện tại `Cần hoàn tất`, §18.4). Tab Đánh giá giữa năm chỉ ghi `Đang hoạt động` trước ngày mở kỳ cuối năm;
+  từ ngày mở kỳ cuối năm luôn là `Đã hoàn tất` màu xám (chốt 04/10/2026, §18.4, MYR-SPEC MYR-09a).
 - Dải quy trình: mỗi bước **bấm được** để đọc giải thích, và phải có tín hiệu cho biết bấm được.
 - **Tourguide**: chỉ chạy khi người dùng bấm mascot (§43), **không tự chạy** lần đầu vào tab.
   Sửa ngày 27/09/2026 theo code.
@@ -1446,6 +1454,13 @@ Chốt ngày 17/09/2026.
 
 Chốt ngày 17/09/2026. Thay nút `Xem hướng dẫn` ở §40.4.
 
+- Mascot là component dùng chung `PMSUi.mascotGuide(opts)` trong `assets/yer-ui.js` (chốt 04/10/2026), E-05 và **M-06** cùng gọi,
+  mỗi màn chỉ đưa câu chữ và các bước. M-06: bóng thoại `Hồ sơ đang ở bước [X]`, [X] là `Đánh giá cuối năm`, `Đánh giá nhân viên
+  thai sản`, `Chờ nhân viên nộp bổ sung`, `Đã hoàn thành đánh giá`, `Chỉnh sửa đánh giá`, `Hồ sơ không đánh giá`, `Chưa tới bước
+  của bạn`, `Đã hết hạn đánh giá` hoặc `Chờ cấp trước đánh giá`. Tour M-06 đi qua tab, dải quy trình, khối của tình trạng hồ sơ
+  (khối vàng, banner nộp trễ, banner đã hoàn thành, khối đang chỉnh sửa, hướng dẫn thai sản hoặc Lưu ý), AI Summary và Phản hồi
+  đã nhận, rồi khi đang sửa được: ba nhóm mục tiêu (QLTT), ô Đánh giá toàn diện, `Lưu nháp`, nút gửi. Chỉ giữ bước có khối đang
+  hiện trên màn. Nút tab Cuối năm của M-06 có `id="tab-yer"` như E-05.
 - Mascot MoMo đứng ở **góc phải thanh tab**, thay hẳn nút `Xem hướng dẫn`.
 - Rê chuột hoặc focus thì đổi sang pose vẫy tay và hiện bóng thoại. Bấm thì chạy tourguide.
 - Bóng thoại có tiêu đề `Xin chào, mình là tour guide của bạn!` và **một câu cố định**:
@@ -1680,7 +1695,9 @@ Chốt ngày 22/09/2026.
     `Điểm của bạn`), bên phải là M-06 nhúng
     (`M-06/index.html?emp=…&tab=yer&embed=1`). Khung nhúng giữ hàng nút đánh giá (`Lưu nháp`, `Gửi đánh giá`,
     `Lưu điểm`, `Lưu thay đổi`), chỉ ẩn nút quay lại. Khung lưu thì danh sách bên trái cập nhật theo, không nạp lại khung.
-    `Mở toàn trang` mở M-06 ở trang riêng.
+    `Mở toàn trang` mở M-06 ở trang riêng. Khung Split View cao gần bằng màn hình (`calc(100vh - 84px)`), danh sách bên trái tự
+    cuộn, bật Split View thì trang cuộn để khung nằm ngay dưới thanh trên cùng (sửa 04/10/2026): trước đó khung nhúng bị kéo cao
+    theo danh sách nên popup trong khung (căn giữa khung) rơi xuống dưới màn hình.
 - **LM2 và HOD chấm điểm ngay trên lưới** (chốt 30/09/2026), như tab Giữa năm:
   - Cột chọn đầu bảng. Dòng tick được khi vai đang xem sửa được và cấp trước đã có điểm. `Duyệt điểm LM1/LM2` chép điểm
     toàn diện của cấp trước thành điểm của mình cho các dòng đã tick, giữ nhận xét đã có.
@@ -1933,7 +1950,24 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
   tới …`. Hồ sơ nộp bổ sung vẫn có nhãn trễ hạn và dòng hình thức xử lý (mục khối thông tin ở trên). Phần điểm như tab Giữa năm:
   `Điểm NV tự đánh giá:` và `Điểm cuối cùng:`. **Điểm cuối cùng để `—`** khi quy trình đi qua các bước và các vai đánh giá, chỉ có
   số khi quy trình xong và hệ thống công bố kết quả (`p.published`); rê chuột vào `—` thì đọc lý do. Bên phải có nút tải
-  `bx-download`, bấm chọn PDF hoặc Excel như banner của E-05 (§42). Chưa gửi thì hạn nằm ở khối hạn đánh giá (§8.3).
+  `bx-download` (tooltip `Tải kết quả đánh giá`), bấm chọn PDF hoặc Excel như banner của E-05 (§42). Chưa gửi thì hạn nằm ở khối
+  hạn đánh giá (§8.3). Phần bên phải (`bannerRight`) dùng chung cho banner nộp trễ: `Điểm cuối cùng` và nút tải **luôn hiện**,
+  kể cả khi chưa có kết quả cuối cùng (chốt 04/10/2026).
+- Banner nộp trễ khi vai đang xem chưa gửi (chốt lại 04/10/2026): `Ngày gửi … ` + nhãn đỏ `Trễ hạn x ngày làm việc` + `- Nộp bổ sung
+  ở **lần nhắc thứ k**` (lần nhắc in đậm); dòng hình thức xử lý nếu có; dòng `Nhân viên xác nhận các mục tiêu được đề xuất đã được
+  thống nhất và đồng thuận với QLTT.` (không còn tên file).
+- **Luồng Chỉnh sửa sau khi gửi** (chốt 04/10/2026, cùng luồng với E-05 §8): bấm `Chỉnh sửa` ở banner mở popup `Xác nhận chỉnh sửa
+  đánh giá cuối năm đã gửi?` (`[Vai] có thể sửa điểm và nhận xét đến **18:00 ngày dd/mm/yyyy**.` / `Nếu không lưu thay đổi trước
+  thời hạn trên, hệ thống giữ bản đánh giá đã gửi ngày **dd/mm/yyyy**.`, nút `Để sau` / `Chỉnh sửa`). Xác nhận thì khối màu nhẹ
+  `.yer-note.action.yer-edit-note` thay cho banner: `[Vai] đang chỉnh sửa đánh giá đã gửi ngày dd/mm/yyyy`, hai gạch đầu dòng
+  `Phạm vi chỉnh sửa` và `Thời hạn và lưu ý`, nút `Hủy chỉnh sửa` trong khối (hỏi xác nhận, bỏ thay đổi chưa lưu). Hàng nút chỉ
+  còn `Lưu thay đổi`.
+- **Popup xác nhận gửi** (chốt 04/10/2026): tiêu đề `Xác nhận gửi đánh giá cho nhân viên` (LM2, HOD `Xác nhận lưu điểm cho nhân
+  viên`; đang sửa `Lưu thay đổi đánh giá?`), hai gạch đầu dòng, ngày giờ in đậm: `Bạn có thể tiếp tục chỉnh sửa đánh giá của mình
+  tới hết **18:00 ngày dd/mm/yyyy**.` / QLTT: `Nhân viên có thể xem được điểm từng mục tiêu và ô nhận xét của bạn, nhưng không thấy
+  điểm toàn diện.`; LM2, HOD: `Nhân viên không thấy điểm toàn diện của cấp quản lý.`
+- Tooltip của tab Cuối năm trên M-06 (nút tải, `Chỉnh sửa`, `—` của Điểm cuối cùng, chip `QLTT thêm`): M-06 chỉ có `showTip(el)`,
+  nên `yer-manager-detail.js` khai `window.tip(el, text)` dựa trên `showTip` khi màn chưa có (sửa 04/10/2026).
 - Nút `Phản hồi đã nhận` (chốt 02/10/2026) mở **đúng popup của M-04** (`M-04/manager-feedback-dialog.js`, dùng chung cho tab
   Giữa năm và Cuối năm của M-06): tiêu đề kèm số phản hồi, dòng `Tên (domain) - đơn vị - chức danh`, mascot AI summary, nút tải
   và mở tab mới, dòng `Kết quả phản hồi được chia sẻ từ HR (n)` + `Xem chi tiết`, thẻ phản hồi có tim cảm ơn và câu hỏi, nút
@@ -1946,8 +1980,8 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
   không xem được Điểm đánh giá. Kết quả cuối cùng của nhân viên sẽ hiển thị sau khi hoàn tất quy trình.`
 - **Chế độ xem sau khi gửi** (chốt 02/10/2026): vai đang xem đã gửi thì màn về chế độ xem: ô điểm hiện số, tên mức và ⓘ, ô nhận
   xét chỉ đọc, không có ô `Ý nghĩa thang điểm`, không có nút `Cải thiện với AI`, không có hàng nút gửi. Còn trong timeline thì
-  banner có nút `Chỉnh sửa` (`btn-cta-outline`, `bx-edit-alt`, tooltip hạn sửa §8.3). Bấm vào thì mở lại các ô, hàng nút thành
-  `Hủy chỉnh sửa` / `Lưu thay đổi`; ô `Ý nghĩa thang điểm` chỉ hiện khi đổi điểm (như popup chấm trên lưới M-05); nút AI chỉ có
+  banner có nút `Chỉnh sửa` (`btn-cta-outline`, `bx-edit-alt`, tooltip hạn sửa §8.3). Bấm vào thì qua popup xác nhận rồi mở lại
+  các ô (luồng Chỉnh sửa ở trên); ô `Ý nghĩa thang điểm` chỉ hiện khi đổi điểm (như popup chấm trên lưới M-05); nút AI chỉ có
   ở chế độ đang sửa. `Hủy chỉnh sửa` bỏ mọi thay đổi chưa lưu; lưu xong về chế độ xem. Trạng thái đang sửa chỉ giữ trong
   trang đang mở (`editingMem`), tải lại trang là về chế độ xem.
 - **Nhóm mục tiêu như tab Giữa năm** (chốt 02/10/2026): tiêu đề nhóm `.rv-section-hd` gồm icon và tên trong `.rv-type`, bảng

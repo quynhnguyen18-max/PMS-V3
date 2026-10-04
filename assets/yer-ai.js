@@ -74,7 +74,12 @@
     // Lưu ý về hồ sơ: thông tin độc lập, không phải nội dung AI
     var flags = [];
     var measure = Y().lateMeasureText(p, lg());
-    if (p.lateSubmission) flags.push({ warn: true, t: measure || (L('Hồ sơ nộp bổ sung', 'Late submission') + (p.lateRound ? L(' ở lần nhắc thứ ', ' at reminder ') + p.lateRound.round : '') + '.') });
+    // Nộp ở lần chưa có hình thức xử lý: nói số ngày trễ và lần nhắc (chốt 04/10/2026)
+    if (p.lateSubmission) {
+      var lateN = Y().lateDays(p.lateSubmission.at);
+      flags.push({ warn: true, t: measure || (L('Nhân viên nộp Tự đánh giá trễ hạn ' + lateN + ' ngày làm việc', 'The employee submitted the self assessment ' + lateN + ' working day' + (lateN === 1 ? '' : 's') + ' late') +
+        (p.lateRound ? L(' - Lần nhắc thứ ' + p.lateRound.round, ' - Reminder ' + p.lateRound.round) : '') + '.') });
+    }
     if (p.maternity) flags.push({ t: L('Nhân viên nghỉ thai sản, QLTT chịu trách nhiệm đánh giá chính.', 'On maternity leave; the line manager leads the review.') });
     if (p.resignFrom && !p.resigned) flags.push({ t: L('Nhân viên có ngày làm việc cuối cùng là ', 'Last working day: ') + Y().fmt(p.resignFrom, lg()) + '.' });
     if ((p.lm && p.lm.synced) || (p.lm2 && p.lm2.synced)) flags.push({ t: L('Điểm có nhãn (HR system): quá hạn mà cấp đó không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.', 'Ratings marked (HR system): that level did not rate before its deadline, so the system copied the previous level rating, without a comment.') });
