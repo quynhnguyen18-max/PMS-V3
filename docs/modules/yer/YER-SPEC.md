@@ -167,8 +167,11 @@ Chốt lại ngày 27/09/2026: nhân viên **đọc được nhận xét** của
 hai cấp này lưu nhận xét, nhưng **không bao giờ thấy điểm** của hai cấp này. Màn Nhân viên thêm khối
 `Nhận xét của các cấp quản lý` ở cuối trang, dưới khối Đánh giá toàn diện; mỗi cấp một ô chỉ xem, cấp nào
 không có nhận xét thì không có ô, không cấp nào có thì không dựng khối (`upperCommentsCard`). Tiêu đề ô ghi kèm
-domain của cấp đó (§42). Màn Quản lý có khối tương ứng kèm cả điểm (§48). Điểm đồng bộ
-của hệ thống (`synced`) không có nhận xét nên không tạo ô. Tình huống demo: `nv11`.
+domain của cấp đó (§42). Điểm đồng bộ của hệ thống (`synced`) không có nhận xét nên không tạo ô. Tình huống demo: `nv11`.
+
+Chị chốt lại ngày 04/10/2026: **E-05 giữ nguyên như trên**, không dựng sẵn ô trống cho Quản lý cấp 2 và Trưởng đơn vị như thẻ
+bốn ô của màn Quản lý (§48), vì nhân viên không được xem điểm của hai cấp này: chỉ khi cấp đó để lại nhận xét thì mới có ô, khối
+chỉ có một ô thì ô chiếm cả hàng. Màn Quản lý gộp các cấp vào thẻ Đánh giá toàn diện bốn ô kèm cả điểm (§48).
 
 ## 8. Chỉnh sửa sau khi gửi
 
@@ -248,7 +251,7 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
   - Dữ liệu: `p.lmLog`, `p.lm2Log`, `p.hodLog` (`managerLog` trong model, mỗi dòng `{ at, time, score, comment, source,
     changes }`). QLTT ghi `acts.lmLog` mỗi lần gửi; LM2, HOD ghi `lm2Log` / `hodLog` như trước (§47). Hồ sơ mẫu chưa có
     lịch sử thì model suy ra một dòng từ bản đã gửi.
-  - Tiêu đề: `Lịch sử chỉnh sửa đánh giá của QLTT` / `Lịch sử chỉnh sửa điểm của [Vai]`. Thẻ `Lần gửi N` (QLTT) hoặc
+  - Tiêu đề: `Lịch sử chỉnh sửa đánh giá của Quản lý trực tiếp` / `Lịch sử chỉnh sửa điểm của [Vai]`. Thẻ `Lần gửi N` (QLTT) hoặc
     `Lần lưu N` (LM2, HOD); lưu ngoài màn chi tiết thì ghi cách lưu: `(lưu trên danh sách)`, `(tải lên từ file)`,
     `(duyệt điểm cấp trước)`, `(HRBP tải lên điểm hiệu chuẩn)`.
   - Thẻ đầu ghi `Điểm toàn diện: x`. Thẻ sau ghi `Thay đổi so với lần gửi / lần lưu N-1`: điểm toàn diện, điểm mục tiêu theo
@@ -1446,8 +1449,9 @@ Lấy **nguyên văn** từ file đề xuất, không rút gọn:
 - Tên mức: `Giữa mức 1 - Không đạt yêu cầu và 2 - Hoàn thành một phần`,
   chứ không phải `Giữa mức 1 và 2`.
 - Trong chip tên mức (chị chốt 04/10/2026, mọi màn dùng `PMSUi.rating`): tên mức in đậm, chữ nối thường: mức nguyên đậm cả tên,
-  mức nửa bậc `Giữa mức **1 - Không đạt yêu cầu** và **2 - Hoàn thành một phần**`. Chip luôn một dòng, không đủ chỗ thì cả chip
-  (cùng ⓘ) xuống dòng. Chữ trong ô chọn điểm căn trái ở mọi trạng thái (chưa chọn, đã chọn, mở lại danh sách).
+  mức nửa bậc `Giữa mức **1 - Không đạt yêu cầu** và **2 - Hoàn thành một phần**`. Chip **chỉ một dòng**, không bao giờ vỡ chữ;
+  không đủ chỗ thì cả chip (cùng ⓘ) xuống dòng và bắt đầu từ mép trái ô (trong dòng `Điểm toàn diện:` điểm, ô chọn, chip là phần tử
+  ngang hàng của dòng, `.op-score-row [data-rt]{display:contents}`). Chữ trong ô chọn điểm căn trái ở mọi trạng thái (chưa chọn, đã chọn, mở lại danh sách).
 - Định nghĩa: `Hiệu quả công việc của nhân viên đã vượt trên các tiêu chí của mức X - …
   và chưa đạt trọn vẹn các tiêu chí cần thiết của mức Y - …`
 
@@ -2045,7 +2049,7 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
 - **Popup thiếu thông tin** (chốt 04/10/2026, cùng kiểu E-05 §8.1): QLTT bấm `Gửi đánh giá` khi còn thiếu thì popup
   `.yer-miss-dialog` tiêu đề `Chưa thể gửi đánh giá vì thiếu thông tin`, dòng
   `Vui lòng bổ sung:` rồi **mỗi khối một gạch đầu dòng** `**[Khối]:** phần còn thiếu` (QLTT: điểm từng mục tiêu theo tên, `ô Đánh giá
-  của Quản lý trực tiếp` của từng nhóm, điểm từng giá trị cốt lõi, `điểm toàn diện`, `ô Đánh giá toàn diện của QLTT`), cuối popup `Các ô còn thiếu sẽ được đánh dấu viền đỏ trên màn hình.` Đóng popup thì các ô thiếu viền đỏ (`--err`) và màn
+  của Quản lý trực tiếp` của từng nhóm, điểm từng giá trị cốt lõi, `điểm toàn diện`, `ô Đánh giá toàn diện của Quản lý trực tiếp`), cuối popup `Các ô còn thiếu sẽ được đánh dấu viền đỏ trên màn hình.` Đóng popup thì các ô thiếu viền đỏ (`--err`) và màn
   cuộn tới ô đầu tiên; điền ô nào thì ô đó hết đỏ. Mục tiêu đã đánh giá hoàn thành không bị đòi (§13.1).
 - Gửi / lưu xong thì màn cuộn lên banner xanh, như E-05.
 - **Popup xác nhận gửi** (chốt 04/10/2026, chỉ QLTT): tiêu đề `Xác nhận gửi đánh giá cho nhân viên` (đang sửa `Lưu thay đổi
@@ -2058,12 +2062,16 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
   Giữa năm và Cuối năm của M-06): tiêu đề kèm số phản hồi, dòng `Tên (domain) - đơn vị - chức danh`, mascot AI summary, nút tải
   và mở tab mới, dòng `Kết quả phản hồi được chia sẻ từ HR (n)` + `Xem chi tiết`, thẻ phản hồi có tim cảm ơn và câu hỏi, nút
   `Đóng`. Dữ liệu và luật lấy từ file dùng chung của M-04, H-05; tab Cuối năm truyền đúng hồ sơ đang xem.
-- Thẻ đánh giá toàn diện theo vai: QLTT thấy Nhân viên và ô của mình; LM2 thấy thêm QLTT; HOD thấy
-  thêm QLTT và LM2. Bố cục theo thẻ của E-05 (chốt 04/10/2026): **tối đa hai ô một hàng** (HOD bốn ô thành hai hàng), tiêu đề ô
+- Thẻ đánh giá toàn diện: chuẩn bốn ô cho mọi vai (xem mục ngay dưới). Bố cục theo thẻ của E-05 (chốt 04/10/2026): **hai ô một
+  hàng**, tiêu đề ô
   `[Người chấm] đánh giá - domain` (`Nhân viên tự đánh giá`, `Quản lý trực tiếp đánh giá`, `Quản lý cấp 2 đánh giá`), dòng
   `Điểm toàn diện: 4 [tên mức] ⓘ`; **tên mức luôn một dòng**, không đủ chỗ cạnh điểm thì cả cụm tên mức và ⓘ xuống dòng (chị chốt
-  04/10/2026, không để chữ trong chip vỡ hai dòng). Các ô **cách nhau 12px**, mỗi ô có viền bo riêng, không dính vào nhau. Nhãn
-  ô nhận xét `Đánh giá toàn diện của [nhân viên / QLTT / Quản lý cấp 2 / Trưởng đơn vị]` như tab Giữa năm và E-05, bỏ `… của bạn`. Ô của QLTT **không còn** dòng `Điểm này không hiển thị cho nhân viên…` (bỏ 02/10/2026). Ô của Quản lý cấp 2,
+  04/10/2026, không để chữ trong chip vỡ hai dòng). Tag phụ `Cao hơn mức tối đa 3` nằm **dòng riêng bên dưới** điểm (`.yer-cap-row`),
+  không chen cạnh điểm. **Các ô cạnh nhau thẳng hàng từng tầng** (chị góp ý 04/10/2026): mỗi ô có năm tầng cố định (tiêu đề, điểm,
+  nhãn nhận xét, ô nhận xét, ô Ý nghĩa thang điểm), lưới dùng `grid-template-rows:subgrid`, nên nhãn `Đánh giá toàn diện của…` và ô
+  nhận xét của các bên luôn bắt đầu cùng hàng dù bên nào có tên mức xuống dòng hay khối giới hạn điểm. Các ô **cách nhau 12px**, mỗi ô có viền bo riêng, không dính vào nhau. Nhãn
+  ô nhận xét `Đánh giá toàn diện của [nhân viên / Quản lý trực tiếp / Quản lý cấp 2 / Trưởng đơn vị]` như tab Giữa năm và E-05, bỏ
+  `… của bạn`, viết đủ tên vai, không viết tắt `QLTT` (chị chốt 04/10/2026). Ô của QLTT **không còn** dòng `Điểm này không hiển thị cho nhân viên…` (bỏ 02/10/2026). Ô của Quản lý cấp 2,
   Trưởng đơn vị chỉ xem (không còn dòng `Nhận xét là tùy chọn.`, 04/10/2026).
 - **Lưu ý cuối phần Đánh giá toàn diện** (chốt 02/10/2026, mọi vai): sau thẻ Đánh giá toàn diện và khối `Đánh giá của các cấp quản
   lý` có một dòng `.info-note.yer-visibility-note`: `**Lưu ý:** Nhân viên chỉ xem được nhận xét toàn diện của các cấp quản lý,
@@ -2082,12 +2090,12 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
 - Tab Giữa năm đặt class `page-submitted` lên **panel `#mpanel-myr`**, không lên cả `.page` (sửa 02/10/2026): trước đó class này
   khóa luôn ô chọn điểm của tab Cuối năm (`pointer-events:none`), QLTT không bấm chọn điểm được (LM06).
   Tiêu đề ô của QLTT và LM2 (chỉ xem) ghi kèm domain: `QUẢN LÝ TRỰC TIẾP - domain`.
-- **Khối `Đánh giá của các cấp quản lý`** (chốt 30/09/2026, theo §7) ngay dưới thẻ Đánh giá toàn diện: cấp quản lý
-  phía trên vai đang xem. QLTT thấy Quản lý cấp 2 và Trưởng đơn vị, LM2 thấy Trưởng đơn vị, HOD không có khối này.
-  Mỗi cấp một ô chỉ xem: tiêu đề `Quản lý cấp 2 đánh giá - domain` / `Trưởng đơn vị đánh giá - domain`, điểm toàn
-  diện (số, tên mức, ⓘ) và nhận xét toàn diện. Điểm hệ thống tự chép có nhãn `(HR system)` và dòng `Hệ thống tự chép
-  điểm vì quá deadline, không kèm nhận xét.` Cấp nào chưa đánh giá thì không có ô, không cấp nào có thì không dựng
-  khối. Cùng vị trí và kết cấu với khối `Nhận xét của các cấp quản lý` của E-05, khác ở chỗ Quản lý thấy cả điểm.
+- **Chuẩn bốn ô của thẻ Đánh giá toàn diện** (chị chốt 04/10/2026, thay khối riêng `Đánh giá của các cấp quản lý` của 30/09/2026):
+  mọi vai thấy **một** thẻ với đủ bốn ô, thứ tự cố định `Nhân viên tự đánh giá` | `Quản lý trực tiếp đánh giá` / `Quản lý cấp 2
+  đánh giá` | `Trưởng đơn vị đánh giá`, hai ô một hàng. Ô của vai đang xem có icon bút, là ô nhập khi còn sửa được (chỉ QLTT, §8.3);
+  ô của cấp khác chỉ xem, tiêu đề kèm domain người chấm. Cấp nào chưa đánh giá thì ô vẫn có, điểm và nhận xét là `—`. Điểm hệ
+  thống tự chép có nhãn `(HR system)` và dòng `Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm
+  nhận xét.` Quản lý thấy cả điểm của các cấp (§7); E-05 vẫn là khối `Nhận xét của các cấp quản lý` không có điểm.
 - Ô bắt buộc khi QLTT gửi: điểm toàn diện, nhận xét toàn diện, điểm từng mục tiêu **trừ mục tiêu đã
   đánh giá hoàn thành** (ô khóa, §13.1), điểm cả năm giá trị cốt lõi, ba nhận xét nhóm. LM2 và HOD chỉ
   bắt điểm toàn diện.

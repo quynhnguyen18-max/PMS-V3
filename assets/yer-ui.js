@@ -67,8 +67,11 @@
     /* Chị chốt 04/10/2026: chữ trong ô chọn điểm căn trái ở mọi trạng thái (chưa chọn, đã chọn, mở lại danh sách) */
     '[data-rt] .sc-select,[data-rt] .op-select{text-align:left;text-align-last:left}',
     /* Tên mức luôn một dòng; không đủ chỗ thì cả nhãn xuống dòng (rt-line flex-wrap). Tên mức in đậm, phần nối giữ chữ thường */
-    /* Chip không co lại để chen cạnh điểm: không đủ chỗ thì cả chip xuống dòng; chỉ khi một dòng riêng vẫn không đủ mới xuống dòng chữ */
-    '[data-rt] .sc-lbl.show{flex-shrink:0;max-width:100%;height:auto;min-height:20px;white-space:normal;line-height:1.4;padding:2px 7px}',
+    /* Tên mức CHỈ một dòng (chị chốt 04/10/2026): chip không co, không vỡ chữ; không đủ chỗ thì cả chip xuống dòng */
+    '[data-rt] .sc-lbl.show{flex-shrink:0;white-space:nowrap}',
+    /* Dòng `Điểm toàn diện:` (E-05, M-06): điểm, ô chọn, tên mức là các phần tử ngang hàng của dòng, nên khi xuống dòng
+       tên mức bắt đầu từ mép trái ô và có đủ bề rộng của ô, không bị ép sau chữ `Điểm toàn diện:` */
+    '.op-score-row [data-rt],.op-score-row [data-rt]>.rt-line{display:contents}',
     '[data-rt] .sc-lbl strong{font-weight:700}',
     '.rt-tagline{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-width:0;flex-shrink:0}',
     '.rt-i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;',

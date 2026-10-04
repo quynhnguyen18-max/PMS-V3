@@ -6,7 +6,7 @@
 
    Ba vai dùng chung màn này nhưng làm ba việc khác nhau (YER-SPEC §3):
      - Quản lý trực tiếp: điểm từng mục tiêu + 3 nhận xét nhóm + điểm toàn diện
-     - Quản lý cấp 2 / Trưởng đơn vị: CHỈ điểm toàn diện, nhận xét tùy chọn
+     - Quản lý cấp 2 / Trưởng đơn vị: chỉ xem ở màn này, chấm điểm toàn diện ở danh sách M-05 (04/10/2026)
    Spec: YER-SPEC.md §3 §7 §8, §27 ENH-E02, §28 ENH-E03, §33 ENH-E10
 ═══════════════════════════════════════════════════════════ */
 (function () {
@@ -389,7 +389,7 @@
     }).reverse().join('');
     U.dialog({
       className: 'yer-log-dialog',
-      title: isLm() ? L('Lịch sử chỉnh sửa đánh giá của QLTT', 'Line manager review edit history')
+      title: isLm() ? L('Lịch sử chỉnh sửa đánh giá của Quản lý trực tiếp', 'Line manager review edit history')
                     : L('Lịch sử chỉnh sửa điểm của ' + roleName(), roleName() + ' rating edit history'),
       html: (last ? '<div class="yer-log-sum"><i class="bx bx-check-shield"></i><div>' +
             L('Bản đang được ghi nhận: <strong>' + esc(verb + items.length) + '</strong>, ' + esc(sent.toLowerCase() + logWhen(last)),
@@ -925,60 +925,63 @@
   }
 
   /* ── đánh giá toàn diện ──────────────────────────────── */
+  /* Thẻ Đánh giá toàn diện: chuẩn bốn ô (chị chốt 04/10/2026) cho mọi vai, thứ tự cố định Nhân viên, Quản lý trực tiếp /
+     Quản lý cấp 2, Trưởng đơn vị, hai ô một hàng. Cấp nào chưa đánh giá thì ô vẫn có, điểm và nhận xét là `—`. Ô của vai đang
+     xem dùng icon bút và là ô nhập khi còn sửa được. Thay khối riêng `Đánh giá của các cấp quản lý` trước đây. */
+  var LEVEL_ICON = { lm: 'bx-user-check', lm2: 'bx-sitemap', hod: 'bx-buildings' };
+  var LEVEL_TITLE = {
+    lm: ['Quản lý trực tiếp đánh giá', 'Line manager review'],
+    lm2: ['Quản lý cấp 2 đánh giá', 'Second-level manager review'],
+    hod: ['Trưởng đơn vị đánh giá', 'Head of department review']
+  };
+  function levelView(p, lvl) {
+    if (lvl === 'lm') return p.lm ? { score: p.lm.overall ? p.lm.overall.score : null, comment: p.lm.overall ? p.lm.overall.comment : '', synced: p.lm.synced } : null;
+    var v = lvl === 'lm2' ? p.lm2 : p.hod;
+    return v ? { score: v.score, comment: v.comment, synced: v.synced } : null;
+  }
   function overallCard(p, canEdit) {
-    var cols = [];
-
-    cols.push(panelHtml({
+    var who = Y.actors(p);
+    var cols = [panelHtml({
       icon: 'bx-user', title: L('Nhân viên tự đánh giá', 'Employee self assessment'), owner: L('nhân viên', 'the employee'),
       key: 'self:overall', value: p.self && p.self.overall ? p.self.overall.score : null,
       comment: p.self && p.self.overall ? p.self.overall.comment : '', readonly: true
-    }));
+    })];
 
-    var who = Y.actors(p);
-    if (!isLm()) {
+    ['lm', 'lm2', 'hod'].forEach(function (lvl) {
+      if (lvl === role()) {
+        // Đang chỉnh sửa bản đã gửi thì đọc bản nháp (khởi tạo từ bản đã gửi), để đổi điểm rồi dựng lại không mất
+        var mine = mySubmitted(p) && !isEditing(p)
+          ? (lvl === 'lm' ? (p.lm.overall || {})
+             : lvl === 'lm2' ? { score: p.lm2.score, comment: p.lm2.comment }
+             : { score: p.hod.score, comment: p.hod.comment })
+          : (draft.overall || {});
+        cols.push(panelHtml({
+          icon: 'bx-edit-alt', title: L(LEVEL_TITLE[lvl][0], LEVEL_TITLE[lvl][1]), key: 'my:overall', owner: roleFull(lvl),
+          value: mine.score == null ? null : mine.score,
+          comment: mine.comment || '',
+          readonly: !canEdit, editable: canEdit,
+          measure: canEdit ? measureHtml(p, mine.score == null ? null : mine.score) : null,
+          overCap: canEdit ? null : capOf(p, mine.score),
+          required: isLm(),
+          // Đang sửa bản đã gửi thì ô Ý nghĩa thang điểm chỉ hiện khi đổi điểm, như popup chấm trên lưới M-05
+          defHidden: mySubmitted(p),
+          hint: ''
+        }));
+        return;
+      }
+      var v = levelView(p, lvl);
       cols.push(panelHtml({
-        icon: 'bx-user-check', title: L('Quản lý trực tiếp đánh giá', 'Line manager review'), by: who.lm,
-        key: 'lm:overall', value: p.lm && p.lm.overall ? p.lm.overall.score : null,
-        overCap: capOf(p, p.lm && p.lm.overall ? p.lm.overall.score : null),
-        comment: p.lm && p.lm.overall ? p.lm.overall.comment : '', readonly: true,
-        synced: p.lm && p.lm.synced
+        icon: LEVEL_ICON[lvl], title: L(LEVEL_TITLE[lvl][0], LEVEL_TITLE[lvl][1]), by: who[lvl],
+        key: lvl + ':overall', value: v ? v.score : null, overCap: v ? capOf(p, v.score) : null,
+        comment: v ? v.comment || '' : '', readonly: true, synced: v && v.synced,
+        hint: v && v.synced && lvl !== 'lm' ? L('Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.',
+          'This level did not rate before its deadline, so the system copied the previous level rating, without a comment.') : ''
       }));
-    }
-    if (role() === 'hod') {
-      cols.push(panelHtml({
-        icon: 'bx-sitemap', title: L('Quản lý cấp 2 đánh giá', 'Second-level manager review'), by: who.lm2,
-        key: 'lm2:overall', value: p.lm2 ? p.lm2.score : null,
-        overCap: capOf(p, p.lm2 ? p.lm2.score : null),
-        comment: p.lm2 ? p.lm2.comment : '', readonly: true, synced: p.lm2 && p.lm2.synced
-      }));
-    }
-
-    var myTitle = role() === 'lm' ? L('Quản lý trực tiếp đánh giá', 'Line manager review')
-      : role() === 'lm2' ? L('Quản lý cấp 2 đánh giá', 'Second-level manager review')
-      : L('Trưởng đơn vị đánh giá', 'Head of department review');
-    // Đang chỉnh sửa bản đã gửi thì đọc bản nháp (khởi tạo từ bản đã gửi), để đổi điểm rồi dựng lại không mất
-    var mine = mySubmitted(p) && !isEditing(p)
-      ? (role() === 'lm' ? (p.lm.overall || {})
-         : role() === 'lm2' ? { score: p.lm2.score, comment: p.lm2.comment }
-         : { score: p.hod.score, comment: p.hod.comment })
-      : (draft.overall || {});
-    cols.push(panelHtml({
-      icon: 'bx-edit-alt', title: myTitle, key: 'my:overall', owner: roleName(),
-      value: mine.score == null ? null : mine.score,
-      comment: mine.comment || '',
-      readonly: !canEdit, editable: canEdit,
-      measure: canEdit ? measureHtml(p, mine.score == null ? null : mine.score) : null,
-      overCap: canEdit ? null : capOf(p, mine.score),
-      required: isLm(),
-      // Đang sửa bản đã gửi thì ô Ý nghĩa thang điểm chỉ hiện khi đổi điểm, như popup chấm trên lưới M-05
-      defHidden: mySubmitted(p),
-      // Bỏ dòng `Điểm này không hiển thị cho nhân viên…` của QLTT (02/10/2026): đã có ở lưu ý cuối phần Đánh giá toàn diện
-      hint: ''
-    }));
+    });
 
     return '<div class="overall-card"><div class="overall-hd"><i class="bx bx-award"></i>' +
       '<span class="overall-title">' + L('Đánh giá toàn diện', 'Overall rating') + '</span></div>' +
-      '<div class="overall-grid yer-overall-grid" style="grid-template-columns:repeat(' + Math.min(cols.length, 2) + ',minmax(0,1fr))">' +
+      '<div class="overall-grid yer-overall-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">' +
       cols.join('') + '</div></div>';
   }
 
@@ -990,62 +993,47 @@
       '</span></div>';
   }
 
-  /* ── Đánh giá của các cấp quản lý phía trên (§7) ──
-     QLTT xem được điểm và nhận xét toàn diện của Quản lý cấp 2 và Trưởng đơn vị, Quản lý cấp 2 xem
-     được của Trưởng đơn vị. Cùng vị trí và kết cấu với khối `Nhận xét của các cấp quản lý` của E-05,
-     khác ở chỗ Quản lý thấy cả điểm. Cấp nào chưa đánh giá thì không có ô, không cấp nào thì không dựng khối. */
-  function upperCard(p) {
-    var who = Y.actors(p);
-    var rows = [];
-    if (isLm() && p.lm2) {
-      rows.push({ key: 'up-lm2', icon: 'bx-sitemap', title: L('Quản lý cấp 2 đánh giá', 'Second-level manager review'),
-        by: who.lm2, score: p.lm2.score, comment: p.lm2.comment, synced: p.lm2.synced });
-    }
-    if (role() !== 'hod' && p.hod) {
-      rows.push({ key: 'up-hod', icon: 'bx-buildings', title: L('Trưởng đơn vị đánh giá', 'Head of department review'),
-        by: who.hod, score: p.hod.score, comment: p.hod.comment });
-    }
-    if (!rows.length) return '';
-    return '<div class="overall-card yer-upper-card"><div class="overall-hd"><i class="bx bx-message-square-detail"></i>' +
-      '<span class="overall-title">' + L('Đánh giá của các cấp quản lý', 'Reviews from upper management') + '</span></div>' +
-      '<div class="overall-grid yer-overall-grid" style="grid-template-columns:repeat(' + rows.length + ',minmax(0,1fr))">' +
-      rows.map(function (r) {
-        return panelHtml({ icon: r.icon, title: r.title, by: r.by, key: r.key + ':overall', value: r.score, overCap: capOf(p, r.score),
-          comment: r.comment || '', readonly: true, synced: r.synced,
-          hint: r.synced ? L('Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.',
-            'This level did not rate before its deadline, so the system copied the previous level rating, without a comment.') : '' });
-      }).join('') + '</div></div>';
-  }
-
+  // Nhãn ô nhận xét gọi tên đầy đủ của vai, không viết tắt QLTT (chị chốt 04/10/2026)
+  var ROLE_FULL = { lm: ['Quản lý trực tiếp', 'Line manager'], lm2: ['Quản lý cấp 2', 'Second-level manager'], hod: ['Trưởng đơn vị', 'Head of department'] };
+  function roleFull(r) { return L(ROLE_FULL[r][0], ROLE_FULL[r][1]); }
   function panelOwner(key) {
     var r = key.split(':')[0].replace('up-', '');
-    return ROLE_NAME[r] ? roleName(r) : L('nhân viên', 'the employee');
+    return ROLE_FULL[r] ? roleFull(r) : L('nhân viên', 'the employee');
   }
 
+  /* Mỗi ô có đúng năm tầng (tiêu đề, điểm, nhãn nhận xét, ô nhận xét, ô Ý nghĩa thang điểm). Lưới dùng subgrid nên các ô
+     cùng hàng có chung chiều cao từng tầng: nhãn `Đánh giá toàn diện của…` và ô nhận xét của các bên luôn bắt đầu cùng hàng
+     (chị góp ý 04/10/2026). */
   function panelHtml(o) {
     return '<div class="overall-panel' + (o.editable ? ' editable-panel' : '') + '">' +
+      '<div class="op-slot">' +
       '<div class="op-hd"><i class="bx ' + o.icon + '"></i>' + esc(o.title) +
         (o.by && o.by.login ? '<span class="op-hd-dom">- ' + esc(o.by.login) + '</span>' : '') +
         (o.synced ? '<span class="yer-sync-tag">(HR system)</span>' : '') + '</div>' +
+      '</div><div class="op-slot">' +
       '<div class="op-score-row">' +
         '<span class="op-score-lbl">' + L('Điểm toàn diện:', 'Overall rating:') +
           (o.editable ? req() : '') + '</span>' +
         ratingCell(o.key, o.value, { half: true, readonly: o.readonly, def: o.editable ? '#yer-md-op-def' : null }) +
-        (o.overCap ? '<span class="yer-cap-chip"><i class="bx bx-error"></i>' +
-          esc(L('Cao hơn mức tối đa ' + o.overCap, 'Above the maximum of ' + o.overCap)) + '</span>' : '') +
       '</div>' +
+      // Tag phụ `Cao hơn mức tối đa` nằm dòng riêng bên dưới điểm (chị chốt 04/10/2026)
+      (o.overCap ? '<div class="yer-cap-row"><span class="yer-cap-chip"><i class="bx bx-error"></i>' +
+        esc(L('Cao hơn mức tối đa ' + o.overCap, 'Above the maximum of ' + o.overCap)) + '</span></div>' : '') +
       (o.measure != null ? '<div class="yer-cap-note" id="yer-md-cap-note">' + o.measure + '</div>' : '') +
       (o.hint ? '<div class="yer-op-hint">' + esc(o.hint) + '</div>' : '') +
+      '</div><div class="op-slot">' +
       // Nhãn như tab Giữa năm và E-05: `Đánh giá toàn diện của [người chấm]`, không dùng `của bạn` (chốt 04/10/2026)
       '<label class="op-flbl' + (o.editable && isLm() ? ' yer-flbl-ai' : '') + '">' +
         L('Đánh giá toàn diện của ' + (o.owner || panelOwner(o.key)), (o.owner || panelOwner(o.key)) + ' overall assessment') +
         (o.editable ? (o.required ? req() : '') + (isLm() ? aiWriteBtn('overall') : '') : '') + '</label>' +
+      '</div><div class="op-slot">' +
       editorHtml('yer-md-ov-' + o.key.replace(/:/g, '-'),
         L('Nhìn chung, nhân viên đã…', 'Overall, this employee has…'),
         1000, o.comment, 'cc-ov-' + o.key.replace(/:/g, '-'), !o.editable) +
+      '</div><div class="op-slot">' +
       // Ô Ý nghĩa thang điểm nằm dưới ô nhận xét, như màn Nhân viên (§41.2b)
       (o.editable ? '<div id="yer-md-op-def" class="yer-op-def" data-shown="' + (o.defHidden ? '0' : '1') + '"></div>' : '') +
-    '</div>';
+    '</div></div>';
   }
 
   /* Trợ lý viết nhận xét của QLTT (§14): nút nhỏ `Cải thiện với AI` ở góc ô nhận xét (DS §19 rule 20) */
@@ -1120,7 +1108,7 @@
     html += goalSection(p, 'what', canEdit);
     html += goalSection(p, 'dev', canEdit);
     html += goalSection(p, 'how', canEdit);
-    html += overallCard(p, canEdit) + upperCard(p) + visibilityNote();
+    html += overallCard(p, canEdit) + visibilityNote();
 
     root.innerHTML = html;
     afterRender(p, canEdit);
@@ -1364,7 +1352,7 @@
     if (draft.overall == null || draft.overall.score == null) { opParts.push(L('điểm toàn diện', 'overall rating')); opKeys.push('my:overall'); }
     // Nhận xét toàn diện bắt buộc với QLTT, tùy chọn với LM2 và HOD (§39.1)
     if (isLm() && !((draft.overall || {}).comment || '').trim()) {
-      opParts.push(L('ô Đánh giá toàn diện của QLTT', 'the Line manager overall assessment box')); opKeys.push('op-cmt');
+      opParts.push(L('ô Đánh giá toàn diện của Quản lý trực tiếp', 'the Line manager overall assessment box')); opKeys.push('op-cmt');
     }
     if (opParts.length) groups.push({ title: L('Đánh giá toàn diện', 'Overall assessment'), parts: opParts, keys: opKeys });
     return groups;
@@ -1833,7 +1821,6 @@
       // (HR system): chữ thường trong ngoặc, không viền, không nền (giống M-05)
       '#yer-mgr-detail-root .yer-sync-tag{display:inline-block;margin-left:4px;font-size:11px;font-weight:500;color:var(--z600);' +
         'text-transform:none;letter-spacing:0;white-space:nowrap}' +
-      '#yer-mgr-detail-root .yer-upper-card{margin-top:16px}' +
       '#yer-mgr-detail-root .op-hd-dom{text-transform:none;letter-spacing:0;font-size:12px;font-weight:500;color:var(--z600)}' +
       '.yer-note-list{margin:5px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:3px}' +
       // Khối Lưu ý và khối vàng dùng cùng kiểu với màn Nhân viên (§40.5a)
@@ -1954,10 +1941,10 @@
       '.yer-overall-grid{display:grid;gap:0}' +
       // Tối đa hai ô một hàng (HOD có bốn ô: hai hàng), mỗi ô đủ rộng để điểm, tên mức và ⓘ nằm một dòng như E-05 (04/10/2026)
       '#yer-mgr-detail-root .yer-overall-grid{gap:12px;padding:14px 16px}' +
-      '#yer-mgr-detail-root .yer-overall-grid .overall-panel{border:1px solid var(--z200);border-radius:var(--r)}' +
-      '#yer-mgr-detail-root .op-score-row [data-rt]{min-width:0;flex:1 1 0}' +
-      // Nhãn `Điểm toàn diện:` thẳng hàng với dòng điểm đầu tiên, không lơ lửng giữa khi tên mức xuống dòng
-      '#yer-mgr-detail-root .op-score-row{align-items:baseline}' +
+      '#yer-mgr-detail-root .yer-overall-grid .overall-panel{border:1px solid var(--z200);border-radius:var(--r);' +
+        'display:grid;grid-template-rows:subgrid;grid-row:span 5;row-gap:0}' +
+      '#yer-mgr-detail-root .op-slot{min-width:0}' +
+      '#yer-mgr-detail-root .yer-cap-row{margin:-4px 0 12px}' +
       // Nhãn mục tiêu đã chốt hoàn thành và domain người chấm
       '.g-done-chip{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:1px 8px;' +
         'border-radius:50px;border:1px solid var(--ok-bd);background:var(--ok-bg);color:var(--ok);' +

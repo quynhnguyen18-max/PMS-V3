@@ -260,8 +260,8 @@ test('LM2 and HOD only edit their own overall rating inside the filtered roster'
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   assert.match(detail, /LM2\/HOD không chấm điểm từng mục tiêu, chỉ đọc điểm của NV và của QLTT/);
   assert.match(detail, /readonly: r\.done \? true : !\(canEdit && isLm\(\)\)/);
-  assert.match(detail, /role\(\) === 'lm2' \? L\('Quản lý cấp 2 đánh giá'/);
-  assert.match(detail, /L\('Trưởng đơn vị đánh giá', 'Head of department review'\)/);
+  assert.match(detail, /lm2: \['Quản lý cấp 2 đánh giá', 'Second-level manager review'\]/);
+  assert.match(detail, /hod: \['Trưởng đơn vị đánh giá', 'Head of department review'\]/);
   assert.match(detail, /key: 'my:overall'/);
 });
 
@@ -869,7 +869,7 @@ test('late measures and the rating cap of 3 are shown to every manager level and
   assert.match(detail, /measure: canEdit \? measureHtml\(p, mine\.score == null \? null : mine\.score\) : null/);
   assert.match(detail, /id="yer-md-cap-ack"/);
   assert.match(detail, /payload\.capConfirmed = capConfirmed \?/);
-  assert.match(detail, /overCap: capOf\(p, r\.score\)/);
+  assert.match(detail, /overCap: v \? capOf\(p, v\.score\) : null/);
   const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
   // M-05: popup chấm điểm, duyệt hàng loạt, upload, duyệt hiệu chuẩn đều hỏi xác nhận khi vượt mức
   assert.match(manager, /if \(Y\.overRatingCap\(p, cur\.score\) && !cur\.ack\)/);
@@ -1041,12 +1041,13 @@ test('manager edit window matches the edit permission and names the right deadli
 
 test('manager detail shows the edit deadline and reviews from upper management with domains', () => {
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
-  const upper = detail.slice(detail.indexOf('function upperCard(p)'), detail.indexOf('function panelHtml(o)'));
-  assert.match(upper, /isLm\(\) && p\.lm2/);
-  assert.match(upper, /role\(\) !== 'hod' && p\.hod/);
-  assert.match(upper, /L\('Đánh giá của các cấp quản lý'/);
+  // Chuẩn bốn ô (chị chốt 04/10/2026): một thẻ Đánh giá toàn diện cho mọi vai, thứ tự NV, QLTT, Quản lý cấp 2, Trưởng đơn vị
+  const card = detail.slice(detail.indexOf('function overallCard(p, canEdit)'), detail.indexOf('function visibilityNote()'));
+  assert.match(card, /\['lm', 'lm2', 'hod'\]\.forEach/);
+  assert.match(card, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.doesNotMatch(detail, /function upperCard\(p\)/);
   assert.match(detail, /o\.by && o\.by\.login \? '<span class="op-hd-dom">- '/);
-  assert.match(detail, /overallCard\(p, canEdit\) \+ upperCard\(p\)/);
+  assert.match(detail, /overallCard\(p, canEdit\) \+ visibilityNote\(\)/);
   assert.match(detail, /function windowText\(p, canEdit\)/);
   assert.match(detail, /Y\.managerEditWindow\(role\(\), p\)/);
   assert.doesNotMatch(detail, /Y\.fmt\(Y\.step\(role\(\)\)\.to/);
@@ -1405,7 +1406,7 @@ test('manager year-end detail follows the mid-year detail structure', () => {
   assert.match(detail, /class="info-note yer-note-block"/);
   assert.doesNotMatch(detail, /el\('yer-md-myr'\)/);
   assert.match(page, /\.rv-section-hd\{[^}]*border-bottom:1px solid #f3cfe1;background:#fbe4f0\}/);
-  assert.match(detail, /L\('Quản lý trực tiếp đánh giá', 'Line manager review'\)/);
+  assert.match(detail, /lm: \['Quản lý trực tiếp đánh giá', 'Line manager review'\]/);
 });
 
 test('tour detail keeps a mascot illustration in every step card', () => {
