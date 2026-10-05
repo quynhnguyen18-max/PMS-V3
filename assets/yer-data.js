@@ -202,9 +202,12 @@
     e1: { hired: '2019-03-04' }, e2: { hired: '2020-06-15' },
     e3: { hired: '2018-01-08', resignFrom: '2026-11-30' },
     e4: { hired: '2019-09-02', maternityFrom: '2026-11-01', maternityTo: '2027-05-01' },
-    e5: { hired: '2017-05-22' }, e6: { hired: '2021-02-01' }, e7: { hired: '2018-08-13' },
-    e8: { hired: '2016-04-11' }, e9: { hired: '2019-01-07' }, e10: { hired: '2020-03-16' },
-    e11: { hired: '2015-10-05' }, e12: { hired: '2018-11-19' }, e13: { hired: '2017-07-03' },
+    // Danh sách Quản lý cấp 2 (e5, e6, e7) và Trưởng đơn vị (e8 đến e12) có đủ hồ sơ LWD, thai sản, nộp trễ (05/10/2026).
+    // Chỉ dùng người không có tình huống Nhân viên để không đổi các tình huống E-05.
+    e5: { hired: '2017-05-22', resignFrom: '2027-03-31' },
+    e6: { hired: '2021-02-01', maternityFrom: '2026-12-01', maternityTo: '2027-06-01' }, e7: { hired: '2018-08-13' },
+    e8: { hired: '2016-04-11' }, e9: { hired: '2019-01-07', resignFrom: '2027-03-31' }, e10: { hired: '2020-03-16' },
+    e11: { hired: '2015-10-05', maternityFrom: '2026-12-01', maternityTo: '2027-06-01' }, e12: { hired: '2018-11-19' }, e13: { hired: '2017-07-03' },
     e14: { hired: '2021-08-09' }, e15: { hired: '2019-12-02' }, e16: { hired: '2020-01-13' },
     y1: { hired: '2022-05-09' }, y2: { hired: '2021-03-15', maternityFrom: '2026-12-01', maternityTo: '2027-06-01' },
     y3: { hired: '2020-09-01' }, y4: { hired: '2022-01-10' }, y5: { hired: '2019-06-24' },
@@ -380,13 +383,14 @@
     self: ev('2027-01-16', { overall: { score: 4, comment: 'Phạm vi mục tiêu có điều chỉnh sau kỳ giữa năm nhưng kết quả cuối năm vẫn đạt cam kết.' },
       comments: { what: 'Mục tiêu migration được điều chỉnh phạm vi vào tháng 8 theo ưu tiên mới của khối.', dev: 'Hoàn thành chứng chỉ CKA đúng kế hoạch.', how: 'Thích ứng nhanh khi ưu tiên thay đổi.' } }),
     lm: ev('2027-01-28', { overall: { score: 4, comment: 'Thích ứng tốt với thay đổi ưu tiên, kết quả cuối năm đạt yêu cầu đề ra.' },
-      comments: { what: 'Điều chỉnh phạm vi hợp lý và vẫn giữ được chất lượng bàn giao.', dev: 'Chứng chỉ đạt được và có chia sẻ lại cho nhóm.', how: 'Tinh thần chủ động khi ưu tiên thay đổi.' } })
+      comments: { what: 'Điều chỉnh phạm vi hợp lý và vẫn giữ được chất lượng bàn giao.', dev: 'Chứng chỉ đạt được và có chia sẻ lại cho nhóm.', how: 'Tinh thần chủ động khi ưu tiên thay đổi.' } }),
+    lm2: ev('2027-02-19', { score: 4, comment: 'Đồng thuận với đánh giá của Quản lý trực tiếp.', source: 'manual' })
   };
 
   // s19 — không có dữ liệu kỳ giữa năm
   Y.e6 = {
     scenario: 's19',
-    self: ev('2027-01-17', { overall: { score: 3.5, comment: 'Năm đầu tiên tham gia đầy đủ chu kỳ đánh giá, tôi tập trung hoàn thành các mục tiêu nền tảng.' },
+    self: ev('2027-01-17', { voluntary: true, overall: { score: 3.5, comment: 'Năm đầu tiên tham gia đầy đủ chu kỳ đánh giá, tôi tập trung hoàn thành các mục tiêu nền tảng.' },
       comments: { what: 'Hoàn thành phần lớn mục tiêu công việc, một số hạng mục dài hạn còn tiếp tục.', dev: 'Đang theo lộ trình phát triển đã thống nhất với quản lý.', how: 'Hòa nhập tốt và chủ động học hỏi.' } })
   };
 
@@ -516,6 +520,14 @@
   Y.e8 = lateSeed('s29', '2027-01-28', 'YER-2026-Nguyen-Thi-Hoa.xlsx',
     goalsOf('e8'), 3, [3, 3]);                                                             // lần 3
   Y.y16 = lateSeed('s28', '2027-02-02', 'YER-2026-Mac-Thuy-Dung.xlsx', goalsOf('y16'), 3, [3, 3]);     // lần 4
+  // Danh sách Quản lý cấp 2, Trưởng đơn vị có hồ sơ nộp bổ sung lần 3 mà QLTT chấm vượt mức tối đa 3 (05/10/2026)
+  Y.e7 = lateSeed('s31', '2027-01-28', 'YER-2026-Dang-Quang-Vinh.xlsx', goalsOf('e7'), 3, [3, 3]);
+  Y.e7.lm = ev('2027-02-05', { overall: { score: 3.5, comment: 'Kết quả tốt nhưng cần nộp hồ sơ đúng hạn.' },
+    comments: { what: 'Các mục tiêu chính đạt yêu cầu.', dev: 'Có tiến bộ trong kế hoạch phát triển.', how: 'Phối hợp tốt với nhóm.' }, capConfirmed: { max: 3, score: 3.5, at: '2027-02-05' } });
+  Y.e8.lm = ev('2027-02-05', { overall: { score: 3.5, comment: 'Kết quả đạt yêu cầu; cần cải thiện việc nộp hồ sơ đúng hạn.' },
+    comments: { what: 'Các mục tiêu chính hoàn thành.', dev: 'Có đầu tư cho kế hoạch phát triển.', how: 'Tinh thần hợp tác tốt.' }, capConfirmed: { max: 3, score: 3.5, at: '2027-02-05' } });
+  // HRBP tải điểm hộ HOD cho hồ sơ bị giới hạn điểm 3: duyệt điểm này phải qua popup xác nhận vượt mức (05/10/2026)
+  Y.e8.hrbpUpload = ev('2027-02-26', { score: 3.5, comment: 'Giữ mức đề xuất của Quản lý trực tiếp sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' });
   // QLTT gửi đánh giá cho hồ sơ nộp bổ sung ngày 05/02/2027 (tình huống `QLTT đã gửi trên hồ sơ nộp bổ sung`, 04/10/2026)
   Y.y16.lm = ev('2027-02-05', { overall: { score: 3, comment: 'Kết quả đạt yêu cầu; cần cải thiện việc cập nhật tiến độ và nộp hồ sơ đúng hạn.' },
     comments: { what: 'Các mục tiêu chính hoàn thành theo cam kết, số liệu đo lường rõ ràng.', dev: 'Có tiến bộ trong kế hoạch phát triển cá nhân.', how: 'Phối hợp tốt với các nhóm liên quan.' } });
@@ -814,60 +826,62 @@
       wen: 'An HR system badge next to the manager score, with no comment attached.' },
 
     /* ── Quản lý cấp 2 ── */
-    { id: 'lm2-01', g: 'r-lm2', sub: 'lm2-pre', emp: 'y8', role: 'lm2', date: '2027-02-05', screen: 'M-06',
+    /* Tình huống M-06 của Quản lý cấp 2, Trưởng đơn vị dùng đúng người trong danh sách của vai đó (05/10/2026):
+       Quản lý cấp 2 e5 (LWD), e6 (thai sản), e7 (nộp bổ sung lần 3); Trưởng đơn vị e8 đến e12. */
+    { id: 'lm2-01', g: 'r-lm2', sub: 'lm2-pre', emp: 'e5', role: 'lm2', date: '2027-02-05', screen: 'M-06',
       vi: 'Quản lý cấp 2 chưa tới bước, QLTT đã gửi', en: 'Before the second-level step, manager submitted',
-      wvi: 'Bước Quản lý cấp 2 chưa mở: chỉ xem, khối Lưu ý nói ngày mở bước.',
-      wen: 'The second-level step is not open: view only, the note gives the opening date.' },
-    { id: 'lm2-02', g: 'r-lm2', sub: 'lm2-in', emp: 'y8', role: 'lm2', date: '2027-02-17', screen: 'M-06',
+      wvi: 'Banner QLTT đã hoàn thành; dải quy trình chưa tới bước Quản lý cấp 2; khối Lưu ý nhắc LWD 31/03/2027.',
+      wen: 'The manager completed banner; the process strip is before the second-level step; the note shows the LWD.' },
+    { id: 'lm2-02', g: 'r-lm2', sub: 'lm2-in', emp: 'e5', role: 'lm2', date: '2027-02-17', screen: 'M-06',
       vi: 'Quản lý cấp 2 chưa đánh giá, có điểm NV và QLTT', en: 'Not rated yet, employee and manager rated',
-      wvi: 'Banner QLTT đã hoàn thành đánh giá cuối năm; không có nút lưu; khối Lưu ý nói Quản lý cấp 2 chấm và chỉnh sửa tại danh sách nhân viên, kèm hạn.',
-      wen: 'No save button; the note says the second-level manager rates and edits in the employee list, with the deadline.' },
-    { id: 'lm2-03', g: 'r-lm2', sub: 'lm2-in', emp: 'e13', role: 'lm2', date: '2027-02-17', screen: 'M-06',
-      vi: 'NV không Tự đánh giá', en: 'Employee did not self-assess',
-      wvi: 'Banner QLTT đã hoàn thành đánh giá cuối năm; cột điểm nhân viên trống, hồ sơ vẫn đi lên cấp 2. Màn chỉ để xem; Quản lý cấp 2 chấm ở danh sách nhân viên.',
-      wen: 'Grey banner for the missing self assessment; the employee column is empty and the profile still reaches the second level.' },
-    { id: 'lm2-04', g: 'r-lm2', sub: 'lm2-in', emp: 'y12', role: 'lm2', date: '2027-02-17', screen: 'M-06',
-      vi: 'NV nộp bổ sung, điểm QLTT do hệ thống lấy', en: 'Late profile, manager score synced by the system',
-      wvi: 'Banner nộp bổ sung, tầng dưới ghi lần nhắc và hình thức xử lý; ô Quản lý trực tiếp đánh giá ghi (HR system). Màn chỉ để xem; Quản lý cấp 2 chấm ở danh sách nhân viên.',
-      wen: 'The late banner with its measure; the line manager panel shows (HR system).' },
-    { id: 'lm2-05', g: 'r-lm2', sub: 'lm2-in', emp: 'e11', role: 'lm2', date: '2027-02-20', screen: 'M-06',
+      wvi: 'Banner QLTT đã hoàn thành; dải quy trình ở bước Quản lý cấp 2; thẻ bốn ô, ô Quản lý cấp 2 còn trống; khối Lưu ý nhắc LWD.',
+      wen: 'The manager completed banner; four panels with an empty second-level panel; the note shows the LWD.' },
+    { id: 'lm2-03', g: 'r-lm2', sub: 'lm2-in', emp: 'e7', role: 'lm2', date: '2027-02-17', screen: 'M-06',
+      vi: 'NV nộp bổ sung ở lần nhắc 3, điểm QLTT cao hơn mức tối đa 3', en: 'Late at reminder 3, manager rating above the maximum of 3',
+      wvi: 'Banner QLTT đã hoàn thành, tầng dưới ghi ngày nộp bổ sung và hình thức giới hạn điểm 3; ô Quản lý trực tiếp có tag Cao hơn mức tối đa 3. Màn chỉ để xem; Quản lý cấp 2 chấm ở danh sách nhân viên.',
+      wen: 'The late banner with the cap measure; the line manager panel carries the Above the maximum of 3 tag.' },
+    { id: 'lm2-04', g: 'r-lm2', sub: 'lm2-in', emp: 'e6', role: 'lm2', date: '2027-02-17', screen: 'M-06',
+      vi: 'NV nghỉ thai sản, điểm QLTT do hệ thống lấy', en: 'Maternity leave, manager score synced by the system',
+      wvi: 'Nhân viên thai sản vẫn tự nguyện Tự đánh giá; ô Quản lý trực tiếp ghi (HR system) vì QLTT quá hạn không chấm. Màn chỉ để xem; Quản lý cấp 2 chấm ở danh sách nhân viên.',
+      wen: 'The employee on maternity leave self-assessed anyway; the line manager panel shows (HR system).' },
+    { id: 'lm2-05', g: 'r-lm2', sub: 'lm2-in', emp: 'e5', role: 'lm2', date: '2027-02-20', screen: 'M-06',
       vi: 'Quản lý cấp 2 đã đánh giá', en: 'Second-level rating saved',
       wvi: 'Banner Quản lý cấp 2 đã hoàn thành đánh giá cuối năm, Ngày lưu điểm; không có Chỉnh sửa hay Lịch sử chỉnh sửa vì Quản lý cấp 2 chỉ xem ở màn này.',
       wen: 'The completed banner with the save date; no Edit or edit history, since the second-level manager only views this screen.' },
-    { id: 'lm2-06', g: 'r-lm2', sub: 'lm2-post', emp: 'y8', role: 'lm2', date: '2027-02-23', screen: 'M-06',
+    { id: 'lm2-06', g: 'r-lm2', sub: 'lm2-post', emp: 'e6', role: 'lm2', date: '2027-02-23', screen: 'M-06',
       vi: 'Quản lý cấp 2 không đánh giá trước hạn', en: 'Second-level manager missed the deadline',
-      wvi: 'Hết hạn mà chưa chấm: màn chỉ để xem, khối Lưu ý nói bước Quản lý cấp 2 đã kết thúc.',
-      wen: 'Deadline passed without a rating: view only, the note says the step has ended.' },
+      wvi: 'Hết hạn mà chưa chấm: ô Quản lý cấp 2 hiện điểm hệ thống tự lấy kèm (HR system) như ô Quản lý trực tiếp.',
+      wen: 'Deadline passed without a rating: the second-level panel shows the system-synced score with (HR system).' },
     { id: 'lm2-07', g: 'r-lm2', emp: 'e15', role: 'lm2', date: '2027-02-27', screen: 'M-05',
       vi: 'Quá hạn - đồng bộ điểm từ quản lý', en: 'Overdue - score synced from the manager',
       wvi: 'Đồng bộ ở tầng thứ hai, vẫn dùng chung một nhãn HR system.',
       wen: 'Second-level sync, still using the same shared HR system label.' },
 
     /* ── Trưởng đơn vị ── */
-    { id: 'hod01', g: 'r-hod', sub: 'hod-pre', emp: 'e16', role: 'hod', date: '2027-02-17', screen: 'M-06',
+    { id: 'hod01', g: 'r-hod', sub: 'hod-pre', emp: 'e12', role: 'hod', date: '2027-02-20', screen: 'M-06',
       vi: 'Trưởng đơn vị chưa tới bước, Quản lý cấp 2 đã đánh giá', en: 'Before the HOD step, second level rated',
-      wvi: 'Bước Trưởng đơn vị chưa mở: chỉ xem, khối Lưu ý nói ngày mở bước.',
-      wen: 'The HOD step is not open: view only, the note gives the opening date.' },
-    { id: 'hod02', g: 'r-hod', sub: 'hod-in', emp: 'e16', role: 'hod', date: '2027-02-27', screen: 'M-06',
+      wvi: 'Banner Quản lý cấp 2 đã hoàn thành; dải quy trình chưa tới bước Trưởng đơn vị; ô Trưởng đơn vị còn trống.',
+      wen: 'The second-level completed banner; the process strip is before the HOD step; the HOD panel is empty.' },
+    { id: 'hod02', g: 'r-hod', sub: 'hod-in', emp: 'e12', role: 'hod', date: '2027-02-24', screen: 'M-06',
       vi: 'Trưởng đơn vị chưa đánh giá, có điểm NV, QLTT và Quản lý cấp 2', en: 'Not rated yet, all lower levels rated',
-      wvi: 'Banner Quản lý cấp 2 đã hoàn thành đánh giá cuối năm; thẻ Đánh giá toàn diện có bốn ô cách nhau, hai ô một hàng, chỉ để xem; khối Lưu ý nói Trưởng đơn vị chấm và chỉnh sửa tại danh sách nhân viên.',
-      wen: 'The overall card has four read-only panels, two per row; the note says the HOD rates and edits in the employee list.' },
+      wvi: 'Banner Quản lý cấp 2 đã hoàn thành; dải quy trình ở bước Trưởng đơn vị; thẻ bốn ô, ô Trưởng đơn vị còn trống; màn chỉ để xem.',
+      wen: 'The second-level completed banner; four panels with an empty HOD panel; view only.' },
     { id: 'hod03', g: 'r-hod', sub: 'hod-in', emp: 'e12', role: 'hod', date: '2027-02-27', screen: 'M-06',
       vi: 'Trưởng đơn vị đã đánh giá', en: 'HOD rating saved',
       wvi: 'Banner Trưởng đơn vị đã hoàn thành đánh giá cuối năm, Ngày lưu điểm; không có Chỉnh sửa hay Lịch sử chỉnh sửa vì Trưởng đơn vị chỉ xem ở màn này.',
       wen: 'The completed banner with the save date; no Edit or edit history, since the HOD only views this screen.' },
-    { id: 'hod04', g: 'r-hod', sub: 'hod-post', emp: 'e16', role: 'hod', date: '2027-03-09', screen: 'M-06',
+    { id: 'hod04', g: 'r-hod', sub: 'hod-post', emp: 'e10', role: 'hod', date: '2027-03-09', screen: 'M-06',
       vi: 'Trưởng đơn vị không đánh giá trước hạn', en: 'HOD missed the deadline',
-      wvi: 'Hết hạn mà chưa chấm: màn chỉ để xem; không đồng bộ từ Quản lý cấp 2 sang Trưởng đơn vị.',
-      wen: 'Deadline passed without a rating: view only; nothing is synced from the second level to the HOD.' },
+      wvi: 'Hết hạn mà chưa chấm: ô Trưởng đơn vị để trống vì không đồng bộ từ Quản lý cấp 2 sang Trưởng đơn vị; màn chỉ để xem.',
+      wen: 'Deadline passed without a rating: the HOD panel stays empty since nothing syncs from the second level; view only.' },
     { id: 'hod05', g: 'r-hod', emp: 'e1', role: 'hod', date: '2027-02-27', screen: 'M-05',
       vi: 'Lưới điểm toàn đơn vị', en: 'Department-wide score grid',
-      wvi: 'Lưới đủ bốn cột điểm để theo dõi phân bổ và độ lệch giữa các tầng.',
-      wen: 'The four-column grid used to watch the distribution and the gaps between levels.' },
+      wvi: 'Lưới đủ bốn cột điểm; danh sách có hồ sơ nộp bổ sung vượt mức tối đa (dấu cảnh báo), thai sản và LWD.',
+      wen: 'The four-column grid, with a late profile above the cap, a maternity case and an LWD.' },
     { id: 'hod06', g: 'r-hod', emp: 'e9', role: 'hod', date: '2027-03-01', screen: 'M-05',
       vi: 'HRBP tải điểm hộ - chờ duyệt', en: 'HRBP uploaded scores - awaiting approval',
-      wvi: 'Điểm chưa duyệt nằm ở màn phê duyệt riêng, không hiện ở lưới chính.',
-      wen: 'Unapproved scores sit in their own approval screen, not in the main grid.' },
+      wvi: 'Điểm chưa duyệt nằm ở màn phê duyệt riêng, không hiện ở lưới chính. Duyệt điểm của Nguyễn Thị Hoa (3.5, tối đa 3) thì có popup xác nhận vượt mức.',
+      wen: 'Unapproved scores sit in their own approval screen, not in the main grid. Approving the 3.5 above the cap of 3 asks for confirmation.' },
     { id: 'hod07', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-03-12', screen: 'M-05',
       vi: 'Quá hạn - không đồng bộ', en: 'Overdue - no sync',
       wvi: 'Hồ sơ giữ trạng thái Chờ HOD đánh giá, quy trình vẫn đi tiếp sang bước sau.',

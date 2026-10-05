@@ -201,6 +201,35 @@
     '.tabs:has(.yer-mascot-guide){position:relative;padding-right:48px}',
     '.yer-mascot-guide{position:absolute;right:5px;top:50%;z-index:12;transform:translateY(-50%);display:none}.tabs:has(#tab-yer.on) .yer-mascot-guide{display:block}.yer-mascot-trigger{position:relative;width:34px;height:34px;padding:2px;border:1px solid var(--brand-ring);border-radius:11px;background:linear-gradient(145deg,#fff 15%,var(--brand-muted));box-shadow:0 3px 11px rgba(65,18,47,.13);cursor:pointer;display:grid;place-items:center;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.yer-mascot-trigger:hover,.yer-mascot-trigger:focus-visible{transform:translateY(-1px);background:#fff;box-shadow:0 5px 16px rgba(165,0,100,.19);outline:none}.yer-mascot-trigger:focus-visible{box-shadow:0 0 0 3px rgba(249,83,150,.22),0 6px 18px rgba(165,0,100,.20)}.yer-mascot-trigger img{width:28px;height:28px;object-fit:contain;display:block}.yer-mascot-trigger:hover img,.yer-mascot-trigger:focus-visible img{animation:yer-hello .72s ease-in-out 1}.yer-mascot-dot{position:absolute;left:-2px;top:-3px;width:8px;height:8px;border:2px solid #fff;border-radius:50%;background:var(--brand)}.yer-mascot-bubble{position:absolute;right:42px;top:50%;width:300px;padding:12px 14px;border:1px solid var(--brand-ring);border-radius:12px;background:#fff;color:var(--z600);font-size:12px;line-height:1.5;box-shadow:0 12px 32px rgba(24,24,27,.16);opacity:0;visibility:hidden;pointer-events:none;transform:translate(7px,-50%) scale(.985);transform-origin:right center;transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s}.yer-mascot-guide:hover .yer-mascot-bubble,.yer-mascot-guide:focus-within .yer-mascot-bubble{opacity:1;visibility:visible;transform:translate(0,-50%);transition-delay:0s}.yer-mascot-bubble:after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);border:7px solid transparent;border-left-color:#fff}.yer-mascot-step{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-weight:700;white-space:nowrap}.yer-mascot-guide.stuck{position:fixed;right:10px;top:50%;transform:translateY(-50%)}.yer-mascot-title{font-size:13px;font-weight:700;color:var(--z900);margin-bottom:3px}.yer-mascot-state{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:99px;background:var(--brand-muted);color:var(--brand);font-size:10.5px;font-weight:700}body.pms-tour-open .yer-mascot-guide{display:none!important}@keyframes yer-hello{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-4deg) translateY(-1px)}65%{transform:rotate(3deg)}}@media(prefers-reduced-motion:reduce){.yer-mascot-trigger,.yer-mascot-bubble{transition:none}.yer-mascot-trigger img{animation:none!important}}@media(max-width:700px){.yer-mascot-bubble{width:min(284px,calc(100vw - 64px))}}',
 
+    /* ── Banner xanh hai tầng dùng chung E-05 và M-06 (YER-SPEC §42, §48, chị chốt 05/10/2026):
+       tầng trên là icon, tiêu đề, MỘT dòng ngày (kèm liên kết Lịch sử chỉnh sửa), bên phải là điểm và nút;
+       tầng dưới trải hết chiều ngang, thẳng lề với tiêu đề, chứa các dòng dài. ── */
+    '.submit-banner.yer-sb2{flex-wrap:wrap;row-gap:0}',
+    '.yer-sb2 .sb-info{flex:1 1 240px;min-width:0}',
+    '.yer-sb2 .yer-sb-more{flex:0 0 calc(100% - 50px);min-width:0;margin:10px 0 0 50px;padding-top:9px;border-top:1px dashed var(--ok-bd);',
+    'display:flex;flex-direction:column;gap:4px}',
+    '.yer-sb2 .yer-sb-more .sb-sub,.yer-sb2 .yer-sb-more .yer-next-step{margin:0}',
+    '.yer-sb-link{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:none;font:inherit;font-weight:600;color:var(--z600);cursor:pointer}',
+    '.yer-sb-link:hover{text-decoration:underline}',
+    '.yer-sb-link i{font-size:13px}',
+
+    /* ── Các bước tải file (popup nộp bổ sung E-05, popup Upload điểm M-05; chị chốt 05/10/2026):
+       một khung viền, mỗi bước một hàng: nhãn BƯỚC n kèm icon, câu việc cần làm và nút ngay trên cùng hàng,
+       ghi chú phụ chữ nhỏ xám. Không tô màu thẻ bước hay tên cột để khỏi nhầm với nút. ── */
+    '.yer-flow{margin:0;padding:0;list-style:none;border:1px solid var(--z200);border-radius:10px;overflow:hidden;background:#fff}',
+    '.yer-flow-step{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:18px;min-width:0;min-height:68px;padding:12px 16px;background:#fff}',
+    '.yer-flow-step+.yer-flow-step{border-top:1px solid var(--z200)}',
+    '.yer-flow-head{display:flex;align-items:center;gap:7px}',
+    '.yer-flow-no{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--brand)}',
+    '.yer-flow-icon{flex:none;display:inline-grid;place-items:center;color:var(--z500);font-size:15px}',
+    '.yer-flow-copy{min-width:0}',
+    '.yer-flow-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap}',
+    '.yer-flow-title{font-size:12px;line-height:1.45;color:var(--z900)}',
+    '.yer-flow-line .btn{flex:none}',
+    '.yer-flow-note{display:flex;align-items:flex-start;gap:5px;margin-top:6px;font-size:10.5px;line-height:1.45;color:var(--z500)}',
+    '.yer-flow-note i{flex:none;margin-top:1px;color:var(--brand);font-size:13px}',
+    '@media(max-width:620px){.yer-flow-step{grid-template-columns:1fr;gap:8px;padding:14px}.yer-flow-line{align-items:flex-start;flex-direction:column}}',
+
     /* ── Lịch sử chỉnh sửa: mỗi lần gửi một thẻ, mới nhất ở trên, thẻ đang ghi nhận viền xanh (E-05, M-06) ── */
     '.yer-log-dialog{max-width:540px}',
     '.yer-vers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto}',
@@ -241,6 +270,17 @@
     document.head.appendChild(s);
     document.addEventListener('mouseover', placeTip, true);
     document.addEventListener('focusin', placeTip, true);
+  }
+  /* Banner xanh hai tầng (E-05, M-06). o: { cls, icon, title, sub, right, more: [] }. title, sub, right, more là HTML đã escape. */
+  function banner(o) {
+    return '<div class="submit-banner yer-sb2' + (o.cls ? ' ' + o.cls : '') + '">' +
+      '<div class="sb-icon"><i class="bx ' + (o.icon || 'bx-check-circle') + '"></i></div>' +
+      '<div class="sb-info"><div class="sb-title">' + o.title + '</div>' +
+        (o.sub ? '<div class="sb-sub">' + o.sub + '</div>' : '') + '</div>' +
+      (o.right || '') +
+      ((o.more || []).length ? '<div class="yer-sb-more">' + o.more.map(function (x) {
+        return x.indexOf('<div') === 0 ? x : '<div class="sb-sub">' + x + '</div>'; }).join('') + '</div>' : '') +
+    '</div>';
   }
   /* Đặt tooltip .pms-tip-body ngay trên nút (thiếu chỗ thì dưới), giữ trong màn hình, mũi tên chỉ đúng nút. */
   function placeTip(e) {
@@ -773,6 +813,7 @@
 
   window.PMSUi = {
     rating: rating,
+    banner: banner,
     mascotGuide: mascotGuide,
     tabs: tabs,
     steps: steps,

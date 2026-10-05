@@ -455,6 +455,10 @@
   }
 
   /* ── banner trạng thái đã gửi ────────────────────────── */
+  /* Cùng khung hai tầng với M-06 (PMSUi.banner, chị chốt 05/10/2026):
+     - tầng trên: tiêu đề, MỘT dòng ngày (nhãn trễ hạn, liên kết `Lịch sử chỉnh sửa`), bên phải `Điểm tự đánh giá`,
+       `Điểm cuối cùng` (luôn hiện, `—` tới khi công bố) và nút;
+     - tầng dưới: hình thức xử lý, hạn chỉnh sửa, bước tiếp theo. */
   function submitBanner(p){
     // Đang chỉnh sửa lại thì khối "Đang chỉnh sửa" thay cho banner (§8)
     if(!p.self || p.selfEditing) return '';
@@ -463,52 +467,50 @@
     // Hồ sơ nộp bổ sung luôn mang nhãn trễ hạn, kể cả sau khi công bố (§27.3)
     var isLateFile = !!p.lateSubmission;
     var daysLate = isLateFile ? Y.lateDays(p.lateSubmission.at || p.self.at) : 0;
-    // Tiêu đề nói rõ đã xong việc gì, dòng phụ chỉ còn ngày gửi.
-    // Trạng thái đang chờ ai đã nằm ở nhãn tab và ở dải quy trình, không lặp lại ở đây.
-    var sub = p.published
+    // Tầng trên chỉ một dòng ngày. Trạng thái đang chờ ai đã nằm ở nhãn tab và dải quy trình.
+    // Hồ sơ nộp bằng file chỉ gửi một lần nên không có lịch sử chỉnh sửa
+    var sub = (p.published
       ? esc(L('Ngày công bố: ','Published on: ') + Y.fmt(p.final.publishedAt, lg()))
       : esc(L('Ngày gửi: ','Submitted on: ') + Y.fmt(p.self.at, lg())) +
         (isLateFile ? ' <span class="yer-late-status">' +
-          esc(L('Trễ hạn ' + daysLate + ' ngày làm việc','Late by ' + daysLate + ' working day' + (daysLate === 1 ? '' : 's'))) + '</span>' : '');
-    // Hình thức xử lý nằm ngay trong banner, dưới dòng ngày gửi (§27.3)
-    // Chỉ hiện khi đã có hình thức áp dụng (lần 3, 4). Nhãn in đậm, nội dung chữ thường, chỉ nhấn từ khóa.
+          esc(L('Trễ hạn ' + daysLate + ' ngày làm việc','Late by ' + daysLate + ' working day' + (daysLate === 1 ? '' : 's'))) + '</span>' : '')) +
+      (!p.lateSubmission && p.selfLog && p.selfLog.length
+        ? ' - <button type="button" class="yer-sb-link" id="yer-btn-history"><i class="bx bx-history"></i>' + L('Lịch sử chỉnh sửa','Edit history') + '</button>'
+        : '');
+    var more = [];
+    // Hình thức xử lý ở tầng dưới (§27.3). Chỉ hiện khi đã có hình thức áp dụng (lần 3, 4). Nhãn in đậm, chỉ nhấn từ khóa.
     if(isLateFile && p.lateRound && p.lateRound.consequence.length){
-      sub += '</div><div class="sb-sub yer-late-csq">' +
+      more.push('<div class="sb-sub yer-late-csq">' +
         '<strong>' + L('Hình thức xử lý theo quy định','Measure under policy') + '</strong>' +
         L(' (nộp ở lần nhắc thứ ' + p.lateRound.round + '): ',' (submitted at reminder ' + p.lateRound.round + '): ') +
-        lateNowHtml(p.lateRound);
+        lateNowHtml(p.lateRound) + '</div>');
     }
-    // Còn hạn thì nói rõ mốc cuối cùng còn chỉnh sửa được, ngay dưới ngày gửi (§8)
+    // Còn hạn thì nói rõ mốc cuối cùng còn chỉnh sửa được (§8)
     if(st.canReopen){
-      sub += '</div><div class="sb-sub">' + L('Bạn có thể chỉnh sửa tới hết ngày <strong>' + Y.fmt(st.deadline, lg()) + '</strong>',
-        'You can edit until the end of <strong>' + Y.fmt(st.deadline, lg()) + '</strong>');
+      more.push(L('Bạn có thể chỉnh sửa tới hết ngày <strong>' + Y.fmt(st.deadline, lg()) + '</strong>',
+        'You can edit until the end of <strong>' + Y.fmt(st.deadline, lg()) + '</strong>'));
     }
     var mgr = (p.emp && p.emp.mgr) || {};
-    var next = (p.lateSubmission && !p.lm && !p.published)
-      ? '<div class="yer-next-step"><span>' + L('Tiếp theo:','Next:') + '</span><strong>' +
-          L('Chờ Quản lý trực tiếp đánh giá','Awaiting line manager review') + '</strong>' +
-          (mgr.login ? '<span> - ' + esc(mgr.login) + '</span>' : '') + '</div>'
-      : '';
-
-    var scores = '<div class="sb-score-wrap"><span class="sb-score-lbl">' + L('Điểm tự đánh giá:','Self rating:') +
-      '</span><span class="sb-score-val">' + (sc == null ? '—' : sc) + '</span></div>';
-    if(p.published){
-      scores += '<div class="sb-score-wrap yer-final-wrap"><span class="sb-score-lbl">' +
-        L('Kết quả cuối cùng:','Final result:') + '</span><span class="sb-score-val yer-final-val">' + p.final.score + '</span></div>';
+    if(p.lateSubmission && !p.lm && !p.published){
+      more.push('<div class="yer-next-step"><span>' + L('Tiếp theo:','Next:') + '</span><strong>' +
+        L('Chờ Quản lý trực tiếp đánh giá','Awaiting line manager review') + '</strong>' +
+        (mgr.login ? '<span> - ' + esc(mgr.login) + '</span>' : '') + '</div>');
     }
-    return '<div class="submit-banner"><div class="sb-icon"><i class="bx bx-check-circle"></i></div>' +
-      '<div class="sb-info"><div class="sb-title">' +
-        (p.published ? L('Đã công bố kết quả đánh giá cuối năm 2026','Year-End Review 2026 result published')
-                     : isLateFile
-                       ? L('Đã hoàn thành bổ sung Tự đánh giá cuối năm','Supplemental year-end self assessment completed')
-                       : L('Đã hoàn thành Tự đánh giá cuối năm','Year-end self assessment completed')) + '</div>' +
-      '<div class="sb-sub">' + sub + '</div>' + next + '</div>' + scores +
+
+    var finalScore = p.published && p.final ? p.final.score : null;
+    var finalTip = L('Có điểm khi quy trình đánh giá hoàn tất và hệ thống công bố kết quả.',
+      'Shown once the review process is complete and the system publishes the result.');
+    var right = '<div class="sb-score-wrap">' +
+        '<div class="sb-score-group"><span class="sb-score-lbl">' + L('Điểm tự đánh giá:','Self rating:') + '</span>' +
+          '<span class="sb-score-val">' + (sc == null ? '—' : esc(String(sc))) + '</span></div>' +
+        '<div class="sb-score-group"><span class="sb-score-lbl">' + L('Điểm cuối cùng:','Final rating:') + '</span>' +
+          '<span class="sb-score-val"' + (finalScore == null ? ' tabindex="0" aria-label="' + esc(finalTip) + '" data-tip="' + esc(finalTip) +
+            '" onmouseenter="showTip(this)" onmouseleave="hideTip()"' : '') + '>' +
+            (finalScore == null ? '—' : esc(String(finalScore))) + '</span></div>' +
+      '</div>' +
       '<div class="sb-actions">' +
         (st.canReopen ? '<button class="btn btn-cta-outline btn-sm" type="button" id="yer-btn-edit"><i class="bx bx-edit-alt"></i>' +
           L('Chỉnh sửa','Edit') + '</button>' : '') +
-        // Hồ sơ nộp bằng file chỉ gửi một lần nên không có lịch sử chỉnh sửa
-        (!p.lateSubmission && p.selfLog && p.selfLog.length ? '<button class="btn btn-outline btn-sm" type="button" id="yer-btn-history"><i class="bx bx-history"></i>' +
-          L('Lịch sử chỉnh sửa','Edit history') + '</button>' : '') +
         /* Nút tải xuống dùng chung kiểu với tab Mục tiêu (.download-menu của E-05): bấm vào thì
            chọn định dạng PDF hoặc Excel (chốt 28/09/2026). */
         '<div class="download-menu yer-dl-menu">' +
@@ -518,7 +520,12 @@
           '<div class="download-popover" role="menu">' +
             '<button class="download-option" type="button" role="menuitem" data-yer-dl="pdf"><i class="bx bxs-file-pdf"></i> PDF (.pdf)</button>' +
             '<button class="download-option" type="button" role="menuitem" data-yer-dl="xlsx"><i class="bx bx-spreadsheet"></i> Excel (.xlsx)</button>' +
-          '</div></div></div></div>';
+          '</div></div></div>';
+    return U.banner({
+      title: p.published ? L('Đã công bố kết quả đánh giá cuối năm 2026','Year-End Review 2026 result published')
+        : isLateFile ? L('Đã hoàn thành bổ sung Tự đánh giá cuối năm','Supplemental year-end self assessment completed')
+        : L('Đã hoàn thành Tự đánh giá cuối năm','Year-end self assessment completed'),
+      sub: sub, right: right, more: more });
   }
 
   /* ── toolbar ─────────────────────────────────────────── */
@@ -650,14 +657,15 @@
     /* Màu vàng cảnh báo (--warn), tiêu đề cỡ lớn hơn chữ thường. Chỉ nói lần nhắc thứ mấy,
        không nhắc tổng số lần. Dòng hình thức xử lý chỉ hiện khi lần này đã có hình thức áp dụng.
        Dòng Lưu ý là câu đầy đủ theo quy định, không lặp lại hạn nộp đã nói ở câu trên. */
-    var nowText = r.consequence.length ? r.consequence.map(consequenceText).join(' ') : '';
+    // Câu hình thức xử lý dựng ở lateNowHtml (từ khóa in đậm theo model); ở đây chỉ cần biết lần này có hình thức hay không
+    var hasNow = r.consequence.length > 0;
     return '<div class="yer-note yer-late-note"><i class="bx bx-time-five"></i><div class="yer-late-note-body">' +
       '<div class="yer-late-note-title">' + L('Bạn đã quá hạn Tự đánh giá cuối năm - Lần nhắc thứ ' + r.round,
                      'Your Year-End self assessment is overdue - Reminder ' + r.round) + '</div>' +
       L('Hạn Tự đánh giá đã kết thúc ngày ' + Y.fmt(Y.step('self').to, lg()) + ', <strong>trễ ' + days + ' ngày làm việc</strong>. Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày ' + deadline + '</strong>.',
         'The self-assessment deadline was ' + Y.fmt(Y.step('self').to, lg()) + ', <strong>' + days + ' working days late</strong>. Submit your late file before <strong>18:00 on ' + deadline + '</strong>.') +
       '<ul class="yer-note-list">' +
-        (nowText ? '<li>' + L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + lateNowHtml(r) + '</li>' : '') +
+        (hasNow ? '<li>' + L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + lateNowHtml(r) + '</li>' : '') +
         '<li>' + L('<strong>Lưu ý:</strong> nếu quá hạn trên mà bạn vẫn chưa nộp, ','<strong>Note:</strong> if you still have not submitted by then, ') + esc(lateNextText(r)) + '</li>' +
       '</ul>' +
       /* Hai bước đánh số để người mới hiểu tick xác nhận là bước đầu tiên của việc nộp bổ sung,
@@ -721,20 +729,20 @@
     return '<section class="yer-late-upload" aria-label="' + esc(L('Các bước nộp bổ sung','Late submission steps')) + '">' +
         '<p class="yer-late-lead">' + L('Hoàn thành 3 bước dưới đây trước <strong>18:00 ngày ' + Y.fmt(p.lateRound.deadline, lg()) + '</strong>.',
                                          'Complete the 3 steps below before <strong>18:00 on ' + Y.fmt(p.lateRound.deadline, lg()) + '</strong>.') + '</p>' +
-        '<ol class="yer-late-flow">' +
-          '<li class="yer-late-step">' +
-            '<div class="yer-late-step-head"><span class="yer-late-step-icon" aria-hidden="true"><i class="bx bx-download"></i></span><span class="yer-late-step-no">' + L('Bước 1','Step 1') + '</span></div>' +
-            '<div class="yer-late-step-copy"><div class="yer-late-step-line"><strong class="yer-late-step-title">' + L('Tải xuống Template và điền thông tin theo đúng định dạng','Download the template and complete it in the required format') + '</strong>' +
+        '<ol class="yer-flow">' +
+          '<li class="yer-flow-step">' +
+            '<div class="yer-flow-head"><span class="yer-flow-icon" aria-hidden="true"><i class="bx bx-download"></i></span><span class="yer-flow-no">' + L('Bước 1','Step 1') + '</span></div>' +
+            '<div class="yer-flow-copy"><div class="yer-flow-line"><strong class="yer-flow-title">' + L('Tải xuống Template và điền thông tin theo đúng định dạng','Download the template and complete it in the required format') + '</strong>' +
             '<button type="button" class="btn btn-outline btn-sm" id="yer-late-template"><i class="bx bx-download"></i>' + L('Tải Template','Download template') + '</button></div></div>' +
           '</li>' +
-          '<li class="yer-late-step yer-late-step-info">' +
-            '<div class="yer-late-step-head"><span class="yer-late-step-icon" aria-hidden="true"><i class="bx bx-edit-alt"></i></span><span class="yer-late-step-no">' + L('Bước 2','Step 2') + '</span></div>' +
-            '<div class="yer-late-step-copy"><strong class="yer-late-step-title">' + L('Điền đủ Mục tiêu đã thống nhất với Quản lý trực tiếp và hoàn thiện phần Tự đánh giá','Complete the goals agreed with your line manager and finish the self assessment') + '</strong>' +
-            '<span class="yer-late-step-note"><i class="bx bx-info-circle"></i>' + L('Quản lý không duyệt lại mục tiêu trên hệ thống với trường hợp nhân viên trễ hạn Tự đánh giá.','Goals are not reapproved in the system when an employee submits a late self assessment.') + '</span></div>' +
+          '<li class="yer-flow-step yer-flow-info">' +
+            '<div class="yer-flow-head"><span class="yer-flow-icon" aria-hidden="true"><i class="bx bx-edit-alt"></i></span><span class="yer-flow-no">' + L('Bước 2','Step 2') + '</span></div>' +
+            '<div class="yer-flow-copy"><strong class="yer-flow-title">' + L('Điền đủ Mục tiêu đã thống nhất với Quản lý trực tiếp và hoàn thiện phần Tự đánh giá','Complete the goals agreed with your line manager and finish the self assessment') + '</strong>' +
+            '<span class="yer-flow-note"><i class="bx bx-info-circle"></i>' + L('Quản lý không duyệt lại mục tiêu trên hệ thống với trường hợp nhân viên trễ hạn Tự đánh giá.','Goals are not reapproved in the system when an employee submits a late self assessment.') + '</span></div>' +
           '</li>' +
-          '<li class="yer-late-step">' +
-            '<div class="yer-late-step-head"><span class="yer-late-step-icon" aria-hidden="true"><i class="bx bx-cloud-upload"></i></span><span class="yer-late-step-no">' + L('Bước 3','Step 3') + '</span></div>' +
-            '<div class="yer-late-step-copy"><div class="yer-late-step-line"><strong class="yer-late-step-title">' + L('Tải lên tập tin đã điền thông tin','Upload the completed file') + '</strong>' +
+          '<li class="yer-flow-step">' +
+            '<div class="yer-flow-head"><span class="yer-flow-icon" aria-hidden="true"><i class="bx bx-cloud-upload"></i></span><span class="yer-flow-no">' + L('Bước 3','Step 3') + '</span></div>' +
+            '<div class="yer-flow-copy"><div class="yer-flow-line"><strong class="yer-flow-title">' + L('Tải lên tập tin đã điền thông tin','Upload the completed file') + '</strong>' +
             '<input type="file" id="yer-late-file" accept=".xlsx,.xls" hidden>' +
             '<button type="button" class="btn btn-outline btn-sm" id="yer-late-choose"><i class="bx bx-cloud-upload"></i>' + L('Chọn file','Choose file') + '</button></div>' +
             '<div class="yer-late-selected" id="yer-late-selected"' + (selected ? '' : ' hidden') + '>' +
@@ -1635,18 +1643,7 @@
       '.yer-late-confirm-dialog .pms-dlg-tx{padding:16px 18px 18px}' +
       '.yer-late-confirm-dialog .pms-dlg-x{top:11px;right:14px}' +
       '.yer-late-upload{margin-top:18px;border:1px solid var(--z200);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 3px 14px rgba(24,24,27,.05)}' +
-      '.yer-late-flow{margin:18px 22px 22px;padding:0;list-style:none;border:1px solid var(--z200);border-radius:10px;overflow:hidden;background:#fff}' +
-      '.yer-late-step{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:18px;min-width:0;min-height:68px;padding:12px 16px;background:#fff}' +
-      '.yer-late-step+.yer-late-step{border-top:1px solid var(--z200)}' +
-      '.yer-late-step-head{display:flex;align-items:center;gap:7px}' +
-      '.yer-late-step-no{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--brand)}' +
-      '.yer-late-step-icon{flex:none;display:inline-grid;place-items:center;color:var(--z500);font-size:15px}' +
-      '.yer-late-step-copy{min-width:0}' +
-      '.yer-late-step-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap}' +
-      '.yer-late-step-title{font-size:12px;line-height:1.45;color:var(--z900)}' +
-      '.yer-late-step-line .btn{flex:none}' +
-      '.yer-late-step-note,.yer-late-lock{display:flex;align-items:flex-start;gap:5px;margin-top:6px;font-size:10.5px;line-height:1.45;color:var(--z500)}' +
-      '.yer-late-step-note i,.yer-late-lock i{flex:none;margin-top:1px;color:var(--brand);font-size:13px}' +
+      // Khung các bước dùng chung ở yer-ui.js (.yer-flow, 05/10/2026); popup nộp bổ sung chỉ chỉnh lề
       '.yer-late-selected{display:flex;align-items:center;gap:10px;min-width:0;margin-top:6px;font-size:10.5px}.yer-late-selected[hidden]{display:none}' +
       '.yer-late-selected-name{display:flex;align-items:center;gap:4px;min-width:0;color:var(--ok);overflow:hidden;white-space:nowrap}.yer-late-selected-name>span{overflow:hidden;text-overflow:ellipsis}.yer-late-selected-name i{flex:none;font-size:13px}' +
       '.yer-late-remove{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--z500);cursor:pointer}.yer-late-remove:hover{background:var(--err-bg);color:var(--err)}.yer-late-remove:focus-visible{outline:2px solid var(--brand);outline-offset:2px}.yer-late-remove i{font-size:14px}' +
@@ -1706,7 +1703,7 @@
       '.yer-late-dialog{max-width:720px}' +
       '.yer-late-dialog .pms-dlg-ft{display:none}' +
       '.yer-late-dialog .yer-late-upload{margin:0;border:0;box-shadow:none;border-radius:0}' +
-      '.yer-late-dialog .yer-late-flow{margin:10px 0 16px}' +
+      '.yer-late-dialog .yer-flow{margin:10px 0 16px}' +
       '.yer-late-dialog .yer-late-footer{padding:0}' +
       '.yer-late-lead{font-size:12.5px;color:var(--z700);margin-top:2px}' +
       '.yer-late-ack-check{display:flex;align-items:center;gap:7px;margin:0;font-size:12.5px;font-weight:600;color:var(--z900);cursor:pointer}' +
@@ -1719,11 +1716,9 @@
       '.yer-ed-empty{color:var(--z500)}' +
       '.scmt-panel.yer-ro .ev-editor-wrap{box-shadow:none}' +
       '.yer-manager-score-gap{height:20px;margin-bottom:12px}' +
-      '.yer-final-wrap{padding-left:14px;border-left:1px solid var(--ok-bd)}' +
-      '.yer-final-val{color:var(--ok)}' +
       '#yer-root .sc-cell .rt-ro,#yer-root .ql-cell .rt-ro{justify-content:center}' +
       '#yer-root .ql-cell .rt-ro-score{font-size:13px}' +
-      '@media(max-width:620px){.yer-late-flow{margin:16px}.yer-late-step{grid-template-columns:1fr;gap:8px;padding:14px}.yer-late-step-head,.yer-late-step-copy{grid-column:1}.yer-late-step-line{align-items:flex-start;flex-direction:column}.yer-late-footer{padding:0 16px 16px}.yer-late-footer .btn{width:100%;justify-content:center}}';
+      '@media(max-width:620px){.yer-late-footer{padding:0 16px 16px}.yer-late-footer .btn{width:100%;justify-content:center}}';
     document.head.appendChild(st);
   }
 

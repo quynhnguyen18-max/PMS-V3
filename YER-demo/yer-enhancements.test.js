@@ -225,9 +225,15 @@ test('manager year-end list follows the mid-year shell and uses employee timelin
   assert.match(manager, /<span class="er-login">\(/);
   assert.match(manager, /\.yer-mgr-table th:first-child,\.yer-mgr-table td:first-child\{padding-left:12px\}/);
   assert.doesNotMatch(manager, /yer-status-resizer|yer-col-resizer|function bindStatusResizer\(\)|statusWidth/);
-  assert.match(manager, /return col\('27%'\) \+ col\('17%'\)/);
-  assert.match(manager, /return col\('3%'\) \+ col\('19%'\) \+ col\('14%'\)/);
-  assert.match(manager, /return col\('3%'\) \+ col\('15%'\) \+ col\('11%'\) \+ col\('11%'\)/);
+  // Cột Nhân viên hẹp lại để tên cột điểm nằm trong hai dòng (05/10/2026)
+  assert.match(manager, /return col\('21%'\) \+ col\('15%'\)/);
+  assert.match(manager, /return col\('3%'\) \+ col\('14%'\) \+ col\('11%'\) \+ col\('15%'\)/);
+  assert.match(manager, /return col\('3%'\) \+ col\('12%'\) \+ col\('9%'\) \+ col\('10%'\) \+ col\('15%'\)/);
+  // Trạng thái luôn một dòng (05/10/2026)
+  assert.match(manager, /\.yer-mgr-table \.myr-status\{[^}]*white-space:nowrap/);
+  // Bộ phận, vị trí một dòng, dài thì '...', rê chuột xem đủ
+  assert.match(manager, /function empMeta\(p\)/);
+  assert.doesNotMatch(manager, /\.myr-emp-meta\{white-space:normal/);
   assert.match(manager, /L\('Chức năng', 'Action'\)/);
   assert.match(manager, /class="myr-action-cell"/);
 });
@@ -774,8 +780,8 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   // Popup: điểm nhân viên và điểm QLTT kèm domain; ô điểm cùng component với màn chi tiết (tên mức có màu, Ý nghĩa thang điểm)
   assert.match(popup, /ref\(L\('Điểm của nhân viên', 'Employee rating'\), p\.emp,/);
   assert.match(popup, /L\('Nhân viên:', 'Employee:'\)/);
-  // Thẻ điểm: vai, domain, điểm; khối hình thức xử lý đứng trên ô chấm điểm; Ý nghĩa thang điểm chỉ hiện lúc đang chọn
-  assert.ok(popup.indexOf("'<div class=\"yer-cm-ref-dom\">'") < popup.indexOf("'<div class=\"yer-cm-ref-val\">'"));
+  // Thẻ điểm tham khảo gọn (05/10/2026): vai kèm domain một dòng, điểm dòng dưới; khối hình thức xử lý đứng trên ô chấm điểm; Ý nghĩa thang điểm chỉ hiện lúc đang chọn
+  assert.ok(popup.indexOf('<span class="yer-cm-ref-dom">- ') > 0 && popup.indexOf('<span class="yer-cm-ref-dom">- ') < popup.indexOf('<div class="yer-cm-ref-val">'));
   assert.ok(popup.indexOf('<div id="yer-cm-cap"') < popup.indexOf('<div class="yer-cm-score">'));
   assert.match(popup, /defInto: '#yer-cm-def'/);
   assert.match(popup, /data-shown="' \+ \(keep \|\| draftScore == null \|\| draftScore === '' \? '1' : '0'\)/);
@@ -799,13 +805,20 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.match(manager, /'\.yer-cm-until\{display:inline-flex;align-items:center;gap:5px;color:var\(--brand\);font-size:12px;font-weight:500\}'/);
   // Điểm trên lưới thẳng hàng: nhãn (HR system) và icon cảnh báo đặt tuyệt đối quanh số
   assert.match(manager, /'<span class="yer-sc"><span class="myr-score">'/);
-  assert.match(manager, /\.yer-mgr-table \.yer-sc \.yer-sync-tag\{position:absolute;top:100%/);
-  // Popup Upload điểm cùng khuôn tab Giữa năm: thông báo timeline đứng đầu, 3 thẻ bước, 1 nút tải mẫu
+  assert.match(manager, /\.yer-mgr-table \.yer-sc \.yer-sync-tag,\.yer-calib-table \.yer-sc \.yer-sync-tag\{position:absolute;top:100%/);
+  // Bảng duyệt điểm HRBP cùng tag và dấu cảnh báo với danh sách chính; mọi cách ghi điểm hàng loạt qua popup xác nhận vượt mức (05/10/2026)
+  const calibRow = manager.slice(manager.indexOf('function calibRowHtml(p)'), manager.indexOf('function calibToolbarHtml()'));
+  assert.match(calibRow, /empMeta\(p\) \+ empTags\(p\)/);
+  assert.match(calibRow, /capMark\(p, c\.score\)/);
+  assert.equal((manager.match(/confirmOverCap\(/g) || []).length, 4, 'khai bao + duyet cap truoc + upload + duyet diem HRBP');
+  // Popup Upload điểm theo popup nộp bổ sung của E-05 (05/10/2026): câu dẫn hoặc khối khóa đứng đầu, 3 bước trong khung
+  // .yer-flow dùng chung, 1 nút tải mẫu, không tô hồng thẻ bước hay tên cột
   const upload = manager.slice(manager.indexOf('function openUpload()'), manager.indexOf('/* ── Phê duyệt điểm hiệu chuẩn'));
-  assert.ok(upload.indexOf('html: notice +') > 0);
+  assert.ok(upload.indexOf('html: lead +') > 0);
   assert.equal((upload.match(/step\(\d,/g) || []).length, 3);
   assert.equal((upload.match(/id="yer-up-tpl"/g) || []).length, 1);
-  assert.match(upload, /upload-guide-step/);
+  assert.match(upload, /'<ol class="yer-flow">'/);
+  assert.doesNotMatch(upload, /upload-guide-step|upload-column-name|is-upload/);
   // AI Summary: điểm các cấp theo cột, lưu ý tách khỏi phần AI, phần AI chia nhân viên và quản lý
   const ai = fs.readFileSync(path.join(root, 'assets/yer-ai.js'), 'utf8');
   assert.match(ai, /class="yer-ai-scores">/);
@@ -992,7 +1005,7 @@ test('manager roster puts work for the viewing role first, finished work and LWD
   assert.equal(rank('lm', 'e2', '2027-01-25'), 20, 'chua tu danh gia khong dung dau');
   assert.equal(rank('lm', 'e10', '2027-01-27'), 30, 'QLTT da gui');
   // LM2 xem lúc kỳ đang ở bước QLTT: không làm được gì, vẫn xếp theo thứ tự của bước QLTT
-  assert.equal(rank('lm2', 'e6', '2027-01-29'), 12);
+  assert.equal(rank('lm2', 'e6', '2027-01-29'), 10, 'e6 thai san (05/10/2026): dung dau nhom cho QLTT');
 
   // Giai đoạn LM2, HOD: nộp bổ sung, bình thường, thai sản, có LWD, rồi đã xong
   assert.equal(Y.managerStage('2027-02-17'), 'lm2');
@@ -1005,7 +1018,8 @@ test('manager roster puts work for the viewing role first, finished work and LWD
   assert.equal(rank('lm', 'y16', '2027-02-04'), 1);
   assert.equal(Y.managerStage('2027-03-01'), 'hod');
   assert.equal(rank('hod', 'e8', '2027-03-01'), 0, 'HOD: nop bo sung');
-  assert.equal(rank('hod', 'e9', '2027-03-01'), 1, 'HOD: binh thuong');
+  assert.equal(rank('hod', 'e10', '2027-03-01'), 1, 'HOD: binh thuong');
+  assert.equal(rank('hod', 'e9', '2027-03-01'), 3, 'HOD: co LWD');
   assert.equal(rank('lm', 'e1', '2027-03-27'), 30, 'da cong bo');
 
   // Màu trạng thái: hồng khi hồ sơ chờ đúng vai đang xem và vai đó làm được ngay
@@ -1071,7 +1085,7 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.match(employee, /\.yer-note\.yer-late-note\{background:var\(--warn-bg\);border-color:var\(--warn-bd\)/);
   assert.match(note, /Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày/);
   // Chi hien dong Hinh thuc xu ly khi lan nay da co hinh thuc ap dung; Luu y la cau day du theo quy dinh
-  assert.match(note, /\(nowText \? '<li>' \+ L\('<strong>Hình thức xử lý:<\/strong> '/);
+  assert.match(note, /\(hasNow \? '<li>' \+ L\('<strong>Hình thức xử lý:<\/strong> '/);
   assert.match(note, /<strong>Lưu ý:<\/strong> nếu quá hạn trên mà bạn vẫn chưa nộp, /);
   assert.doesNotMatch(employee, /LATE_SHORT|lg\(\), true\)/);
   assert.doesNotMatch(note, /Cảnh báo/);
@@ -1091,12 +1105,12 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.match(employee, /if\(lateDlg\)\{ lateDlg\.close\(\); lateDlg = null; \}/);
   assert.doesNotMatch(block, /Hạn gửi:|Hoàn tất 3 bước dưới đây để gửi Quản lý trực tiếp/);
   assert.doesNotMatch(block, /Hoàn tất hồ sơ để Quản lý trực tiếp đánh giá/);
-  assert.match(block, /<ol class="yer-late-flow">/);
-  assert.equal((block.match(/<li class="yer-late-step/g) || []).length, 3);
+  assert.match(block, /<ol class="yer-flow">/);
+  assert.equal((block.match(/<li class="yer-flow-step/g) || []).length, 3);
   ['Bước 1', 'Bước 2', 'Bước 3'].forEach(label => assert.match(block, new RegExp(label)));
   assert.doesNotMatch(block, /Bước 4|id="yer-late-align"|Xác nhận và gửi/);
-  assert.doesNotMatch(block, /<button[^>]*class="yer-late-step-icon"/);
-  assert.match(block, /<span class="yer-late-step-icon" aria-hidden="true"><i[^>]*><\/i><\/span><span class="yer-late-step-no">' \+ L\('Bước 1'/);
+  assert.doesNotMatch(block, /<button[^>]*class="yer-flow-icon"/);
+  assert.match(block, /<span class="yer-flow-icon" aria-hidden="true"><i[^>]*><\/i><\/span><span class="yer-flow-no">' \+ L\('Bước 1'/);
   assert.match(block, /class="btn btn-outline btn-sm" id="yer-late-template"/);
   assert.doesNotMatch(block, /id="yer-late-template"[^>]*data-tip=/);
   assert.equal((block.match(/id="yer-late-template"/g) || []).length, 1);
@@ -1105,7 +1119,7 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   assert.match(block, /Điền đủ Mục tiêu đã thống nhất với Quản lý trực tiếp và hoàn thiện phần Tự đánh giá/);
   assert.match(block, /Quản lý không duyệt lại mục tiêu trên hệ thống với trường hợp nhân viên trễ hạn Tự đánh giá/);
   assert.doesNotMatch(block, /Điền mục tiêu, điểm, nhận xét và minh chứng/);
-  assert.match(block, /<strong class="yer-late-step-title">' \+ L\('Tải lên tập tin đã điền thông tin'/);
+  assert.match(block, /<strong class="yer-flow-title">' \+ L\('Tải lên tập tin đã điền thông tin'/);
   assert.doesNotMatch(block, /Excel \.xlsx hoặc \.xls|id="yer-late-file-box"|Chưa chọn file|Chọn file đã hoàn tất/);
   assert.match(block, /id="yer-late-choose"><i class="bx bx-cloud-upload"><\/i>' \+ L\('Chọn file','Choose file'\)/);
   assert.doesNotMatch(block, /Đổi file|Replace file|bx-folder-open/);
@@ -1144,11 +1158,11 @@ test('overdue guidance uses a compact three-step flow and a footer submit action
   const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
   assert.match(ui, /if \(opts\.className\) ov\.querySelector\('\.pms-dlg'\)\.classList\.add\(opts\.className\)/);
   assert.match(employee, /label:L\('Xác nhận và Gửi','Confirm and submit'\), variant:'default'/);
-  assert.match(employee, /\.yer-late-step-icon\{[^}]*color:var\(--z500\);font-size:15px/);
-  assert.match(employee, /\.yer-late-step\{display:grid;grid-template-columns:104px minmax\(0,1fr\)/);
-  assert.match(employee, /\.yer-late-step-line\{display:flex;align-items:center;gap:12px;flex-wrap:wrap/);
+  assert.match(ui, /\.yer-flow-icon\{[^}]*color:var\(--z500\);font-size:15px/);
+  assert.match(ui, /\.yer-flow-step\{display:grid;grid-template-columns:104px minmax\(0,1fr\)/);
+  assert.match(ui, /\.yer-flow-line\{display:flex;align-items:center;gap:12px;flex-wrap:wrap/);
   assert.match(employee, /\.yer-late-footer\{display:flex;justify-content:flex-end/);
-  assert.doesNotMatch(employee, /\.yer-late-flow\{[^}]*grid-template-columns:repeat\(4/);
+  assert.doesNotMatch(employee, /\.yer-flow\{[^}]*grid-template-columns:repeat\(4/);
   assert.match(e05, /\.yer-note\.action\{background:var\(--brand-muted\);border-color:var\(--brand-ring\)/);
   assert.match(e05, /\.yer-note\.action>i\{color:var\(--brand\)\}/);
   // Khoi thieu muc tieu khong co nut rieng, lien ket nam trong cau (28/09/2026)
@@ -1171,6 +1185,8 @@ test('late completion banner identifies the supplemental file and overdue days',
   assert.match(banner, /if\(isLateFile && p\.lateRound && p\.lateRound\.consequence\.length\)\{/);
   assert.match(banner, /L\(' \(nộp ở lần nhắc thứ ' \+ p\.lateRound\.round \+ '\): '/);
   assert.match(banner, /lateNowHtml\(p\.lateRound\)/);
+  // Khối nhắc lần 3, 4 từng gọi hàm không tồn tại làm trắng cả tab (sửa 05/10/2026)
+  assert.doesNotMatch(employee, /consequenceText/);
   assert.doesNotMatch(employee, /Thời gian tạm hoãn: từ|'\/4/);
   // Từ khóa in đậm của hình thức xử lý nằm ở model, dùng chung E-05 và màn Quản lý (04/10/2026)
   assert.match(employee, /return Y\.lateTextHtml\(k, lg\(\)\);/);
@@ -1270,7 +1286,14 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(source, /if \(!p\.lateSubmission\) return null;/);
   // Banner hai tầng: dòng dài xuống tầng dưới, Lịch sử chỉnh sửa là liên kết sau dòng ngày (chốt 04/10/2026)
   assert.match(source, /function bannerBox\(o\)/);
-  assert.match(source, /'<div class="yer-sb-more">'/);
+  // Khung hai tầng dùng chung E-05 và M-06 (05/10/2026)
+  assert.match(source, /return window\.PMSUi\.banner\(/);
+  const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
+  assert.match(ui, /'<div class="yer-sb-more">'/);
+  const empSrc = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
+  assert.match(empSrc, /return U\.banner\(\{/);
+  assert.match(empSrc, /L\('Điểm cuối cùng:','Final rating:'\)/);
+  assert.match(empSrc, /class="yer-sb-link" id="yer-btn-history"/);
   assert.match(source, /id="yer-md-history"/);
   // Mục tiêu trong file nộp bổ sung đọc qua luật chung của model (Y.reviewGoals)
   assert.match(source, /return Y\.reviewGoals\(p, type\);/);
@@ -1338,7 +1361,7 @@ test('all manager levels can edit a submitted review while their own timeline re
   const w = loadYer();
   const cases = [
     ['lm18', 'lm', 'e10', '2027-01-27'],
-    ['lm2-05', 'lm2', 'e11', '2027-02-20'],
+    ['lm2-05', 'lm2', 'e5', '2027-02-20'],
     ['hod03', 'hod', 'e12', '2027-02-27']
   ];
   for (const [scenarioId, role, emp, date] of cases) {

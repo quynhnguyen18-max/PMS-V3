@@ -195,14 +195,9 @@
      - tầng dưới (`.yer-sb-more`, trải hết chiều ngang): các dòng dài như hình thức xử lý, xác nhận mục tiêu.
      Phần chữ không bao giờ bị ép hẹp bởi phần điểm. */
   function bannerBox(o) {
-    return '<div class="submit-banner yer-md-submit-banner' + (o.cls ? ' ' + o.cls : '') + '">' +
-      '<div class="sb-icon"><i class="bx ' + (o.icon || 'bx-check-circle') + '"></i></div>' +
-      '<div class="sb-info"><div class="sb-title">' + o.title + '</div>' +
-        (o.sub ? '<div class="sb-sub">' + o.sub + '</div>' : '') + '</div>' +
-      (o.right || '') +
-      ((o.more || []).length ? '<div class="yer-sb-more">' + o.more.map(function (x) {
-        return '<div class="sb-sub">' + x + '</div>'; }).join('') + '</div>' : '') +
-    '</div>';
+    // Khung dùng chung với E-05 (PMSUi.banner, chốt 05/10/2026): sửa khung ở yer-ui.js để hai màn luôn giống nhau
+    return window.PMSUi.banner({ cls: 'yer-md-submit-banner' + (o.cls ? ' ' + o.cls : ''), icon: o.icon, title: o.title,
+      sub: o.sub, right: o.right, more: o.more });
   }
   function historyLink(p) {
     return isLm() && myLog(p).length ? ' - <button type="button" class="yer-sb-link" id="yer-md-history"><i class="bx bx-history"></i>' +
@@ -947,7 +942,18 @@
       comment: p.self && p.self.overall ? p.self.overall.comment : '', readonly: true
     })];
 
+    var SYNC_HINT = L('Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.',
+      'This level did not rate before its deadline, so the system copied the previous level rating, without a comment.');
     ['lm', 'lm2', 'hod'].forEach(function (lvl) {
+      var own = lvl === role() ? levelView(p, lvl) : null;
+      // Vai đang xem quá hạn mà hệ thống đã tự lấy điểm: ô của mình hiện điểm đó kèm (HR system), không phải `—` (04/10/2026)
+      if (lvl === role() && !mySubmitted(p) && own && own.synced) {
+        cols.push(panelHtml({
+          icon: 'bx-edit-alt', title: L(LEVEL_TITLE[lvl][0], LEVEL_TITLE[lvl][1]), key: lvl + ':overall', owner: roleFull(lvl),
+          value: own.score, overCap: capOf(p, own.score), comment: '', readonly: true, synced: true, hint: SYNC_HINT
+        }));
+        return;
+      }
       if (lvl === role()) {
         // Đang chỉnh sửa bản đã gửi thì đọc bản nháp (khởi tạo từ bản đã gửi), để đổi điểm rồi dựng lại không mất
         var mine = mySubmitted(p) && !isEditing(p)
@@ -974,8 +980,7 @@
         icon: LEVEL_ICON[lvl], title: L(LEVEL_TITLE[lvl][0], LEVEL_TITLE[lvl][1]), by: who[lvl],
         key: lvl + ':overall', value: v ? v.score : null, overCap: v ? capOf(p, v.score) : null,
         comment: v ? v.comment || '' : '', readonly: true, synced: v && v.synced,
-        hint: v && v.synced && lvl !== 'lm' ? L('Quá hạn mà cấp này không đánh giá nên hệ thống tự lấy điểm của cấp trước, không kèm nhận xét.',
-          'This level did not rate before its deadline, so the system copied the previous level rating, without a comment.') : ''
+        hint: v && v.synced ? SYNC_HINT : ''
       }));
     });
 
@@ -1928,16 +1933,7 @@
       '.yer-cap-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border:1px solid var(--warn-bd);border-radius:50px;' +
         'background:var(--warn-bg);color:var(--warn);font-size:10.5px;font-weight:600;white-space:nowrap}' +
       '.yer-cap-chip i{font-size:12px}' +
-      // Banner hai tầng: tầng dưới trải hết chiều ngang, thẳng lề với tiêu đề (04/10/2026)
-      '#yer-mgr-detail-root .yer-md-submit-banner{flex-wrap:wrap;row-gap:0}' +
-      '#yer-mgr-detail-root .yer-md-submit-banner .sb-info{flex:1 1 240px;min-width:0}' +
-      '#yer-mgr-detail-root .yer-sb-more{flex:0 0 calc(100% - 50px);min-width:0;margin:10px 0 0 50px;padding-top:9px;border-top:1px dashed var(--ok-bd);' +
-        'display:flex;flex-direction:column;gap:4px}' +
-      '#yer-mgr-detail-root .yer-sb-more .sb-sub{margin:0}' +
-      '.yer-sb-link{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:none;font:inherit;font-weight:600;' +
-        'color:var(--z600);cursor:pointer}' +
-      '.yer-sb-link:hover{text-decoration:underline}' +
-      '.yer-sb-link i{font-size:13px}' +
+      // Banner hai tầng: CSS nằm ở yer-ui.js (.yer-sb2), dùng chung với E-05 (05/10/2026)
       '.yer-overall-grid{display:grid;gap:0}' +
       // Tối đa hai ô một hàng (HOD có bốn ô: hai hàng), mỗi ô đủ rộng để điểm, tên mức và ⓘ nằm một dòng như E-05 (04/10/2026)
       '#yer-mgr-detail-root .yer-overall-grid{gap:12px;padding:14px 16px}' +
