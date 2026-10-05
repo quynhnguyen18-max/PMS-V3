@@ -256,7 +256,7 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
     lịch sử thì model suy ra một dòng từ bản đã gửi.
   - Tiêu đề: `Lịch sử chỉnh sửa đánh giá của Quản lý trực tiếp` / `Lịch sử chỉnh sửa điểm của [Vai]`. Thẻ `Lần gửi N` (QLTT) hoặc
     `Lần lưu N` (LM2, HOD); lưu ngoài màn chi tiết thì ghi cách lưu: `(lưu trên danh sách)`, `(tải lên từ file)`,
-    `(duyệt điểm cấp trước)`, `(HRBP tải lên điểm hiệu chuẩn)`.
+    `(duyệt điểm cấp trước)`, `(duyệt điểm HRBP upload)`.
   - Thẻ đầu ghi `Điểm toàn diện: x`. Thẻ sau ghi `Thay đổi so với lần gửi / lần lưu N-1`: điểm toàn diện, điểm mục tiêu theo
     nhóm và giá trị cốt lõi (QLTT, `changes` tính lúc gửi), nhóm nhận xét đã sửa, hoặc `Không thay đổi nội dung`.
   - Giờ lấy từ đồng hồ máy; cùng ngày thì không sớm hơn lần trước để thứ tự thẻ đúng.
@@ -269,7 +269,7 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
   chỉnh sửa và lưu cập nhật được tới hết deadline của chính mình.
 - Sau deadline, đánh giá của vai đó chuyển sang chỉ xem.
 - **Quản lý cấp 2 và Trưởng đơn vị chỉ xem ở màn chi tiết M-06** (chị chốt 04/10/2026, nguyên tắc quan trọng): hai vai này chấm
-  và sửa điểm toàn diện ở danh sách M-05 (ô điểm trên lưới, Upload điểm, Duyệt điểm cấp trước, Duyệt điểm hiệu chuẩn). M-06 của
+  và sửa điểm toàn diện ở danh sách M-05 (ô điểm trên lưới, Upload điểm, Duyệt điểm cấp trước, Duyệt điểm HRBP upload). M-06 của
   hai vai này không có `Lưu nháp`, `Lưu điểm`, `Chỉnh sửa`, liên kết `Lịch sử chỉnh sửa`, ô chọn điểm hay ô nhập nhận xét. Luật ở
   model: `PMSYer.managerReviewState(role, p).canEditDetail` (chỉ đúng với QLTT); `canEdit` vẫn là quyền chấm trên danh sách M-05.
 - **Hạn của từng vai** (chốt 30/09/2026) lấy từ một helper `PMSYer.managerEditWindow(role, p)`, trả về `from`, `to`,
@@ -284,7 +284,7 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
   Chốt thêm 04/10/2026: mốc giờ **in đậm đủ cụm** `**18:00 ngày dd/mm/yyyy**` (helper `at18` ở M-05 và M-06), dùng cho mọi câu
   hạn trên hai màn: khối Lưu ý, khối hướng dẫn thai sản (dùng **cùng câu** với khối Lưu ý, bỏ câu riêng `QLTT có thể chỉnh sửa kết
   quả đánh giá trước…`), khối vàng chờ nộp bổ sung, khối `Hồ sơ không đánh giá`, popup chấm điểm và popup Upload của M-05,
-  ghi chú màn Duyệt điểm hiệu chuẩn. Tooltip là chữ thường nên chỉ ghi `tới hết 18:00 ngày dd/mm/yyyy`, không đậm.
+  ghi chú màn Duyệt điểm HRBP upload. Tooltip là chữ thường nên chỉ ghi `tới hết 18:00 ngày dd/mm/yyyy`, không đậm.
 
   | Tình huống | Câu chữ |
   |---|---|
@@ -304,7 +304,7 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
 - Chỉ hỗ trợ bước HOD (không áp dụng cho LM2).
 - File: mã NV, tên, domain NV, division, department, grade, domain LM1, điểm toàn diện, nhận xét.
 - Có bước preview và đối soát trước khi ghi. Trùng với điểm đã chấm tay thì báo conflict để chọn.
-- Điểm HRBP upload chưa duyệt **không hiện** ở màn chính của HOD; nằm ở màn "Phê duyệt điểm hiệu chuẩn".
+- Điểm HRBP upload chưa duyệt **không hiện** ở màn chính của HOD; nằm ở màn `Duyệt điểm HRBP upload` (tên cũ `Phê duyệt điểm hiệu chuẩn`, đổi 05/10/2026).
 - HOD duyệt hàng loạt được, **không sửa** điểm trước khi duyệt.
 - Trong timeline HOD: upload lại, duyệt lại, sửa bao nhiêu lần cũng được. Hết deadline thì cut off.
 
@@ -314,11 +314,12 @@ Dựng ngày 30/09/2026 (phía HOD; màn HRBP tải file và bước đối soá
   điểm tải lên). Dữ liệu: `hrbpUpload: { at, score, comment, approved, by }`; duyệt thì ghi `hrbpUpload.approved`,
   `approvedAt` và `hod: { score, comment, at, source: 'hrbp-upload' }` (nhận xét lấy của file tải lên, file không có thì giữ
   nhận xét HOD đã viết).
-- M-05, vai HOD: nút `Duyệt điểm hiệu chuẩn` (`bx-check-shield`) cạnh `Upload điểm`. Chỉ HOD có nút này (như MYR-55).
+- M-05, vai HOD: nút `Duyệt điểm HRBP upload` (`bx-check-shield`, chị đổi tên 05/10/2026 cho đúng bản chất, thay `Duyệt điểm
+  hiệu chuẩn`) cạnh `Upload điểm`. Chỉ HOD có nút này (như MYR-55). Tab Giữa năm giữ tên cũ (chị dặn chưa sửa tab Giữa năm).
   **Nút chỉ bấm được khi có điểm HRBP tải lên còn duyệt được** (chưa duyệt và còn trong timeline HOD), kèm số hồ sơ đó
   (chốt 30/09/2026). Không có thì nút khóa, tooltip nói lý do: `Chưa có điểm HRBP tải lên cần duyệt`, `Mở từ dd/mm/yyyy`
   hoặc `Đã hết hạn duyệt ngày dd/mm/yyyy`.
-- Màn `Phê duyệt điểm hiệu chuẩn` cùng bố cục với tab Giữa năm (MYR-56): phủ vùng nội dung, `Quay lại`, dòng phụ
+- Màn `Duyệt điểm HRBP upload` cùng bố cục với tab Giữa năm (MYR-56): phủ vùng nội dung, `Quay lại`, dòng phụ
   `Đánh giá cuối năm 2026 - HOD - Indirect reports`, nút `Duyệt điểm` kèm số dòng đã tick. Khối ghi chú là **bốn gạch đầu dòng**
   gọi tên vai (chốt 04/10/2026): điểm tải lên là điểm HRBP tải lên thay Trưởng đơn vị; tick và `Duyệt điểm` thì thành điểm Trưởng
   đơn vị; Trưởng đơn vị không sửa điểm tải lên trước khi duyệt; hạn duyệt `tới hết **18:00 ngày dd/mm/yyyy**` (trước hoặc sau
@@ -330,8 +331,8 @@ Dựng ngày 30/09/2026 (phía HOD; màn HRBP tải file và bước đối soá
 - **Đồng bộ với danh sách chính** (chị chốt 05/10/2026): dưới tên nhân viên có cùng các tag `LWD`, `Đang nghỉ thai sản`,
   `Nộp trễ hạn`, `Không tự đánh giá`; dòng bộ phận, vị trí một dòng có `...`; điểm của cấp quản lý và Điểm Upload cao hơn mức
   tối đa có cùng dấu cảnh báo ⚠ đặt cạnh số.
-- **Mọi cách ghi điểm hàng loạt đều qua popup xác nhận vượt mức** (chị chốt 05/10/2026, §27.3): `Duyệt điểm LM1` / `Duyệt điểm
-  LM2` (lấy điểm cấp trước), `Upload điểm` và `Duyệt điểm` ở màn này. Có hồ sơ nộp bổ sung bị giới hạn điểm mà điểm sắp ghi
+- **Mọi cách ghi điểm hàng loạt đều qua popup xác nhận vượt mức** (chị chốt 05/10/2026, §27.3): `Duyệt điểm QLTT` / `Duyệt điểm
+  QL cấp 2` (điểm cấp trước), `Upload điểm` và `Duyệt điểm` ở màn này. Có hồ sơ nộp bổ sung bị giới hạn điểm mà điểm sắp ghi
   cao hơn mức tối đa thì hiện popup `Có điểm cao hơn mức tối đa theo quy định`, liệt kê `Tên (domain): điểm x, tối đa 3 (lần
   nhắc thứ n)`, ô tick `Tôi xác nhận giữ các điểm trên dù cao hơn mức tối đa theo quy định.`; chưa tick thì nút `Xác nhận`
   khóa. Chấm từng người trong popup chấm điểm dùng ô tick riêng của popup đó. Luật ở `PMSYer.overRatingCap`, màn gọi
@@ -1020,7 +1021,7 @@ M-05 và M-06 chỉ render.
   `dù cao hơn mức tối đa 3 theo quy định`); popup gửi của M-06 chỉ có câu của khối vàng và ô tick, không lặp dòng `Điểm đang chọn…`,
   nút lưu khóa cho tới khi tick: trong popup gửi của M-06 (`Gửi đánh giá`, `Lưu thay đổi`, chỉ QLTT), trong popup chấm điểm
   trên lưới M-05 (chưa tick mà bấm `Xác nhận` thì nhắc và mở lại popup, giữ nguyên điểm và nhận xét), và trong popup chung
-  `Có điểm cao hơn mức tối đa theo quy định` của `Duyệt điểm LM1/LM2`, `Upload điểm`, `Duyệt điểm hiệu chuẩn` (liệt kê từng
+  `Có điểm cao hơn mức tối đa theo quy định` của `Duyệt điểm QLTT/QL cấp 2`, `Upload điểm`, `Duyệt điểm HRBP upload` (liệt kê từng
   người: `điểm x, tối đa 3 (lần nhắc thứ k)`). Bản lưu ghi `capConfirmed: { max, score, at }` để truy vết.
 - Điểm của cấp khác đã cao hơn mức tối đa: M-06 có chip vàng `Cao hơn mức tối đa 3` cạnh điểm ở các ô chỉ xem; M-05 có icon
   `bx-error` vàng cạnh điểm ở các cột điểm quản lý, tooltip là câu hình thức xử lý.
@@ -1778,8 +1779,11 @@ Chốt ngày 22/09/2026.
   gồm `Direct reports` / `Indirect reports`, lựa chọn phụ `LM2` / `HOD`, hàng công cụ và bảng
   nhân viên. Không dựng biến thể ba nút phạm vi riêng cho YER.
 - **Hàng công cụ giống tab Giữa năm** (chốt 30/09/2026), class `.list-toolbar`, căn phải:
-  - LM2, HOD: `Duyệt điểm LM1` (LM2) / `Duyệt điểm LM2` (HOD) kèm số dòng đã tick, và `Upload điểm`. HOD có thêm
-    `Duyệt điểm hiệu chuẩn` mở màn phê duyệt điểm HRBP tải lên (§9).
+  - LM2, HOD: `Duyệt điểm QLTT` (LM2) / `Duyệt điểm QL cấp 2` (HOD) và `Upload điểm`. HOD có thêm `Duyệt điểm HRBP upload`
+    mở màn duyệt điểm HRBP upload (§9). Tên cấp trước viết như tên cột điểm (chị chốt 05/10/2026, thay `LM1`/`LM2`).
+  - **Ba nút cùng kiểu viền hồng** `.btn-cta-outline` (chị chốt 05/10/2026, không viền xám, không nút nền đặc). Rê chuột thấy
+    một câu ngắn bằng từ nghiệp vụ: `Duyệt điểm QLTT cho các nhân viên đủ điều kiện` (HOD: `Duyệt điểm QL cấp 2 cho …`),
+    `Cập nhật điểm nhiều nhân viên bằng file`, `Duyệt điểm do HRBP upload`. Nút bị khóa thì tooltip nói lý do khóa.
   - `Bộ lọc` (popover `.filter-popover` như Mid-Year): QLTT chỉ có ô Nhân viên; LM2 có Nhân viên, Division, Department,
     Team, Quản lý trực tiếp; HOD có Nhân viên, Division, Department, Quản lý trực tiếp, Quản lý cấp 2. Bấm ra ngoài thì
     đóng, `Xóa bộ lọc` xóa hết, đổi vai thì xóa bộ lọc. Không còn ô tìm kiếm riêng.
@@ -1791,8 +1795,19 @@ Chốt ngày 22/09/2026.
     cuộn, bật Split View thì trang cuộn để khung nằm ngay dưới thanh trên cùng (sửa 04/10/2026): trước đó khung nhúng bị kéo cao
     theo danh sách nên popup trong khung (căn giữa khung) rơi xuống dưới màn hình.
 - **LM2 và HOD chấm điểm ngay trên lưới** (chốt 30/09/2026), như tab Giữa năm:
-  - Cột chọn đầu bảng. Dòng tick được khi vai đang xem sửa được và cấp trước đã có điểm. `Duyệt điểm LM1/LM2` chép điểm
-    toàn diện của cấp trước thành điểm của mình cho các dòng đã tick, giữ nhận xét đã có.
+  - Cột chọn đầu bảng. Dòng tick được khi vai đang xem sửa được và cấp trước đã có điểm.
+  - **`Duyệt điểm QLTT/QL cấp 2` mở popup có sẵn danh sách** (chị chốt 05/10/2026, phương án 2 của góp ý số 5): người dùng không
+    cần biết phải tick trên bảng trước. Popup `Duyệt điểm QLTT` / `Duyệt điểm QL cấp 2` liệt kê mọi nhân viên đủ điều kiện (vai đang
+    xem sửa được, cấp trước đã có điểm) trong bảng `.myr-table` cuộn trong khung: ô chọn, Nhân viên (kèm tag), điểm của cấp trước
+    (kèm `(HR system)` và dấu cảnh báo vượt mức), `Điểm hiện tại của bạn`. Câu dẫn: `Điểm của [cấp trước] được ghi nhận làm điểm
+    của [vai] cho các nhân viên được chọn.`
+    - Chọn sẵn: các dòng đã tick trên bảng; chưa tick dòng nào thì chọn sẵn người chưa có điểm của vai đang xem. Người đã có
+      điểm vẫn có trong danh sách nhưng không chọn sẵn, câu dẫn thêm `Nhân viên đã có điểm của bạn không được chọn sẵn; chọn thì
+      điểm đó được thay.`
+    - Số trên nút ở thanh công cụ là số người sẽ được chọn sẵn. Nút chỉ khóa khi không có ai đủ điều kiện (tooltip `Chưa có nhân
+      viên đủ điều kiện duyệt điểm`).
+    - Nút chính `Duyệt điểm n nhân viên` đổi số theo lựa chọn, không chọn ai thì khóa. Bấm thì chép điểm cấp trước thành điểm của
+      vai, giữ nhận xét đã có; có hồ sơ vượt mức tối đa thì qua popup xác nhận (§9).
   - Cột điểm của chính vai (LM2: `Điểm của QL cấp 2`, HOD: `Điểm của Trưởng đơn vị`) là **ô điểm dạng nút** (`.yer-rt-btn`,
     cùng dáng ô chọn điểm của tab Giữa năm): chưa chấm ghi `Chọn điểm`, đã chấm ghi số. **Bấm vào ô là mở popup ngay**
     (chốt lại 30/09/2026, không phải chọn điểm xong mới mở). Muốn sửa thì bấm lại chính ô đó; **không có nút nhận xét riêng**.
@@ -1823,8 +1838,8 @@ Chốt ngày 22/09/2026.
     dd/mm/yyyy, điểm chỉ còn để xem.`
   - **Lịch sử chỉnh sửa** (chốt 30/09/2026): mỗi lần LM2, HOD lưu điểm là một dòng `{ at, time, score, comment, source }` trong
     `acts[emp].lm2Log` / `hodLog`, model trả ra `p.lm2Log` / `p.hodLog` (dữ liệu mẫu chưa có lịch sử thì suy một dòng từ bản
-    đang có; điểm hệ thống tự chép không vào lịch sử). Ghi từ mọi đường lưu: chấm trên danh sách, `Duyệt điểm LM1` /
-    `Duyệt điểm LM2`, `Upload điểm`, `Duyệt điểm hiệu chuẩn`, lưu ở màn chi tiết; trường `source` chỉ để truy vết, không hiện.
+    đang có; điểm hệ thống tự chép không vào lịch sử). Ghi từ mọi đường lưu: chấm trên danh sách, `Duyệt điểm QLTT` /
+    `Duyệt điểm QL cấp 2`, `Upload điểm`, `Duyệt điểm HRBP upload`, lưu ở màn chi tiết; trường `source` chỉ để truy vết, không hiện.
     Popup hiện mới nhất ở trên: `dd/mm/yyyy hh:mm - Điểm toàn diện: x` (chốt 30/09/2026), dòng dưới là nhận xét nếu có.
   - Cột Chức năng (chốt 30/09/2026): **mọi nút màu xám, chỉ AI Summary mang màu nhấn**. LM2, HOD có AI Summary (§14) rồi nút
     mắt `Xem chi tiết đánh giá`; việc chấm và nhận xét nằm ở ô điểm nên hai chức năng không chồng nhau. QLTT giữ nút bút
@@ -1841,7 +1856,14 @@ Chốt ngày 22/09/2026.
     - Bước 2 `Điền điểm toàn diện từ 1 đến 5 vào cột Điểm HOD`, ghi chú `Được dùng mức lẻ 0.5, ví dụ 3.5. Cột Nhận xét không bắt
       buộc. Giữ nguyên mã nhân viên và các cột khác.`
     - Bước 3 `Tải lên file đã điền điểm (.csv)`, nút `Chọn file` khóa khi ngoài timeline. Chân popup chỉ có `Đóng`.
-    Hệ thống bỏ qua dòng sai mã, sai giá trị điểm hoặc ngoài quyền sửa, báo số dòng cập nhật và số dòng bỏ qua.
+    - **Xem trước rồi mới ghi điểm** (chị chốt 05/10/2026, đề xuất 3 của góp ý số 5, học từ Lattice): chọn file xong mở popup
+      `Xem trước điểm từ file`: câu dẫn `File [tên]: n dòng hợp lệ (k dòng không đổi), m dòng lỗi. Điểm chỉ được cập nhật sau khi
+      bạn bấm Cập nhật.`; bảng dòng hợp lệ gồm Nhân viên (kèm tag), `Điểm hiện tại`, `Điểm mới` (dấu cảnh báo vượt mức; giống
+      hệt điểm và nhận xét đang có thì ghi `Không đổi`); khối đỏ liệt kê dòng lỗi kèm lý do: mã không có trong danh sách của bạn,
+      trùng mã với dòng trước, điểm không hợp lệ (1 đến 5, bước 0.5), hoặc lý do khóa của hồ sơ. Dòng để trống điểm bỏ qua, không
+      tính là lỗi.
+    - Nút `Cập nhật n nhân viên` chỉ tính dòng có thay đổi; không có dòng nào thay đổi thì popup chỉ còn `Đóng`. Bấm thì qua
+      popup xác nhận vượt mức (§9) rồi mới ghi.
   - **Điểm thẳng hàng** (chốt 30/09/2026): số điểm ở mọi cột nằm đúng giữa hàng; nhãn `(HR system)` treo dưới số, icon cảnh báo
     vượt mức treo bên phải số, cả hai đặt tuyệt đối (`.yer-sc`) nên không đẩy số lệch lên hay lệch sang.
   - Danh sách không gắn cảnh báo dữ liệu chưa lưu (§36): mọi thao tác trên danh sách lưu ngay, bộ lọc không phải dữ liệu.
@@ -1943,7 +1965,7 @@ Chốt ngày 22/09/2026.
   Tên và domain dùng nguyên kết cấu `.myr-manager` + `.er-login` của bảng Mid-Year.
 - Cột Nhân viên giữ thêm khoảng đệm trái 12px để nội dung không dính sát viền bảng.
 - Dòng bộ phận và vị trí dưới tên nhân viên **chỉ một dòng** (chị chốt 05/10/2026, như bảng Mid-Year): dài quá cột thì `...`,
-  không xuống dòng thứ hai; rê chuột vào dòng bị cắt thì tooltip hiện đủ. Áp dụng cho bảng chính và bảng `Duyệt điểm hiệu chuẩn`.
+  không xuống dòng thứ hai; rê chuột vào dòng bị cắt thì tooltip hiện đủ. Áp dụng cho bảng chính và bảng `Duyệt điểm HRBP upload`.
   Tên nhân viên vẫn được xuống dòng.
 - Với nhân viên thai sản, badge `Đang nghỉ thai sản` chỉ nằm dưới thông tin nhân viên; cột `Trạng thái` không lặp
   thông tin này. Hồ sơ đã nộp trễ chỉ hiển thị **`Chờ QLTT đánh giá`** trong cột Trạng thái; thông tin `Nộp trễ hạn`

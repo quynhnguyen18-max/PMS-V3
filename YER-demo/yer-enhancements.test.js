@@ -746,8 +746,15 @@ test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the
 
   const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
   assert.match(manager, /if \(role\(\) !== 'hod'\) return '';/);
-  assert.match(manager, /L\('Duyệt điểm hiệu chuẩn', 'Approve calibrated ratings'\)/);
-  assert.match(manager, /L\('Phê duyệt điểm hiệu chuẩn', 'Approve calibrated ratings'\)/);
+  // Đổi tên theo bản chất (chị chốt 05/10/2026): nút và màn đều là Duyệt điểm HRBP upload
+  assert.equal((manager.match(/L\('Duyệt điểm HRBP upload', 'Approve HRBP uploads'\)/g) || []).length, 2);
+  assert.doesNotMatch(manager, /hiệu chuẩn'/);
+  // Nút cấp trước viết như tên cột điểm, ba nút thao tác hàng loạt cùng viền hồng và có tooltip một câu
+  assert.match(manager, /L\('QLTT', 'line manager'\) : L\('QL cấp 2', 'second-level manager'\)/);
+  assert.doesNotMatch(manager, /PREV_LABEL/);
+  assert.equal((manager.match(/class="btn btn-cta-outline btn-sm[^"]*" (?:id="yer-mgr-(?:upload|calib)"|id=)/g) || []).length >= 2, true);
+  assert.match(manager, /btnTip\(L\('Cập nhật điểm nhiều nhân viên bằng file'/);
+  assert.match(manager, /btnTip\(L\('Duyệt điểm do HRBP upload'/);
   assert.match(manager, /L\('Điểm Upload', 'Upload'\)/);
   assert.match(manager, /source: 'hrbp-upload'/);
   assert.match(manager, /L\('Thay điểm bạn đã chấm\?', 'Replace your ratings\?'\)/);
@@ -755,8 +762,8 @@ test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the
   const data = fs.readFileSync(path.join(root, 'assets/yer-data.js'), 'utf8');
   assert.doesNotMatch(data, /by: 'Nguyễn Thị Hoa \(hoa\.nguyen\)'/);
   // Nút chỉ bấm được khi còn điểm HRBP tải lên chờ duyệt
-  assert.match(manager, /\(n \? '' : ' disabled title="' \+ esc\(why\) \+ '"'\)/);
-  assert.match(manager, /L\('Chưa có điểm HRBP tải lên cần duyệt', 'No HRBP upload awaiting approval'\)/);
+  assert.match(manager, /\(n \? btnTip\(L\('Duyệt điểm do HRBP upload', 'Approve ratings uploaded by HRBP'\)\) : ' disabled title="' \+ esc\(why\) \+ '"'\)/);
+  assert.match(manager, /L\('Chưa có điểm HRBP upload cần duyệt', 'No HRBP upload awaiting approval'\)/);
   assert.match(manager, /return baseRoster\(\)\.filter\(function \(p\) \{ return Y\.calibrationState\(p\)\.canApprove; \}\)\.length;/);
   // AI Summary nằm ở cột Chức năng của mọi vai (QLTT thêm 04/10/2026), không nằm trong ô chấm điểm; Split View có domain nhân viên
   assert.match(manager, /<div class="yer-mgr-acts">' \+ aiBtn\(p\) \+ actionBtn\(p\)/);
@@ -806,6 +813,17 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   // Điểm trên lưới thẳng hàng: nhãn (HR system) và icon cảnh báo đặt tuyệt đối quanh số
   assert.match(manager, /'<span class="yer-sc"><span class="myr-score">'/);
   assert.match(manager, /\.yer-mgr-table \.yer-sc \.yer-sync-tag,\.yer-calib-table \.yer-sc \.yer-sync-tag\{position:absolute;top:100%/);
+  // Phương án 2 và đề xuất 3 của góp ý số 5 (05/10/2026): nút Duyệt điểm mở popup có sẵn danh sách; Upload có bước xem trước.
+  // Các hàm dùng chung của Upload phải còn đủ (từng bị xóa nhầm làm nút Upload không mở được)
+  assert.match(manager, /if \(approve\) approve\.addEventListener\('click', openApprove\);/);
+  assert.match(manager, /function openApprove\(\)/);
+  assert.match(manager, /function approvePreset\(list\)/);
+  assert.match(manager, /previewUpload\(file\.name, valid, errors\);/);
+  assert.match(manager, /L\('Xem trước điểm từ file'/);
+  assert.match(manager, /var ROLE_COL = \{/);
+  assert.match(manager, /function parseCsv\(text\)/);
+  assert.match(manager, /function downloadTemplate\(\)/);
+  assert.doesNotMatch(manager, /function approveSelected\(/);
   // Bảng duyệt điểm HRBP cùng tag và dấu cảnh báo với danh sách chính; mọi cách ghi điểm hàng loạt qua popup xác nhận vượt mức (05/10/2026)
   const calibRow = manager.slice(manager.indexOf('function calibRowHtml(p)'), manager.indexOf('function calibToolbarHtml()'));
   assert.match(calibRow, /empMeta\(p\) \+ empTags\(p\)/);
@@ -813,7 +831,7 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.equal((manager.match(/confirmOverCap\(/g) || []).length, 4, 'khai bao + duyet cap truoc + upload + duyet diem HRBP');
   // Popup Upload điểm theo popup nộp bổ sung của E-05 (05/10/2026): câu dẫn hoặc khối khóa đứng đầu, 3 bước trong khung
   // .yer-flow dùng chung, 1 nút tải mẫu, không tô hồng thẻ bước hay tên cột
-  const upload = manager.slice(manager.indexOf('function openUpload()'), manager.indexOf('/* ── Phê duyệt điểm hiệu chuẩn'));
+  const upload = manager.slice(manager.indexOf('function openUpload()'), manager.indexOf('/* ── Duyệt điểm HRBP upload'));
   assert.ok(upload.indexOf('html: lead +') > 0);
   assert.equal((upload.match(/step\(\d,/g) || []).length, 3);
   assert.equal((upload.match(/id="yer-up-tpl"/g) || []).length, 1);
@@ -887,7 +905,7 @@ test('late measures and the rating cap of 3 are shown to every manager level and
   // M-05: popup chấm điểm, duyệt hàng loạt, upload, duyệt hiệu chuẩn đều hỏi xác nhận khi vượt mức
   assert.match(manager, /if \(Y\.overRatingCap\(p, cur\.score\) && !cur\.ack\)/);
   assert.match(manager, /confirmOverCap\(rows, function \(\) \{/);
-  assert.match(manager, /confirmOverCap\(valid, function \(\) \{/);
+  assert.match(manager, /confirmOverCap\(changed, function \(\) \{/);
   assert.match(manager, /confirmOverCap\(picked\.map\(/);
   assert.match(manager, /lockUntilAck\('yer-bulk-cap-ack'\)/);
   assert.match(manager, /capConfirmed: capConfirmed/);

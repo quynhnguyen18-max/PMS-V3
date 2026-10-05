@@ -382,7 +382,8 @@
     if (role() === 'hod') return p.lm2 ? p.lm2.score : null;
     return null;
   }
-  var PREV_LABEL = { lm2: 'LM1', hod: 'LM2' };
+  // Tên cấp trước trên nút và popup duyệt điểm: viết như tên cột điểm (chị chốt 05/10/2026, thay LM1/LM2)
+  function prevLabel() { return role() === 'lm2' ? L('QLTT', 'line manager') : L('QL cấp 2', 'second-level manager'); }
 
   function lockReason(p) {
     var win = Y.managerEditWindow(role(), p);
@@ -501,7 +502,7 @@
       }).join('') + '</ol></details>';
   }
 
-  /* Duyệt điểm cấp trước, Upload điểm, Duyệt điểm hiệu chuẩn: có dòng cao hơn mức tối đa thì phải tick
+  /* Duyệt điểm cấp trước, Upload điểm, Duyệt điểm HRBP upload: có dòng cao hơn mức tối đa thì phải tick
      xác nhận trước khi ghi (§27.3). rows: [{ p, score }]. Không có dòng nào vượt thì chạy luôn. */
   function confirmOverCap(rows, go) {
     var over = rows.filter(function (r) { return Y.overRatingCap(r.p, r.score); });
@@ -651,16 +652,103 @@
   /* AI Summary: nội dung và popup dùng chung với M-06, ở assets/yer-ai.js (§14) */
   function openAi(p) { window.PMSYerAi.openSummary(p); }
 
-  /* ── duyệt điểm cấp trước và upload điểm (như tab Giữa năm) ─ */
-  function approveSelected() {
-    var rows = Object.keys(state.selected).map(findProfile).filter(function (p) { return p && canApprove(p); })
+  /* ── duyệt điểm cấp trước và upload điểm ─────────────── */
+  /* Bảng chọn trong popup (Duyệt điểm cấp trước, Xem trước điểm từ file): khung bảng .myr-table của danh sách,
+     cuộn trong khung, tiêu đề bảng đứng yên. cols: [{ label, cls }], rows: chuỗi <tr> đã dựng. */
+  function pickTable(cols, rows, check) {
+    return '<div class="yer-pick-wrap"><table class="myr-table yer-pick-table"><thead><tr>' +
+      (check ? '<th class="myr-check-cell"><input type="checkbox" class="myr-row-check" id="yer-pick-all" aria-label="' +
+        esc(L('Chọn tất cả', 'Select all')) + '"></th>' : '') +
+      cols.map(function (c) { return '<th' + (c.cls ? ' class="' + c.cls + '"' : '') + '>' + c.label + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+  function empLine(p) {
+    return '<div class="myr-emp-name">' + esc(p.emp.name) + ' <span class="er-login">(' + esc(p.emp.login) + ')</span></div>' + empTags(p);
+  }
+  function prevSynced(p) { return role() === 'lm2' ? !!(p.lm && p.lm.synced) : !!(p.lm2 && p.lm2.synced); }
+  function hasMine(p) { var m = myEntry(p); return !!(m && !m.synced && m.score != null); }
+  function myScoreCell(p) { var m = myEntry(p); return scoreCell(m ? m.score : null, m && m.synced, p); }
+
+  /* Phương án 2 của góp ý số 5 (chị chốt 05/10/2026): bấm `Duyệt điểm LM1/LM2` là mở popup có sẵn danh sách nhân viên
+     đủ điều kiện, không cần biết phải tick trên bảng trước. Chọn sẵn: các dòng đã tick trên bảng; chưa tick dòng nào thì
+     chọn sẵn người chưa có điểm của vai đang xem. Người đã có điểm vẫn nằm trong danh sách nhưng không chọn sẵn, vì duyệt là
+     thay điểm đó. Số trên nút là số người được chọn sẵn. */
+  function approveCandidates() { return baseRoster().filter(canApprove); }
+  function approvePreset(list) {
+    var picked = list.filter(function (p) { return state.selected[p.id]; });
+    return picked.length ? picked : list.filter(function (p) { return !hasMine(p); });
+  }
+
+  function openApprove() {
+    var list = approveCandidates();
+    if (!list.length) return;
+    var sel = {};
+    approvePreset(list).forEach(function (p) { sel[p.id] = true; });
+    var prevName = role() === 'lm2' ? L('Quản lý trực tiếp', 'the line manager') : L('Quản lý cấp 2', 'the second-level manager');
+    var anyMine = list.some(hasMine);
+    var rows = list.map(function (p) {
+      return '<tr><td class="myr-check-cell"><input type="checkbox" class="myr-row-check" data-pick-emp="' + esc(p.id) + '"' +
+          (sel[p.id] ? ' checked' : '') + ' aria-label="' + esc(L('Chọn ', 'Select ') + p.emp.name) + '"></td>' +
+        '<td>' + empLine(p) + '</td>' +
+        '<td class="score">' + scoreCell(prevScore(p), prevSynced(p), p) + '</td>' +
+        '<td class="score">' + myScoreCell(p) + '</td></tr>';
+    }).join('');
+    U.dialog({
+      title: L('Duyệt điểm ', 'Approve ') + prevLabel() + L('', ' ratings'),
+      className: 'yer-pick-dlg',
+      html: '<p class="yer-pick-lead">' + L('Điểm của ' + prevName + ' được ghi nhận làm điểm của ' + roleName() + ' cho các nhân viên được chọn.',
+          'The rating of ' + prevName + ' is recorded as the ' + roleLow() + ' rating for the selected employees.') +
+          (anyMine ? ' ' + L('Nhân viên đã có điểm của bạn không được chọn sẵn; chọn thì điểm đó được thay.',
+            'Employees you have already rated are not preselected; selecting them replaces your rating.') : '') + '</p>' +
+        pickTable([
+          { label: L('Nhân viên', 'Employee') },
+          { label: role() === 'lm2' ? L('Điểm của QLTT', 'Line manager') : L('Điểm của QL cấp 2', 'Second level'), cls: 'score' },
+          { label: L('Điểm hiện tại của bạn', 'Your current rating'), cls: 'score' }
+        ], rows, true),
+      buttons: [
+        { label: L('Hủy', 'Cancel'), variant: 'quiet' },
+        { label: L('Duyệt điểm', 'Approve'), variant: 'default', icon: 'bx-check-double', act: function () {
+          approveRows(Object.keys(sel).filter(function (id) { return sel[id]; })); } }
+      ]
+    });
+    bindPick(sel, function (n) {
+      return '<i class="bx bx-check-double"></i>' + esc(L('Duyệt điểm ' + n + ' nhân viên', 'Approve ' + n + ' employee' + (n === 1 ? '' : 's')));
+    });
+  }
+
+  /* Ô chọn của bảng trong popup vừa mở: cập nhật ô chọn tất cả và nút chính (đếm số dòng, không chọn dòng nào thì khóa) */
+  function bindPick(sel, labelOf) {
+    var ovs = document.querySelectorAll('.pms-ov');
+    var ov = ovs[ovs.length - 1];
+    if (!ov) return;
+    var boxes = [].slice.call(ov.querySelectorAll('[data-pick-emp]'));
+    var all = ov.querySelector('#yer-pick-all');
+    var btn = ov.querySelector('.pms-btn-default');
+    function sync() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      if (all) { all.checked = n > 0 && n === boxes.length; all.indeterminate = n > 0 && n < boxes.length; }
+      if (btn) { btn.disabled = n === 0; btn.innerHTML = labelOf(n); }
+    }
+    boxes.forEach(function (b) {
+      b.addEventListener('change', function () { sel[b.dataset.pickEmp] = b.checked; sync(); });
+    });
+    if (all) all.addEventListener('change', function () {
+      boxes.forEach(function (b) { b.checked = all.checked; sel[b.dataset.pickEmp] = all.checked; });
+      sync();
+    });
+    sync();
+  }
+
+  function approveRows(ids) {
+    var rows = ids.map(findProfile).filter(function (p) { return p && canApprove(p); })
       .map(function (p) { return { p: p, score: Number(prevScore(p)) }; });
+    if (!rows.length) return;
     confirmOverCap(rows, function () {
       rows.forEach(function (r) { saveMine(r.p, r.score, null, 'approve-prev'); });
       state.selected = {};
       refreshRows();
-      U.toast(L('Đã duyệt điểm ' + PREV_LABEL[role()] + ' cho ' + rows.length + ' nhân viên.',
-        'Approved ' + PREV_LABEL[role()] + ' ratings for ' + rows.length + ' employees.'));
+      U.toast(L('Đã duyệt điểm ' + prevLabel() + ' cho ' + rows.length + ' nhân viên.',
+        'Approved ' + prevLabel() + ' ratings for ' + rows.length + ' employees.'));
     });
   }
 
@@ -704,6 +792,9 @@
     if (cell || row.length) { row.push(cell); rows.push(row); }
     return rows.filter(function (r) { return r.some(function (v) { return String(v).trim(); }); });
   }
+  /* Đề xuất 3 của góp ý số 5 (chị chốt 05/10/2026, học từ Lattice): chọn file xong chưa ghi điểm ngay mà mở popup xem trước:
+     dòng hợp lệ (điểm hiện tại, điểm mới, dấu cảnh báo vượt mức) và dòng lỗi kèm lý do; bấm `Cập nhật` mới ghi.
+     Dòng để trống điểm thì bỏ qua, không tính là lỗi. */
   function importFile(file) {
     var reader = new FileReader();
     reader.onload = function () {
@@ -714,23 +805,74 @@
         U.toast(L('File không đúng mẫu: thiếu cột Mã nhân viên hoặc ' + ROLE_COL[role()], 'Wrong template: missing employee ID or rating column'));
         return;
       }
-      var valid = [], skipped = 0;
-      rows.forEach(function (r) {
+      var mine = {};
+      baseRoster().forEach(function (p) { mine[p.id] = p; });
+      var valid = [], errors = [], seen = {};
+      rows.forEach(function (r, i) {
+        var line = i + 2;
         var raw = String(r[iScore] || '').trim().replace(',', '.');
         if (!raw) return;
-        var p = findProfile(String(r[iId] || '').trim());
+        var id = String(r[iId] || '').trim();
+        var p = mine[id];
+        if (!p) { errors.push(L('Dòng ' + line + ': mã nhân viên ' + id + ' không có trong danh sách của bạn', 'Row ' + line + ': employee ID ' + id + ' is not in your list')); return; }
+        if (seen[id]) { errors.push(L('Dòng ' + line + ': trùng mã nhân viên với dòng ' + seen[id], 'Row ' + line + ': same employee ID as row ' + seen[id])); return; }
+        seen[id] = line;
         var v = Number(raw);
-        if (!p || !canAct(p) || SCORE_OPTIONS.indexOf(String(v)) < 0) { skipped++; return; }
+        if (SCORE_OPTIONS.indexOf(String(v)) < 0) {
+          errors.push(L('Dòng ' + line + ': điểm ' + raw + ' của ' + p.emp.name + ' không hợp lệ, cần từ 1 đến 5 theo bước 0.5',
+            'Row ' + line + ': rating ' + raw + ' for ' + p.emp.name + ' is invalid, use 1 to 5 in steps of 0.5'));
+          return;
+        }
+        if (!canAct(p)) { errors.push(L('Dòng ' + line + ': ' + p.emp.name + ' - ', 'Row ' + line + ': ' + p.emp.name + ' - ') + lockReason(p)); return; }
         valid.push({ p: p, score: v, comment: iCmt >= 0 ? String(r[iCmt] || '').trim() : null });
       });
-      confirmOverCap(valid, function () {
-        valid.forEach(function (r) { saveMine(r.p, r.score, r.comment, 'upload'); });
-        refreshRows();
-        U.toast(L('Đã cập nhật điểm cho ' + valid.length + ' nhân viên', 'Updated ' + valid.length + ' employees') +
-          (skipped ? L(', bỏ qua ' + skipped + ' dòng không hợp lệ', ', skipped ' + skipped + ' invalid rows') : ''));
-      });
+      previewUpload(file.name, valid, errors);
     };
     reader.readAsText(file, 'utf-8');
+  }
+
+  /* Dòng có điểm và nhận xét giống hệt điểm đang có thì ghi `Không đổi` và không tính vào số cập nhật */
+  function unchanged(r) {
+    var m = myEntry(r.p);
+    return !!(m && !m.synced && Number(m.score) === r.score && (r.comment == null || r.comment === (m.comment || '')));
+  }
+  function previewUpload(name, valid, errors) {
+    var changed = valid.filter(function (r) { return !unchanged(r); });
+    var same = valid.length - changed.length;
+    var rows = valid.map(function (r) {
+      var same = unchanged(r);
+      return '<tr><td>' + empLine(r.p) + '</td>' +
+        '<td class="score">' + myScoreCell(r.p) + '</td>' +
+        '<td class="score">' + scoreCell(r.score, false, r.p) +
+          (same ? '<span class="yer-pick-same">' + L('Không đổi', 'Unchanged') + '</span>' : '') + '</td></tr>';
+    }).join('');
+    U.dialog({
+      title: L('Xem trước điểm từ file', 'Preview ratings from file'),
+      className: 'yer-pick-dlg',
+      html: '<p class="yer-pick-lead">' + L('File <strong>' + esc(name) + '</strong>: ' + valid.length + ' dòng hợp lệ' +
+          (same ? ' (' + same + ' dòng không đổi)' : '') + (errors.length ? ', ' + errors.length + ' dòng lỗi' : '') +
+          '. Điểm chỉ được cập nhật sau khi bạn bấm Cập nhật.',
+          'File <strong>' + esc(name) + '</strong>: ' + valid.length + ' valid row' + (valid.length === 1 ? '' : 's') +
+          (same ? ' (' + same + ' unchanged)' : '') + (errors.length ? ', ' + errors.length + ' with errors' : '') +
+          '. Ratings change only after you choose Update.') + '</p>' +
+        (valid.length ? pickTable([
+          { label: L('Nhân viên', 'Employee') },
+          { label: L('Điểm hiện tại', 'Current'), cls: 'score' },
+          { label: L('Điểm mới', 'New'), cls: 'score' }
+        ], rows, false) : '') +
+        (errors.length ? '<ul class="yer-pick-err">' + errors.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' : ''),
+      buttons: changed.length ? [
+        { label: L('Hủy', 'Cancel'), variant: 'quiet' },
+        { label: L('Cập nhật ' + changed.length + ' nhân viên', 'Update ' + changed.length + ' employee' + (changed.length === 1 ? '' : 's')),
+          variant: 'default', icon: 'bx-upload', act: function () {
+            confirmOverCap(changed, function () {
+              changed.forEach(function (r) { saveMine(r.p, r.score, r.comment, 'upload'); });
+              refreshRows();
+              U.toast(L('Đã cập nhật điểm cho ' + changed.length + ' nhân viên', 'Updated ' + changed.length + ' employees'));
+            });
+          } }
+      ] : [{ label: L('Đóng', 'Close'), variant: 'quiet' }]
+    });
   }
 
   function openUpload() {
@@ -785,7 +927,7 @@
     });
   }
 
-  /* ── Phê duyệt điểm hiệu chuẩn (HOD, §9) ───────────────
+  /* ── Duyệt điểm HRBP upload (HOD, §9; tên cũ: Phê duyệt điểm hiệu chuẩn) ───────────────
      Cùng bố cục với màn của tab Giữa năm (MYR-56): màn phủ toàn vùng nội dung, nút `Duyệt điểm` ở đầu,
      Bộ lọc và Tải xuống, cột `Điểm Upload`. Luật duyệt nằm ở PMSYer.calibrationState. */
   var calib = { selected: {}, filters: { emp: '', lm1: '', lm2: '' }, filterOpen: false, dlOpen: false };
@@ -904,7 +1046,7 @@
   function calibShellHtml() {
     return '<div class="calib-hd">' +
         '<button type="button" class="calib-back" id="yer-calib-back"><i class="bx bx-left-arrow-alt"></i> ' + L('Quay lại', 'Back') + '</button>' +
-        '<div class="calib-hd-info"><div class="calib-hd-title">' + L('Phê duyệt điểm hiệu chuẩn', 'Approve calibrated ratings') + '</div>' +
+        '<div class="calib-hd-info"><div class="calib-hd-title">' + L('Duyệt điểm HRBP upload', 'Approve HRBP uploads') + '</div>' +
           '<div class="calib-hd-sub">' + L('Đánh giá cuối năm 2026 - HOD - Indirect reports', 'Year-End Review 2026 - HOD - Indirect reports') + '</div></div>' +
         '<button type="button" id="yer-calib-approve" class="btn btn-default btn-sm" disabled><i class="bx bx-check-shield"></i> ' +
           L('Duyệt điểm', 'Approve') + ' <span id="yer-calib-count" class="myr-bulk-count">0</span></button>' +
@@ -951,7 +1093,7 @@
     var node = el('yer-calib-screen');
     if (node) node.style.display = 'none';
     calib.filters = { emp: '', lm1: '', lm2: '' };
-    renderFilterRow(); // dựng lại nút Duyệt điểm hiệu chuẩn theo số hồ sơ còn chờ duyệt
+    renderFilterRow(); // dựng lại nút Duyệt điểm HRBP upload theo số hồ sơ còn chờ duyệt
     refreshRows();
   }
 
@@ -1034,7 +1176,7 @@
     });
     calib.selected = {};
     renderCalibRows();
-    if (picked.length) U.toast(L('Đã duyệt điểm hiệu chuẩn HOD cho ' + picked.length + ' nhân viên.', 'Approved calibrated HOD ratings for ' + picked.length + ' employees.'));
+    if (picked.length) U.toast(L('Đã duyệt điểm HRBP upload cho ' + picked.length + ' nhân viên.', 'Approved HRBP uploads for ' + picked.length + ' employees.'));
   }
 
   function downloadCalib(fmt) {
@@ -1158,20 +1300,26 @@
     var win = Y.managerEditWindow('hod', { now: S.session().date });
     var why = win.state === 'closed' ? L('Đã hết hạn duyệt ngày ', 'Approval closed on ') + Y.fmt(win.to, lg())
       : win.state === 'future' ? L('Mở từ ', 'Opens on ') + Y.fmt(win.from, lg())
-      : L('Chưa có điểm HRBP tải lên cần duyệt', 'No HRBP upload awaiting approval');
-    return '<button type="button" class="btn btn-outline btn-sm" id="yer-mgr-calib"' +
-      (n ? '' : ' disabled title="' + esc(why) + '"') + '>' +
-      '<i class="bx bx-check-shield"></i> ' + L('Duyệt điểm hiệu chuẩn', 'Approve calibrated ratings') +
+      : L('Chưa có điểm HRBP upload cần duyệt', 'No HRBP upload awaiting approval');
+    return '<button type="button" class="btn btn-cta-outline btn-sm" id="yer-mgr-calib"' +
+      (n ? btnTip(L('Duyệt điểm do HRBP upload', 'Approve ratings uploaded by HRBP')) : ' disabled title="' + esc(why) + '"') + '>' +
+      '<i class="bx bx-check-shield"></i> ' + L('Duyệt điểm HRBP upload', 'Approve HRBP uploads') +
       (n ? ' <span class="myr-bulk-count">' + n + '</span>' : '') + '</button>';
   }
 
+  /* Ba nút thao tác hàng loạt cùng một kiểu viền hồng (chị chốt 05/10/2026), rê chuột thấy một câu ngắn nói nút làm gì */
+  function btnTip(text) {
+    return ' data-tip="' + esc(text) + '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()"';
+  }
   function bulkHtml() {
     if (!gridRole()) return '';
     return '<div class="myr-bulk-actions">' +
-      '<button type="button" id="yer-mgr-approve" class="btn btn-cta-outline btn-sm myr-bulk-approve" disabled>' +
-        '<i class="bx bx-check-double"></i> ' + L('Duyệt điểm ', 'Approve ') + PREV_LABEL[role()] +
+      '<button type="button" id="yer-mgr-approve" class="btn btn-cta-outline btn-sm myr-bulk-approve" disabled' +
+        btnTip(L('Duyệt điểm ' + prevLabel() + ' cho các nhân viên đủ điều kiện', 'Approve the ' + prevLabel() + ' ratings for eligible employees')) + '>' +
+        '<i class="bx bx-check-double"></i> ' + L('Duyệt điểm ', 'Approve ') + prevLabel() +
         ' <span id="yer-mgr-approve-count" class="myr-bulk-count">0</span></button>' +
-      '<button type="button" class="btn btn-default btn-sm" id="yer-mgr-upload"><i class="bx bx-upload"></i> ' +
+      '<button type="button" class="btn btn-cta-outline btn-sm" id="yer-mgr-upload"' +
+        btnTip(L('Cập nhật điểm nhiều nhân viên bằng file', 'Update ratings for many employees from a file')) + '><i class="bx bx-upload"></i> ' +
         L('Upload điểm', 'Upload ratings') + '</button>' + calibBtnHtml() + '</div>';
   }
 
@@ -1275,10 +1423,14 @@
 
   function syncBulk() {
     var boxes = [].slice.call(document.querySelectorAll('#yer-mgr-tbody [data-check-emp]:not(:disabled)'));
-    var n = Object.keys(state.selected).length;
     var btn = el('yer-mgr-approve'), cnt = el('yer-mgr-approve-count'), all = el('yer-mgr-all');
-    if (btn) btn.disabled = n === 0;
-    if (cnt) cnt.textContent = n;
+    if (btn && gridRole()) {
+      // Phương án 2 (05/10/2026): nút mở popup có sẵn danh sách; số trên nút là số người được chọn sẵn trong popup
+      var cand = approveCandidates();
+      btn.disabled = cand.length === 0;
+      btn.title = cand.length ? '' : L('Chưa có nhân viên đủ điều kiện duyệt điểm', 'No employee is eligible for approval yet');
+      if (cnt) cnt.textContent = approvePreset(cand).length;
+    }
     if (all) {
       var on = boxes.filter(function (b) { return b.checked; }).length;
       all.disabled = boxes.length === 0;
@@ -1420,7 +1572,7 @@
       refreshRows();
     });
     var approve = el('yer-mgr-approve');
-    if (approve) approve.addEventListener('click', approveSelected);
+    if (approve) approve.addEventListener('click', openApprove);
     var upload = el('yer-mgr-upload');
     if (upload) upload.addEventListener('click', openUpload);
     var calibBtn = el('yer-mgr-calib');
@@ -1618,6 +1770,22 @@
       '.pms-btn:disabled{opacity:.5;cursor:not-allowed}' +
       '.yer-cap-mark{margin-left:3px;font-size:13px;color:var(--warn);vertical-align:-2px;cursor:help}' +
       '.yer-req{color:var(--err);font-weight:700;margin-left:3px}' +
+      // Popup Duyệt điểm cấp trước và Xem trước điểm từ file: bảng .myr-table trong khung cuộn (05/10/2026)
+      '.yer-pick-dlg{width:min(640px,calc(100vw - 32px));max-width:none}' +
+      '.yer-pick-lead{margin:0 0 10px;font-size:12.5px;line-height:1.5;color:var(--z700)}' +
+      '.yer-pick-lead strong{color:var(--z900);font-weight:600}' +
+      '.yer-pick-wrap{max-height:46vh;overflow:auto;border:1px solid var(--z200);border-radius:var(--rsm)}' +
+      '.yer-pick-table th{position:sticky;top:0;z-index:1}' +
+      '.yer-pick-table th:first-child,.yer-pick-table td:first-child{padding-left:12px}' +
+      '.yer-pick-table .myr-check-cell{width:36px}' +
+      '.yer-pick-table th.score,.yer-pick-table td.score{width:120px;text-align:center}' +
+      '.yer-pick-table tbody tr:last-child td{border-bottom:0}' +
+      '.yer-pick-table .yer-sc{position:relative;display:inline-block}' +
+      '.yer-pick-table .yer-sc .yer-sync-tag{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin:1px 0 0;display:block;width:max-content}' +
+      '.yer-pick-table .yer-sc .yer-cap-mark{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:3px}' +
+      '.yer-pick-same{display:block;margin-top:2px;font-size:10.5px;color:var(--z500)}' +
+      '.yer-pick-err{margin:10px 0 0;padding:8px 12px 8px 28px;border:1px solid var(--err-bd);border-radius:var(--rsm);background:var(--err-bg);' +
+        'color:var(--err);font-size:12px;line-height:1.55}' +
       // Popup Upload điểm: khung bước .yer-flow ở yer-ui.js, như popup nộp bổ sung của E-05 (05/10/2026)
       '.yer-up-dlg{width:min(620px,calc(100vw - 32px));max-width:none}' +
       '.yer-up-lead{margin:0 0 10px;font-size:12.5px;color:var(--z700)}' +
@@ -1627,7 +1795,7 @@
       '.yer-up-alert i{flex:none;font-size:15px;margin-top:1px;color:var(--warn)}' +
       '.yer-up-alert strong{color:var(--z900);font-weight:700}' +
       '.yer-up-dlg .btn[disabled]{opacity:.5;cursor:not-allowed}' +
-      // Màn phê duyệt điểm hiệu chuẩn: khung .calib-* dùng chung với tab Giữa năm (M-05)
+      // Màn Duyệt điểm HRBP upload: khung .calib-* dùng chung với tab Giữa năm (M-05)
       '.yer-upd{color:var(--upd)}' +
       '.yer-calib-table .myr-emp-name{white-space:normal}' +
       '.yer-calib-meta{display:block;margin-top:3px;font-size:10.5px;color:var(--z600);white-space:nowrap}' +

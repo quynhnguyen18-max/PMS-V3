@@ -339,7 +339,7 @@
     grid: [' (lưu trên danh sách)', ' (saved on the list)'],
     'approve-prev': [' (duyệt điểm cấp trước)', ' (approved the previous level)'],
     upload: [' (tải lên từ file)', ' (uploaded from file)'],
-    'hrbp-upload': [' (HRBP tải lên điểm hiệu chuẩn)', ' (calibrated rating uploaded by HRBP)']
+    'hrbp-upload': [' (duyệt điểm HRBP upload)', ' (approved HRBP upload)']
   };
   function logWhen(it) {
     return it.time ? L('lúc ' + it.time + ' ngày ' + Y.fmt(it.at, lg()), 'at ' + it.time + ' on ' + Y.fmt(it.at, lg()))
