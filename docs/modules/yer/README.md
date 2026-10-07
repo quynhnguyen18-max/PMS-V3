@@ -77,6 +77,13 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
   `Lưu ý` của tab Danh sách mục tiêu cùng cấu trúc gọn.
   Thêm tình huống `nv22` đến `nv24`, viết lại `nv06`, `nv12` đến `nv19`; `lm11` có mục tiêu nộp trễ chờ QLTT duyệt. Rule cũ giữ ở
   bản lưu trữ `archive/yer-nop-tre-v1/` (§5, §8.1, §8.2, §18.4, §27.1, §27.3, §27.4, §29, §40.5a, §46, §48; GOAL-SPEC GS-26b, GS-50).
+- [x] **Góp ý theo ảnh 07/10/2026:** M-06 bỏ dòng mục tiêu chờ duyệt trong khối chờ nộp bổ sung, đổi câu thiếu mục tiêu, khối hết
+  hạn đổi tiêu đề `Dừng quy trình đánh giá cuối năm` và chữ `hoàn thành`; điểm vượt mức tối đa là một dòng ghi chú (không viền, không
+  nền) `Điểm của [vai] cao hơn mức điểm tối đa dành cho trường hợp nộp trễ ở lần nhắc thứ k` (§27.3, §27.4, §48). Tên mức điểm một màu
+  xanh cho mọi mức, ô Ý nghĩa thang điểm màu xám ở mọi màn (§41.2b, §41.3). M-05: icon cảnh báo to hơn và canh giữa số; ô chọn điểm
+  trong popup viền xám, đang chọn viền hồng đậm; dòng hạn chỉnh sửa chữ xám đậm; `Duyệt điểm QLTT/QL cấp 2` chỉ bấm được khi đã tick
+  nhân viên trên bảng (chưa tick thì xám, không số, rê chuột thấy hướng dẫn), bấm mở một popup xác nhận kèm lưu ý vượt mức; nút khóa
+  cùng một kiểu xám (§47). Dải quy trình: đang chờ chị chọn phương án.
 - [ ] **Góp ý màn Quản lý, còn lại:** màn HRBP tải điểm hộ HOD và bước đối soát (§9).
 - [x] **Góp ý E-05 đợt 3 (28/09/2026):** màn quá hạn giữ bố cục thường, các ô khóa, khối thông báo lần nhắc đang mở rồi xác nhận mới mở popup nộp bổ sung; hạn chấm QLTT riêng cho hồ sơ nộp bổ sung (3 ngày làm việc từ ngày nộp); banner nộp trễ một nhãn và dòng hình thức xử lý, không có lịch sử chỉnh sửa; ô QLTT có `Điểm toàn diện: - Chưa công bố`; bớt viền khối cuối trang; 16 tình huống Nhân viên, bỏ nhóm `Hồ sơ khác` (§6, §8.2, §27.1, §27.3, §40.5a, §42, §44.1, §46).
 - [x] **Góp ý E-05 đợt 2 (27/09/2026):** bốn lần nhắc nộp bổ sung, đếm ngày làm việc, xác nhận đã đọc, khối nộp trễ sau khi gửi (§27.3); nhân viên đọc nhận xét Quản lý cấp 2 và Trưởng đơn vị (§7); tab `Danh sách mục tiêu` và nhãn xanh (§18.4); câu chữ cảnh báo thiếu mục tiêu, lưu nháp, thai sản, chỉnh sửa (§5, §8.1, §40.5); lịch sử chỉnh sửa theo lần gửi (§8.2); 11 tình huống Nhân viên và ghi chú `Hồ sơ khác` (§44.1, §46).

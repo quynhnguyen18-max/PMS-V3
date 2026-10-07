@@ -477,7 +477,7 @@
   /* ── Mascot hướng dẫn (chốt 04/10/2026, cùng component U.mascotGuide với E-05, YER-SPEC §43) ──
      Bóng thoại nói vai đang xem đang ở bước nào; tour đi qua đúng các khối đang có trên màn, theo vai và tình trạng hồ sơ. */
   function mascotStep(p, canEdit) {
-    if (p.stopped) return L('Hồ sơ không đánh giá', 'Not evaluated');
+    if (p.stopped) return L('Dừng quy trình đánh giá cuối năm', 'Year-end review stopped');
     if (Y.lateWaiting(p)) return L('Chờ nhân viên nộp bổ sung', 'Waiting for the late self assessment');
     if (mySubmitted(p)) return isEditing(p) ? L('Chỉnh sửa đánh giá', 'Editing the review') : L('Đã hoàn thành đánh giá', 'Review completed');
     if (canEdit) return isLm() && p.maternity ? L('Đánh giá nhân viên thai sản', 'Maternity review') : L('Đánh giá cuối năm', 'Year-end review');
@@ -503,7 +503,7 @@
     ];
     var root = '#yer-mgr-detail-root ';
     if (p.stopped) {
-      items.push({ sel: root + '.yer-late-closed', pose: 'think.png', title: L('Hồ sơ không đánh giá', 'Not evaluated'),
+      items.push({ sel: root + '.yer-late-closed', pose: 'think.png', title: L('Dừng quy trình đánh giá cuối năm', 'Year-end review stopped'),
         text: L('Quy trình của hồ sơ này đã dừng và không có điểm. Khối vàng nói rõ lý do.', 'This profile stopped with no rating. The yellow block explains why.') });
       return items;
     }
@@ -722,16 +722,11 @@
         'The employee can submit <strong>only once</strong>. ' + roleName('lm') + ' can review right after that.')
     ];
     if (csq) lines.push('<strong>' + L('Hình thức xử lý khi nộp ở lần nhắc này:', 'Measure when submitting at this reminder:') + '</strong> ' + csq);
-    /* Mục tiêu nhân viên gửi trong lúc quá hạn đi qua bước duyệt như bình thường; QLTT duyệt trong timeline của QLTT
-       (§27.1, chốt 07/10/2026). Mục tiêu gửi sau hạn Tự đánh giá có nhãn Mục tiêu nộp trễ. */
-    var pend = Y.pendingGoals(p).length;
-    if (pend) lines.push(L('Nhân viên có <strong>' + pend + ' mục tiêu</strong> đang chờ ' + roleName('lm') + ' duyệt. ' + roleName('lm') + ' duyệt tại tab Danh sách mục tiêu, tới hết ' + lmEnd + '.',
-      'The employee has <strong>' + pend + ' goal' + (pend === 1 ? '' : 's') + '</strong> awaiting ' + roleLow('lm') + ' approval, in the Goal list tab, until ' + lmEnd + '.'));
     lines.push(missing
       ? L('Nhân viên còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt. Nếu hết các lần nhắc (' + lateEnd +
-            ') mà nhân viên không nộp, hồ sơ chuyển <strong>Không đánh giá</strong> và không có điểm.',
-          'An approved <strong>' + esc(missingGoalNames(p)) + '</strong> is missing. If nothing is submitted by the last reminder (' + lateEnd +
-            '), the profile becomes <strong>Not evaluated</strong> with no rating.')
+            ') mà nhân viên không bổ sung, quy trình đánh giá cuối năm không thể tiếp tục và nhân viên sẽ không có điểm trên hệ thống.',
+          'An approved <strong>' + esc(missingGoalNames(p)) + '</strong> is missing. If nothing is added by the last reminder (' + lateEnd +
+            '), the year-end review cannot continue and the employee will have no rating in the system.')
       : L('Nếu hết các lần nhắc (' + lateEnd + ') mà nhân viên không nộp, ' + roleName('lm') + ' sẽ tiếp tục đánh giá tới hết ' + lmEnd + '.',
           'If nothing is submitted by the last reminder (' + lateEnd + '), ' + roleLow('lm') + ' continues the review until ' + lmEnd + '.'));
     return '<div class="yer-note yer-late-closed yer-late-wait"><i class="bx bx-time-five"></i><div>' +
@@ -746,12 +741,12 @@
     var missing = p.eligibility.reason === 'missing-goal';
     var lateEnd = at18(Y.lateSubmissionDeadline());
     return '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div>' +
-      '<strong>' + L('Hồ sơ không đánh giá', 'This profile is not evaluated') + '</strong><br>' +
+      '<strong>' + L('Dừng quy trình đánh giá cuối năm', 'Year-end review stopped') + '</strong><br>' +
       (missing
-        ? L('Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc ' + lateEnd + ' và nhân viên đã không nộp sau 4 lần nhắc nhở. ' +
+        ? L('Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc ' + lateEnd + ' và nhân viên đã không hoàn thành sau 4 lần nhắc nhở. ' +
               'Vì còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, các bước đánh giá của cấp quản lý không thể tiếp tục. ' +
               'Quy trình Đánh giá cuối năm của nhân viên dừng tại đây và không có điểm trên hệ thống.',
-            'The late self-assessment window closed at ' + lateEnd + ' and the employee did not submit after 4 reminders. ' +
+            'The late self-assessment window closed at ' + lateEnd + ' and the employee did not complete it after 4 reminders. ' +
               'Because an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is missing, the manager review steps cannot continue. ' +
               'The year-end review stops here with no rating in the system.')
         : L('Nhân viên không Tự đánh giá và Quản lý trực tiếp không đánh giá tới hết ' + at18(p.lmDeadline) +
@@ -1028,9 +1023,12 @@
           (o.editable ? req() : '') + '</span>' +
         ratingCell(o.key, o.value, { half: true, readonly: o.readonly, def: o.editable ? '#yer-md-op-def' : null }) +
       '</div>' +
-      // Tag phụ `Cao hơn mức tối đa` nằm dòng riêng bên dưới điểm (chị chốt 04/10/2026)
-      (o.overCap ? '<div class="yer-cap-row"><span class="yer-cap-chip"><i class="bx bx-error"></i>' +
-        esc(L('Cao hơn mức tối đa ' + o.overCap, 'Above the maximum of ' + o.overCap)) + '</span></div>' : '') +
+      /* Điểm cao hơn mức tối đa: một dòng ghi chú thường dưới điểm (chị chốt lại 07/10/2026), không viền, không nền, giữ màu vàng
+         và icon tam giác. Gọi tên vai của ô (QLTT, Quản lý cấp 2, Trưởng đơn vị). */
+      (o.overCap ? '<div class="yer-cap-row"><span class="yer-cap-chip"><i class="bx bx-error"></i><span>' +
+        esc(L('Điểm của ' + roleName(capRole(o.key)) + ' cao hơn mức điểm tối đa dành cho trường hợp nộp trễ ở lần nhắc thứ ' + Y.lateMeasure(prof()).round,
+              'The ' + roleLow(capRole(o.key)) + ' rating is above the maximum for a late submission at reminder ' + Y.lateMeasure(prof()).round)) +
+        '</span></span></div>' : '') +
       (o.measure != null ? '<div class="yer-cap-note" id="yer-md-cap-note">' + o.measure + '</div>' : '') +
       (o.hint ? '<div class="yer-op-hint">' + esc(o.hint) + '</div>' : '') +
       '</div><div class="op-slot">' +
@@ -1092,6 +1090,8 @@
     return '<i class="bx bx-error"></i><div>' + text +
       (over ? '<div class="yer-cap-over">' + esc(cap.over) + '</div>' : '') + '</div>';
   }
+  // Vai của ô Đánh giá toàn diện theo khóa ô (`my:overall` là vai đang xem)
+  function capRole(key) { var r = String(key || '').split(':')[0]; return r === 'my' ? role() : r; }
   function capOf(p, score) {
     var m = Y.lateMeasure(p);
     return m && m.cap != null && Y.overRatingCap(p, score) ? m.cap : null;
@@ -1940,9 +1940,8 @@
       '.yer-cap-ack{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-weight:600;color:var(--z900);cursor:pointer}' +
       '.yer-cap-ack input{margin:2px 0 0;width:15px;height:15px;flex:none;accent-color:var(--brand)}' +
       '.pms-btn:disabled{opacity:.5;cursor:not-allowed}' +
-      '.yer-cap-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border:1px solid var(--warn-bd);border-radius:50px;' +
-        'background:var(--warn-bg);color:var(--warn);font-size:10.5px;font-weight:600;white-space:nowrap}' +
-      '.yer-cap-chip i{font-size:12px}' +
+      '.yer-cap-chip{display:inline-flex;align-items:flex-start;gap:4px;color:var(--warn);font-size:12px;font-weight:500;line-height:1.45}' +
+      '.yer-cap-chip i{font-size:14px;flex:none;margin-top:1px}' +
       // Banner hai tầng: CSS nằm ở yer-ui.js (.yer-sb2), dùng chung với E-05 (05/10/2026)
       '.yer-overall-grid{display:grid;gap:0}' +
       // Tối đa hai ô một hàng (HOD có bốn ô: hai hàng), mỗi ô đủ rộng để điểm, tên mức và ⓘ nằm một dòng như E-05 (04/10/2026)

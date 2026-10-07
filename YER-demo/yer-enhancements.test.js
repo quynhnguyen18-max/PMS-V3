@@ -831,15 +831,18 @@ test('HOD approves HRBP-uploaded ratings in the calibration screen, never in the
   assert.doesNotMatch(manager, /PREV_LABEL/);
   assert.equal((manager.match(/class="btn btn-cta-outline btn-sm[^"]*" (?:id="yer-mgr-(?:upload|calib)"|id=)/g) || []).length >= 2, true);
   assert.match(manager, /btnTip\(L\('Cập nhật điểm nhiều nhân viên bằng file'/);
-  assert.match(manager, /btnTip\(L\('Duyệt điểm do HRBP upload'/);
+  assert.match(manager, /btnTip\(n \? L\('Duyệt điểm do HRBP upload', 'Approve ratings uploaded by HRBP'\) : why\)/);
   assert.match(manager, /L\('Điểm Upload', 'Upload'\)/);
   assert.match(manager, /source: 'hrbp-upload'/);
   assert.match(manager, /L\('Thay điểm bạn đã chấm\?', 'Replace your ratings\?'\)/);
   // Tên người tải điểm không trùng nhân viên trong danh sách
   const data = fs.readFileSync(path.join(root, 'assets/yer-data.js'), 'utf8');
   assert.doesNotMatch(data, /by: 'Nguyễn Thị Hoa \(hoa\.nguyen\)'/);
-  // Nút chỉ bấm được khi còn điểm HRBP tải lên chờ duyệt
-  assert.match(manager, /\(n \? btnTip\(L\('Duyệt điểm do HRBP upload', 'Approve ratings uploaded by HRBP'\)\) : ' disabled title="' \+ esc\(why\) \+ '"'\)/);
+  // Nút chỉ bấm được khi còn điểm HRBP tải lên chờ duyệt; khóa thì cùng kiểu xám .yer-btn-off với nút Duyệt điểm cấp trước,
+  // rê chuột vẫn thấy lý do (07/10/2026)
+  assert.match(manager, /btn btn-cta-outline btn-sm' \+ \(n \? '' : ' yer-btn-off'\)/);
+  assert.match(manager, /'\.btn\.yer-btn-off,\.btn\.yer-btn-off:hover\{background:var\(--z100\);border-color:var\(--z200\);color:var\(--z400\)/);
+  assert.doesNotMatch(manager, /#yer-mgr-calib:disabled\{opacity/);
   assert.match(manager, /L\('Chưa có điểm HRBP upload cần duyệt', 'No HRBP upload awaiting approval'\)/);
   assert.match(manager, /return baseRoster\(\)\.filter\(function \(p\) \{ return Y\.calibrationState\(p\)\.canApprove; \}\)\.length;/);
   // AI Summary nằm ở cột Chức năng của mọi vai (QLTT thêm 04/10/2026), không nằm trong ô chấm điểm; Split View có domain nhân viên
@@ -884,28 +887,48 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.doesNotMatch(popup, /Nhận xét toàn diện \(tùy chọn\)|Nhìn chung, nhân viên đã/);
   assert.match(popup, /Ghi nhận xét của bạn về kết quả và đóng góp của nhân viên trong năm\./);
   assert.doesNotMatch(popup, /không bắt buộc\./);
-  // Hạn sửa bên trái có nhấn màu, bộ đếm bên phải
+  // Hạn sửa bên trái chữ xám đậm (07/10/2026), bộ đếm bên phải; ô chọn điểm viền xám, đang chọn thì viền hồng đậm
   assert.match(popup, /'<span class="yer-cm-until">[\s\S]*'<span id="yer-cm-count" class="yer-cm-count">'/);
-  assert.match(manager, /'\.yer-cm-until\{display:inline-flex;align-items:center;gap:5px;color:var\(--brand\);font-size:12px;font-weight:500\}'/);
+  assert.match(manager, /'\.yer-cm-until\{display:inline-flex;align-items:center;gap:5px;color:var\(--z700\);font-size:12px;font-weight:500\}'/);
+  assert.match(manager, /'\.yer-cm-dlg \.op-select\{padding:5px 26px 5px 10px;border:1px solid var\(--z300\)/);
+  assert.match(manager, /'\.yer-cm-dlg \.op-select:focus\{border-color:var\(--brand\)/);
   // Điểm trên lưới thẳng hàng: nhãn (HR system) và icon cảnh báo đặt tuyệt đối quanh số
   assert.match(manager, /'<span class="yer-sc"><span class="myr-score">'/);
   assert.match(manager, /\.yer-mgr-table \.yer-sc \.yer-sync-tag,\.yer-calib-table \.yer-sc \.yer-sync-tag\{position:absolute;top:100%/);
-  // Phương án 2 và đề xuất 3 của góp ý số 5 (05/10/2026): nút Duyệt điểm mở popup có sẵn danh sách; Upload có bước xem trước.
+  // Duyệt điểm cấp trước (chị chốt lại 07/10/2026): tick nhân viên trên bảng, nút chỉ bấm được khi đã tick, số trên nút là số đã
+  // tick, bấm mở MỘT popup xác nhận. Upload vẫn có bước xem trước (05/10/2026).
   // Các hàm dùng chung của Upload phải còn đủ (từng bị xóa nhầm làm nút Upload không mở được)
-  assert.match(manager, /if \(approve\) approve\.addEventListener\('click', openApprove\);/);
+  assert.match(manager, /if \(approve\) approve\.addEventListener\('click', function \(\) \{ if \(!approve\.classList\.contains\('yer-btn-off'\)\) openApprove\(\); \}\);/);
   assert.match(manager, /function openApprove\(\)/);
-  assert.match(manager, /function approvePreset\(list\)/);
+  assert.match(manager, /function approveSelected\(\)/);
+  assert.doesNotMatch(manager, /function approvePreset|function bindPick/);
+  assert.match(manager, /btn\.classList\.toggle\('yer-btn-off', n === 0\);/);
+  assert.match(manager, /if \(cnt\) \{ cnt\.hidden = n === 0; cnt\.textContent = n \|\| ''; \}/);
+  assert.match(manager, /L\('Tick chọn nhân viên trong danh sách để duyệt điểm ' \+ prevLabel\(\)/);
+  const approve = manager.slice(manager.indexOf('function openApprove()'), manager.indexOf('function saveApproved(rows)'));
+  assert.match(approve, /if \(over\.length\) lockUntilAck\('yer-approve-cap-ack'\);/);
+  assert.doesNotMatch(approve, /confirmOverCap|pickTable/);
+  // Popup xác nhận cùng khung các popup M-05 (640px, câu dẫn, khối vàng vượt mức dùng chung), nói số người bị thay điểm (07/10/2026)
+  assert.match(approve, /className: 'yer-pick-dlg'/);
+  assert.match(approve, /'<p class="yer-pick-lead">'/);
+  assert.match(approve, /overCapBlock\(over, 'yer-approve-cap-ack'\)/);
+  assert.match(approve, /' nhân viên<\/strong> đã có điểm của ' \+ roleName\(\) \+ ', điểm này sẽ được thay bằng điểm của ' \+ prevName/);
+  const overBlock = manager.slice(manager.indexOf('function overCapBlock('), manager.indexOf('function confirmOverCap('));
+  assert.match(overBlock, /'<div class="yer-cm-cap"><i class="bx bx-error"><\/i><div>'/);
+  assert.match(overBlock, /L\('Tôi xác nhận giữ các điểm trên\.'/);
+  assert.match(manager, /html: overCapBlock\(over, 'yer-bulk-cap-ack'\)/);
+  // Icon cảnh báo canh giữa theo phần chữ số
+  assert.match(manager, /transform:translateY\(calc\(-50% - \.5px\)\)/);
   assert.match(manager, /previewUpload\(file\.name, valid, errors\);/);
   assert.match(manager, /L\('Xem trước điểm từ file'/);
   assert.match(manager, /var ROLE_COL = \{/);
   assert.match(manager, /function parseCsv\(text\)/);
   assert.match(manager, /function downloadTemplate\(\)/);
-  assert.doesNotMatch(manager, /function approveSelected\(/);
   // Bảng duyệt điểm HRBP cùng tag và dấu cảnh báo với danh sách chính; mọi cách ghi điểm hàng loạt qua popup xác nhận vượt mức (05/10/2026)
   const calibRow = manager.slice(manager.indexOf('function calibRowHtml(p)'), manager.indexOf('function calibToolbarHtml()'));
   assert.match(calibRow, /empMeta\(p\) \+ empTags\(p\)/);
   assert.match(calibRow, /capMark\(p, c\.score\)/);
-  assert.equal((manager.match(/confirmOverCap\(/g) || []).length, 4, 'khai bao + duyet cap truoc + upload + duyet diem HRBP');
+  assert.equal((manager.match(/confirmOverCap\(/g) || []).length, 3, 'khai bao + upload + duyet diem HRBP (duyet cap truoc dung chung mot popup, 07/10/2026)');
   // Popup Upload điểm theo popup nộp bổ sung của E-05 (05/10/2026): câu dẫn hoặc khối khóa đứng đầu, 3 bước trong khung
   // .yer-flow dùng chung, 1 nút tải mẫu, không tô hồng thẻ bước hay tên cột
   const upload = manager.slice(manager.indexOf('function openUpload()'), manager.indexOf('/* ── Duyệt điểm HRBP upload'));
@@ -981,7 +1004,6 @@ test('late measures and the rating cap of 3 are shown to every manager level and
   const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
   // M-05: popup chấm điểm, duyệt hàng loạt, upload, duyệt hiệu chuẩn đều hỏi xác nhận khi vượt mức
   assert.match(manager, /if \(Y\.overRatingCap\(p, cur\.score\) && !cur\.ack\)/);
-  assert.match(manager, /confirmOverCap\(rows, function \(\) \{/);
   assert.match(manager, /confirmOverCap\(changed, function \(\) \{/);
   assert.match(manager, /confirmOverCap\(picked\.map\(/);
   assert.match(manager, /lockUntilAck\('yer-bulk-cap-ack'\)/);
@@ -1337,7 +1359,18 @@ test('manager detail reads imported late goals and keeps review editable', () =>
   assert.match(fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8'), /return !\(sentAt && g\.approvedAt && cmp\(g\.approvedAt, sentAt\) > 0\);/);
   // Mục tiêu đã qua QLTT duyệt nên không còn câu nhân viên xác nhận mục tiêu trong file
   assert.doesNotMatch(source, /Nhân viên xác nhận các mục tiêu đã được thống nhất/);
-  assert.match(source, /Nhân viên có <strong>' \+ pend \+ ' mục tiêu<\/strong> đang chờ ' \+ roleName\('lm'\) \+ ' duyệt\./);
+  // Khối chờ nộp bổ sung không nói mục tiêu đang chờ QLTT duyệt (chị bỏ 07/10/2026)
+  assert.doesNotMatch(source, /' mục tiêu<\/strong> đang chờ ' \+ roleName/);
+  assert.match(source, /mà nhân viên không bổ sung, quy trình đánh giá cuối năm không thể tiếp tục và nhân viên sẽ không có điểm trên hệ thống\./);
+  assert.match(source, /L\('Dừng quy trình đánh giá cuối năm', 'Year-end review stopped'\)/);
+  assert.match(source, /nhân viên đã không hoàn thành sau 4 lần nhắc nhở\. /);
+  // Điểm cao hơn mức tối đa: một dòng ghi chú, không viền, không nền (07/10/2026)
+  assert.match(source, /' cao hơn mức điểm tối đa dành cho trường hợp nộp trễ ở lần nhắc thứ ' \+ Y\.lateMeasure\(prof\(\)\)\.round/);
+  assert.doesNotMatch(source, /\.yer-cap-chip\{[^']*border:1px/);
+  // Tên mức điểm một màu xanh cho mọi mức; Ý nghĩa thang điểm màu xám (07/10/2026)
+  const uiSrc = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
+  assert.match(uiSrc, /var TONE = \{ 5: 'lbl-good', 4: 'lbl-good', 3: 'lbl-good', 2: 'lbl-good', 1: 'lbl-good' \};/);
+  assert.match(uiSrc, /'\.rt-def\{margin-top:10px;padding:11px 14px 12px;border:1px solid var\(--z200\);border-radius:var\(--rsm\);',\s*'background:var\(--z50\)/);
   assert.doesNotMatch(source, /late file|no file arrives/);
   assert.doesNotMatch(source, /L\('File: '/);
   // Nộp bổ sung nổi bật bằng banner như E-05 (chốt 02/10/2026), không còn là gạch đầu dòng trong khối Lưu ý

@@ -47,14 +47,12 @@
        từng mục tiêu, .op-select cho điểm toàn diện) để hai kỳ nhìn như nhau.
        Phần thêm của kỳ cuối năm chỉ gồm TÊN MỨC và ĐỊNH NGHĨA MỨC. */
     '.rt-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
-    /* Ô định nghĩa mức điểm: MỘT màu pastel duy nhất cho mọi mức điểm, viền đơn,
-       không vạch màu dày bên trái. Đây là thông tin giải thích chứ không phải trạng thái,
-       nên không đổi màu theo điểm cao thấp. Xanh nhạt để tách hẳn khỏi nền hồng của các
-       khối thao tác và khỏi vàng/đỏ/xanh lá của các chip trạng thái. */
-    '.rt-def{margin-top:10px;padding:11px 14px 12px;border:1px solid var(--info-bd);border-radius:var(--rsm);',
-    'background:var(--info-bg);font-size:12.5px;color:var(--z700);line-height:1.6}',
+    /* Ô định nghĩa mức điểm (Ý nghĩa thang điểm): màu xám ở mọi màn (chị chốt lại 07/10/2026), viền đơn, không vạch màu
+       bên trái. Đây là thông tin giải thích chứ không phải trạng thái, nên không đổi màu theo điểm. */
+    '.rt-def{margin-top:10px;padding:11px 14px 12px;border:1px solid var(--z200);border-radius:var(--rsm);',
+    'background:var(--z50);font-size:12.5px;color:var(--z700);line-height:1.6}',
     '.rt-def-hd{display:flex;align-items:center;gap:5px;margin-bottom:6px;',
-    'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--info)}',
+    'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z600)}',
     '.rt-def-hd i{font-size:14px}',
     '.rt-def p + p{margin-top:7px}',
     '.rt-def strong,.pms-tip-body strong{font-weight:600}',
@@ -438,7 +436,8 @@
        - ĐỊNH NGHĨA MỨC hiện ngay sau khi chọn, và tra lại được ở ⓘ sau khi gửi.
      opts: { value, step:'int'|'half', readonly, disabled, compact,
              label, required, onChange }                                     */
-  var TONE = { 5: 'lbl-xs', 4: 'lbl-good', 3: 'lbl-ok', 2: 'lbl-need', 1: 'lbl-fail' };
+  /* Tên mức điểm dùng MỘT màu cho mọi mức 1-5 (chị chốt 07/10/2026): xanh dương của mức 4 (`lbl-good`), không đổi màu theo điểm */
+  var TONE = { 5: 'lbl-good', 4: 'lbl-good', 3: 'lbl-good', 2: 'lbl-good', 1: 'lbl-good' };
 
   function rating(el, opts) {
     injectCss();

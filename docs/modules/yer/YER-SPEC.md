@@ -285,7 +285,7 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
   thì tách gạch đầu dòng. Không thêm câu nói về cơ chế hệ thống (`Hệ thống không chặn…`, `Hệ thống kiểm tra…`).
   Chốt thêm 04/10/2026: mốc giờ **in đậm đủ cụm** `**18:00 ngày dd/mm/yyyy**` (helper `at18` ở M-05 và M-06), dùng cho mọi câu
   hạn trên hai màn: khối Lưu ý, khối hướng dẫn thai sản (dùng **cùng câu** với khối Lưu ý, bỏ câu riêng `QLTT có thể chỉnh sửa kết
-  quả đánh giá trước…`), khối vàng chờ nộp bổ sung, khối `Hồ sơ không đánh giá`, popup chấm điểm và popup Upload của M-05,
+  quả đánh giá trước…`), khối vàng chờ nộp bổ sung, khối `Dừng quy trình đánh giá cuối năm`, popup chấm điểm và popup Upload của M-05,
   ghi chú màn Duyệt điểm HRBP upload. Tooltip là chữ thường nên chỉ ghi `tới hết 18:00 ngày dd/mm/yyyy`, không đậm.
 
   | Tình huống | Câu chữ |
@@ -989,18 +989,21 @@ M-05 và M-06 chỉ render.
   hạn điểm đánh giá toàn diện **tối đa là 3**.` (lần 3, bỏ chữ `vậy`); lần 4 là `… nhân viên sẽ bị
   cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương trong 6 tháng tiếp theo, tính từ thời điểm nhắc nhở thứ tư.`
   Không nhắc chuyện hệ thống có chặn điểm hay không. Khối vàng **chỉ hiện khi đang chấm**; QLTT gửi xong thì ô chỉ xem không còn
-  khối này (thừa, chị chốt 04/10/2026), chỉ còn chip `Cao hơn mức tối đa 3` cạnh điểm. Từ khóa của mọi hình thức xử lý in đậm ở mọi
+  khối này (thừa, chị chốt 04/10/2026), chỉ còn dòng ghi chú vượt mức dưới điểm (xem dưới). Từ khóa của mọi hình thức xử lý in đậm ở mọi
   màn (`PMSYer.lateTextHtml`, danh sách từ khóa ở model, E-05 dùng chung). Gạch đầu dòng nộp bổ sung trong khối `Lưu ý` và banner của M-06 vẫn ghi
   `Hình thức xử lý theo quy định: …` như §48.
 - **Giới hạn điểm 3 không chặn điểm, nhưng người chấm phải xác nhận.** Đang chấm mà chọn cao hơn 3 thì khối vàng thêm dòng đậm
   `Điểm đang chọn là x, cao hơn mức tối đa 3.` Khi lưu, người chấm phải tick `Tôi xác nhận giữ điểm x.` (chị chốt 04/10/2026, bỏ
   `dù cao hơn mức tối đa 3 theo quy định`); popup gửi của M-06 chỉ có câu của khối vàng và ô tick, không lặp dòng `Điểm đang chọn…`,
   nút lưu khóa cho tới khi tick: trong popup gửi của M-06 (`Gửi đánh giá`, `Lưu thay đổi`, chỉ QLTT), trong popup chấm điểm
-  trên lưới M-05 (chưa tick mà bấm `Xác nhận` thì nhắc và mở lại popup, giữ nguyên điểm và nhận xét), và trong popup chung
-  `Có điểm cao hơn mức tối đa theo quy định` của `Duyệt điểm QLTT/QL cấp 2`, `Upload điểm`, `Duyệt điểm HRBP upload` (liệt kê từng
-  người: `điểm x, tối đa 3 (lần nhắc thứ k)`). Bản lưu ghi `capConfirmed: { max, score, at }` để truy vết.
-- Điểm của cấp khác đã cao hơn mức tối đa: M-06 có chip vàng `Cao hơn mức tối đa 3` cạnh điểm ở các ô chỉ xem; M-05 có icon
-  `bx-error` vàng cạnh điểm ở các cột điểm quản lý, tooltip là câu hình thức xử lý.
+  trên lưới M-05 (chưa tick mà bấm `Xác nhận` thì nhắc và mở lại popup, giữ nguyên điểm và nhận xét), trong popup xác nhận
+  `Duyệt điểm QLTT/QL cấp 2` (liệt kê ngay trong popup đó, §47) và trong popup chung `Có điểm cao hơn mức tối đa theo quy định` của
+  `Upload điểm`, `Duyệt điểm HRBP upload`. Mọi popup này dùng chung khối vàng vượt mức (`overCapBlock`, §47): câu quy định, danh sách
+  `**Tên** (domain): điểm **x**`, ô tick `Tôi xác nhận giữ các điểm trên.` Bản lưu ghi `capConfirmed: { max, score, at }` để truy vết.
+- Điểm đã gửi cao hơn mức tối đa (chị chốt lại 07/10/2026): M-06 có **một dòng ghi chú thường** dưới điểm ở các ô chỉ xem, không viền,
+  không nền, chữ vàng `--warn` kèm icon tam giác `bx-error`: `Điểm của [vai] cao hơn mức điểm tối đa dành cho trường hợp nộp trễ ở lần
+  nhắc thứ k` ([vai] là QLTT, Quản lý cấp 2, Trưởng đơn vị theo ô). M-05 có icon `bx-error` vàng cạnh điểm ở các cột điểm quản lý
+  (16px, canh giữa theo phần chữ số, không theo hộp dòng), tooltip là câu hình thức xử lý.
 - Lần 4 không giới hạn điểm (§27.3 ở trên) nên chỉ hiện câu hình thức xử lý, không có bước xác nhận.
 
 ### 27.4 QLTT với hồ sơ quá hạn Tự đánh giá (chốt 02/10/2026)
@@ -1016,8 +1019,9 @@ Chỉ áp cho nhân viên quá hạn Tự đánh giá (luồng nộp trễ), kh�
 
 Mục tiêu nhân viên gửi trong lúc quá hạn: QLTT **duyệt trong timeline của bước QLTT** (chốt 07/10/2026). QLTT duyệt chậm khiến nhân
 viên trôi sang lần nhắc sau thì hình thức xử lý vẫn tính theo **ngày nhân viên gửi Tự đánh giá**. Khối vàng chờ nộp bổ sung của M-06
-thêm gạch đầu dòng `Nhân viên có **n mục tiêu** đang chờ QLTT duyệt. QLTT duyệt tại tab Danh sách mục tiêu, tới hết **18:00 ngày …**.`
-khi có mục tiêu chờ duyệt.
+**không** nói mục tiêu đang chờ duyệt (chị bỏ 07/10/2026); QLTT thấy mục tiêu chờ duyệt ở tab Danh sách mục tiêu. Hồ sơ còn thiếu mục
+tiêu thì gạch đầu dòng cuối là `Nhân viên còn thiếu **[loại mục tiêu]** được duyệt. Nếu hết các lần nhắc (**18:00 ngày …**) mà nhân viên
+không bổ sung, quy trình đánh giá cuối năm không thể tiếp tục và nhân viên sẽ không có điểm trên hệ thống.`
 
 Luật ở model: `PMSYer.lateWaiting(p)` trả về lần nhắc đang mở khi nhân viên chưa nộp và còn trong thời gian nộp bổ sung
 (không áp cho thai sản, đã nghỉ việc); `managerReviewState('lm')` khóa quyền chấm trong trường hợp này. Hồ sơ hết mọi lần
@@ -1422,19 +1426,17 @@ dưới ô chọn điểm nên thêm ⓘ là thừa. Điều này đúng với �
 - Tiêu đề `Ý NGHĨA THANG ĐIỂM` (EN: `WHAT THIS RATING MEANS`), chữ hoa, kèm icon
   `bx-info-circle`. Không có tiêu đề thì đoạn chữ nằm trơ dưới ô nhận xét và người đọc
   không biết đây là giải thích mức điểm hay gợi ý viết nhận xét.
-- **MỘT màu pastel duy nhất cho mọi mức điểm**, viền đơn 1px đều bốn cạnh:
+- **Màu xám ở mọi màn** (chị chốt lại 07/10/2026, thay xanh nhạt), một màu cho mọi mức điểm, viền đơn 1px đều bốn cạnh:
 
-  | Phần | Mã màu |
+  | Phần | Màu |
   |---|---|
-  | Nền | `#eaf5fb` |
-  | Viền | `#d3e7f2` |
-  | Tiêu đề và icon | `#186a8e` |
+  | Nền | `--z50` |
+  | Viền | `--z200` |
+  | Tiêu đề và icon | `--z600` |
   | Nội dung | `--z700` |
 
 - **KHÔNG đổi màu theo điểm cao thấp và không có vạch màu dày bên trái.** Đây là thông tin
   giải thích chứ không phải trạng thái; tô theo điểm thì điểm thấp ra một ô đỏ, đọc thành lỗi.
-- Chọn xanh nhạt để tách hẳn khỏi nền hồng của các khối thao tác, và khỏi vàng/đỏ/xanh lá
-  của các chip trạng thái.
 - Tooltip của ⓘ (nhánh chỉ xem) dùng lại đúng đoạn định nghĩa nhưng **không lặp tiêu đề**,
   vì đã có `aria-label` nói rõ đây là định nghĩa mức điểm.
 - **M-06 dùng đúng vị trí này** (chốt 30/09/2026): ô `Ý nghĩa thang điểm` của ô Đánh giá toàn diện đang sửa nằm dưới ô
@@ -1447,6 +1449,8 @@ Lấy **nguyên văn** từ file đề xuất, không rút gọn:
 
 - Tên mức: `Giữa mức 1 - Không đạt yêu cầu và 2 - Hoàn thành một phần`,
   chứ không phải `Giữa mức 1 và 2`.
+- Chip tên mức dùng **một màu xanh dương cho mọi mức 1-5** (chị chốt 07/10/2026, màu cũ của mức 4: `lbl-good`, `--info*`), không đổi
+  màu theo điểm, ở mọi màn và popup YER (`PMSUi.rating`, bảng `TONE` của `yer-ui.js`).
 - Trong chip tên mức (chị chốt 04/10/2026, mọi màn dùng `PMSUi.rating`): tên mức in đậm, chữ nối thường: mức nguyên đậm cả tên,
   mức nửa bậc `Giữa mức **1 - Không đạt yêu cầu** và **2 - Hoàn thành một phần**`. Chip **chỉ một dòng**, không bao giờ vỡ chữ;
   không đủ chỗ thì cả chip (cùng ⓘ) xuống dòng và bắt đầu từ mép trái ô (trong dòng `Điểm toàn diện:` điểm, ô chọn, chip là phần tử
@@ -1502,7 +1506,7 @@ Chốt ngày 17/09/2026. Thay nút `Xem hướng dẫn` ở §40.4.
 
 - Mascot là component dùng chung `PMSUi.mascotGuide(opts)` trong `assets/yer-ui.js` (chốt 04/10/2026), E-05 và **M-06** cùng gọi,
   mỗi màn chỉ đưa câu chữ và các bước. M-06: bóng thoại `Hồ sơ đang ở bước [X]`, [X] là `Đánh giá cuối năm`, `Đánh giá nhân viên
-  thai sản`, `Chờ nhân viên nộp bổ sung`, `Đã hoàn thành đánh giá`, `Chỉnh sửa đánh giá`, `Hồ sơ không đánh giá`, `Chờ mở bước
+  thai sản`, `Chờ nhân viên nộp bổ sung`, `Đã hoàn thành đánh giá`, `Chỉnh sửa đánh giá`, `Dừng quy trình đánh giá cuối năm`, `Chờ mở bước
   đánh giá của [Vai]` (thay `Chưa tới bước của bạn`, 04/10/2026), `Đã hết hạn đánh giá` hoặc `Chờ cấp trước đánh giá`. Tour M-06 đi qua tab, dải quy trình, khối của tình trạng hồ sơ
   (khối vàng, banner nộp trễ, banner đã hoàn thành, khối đang chỉnh sửa, hướng dẫn thai sản hoặc Lưu ý), AI Summary và Phản hồi
   đã nhận, rồi khi đang sửa được: ba nhóm mục tiêu (QLTT), ô Đánh giá toàn diện, `Lưu nháp`, nút gửi. Chỉ giữ bước có khối đang
@@ -1785,18 +1789,21 @@ Chốt ngày 22/09/2026.
     theo danh sách nên popup trong khung (căn giữa khung) rơi xuống dưới màn hình.
 - **LM2 và HOD chấm điểm ngay trên lưới** (chốt 30/09/2026), như tab Giữa năm:
   - Cột chọn đầu bảng. Dòng tick được khi vai đang xem sửa được và cấp trước đã có điểm.
-  - **`Duyệt điểm QLTT/QL cấp 2` mở popup có sẵn danh sách** (chị chốt 05/10/2026, phương án 2 của góp ý số 5): người dùng không
-    cần biết phải tick trên bảng trước. Popup `Duyệt điểm QLTT` / `Duyệt điểm QL cấp 2` liệt kê mọi nhân viên đủ điều kiện (vai đang
-    xem sửa được, cấp trước đã có điểm) trong bảng `.myr-table` cuộn trong khung: ô chọn, Nhân viên (kèm tag), điểm của cấp trước
-    (kèm `(HR system)` và dấu cảnh báo vượt mức), `Điểm hiện tại của bạn`. Câu dẫn: `Điểm của [cấp trước] được ghi nhận làm điểm
-    của [vai] cho các nhân viên được chọn.`
-    - Chọn sẵn: các dòng đã tick trên bảng; chưa tick dòng nào thì chọn sẵn người chưa có điểm của vai đang xem. Người đã có
-      điểm vẫn có trong danh sách nhưng không chọn sẵn, câu dẫn thêm `Nhân viên đã có điểm của bạn không được chọn sẵn; chọn thì
-      điểm đó được thay.`
-    - Số trên nút ở thanh công cụ là số người sẽ được chọn sẵn. Nút chỉ khóa khi không có ai đủ điều kiện (tooltip `Chưa có nhân
-      viên đủ điều kiện duyệt điểm`).
-    - Nút chính `Duyệt điểm n nhân viên` đổi số theo lựa chọn, không chọn ai thì khóa. Bấm thì chép điểm cấp trước thành điểm của
-      vai, giữ nhận xét đã có; có hồ sơ vượt mức tối đa thì qua popup xác nhận (§9).
+  - **`Duyệt điểm QLTT/QL cấp 2`: tick trên bảng rồi bấm nút, một popup xác nhận** (chị chốt lại 07/10/2026, thay popup có sẵn
+    danh sách của 05/10/2026):
+    - Chưa tick nhân viên nào thì nút xám (`.yer-btn-off`, cùng kiểu xám với nút khóa `Duyệt điểm HRBP upload`), **không có số**;
+      rê chuột thấy `Tick chọn nhân viên trong danh sách để duyệt điểm [QLTT/QL cấp 2]` (không ai đủ điều kiện thì `Chưa có nhân viên
+      đủ điều kiện duyệt điểm`). Tick rồi thì nút viền hồng, số trên nút là số người đã tick, tooltip `Duyệt điểm [cấp trước] cho các
+      nhân viên đã chọn`.
+    - Bấm nút mở **một popup xác nhận** `Duyệt điểm QLTT` / `Duyệt điểm QL cấp 2`, cùng khung với các popup của M-05 (`.yer-pick-dlg`
+      640px như `Xem trước điểm từ file`, chị chốt 07/10/2026):
+      - câu dẫn `.yer-pick-lead`: `Điểm của [cấp trước] được ghi nhận làm điểm của [vai] cho **n nhân viên** đã chọn.`, có người đã có
+        điểm của vai thì nối `Trong đó **m nhân viên** đã có điểm của [vai], điểm này sẽ được thay bằng điểm của [cấp trước].`;
+      - có hồ sơ nộp trễ vượt mức tối đa thì thêm **khối vàng vượt mức dùng chung** (`overCapBlock`, khung `.yer-cm-cap` như popup chấm
+        điểm trên lưới): `Nhân viên nộp bổ sung Tự đánh giá ở lần nhắc thứ k bị giới hạn điểm đánh giá toàn diện **tối đa là 3** theo
+        quy định. Các điểm dưới đây cao hơn mức này:`, danh sách `**Tên** (domain): điểm **x**`, ô tick `Tôi xác nhận giữ các điểm
+        trên.` (nút chính khóa tới khi tick, §27.3).
+      Nút `Hủy` và `Duyệt điểm n nhân viên`. Bấm thì chép điểm cấp trước thành điểm của vai, giữ nhận xét đã có, bỏ tick trên bảng.
   - Cột điểm của chính vai (LM2: `Điểm của QL cấp 2`, HOD: `Điểm của Trưởng đơn vị`) là **ô điểm dạng nút** (`.yer-rt-btn`,
     cùng dáng ô chọn điểm của tab Giữa năm): chưa chấm ghi `Chọn điểm`, đã chấm ghi số. **Bấm vào ô là mở popup ngay**
     (chốt lại 30/09/2026, không phải chọn điểm xong mới mở). Muốn sửa thì bấm lại chính ô đó; **không có nút nhận xét riêng**.
@@ -1808,7 +1815,7 @@ Chốt ngày 22/09/2026.
     - Hồ sơ nộp bổ sung có hình thức xử lý: khối vàng với câu của §27.3 đứng **trên** ô `Điểm toàn diện của bạn` để người chấm đọc
       trước khi chọn; vượt mức tối đa thì thêm dòng cảnh báo và ô tick xác nhận.
     - `Điểm toàn diện của bạn` bắt buộc, dùng **đúng component chọn điểm của màn chi tiết** (`PMSUi.rating`, bước 0.5): ô chọn
-      `Chọn điểm 1-5`, chọn rồi thì hiện tên mức có màu theo mức. Ô `Ý nghĩa thang điểm` (§41.2b) **chỉ hiện lúc đang chọn điểm**:
+      `Chọn điểm 1-5` viền xám, đang bấm chọn thì viền hồng đậm (chị chốt 07/10/2026); chọn rồi thì hiện tên mức (một màu xanh, §41.3). Ô `Ý nghĩa thang điểm` (§41.2b) **chỉ hiện lúc đang chọn điểm**:
       mở lại popup của điểm đã xác nhận thì ẩn, đổi điểm thì hiện lại (chốt 30/09/2026). Chỉ xem thì hiện số, tên mức và ⓘ.
     - Ô `Nhận xét` (không ghi `toàn diện (tùy chọn)` trên nhãn), mặc định cao 2 dòng, placeholder `Ghi nhận xét của bạn về kết quả
       và đóng góp của nhân viên trong năm.`, tối đa 1000 ký tự.
@@ -2040,7 +2047,8 @@ Chốt ngày 22/09/2026.
   §40.5a); hồ sơ nộp bổ sung thì banner có thêm dòng `Ngày gửi` với nhãn đỏ `Trễ hạn x ngày làm việc`, lần nhắc và dòng
   `Hình thức xử lý theo quy định …` (như banner của Nhân viên, §27.3).
   **Hồ sơ `Không đánh giá`** chỉ có một khối vàng `.yer-note.yer-late-closed` (`--warn-bg`, `--warn-bd`, icon `--warn`, DS §19
-  rule 24) tiêu đề `Hồ sơ không đánh giá`: thiếu mục tiêu thì nói hết cửa sổ nộp bổ sung, loại mục tiêu còn thiếu, quy trình
+  rule 24) tiêu đề `Dừng quy trình đánh giá cuối năm` (chị đổi 07/10/2026, thay `Hồ sơ không đánh giá`; câu `nhân viên đã không
+  hoàn thành sau 4 lần nhắc nhở`): thiếu mục tiêu thì nói hết cửa sổ nộp bổ sung, loại mục tiêu còn thiếu, quy trình
   dừng và không có điểm (như `nv21`); không có điểm nào tới hết hạn QLTT thì nói nhân viên không tự đánh giá và QLTT không đánh
   giá tới hết hạn, không có điểm để đồng bộ.
   Đã bỏ các box rời: hạn đánh giá, thai sản, hồ sơ nộp bổ sung (kèm các chip tên file, trễ hạn), LWD, dòng Đánh giá giữa năm,
@@ -2049,7 +2057,7 @@ Chốt ngày 22/09/2026.
 Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
 - **Có dải quy trình** giống màn Nhân viên, ngay dưới hàng điều hướng và banner. Màn chi tiết là
   của một nhân viên nên mọi bước có domain, kể cả Tự đánh giá (§40.2). Trạng thái thu gọn nhớ riêng.
-- Dưới dải quy trình chỉ có một khối: `Lưu ý` hoặc khối vàng `Hồ sơ không đánh giá` (xem mục khối thông tin ở trên).
+- Dưới dải quy trình chỉ có một khối: `Lưu ý` hoặc khối vàng `Dừng quy trình đánh giá cuối năm` (xem mục khối thông tin ở trên).
   Hồ sơ `Không đánh giá` **vẫn hiện đủ** ba nhóm mục tiêu và thẻ đánh giá toàn diện như hồ sơ thường, chỉ để xem; nhóm thiếu mục
   tiêu là bảng trống (chị chốt 04/10/2026, trước đó ẩn hết).
 - Ba nhóm mục tiêu **luôn giữ khối** như màn Nhân viên (§40.5d); nhóm trống có một dòng xám mờ.
@@ -2110,8 +2118,8 @@ Bổ sung ngày 27/09/2026 theo code và theo quyết định của chị:
   hàng**, tiêu đề ô
   `[Người chấm] đánh giá - domain` (`Nhân viên tự đánh giá`, `Quản lý trực tiếp đánh giá`, `Quản lý cấp 2 đánh giá`), dòng
   `Điểm toàn diện: 4 [tên mức] ⓘ`; **tên mức luôn một dòng**, không đủ chỗ cạnh điểm thì cả cụm tên mức và ⓘ xuống dòng (chị chốt
-  04/10/2026, không để chữ trong chip vỡ hai dòng). Tag phụ `Cao hơn mức tối đa 3` nằm **dòng riêng bên dưới** điểm (`.yer-cap-row`),
-  không chen cạnh điểm. **Các ô cạnh nhau thẳng hàng từng tầng** (chị góp ý 04/10/2026): mỗi ô có năm tầng cố định (tiêu đề, điểm,
+  04/10/2026, không để chữ trong chip vỡ hai dòng). Dòng ghi chú vượt mức tối đa (§27.3) nằm **dòng riêng bên dưới** điểm
+  (`.yer-cap-row`), không chen cạnh điểm. **Các ô cạnh nhau thẳng hàng từng tầng** (chị góp ý 04/10/2026): mỗi ô có năm tầng cố định (tiêu đề, điểm,
   nhãn nhận xét, ô nhận xét, ô Ý nghĩa thang điểm), lưới dùng `grid-template-rows:subgrid`, nên nhãn `Đánh giá toàn diện của…` và ô
   nhận xét của các bên luôn bắt đầu cùng hàng dù bên nào có tên mức xuống dòng hay khối giới hạn điểm. Các ô **cách nhau 12px**, mỗi ô có viền bo riêng, không dính vào nhau. Nhãn
   ô nhận xét `Đánh giá toàn diện của [nhân viên / Quản lý trực tiếp / Quản lý cấp 2 / Trưởng đơn vị]` như tab Giữa năm và E-05, bỏ
