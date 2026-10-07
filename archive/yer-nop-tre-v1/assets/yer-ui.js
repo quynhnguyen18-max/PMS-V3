@@ -254,14 +254,6 @@
     '.yer-log-sum>i{font-size:16px;color:var(--ok);margin-top:1px}',
     '.yer-log-sum strong{color:var(--z900);font-weight:600}',
 
-    /* ── Nhãn Mục tiêu nộp trễ (YER-SPEC §27.1, chốt 07/10/2026): mục tiêu gửi duyệt sau hạn Tự đánh giá. Nhãn trạng thái
-       trễ hạn nên dùng tông đỏ --err như nhãn `Trễ hạn` (DS §19 rule 24). Dùng chung cho E-05 (tab Danh sách mục tiêu,
-       tab Đánh giá cuối năm), M-06 và M-01b. ── */
-    '.yer-late-goal{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border:1px solid var(--err-bd);border-radius:99px;',
-    'background:var(--err-bg);color:var(--err);font-size:10.5px;font-weight:700;line-height:1.5;white-space:nowrap}',
-    '.yer-late-goal i{font-size:12px}',
-    '.yer-late-goal-row{display:flex;align-items:center;gap:4px;margin-top:5px}',
-
     /* ── toast ── */
     '.pms-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:1500;background:var(--z900);',
     'color:#fff;font-size:13px;font-weight:500;padding:9px 15px;border-radius:var(--rsm);display:flex;align-items:center;',
@@ -280,129 +272,6 @@
     document.addEventListener('focusin', placeTip, true);
   }
   /* Banner xanh hai tầng (E-05, M-06). o: { cls, icon, title, sub, right, more: [] }. title, sub, right, more là HTML đã escape. */
-  /* Nhãn Mục tiêu nộp trễ: g là mục tiêu từ PMSYer (cờ late, sentAt). Không phải mục tiêu nộp trễ thì trả về chuỗi rỗng. */
-  function lateGoalChip(g, lang) {
-    if (!g || !g.late) return '';
-    var d = String(g.sentAt || '').slice(0, 10).split('-');
-    var day = d.length === 3 ? d[2] + '/' + d[1] + '/' + d[0] : '';
-    var tip = lang === 'en' ? 'Sent for approval on ' + day + ', after the self-assessment deadline'
-                            : 'Gửi duyệt ngày ' + day + ', sau hạn Tự đánh giá';
-    return '<span class="yer-late-goal" title="' + esc(tip) + '"><i class="bx bx-time-five"></i>' +
-      (lang === 'en' ? 'Late goal' : 'Mục tiêu nộp trễ') + '</span>';
-  }
-
-  /* ── Tab Danh sách mục tiêu của hồ sơ trễ hạn Tự đánh giá (YER-SPEC §27.1, chốt 07/10/2026) ──
-     Tab Mục tiêu của E-05 và M-06 là bản tĩnh của module Goal setting (cùng khung: #list-what, #list-dev, #view-table).
-     Với hồ sơ trễ hạn (opts.active), tab dựng lại từ mục tiêu của hồ sơ tại ngày đang xem (p.goals) để thấy được mục tiêu
-     đang chờ duyệt, nhãn Mục tiêu nộp trễ và việc khóa `Thu hồi`. Hồ sơ khác thì trả lại bản tĩnh.
-       opts.role 'nv': Nháp, Cần cập nhật thì `Sửa & Gửi`; còn lại chỉ xem. Không có `Thu hồi` (data-recall-locked).
-       opts.role 'lm': `Chờ duyệt` thì `Duyệt`, `Yêu cầu cập nhật`; `Đã duyệt` thì `Yêu cầu cập nhật`. Hai nút mở màn
-                       duyệt mục tiêu M-01b của nhân viên, nơi có hộp xác nhận (bản demo, nút chỉ minh họa).
-       opts.role 'view': Quản lý cấp 2, Trưởng đơn vị chỉ xem. */
-  var GOAL_BADGE = {
-    approved: ['b-ok', 'Đã duyệt', 'Approved'], pending: ['b-action', 'Chờ duyệt', 'Pending approval'],
-    update: ['b-action', 'Cần cập nhật', 'Update requested'], draft: ['b-muted', 'Nháp', 'Draft'], rejected: ['b-err', 'Từ chối', 'Rejected']
-  };
-  var GOAL_PRIO = { h: ['prio-h', 'Cao', 'High'], m: ['prio-m', 'Trung bình', 'Medium'], l: ['prio-l', 'Thấp', 'Low'] };
-  var goalTabOrig = null;
-  function goalTab(p, opts) {
-    opts = opts || {};
-    var Y = window.PMSYer;
-    var lg = lang();
-    function L(vi, en) { return lg === 'en' ? en : vi; }
-    var tbody = document.querySelector('#view-table .gtable tbody');
-    var parts = { what: document.getElementById('list-what'), dev: document.getElementById('list-dev'),
-      cntWhat: document.getElementById('cnt-what'), cntDev: document.getElementById('cnt-dev'),
-      guide: document.querySelector('#mpanel-goals .guide-info') };
-    if (!Y || !p || !parts.what || !parts.dev || !tbody) return;
-    // Dòng mục tiêu công việc và phát triển nằm trước nhóm Mục tiêu hành vi (.gt-extra)
-    function goalRows() {
-      return Array.prototype.filter.call(tbody.children, function (tr) { return !tr.classList.contains('gt-extra'); });
-    }
-    if (!goalTabOrig) {
-      goalTabOrig = { what: parts.what.innerHTML, dev: parts.dev.innerHTML,
-        cntWhat: parts.cntWhat && parts.cntWhat.textContent, cntDev: parts.cntDev && parts.cntDev.textContent,
-        guide: parts.guide && parts.guide.innerHTML,
-        rows: goalRows().map(function (tr) { return tr.outerHTML; }).join('') };
-    }
-    var out = goalTabOrig;
-    if (opts.active) {
-      var lm = opts.role === 'lm';
-      var deleted = p.deletedGoalIds || [];
-      var cards = { what: [], dev: [] }, rows = [];
-      var approveUrl = '../M-01b/index.html?emp=' + encodeURIComponent(p.id);
-      (p.goals || []).filter(function (g) {
-        // Quản lý không thấy mục tiêu Nháp (GOAL-SPEC GS-49)
-        return deleted.indexOf(g.id) < 0 && (g.type === 'what' || g.type === 'dev') && !(lm && g.status === 'draft');
-      }).forEach(function (g) {
-        var bd = GOAL_BADGE[g.status] || GOAL_BADGE.draft;
-        var badge = '<span class="badge ' + bd[0] + '">' + esc(lg === 'en' ? bd[2] : bd[1]) + '</span>';
-        var pr = g.type === 'what' && g.prio && GOAL_PRIO[g.prio];
-        var prio = pr ? '<span class="prio ' + pr[0] + '">' + esc(lg === 'en' ? pr[2] : pr[1]) + '</span>' : '';
-        var chip = lateGoalChip(g, lg);
-        var id = 'lg-' + g.id;
-        function act(cls, icon, tip, onclick) {
-          return '<button class="' + cls + '" data-tip="' + esc(tip) + '" onmouseenter="showTip(this)" onmouseleave="hideTip()" onclick="' + onclick + '"><i class="bx ' + icon + '"></i></button>';
-        }
-        function acts(cls) {
-          var stop = cls === 'gi-act' ? 'event.stopPropagation();' : '';
-          var view = act(cls, 'bx-show', L('Xem chi tiết', 'View details'), stop + "openDetail(document.getElementById('" + id + "'))");
-          var go = function (icon, tip) { return act(cls + ' accent', icon, tip, stop + "location.href='" + approveUrl + "'"); };
-          if (lm) {
-            if (g.status === 'pending') return go('bx-check-circle', L('Duyệt', 'Approve')) + go('bx-rotate-left', L('Yêu cầu cập nhật', 'Request update')) + view;
-            if (g.status === 'approved') return go('bx-rotate-left', L('Yêu cầu cập nhật', 'Request update')) + view;
-            return view;
-          }
-          if (opts.role === 'nv' && (g.status === 'draft' || g.status === 'update'))
-            return act(cls + ' accent', 'bx-edit', L('Sửa & Gửi', 'Edit & send'), stop + "openEdit(document.getElementById('" + id + "'))");
-          return view;
-        }
-        cards[g.type].push('<div class="goal-item" id="' + id + '" data-status="' + esc(g.status) + '" data-eval="none" data-recall-locked="1" data-result="' + esc(g.result) + '" onclick="openDetail(this)">' +
-          '<div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>' +
-          '<div class="gi-body"><div class="gi-title">' + esc(g.title) + '</div>' +
-            '<div class="gi-meta">' + badge + prio + '<span class="gi-date">' + esc(g.s + ' – ' + g.e) + '</span>' + chip + '</div>' +
-            '<div class="gi-actions">' + acts('gi-act') + '</div></div></div>');
-        rows.push('<tr class="gt-row" data-status="' + esc(g.status) + '">' +
-          '<td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>' +
-          '<td><span class="gt-type"><i class="bx ' + (g.type === 'what' ? 'bx-target-lock' : 'bx-trending-up') + '"></i> ' + (g.type === 'what' ? L('Công việc', 'Work') : L('Phát triển', 'Development')) + '</span></td>' +
-          '<td class="gt-name">' + esc(g.title) + (chip ? '<div class="yer-late-goal-row">' + chip + '</div>' : '') + '</td>' +
-          '<td><div class="gt-result">' + esc(g.result) + '</div></td>' +
-          '<td>' + (prio || '—') + '</td>' +
-          '<td class="gt-date">' + esc(g.s + ' – ' + g.e) + '</td>' +
-          '<td>' + badge + '</td>' +
-          '<td><div class="gt-act-cell">' + acts('gt-pri') + '</div></td></tr>');
-      });
-      var deadline = Y.fmt(Y.step('self').to, lg);
-      var lmEnd = Y.fmt(Y.step('lm').to, lg);
-      var lateFrom = Y.fmt(Y.addDays(Y.step('self').to, 1), lg);
-      out = {
-        // Cột trống dùng trạng thái trống sẵn có của tab (renderColEmpty, GS-23)
-        what: cards.what.join(''), dev: cards.dev.join(''),
-        cntWhat: String(cards.what.length), cntDev: String(cards.dev.length),
-        rows: rows.join(''),
-        guide: '<span class="proc-lbl">' + L('Lưu ý', 'Note') + '</span><p>' + (opts.role !== 'nv'
-          ? L('Nhân viên đã quá hạn Tự đánh giá cuối năm (hạn ' + deadline + '). Mục tiêu nhân viên gửi duyệt từ sau hạn này, kể cả mục tiêu sửa và gửi lại, có nhãn <strong>Mục tiêu nộp trễ</strong>. ' +
-                'Quản lý trực tiếp duyệt tới hết 18:00 ngày ' + lmEnd + '. Nhân viên không thu hồi được mục tiêu: để nhân viên sửa mục tiêu đã duyệt, Quản lý trực tiếp bấm <strong>Yêu cầu cập nhật</strong>.',
-              'The employee missed the Year-End self-assessment deadline (' + deadline + '). Goals sent for approval after it, including edited goals sent again, carry the <strong>Late goal</strong> label. ' +
-                'The line manager approves them until 18:00 on ' + lmEnd + '. The employee cannot withdraw goals: to let them change an approved goal, choose <strong>Request update</strong>.')
-          // Nhân viên (gọn lại 07/10/2026): hai ý, mục tiêu nộp trễ tính từ ngày nào, và cách sửa mục tiêu đã duyệt
-          : L('Bạn đã quá hạn Tự đánh giá cuối năm. Mục tiêu gửi duyệt từ ngày ' + lateFrom + ' (tạo mới hoặc sửa lại) có nhãn <strong>Mục tiêu nộp trễ</strong>. ' +
-                'Bạn <strong>không thu hồi được</strong> mục tiêu đã gửi; cần sửa mục tiêu đã duyệt thì nhờ Quản lý trực tiếp bấm <strong>Yêu cầu cập nhật</strong>.',
-              'Your Year-End self assessment is overdue. Goals sent for approval from ' + lateFrom + ' (new or edited) carry the <strong>Late goal</strong> label. ' +
-                'You <strong>cannot withdraw</strong> goals already sent; to change an approved goal, ask your line manager to choose <strong>Request update</strong>.')) + '</p>'
-      };
-    }
-    parts.what.innerHTML = out.what;
-    parts.dev.innerHTML = out.dev;
-    if (parts.cntWhat && out.cntWhat != null) parts.cntWhat.textContent = out.cntWhat;
-    if (parts.cntDev && out.cntDev != null) parts.cntDev.textContent = out.cntDev;
-    if (parts.guide && out.guide != null) parts.guide.innerHTML = out.guide;
-    goalRows().forEach(function (tr) { tr.remove(); });
-    tbody.insertAdjacentHTML('afterbegin', out.rows);
-    if (typeof window.renderColEmpty === 'function') window.renderColEmpty();
-    if (typeof window.renderSummary === 'function') window.renderSummary();
-  }
-
   function banner(o) {
     return '<div class="submit-banner yer-sb2' + (o.cls ? ' ' + o.cls : '') + '">' +
       '<div class="sb-icon"><i class="bx ' + (o.icon || 'bx-check-circle') + '"></i></div>' +
@@ -945,8 +814,6 @@
   window.PMSUi = {
     rating: rating,
     banner: banner,
-    lateGoalChip: lateGoalChip,
-    goalTab: goalTab,
     mascotGuide: mascotGuide,
     tabs: tabs,
     steps: steps,

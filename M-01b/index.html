@@ -407,6 +407,12 @@ textarea.fc{resize:vertical;min-height:80px}
   </div>
 </div>
 
+<!-- Hồ sơ Đánh giá cuối năm: chỉ để biết nhân viên có trễ hạn Tự đánh giá không (YER-SPEC §27.1, chốt 07/10/2026) -->
+<script src="../assets/employees-data.js"></script>
+<script src="../assets/yer-data.js"></script>
+<script src="../assets/yer-store.js"></script>
+<script src="../assets/yer-model.js"></script>
+<script src="../assets/yer-ui.js"></script>
 <script>
 /* ═══════════════════════════════════════════
    EMPLOYEE META
@@ -523,7 +529,7 @@ var GOALS_DATA={
 /* ═══════════════════════════════════════════
    RUNTIME STATE
 ═══════════════════════════════════════════ */
-var GOALS={}, EMP={}, _activeGoalId=null, _tipEl=null;
+var GOALS={}, EMP={}, _activeGoalId=null, _tipEl=null, LATE_CASE=false;
 var _isRO=(new URLSearchParams(location.search)).get('ro')==='1';
 
 /* ═══════════════════════════════════════════
@@ -536,6 +542,18 @@ window.addEventListener('DOMContentLoaded',function(){
   var allGoals=GOALS_DATA[empId]||{};
   GOALS={};
   Object.keys(allGoals).forEach(function(id){ if(allGoals[id].status!=='draft') GOALS[id]=allGoals[id]; });
+  /* Nhân viên trễ hạn Tự đánh giá (YER-SPEC §27.1, chốt 07/10/2026): mục tiêu lấy từ hồ sơ Đánh giá cuối năm tại ngày demo,
+     mục tiêu gửi duyệt sau hạn có nhãn Mục tiêu nộp trễ, mục tiêu đã duyệt có thêm Yêu cầu cập nhật (nhân viên không tự thu hồi được). */
+  var Y=window.PMSYer, yp=Y&&Y.profile(empId);
+  if(yp&&Y.lateCase(yp)){
+    LATE_CASE=true;
+    if(!EMPS_META[empId]) EMP={name:yp.emp.name,login:yp.emp.login,ini:yp.emp.ini,div:yp.emp.div,dept:yp.emp.dept,pos:yp.emp.pos};
+    GOALS={};
+    yp.goals.forEach(function(g){
+      if(g.status==='draft') return;
+      GOALS[g.id]={type:g.type,title:g.title,result:g.result,from:g.s,to:g.e,prio:g.prio,status:g.status,eval:'none',late:!!g.late,sentAt:g.sentAt};
+    });
+  }
   document.title='Chi tiết Mục tiêu – '+EMP.name+' | MoMo HRM';
   document.getElementById('bc-emp-name').textContent=EMP.name;
   document.getElementById('approve-emp-name').textContent=EMP.name;
@@ -598,7 +616,8 @@ function rowHTML(id){
   return '<tr class="gt-row" id="row-'+id+'" data-id="'+id+'" data-status="'+g.status+'" onclick="openDetail(\''+id+'\')">'
     +'<td class="gt-cb-td"><div class="gt-cb-wrap"><input type="checkbox" class="gt-cb cb-item" data-id="'+id+'" onchange="syncBulk()" onclick="event.stopPropagation()"></div></td>'
     +'<td><span class="gt-type"><i class="bx '+ti.ico+'"></i> '+ti.lbl+'</span></td>'
-    +'<td><div class="gt-name">'+esc(g.title)+'</div></td>'
+    +'<td><div class="gt-name">'+esc(g.title)+'</div>'
+    +(g.late&&window.PMSUi?'<div class="yer-late-goal-row">'+window.PMSUi.lateGoalChip(g,'vi')+'</div>':'')+'</td>'
     +'<td><div class="gt-result">'+esc(g.result)+'</div></td>'
     +'<td>'+(pi?'<span class="prio '+pi.cls+'">'+pi.lbl+'</span>':'<span style="color:var(--z400)">—</span>')+'</td>'
     +'<td class="gt-date">'+g.from+' – '+g.to+'</td>'
@@ -643,6 +662,9 @@ function actionsHTML(g,id){
       b+=ab('danger','bx-x-circle','Từ chối',"openReject('"+id+"')");
     }else if(g.status==='approved'&&g.eval==='selfdone'){
       b+=ab('accent','bx-task','Đánh giá hoàn thành',"openEval('"+id+"')");
+    }else if(g.status==='approved'&&LATE_CASE){
+      // Nhân viên trễ hạn không tự thu hồi được: QLTT bấm Yêu cầu cập nhật để nhân viên sửa (YER-SPEC §27.1)
+      b+=ab('','bx-rotate-left','Yêu cầu cập nhật',"openUpdateReq('"+id+"')");
     }
   }
   b+=ab('','bx-show','Xem chi tiết',"openDetail('"+id+"')");
@@ -865,6 +887,8 @@ function openDetail(id){
     foot+='<button class="btn btn-default btn-sm" onclick="closeOverlay(\'dlg-detail\');openApprove(\''+id+'\')"><i class="bx bx-check-circle"></i> Duyệt</button>';
   }else if(!_isRO && g.status==='approved'&&g.eval==='selfdone'){
     foot+='<button class="btn btn-default btn-sm" onclick="closeOverlay(\'dlg-detail\');openEval(\''+id+'\')"><i class="bx bx-task"></i> Đánh giá hoàn thành</button>';
+  }else if(!_isRO && g.status==='approved'&&LATE_CASE){
+    foot+='<button class="btn btn-ghost btn-sm" onclick="closeOverlay(\'dlg-detail\');openUpdateReq(\''+id+'\')"><i class="bx bx-rotate-left"></i> Yêu cầu cập nhật</button>';
   }
   document.getElementById('d-foot').innerHTML=foot;
 

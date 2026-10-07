@@ -11,6 +11,10 @@ Tab Mục tiêu nằm chung file với tab Giữa năm (và Cuối năm), nên k
 | Quản lý | M-01b Chi tiết mục tiêu (mở từ M-05) | `M-01b/index.html` |
 | Quản lý | M-06 Chi tiết đánh giá của nhân viên | `M-06/index.html` `#mpanel-goals` |
 
+Nhân viên trễ hạn Tự đánh giá cuối năm (07/10/2026): tab `#mpanel-goals` của E-05, M-06 dựng lại từ hồ sơ YER bằng
+`PMSUi.goalTab` (`assets/yer-ui.js`), và M-01b nạp `employees-data.js`, `yer-data.js`, `yer-store.js`, `yer-model.js`, `yer-ui.js`
+để biết hồ sơ có trễ hạn không (GOAL-SPEC GS-26b, GS-50; YER-SPEC §27.1).
+
 ## Lịch sử gộp màn (27/09/2026)
 
 Bộ cũ E-01, M-01 (bản sao trước khi có tab Cuối năm) đã được gộp vào E-05, M-05. Mọi link đã trỏ sang bộ mới.

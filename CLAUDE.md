@@ -14,6 +14,8 @@ Chị sẽ nói đang làm module nào. Chỉ đọc file này, `DESIGN-SYSTEM.m
 | Đánh giá giữa năm (MYR) | `docs/modules/myr/README.md` | Tab Giữa năm trong E-05, M-06; M-05 |
 | Đánh giá cuối năm (YER) | `docs/modules/yer/README.md` | E-05, M-05, M-06, YER-demo |
 
+`archive/` là bản lưu trữ đóng băng (vd `archive/yer-nop-tre-v1/`: E-05, M-06 theo rule nộp trễ cũ). Không sửa, không đọc, không rà, không áp quy tắc DS.
+
 ## Tài liệu dùng chung
 
 - **Design system, 3 tầng:**

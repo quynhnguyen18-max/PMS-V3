@@ -8,12 +8,21 @@
 | Quản lý | M-05 Đánh giá cuối năm nhân viên (danh sách) | `M-05/index.html`, `assets/yer-manager.js` |
 | Quản lý | M-06 Chi tiết đánh giá của nhân viên (tab `#mpanel-yer`) | `M-06/index.html`, `assets/yer-manager-detail.js` |
 | Demo | Bảng điều hướng tình huống, mascot tour, quá hạn tự đánh giá | `YER-demo/` |
+| Bản lưu trữ | E-05 và M-06 theo rule nộp trễ cũ (nộp bằng file), đóng băng ngày 07/10/2026, chỉ để tham khảo | `archive/yer-nop-tre-v1/` |
+
+**Bản lưu trữ `archive/yer-nop-tre-v1/`** (chị chốt 07/10/2026): bản sao E-05, M-06 và mọi file chúng nạp, lấy từ commit `6849e3d`,
+trước khi đổi rule nộp trễ. Vào từ nhóm `Bản lưu trữ` ở sidebar của E-05, M-05, M-06 (`Nộp trễ rule cũ - Nhân viên`, `Nộp trễ rule cũ - Quản lý`).
+Dải vàng trên cùng: `Bản lưu trữ - rule nộp trễ trước ngày 07/10/2026. Chỉ để tham khảo, không cập nhật.` Khác bản gốc đúng các chỗ
+để chạy độc lập: vùng lưu trên trình duyệt riêng (`pms.yer.archive.nop-tre-v1`), nút đổi vai chỉ chuyển giữa E-05 và M-06 cũ, bỏ liên
+kết sang màn khác, bỏ các tình huống mở M-05. **Không sửa, không rà, không áp quy tắc DS cho thư mục này**; các test không quét nó.
 
 E-05 và M-06 còn chứa tab Mục tiêu và Giữa năm. Xem README của `goal-setting` và `myr`.
 
 ## File dùng chung trong module
 
 `assets/yer-model.js` (mọi rule trong YER-SPEC tính ở đây, màn chỉ render), `yer-data.js`, `yer-store.js`, `yer-ui.js`, `yer-i18n.js`, `yer-demo.js`. Được E-05, M-05, M-06 dùng chung.
+`yer-ui.js` có thêm `PMSUi.lateGoalChip` (nhãn Mục tiêu nộp trễ) và `PMSUi.goalTab` (tab Danh sách mục tiêu của hồ sơ trễ hạn), dùng ở
+E-05, M-06; M-01b nạp `yer-data.js`, `yer-store.js`, `yer-model.js`, `yer-ui.js` để hiện nhãn Mục tiêu nộp trễ (§27.1).
 `assets/yer-ai.js`: AI Summary và trợ lý viết nhận xét của cấp quản lý (§14), M-05 và M-06 dùng chung.
 M-06 mở popup `Phản hồi đã nhận` bằng file của module Feedback: `M-04/manager-feedback-dialog.js` (kèm `manager-feedback-data.js`,
 `manager-thanks.js`, `manager-ai-summary.js` và `H-05/feedback-program-*.js`, `feedback-report-view.js`), xem README của `feedback`.
@@ -60,6 +69,14 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
 - [x] **Góp ý E-05 và popup Upload điểm (05/10/2026):** banner xanh E-05 dùng chung khung hai tầng với M-06 (`PMSUi.banner` trong `assets/yer-ui.js`), luôn có `Điểm cuối cùng`, `Lịch sử chỉnh sửa` thành liên kết sau dòng ngày (§21, §42). Popup `Upload điểm` của M-05 theo bố cục popup nộp bổ sung của E-05, khung bước dùng chung `.yer-flow` ở `assets/yer-ui.js`, bỏ thẻ và tên cột tô hồng (§47). Sửa lỗi trắng tab Đánh giá cuối năm của E-05 ở lần nhắc 3, 4 (gọi hàm `consequenceText` không tồn tại, có từ đợt 9), thêm test chặn.
 - [x] **Bảng duyệt điểm HRBP đồng bộ danh sách chính (05/10/2026):** tag LWD, thai sản, nộp trễ dưới tên; dấu ⚠ vượt mức ở cột điểm và Điểm Upload; thêm hồ sơ `e8` (điểm tải lên 3.5, tối đa 3) cho tình huống `hod06`. Đã thử cả bốn đường ghi điểm hàng loạt đều qua popup xác nhận vượt mức (§9).
 - [x] **Góp ý số 5 M-05, phương án 2 và đề xuất 3 (05/10/2026):** `Duyệt điểm QLTT/QL cấp 2` (đổi tên từ `LM1/LM2`) mở popup có sẵn danh sách nhân viên đủ điều kiện, chọn sẵn người chưa có điểm của mình; `Upload điểm` có bước `Xem trước điểm từ file` (dòng hợp lệ, dòng không đổi, dòng lỗi kèm lý do) rồi mới ghi. `Duyệt điểm hiệu chuẩn` đổi tên thành `Duyệt điểm HRBP upload` (nút và màn). Ba nút viền hồng, tooltip một câu (§9, §47).
+- [x] **Rule nộp trễ mới (07/10/2026):** bỏ nộp bằng file. Quá hạn thì nhân viên bổ sung mục tiêu ở tab
+  Danh sách mục tiêu (QLTT duyệt như bình thường, trong timeline QLTT), làm Tự đánh giá ngay trên màn và gửi một lần; mục tiêu gửi
+  duyệt sau hạn có nhãn `Mục tiêu nộp trễ`; nhân viên trễ hạn không `Thu hồi` được mục tiêu, QLTT `Yêu cầu cập nhật` thay (M-06, M-01b).
+  Bốn lần nhắc, hạn và hình thức xử lý giữ nguyên. Khối quá hạn của Nhân viên (chị chốt lại cấu trúc cùng ngày): tiêu đề có lần nhắc,
+  thông tin (hạn nộp bổ sung, hình thức xử lý, nếu không nộp), rồi 2 bước viết theo dòng; bỏ ô xác nhận đã đọc; khối hết hạn và khối
+  `Lưu ý` của tab Danh sách mục tiêu cùng cấu trúc gọn.
+  Thêm tình huống `nv22` đến `nv24`, viết lại `nv06`, `nv12` đến `nv19`; `lm11` có mục tiêu nộp trễ chờ QLTT duyệt. Rule cũ giữ ở
+  bản lưu trữ `archive/yer-nop-tre-v1/` (§5, §8.1, §8.2, §18.4, §27.1, §27.3, §27.4, §29, §40.5a, §46, §48; GOAL-SPEC GS-26b, GS-50).
 - [ ] **Góp ý màn Quản lý, còn lại:** màn HRBP tải điểm hộ HOD và bước đối soát (§9).
 - [x] **Góp ý E-05 đợt 3 (28/09/2026):** màn quá hạn giữ bố cục thường, các ô khóa, khối thông báo lần nhắc đang mở rồi xác nhận mới mở popup nộp bổ sung; hạn chấm QLTT riêng cho hồ sơ nộp bổ sung (3 ngày làm việc từ ngày nộp); banner nộp trễ một nhãn và dòng hình thức xử lý, không có lịch sử chỉnh sửa; ô QLTT có `Điểm toàn diện: - Chưa công bố`; bớt viền khối cuối trang; 16 tình huống Nhân viên, bỏ nhóm `Hồ sơ khác` (§6, §8.2, §27.1, §27.3, §40.5a, §42, §44.1, §46).
 - [x] **Góp ý E-05 đợt 2 (27/09/2026):** bốn lần nhắc nộp bổ sung, đếm ngày làm việc, xác nhận đã đọc, khối nộp trễ sau khi gửi (§27.3); nhân viên đọc nhận xét Quản lý cấp 2 và Trưởng đơn vị (§7); tab `Danh sách mục tiêu` và nhãn xanh (§18.4); câu chữ cảnh báo thiếu mục tiêu, lưu nháp, thai sản, chỉnh sửa (§5, §8.1, §40.5); lịch sử chỉnh sửa theo lần gửi (§8.2); 11 tình huống Nhân viên và ghi chú `Hồ sơ khác` (§44.1, §46).

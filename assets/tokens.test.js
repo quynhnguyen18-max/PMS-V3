@@ -8,7 +8,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 
-// Trang demo mascot (YER-demo/mascot-tour*.html, overdue-self-assessment.html) nằm ngoài phạm vi DS.
+// Trang demo mascot (YER-demo/mascot-tour*.html) nằm ngoài phạm vi DS.
 const SCREENS = [
   'E-04/index.html', 'E-05/index.html',
   'H-05/index.html', 'H-05/create-campaign.html', 'H-05/questionnaire-library.html',

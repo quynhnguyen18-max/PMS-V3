@@ -1,0 +1,164 @@
+(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  root.FeedbackProgramData=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  const PROGRAMS=[
+    {id:'s1',goal:'Đánh giá năng lực giữa kỳ Q3/2026',status:'draft',createdAt:'09/08/2026',due:'',anon:'named',participants:8,reviewers:0,total:0,done:0,report:'none'},
+    {id:'s2',goal:'Khảo sát phát triển đội ngũ Sales',status:'collecting',createdAt:'01/08/2026',due:'13/08/2026',anon:'named',participants:10,reviewers:4,total:40,done:20,report:'none'},
+    {id:'s3',goal:'Phản hồi dự án Chuyển đổi số',status:'collecting',createdAt:'20/07/2026',due:'09/08/2026',anon:'anon',participants:6,reviewers:4,total:24,done:18,report:'none'},
+    {id:'s4',goal:'Đánh giá tiềm năng kế thừa khối Vận hành',status:'collecting',createdAt:'03/08/2026',due:'14/08/2026',anon:'anon',participants:5,reviewers:4,total:20,done:20,report:'none'},
+    {id:'s5',goal:'Phản hồi 6 tháng đầu năm - Marketing',status:'closed',createdAt:'10/06/2026',due:'30/06/2026',anon:'named',participants:9,reviewers:4,total:36,done:34,report:'none'},
+    /* Demo chia sẻ NHIỀU LẦN, mỗi lần một đối tượng khác: lần 1 cho chính người nhận
+       kèm quản lý trực tiếp, lần 2 mở rộng lên đủ ba cấp quản lý cho hai người khác,
+       lần 3 cho người ngoài phạm vi quản lý (chỉ nhận file qua email). Cùng một HR
+       phụ trách chương trình nên cả ba lần ghi cùng một người chia sẻ. */
+    {id:'s6',goal:'Đánh giá cuối kỳ 2025 - khối Kinh doanh',status:'closed',createdAt:'02/12/2025',due:'22/12/2025',anon:'anon',participants:17,reviewers:5,total:55,done:52,report:'published',resultSharing:{mode:'shared_selected',participantIds:['tu.nguyen','duc.truong','nam.le'],contentLevel:'summary_detail',note:'Cảm ơn cả nhóm đã dành thời gian phản hồi thẳng thắn. Mong mỗi bạn dùng kết quả này để phát triển trong năm 2026.',sharedAt:'05/01/2026',sharedBy:'hr',targets:{toRecipient:true,managerLevels:['lm','upper','hod'],extraViewers:[{domain:'chau.ly',name:'Lý Minh Châu'}]},log:[
+      {at:'23/12/2025 09:15',by:{domain:'minhthu.le',name:'Lê Minh Thu'},participantIds:['tu.nguyen'],targets:{toRecipient:true,managerLevels:['lm'],extraViewers:[]},contentLevel:'summary',note:'Gửi trước cho Tú và quản lý trực tiếp để kịp buổi trao đổi cuối năm.'},
+      {at:'23/12/2025 16:40',by:{domain:'minhthu.le',name:'Lê Minh Thu'},participantIds:['duc.truong','nam.le'],targets:{toRecipient:false,managerLevels:['lm','upper','hod'],extraViewers:[]},contentLevel:'summary_detail',note:'Chia sẻ cho đủ ba cấp quản lý để chuẩn bị kế hoạch phát triển 2026.'},
+      {at:'05/01/2026 10:05',by:{domain:'minhthu.le',name:'Lê Minh Thu'},participantIds:['tu.nguyen'],targets:{toRecipient:false,managerLevels:[],extraViewers:[{domain:'chau.ly',name:'Lý Minh Châu'}]},contentLevel:'summary',note:'Chia sẻ cho trưởng đơn vị Marketing để phối hợp luân chuyển nhân sự.'}
+    ]}},
+    {id:'s7',goal:'Phản hồi giữa kỳ Q3 - nhóm Sản phẩm',status:'closed',createdAt:'05/07/2026',due:'20/07/2026',anon:'named',participants:17,reviewers:4,total:32,done:30,report:'published',resultSharing:{mode:'shared_selected',participantIds:['tu.nguyen','bao.nguyen','hang.mai'],audiences:['recipients','managers','others'],additionalViewerNames:['Nguyễn Thị Hoa'],contentLevel:'summary_detail',note:'Đã bổ sung chi tiết phản hồi cho người được chia sẻ ở lần thứ hai.',sharedAt:'24/07/2026',sharedBy:'hr',log:[
+      {at:'22/07/2026 14:05',by:{domain:'minhthu.le',name:'Lê Minh Thu'},targets:{toRecipient:true,managerLevels:['lm','upper','hod'],extraViewers:[]},contentLevel:'summary',participantIds:['tu.nguyen','bao.nguyen'],note:'Chia sẻ bản tổng hợp AI để người nhận và quản lý cùng xem định hướng phát triển.'},
+      {at:'24/07/2026 09:50',by:{domain:'minhthu.le',name:'Lê Minh Thu'},targets:{toRecipient:false,managerLevels:[],extraViewers:[{domain:'hoa.nguyen',name:'Nguyễn Thị Hoa'}]},additionalViewerNames:['Nguyễn Thị Hoa'],contentLevel:'summary_detail',participantIds:['hang.mai'],note:'Chia sẻ bổ sung cho đối tác phối hợp, kèm nội dung phản hồi chi tiết.'}]}},
+    {id:'s8',goal:'Khảo sát cộng tác Q2 - Vận hành',status:'closed',createdAt:'01/04/2026',due:'18/04/2026',anon:'named',participants:17,reviewers:4,total:32,done:29,report:'published',resultSharing:{mode:'shared_selected',participantIds:['duc.truong','tung.dinh'],contentLevel:'summary',note:'HR chỉ chia sẻ bản tổng hợp AI để mọi người nắm định hướng phát triển.',sharedAt:'20/04/2026',sharedBy:'hr',targets:{toRecipient:true,managerLevels:['lm','upper','hod'],extraViewers:[]},log:[
+      {at:'20/04/2026 11:20',by:{domain:'minhthu.le',name:'Lê Minh Thu'},participantIds:['duc.truong','tung.dinh'],targets:{toRecipient:true,managerLevels:['lm','upper','hod'],extraViewers:[]},contentLevel:'summary',note:'HR chỉ chia sẻ bản tổng hợp AI để mọi người nắm định hướng phát triển.'}
+    ]}},
+    /* Demo hai lần chia sẻ trong CÙNG một ngày - phân biệt được nhờ giờ - và lần thứ
+       hai có thêm người ngoài phạm vi quản lý nên xuất hiện cả hai cách xem. */
+    {id:'s9',goal:'Phản hồi ẩn danh nửa đầu năm - Kinh doanh',status:'closed',createdAt:'02/01/2026',due:'20/01/2026',anon:'anon',participants:17,reviewers:4,total:32,done:28,report:'published',resultSharing:{mode:'shared_selected',participantIds:['nam.le','tung.dinh'],contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp mỗi bạn phát triển.',sharedAt:'22/01/2026',sharedBy:'hr',targets:{toRecipient:true,managerLevels:['lm','hod'],extraViewers:[{domain:'hoa.nguyen',name:'Nguyễn Thị Hoa'}]},log:[
+      {at:'22/01/2026 08:30',by:{domain:'minhthu.le',name:'Lê Minh Thu'},participantIds:['nam.le'],targets:{toRecipient:true,managerLevels:['lm'],extraViewers:[]},contentLevel:'summary',note:'Kết quả tổng hợp ẩn danh, mong giúp Nam nhìn ra hướng phát triển.'},
+      {at:'22/01/2026 15:10',by:{domain:'minhthu.le',name:'Lê Minh Thu'},participantIds:['tung.dinh','tu.nguyen','bao.nguyen','hang.mai','nam.le','duc.truong','lan.hoang','mai.tran'],targets:{toRecipient:false,managerLevels:['lm','hod'],extraViewers:[{domain:'hoa.nguyen',name:'Nguyễn Thị Hoa'}]},contentLevel:'summary_detail',note:'Chia sẻ bổ sung cho nhóm dự án liên phòng ban và các cấp quản lý liên quan.'}
+    ]}},
+    {id:'s10',goal:'Đánh giá năng lực lãnh đạo giữa kỳ Q3',status:'closed',createdAt:'12/07/2026',due:'02/08/2026',anon:'named',participants:1,reviewers:5,total:5,done:5,report:'made',includeSelf:true},
+    {id:'s11',goal:'Phản hồi khởi động đội ngũ Data',status:'collecting',createdAt:'08/08/2026',due:'22/08/2026',anon:'named',participants:3,reviewers:4,total:12,done:0,report:'none'},
+    {id:'s12',goal:'Phản hồi năng lực hợp tác giữa kỳ 2026 - ITC',requestSource:'hr',requestedBy:{name:'Lê Minh Thu',domain:'minhthu.le',initials:'LT'},invitationMessage:'HR mời bạn chia sẻ góc nhìn cụ thể, cân bằng về cách phối hợp của đồng nghiệp trong các dự án gần đây. Kết quả sẽ được HR tổng hợp và chia sẻ theo cấu hình chương trình.',status:'collecting',createdAt:'12/08/2026',due:'28/08/2026',identityVisibility:'anonymous',anon:'anon',participants:2,participantIds:['bao.nguyen','hang.mai'],reviewers:3,reviewerMappings:[{participantId:'bao.nguyen',reviewerIds:['tu.nguyen','anh.nguyen']},{participantId:'hang.mai',reviewerIds:['tu.nguyen','my.pham']}],total:4,done:0,report:'none',resultSharing:{mode:'not_shared'}},
+    {id:'s14',goal:'Phản hồi giữa kỳ nhóm Backend - ITC',requestSource:'hr',requestedBy:{name:'Lê Minh Thu',domain:'minhthu.le',initials:'LT'},invitationMessage:'HR mời bạn chia sẻ góc nhìn về cách phối hợp trong nhóm Backend nửa đầu năm.',status:'closed',createdAt:'02/08/2026',closedAt:'22/08/2026',due:'20/08/2026',identityVisibility:'named',anon:'named',participants:1,participantIds:['long.pham'],reviewers:2,reviewerMappings:[{participantId:'long.pham',reviewerIds:['anh.nguyen','tu.nguyen']}],total:2,done:1,report:'none',resultSharing:{mode:'not_shared'}},
+    {id:'s13',goal:'Phản hồi phối hợp phát hành Q3 - ITC',requestSource:'hr',requestedBy:{name:'Lê Minh Thu',domain:'minhthu.le',initials:'LT'},invitationMessage:'HR mời bạn ghi nhận các hành vi phối hợp hiệu quả trong đợt phát hành Q3 để làm rõ những thực hành đội ngũ nên tiếp tục phát huy.',status:'collecting',createdAt:'14/08/2026',due:'30/08/2026',identityVisibility:'named',anon:'named',participants:1,participantIds:['tung.dinh'],reviewers:2,reviewerMappings:[{participantId:'tung.dinh',reviewerIds:['tu.nguyen','viet.le']}],total:2,done:0,report:'none',resultSharing:{mode:'not_shared'}}
+  ];
+  const REVIEWERS=[
+    {id:'anh.nguyen',name:'Nguyễn Minh Anh',domain:'anh.nguyen',department:'Kinh doanh',team:'Sales',position:'Sales Manager',initials:'MA'},
+    {id:'quynh.tran',name:'Trần Ngọc Quỳnh',domain:'quynh.tran',department:'Kinh doanh',team:'Sales Operations',position:'Senior Specialist',initials:'QT'},
+    {id:'viet.le',name:'Lê Quốc Việt',domain:'viet.le',department:'Sản phẩm',team:'Growth',position:'Product Manager',initials:'VL',resigned:true},
+    {id:'my.pham',name:'Phạm Thanh Mỹ',domain:'my.pham',department:'Kinh doanh',team:'Key Account',position:'Key Account Manager',initials:'PM'}
+  ];
+  const PEOPLE=[
+    {id:'lan.hoang',name:'Hoàng Thị Lan',domain:'lan.hoang',department:'Kinh doanh',team:'Sales',position:'Senior Sales Executive',initials:'HL',done:1},
+    {id:'mai.tran',name:'Trần Thị Mai',domain:'mai.tran',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'TM',done:2},
+    {id:'duc.pham',name:'Phạm Minh Đức',domain:'duc.pham',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'PD',done:4},
+    {id:'linh.vu',name:'Vũ Thị Linh',domain:'linh.vu',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'VL',done:3},
+    {id:'hung.do',name:'Đỗ Gia Hưng',domain:'hung.do',department:'Kinh doanh',team:'Sales Operations',position:'Sales Operations Specialist',initials:'DH',done:0},
+    {id:'thu.nguyen',name:'Nguyễn Minh Thư',domain:'thu.nguyen',department:'Kinh doanh',team:'Key Account',position:'Key Account Executive',initials:'NT',done:2},
+    {id:'nam.bui',name:'Bùi Hoài Nam',domain:'nam.bui',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'BN',done:4},
+    {id:'phuong.le',name:'Lê Phương Thảo',domain:'phuong.le',department:'Kinh doanh',team:'Sales',position:'Sales Executive',initials:'LP',done:1},
+    {id:'son.tran',name:'Trần Quốc Sơn',domain:'son.tran',department:'Kinh doanh',team:'Key Account',position:'Key Account Executive',initials:'TS',done:3},
+    {id:'an.vo',name:'Võ Hải An',domain:'an.vo',department:'Kinh doanh',team:'Sales Operations',position:'Sales Operations Specialist',initials:'VA',done:0},
+    {id:'tu.nguyen',name:'Nguyễn Văn Tú',domain:'tu.nguyen',department:'ITC',team:'Backend',position:'Senior Engineer',initials:'NT',done:4},
+    {id:'duc.truong',name:'Trương Minh Đức',domain:'duc.truong',department:'ITC',team:'Platform',position:'SRE Lead',initials:'TĐ',done:4},
+    {id:'nam.le',name:'Lê Thành Nam',domain:'nam.le',department:'ITC',team:'Backend',position:'Software Engineer',initials:'LN',done:3},
+    {id:'bao.nguyen',name:'Nguyễn Quốc Bảo',domain:'bao.nguyen',department:'ITC',team:'Frontend',position:'Senior Engineer',initials:'NB',done:4},
+    {id:'hang.mai',name:'Mai Thị Hằng',domain:'hang.mai',department:'ITC',team:'DevOps',position:'Platform Engineer',initials:'MH',done:2},
+    {id:'long.pham',name:'Phạm Thành Long',domain:'long.pham',department:'Data',team:'Analytics',position:'Data Analyst',initials:'PL',done:0},
+    {id:'tung.dinh',name:'Đinh Văn Tùng',domain:'tung.dinh',department:'ITC',team:'Backend',position:'Engineering Manager',initials:'ĐT',done:3}
+  ];
+  const BODIES=[
+    'Chủ động lắng nghe và tổng hợp ý kiến rõ ràng, giúp team thống nhất hướng xử lý nhanh hơn.',
+    'Có tinh thần đồng đội tốt và luôn theo sát các cam kết khi phối hợp với đối tác.',
+    'Cách trao đổi mạch lạc giúp những người liên quan nắm được ưu tiên và bước tiếp theo.',
+    'Nên làm rõ thứ tự ưu tiên sớm hơn khi phạm vi công việc có thay đổi.'
+  ];
+  const QUESTION_SETS={
+    s2:[{id:'q1',text:'Đâu là điểm mạnh và một cơ hội phát triển khi phối hợp cùng team?',required:true}],
+    s3:[
+      {id:'q1',text:'Đâu là điểm mạnh nổi bật của đồng nghiệp khi phối hợp trong dự án Chuyển đổi số?',required:true},
+      {id:'q2',text:'Đồng nghiệp đã tạo ảnh hưởng tích cực nào đến tiến độ hoặc chất lượng công việc?',required:true},
+      {id:'q3',text:'Một cơ hội phát triển cụ thể nào sẽ giúp đồng nghiệp làm việc hiệu quả hơn?',required:true}
+    ],
+    s4:[
+      {id:'q1',text:'Đồng nghiệp đang thể hiện tiềm năng kế thừa qua những điểm mạnh nào?',required:true},
+      {id:'q2',text:'Họ đã chủ động nhận thêm trách nhiệm hoặc dẫn dắt công việc ra sao?',required:true},
+      {id:'q3',text:'Khi gặp thay đổi, họ đưa ra quyết định và kết nối các bên như thế nào?',required:true},
+      {id:'q4',text:'Năng lực hoặc trải nghiệm nào nên được phát triển để sẵn sàng cho vai trò lớn hơn?',required:true},
+      {id:'q5',text:'Một tình huống cụ thể nào cho thấy họ đã xử lý vượt kỳ vọng ở cấp độ hiện tại?',required:true}
+    ],
+    s10:[
+      {id:'q1',type:'open_text',text:'Bạn đánh giá thế nào về mức độ tạo ảnh hưởng tích cực tới đội ngũ của [người nhận]?',required:true},
+      {id:'q2',type:'open_text',text:'Một hành vi lãnh đạo người nhận nên tiếp tục phát huy là gì?',required:true}
+    ],
+    s11:[{id:'q1',type:'open_text',text:'Bạn mong người nhận sẽ hỗ trợ đội ngũ Data hiệu quả hơn ở điểm nào?',required:true}]
+  };
+  const PROGRAM_DONE={
+    s3:{'lan.hoang':3,'mai.tran':3,'duc.pham':4,'linh.vu':3,'hung.do':2,'thu.nguyen':3},
+    s4:{'lan.hoang':5,'mai.tran':5,'duc.pham':6,'linh.vu':5,'hung.do':6},
+    s10:{'lan.hoang':5},
+    s11:{'lan.hoang':0,'mai.tran':0,'duc.pham':0},
+    s12:{'bao.nguyen':0,'hang.mai':0},
+    s13:{'tung.dinh':0}
+  };
+  const QUESTION_ANSWER_COPY={
+    s3:{
+      q1:['Chủ động kết nối các bên khi có thay đổi và làm rõ trách nhiệm rất sớm.','Giữ được nhịp phối hợp ổn định giữa business và team kỹ thuật.','Có góc nhìn tổng thể nên nhận ra dependency trước khi ảnh hưởng tiến độ.','Tạo được không khí hợp tác cởi mở trong những buổi xử lý vấn đề.'],
+      q2:['Việc tổng hợp rủi ro theo từng mốc giúp cả nhóm chủ động hơn.','Các cập nhật ngắn, rõ giúp quyết định được đưa ra nhanh hơn.','Đã giúp nhóm thống nhất ưu tiên khi phạm vi triển khai thay đổi.','Cách theo sát cam kết giúp hạn chế việc bỏ sót đầu việc liên phòng ban.'],
+      q3:['Có thể chia sẻ sớm hơn các phương án đánh đổi khi phát hiện rủi ro.','Nên dành thêm thời gian coaching cách chuẩn bị dữ liệu cho các bạn mới.','Có thể chủ động mời stakeholder phản biện trước các mốc quyết định lớn.','Nên hệ thống hoá những bài học từ dự án để team áp dụng ở các lần sau.']
+    },
+    s4:{
+      q1:['Thể hiện khả năng nhìn toàn cục và kết nối mục tiêu của các nhóm liên quan.','Có tinh thần chịu trách nhiệm, theo sát cam kết đến khi công việc hoàn tất.','Tạo được sự tin cậy nhờ trao đổi rõ ràng và nhất quán.','Biết cân bằng giữa chất lượng đầu ra và tốc độ xử lý công việc.'],
+      q2:['Đã chủ động nhận phần việc điều phối khi nhóm cần người kết nối.','Có thể phân rã việc lớn thành các bước rõ để mọi người cùng thực hiện.','Sẵn sàng hỗ trợ đồng nghiệp tháo gỡ vướng mắc thay vì chỉ xử lý phần việc của mình.','Đã dẫn dắt tốt buổi rà soát tiến độ khi có nhiều ưu tiên cạnh tranh.'],
+      q3:['Khi có thay đổi, thường nêu rõ dữ kiện và phương án trước khi đề xuất quyết định.','Kết nối các bên kịp thời để giảm hiểu nhầm trong quá trình triển khai.','Biết lắng nghe ý kiến khác chiều và điều chỉnh hướng làm việc phù hợp.','Giữ bình tĩnh, phân định việc cần xử lý ngay và việc cần thêm dữ liệu.'],
+      q4:['Nên được trải nghiệm thêm việc dẫn dắt một sáng kiến có phạm vi rộng hơn.','Có thể phát triển thêm năng lực giao quyền và coaching thành viên mới.','Nên được tiếp cận các bài toán hoạch định nguồn lực theo quý.','Có thể rèn thêm kỹ năng trình bày phương án cho cấp quản lý cao hơn.'],
+      q5:['Trong đợt cao điểm, đã sắp xếp lại nguồn lực giúp nhóm vẫn kịp mốc quan trọng.','Đã chủ động phát hiện một điểm nghẽn và kết nối đúng người để xử lý nhanh.','Có lúc thay đổi yêu cầu, đã giúp team thống nhất cách làm mà không ảnh hưởng chất lượng.','Đã đứng ra điều phối khi một đầu việc có nguy cơ chậm, giúp nhóm hoàn thành đúng hạn.']
+    }
+  };
+  ['s6','s7','s8','s9','s12','s13','s14'].forEach(id=>{QUESTION_SETS[id]=QUESTION_SETS.s3;QUESTION_ANSWER_COPY[id]=QUESTION_ANSWER_COPY.s3;});
+  function clone(value){return JSON.parse(JSON.stringify(value));}
+  function answerBody(campaignId,question,reviewerIndex){
+    const source=QUESTION_ANSWER_COPY[campaignId]&&QUESTION_ANSWER_COPY[campaignId][question.id];
+    const questionIndex=Math.max(0,Number(String(question.id).replace(/^q/,''))-1);
+    return source?source[reviewerIndex%source.length]:BODIES[(reviewerIndex+questionIndex)%BODIES.length];
+  }
+  function questionAnswer(campaignId,question,reviewerIndex){
+    if(question.type==='rating')return {questionId:question.id,score:Math.min(Number(question.ratingScale)||5,3+reviewerIndex%3)};
+    return {questionId:question.id,body:answerBody(campaignId,question,reviewerIndex)};
+  }
+  function submittedAssignment(person,index,questions,campaignId,reviewer){
+    const answers=questions.map(question=>questionAnswer(campaignId,question,index));
+    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'submitted',submittedAt:`${String(12-index).padStart(2,'0')}/08/2026`,body:answers.find(answer=>answer.body)?.body||'',answers,badges:[],manualReminderHistory:[],selfAssessment:reviewer.id===person.id};
+  }
+  function pendingAssignment(person,index,campaignId,reviewer){
+    const history=campaignId==='s11'&&person.id==='lan.hoang'&&index===1?['08/08/2026 09:00','10/08/2026 09:00']:person.id==='lan.hoang'&&index===1?['10/08/2026 09:00']:[];
+    return {id:`${campaignId}:${person.id}:${reviewer.id}`,reviewer:clone(reviewer),status:'pending',badges:[],manualReminderHistory:history,selfAssessment:reviewer.id===person.id};
+  }
+  function personById(id){return [...PEOPLE,...REVIEWERS].find(person=>person.id===id)||null;}
+  function reviewersForParticipant(campaign,person){
+    const mapping=(campaign.reviewerMappings||[]).find(item=>item.participantId===person.id);
+    const reviewers=(mapping&&mapping.reviewerIds||[]).map(personById).filter(Boolean);
+    return reviewers.length?reviewers:REVIEWERS;
+  }
+  function participant(person,questions,campaign,done){
+    const reviewers=[...reviewersForParticipant(campaign,person),...(campaign.includeSelf?[person]:[])];
+    const assignments=reviewers.map((reviewer,index)=>index<done?submittedAssignment(person,index,questions,campaign.id,reviewer):pendingAssignment(person,index,campaign.id,reviewer));
+    return {
+      employee:clone(Object.fromEntries(Object.entries(person).filter(([key])=>key!=='done'))),
+      assignments,
+      aiSummary:done>=2?{
+        strengths:['Giao tiếp rõ ràng với stakeholder','Chủ động tổng hợp ý kiến để team ra quyết định'],
+        opportunities:['Làm rõ ưu tiên khi phạm vi công việc thay đổi']
+      }:null
+    };
+  }
+  function seedPrograms(){return clone(PROGRAMS);}
+  function programById(id){return clone(PROGRAMS.find(item=>item.id===id)||null);}
+  function detailForProgram(program){
+    const campaign=clone(program||PROGRAMS[1]);
+    const questions=clone(QUESTION_SETS[campaign.id]||QUESTION_SETS.s2),selectedIds=new Set(campaign.participantIds||[]);
+    const people=selectedIds.size?PEOPLE.filter(person=>selectedIds.has(person.id)):PEOPLE;
+    const participants=people.map(person=>participant(person,questions,campaign,(PROGRAM_DONE[campaign.id]&&PROGRAM_DONE[campaign.id][person.id])??person.done));
+    return {
+      campaign,
+      question:questions[0].text,
+      questions,
+      participants:participants.slice(0,Math.max(1,Number(campaign.participantCount)||(Array.isArray(campaign.participants)?campaign.participants.length:Number(campaign.participants))||1))
+    };
+  }
+  return {seedPrograms,programById,detailForProgram};
+});

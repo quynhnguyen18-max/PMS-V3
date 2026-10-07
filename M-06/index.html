@@ -887,6 +887,9 @@ body.embedded-detail .page-title{font-size:16px}
     <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
     <div class="sb-item on" onclick="location.href='../M-05/index.html'"><i class="bx bx-group"></i>Mục tiêu và Đánh giá nhân viên</div>
     <div class="sb-item" onclick="location.href='../M-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của đội nhóm</div>
+    <span class="sb-grp">Bản lưu trữ</span>
+    <div class="sb-item" onclick="location.href='../archive/yer-nop-tre-v1/E-05/index.html?demo=1'"><i class="bx bx-archive"></i>Nộp trễ rule cũ - Nhân viên</div>
+    <div class="sb-item" onclick="location.href='../archive/yer-nop-tre-v1/M-06/index.html?demo=1'"><i class="bx bx-archive"></i>Nộp trễ rule cũ - Quản lý</div>
   </nav>
 
   <div class="sb-foot">
@@ -2311,6 +2314,8 @@ function openDetail(el) {
         cta.className = 'btn btn-default btn-sm';
         cta.onclick = function(){ closeOverlay('dlg-detail'); };
         cta.style.display = '';
+      } else if (el.dataset.recallLocked === '1') {
+        // Hồ sơ trễ hạn Tự đánh giá: không có Thu hồi (YER-SPEC §27.1, chốt 07/10/2026)
       } else if (s === 'pending') {
         cta.innerHTML = '<i class="bx bx-undo"></i> Thu hồi';
         cta.className = 'btn btn-cta-outline btn-sm';

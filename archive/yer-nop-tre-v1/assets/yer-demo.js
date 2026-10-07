@@ -96,7 +96,7 @@
 
   /* Mỗi vai làm việc trên một màn khác nhau, nên đổi vai mà ở nguyên màn cũ thì
      người xem chỉ thấy màn trống. Thanh demo tự đưa sang đúng màn của vai đó. */
-  var DEFAULT_SCREEN = { nv: 'E-05', lm: 'M-05', lm2: 'M-05', hod: 'M-05' };
+  var DEFAULT_SCREEN = { nv: 'E-05', lm: 'M-06', lm2: 'M-06', hod: 'M-06' }; // Bản lưu trữ chỉ có E-05 và M-06
   var MANAGER_ROLES = ['lm', 'lm2', 'hod'];
   var MANAGER_STEPS = ['self', 'lm', 'lm2', 'hod', 'publish'];
 
@@ -122,8 +122,8 @@
   }
 
   /* Tình huống có cờ `fresh` (nộp bổ sung ở từng lần nhắc, YER-SPEC §46): mỗi lần tải trang hoặc chọn
-     tình huống thì xóa thao tác cũ của nhân viên đó (bản nháp, bản đã gửi), để lúc nào cũng làm lại được từ đầu. */
-  var FRESH_KEYS = ['self', 'selfDraft', 'selfEditing', 'selfLog'];
+     tình huống thì xóa thao tác cũ của nhân viên đó, để lúc nào cũng làm lại được từ đầu. */
+  var FRESH_KEYS = ['self', 'selfDraft', 'selfEditing', 'selfLog', 'lateSubmission', 'importedGoals'];
   function freshStart(sc) {
     if (!sc || !sc.fresh) return;
     FRESH_KEYS.forEach(function (k) { window.PMSStore.clearAct(sc.emp, k); });
@@ -134,7 +134,7 @@
   }
 
   /* Tình huống đã xem trên thanh demo M-06 (04/10/2026): chỉ lưu trên máy người review để biết còn sót mục nào */
-  var SEEN_KEY = 'pms-yer-demo-seen';
+  var SEEN_KEY = 'pms-yer-demo-seen.archive.nop-tre-v1';
   function seenList() {
     try { return JSON.parse(window.localStorage.getItem(SEEN_KEY) || '[]'); } catch (e) { return []; }
   }

@@ -29,6 +29,7 @@
   var PRIO = { h:{vi:'Cao',en:'High',cls:'prio-h'}, m:{vi:'Trung bình',en:'Medium',cls:'prio-m'}, l:{vi:'Thấp',en:'Low',cls:'prio-l'} };
 
   var draft = null;
+  var lateFileDraft = null;
 
   /* ── dữ liệu ─────────────────────────────────────────── */
   function prof(){ var s = S.session(); return Y.profile(s.emp, s.date); }
@@ -42,10 +43,7 @@
      thì màn đọc bản nháp như lúc chưa gửi, nên trả về null. */
   function shown(p){ return (p.self && !p.selfEditing) ? p.self : null; }
   function loadDraft(){
-    // Bản nháp mẫu của hồ sơ demo (lưu từ trước hạn, §27.1) chỉ dùng khi chưa có bản nháp đã lưu
-    var seed = ((window.PMS_YER || {})[S.session().emp] || {}).selfDraft;
-    if(seed && seed.at && Y.cmp(S.session().date, seed.at) < 0) seed = null;
-    var d = actsOf().selfDraft || seed;
+    var d = actsOf().selfDraft;
     draft = d ? JSON.parse(JSON.stringify(d)) : { goalScores:{}, howScores:{}, comments:{}, overall:{} };
     draft.goalScores = draft.goalScores || {}; draft.howScores = draft.howScores || {};
     draft.comments = draft.comments || {}; draft.overall = draft.overall || {};
@@ -144,8 +142,8 @@
     if(!p.self && p.lateWindowOpen){
       items.push({ sel: '#yer-root .yer-late-note', pose: 'think.png',
         title: L('Nộp bổ sung sau hạn','Submit after the deadline'),
-        text: L('Có 4 lần nhắc nhở, mỗi lần gắn với một hình thức xử lý. Bổ sung mục tiêu còn thiếu ở tab Danh sách mục tiêu, rồi hoàn thành Tự đánh giá ngay bên dưới và gửi một lần.',
-                'There are 4 reminders, each with its own measure. Add any missing goal in the Goal list tab, then complete the self assessment below and submit it once.') });
+        text: L('Có 4 lần nhắc nhở, mỗi lần gắn với một hình thức xử lý. Đọc và xác nhận thông báo của lần hiện tại, rồi tải lên một file gồm đầy đủ mục tiêu và nội dung tự đánh giá.',
+                'There are 4 reminders, each with its own measure. Read and confirm the current one, then upload one file with both goals and the self assessment.') });
       return items;
     }
 
@@ -304,9 +302,7 @@
         (done ? doneChip() : '') +
         // Mục tiêu Quản lý trực tiếp thêm khi nhân viên nghỉ thai sản: nhãn riêng, đã duyệt (§33)
         (g.byLm ? '<div class="g-lm-row"><span class="g-lm-chip"><i class="bx bx-user-check"></i>' +
-          L('Quản lý trực tiếp thêm','Added by your manager') + '</span></div>' : '') +
-        // Mục tiêu gửi duyệt sau hạn Tự đánh giá (§27.1, chốt 07/10/2026)
-        (g.late ? '<div class="yer-late-goal-row">' + U.lateGoalChip(g, lg()) + '</div>' : '') + '</td>' +
+          L('Quản lý trực tiếp thêm','Added by your manager') + '</span></div>' : '') + '</td>' +
         '<td><div class="g-result">' + esc(g.result) + '</div></td>' +
         (type === 'what' ? '<td><div class="g-meta">' + (prio ? '<span class="prio ' + prio.cls + '">' +
             esc(lg()==='en'?prio.en:prio.vi) + '</span>' : '—') + '</div></td>' : '') +
@@ -472,7 +468,7 @@
     var isLateFile = !!p.lateSubmission;
     var daysLate = isLateFile ? Y.lateDays(p.lateSubmission.at || p.self.at) : 0;
     // Tầng trên chỉ một dòng ngày. Trạng thái đang chờ ai đã nằm ở nhãn tab và dải quy trình.
-    // Hồ sơ nộp bổ sung chỉ gửi một lần nên không có lịch sử chỉnh sửa
+    // Hồ sơ nộp bằng file chỉ gửi một lần nên không có lịch sử chỉnh sửa
     var sub = (p.published
       ? esc(L('Ngày công bố: ','Published on: ') + Y.fmt(p.final.publishedAt, lg()))
       : esc(L('Ngày gửi: ','Submitted on: ') + Y.fmt(p.self.at, lg())) +
@@ -618,9 +614,9 @@
       '<strong>' + L('Lưu ý:','Please note:') + '</strong>' + list + '</div></div>';
   }
 
-  /* ── ENH-E02: nhân viên nộp bổ sung Tự đánh giá sau hạn (§27.1, chốt lại 07/10/2026) ──
-     Không còn file, không có bước xác nhận đã đọc. Nhân viên bổ sung mục tiêu còn thiếu ở tab Danh sách mục tiêu (gửi
-     Quản lý trực tiếp duyệt như bình thường), rồi làm Tự đánh giá ngay trên màn và gửi một lần, không chỉnh sửa. */
+  /* ── ENH-E02: NV nộp trễ mục tiêu + tự đánh giá ──────────
+     Đây là luồng riêng chỉ mở trong timeline của LM. Một file duy nhất,
+     goal đi thẳng vào hồ sơ và không phát sinh bước phê duyệt goal. */
   /* ── Bốn lần nhắc nộp bổ sung (§27.3). Luật và câu chữ hình thức xử lý ở model. ── */
   /* Chỉ in đậm từ khóa của hình thức xử lý, phần còn lại để chữ thường cho dễ đọc */
   // Từ khóa in đậm nằm ở model (Y.lateTextHtml), dùng chung với màn Quản lý (04/10/2026)
@@ -642,38 +638,188 @@
                'part of your bonus may be cut and promotion and salary increase deferred for the next 6 months. The deferral counts from the fourth reminder. The Head of Department (HOD) and HOHR propose the specifics for approval by the Chief Executive Officer (CEO) or an authorised person.');
     return Y.lateText('discipline', lg());
   }
+  /* Xác nhận đã đọc chỉ giữ trong trang đang mở, không ghi vào dữ liệu (§27.3): tải lại trang (F5)
+     là phải xác nhận lại. Khóa theo nhân viên và lần nhắc, sang lần nhắc mới cũng phải xác nhận lại. */
+  var lateAckMem = {};
+  function lateAckOf(p){ return p.lateRound ? lateAckMem[p.id + ':' + p.lateRound.round] || null : null; }
+  function lateAcked(p){
+    return !!lateAckOf(p);
+  }
 
-  // Câu hệ quả viết hoa chữ đầu khi đứng sau nhãn
-  function capFirst(t){ return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; }
-
-  /* Khối thông báo quá hạn, đứng trên cùng tab (§27.1, §27.3; chị chốt lại cấu trúc 07/10/2026):
-     tiêu đề nói lần nhắc; rồi ba dòng thông tin MECE: hạn nộp bổ sung (kèm số ngày đã trễ), hình thức xử lý của lần này
-     (chỉ khi đã có), điều xảy ra nếu không nộp trước hạn; sau đó 2 bước cần làm viết theo dòng, không đóng khung.
-     Không có ô xác nhận đã đọc. */
+  /* Khối thông báo quá hạn, đứng trên cùng tab (§27.3). Chỉ nói về lần nhắc đang mở:
+     lần thứ mấy, hạn phải hoàn thành, hình thức xử lý của lần này và cảnh báo cho lần sau.
+     Chưa xác nhận thì phải đánh dấu đã đọc mới đi tiếp; xác nhận rồi thì chỉ còn nút mở popup. */
   function lateNoteBlock(p){
     var r = p.lateRound;
+    var deadline = Y.fmt(r.deadline, lg());
     var days = Y.lateDays(p.now);
-    var goalsLink = '<a href="#" class="yer-note-link" data-go-tab="0">' + L('Danh sách mục tiêu','Goal list') + '</a>';
-    var info = [
-      L('<strong>Hạn nộp bổ sung:</strong> trước <strong>18:00 ngày ' + Y.fmt(r.deadline, lg()) + '</strong>. Bạn đã trễ <strong>' + days +
-          ' ngày làm việc</strong> so với hạn Tự đánh giá (' + Y.fmt(Y.step('self').to, lg()) + ').',
-        '<strong>Late submission deadline:</strong> before <strong>18:00 on ' + Y.fmt(r.deadline, lg()) + '</strong>. You are <strong>' + days +
-          ' working day' + (days === 1 ? '' : 's') + '</strong> past the self-assessment deadline (' + Y.fmt(Y.step('self').to, lg()) + ').')
-    ];
-    if(r.consequence.length) info.push(L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + lateNowHtml(r));
-    info.push(L('<strong>Nếu không nộp trước hạn trên:</strong> ','<strong>If not submitted by then:</strong> ') + esc(capFirst(lateNextText(r))));
+    var acked = lateAcked(p);
+    /* Màu vàng cảnh báo (--warn), tiêu đề cỡ lớn hơn chữ thường. Chỉ nói lần nhắc thứ mấy,
+       không nhắc tổng số lần. Dòng hình thức xử lý chỉ hiện khi lần này đã có hình thức áp dụng.
+       Dòng Lưu ý là câu đầy đủ theo quy định, không lặp lại hạn nộp đã nói ở câu trên. */
+    // Câu hình thức xử lý dựng ở lateNowHtml (từ khóa in đậm theo model); ở đây chỉ cần biết lần này có hình thức hay không
+    var hasNow = r.consequence.length > 0;
     return '<div class="yer-note yer-late-note"><i class="bx bx-time-five"></i><div class="yer-late-note-body">' +
       '<div class="yer-late-note-title">' + L('Bạn đã quá hạn Tự đánh giá cuối năm - Lần nhắc thứ ' + r.round,
                      'Your Year-End self assessment is overdue - Reminder ' + r.round) + '</div>' +
-      '<ul class="yer-note-list">' + info.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' +
-      '<div class="yer-late-steps-lead">' + L('Bạn cần làm 2 bước:','Two steps to complete:') + '</div>' +
-      '<ol class="yer-late-steps">' +
-        // Câu chữ chị chốt 07/10/2026: giữ ý chính, không nói thiếu hay đủ bao nhiêu mục tiêu
-        '<li>' + L('Bổ sung mục tiêu còn thiếu tại tab ' + goalsLink + ' và chờ Quản lý trực tiếp duyệt.',
-                   'Add any missing goal in the ' + goalsLink + ' tab and wait for line manager approval.') + '</li>' +
-        '<li>' + L('Hoàn thành Tự đánh giá và gửi. Sau khi gửi, bạn không thể chỉnh sửa.',
-                   'Complete the self assessment and submit it. After submitting, you cannot edit it.') + '</li>' +
-      '</ol></div></div>';
+      L('Hạn Tự đánh giá đã kết thúc ngày ' + Y.fmt(Y.step('self').to, lg()) + ', <strong>trễ ' + days + ' ngày làm việc</strong>. Bạn cần hoàn thành nộp bổ sung trước <strong>18:00 ngày ' + deadline + '</strong>.',
+        'The self-assessment deadline was ' + Y.fmt(Y.step('self').to, lg()) + ', <strong>' + days + ' working days late</strong>. Submit your late file before <strong>18:00 on ' + deadline + '</strong>.') +
+      '<ul class="yer-note-list">' +
+        (hasNow ? '<li>' + L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + lateNowHtml(r) + '</li>' : '') +
+        '<li>' + L('<strong>Lưu ý:</strong> nếu quá hạn trên mà bạn vẫn chưa nộp, ','<strong>Note:</strong> if you still have not submitted by then, ') + esc(lateNextText(r)) + '</li>' +
+      '</ul>' +
+      /* Hai bước đánh số để người mới hiểu tick xác nhận là bước đầu tiên của việc nộp bổ sung,
+         còn nút ở bước 2 nói đúng việc sẽ làm (chốt 28/09/2026). */
+      '<div class="yer-late-note-act">' +
+        '<div class="yer-late-act-lead">' + L('<strong>Để nộp bổ sung Tự đánh giá</strong>, bạn thực hiện 2 bước:',
+                                              '<strong>To submit your late self assessment</strong>, complete 2 steps:') + '</div>' +
+        '<ol class="yer-late-act-steps">' +
+          (acked
+            ? '<li class="yer-late-act-step done"><span class="yer-late-act-no"><i class="bx bx-check"></i></span>' +
+                '<span class="yer-late-acked">' + L('Bạn đã xác nhận ngày ' + Y.fmt(lateAckOf(p).at, lg()),'Confirmed on ' + Y.fmt(lateAckOf(p).at, lg())) + '</span></li>'
+            : '<li class="yer-late-act-step"><span class="yer-late-act-no">1</span>' +
+                '<label class="yer-late-ack-check"><input type="checkbox" id="yer-late-ack-check">' +
+                '<span>' + L('Tôi đã đọc, hiểu và xác nhận tiếp tục.','I have read and understood, and wish to continue.') + '</span></label></li>') +
+          '<li class="yer-late-act-sep" aria-hidden="true"><i class="bx bx-right-arrow-alt"></i></li>' +
+          '<li class="yer-late-act-step"><span class="yer-late-act-no">2</span>' +
+            (acked
+              ? '<button type="button" class="btn btn-default btn-sm" id="yer-late-open"><i class="bx bx-cloud-upload"></i>' +
+                  L('Nộp bổ sung','Submit late file') + '</button>'
+              : '<button type="button" class="btn btn-default btn-sm" id="yer-late-ack-btn" disabled title="' +
+                  esc(L('Đánh dấu xác nhận ở bước 1 để tiếp tục','Tick the confirmation in step 1 to continue')) + '"><i class="bx bx-cloud-upload"></i>' +
+                  L('Nộp bổ sung','Submit late file') + '</button>') + '</li>' +
+        '</ol></div>' +
+      '</div></div>';
+  }
+
+  function lateApprovedGoals(p){
+    return (p.emp.goals || []).filter(function(g){
+      return g.status === 'approved' && deletedIds().indexOf(g.id) < 0;
+    });
+  }
+
+  function downloadLateTemplate(p){
+    var id = p.emp && p.emp.id;
+    var approved = lateApprovedGoals(p);
+    var filled = {
+      y9: 'YER-2026-Nguyen-Mai-Anh.xlsx',
+      y10: 'YER-2026-Tran-Quoc-Huy.xlsx',
+      y14: 'YER-2026-Dinh-Gia-Han.xlsx'
+    };
+    var hasApproved = approved.length > 0;
+    var fileName = hasApproved ? filled[id] : 'YER-2026-Mau-tu-danh-gia.xlsx';
+    if(!fileName){
+      U.toast(L('Chưa có file mẫu cho hồ sơ này. Vui lòng liên hệ HR.','No template is available for this profile. Please contact HR.'));
+      return;
+    }
+    var link = document.createElement('a');
+    link.href = '../assets/templates/' + fileName;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    U.toast(hasApproved
+      ? L('Đã tải Template kèm toàn bộ mục tiêu đã duyệt','Downloaded the template with all approved goals')
+      : L('Đã tải file mẫu trống','Downloaded the blank template'));
+  }
+
+  /* Nội dung popup nộp bổ sung: ba bước tải lên như bản cũ, mở sau khi đã xác nhận thông báo */
+  function lateUploadBlock(p){
+    var selected = lateFileDraft && lateFileDraft.name;
+    return '<section class="yer-late-upload" aria-label="' + esc(L('Các bước nộp bổ sung','Late submission steps')) + '">' +
+        '<p class="yer-late-lead">' + L('Hoàn thành 3 bước dưới đây trước <strong>18:00 ngày ' + Y.fmt(p.lateRound.deadline, lg()) + '</strong>.',
+                                         'Complete the 3 steps below before <strong>18:00 on ' + Y.fmt(p.lateRound.deadline, lg()) + '</strong>.') + '</p>' +
+        '<ol class="yer-flow">' +
+          '<li class="yer-flow-step">' +
+            '<div class="yer-flow-head"><span class="yer-flow-icon" aria-hidden="true"><i class="bx bx-download"></i></span><span class="yer-flow-no">' + L('Bước 1','Step 1') + '</span></div>' +
+            '<div class="yer-flow-copy"><div class="yer-flow-line"><strong class="yer-flow-title">' + L('Tải xuống Template và điền thông tin theo đúng định dạng','Download the template and complete it in the required format') + '</strong>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="yer-late-template"><i class="bx bx-download"></i>' + L('Tải Template','Download template') + '</button></div></div>' +
+          '</li>' +
+          '<li class="yer-flow-step yer-flow-info">' +
+            '<div class="yer-flow-head"><span class="yer-flow-icon" aria-hidden="true"><i class="bx bx-edit-alt"></i></span><span class="yer-flow-no">' + L('Bước 2','Step 2') + '</span></div>' +
+            '<div class="yer-flow-copy"><strong class="yer-flow-title">' + L('Điền đủ Mục tiêu đã thống nhất với Quản lý trực tiếp và hoàn thiện phần Tự đánh giá','Complete the goals agreed with your line manager and finish the self assessment') + '</strong>' +
+            '<span class="yer-flow-note"><i class="bx bx-info-circle"></i>' + L('Quản lý không duyệt lại mục tiêu trên hệ thống với trường hợp nhân viên trễ hạn Tự đánh giá.','Goals are not reapproved in the system when an employee submits a late self assessment.') + '</span></div>' +
+          '</li>' +
+          '<li class="yer-flow-step">' +
+            '<div class="yer-flow-head"><span class="yer-flow-icon" aria-hidden="true"><i class="bx bx-cloud-upload"></i></span><span class="yer-flow-no">' + L('Bước 3','Step 3') + '</span></div>' +
+            '<div class="yer-flow-copy"><div class="yer-flow-line"><strong class="yer-flow-title">' + L('Tải lên tập tin đã điền thông tin','Upload the completed file') + '</strong>' +
+            '<input type="file" id="yer-late-file" accept=".xlsx,.xls" hidden>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="yer-late-choose"><i class="bx bx-cloud-upload"></i>' + L('Chọn file','Choose file') + '</button></div>' +
+            '<div class="yer-late-selected" id="yer-late-selected"' + (selected ? '' : ' hidden') + '>' +
+              '<span class="yer-late-selected-name"><i class="bx bx-check-circle"></i><span id="yer-late-file-name">' + (selected ? esc(selected) : '') + '</span></span>' +
+              '<button type="button" class="yer-late-remove" id="yer-late-remove" aria-label="' + L('Xóa file','Remove file') + '" title="' + L('Xóa file','Remove file') + '"><i class="bx bx-trash" aria-hidden="true"></i></button>' +
+            '</div></div>' +
+          '</li>' +
+        '</ol>' +
+        '<div class="yer-late-footer"><button type="button" class="btn btn-default" id="yer-late-submit"><i class="bx bx-send"></i>' + L('Gửi Quản lý trực tiếp','Send to line manager') + '</button></div>' +
+      '</section>';
+  }
+
+  var lateDlg = null;
+  function openLateDialog(p){
+    if(lateDlg) lateDlg.close();
+    lateDlg = U.dialog({
+      className: 'yer-late-dialog',
+      title: L('Nộp bổ sung hồ sơ Đánh giá cuối năm','Submit your late Year-End Review file'),
+      html: lateUploadBlock(p),
+      buttons: [],
+      onDismiss: function(){ lateDlg = null; }
+    });
+    bindLateFlow(p);
+  }
+
+  function bindLateFlow(p){
+    var lateChoose = el('yer-late-choose');
+    var lateInput = el('yer-late-file');
+    var lateRemove = el('yer-late-remove');
+    var lateTemplate = el('yer-late-template');
+    if(lateTemplate) lateTemplate.addEventListener('click', function(){ downloadLateTemplate(p); });
+    if(lateChoose && lateInput) lateChoose.addEventListener('click', function(){
+      lateInput.value = '';
+      lateInput.click();
+    });
+    if(lateRemove) lateRemove.addEventListener('click', function(){
+      lateFileDraft = null;
+      if(lateInput) lateInput.value = '';
+      updateLateFileUi();
+    });
+    if(lateInput) lateInput.addEventListener('change', function(){
+      if(!lateInput.files || !lateInput.files[0]) return;
+      var file = lateInput.files[0];
+      if(!/\.(xlsx|xls)$/i.test(file.name)){
+        U.toast(L('Vui lòng chọn file Excel .xlsx hoặc .xls','Please choose an Excel .xlsx or .xls file'));
+        lateInput.value = '';
+        return;
+      }
+      lateFileDraft = { name:file.name, size:file.size, sample:false };
+      updateLateFileUi();
+    });
+    var lateSubmit = el('yer-late-submit');
+    if(lateSubmit) lateSubmit.addEventListener('click', function(){ submitLate(p); });
+  }
+
+  function latePayload(p, fileName){
+    function cloneGoal(type, fallback){
+      var found = (p.emp.goals || []).filter(function(g){ return g.type === type && g.status === 'approved'; })[0];
+      return found ? Object.assign({}, found, { status:'imported' }) : fallback;
+    }
+    var what = cloneGoal('what', { id:'late-' + p.id + '-what', type:'what', title:L('Hoàn thành mục tiêu công việc năm 2026','Deliver 2026 work objectives'), result:L('Hoàn thành các kết quả đã thống nhất với Quản lý trực tiếp.','Deliver the results previously agreed with the line manager.'), status:'imported', s:'01/01', e:'31/12', prio:'h', comments:[] });
+    var dev = cloneGoal('dev', { id:'late-' + p.id + '-dev', type:'dev', title:L('Phát triển năng lực chuyên môn','Develop professional capability'), result:L('Hoàn thành kế hoạch phát triển đã thống nhất với Quản lý trực tiếp.','Complete the development plan previously agreed with the line manager.'), status:'imported', s:'01/01', e:'31/12', prio:null, comments:[] });
+    var goals = [what, dev];
+    var scores = {}; scores[what.id] = 4; scores[dev.id] = 3;
+    return {
+      goals: goals,
+      self: {
+        at:S.session().date, late:true, source:'file-import', fileName:fileName,
+        goalScores:scores, howScores:[4,3,4,4,3],
+        comments:{
+          what:L('Đã hoàn thành các kết quả chính theo cam kết trong năm.','Completed the key results committed for the year.'),
+          dev:L('Đã thực hiện kế hoạch phát triển và áp dụng vào công việc.','Completed the development plan and applied it at work.'),
+          how:L('Chủ động phối hợp, chịu trách nhiệm và duy trì tinh thần học hỏi.','Collaborated proactively, took ownership and maintained a learning mindset.')
+        },
+        overall:{ score:3.5, comment:L('Hoàn thành phần lớn mục tiêu và tiếp tục có cơ hội phát triển trong năm tới.','Completed most goals with further development opportunities for next year.') }
+      }
+    };
   }
 
   /* ═══ RENDER ═════════════════════════════════════════ */
@@ -702,9 +848,9 @@
     var editable = st.canEdit;
     var html = '';
 
-    /* Quá hạn và còn trong bốn lần nhắc (§27.1, §27.3): màn vẫn như bình thường, khối thông báo quá hạn đứng trên cùng.
-       Các ô mở để làm ngay (selfAssessmentState mode 'late'). Mục tiêu còn thiếu đã nằm ở bước 1 của khối
-       này nên không dựng thêm khối cảnh báo thiếu mục tiêu. */
+    /* Quá hạn và còn trong bốn lần nhắc (§27.3): màn vẫn như bình thường nhưng mọi ô đều khóa
+       (editable = false vì hết hạn), khối thông báo quá hạn đứng trên cùng. Mục tiêu còn thiếu
+       đi theo file nộp bổ sung nên không dựng thêm khối cảnh báo thiếu mục tiêu. */
     // Thai sản không bắt buộc tự đánh giá (§12) nên không vào luồng nộp bổ sung.
     var lateOpen = !p.self && p.lateWindowOpen && !p.resigned && !p.maternity && !!p.lateRound;
     if(lateOpen) html += lateNoteBlock(p);
@@ -767,22 +913,20 @@
     // Chỉ một box thông tin (§40.5a): các khối phía trên đã hiện thì không dựng thêm
     if(lateClosed && !hasWarnNote){
       var lateEnd = Y.fmt(Y.lateSubmissionDeadline(), lg());
-      /* Cùng cấu trúc với khối quá hạn (chốt 07/10/2026): tiêu đề, rồi các dòng có nhãn. Thiếu mục tiêu (nv21) thêm dòng Kết quả:
-         quy trình dừng vì cấp quản lý không đánh giá tiếp được, hồ sơ không có điểm. Đủ mục tiêu (nv20) dùng câu kỷ luật của model. */
-      var missingClosed = p.eligibility.reason === 'missing-goal';
-      var closedItems = [L('<strong>Hạn nộp bổ sung:</strong> đã kết thúc lúc <strong>18:00 ngày ' + lateEnd + '</strong>.',
-                           '<strong>Late submission deadline:</strong> closed at <strong>18:00 on ' + lateEnd + '</strong>.')];
-      if(missingClosed) closedItems.push(L('<strong>Kết quả:</strong> Vì còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, các bước đánh giá tiếp theo của cấp quản lý sẽ không thể tiếp tục. ' +
-            'Quy trình Đánh giá cuối năm của bạn chính thức dừng tại đây và không có điểm trên hệ thống.',
-          '<strong>Result:</strong> Because an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is still missing, the next review steps by your managers cannot proceed. ' +
-            'Your Year-End Review ends here and has no rating in the system.'));
-      closedItems.push(L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + (missingClosed
-        ? L('Việc không tuân thủ tiến độ này sẽ được xem xét và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động.',
-            'Not keeping to this schedule will be reviewed and suitable disciplinary action applied under the Labour Regulations.')
-        : esc(Y.lateText('discipline', lg()))));
-      html += '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div class="yer-late-note-body">' +
-        '<div class="yer-late-note-title">' + L('Bạn đã không nộp bổ sung Tự đánh giá sau 4 lần nhắc nhở','You did not submit the self assessment after 4 reminders') + '</div>' +
-        '<ul class="yer-note-list">' + closedItems.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' +
+      html += '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div>' +
+        '<strong>' + L('Thời gian nộp bổ sung Tự đánh giá đã kết thúc lúc 18:00 ngày ' + lateEnd + '.',
+                       'The late self-assessment window closed at 18:00 on ' + lateEnd + '.') + '</strong><br>' +
+        L('Bạn đã không nộp sau 4 lần nhắc nhở. ','You did not submit after 4 reminders. ') +
+        /* Thiếu mục tiêu (nv21, chốt 28/09/2026): nói rõ quy trình dừng hẳn vì cấp quản lý không chấm
+           tiếp được, hồ sơ không có điểm. Đủ mục tiêu (nv20) giữ câu kỷ luật chung của model. */
+        (p.eligibility.reason === 'missing-goal'
+          ? L('Vì còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, các bước đánh giá tiếp theo của cấp quản lý sẽ không thể tiếp tục. ' +
+                'Quy trình Đánh giá cuối năm của bạn chính thức dừng tại đây và không có điểm trên hệ thống. ' +
+                'Việc không tuân thủ tiến độ này sẽ được xem xét và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động.',
+              'Because an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is still missing, the next review steps by your managers cannot proceed. ' +
+                'Your Year-End Review ends here and has no rating in the system. ' +
+                'Not keeping to this schedule will be reviewed and suitable disciplinary action applied under the Labour Regulations.')
+          : esc(Y.lateText('discipline', lg()))) +
         '</div></div>';
     }
 
@@ -871,6 +1015,26 @@
     var hist = el('yer-btn-history');
     if(hist) hist.addEventListener('click', function(){ historyDialog(p); });
     bindFloatingToolbar();
+    // Khối thông báo quá hạn: đánh dấu đã đọc rồi mới xác nhận được (§27.3)
+    var ackCheck = el('yer-late-ack-check');
+    var ackBtn = el('yer-late-ack-btn');
+    if(ackCheck && ackBtn){
+      var ackTip = ackBtn.title;
+      ackCheck.addEventListener('change', function(){
+        ackBtn.disabled = !ackCheck.checked;
+        ackBtn.title = ackCheck.checked ? '' : ackTip;
+      });
+      ackBtn.addEventListener('click', function(){
+        if(!ackCheck.checked) return;
+        var s = S.session();
+        lateAckMem[p.id + ':' + p.lateRound.round] = { at: s.date };
+        render();
+        // Xác nhận xong thì mở ngay popup hướng dẫn các bước nộp bổ sung
+        openLateDialog(prof());
+      });
+    }
+    var lateOpenBtn = el('yer-late-open');
+    if(lateOpenBtn) lateOpenBtn.addEventListener('click', function(){ openLateDialog(p); });
     // Menu tải kết quả: đóng mở bằng toggleDownloadMenu của E-05, bấm ra ngoài thì E-05 tự đóng
     var dl = el('yer-dl');
     if(dl) dl.addEventListener('click', function(ev){
@@ -884,6 +1048,49 @@
           ? L('Đang chuẩn bị file PDF kết quả đánh giá','Preparing the result PDF')
           : L('Đang chuẩn bị file Excel kết quả đánh giá','Preparing the result Excel file'));
       });
+    });
+  }
+
+  function updateLateFileUi(){
+    var selected = el('yer-late-selected');
+    var name = el('yer-late-file-name');
+    var choose = el('yer-late-choose');
+    if(selected) selected.hidden = !lateFileDraft;
+    if(name) name.textContent = lateFileDraft ? lateFileDraft.name : '';
+    if(choose) choose.innerHTML = '<i class="bx bx-cloud-upload"></i>' + L('Chọn file','Choose file');
+  }
+
+  function submitLate(p){
+    if(!lateFileDraft){
+      U.dialog({ title:L('Chưa chọn file','No file selected'),
+        text:L('Hãy chọn một file Excel gồm đầy đủ mục tiêu và nội dung tự đánh giá.','Choose one Excel file containing both goals and the self assessment.'),
+        buttons:[{ label:L('Đã hiểu','Got it'), variant:'default' }] });
+      return;
+    }
+    U.dialog({
+      className:'yer-late-confirm-dialog',
+      title:L('Gửi nội dung Tự Đánh giá cuối năm','Submit Year-End Self Assessment'),
+      html:L('<div class="yer-late-confirm-copy"><p>Bạn xác nhận <strong>các mục tiêu</strong> trong file <strong>đã được thống nhất</strong> với Quản lý trực tiếp.</p><p><strong>Bạn chỉ có 1 lần gửi duy nhất.</strong></p><p>Sau khi gửi Tự đánh giá, bạn <strong>không thể thu hồi hoặc chỉnh sửa</strong> bất cứ nội dung nào.</p>' +
+             '<p>Hồ sơ được ghi nhận <strong>trễ ' + Y.lateDays(p.now) + ' ngày làm việc</strong>, nộp ở <strong>lần nhắc thứ ' + p.lateRound.round + '</strong>.' + (p.lateRound.consequence.length ? ' ' + lateNowHtml(p.lateRound) : '') + '</p></div>',
+             '<div class="yer-late-confirm-copy"><p>You confirm that <strong>the goals</strong> in the file <strong>were agreed</strong> with your line manager.</p><p><strong>You can submit only once.</strong></p><p>After submitting your self assessment, you <strong>cannot withdraw or edit</strong> any content.</p>' +
+             '<p>This is recorded as <strong>' + Y.lateDays(p.now) + ' working days late</strong>, at <strong>reminder ' + p.lateRound.round + '</strong>.' + (p.lateRound.consequence.length ? ' ' + lateNowHtml(p.lateRound) : '') + '</p></div>'),
+      buttons:[
+        { label:L('Kiểm tra lại','Review again'), variant:'quiet' },
+        { label:L('Xác nhận và Gửi','Confirm and submit'), variant:'default', icon:'bx-send', act:function(){
+            var s = S.session();
+            var payload = latePayload(p, lateFileDraft.name);
+            var late = { at:s.date, fileName:lateFileDraft.name, source:'employee-late', goals:payload.goals };
+            S.setAct(s.emp, 'importedGoals', late);
+            S.setAct(s.emp, 'lateSubmission', late);
+            S.setAct(s.emp, 'self', payload.self);
+            S.clearAct(s.emp, 'selfDraft');
+            lateFileDraft = null;
+            if(lateDlg){ lateDlg.close(); lateDlg = null; }
+            U.dirty.clear();
+            U.toast(L('Gửi hồ sơ cho Quản lý trực tiếp thành công','File sent to your line manager successfully'));
+            render();
+          } }
+      ]
     });
   }
 
@@ -1035,7 +1242,6 @@
     }
     missKeys = [];
     var st = Y.selfAssessmentState(p);
-    if(st.mode === 'late'){ confirmLateSubmit(p); return; }
     var again = st.mode === 'editing';
     var deadline = Y.fmt(st.deadline, lg());
     /* Mỗi ý một gạch đầu dòng, hạn chỉnh sửa in đậm (chốt 28/09/2026) */
@@ -1067,44 +1273,6 @@
             U.toast(again ? L('Đã gửi lại tự đánh giá','Self assessment resubmitted') : L('Đã gửi tự đánh giá','Self assessment submitted'));
             render();
             // Gửi xong thì đưa nhân viên lên banner xanh đầu tab để thấy ngay kết quả (chốt 28/09/2026)
-            var banner = document.querySelector('#yer-root .submit-banner');
-            if(banner) banner.scrollIntoView({ behavior:'smooth', block:'center' });
-          } }
-      ]
-    });
-  }
-
-  /* Gửi bản nộp bổ sung (§27.1, chốt 07/10/2026): ba ý của popup cũ, bỏ ý về file. Chỉ gửi một lần, không thu hồi,
-     không chỉnh sửa; hồ sơ ghi nhận số ngày trễ, lần nhắc và hình thức xử lý tại lúc gửi. Còn mục tiêu chờ duyệt thì
-     nói rõ các mục tiêu đó không được đánh giá. */
-  function confirmLateSubmit(p){
-    var r = p.lateRound;
-    var days = Y.lateDays(p.now);
-    var pend = Y.pendingGoals(p).length;
-    U.dialog({
-      className:'yer-late-confirm-dialog',
-      title:L('Gửi nội dung Tự Đánh giá cuối năm','Submit Year-End Self Assessment'),
-      html:L('<div class="yer-late-confirm-copy"><p><strong>Bạn chỉ có 1 lần gửi duy nhất.</strong></p>' +
-               '<p>Sau khi gửi Tự đánh giá, bạn <strong>không thể thu hồi hoặc chỉnh sửa</strong> bất cứ nội dung nào.</p>' +
-               '<p>Hồ sơ được ghi nhận <strong>trễ ' + days + ' ngày làm việc</strong>, nộp ở <strong>lần nhắc thứ ' + r.round + '</strong>.' + (r.consequence.length ? ' ' + lateNowHtml(r) : '') + '</p>' +
-               (pend ? '<p>Còn <strong>' + pend + ' mục tiêu đang chờ Quản lý trực tiếp duyệt</strong>. ' + (pend === 1 ? 'Mục tiêu này' : 'Các mục tiêu này') + ' không có trong bản Tự đánh giá bạn gửi và sẽ không được đánh giá.</p>' : '') +
-             '</div>',
-             '<div class="yer-late-confirm-copy"><p><strong>You can submit only once.</strong></p>' +
-               '<p>After submitting your self assessment, you <strong>cannot withdraw or edit</strong> any content.</p>' +
-               '<p>This is recorded as <strong>' + days + ' working days late</strong>, at <strong>reminder ' + r.round + '</strong>.' + (r.consequence.length ? ' ' + lateNowHtml(r) : '') + '</p>' +
-               (pend ? '<p><strong>' + pend + ' goal' + (pend === 1 ? ' is' : 's are') + ' awaiting line manager approval</strong>. They are not part of this self assessment and will not be rated.</p>' : '') +
-             '</div>'),
-      buttons:[
-        { label:L('Kiểm tra lại','Review again'), variant:'quiet' },
-        { label:L('Xác nhận và Gửi','Confirm and submit'), variant:'default', icon:'bx-send', act:function(){
-            var s = S.session();
-            var next = Object.assign({ at: s.date }, snapshotDraft());
-            appendLog({ type:'submit', overall: next.overall ? next.overall.score : null });
-            S.setAct(s.emp, 'self', next);
-            S.clearAct(s.emp, 'selfDraft');
-            U.dirty.clear();
-            U.toast(L('Đã gửi Tự đánh giá cho Quản lý trực tiếp','Self assessment sent to your line manager'));
-            render();
             var banner = document.querySelector('#yer-root .submit-banner');
             if(banner) banner.scrollIntoView({ behavior:'smooth', block:'center' });
           } }
@@ -1229,7 +1397,8 @@
     var isCur = v.no === total;
     var lines = it.type === 'resubmit' ? changeLines(it.changes) : [];
     return '<li class="yer-ver' + (isCur ? ' current' : '') + '">' +
-      '<div class="yer-ver-hd"><strong>' + esc(L('Lần gửi ' + v.no,'Submission ' + v.no)) + '</strong>' +
+      '<div class="yer-ver-hd"><strong>' + esc(L('Lần gửi ' + v.no,'Submission ' + v.no) +
+          (it.type === 'late-file' ? L(' (nộp bổ sung bằng file)',' (late file)') : '')) + '</strong>' +
         (isCur ? '<span class="yer-log-cur"><i class="bx bx-check"></i>' + L('Đang được ghi nhận','Current') + '</span>' : '') +
       '</div>' +
       '<div class="yer-ver-when"><i class="bx bx-time-five"></i>' + esc(L('Gửi ','Sent ') + logWhen(it)) + '</div>' +
@@ -1358,9 +1527,7 @@
     }
     if(myrHistory) syncMyrResult(p, myrDone);
     var cnt = el('tabcnt-goals');
-    if(cnt) cnt.textContent = (p.goals||p.emp.goals||[]).filter(function(g){ return deletedIds().indexOf(g.id) < 0; }).length;
-    // Tab Danh sách mục tiêu của nhân viên trễ hạn dựng từ dữ liệu, khóa Thu hồi (§27.1); hồ sơ khác giữ bản tĩnh
-    U.goalTab(p, { role: 'nv', active: Y.goalRecallLocked(p) });
+    if(cnt) cnt.textContent = (p.emp.goals||[]).filter(function(g){ return deletedIds().indexOf(g.id) < 0; }).length;
 
     var tabYer = el('tab-yer');
     if(tabYer){
@@ -1475,6 +1642,12 @@
         'border-bottom:1px solid var(--brand-ring);background:var(--brand-muted);color:var(--z900);font-size:16px;font-weight:700;letter-spacing:-.1px}' +
       '.yer-late-confirm-dialog .pms-dlg-tx{padding:16px 18px 18px}' +
       '.yer-late-confirm-dialog .pms-dlg-x{top:11px;right:14px}' +
+      '.yer-late-upload{margin-top:18px;border:1px solid var(--z200);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 3px 14px rgba(24,24,27,.05)}' +
+      // Khung các bước dùng chung ở yer-ui.js (.yer-flow, 05/10/2026); popup nộp bổ sung chỉ chỉnh lề
+      '.yer-late-selected{display:flex;align-items:center;gap:10px;min-width:0;margin-top:6px;font-size:10.5px}.yer-late-selected[hidden]{display:none}' +
+      '.yer-late-selected-name{display:flex;align-items:center;gap:4px;min-width:0;color:var(--ok);overflow:hidden;white-space:nowrap}.yer-late-selected-name>span{overflow:hidden;text-overflow:ellipsis}.yer-late-selected-name i{flex:none;font-size:13px}' +
+      '.yer-late-remove{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--z500);cursor:pointer}.yer-late-remove:hover{background:var(--err-bg);color:var(--err)}.yer-late-remove:focus-visible{outline:2px solid var(--brand);outline-offset:2px}.yer-late-remove i{font-size:14px}' +
+      '.yer-late-footer{display:flex;justify-content:flex-end;padding:0 22px 20px}' +
       // Nhóm nút Lưu nháp và Gửi nổi ở giữa mép dưới vùng nội dung khi chỗ cũ đã cuộn khuất
       '.yer-toolbar .yer-actions.floating{position:fixed;z-index:880;left:calc(var(--sw) + (100vw - var(--sw)) / 2);transform:translateX(-50%);' +
         'padding:8px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg)}' +
@@ -1510,17 +1683,31 @@
       '#yer-root .yer-late-note>i{color:var(--warn);font-size:18px}' +
       '#yer-root .yer-late-note strong{color:var(--z900);font-weight:700}' +
       '.yer-late-note-title{font-size:14.5px;font-weight:700;color:var(--z900);line-height:1.4;margin-bottom:3px}' +
-      // Hai bước viết theo dòng, đánh số, không đóng khung (chốt 07/10/2026)
-      '.yer-late-steps-lead{margin-top:10px;font-size:13px;font-weight:700;color:var(--z900)}' +
-      '.yer-late-steps{margin:4px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:3px}' +
-      '.yer-late-steps li{line-height:1.55}' +
-      '.yer-late-note .yer-note-list,.yer-late-closed .yer-note-list{margin-top:4px}' +
+      '.yer-late-note-act{margin-top:10px;padding-top:10px;border-top:1px solid var(--warn-bd)}' +
+      '.yer-late-act-lead{font-size:12.5px;color:var(--z800);margin-bottom:8px}' +
+      '.yer-late-act-steps{list-style:none;margin:0;padding:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}' +
+      '.yer-late-act-step{display:flex;align-items:center;gap:8px;min-height:30px}' +
+      '.yer-late-act-no{flex:none;display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;' +
+        'background:var(--z0);border:1px solid var(--warn-bd);color:var(--z900);font-size:11px;font-weight:700}' +
+      '.yer-late-act-step.done .yer-late-act-no{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok)}' +
+      '.yer-late-act-no i{font-size:13px}' +
+      '.yer-late-act-sep{display:inline-flex;color:var(--z500);font-size:16px}' +
+      '.yer-late-acked{font-size:12.5px;color:var(--z700)}' +
       '.yer-late-note .yer-late-note-body{flex:1;min-width:0}' +
       '.yer-late-csq{line-height:1.55}' +
       '.yer-late-csq strong{color:var(--z900);font-weight:700}' +
       // Hết cả bốn lần nhắc: cùng tông vàng cảnh báo với khối quá hạn
       '#yer-root .yer-note.yer-late-closed{background:var(--warn-bg);border-color:var(--warn-bd);color:var(--z800)}' +
       '#yer-root .yer-late-closed>i{color:var(--warn);font-size:18px}' +
+      // Popup nộp bổ sung: rộng hơn popup thường, không có chân popup vì nút Gửi nằm trong nội dung
+      '.yer-late-dialog{max-width:720px}' +
+      '.yer-late-dialog .pms-dlg-ft{display:none}' +
+      '.yer-late-dialog .yer-late-upload{margin:0;border:0;box-shadow:none;border-radius:0}' +
+      '.yer-late-dialog .yer-flow{margin:10px 0 16px}' +
+      '.yer-late-dialog .yer-late-footer{padding:0}' +
+      '.yer-late-lead{font-size:12.5px;color:var(--z700);margin-top:2px}' +
+      '.yer-late-ack-check{display:flex;align-items:center;gap:7px;margin:0;font-size:12.5px;font-weight:600;color:var(--z900);cursor:pointer}' +
+      '.yer-late-ack-check input{margin:0;width:15px;height:15px;accent-color:var(--brand)}' +
       '.btn[disabled]{opacity:.5;cursor:not-allowed}' +
       '.yer-late-closed strong{font-weight:700}' +
       '.yer-cv-desc{line-height:1.55}' +
@@ -1530,7 +1717,8 @@
       '.scmt-panel.yer-ro .ev-editor-wrap{box-shadow:none}' +
       '.yer-manager-score-gap{height:20px;margin-bottom:12px}' +
       '#yer-root .sc-cell .rt-ro,#yer-root .ql-cell .rt-ro{justify-content:center}' +
-      '#yer-root .ql-cell .rt-ro-score{font-size:13px}';
+      '#yer-root .ql-cell .rt-ro-score{font-size:13px}' +
+      '@media(max-width:620px){.yer-late-footer{padding:0 16px 16px}.yer-late-footer .btn{width:100%;justify-content:center}}';
     document.head.appendChild(st);
   }
 
@@ -1544,6 +1732,7 @@
     document.addEventListener('pms:demo-change', function(e){
       if(e.detail && (e.detail.reason === 'emp' || e.detail.reason === 'reset')){
         U.dirty.clear();
+        lateFileDraft = null;
         missKeys = [];
       }
       render();

@@ -81,7 +81,7 @@ Employee chip, loại mục tiêu, badge, core value, tooltip, feedback status, 
 ## 19. QUY TẮC CHUNG (bắt buộc)
 
 **19.0 Metadata separator.** TUYỆT ĐỐI không dùng ký tự middot `·` (U+00B7) ở bất kỳ text UI nào — status, chip, meta, hint, tách metadata. Luôn thay bằng dấu gạch ngang ngắn ` - ` (space-hyphen-space). Ví dụ: "Chưa đóng - sẽ đóng khi chia sẻ", KHÔNG "Chưa đóng · sẽ đóng khi chia sẻ".
-1. Chỉ dùng token đã định nghĩa; không hardcode hex. Ngoại lệ: header hồng `#fbe4f0`/`#f3cfe1`; hoạ tiết thư, phong bì, thiệp và bộ theme thiệp của E-04 (phần "delight", chốt 27/09/2026). Giá trị trùng token vẫn phải viết `var(--token)` (vd `#fff` là `var(--z0)`, chữ trắng trên nền hồng là `var(--brand-fg)`), bo góc 8/6/4px là `var(--r)`/`var(--rsm)`/`var(--rxs)`. **Ngoài phạm vi DS:** trang demo mascot (`YER-demo/mascot-tour.html`, `mascot-tour-v2.html`, `overdue-self-assessment.html`) và thanh công cụ demo (`assets/yer-demo.js`), vì không phải màn sản phẩm.
+1. Chỉ dùng token đã định nghĩa; không hardcode hex. Ngoại lệ: header hồng `#fbe4f0`/`#f3cfe1`; hoạ tiết thư, phong bì, thiệp và bộ theme thiệp của E-04 (phần "delight", chốt 27/09/2026). Giá trị trùng token vẫn phải viết `var(--token)` (vd `#fff` là `var(--z0)`, chữ trắng trên nền hồng là `var(--brand-fg)`), bo góc 8/6/4px là `var(--r)`/`var(--rsm)`/`var(--rxs)`. **Ngoài phạm vi DS:** trang demo mascot (`YER-demo/mascot-tour.html`, `mascot-tour-v2.html`) và thanh công cụ demo (`assets/yer-demo.js`), vì không phải màn sản phẩm.
 2. Bo góc: card/dialog `--r`(8) · control/badge `--rsm`(6)/`--rxs`(4) · pill/chip tròn 50px.
 3. Viền mặc định 1px z200; card nổi z300 + `--sh`.
 4. Khoảng cách block: 14–18px. Icon boxicons 13–16px, z500 (thường) / hồng (nhấn). Transition `--t`.

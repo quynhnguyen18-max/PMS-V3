@@ -158,54 +158,27 @@
   }
 
   /* ── Điều kiện tham gia kỳ ──────────────────────────────── */
-  /* lmGoals: mục tiêu QLTT thêm cho nhân viên thai sản (§33), tự `Đã duyệt` nên tính như mục tiêu đã duyệt.
-     goals: danh sách mục tiêu tại thời điểm xem (goalsAt), đã tính mục tiêu gửi duyệt trong kỳ (§27.1). */
-  function eligibility(emp, hr, seed, acts, lmGoals, goalsNow) {
+  /* lmGoals: mục tiêu QLTT thêm cho nhân viên thai sản (§33), tự `Đã duyệt` nên tính như mục tiêu đã duyệt */
+  function eligibility(emp, hr, seed, acts, lmGoals) {
     if (!emp) return { eligible: false, reason: 'not-found' };
     var hired = hr && hr.hired;
     if (hired && cmp(hired, TL.onboardCutoff) >= 0) {
       return { eligible: false, reason: 'late-onboard', hidden: true };
     }
-    var goals = (goalsNow || emp.goals || []).filter(function (g) { return g.status === 'approved'; }).concat(lmGoals || []);
-    // Dữ liệu cũ dùng boolean cho luồng thai sản (§33)
-    var importCoversAll = ((acts && acts.importedGoals) || (seed && seed.importedGoals)) === true;
-    var hasWhat = goals.some(function (g) { return g.type === 'what'; }) || importCoversAll;
-    var hasDev = goals.some(function (g) { return g.type === 'dev'; }) || importCoversAll;
+    var goals = (emp.goals || []).filter(function (g) { return g.status === 'approved'; }).concat(lmGoals || []);
+    var imported = (acts && acts.importedGoals) || (seed && seed.importedGoals);
+    var importedList = imported && imported.goals;
+    // Dữ liệu cũ dùng boolean cho luồng thai sản. File nộp trễ mới lưu rõ
+    // từng goal để cả màn NV và LM có thể đọc lại đúng nội dung đã import.
+    var importCoversAll = imported === true;
+    var hasWhat = goals.some(function (g) { return g.type === 'what'; }) || importCoversAll ||
+      !!(importedList && importedList.some(function (g) { return g.type === 'what'; }));
+    var hasDev = goals.some(function (g) { return g.type === 'dev'; }) || importCoversAll ||
+      !!(importedList && importedList.some(function (g) { return g.type === 'dev'; }));
     if (!hasWhat || !hasDev) {
       return { eligible: false, reason: 'missing-goal', missingWhat: !hasWhat, missingDev: !hasDev };
     }
     return { eligible: true };
-  }
-
-  /* ── Mục tiêu gửi duyệt trong kỳ cuối năm (§27.1, chốt 07/10/2026) ──
-     Seed `goalEvents` của từng hồ sơ: { id, type, title, result, prio, s, e, sentAt, approvedAt, updateAt }.
-       sentAt     ngày nhân viên gửi Quản lý trực tiếp duyệt (tạo mới, hoặc sửa xong và gửi lại)
-       approvedAt ngày Quản lý trực tiếp duyệt (trong timeline QLTT); chưa tới ngày này thì `pending`
-       updateAt   ngày Quản lý trực tiếp bấm `Yêu cầu cập nhật` một mục tiêu đã duyệt; từ ngày đó tới sentAt là `update`
-     Cùng id với mục tiêu sẵn có thì thay mục tiêu đó (sửa sau khi QLTT yêu cầu cập nhật), khác id là mục tiêu mới.
-     Mọi lần gửi duyệt sau hạn Tự đánh giá là **Mục tiêu nộp trễ** (`late`), kể cả mục tiêu cũ sửa và gửi lại. */
-  function goalsAt(emp, seed, now) {
-    var deadline = step('self').to;
-    var list = (emp.goals || []).map(function (g) { return Object.assign({}, g); });
-    (seed.goalEvents || []).forEach(function (ev) {
-      var started = (ev.updateAt && cmp(now, ev.updateAt) >= 0) || (ev.sentAt && cmp(now, ev.sentAt) >= 0);
-      if (!started) return;
-      var status = ev.sentAt && cmp(now, ev.sentAt) >= 0
-        ? (ev.approvedAt && cmp(now, ev.approvedAt) >= 0 ? 'approved' : 'pending')
-        : 'update';
-      var sent = status !== 'update';
-      var goal = Object.assign({}, ev, {
-        status: status,
-        late: sent && cmp(ev.sentAt, deadline) > 0,
-        sentAt: sent ? ev.sentAt : null,
-        approvedAt: status === 'approved' ? ev.approvedAt : null
-      });
-      delete goal.updateAt;
-      var at = -1;
-      list.forEach(function (g, i) { if (g.id === ev.id) at = i; });
-      if (at >= 0) list[at] = Object.assign({}, list[at], goal); else list.push(goal);
-    });
-    return list;
   }
 
   /* ── Hồ sơ đầy đủ tại một thời điểm ─────────────────────── */
@@ -224,14 +197,14 @@
     var hod = merge(seed.hod, acts.hod);
     var hrbpUpload = merge(seed.hrbpUpload, acts.hrbpUpload);
     var final = merge(seed.final, acts.final);
+    var lateSubmission = merge(seed.lateSubmission, acts.lateSubmission);
 
     // Sự kiện chỉ được coi là đã xảy ra nếu ngày hệ thống đã qua thời điểm đó
     function happened(block) { return block && block.at && cmp(now, block.at) >= 0; }
 
     // Mục tiêu QLTT thêm cho nhân viên thai sản (§33): { id, type, title, result, prio, s, e, at, time, via, by }
     var lmGoals = ((acts.lmGoals || {}).items || []).filter(function (g) { return g && g.at && cmp(now, g.at) >= 0; });
-    var goals = goalsAt(emp, seed, now);
-    var elig = eligibility(emp, hr, seed, acts, lmGoals, goals);
+    var elig = eligibility(emp, hr, seed, acts, lmGoals);
     var cycleOpen = step('self').from;
     var maternity = !!(hr.maternityFrom && cmp(cycleOpen, hr.maternityFrom) >= 0 &&
       (!hr.maternityTo || cmp(cycleOpen, hr.maternityTo) < 0)) || !!emp.maternity;
@@ -274,13 +247,11 @@
       return items;
     }
 
-    /* Nộp trễ (§27.1, chốt 07/10/2026): bản Tự đánh giá gửi sau hạn là bản nộp bổ sung. Nhân viên làm ngay trên màn,
-       không còn file; hồ sơ nộp bổ sung suy từ ngày gửi, không lưu riêng. */
-    var lateView = selfDone && cmp(self.at, step('self').to) > 0 ? { at: self.at, time: self.time || null } : null;
+    var lateView = happened(lateSubmission) ? lateSubmission : null;
     var lateOpen = lateWindowOpen(now);
     var lateClosed = cmp(now, lateSubmissionDeadline()) > 0;
-    // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: nhân viên còn bổ sung mục tiêu và Tự đánh giá
-    // tới hạn lần nhắc thứ tư, nằm trong timeline QLTT (§27.1, §27.3).
+    // Thiếu goal sau hạn Self chưa đồng nghĩa với dừng hồ sơ: NV còn một luồng riêng
+    // để import goal + self assessment tới hạn lần nhắc thứ tư, nằm trong timeline QLTT (§27.1, §27.3).
     // Thai sản không đi luồng nộp bổ sung (§12): QLTT thêm mục tiêu trong timeline của QLTT, nên không dừng ở đây
     var stopped = !elig.eligible && elig.reason === 'missing-goal' &&
       lateClosed && !lateView && !maternity;
@@ -301,7 +272,7 @@
       .filter(function (it) { return it && it.at && cmp(now, it.at) >= 0; });
     // Dòng suy ra lấy luôn giờ gửi của bản đã gửi: lịch sử lần gửi nào cũng có giờ (§8.2)
     if (!log.length && selfDone) {
-      log = [{ type: 'submit', at: self.at, time: self.time || null,
+      log = [{ type: self.source === 'file-import' ? 'late-file' : 'submit', at: self.at, time: self.time || null,
         overall: self.overall ? self.overall.score : null }];
     }
     if (selfDone && editAct && !selfOpenNow) {
@@ -326,8 +297,6 @@
       // dữ liệu chỉ đánh dấu đang nghỉ mà không ghi hạn.
       maternityTo: maternity ? (hr.maternityTo || null) : null,
       lmGoals: lmGoals,
-      // Mục tiêu tại thời điểm xem, gồm mục tiêu gửi duyệt trong kỳ (goalsAt): status, late
-      goals: goals,
       deletedGoalIds: ((acts.deletedGoals || {}).ids) || [],
       importedGoals: !!((acts && acts.importedGoals) || seed.importedGoals),
       importedGoalData: (acts && acts.importedGoals) || seed.importedGoals || null,
@@ -371,7 +340,7 @@
     if (p.eligibility.reason === 'late-onboard') return { key: 'out', label: t('Ngoài kỳ đánh giá', 'Out of cycle'), tone: 'muted' };
     if (p.resigned) return { key: 'resigned', label: t('Đã nghỉ việc', 'Resigned'), tone: 'muted' };
     // Thai sản không bắt buộc tự đánh giá (§12) nên không rơi vào luồng nộp trễ.
-    if (!p.self && p.lateWindowOpen && !p.maternity) return { key: 'late-self', label: t('Cần nộp bổ sung Tự đánh giá', 'Late self assessment needed'), tone: 'action' };
+    if (!p.self && p.lateWindowOpen && !p.maternity) return { key: 'late-upload', label: t('Cần nộp file trễ hạn', 'Late file submission needed'), tone: 'action' };
     if (p.stopped) return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
     if (p.published) return { key: 'published', label: t('Đã công bố kết quả', 'Results published'), tone: 'done' };
     if (p.hod) return { key: 'wait-tr', label: t('Chờ tải điểm cuối cùng', 'Awaiting final upload'), tone: 'muted' };
@@ -443,36 +412,18 @@
   }
 
   /* ── Mục tiêu dùng để đánh giá cuối năm (E-05 và M-06 cùng đọc, DS §20.1) ──
-     Mục tiêu đã duyệt tại thời điểm xem (p.goals, gồm mục tiêu nộp trễ đã duyệt, cờ `late`), trừ mục tiêu đã xóa,
-     + mục tiêu QLTT thêm cho nhân viên thai sản (§33, gắn byLm để màn hình phân biệt).
-     Đã gửi Tự đánh giá thì chỉ còn mục tiêu duyệt trước ngày gửi: mục tiêu duyệt sau đó không được chấm (§27.1). */
+     Mục tiêu đã duyệt của nhân viên (trừ mục tiêu đã xóa) + mục tiêu trong file nộp bổ sung (§27.1)
+     + mục tiêu QLTT thêm cho nhân viên thai sản (§33, gắn byLm để màn hình phân biệt). */
   function reviewGoals(p, type) {
     var deleted = p.deletedGoalIds || [];
-    var sentAt = p.self && p.self.at;
-    var out = (p.goals || p.emp.goals || []).filter(function (g) {
-      if (g.type !== type || g.status !== 'approved' || deleted.indexOf(g.id) >= 0) return false;
-      return !(sentAt && g.approvedAt && cmp(g.approvedAt, sentAt) > 0);
+    var out = (p.emp.goals || []).filter(function (g) {
+      return g.type === type && g.status === 'approved' && deleted.indexOf(g.id) < 0;
     });
-    (p.lmGoals || []).map(function (g) { return Object.assign({ byLm: true, status: 'approved' }, g); })
+    var imported = (p.lateSubmission && p.lateSubmission.goals) || [];
+    imported.concat((p.lmGoals || []).map(function (g) { return Object.assign({ byLm: true, status: 'approved' }, g); }))
       .filter(function (g) { return g.type === type; })
       .forEach(function (g) { if (!out.some(function (x) { return x.id === g.id; })) out.push(g); });
     return out;
-  }
-
-  /* ── Nhân viên trễ hạn Tự đánh giá (§27.1, chốt 07/10/2026) ──
-     Quá hạn Tự đánh giá mà chưa gửi trước hạn: còn trong bốn lần nhắc, đã nộp bổ sung, hay đã hết các lần nhắc đều tính.
-     Thai sản không đi luồng này (§12). Dùng cho khóa `Thu hồi` mục tiêu và nhãn Mục tiêu nộp trễ ở tab Danh sách mục tiêu. */
-  function lateCase(p) {
-    if (!p || p.maternity || p.resigned || p.eligibility.reason === 'late-onboard') return false;
-    if (stepState('self', p.now) !== 'closed') return false;
-    return !p.self || !!p.lateSubmission;
-  }
-  /* Khóa `Thu hồi` mục tiêu chỉ áp cho nhân viên trễ hạn (chị chốt 07/10/2026). Muốn sửa mục tiêu đã duyệt thì nhờ
-     Quản lý trực tiếp bấm `Yêu cầu cập nhật` mục tiêu đó; sửa xong gửi lại là Mục tiêu nộp trễ. */
-  function goalRecallLocked(p) { return lateCase(p); }
-  // Mục tiêu đang chờ Quản lý trực tiếp duyệt tại thời điểm xem
-  function pendingGoals(p) {
-    return (p && p.goals || []).filter(function (g) { return g.status === 'pending'; });
   }
 
   /* QLTT thêm mục tiêu (tải file hoặc nhập tay) cho nhân viên thai sản, dù nhân viên đã có, còn thiếu hay chưa có
@@ -648,7 +599,7 @@
     if (p.published) return 'completed';
     if (managerActionable(role, p)) return 'incomplete';
     var key = status(p, 'vi').key;
-    if ((key === 'need-self' || key === 'late-self') && managerStage(p.now) === 'self' && !managerReviewState(role, p).submitted) {
+    if ((key === 'need-self' || key === 'late-upload') && managerStage(p.now) === 'self' && !managerReviewState(role, p).submitted) {
       return 'incomplete';
     }
     return 'pending';
@@ -681,9 +632,8 @@
      mode: 'draft'     chưa gửi, còn hạn: nhập và lưu nháp được
            'submitted' đã gửi, còn hạn: mở lại để chỉnh sửa được
            'editing'   đã gửi rồi mở lại, còn hạn: bản đã gửi vẫn giữ tới khi gửi lại
-           'locked'    đã gửi, hết hạn (gồm bản nộp bổ sung, chỉ gửi một lần): chỉ xem
-           'late'      chưa gửi, quá hạn và còn trong bốn lần nhắc: nhập, lưu nháp, gửi một lần ngay trên màn (§27.1)
-           'closed'    chưa gửi, hết hạn và hết các lần nhắc
+           'locked'    đã gửi, hết hạn hoặc gửi bằng file nộp trễ: chỉ xem
+           'closed'    chưa gửi, hết hạn
            'none'      không thuộc kỳ hoặc đã nghỉ việc
      Thiếu mục tiêu vẫn nhập và lưu nháp được, chỉ không gửi được (submitBlock). */
   function selfAssessmentState(p) {
@@ -697,13 +647,9 @@
     var block = p.eligibility.reason === 'missing-goal' ? 'missing-goal' : null;
     if (p.self) {
       if (p.selfEditing) return out('editing', true, !block, false, block);
-      // Bản nộp bổ sung gửi sau hạn nên không bao giờ mở lại được: chỉ gửi một lần (§27.1)
-      return out(open ? 'submitted' : 'locked', false, false, open);
-    }
-    /* Quá hạn, còn trong bốn lần nhắc (§27.1, chốt 07/10/2026): nhân viên làm Tự đánh giá ngay trên màn, không có bước xác nhận
-       đã đọc. Thiếu mục tiêu đã duyệt thì vẫn lưu nháp, không gửi được. Thai sản không vào. */
-    if (!open && p.lateWindowOpen && !p.maternity && p.lateRound) {
-      return out('late', true, !block, false, block);
+      // File nộp trễ chỉ gửi một lần (§27.1), không mở lại được
+      var canReopen = open && p.self.source !== 'file-import';
+      return out(canReopen ? 'submitted' : 'locked', false, false, canReopen);
     }
     if (!open) return out('closed', false, false, false);
     return out('draft', true, !block, false, block);
@@ -743,16 +689,12 @@
     return 'active';
   }
 
-  /* Mục tiêu nhân viên còn phải thiết lập, cho nhãn tab Mục tiêu. Quá hạn Tự đánh giá thì nhân viên vẫn bổ sung mục tiêu ở
-     tab Danh sách mục tiêu tới hết bốn lần nhắc (§27.1, chốt 07/10/2026); hết các lần nhắc thì không còn việc để làm. */
+  /* Mục tiêu nhân viên còn phải thiết lập, cho nhãn tab Mục tiêu. Hết hạn tự đánh giá thì
+     mục tiêu còn thiếu đi theo file nộp trễ (§27.1), không bổ sung ở tab Mục tiêu nữa. */
   function goalAction(p) {
-    if (!p || p.eligibility.reason !== 'missing-goal' || p.self) return null;
-    if (stepState('self', p.now) === 'closed' && !(p.lateWindowOpen && !p.maternity)) return null;
-    // Loại mục tiêu đã gửi và đang chờ duyệt thì nhân viên đã làm phần của mình, không nhắc thiết lập nữa
-    var sent = {};
-    pendingGoals(p).forEach(function (g) { sent[g.type] = true; });
-    var need = { what: !!p.eligibility.missingWhat && !sent.what, dev: !!p.eligibility.missingDev && !sent.dev };
-    return need.what || need.dev ? need : null;
+    if (!p || p.eligibility.reason !== 'missing-goal') return null;
+    if (stepState('self', p.now) === 'closed') return null;
+    return { what: !!p.eligibility.missingWhat, dev: !!p.eligibility.missingDev };
   }
 
   /* ── Quyền xem điểm theo vai trò ────────────────────────── */
@@ -932,10 +874,6 @@
     nextManagerLog: nextManagerLog,
     lateMeasure: lateMeasure,
     reviewGoals: reviewGoals,
-    goalsAt: goalsAt,
-    lateCase: lateCase,
-    goalRecallLocked: goalRecallLocked,
-    pendingGoals: pendingGoals,
     canAddGoals: canAddGoals,
     overRatingCap: overRatingCap,
     lateMeasureText: lateMeasureText,

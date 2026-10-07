@@ -884,6 +884,11 @@ label.ev-tb-btn{cursor:pointer}
 .sc-cell .rt-trg{margin:0 auto}
 .rv-grid td.sc-cell,.rv-grid td.ql-cell{vertical-align:middle}
 </style>
+<style>
+/* Bản lưu trữ rule nộp trễ cũ (archive/yer-nop-tre-v1): dải thông báo trên cùng */
+.archive-strip{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;padding:8px 20px;background:var(--warn-bg);border-bottom:1px solid var(--warn-bd);color:var(--z900);font-size:13px;line-height:1.45}
+.archive-strip i{font-size:16px;color:var(--warn);flex-shrink:0}
+</style>
 </head>
 <body>
 <div class="app">
@@ -900,20 +905,16 @@ label.ev-tb-btn{cursor:pointer}
 
   <div class="role-sw">
     <button class="role-btn on">Nhân viên</button>
-    <button class="role-btn" onclick="pmsGoRole('lm','../M-05/index.html')">Quản lý</button>
-    <button class="role-btn" onclick="location.href='../H-05/index.html'">HR</button>
+    <button class="role-btn" onclick="pmsGoRole('lm','../M-06/index.html')">Quản lý</button>
   </div>
 
   <nav class="sb-nav">
     <span class="sb-grp">Tổng quan</span>
     <div class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</div>
-    <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
-    <div class="sb-item on"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</div>
-    <div class="sb-item" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</div>
-    <div class="sb-item" onclick="location.href='../demo-delight/feedback-delight-demo.html'"><i class="bx bx-gift"></i>New Demo Feedback</div>
     <span class="sb-grp">Bản lưu trữ</span>
-    <div class="sb-item" onclick="location.href='../archive/yer-nop-tre-v1/E-05/index.html?demo=1'"><i class="bx bx-archive"></i>Nộp trễ rule cũ - Nhân viên</div>
-    <div class="sb-item" onclick="location.href='../archive/yer-nop-tre-v1/M-06/index.html?demo=1'"><i class="bx bx-archive"></i>Nộp trễ rule cũ - Quản lý</div>
+    <div class="sb-item on"><i class="bx bx-archive"></i>Nộp trễ rule cũ - Nhân viên</div>
+    <div class="sb-item" onclick="location.href='../M-06/index.html'"><i class="bx bx-archive"></i>Nộp trễ rule cũ - Quản lý</div>
+    <div class="sb-item" onclick="location.href='../../../E-05/index.html'"><i class="bx bx-left-arrow-alt"></i>Về bản hiện hành</div>
   </nav>
 
   <div class="sb-foot">
@@ -929,10 +930,11 @@ label.ev-tb-btn{cursor:pointer}
 
 <!-- ═══════ WORKSPACE ═══════ -->
 <div class="workspace">
+  <!-- Bản lưu trữ: dải thông báo luôn nằm trên cùng -->
+  <div class="archive-strip" role="note"><i class="bx bx-archive"></i><span><b>Bản lưu trữ</b> - rule nộp trễ trước ngày 07/10/2026. Chỉ để tham khảo, không cập nhật.</span></div>
 
   <!-- Top bar -->
   <header class="topbar">
-    <a href="/" style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--z500);text-decoration:none;padding:4px 8px;border-radius:var(--rsm);transition:var(--t);margin-right:4px;flex-shrink:0" onmouseover="this.style.background='var(--z100)';this.style.color='var(--z900)'" onmouseout="this.style.background='';this.style.color='var(--z500)'"><i class="bx bx-chevron-left" style="font-size:16px"></i>Home</a>
     <span class="topbar-title">Mục tiêu và Đánh giá cá nhân</span>
     <div class="topbar-right">
       <span id="lang-slot" style="margin-right:6px"></span>
@@ -2412,8 +2414,6 @@ function openDetail(el) {
         cta.className = 'btn btn-default btn-sm';
         cta.onclick = function(){ closeOverlay('dlg-detail'); };
         cta.style.display = '';
-      } else if (el.dataset.recallLocked === '1') {
-        // Nhân viên trễ hạn Tự đánh giá: khóa Thu hồi (YER-SPEC §27.1, chốt 07/10/2026); sửa mục tiêu đã duyệt thì nhờ QLTT Yêu cầu cập nhật
       } else if (s === 'pending') {
         cta.innerHTML = '<i class="bx bx-undo"></i> Thu hồi';
         cta.className = 'btn btn-cta-outline btn-sm';
@@ -3274,7 +3274,7 @@ document.addEventListener('click',function(event){
 
 function downloadMyrPdf(){
   var link=document.createElement('a');
-  link.href='../assets/myr-results/e1.pdf?v=20260614-data';
+  link.href='../../../assets/myr-results/e1.pdf?v=20260614-data';
   link.download='ket-qua-myr-2026-nguyen-van-tu.pdf';
   document.body.appendChild(link);
   link.click();

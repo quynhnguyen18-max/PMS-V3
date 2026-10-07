@@ -355,7 +355,7 @@
     var key = st.key;
     var label = st.label;
 
-    if (key === 'need-self' || key === 'late-upload') {
+    if (key === 'need-self' || key === 'late-self') {
       label = L('Chưa tự đánh giá', 'Self assessment missing');
     } else if (key === 'maternity') {
       // Thai sản là thông tin hồ sơ (đã có badge ở cột Nhân viên), cột Trạng thái nói việc đang chờ

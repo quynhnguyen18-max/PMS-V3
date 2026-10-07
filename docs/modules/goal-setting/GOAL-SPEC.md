@@ -76,6 +76,9 @@ Tab đổi tên từ `Mục tiêu` thành `Danh sách mục tiêu` ngày 27/09/2
 | | `Hoàn thành` | Chỉ xem |
 
 - **GS-26** Thu hồi: `Chờ duyệt` → `Nháp`; `Đã duyệt` (chưa hoàn thành) → **`Cần cập nhật`**, nhân viên sửa rồi gửi lại. Mục tiêu `Hoàn thành` không thu hồi được. Trong kỳ YER, khóa theo YER-SPEC §29. (chị chốt 27/09/2026, code E-05 `recallGoal`)
+- **GS-26b** Nhân viên **trễ hạn Tự đánh giá cuối năm**: không có `Thu hồi` ở mọi trạng thái (thẻ, dòng, popup chi tiết); muốn sửa mục
+  tiêu đã duyệt thì nhờ QLTT bấm `Yêu cầu cập nhật` (GS-50). Mục tiêu gửi duyệt sau hạn Tự đánh giá có nhãn `Mục tiêu nộp trễ`.
+  Tab dựng từ hồ sơ YER (`PMSUi.goalTab`). Luật và câu chữ ở YER-SPEC §27.1. (chị chốt 07/10/2026)
 
 ### 4.3 Gửi hàng loạt
 
@@ -138,6 +141,7 @@ Tab đổi tên từ `Mục tiêu` thành `Danh sách mục tiêu` ngày 27/09/2
   |---|---|
   | `Chờ duyệt` | `Duyệt` (hộp xác nhận) - `Yêu cầu cập nhật` (ghi chú **tùy chọn**) - `Từ chối` (lý do **tùy chọn**, mục tiêu về `Từ chối`) |
   | `Đã duyệt`, NV đã tự đánh giá hoàn thành | `Đánh giá hoàn thành` |
+  | `Đã duyệt`, nhân viên trễ hạn Tự đánh giá cuối năm (YER-SPEC §27.1, chốt 07/10/2026) | `Yêu cầu cập nhật` (ở bảng và chân popup chi tiết); mục tiêu gửi duyệt sau hạn có nhãn `Mục tiêu nộp trễ` |
   | Còn lại | Chỉ `Xem chi tiết` |
 
 - **GS-51** Duyệt hàng loạt: chỉ duyệt mục `Chờ duyệt`. Chọn lẫn trạng thái thì cảnh báo `Chỉ x/y mục Chờ duyệt sẽ được duyệt`, không có mục chờ duyệt nào thì khóa nút. Có `Chọn tất cả Chờ duyệt`. (code M-01b)

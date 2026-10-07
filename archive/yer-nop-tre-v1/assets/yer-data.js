@@ -492,49 +492,36 @@
   };
 
   // s23-s25 — nhân viên quá hạn tự đánh giá, tách theo trạng thái goal
-  /* Nộp bổ sung ở từng lần nhắc (§27.1, §27.3, chốt lại 07/10/2026). Nhân viên làm Tự đánh giá ngay trên màn, không còn file.
-     Mỗi lần dùng một nhân viên ở hai thời điểm: ngày nhắc đầu tiên của lần đó thì CHƯA nộp (nv12 đến nv15, đi trọn luồng
-     được), ngày cuối của lần đó thì ĐÃ nộp theo bản dựng sẵn dưới đây (nv16 đến nv19).
-     Mục tiêu còn thiếu thì nhân viên gửi Quản lý trực tiếp duyệt như bình thường (goalEvents, xem goalsAt ở model);
-     gửi sau hạn Tự đánh giá là Mục tiêu nộp trễ. */
-  function lateSeed(scenario, at, scores, overall) {
+  /* Nộp bổ sung ở từng lần nhắc (§27.3). Mỗi lần dùng một nhân viên ở hai thời điểm:
+     ngày nhắc đầu tiên của lần đó thì CHƯA nộp (nv12 đến nv15, đi trọn luồng được),
+     ngày cuối của lần đó thì ĐÃ nộp theo bản dựng sẵn dưới đây (nv16 đến nv19).
+     Mục tiêu trong file vào thẳng hồ sơ, không qua duyệt. */
+  function lateSeed(scenario, at, fileName, goals, overall, scores) {
+    var goalScores = {};
+    goals.forEach(function (g, i) { goalScores[g.id] = scores[i] != null ? scores[i] : 3; });
     return {
       scenario: scenario,
-      self: ev(at, { goalScores: scores, howScores: [4, 3, 4, 3, 4],
+      importedGoals: { at: at, source: 'employee-late', fileName: fileName, goals: goals },
+      lateSubmission: { at: at, fileName: fileName, goals: goals },
+      self: ev(at, { late: true, source: 'file-import', fileName: fileName, goalScores: goalScores, howScores: [4, 3, 4, 3, 4],
         comments: { what: 'Các kết quả chính đã hoàn thành theo cam kết đầu năm.', dev: 'Đã hoàn thành kế hoạch phát triển và áp dụng vào công việc.', how: 'Chủ động phối hợp và giữ cam kết với các nhóm liên quan.' },
         overall: { score: overall, comment: 'Hoàn thành phần lớn mục tiêu, cần cải thiện việc cập nhật tiến độ đúng hạn.' } })
     };
   }
-  // Điểm từng mục tiêu theo thứ tự mục tiêu đã duyệt của hồ sơ
-  function scoresOf(id, list) {
-    var out = {};
-    goalsOf(id).forEach(function (g, i) { out[g.id] = list[i] != null ? list[i] : 3; });
-    return out;
-  }
   function goalsOf(id) {
     return ((window.PMS_EMPLOYEES || []).filter(function (e) { return e.id === id; })[0] || { goals: [] }).goals
-      .filter(function (g) { return g.status === 'approved'; });
+      .filter(function (g) { return g.status === 'approved'; })
+      .map(function (g) { return Object.assign({}, g, { status: 'imported' }); });
   }
-  Y.y9 = lateSeed('s23', '2027-01-20', scoresOf('y9', [4, 3]), 3.5);                        // lần 1, đủ mục tiêu
-  // Lần 2: mục tiêu công việc còn ở bản nháp, gửi duyệt sau hạn ngày 21/01 (nộp trễ), QLTT duyệt ngày 23/01
-  Y.y14 = lateSeed('s27', '2027-01-25', { yg36: 4, yg37: 3 }, 3.5);
-  Y.y14.goalEvents = [
-    { id: 'yg36', type: 'what', title: 'Giảm thời gian phản hồi yêu cầu của đối tác', result: 'Thời gian phản hồi trung bình dưới 3 giờ làm việc.',
-      prio: 'h', s: '01/01', e: '31/12', comments: [], sentAt: '2027-01-21', approvedAt: '2027-01-23' }
-  ];
-  // Lần 3: có bản nháp lưu từ trước hạn Tự đánh giá, quá hạn vẫn giữ để làm tiếp (nv14)
-  Y.e8 = lateSeed('s29', '2027-01-28', scoresOf('e8', [3, 3]), 3);
-  Y.e8.selfDraft = { at: '2027-01-15', goalScores: {}, howScores: { 0: 4, 1: 3 },
-    comments: { what: 'Đã hoàn thành phần lớn kế hoạch sản phẩm của năm.' }, overall: {} };
-  Y.e8.selfDraft.goalScores[goalsOf('e8')[0].id] = 3;
-  // Lần 4: QLTT yêu cầu cập nhật mục tiêu phát triển ngày 26/01, nhân viên sửa và gửi lại ngày 28/01 (nộp trễ), duyệt 29/01
-  Y.y16 = lateSeed('s28', '2027-02-02', { yg40: 3, yg41: 3 }, 3);
-  Y.y16.goalEvents = [
-    { id: 'yg41', type: 'dev', title: 'Nâng cao kỹ năng phân tích thử nghiệm A/B', result: 'Hoàn thành khóa học, thiết kế và đọc kết quả 3 thử nghiệm cho nhóm Wallet.',
-      prio: null, s: '01/03', e: '30/11', comments: [], updateAt: '2027-01-26', sentAt: '2027-01-28', approvedAt: '2027-01-29' }
-  ];
+  Y.y9 = lateSeed('s23', '2027-01-20', 'YER-2026-Nguyen-Mai-Anh.xlsx', goalsOf('y9'), 3.5, [4, 3]);    // lần 1
+  Y.y14 = lateSeed('s27', '2027-01-25', 'YER-2026-Dinh-Gia-Han.xlsx',                                   // lần 2, file bù mục tiêu công việc
+    [{ id: 'late-y14-what', type: 'what', title: 'Giảm thời gian phản hồi yêu cầu của đối tác', result: 'Thời gian phản hồi trung bình dưới 3 giờ làm việc.', status: 'imported', s: '01/01', e: '31/12', prio: 'h', comments: [] }]
+      .concat(goalsOf('y14')), 3.5, [4, 3]);
+  Y.e8 = lateSeed('s29', '2027-01-28', 'YER-2026-Nguyen-Thi-Hoa.xlsx',
+    goalsOf('e8'), 3, [3, 3]);                                                             // lần 3
+  Y.y16 = lateSeed('s28', '2027-02-02', 'YER-2026-Mac-Thuy-Dung.xlsx', goalsOf('y16'), 3, [3, 3]);     // lần 4
   // Danh sách Quản lý cấp 2, Trưởng đơn vị có hồ sơ nộp bổ sung lần 3 mà QLTT chấm vượt mức tối đa 3 (05/10/2026)
-  Y.e7 = lateSeed('s31', '2027-01-28', scoresOf('e7', [3, 3]), 3);
+  Y.e7 = lateSeed('s31', '2027-01-28', 'YER-2026-Dang-Quang-Vinh.xlsx', goalsOf('e7'), 3, [3, 3]);
   Y.e7.lm = ev('2027-02-05', { overall: { score: 3.5, comment: 'Kết quả tốt nhưng cần nộp hồ sơ đúng hạn.' },
     comments: { what: 'Các mục tiêu chính đạt yêu cầu.', dev: 'Có tiến bộ trong kế hoạch phát triển.', how: 'Phối hợp tốt với nhóm.' }, capConfirmed: { max: 3, score: 3.5, at: '2027-02-05' } });
   Y.e8.lm = ev('2027-02-05', { overall: { score: 3.5, comment: 'Kết quả đạt yêu cầu; cần cải thiện việc nộp hồ sơ đúng hạn.' },
@@ -544,38 +531,23 @@
   // QLTT gửi đánh giá cho hồ sơ nộp bổ sung ngày 05/02/2027 (tình huống `QLTT đã gửi trên hồ sơ nộp bổ sung`, 04/10/2026)
   Y.y16.lm = ev('2027-02-05', { overall: { score: 3, comment: 'Kết quả đạt yêu cầu; cần cải thiện việc cập nhật tiến độ và nộp hồ sơ đúng hạn.' },
     comments: { what: 'Các mục tiêu chính hoàn thành theo cam kết, số liệu đo lường rõ ràng.', dev: 'Có tiến bộ trong kế hoạch phát triển cá nhân.', how: 'Phối hợp tốt với các nhóm liên quan.' } });
-  Y.y10 = { scenario: 's24' };  // thiếu Development goal đã duyệt (mục tiêu phát triển còn ở bản nháp, không gửi duyệt)
-  /* Chưa có mục tiêu nào: quá hạn thì gửi hai mục tiêu ngày 20/01 (nộp trễ), QLTT duyệt ngày 25/01 (nv22, nv23).
-     Trước hạn (nv04) hai mục tiêu này chưa tồn tại. */
-  Y.y11 = {
-    scenario: 's25',
-    goalEvents: [
-      { id: 'yg42', type: 'what', title: 'Chuẩn hóa tài liệu yêu cầu cho nhóm sáng kiến mới', result: '100% yêu cầu mới có tài liệu theo mẫu chung, được nhóm phát triển xác nhận trước khi làm.',
-        prio: 'h', s: '01/01', e: '31/12', comments: [], sentAt: '2027-01-20', approvedAt: '2027-01-25' },
-      { id: 'yg43', type: 'dev', title: 'Nâng cao kỹ năng phân tích dữ liệu bằng SQL', result: 'Hoàn thành khóa SQL nâng cao và tự xây 2 báo cáo theo dõi chỉ số sản phẩm.',
-        prio: null, s: '01/03', e: '30/11', comments: [], sentAt: '2027-01-20', approvedAt: '2027-01-25' }
-    ]
-  };
-  // Đủ mục tiêu, gửi thêm một mục tiêu công việc ngày 26/01 (nộp trễ, lần nhắc 3), QLTT duyệt ngày 28/01 (nv24, lm11, lm12)
-  Y.y15 = Object.assign(Y.y15 || {}, {
-    goalEvents: [
-      { id: 'yg44', type: 'what', title: 'Tối ưu chi phí hạ tầng cho dịch vụ giới thiệu bạn bè', result: 'Giảm 15% chi phí hạ tầng hằng tháng mà không tăng độ trễ P95.',
-        prio: 'm', s: '01/10', e: '31/12', comments: [], sentAt: '2027-01-26', approvedAt: '2027-01-28' }
-    ]
-  });
+  Y.y10 = { scenario: 's24' };  // thiếu Development goal đã duyệt
+  Y.y11 = { scenario: 's25' };  // chưa có goal
 
-  // s26 — chưa có mục tiêu, quá hạn thì gửi hai mục tiêu (nộp trễ) ngày 20/01, QLTT duyệt 22/01, nhân viên nộp bổ sung ở lần nhắc 3.
+  // s26 — NV đã nộp file goal + self assessment trong timeline của LM.
+  // Goal import đi thẳng sang màn LM, không qua bước phê duyệt goal.
+  var LATE_Y12_GOALS = [
+    { id: 'late-y12-what', type: 'what', title: 'Giảm thời gian xử lý yêu cầu ưu tiên',
+      result: '90% yêu cầu ưu tiên được xử lý trong 4 giờ làm việc.', status: 'imported', s: '01/01', e: '31/12', prio: 'h', comments: [] },
+    { id: 'late-y12-dev', type: 'dev', title: 'Nâng cao năng lực phân tích dữ liệu vận hành',
+      result: 'Hoàn thành khóa Power BI và xây dựng 2 dashboard theo dõi chất lượng dịch vụ.', status: 'imported', s: '01/03', e: '30/11', prio: null, comments: [] }
+  ];
   Y.y12 = {
     scenario: 's26',
-    goalEvents: [
-      { id: 'late-y12-what', type: 'what', title: 'Giảm thời gian xử lý yêu cầu ưu tiên',
-        result: '90% yêu cầu ưu tiên được xử lý trong 4 giờ làm việc.', s: '01/01', e: '31/12', prio: 'h', comments: [],
-        sentAt: '2027-01-20', approvedAt: '2027-01-22' },
-      { id: 'late-y12-dev', type: 'dev', title: 'Nâng cao năng lực phân tích dữ liệu vận hành',
-        result: 'Hoàn thành khóa Power BI và xây dựng 2 dashboard theo dõi chất lượng dịch vụ.', s: '01/03', e: '30/11', prio: null, comments: [],
-        sentAt: '2027-01-20', approvedAt: '2027-01-22' }
-    ],
+    importedGoals: { at: '2027-01-28', source: 'employee-late', fileName: 'YER_2026_pham-thu-trang.xlsx', goals: LATE_Y12_GOALS },
+    lateSubmission: { at: '2027-01-28', fileName: 'YER_2026_pham-thu-trang.xlsx', goals: LATE_Y12_GOALS },
     self: ev('2027-01-28', {
+      late: true, source: 'file-import', fileName: 'YER_2026_pham-thu-trang.xlsx',
       goalScores: { 'late-y12-what': 4, 'late-y12-dev': 3 },
       howScores: [4, 3, 4, 4, 3],
       comments: {
@@ -677,10 +649,10 @@
       vi: 'Đang nghỉ thai sản', en: 'On maternity leave',
       wvi: 'Không bắt buộc tự đánh giá, nhưng vẫn làm được nếu muốn.',
       wen: 'Self assessment is not required, but is still available if wanted.' },
-    { id: 'nv06', g: 'r-nv', fresh: true, emp: 'y10', role: 'nv', date: '2027-01-22', screen: 'E-05',
-      vi: 'Quá hạn, thiếu mục tiêu phát triển - lần nhắc 2', en: 'Overdue, development goal missing - reminder 2',
-      wvi: 'Khối quá hạn ở lần nhắc 2. Nhập và lưu nháp được ngay, nút Gửi khóa tới khi mục tiêu được duyệt. Tab Danh sách mục tiêu không còn nút Thu hồi.',
-      wen: 'The overdue box at reminder 2. The employee can fill in and save a draft right away; Submit stays locked until the goal is approved. The Goal list tab has no Withdraw.' },
+    { id: 'nv06', g: 'r-nv', emp: 'y10', role: 'nv', date: '2027-01-22', screen: 'E-05',
+      vi: 'Thiếu mục tiêu và đã quá hạn tự đánh giá', en: 'Goal missing and self assessment overdue',
+      wvi: 'Quá hạn, đang ở lần nhắc thứ 2. Màn vẫn hiện đầy đủ nhưng các ô bị khóa; khối trên cùng báo quá hạn, xác nhận đã đọc rồi mở popup nộp bổ sung.',
+      wen: 'Overdue at the second reminder. The page shows as usual with locked fields; the top box explains, the employee confirms, then the late-file popup opens.' },
     { id: 'nv07', g: 'r-nv', emp: 'e10', role: 'nv', date: '2027-01-14', screen: 'E-05',
       vi: 'Đã gửi tự đánh giá - còn chỉnh sửa được', en: 'Submitted - still editable',
       wvi: 'Banner đã hoàn thành có nút Chỉnh sửa tới hết hạn tự đánh giá và nút Lịch sử chỉnh sửa.',
@@ -702,54 +674,42 @@
       wvi: 'Đã tự đánh giá, có điểm QLTT. Cuối trang có thêm ô nhận xét của Quản lý cấp 2 và Trưởng đơn vị, không hiện điểm của hai cấp này.',
       wen: 'Self assessment done with line-manager scores. A comment box from the second-level manager and HOD is added at the bottom, without their ratings.' },
     { id: 'nv12', g: 'r-nv', fresh: true, emp: 'y9', role: 'nv', date: '2027-01-19', screen: 'E-05',
-      vi: 'Quá hạn, đủ mục tiêu - lần nhắc 1', en: 'Overdue, goals complete - reminder 1',
-      wvi: 'Đi trọn luồng: khối quá hạn, làm Tự đánh giá ngay bên dưới rồi gửi một lần, cuối cùng là banner đã nộp bổ sung. Lần 1 chưa có hình thức xử lý.',
-      wen: 'The full flow: the overdue box, complete the self assessment below and submit once, then the late banner. Round 1 carries no measure.' },
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 1', en: 'Not submitted - reminder 1',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Lần 1 chưa áp dụng hình thức xử lý. Khối cảnh báo nói nếu quá hạn lần này thì hệ thống gửi nhắc nhở lần 2.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Round 1 carries no measure; the warning says reminder 2 follows if this round is missed.' },
     { id: 'nv13', g: 'r-nv', fresh: true, emp: 'y14', role: 'nv', date: '2027-01-22', screen: 'E-05',
-      vi: 'Quá hạn, đã gửi mục tiêu còn thiếu, đang chờ duyệt - lần nhắc 2', en: 'Overdue, missing goal sent and pending - reminder 2',
-      wvi: 'Mục tiêu công việc gửi duyệt ngày 21/01, sau hạn, nên có nhãn Mục tiêu nộp trễ và đang Chờ duyệt. Vẫn làm và lưu nháp được, chưa gửi được tới khi mục tiêu được duyệt.',
-      wen: 'The work goal was sent on 21/01, after the deadline, so it is a late goal awaiting approval. The employee can fill in and save a draft, but cannot submit until it is approved.' },
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 2', en: 'Not submitted - reminder 2',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Vẫn chưa áp dụng hình thức xử lý; nếu quá hạn lần này thì bắt đầu giới hạn điểm toàn diện tối đa là 3. File nộp bù luôn mục tiêu công việc còn thiếu.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. No measure yet; missing this round starts the rating cap. The file also supplies the missing work goal.' },
     { id: 'nv14', g: 'r-nv', fresh: true, emp: 'e8', role: 'nv', date: '2027-01-27', screen: 'E-05',
-      vi: 'Quá hạn, có bản nháp từ trước hạn - lần nhắc 3', en: 'Overdue with a draft saved before the deadline - reminder 3',
-      wvi: 'Bản nháp lưu ngày 15/01 vẫn còn để làm tiếp. Hình thức xử lý của lần này là điểm toàn diện tối đa 3; popup gửi nhắc lại lần nhắc, số ngày trễ, hình thức xử lý và mục tiêu còn chờ duyệt.',
-      wen: 'The draft saved on 15/01 is kept to continue. This round caps the overall rating at 3; the submit popup repeats the reminder, the days late, the measure and the goal still pending.' },
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 3', en: 'Not submitted - reminder 3',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Hình thức xử lý: điểm đánh giá toàn diện tối đa là 3; nếu quá hạn lần này thì có thể cắt giảm thưởng và tạm hoãn thăng chức, tăng lương.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Measure: rating capped at 3; missing this round may lead to a bonus cut and deferral.' },
     { id: 'nv15', g: 'r-nv', fresh: true, emp: 'y16', role: 'nv', date: '2027-02-01', screen: 'E-05',
-      vi: 'Quá hạn, mục tiêu sửa theo Yêu cầu cập nhật của QLTT - lần nhắc 4', en: 'Overdue, goal edited after an update request - reminder 4',
-      wvi: 'QLTT bấm Yêu cầu cập nhật mục tiêu phát triển ngày 26/01, nhân viên sửa và gửi lại ngày 28/01 nên mục tiêu có nhãn Mục tiêu nộp trễ. Hình thức xử lý: cắt giảm một phần tiền thưởng và tạm hoãn 6 tháng.',
-      wen: 'The manager requested an update of the development goal on 26/01; the employee sent it again on 28/01, so it is a late goal. Measure: bonus cut and a 6-month deferral.' },
-    { id: 'nv22', g: 'r-nv', fresh: true, emp: 'y11', role: 'nv', date: '2027-01-21', screen: 'E-05',
-      vi: 'Quá hạn, đã gửi 2 mục tiêu nộp trễ, đang chờ duyệt - lần nhắc 1', en: 'Overdue, 2 late goals sent and pending - reminder 1',
-      wvi: 'Chưa có mục tiêu nào trước hạn. Ngày 20/01 nhân viên gửi một mục tiêu công việc và một mục tiêu phát triển: cả hai có nhãn Mục tiêu nộp trễ, đang Chờ duyệt. Chưa gửi Tự đánh giá được.',
-      wen: 'No goals before the deadline. On 20/01 the employee sent one work goal and one development goal: both are late goals awaiting approval. The self assessment cannot be submitted yet.' },
-    { id: 'nv23', g: 'r-nv', fresh: true, emp: 'y11', role: 'nv', date: '2027-01-26', screen: 'E-05',
-      vi: 'Quá hạn, 2 mục tiêu nộp trễ đã được duyệt - lần nhắc 2', en: 'Overdue, 2 late goals approved - reminder 2',
-      wvi: 'Cùng hồ sơ với nv22: QLTT duyệt hai mục tiêu ngày 25/01, sau hạn Tự đánh giá. Hai mục tiêu vào bảng đánh giá, vẫn mang nhãn Mục tiêu nộp trễ; nhân viên làm và gửi được.',
-      wen: 'Same profile as nv22: the manager approved both goals on 25/01, after the deadline. They join the review table with the late goal label; the employee can complete and submit.' },
-    { id: 'nv24', g: 'r-nv', fresh: true, emp: 'y15', role: 'nv', date: '2027-01-27', screen: 'E-05',
-      vi: 'Quá hạn, đủ mục tiêu, còn 1 mục tiêu nộp trễ chờ duyệt - lần nhắc 3', en: 'Overdue, goals complete, 1 late goal pending - reminder 3',
-      wvi: 'Đủ mục tiêu đã duyệt nên gửi được. Popup gửi nói còn 1 mục tiêu đang chờ duyệt: mục tiêu này không có trong bản gửi và không được đánh giá.',
-      wen: 'Approved goals are complete, so the employee can submit. The submit popup says 1 goal is still pending: it is not in the submission and will not be rated.' },
+      vi: 'Chưa nộp - đang bị nhắc nhở lần 4', en: 'Not submitted - reminder 4',
+      wvi: 'Đi trọn luồng: khối cảnh báo, xác nhận đã đọc, popup nộp file, rồi banner đã nộp. Hình thức xử lý: cắt giảm một phần tiền thưởng và tạm hoãn thăng chức, tăng lương 6 tháng; quá hạn lần này thì có thể bị kỷ luật.',
+      wen: 'The full flow: warning box, confirmation, upload popup, then the submitted banner. Measure: bonus cut and a 6-month deferral; missing this round may lead to disciplinary action.' },
     { id: 'nv16', g: 'r-nv', fresh: true, emp: 'y9', role: 'nv', date: '2027-01-21', screen: 'E-05',
-      vi: 'Đã nộp bổ sung ở lần nhắc thứ 1', en: 'Late self assessment submitted at reminder 1',
-      wvi: 'Mở ra là màn đã nộp: banner ghi ngày gửi và nhãn Trễ hạn; lần này chưa có hình thức xử lý nên không có dòng lần nhắc. Không có nút Chỉnh sửa.',
-      wen: 'Opens on the submitted state: the banner shows the date and the Late label; no measure this round, so no reminder line. No Edit button.' },
+      vi: 'Đã nộp bổ sung ở lần nhắc thứ 1', en: 'Late file submitted at reminder 1',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn; lần này chưa có hình thức xử lý.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label; no measure in this round.' },
     { id: 'nv17', g: 'r-nv', fresh: true, emp: 'y14', role: 'nv', date: '2027-01-26', screen: 'E-05',
-      vi: 'Đã nộp bổ sung ở lần nhắc thứ 2', en: 'Late self assessment submitted at reminder 2',
-      wvi: 'Mở ra là màn đã nộp: banner ghi ngày gửi và nhãn Trễ hạn; mục tiêu công việc mang nhãn Mục tiêu nộp trễ. Lần này chưa có hình thức xử lý.',
-      wen: 'Opens on the submitted state: the banner shows the date and the Late label; the work goal carries the late goal label. No measure this round.' },
+      vi: 'Đã nộp bổ sung ở lần nhắc thứ 2', en: 'Late file submitted at reminder 2',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn; lần này chưa có hình thức xử lý.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label; no measure in this round.' },
     { id: 'nv18', g: 'r-nv', fresh: true, emp: 'e8', role: 'nv', date: '2027-01-29', screen: 'E-05',
-      vi: 'Đã nộp bổ sung ở lần nhắc thứ 3', en: 'Late self assessment submitted at reminder 3',
-      wvi: 'Mở ra là màn đã nộp: banner ghi ngày gửi, nhãn Trễ hạn và dòng hình thức xử lý nộp ở lần nhắc thứ 3.',
-      wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure for reminder 3.' },
+      vi: 'Đã nộp bổ sung ở lần nhắc thứ 3', en: 'Late file submitted at reminder 3',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn và hình thức xử lý theo quy định.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure.' },
     { id: 'nv19', g: 'r-nv', fresh: true, emp: 'y16', role: 'nv', date: '2027-02-03', screen: 'E-05',
-      vi: 'Đã nộp bổ sung ở lần nhắc thứ 4', en: 'Late self assessment submitted at reminder 4',
-      wvi: 'Mở ra là màn đã nộp: banner ghi ngày gửi, nhãn Trễ hạn và dòng hình thức xử lý nộp ở lần nhắc thứ 4.',
-      wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure for reminder 4.' },
+      vi: 'Đã nộp bổ sung ở lần nhắc thứ 4', en: 'Late file submitted at reminder 4',
+      wvi: 'Mở ra là màn đã nộp: banner ghi ngày nộp, nhãn Trễ hạn và hình thức xử lý theo quy định.',
+      wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure.' },
     { id: 'nv20', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-12', screen: 'E-05',
       vi: 'Không nộp sau 4 lần nhắc nhở', en: 'Not submitted after 4 reminders',
       wvi: 'Hết thời gian nộp bổ sung: chỉ còn một khối vàng báo đã hết hạn và hình thức kỷ luật, các ô đều khóa.',
       wen: 'The late window has closed: one yellow notice about the deadline and disciplinary action; all fields are locked.' },
-    // Cùng hồ sơ với nv06 nhưng đã qua hạn nộp bổ sung. fresh: bản nháp làm thử ở nv06 không lọt sang đây.
+    // Cùng hồ sơ với nv06 nhưng đã qua hạn nộp bổ sung. fresh: file đã nộp thử ở nv06 không lọt sang đây.
     { id: 'nv21', g: 'r-nv', fresh: true, emp: 'y10', role: 'nv', date: '2027-02-05', screen: 'E-05',
       vi: 'Thiếu mục tiêu và không nộp sau 4 lần nhắc nhở', en: 'Goal missing and not submitted after 4 reminders',
       wvi: 'Giống nv20 nhưng hồ sơ còn thiếu mục tiêu phát triển: cùng một khối vàng báo đã hết hạn, thêm dòng nói loại mục tiêu còn thiếu nên hồ sơ là Không đánh giá.',
@@ -789,7 +749,7 @@
       wvi: 'Khối hướng dẫn ba bước; QLTT thêm mục tiêu bằng file hoặc nhập tay, mục tiêu tự Đã duyệt, không sửa hay xóa được.',
       wen: 'The three-step guide; the manager adds goals by file or by hand, approved at once and not editable.' },
     { id: 'lm08', g: 'r-lm', sub: 'lm-in-std', emp: 'e13', role: 'lm', date: '2027-02-04', screen: 'M-06',
-      vi: 'NV quá hạn sau 4 lần nhắc, đủ mục tiêu: QLTT vẫn đánh giá', en: 'Not submitted after 4 reminders, goals complete: the manager still reviews',
+      vi: 'NV quá hạn sau 4 lần nhắc, đủ mục tiêu: QLTT vẫn đánh giá', en: 'No late file after 4 reminders, goals complete: the manager still reviews',
       wvi: 'Banner xám Nhân viên không Tự đánh giá; QLTT chấm dựa trên mục tiêu, cột điểm nhân viên để trống.',
       wen: 'Grey banner for the missing self assessment; the manager rates against the goals with an empty employee column.' },
     { id: 'lm09', g: 'r-lm', sub: 'lm-in-late', emp: 'y15', role: 'lm', date: '2027-01-20', screen: 'M-06',
@@ -800,32 +760,32 @@
       vi: 'NV chưa nộp, đang ở lần nhắc 2', en: 'Not submitted, reminder 2 open',
       wvi: 'Khối vàng Đang chờ nhân viên nộp bổ sung: lần nhắc 2, hạn nộp, chưa có hình thức xử lý. QLTT chưa chấm được.',
       wen: 'Yellow waiting block: reminder 2, its deadline, no measure yet. The manager cannot rate yet.' },
-    { id: 'lm11', g: 'r-lm', sub: 'lm-in-late', emp: 'y15', role: 'lm', date: '2027-01-27', screen: 'M-06', pair: 'nv24',
-      vi: 'NV chưa nộp, đang ở lần nhắc 3, có mục tiêu nộp trễ chờ duyệt', en: 'Not submitted at reminder 3, a late goal awaiting approval',
-      wvi: 'Khối vàng Đang chờ nhân viên nộp bổ sung: lần nhắc 3, hạn nộp, nộp ở lần này thì giới hạn điểm 3, và 1 mục tiêu nộp trễ đang chờ QLTT duyệt trong timeline của QLTT. QLTT chưa chấm được.',
-      wen: 'Yellow waiting block: reminder 3, its deadline, submitting now caps the rating at 3, and 1 late goal awaits approval within the manager timeline. The manager cannot rate yet.' },
+    { id: 'lm11', g: 'r-lm', sub: 'lm-in-late', emp: 'y15', role: 'lm', date: '2027-01-27', screen: 'M-06',
+      vi: 'NV chưa nộp, đang ở lần nhắc 3', en: 'Not submitted, reminder 3 open',
+      wvi: 'Khối vàng Đang chờ nhân viên nộp bổ sung: lần nhắc 3, hạn nộp, nộp ở lần này thì giới hạn điểm 3. QLTT chưa chấm được.',
+      wen: 'Yellow waiting block: reminder 3, its deadline, submitting now caps the rating at 3. The manager cannot rate yet.' },
     { id: 'lm12', g: 'r-lm', sub: 'lm-in-late', emp: 'y15', role: 'lm', date: '2027-02-01', screen: 'M-06',
       vi: 'NV chưa nộp, đang ở lần nhắc 4', en: 'Not submitted, reminder 4 open',
-      wvi: 'Khối vàng Đang chờ nhân viên nộp bổ sung: lần nhắc 4, hạn nộp, nộp ở lần này thì cắt giảm thưởng. Mục tiêu QLTT đã duyệt ngày 28/01 có nhãn Mục tiêu nộp trễ. QLTT chưa chấm được.',
+      wvi: 'Khối vàng Đang chờ nhân viên nộp bổ sung: lần nhắc 4, hạn nộp, nộp ở lần này thì cắt giảm thưởng. QLTT chưa chấm được.',
       wen: 'Yellow waiting block: reminder 4, its deadline, submitting now cuts the bonus. The manager cannot rate yet.' },
     { id: 'lm13', g: 'r-lm', sub: 'lm-in-late', emp: 'y10', role: 'lm', date: '2027-01-22', screen: 'M-06', pair: 'nv06',
       vi: 'NV chưa nộp, đang ở lần nhắc 2, còn thiếu mục tiêu', en: 'Not submitted at reminder 2, a goal missing',
       wvi: 'Khối vàng nói lần nhắc đang mở và loại mục tiêu còn thiếu; nếu hết các lần nhắc mà không nộp thì hồ sơ thành Không đánh giá.',
       wen: 'The yellow block names the open reminder and the missing goal type; if nothing arrives the profile becomes Not evaluated.' },
     { id: 'lm14', g: 'r-lm', sub: 'lm-in-late', emp: 'y9', role: 'lm', date: '2027-01-22', screen: 'M-06', pair: 'nv16',
-      vi: 'NV đã nộp bổ sung ở lần nhắc 1', en: 'Late self assessment submitted at reminder 1',
+      vi: 'NV đã nộp bổ sung ở lần nhắc 1', en: 'Late file submitted at reminder 1',
       wvi: 'Banner nộp bổ sung: ngày gửi và nhãn Trễ hạn; tầng dưới ghi lần nhắc, chưa có hình thức xử lý. QLTT chấm như luồng chuẩn.',
       wen: 'Late banner with the date and the Late label; the lower tier shows the reminder, no measure yet. The manager rates as usual.' },
     { id: 'lm15', g: 'r-lm', sub: 'lm-in-late', emp: 'y12', role: 'lm', date: '2027-01-29', screen: 'M-06',
-      vi: 'NV đã nộp bổ sung ở lần nhắc 3, giới hạn điểm 3', en: 'Late submission at reminder 3, rating capped at 3',
-      wvi: 'Hai mục tiêu nhân viên gửi sau hạn có nhãn Mục tiêu nộp trễ. Tầng dưới banner ghi lần nhắc và hình thức xử lý; khối vàng giới hạn điểm 3 trong ô Đánh giá toàn diện, chấm cao hơn 3 phải tick xác nhận khi gửi.',
+      vi: 'NV đã nộp bổ sung ở lần nhắc 3, giới hạn điểm 3', en: 'Late file at reminder 3, rating capped at 3',
+      wvi: 'Tầng dưới banner ghi lần nhắc và hình thức xử lý; khối vàng giới hạn điểm 3 trong ô Đánh giá toàn diện, chấm cao hơn 3 phải tick xác nhận khi gửi.',
       wen: 'The lower tier shows the reminder and the measure; a yellow cap notice sits in the overall rating, and rating above 3 needs a confirmation tick.' },
     { id: 'lm16', g: 'r-lm', sub: 'lm-in-late', emp: 'y16', role: 'lm', date: '2027-02-04', screen: 'M-06', pair: 'nv19',
-      vi: 'NV đã nộp bổ sung ở lần nhắc 4, cắt giảm thưởng', en: 'Late submission at reminder 4, bonus cut',
+      vi: 'NV đã nộp bổ sung ở lần nhắc 4, cắt giảm thưởng', en: 'Late file at reminder 4, bonus cut',
       wvi: 'Tầng dưới banner ghi hình thức cắt giảm thưởng và tạm hoãn; ô điểm không có khối giới hạn điểm.',
       wen: 'The lower tier shows the bonus cut and deferral; no cap notice on the rating.' },
     { id: 'lm17', g: 'r-lm', sub: 'lm-in-late', emp: 'y10', role: 'lm', date: '2027-02-04', screen: 'M-06', pair: 'nv21',
-      vi: 'NV quá hạn sau 4 lần nhắc, thiếu mục tiêu: Không đánh giá', en: 'Not submitted, goal missing: not evaluated',
+      vi: 'NV quá hạn sau 4 lần nhắc, thiếu mục tiêu: Không đánh giá', en: 'No late file, goal missing: not evaluated',
       wvi: 'Khối vàng Hồ sơ không đánh giá ở đầu; các khối mục tiêu và Đánh giá toàn diện vẫn hiện như hồ sơ thường nhưng chỉ để xem, nhóm mục tiêu phát triển trống.',
       wen: 'A yellow Not evaluated block on top; the goal and overall blocks still show as usual but view only, with an empty development group.' },
     { id: 'lm18', g: 'r-lm', sub: 'lm-in-done', emp: 'e10', role: 'lm', date: '2027-01-27', screen: 'M-06', pair: 'nv08',
@@ -927,6 +887,10 @@
       wvi: 'Hồ sơ giữ trạng thái Chờ HOD đánh giá, quy trình vẫn đi tiếp sang bước sau.',
       wen: 'The profile stays in Awaiting HOD and the process still moves on to the next step.' }
   ];
+
+  /* Bản lưu trữ rule nộp trễ cũ chỉ có E-05 và M-06: bỏ màn M-05 và các tình huống mở M-05. */
+  delete window.PMS_YER_SCREENS['M-05'];
+  window.PMS_YER_SCENARIOS = window.PMS_YER_SCENARIOS.filter(function (sc) { return sc.screen !== 'M-05'; });
 
   // Thứ tự review chính là thứ tự khai báo ở trên: theo vai trò, trong mỗi vai
   // thì đi từ điều kiện tham gia → luồng chuẩn → ngoại lệ → kết quả.
