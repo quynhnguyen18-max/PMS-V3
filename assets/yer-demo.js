@@ -128,6 +128,20 @@
     if (!sc || !sc.fresh) return;
     FRESH_KEYS.forEach(function (k) { window.PMSStore.clearAct(sc.emp, k); });
   }
+  /* Tình huống có `acts` (08/10/2026): dữ liệu riêng của tình huống, thêm vào hồ sơ dùng chung mà không sửa dữ liệu gốc. Ghi khi
+     chọn (hoặc làm lại) tình huống, gỡ khi chọn tình huống khác; phiên nhớ tình huống đang được ghi để gỡ đúng phần đã ghi, kể cả
+     khi người xem đã rời tình huống bằng cách đổi vai hay đổi ngày. Giá trị null: xóa thao tác đó. */
+  function scenarioActs(sc) {
+    var all = window.PMS_YER_SCENARIOS || [];
+    var appliedId = window.PMSStore.session().actsOf;
+    var applied = all.filter(function (x) { return x.id === appliedId; })[0];
+    function each(x, fn) {
+      Object.keys(x.acts).forEach(function (emp) { Object.keys(x.acts[emp]).forEach(function (k) { fn(emp, k, x.acts[emp][k]); }); });
+    }
+    if (applied && applied.acts) each(applied, function (emp, k) { window.PMSStore.clearAct(emp, k); });
+    if (sc && sc.acts) each(sc, function (emp, k, v) { if (v) window.PMSStore.setAct(emp, k, v); });
+    window.PMSStore.setSession({ actsOf: sc && sc.acts ? sc.id : null });
+  }
   function currentScenario() {
     var id = window.PMSStore.session().scenario;
     return (window.PMS_YER_SCENARIOS || []).filter(function (x) { return x.id === id; })[0] || null;
@@ -171,6 +185,7 @@
       window.history.replaceState(null, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);
     }
     // ?scenario=... mở đúng màn của tình huống, kể cả khi được dán vào màn khác
+    if (patch.scenario) scenarioActs(currentScenario());
     if (wantScreen && goScreen(wantScreen)) return;
     freshStart(currentScenario());
 
@@ -217,6 +232,7 @@
         if (!sc) return;
         S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id, from: null });
         freshStart(sc);
+        scenarioActs(sc);
         if (goScreen(sc.screen || DEFAULT_SCREEN[sc.role])) return;
         render(); notify('emp');
       }
@@ -278,6 +294,23 @@
       var visibleSteps = window.PMS_YER_TIMELINE.steps.filter(function (st) {
         return !managerScreen || MANAGER_STEPS.indexOf(st.key) >= 0;
       });
+      function chipState(st) {
+        return window.PMSYer.cmp(s.date, st.from) < 0 ? 'future' : window.PMSYer.cmp(s.date, st.to) > 0 ? 'closed' : 'open';
+      }
+      /* Danh sách Quản lý: một dòng đếm các trạng thái đang có ở ngày đang chọn (08/10/2026), để review bộ trạng thái theo
+         từng mốc timeline. Đếm trên danh sách của vai đang xem, cùng nhãn với cột Trạng thái. */
+      function statusSummary() {
+        var count = {}, order = [];
+        window.PMSYer.roster(s.role).forEach(function (p) {
+          var st = window.PMSYer.status(p, lg);
+          if (!st.label) return;
+          if (!count[st.label]) { count[st.label] = 0; order.push(st.label); }
+          count[st.label]++;
+        });
+        if (!order.length) return '';
+        return '<div class="dm-hint"><strong>' + (lg === 'en' ? 'Statuses on this date:' : 'Trạng thái ở ngày này:') + '</strong>' +
+          order.map(function (l) { return l + ' (' + count[l] + ')'; }).join(' - ') + '</div>';
+      }
 
       // Tình huống Nhân viên và tình huống màn chi tiết của Quản lý dẫn qua lại (trường pair)
       var counterpart = null;
@@ -320,6 +353,7 @@
           if (!sc) return;
           S.setSession({ emp: sc.emp, role: sc.role, date: sc.date, scenario: sc.id, from: null });
           freshStart(sc);
+          scenarioActs(sc);
           render(); notify('emp');
         }
         bar.querySelector('#dm-prev').addEventListener('click', function () { go(detailList[pos - 1]); });
@@ -356,12 +390,12 @@
           '<span class="dm-date">' + fmtDate(s.date, lg) + '</span>' +
           '<label>' + (lg === 'en' ? 'Phase' : 'Giai đoạn') + '</label>' +
           '<div class="dm-steps">' + visibleSteps.map(function (st) {
-            var state = window.PMSYer.stepState(st.key, s.date);
+            var state = chipState(st);
             return '<span class="dm-step ' + (state === 'open' ? 'on' : state === 'closed' ? 'past' : '') +
               '" data-step="' + st.key + '" title="' + fmtDate(st.from, lg) + ' - ' + fmtDate(st.to, lg) + '">' +
               (lg === 'en' ? st.en : st.vi) + '</span>';
           }).join('') + '</div>' +
-        '</div>';
+        '</div>' + (managerList ? statusSummary() : '');
 
       bar.querySelector('#dm-role').addEventListener('change', function (e) {
         // Đổi vai là rời use case đang chọn (MYR-SPEC §2a)
@@ -374,7 +408,7 @@
       });
       bar.querySelectorAll('.dm-step').forEach(function (chip) {
         chip.addEventListener('click', function () {
-          var st = window.PMSYer.step(chip.dataset.step);
+          var st = visibleSteps.filter(function (x) { return x.key === chip.dataset.step; })[0];
           var mid = dayValue(Math.round((dayIndex(st.from) + dayIndex(st.to)) / 2));
           S.setSession({ date: mid }); render(); notify('date');
         });

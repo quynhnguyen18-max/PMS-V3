@@ -745,15 +745,22 @@
       vi: 'Đã nộp bổ sung ở lần nhắc thứ 4', en: 'Late self assessment submitted at reminder 4',
       wvi: 'Mở ra là màn đã nộp: banner ghi ngày gửi, nhãn Trễ hạn và dòng hình thức xử lý nộp ở lần nhắc thứ 4.',
       wen: 'Opens on the submitted state: the banner shows the date, the Late label and the measure for reminder 4.' },
-    { id: 'nv20', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-12', screen: 'E-05',
-      vi: 'Không nộp sau 4 lần nhắc nhở', en: 'Not submitted after 4 reminders',
-      wvi: 'Hết thời gian nộp bổ sung: chỉ còn một khối vàng báo đã hết hạn và hình thức kỷ luật, các ô đều khóa.',
-      wen: 'The late window has closed: one yellow notice about the deadline and disciplinary action; all fields are locked.' },
+    /* Không nộp sau 4 lần nhắc nhở có ba trường hợp (chị chốt 08/10/2026), mỗi trường hợp một cặp Nhân viên - QLTT:
+       đủ mục tiêu thì QLTT vẫn đánh giá (nv20 - lm08); thiếu mục tiêu thì dừng (nv21 - lm17); QLTT cũng không đánh giá tới hết
+       hạn thì dừng (nv25 - lm27). */
+    { id: 'nv20', g: 'r-nv', emp: 'e13', role: 'nv', date: '2027-02-04', screen: 'E-05',
+      vi: 'Không nộp sau 4 lần nhắc, đủ mục tiêu: QLTT vẫn đánh giá', en: 'Not submitted after 4 reminders, goals complete: the manager still reviews',
+      wvi: 'Một khối vàng: hạn nộp bổ sung đã kết thúc, QLTT sẽ tiếp tục đánh giá dựa trên mục tiêu đã duyệt tới hết 08/02, và hình thức kỷ luật; các ô đều khóa.',
+      wen: 'One yellow notice: the late window has closed, the line manager continues on approved goals until 08/02, and disciplinary action; all fields are locked.' },
     // Cùng hồ sơ với nv06 nhưng đã qua hạn nộp bổ sung. fresh: bản nháp làm thử ở nv06 không lọt sang đây.
     { id: 'nv21', g: 'r-nv', fresh: true, emp: 'y10', role: 'nv', date: '2027-02-05', screen: 'E-05',
-      vi: 'Thiếu mục tiêu và không nộp sau 4 lần nhắc nhở', en: 'Goal missing and not submitted after 4 reminders',
-      wvi: 'Giống nv20 nhưng hồ sơ còn thiếu mục tiêu phát triển: cùng một khối vàng báo đã hết hạn, thêm dòng nói loại mục tiêu còn thiếu nên hồ sơ là Không đánh giá.',
-      wen: 'Like nv20 but the development goal is missing: the same yellow notice, plus a line naming the missing goal type, so the profile is Not evaluated.' },
+      vi: 'Không nộp sau 4 lần nhắc, thiếu mục tiêu: Dừng đánh giá', en: 'Not submitted after 4 reminders, goal missing: review stopped',
+      wvi: 'Khối vàng Dừng quy trình đánh giá cuối năm: câu đầu nói quy trình dừng, không có điểm; Lý do nói không nộp sau 4 lần nhắc và còn thiếu mục tiêu phát triển; rồi hình thức xử lý.',
+      wen: 'A yellow Review stopped block: the review stops with no rating; the reason names the missed reminders and the missing development goal; then the measure.' },
+    { id: 'nv25', g: 'r-nv', emp: 'e2', role: 'nv', date: '2027-02-12', screen: 'E-05',
+      vi: 'Không nộp sau 4 lần nhắc, QLTT không đánh giá: Dừng đánh giá', en: 'Not submitted after 4 reminders, no manager review: review stopped',
+      wvi: 'Khối vàng Dừng quy trình đánh giá cuối năm: câu đầu nói quy trình dừng, không có điểm; Lý do nói không nộp sau 4 lần nhắc và QLTT không đánh giá tới hết 08/02; rồi hình thức xử lý.',
+      wen: 'A yellow Review stopped block: the review stops with no rating; the reason names the missed reminders and no manager review by 08/02; then the measure.' },
 
     /* ── Quản lý trực tiếp ── */
     /* Tình huống của màn Quản lý (sắp lại 04/10/2026, YER-SPEC §44, §46). Mỗi tình huống là MỘT giao diện ở MỘT ngày.
@@ -788,7 +795,7 @@
       vi: 'NV nghỉ thai sản, QLTT thêm mục tiêu và đánh giá', en: 'Maternity leave, the manager adds goals and reviews',
       wvi: 'Khối hướng dẫn ba bước; QLTT thêm mục tiêu bằng file hoặc nhập tay, mục tiêu tự Đã duyệt, không sửa hay xóa được.',
       wen: 'The three-step guide; the manager adds goals by file or by hand, approved at once and not editable.' },
-    { id: 'lm08', g: 'r-lm', sub: 'lm-in-std', emp: 'e13', role: 'lm', date: '2027-02-04', screen: 'M-06',
+    { id: 'lm08', g: 'r-lm', sub: 'lm-in-std', emp: 'e13', role: 'lm', date: '2027-02-04', screen: 'M-06', pair: 'nv20',
       vi: 'NV quá hạn sau 4 lần nhắc, đủ mục tiêu: QLTT vẫn đánh giá', en: 'Not submitted after 4 reminders, goals complete: the manager still reviews',
       wvi: 'Banner xám Nhân viên không Tự đánh giá; QLTT chấm dựa trên mục tiêu, cột điểm nhân viên để trống.',
       wen: 'Grey banner for the missing self assessment; the manager rates against the goals with an empty employee column.' },
@@ -810,8 +817,8 @@
       wen: 'Yellow waiting block: reminder 4, its deadline, submitting now cuts the bonus. The manager cannot rate yet.' },
     { id: 'lm13', g: 'r-lm', sub: 'lm-in-late', emp: 'y10', role: 'lm', date: '2027-01-22', screen: 'M-06', pair: 'nv06',
       vi: 'NV chưa nộp, đang ở lần nhắc 2, còn thiếu mục tiêu', en: 'Not submitted at reminder 2, a goal missing',
-      wvi: 'Khối vàng nói lần nhắc đang mở và loại mục tiêu còn thiếu; nếu hết các lần nhắc mà không nộp thì hồ sơ thành Không đánh giá.',
-      wen: 'The yellow block names the open reminder and the missing goal type; if nothing arrives the profile becomes Not evaluated.' },
+      wvi: 'Khối vàng nói lần nhắc đang mở và loại mục tiêu còn thiếu; nếu hết các lần nhắc mà không bổ sung thì hồ sơ Dừng đánh giá.',
+      wen: 'The yellow block names the open reminder and the missing goal type; if nothing arrives the review stops.' },
     { id: 'lm14', g: 'r-lm', sub: 'lm-in-late', emp: 'y9', role: 'lm', date: '2027-01-22', screen: 'M-06', pair: 'nv16',
       vi: 'NV đã nộp bổ sung ở lần nhắc 1', en: 'Late self assessment submitted at reminder 1',
       wvi: 'Banner nộp bổ sung: ngày gửi và nhãn Trễ hạn; tầng dưới ghi lần nhắc, chưa có hình thức xử lý. QLTT chấm như luồng chuẩn.',
@@ -825,9 +832,9 @@
       wvi: 'Tầng dưới banner ghi hình thức cắt giảm thưởng và tạm hoãn; ô điểm không có khối giới hạn điểm.',
       wen: 'The lower tier shows the bonus cut and deferral; no cap notice on the rating.' },
     { id: 'lm17', g: 'r-lm', sub: 'lm-in-late', emp: 'y10', role: 'lm', date: '2027-02-04', screen: 'M-06', pair: 'nv21',
-      vi: 'NV quá hạn sau 4 lần nhắc, thiếu mục tiêu: Không đánh giá', en: 'Not submitted, goal missing: not evaluated',
-      wvi: 'Khối vàng Hồ sơ không đánh giá ở đầu; các khối mục tiêu và Đánh giá toàn diện vẫn hiện như hồ sơ thường nhưng chỉ để xem, nhóm mục tiêu phát triển trống.',
-      wen: 'A yellow Not evaluated block on top; the goal and overall blocks still show as usual but view only, with an empty development group.' },
+      vi: 'NV quá hạn sau 4 lần nhắc, thiếu mục tiêu: Dừng đánh giá', en: 'Not submitted, goal missing: review stopped',
+      wvi: 'Khối vàng Dừng quy trình đánh giá cuối năm ở đầu; các khối mục tiêu và Đánh giá toàn diện vẫn hiện như hồ sơ thường nhưng chỉ để xem, nhóm mục tiêu phát triển trống.',
+      wen: 'A yellow Review stopped block on top; the goal and overall blocks still show as usual but view only, with an empty development group.' },
     { id: 'lm18', g: 'r-lm', sub: 'lm-in-done', emp: 'e10', role: 'lm', date: '2027-01-27', screen: 'M-06', pair: 'nv08',
       vi: 'QLTT đã gửi, còn thời gian chỉnh sửa', en: 'Review submitted, still editable',
       wvi: 'Banner QLTT đã hoàn thành có Ngày gửi, liên kết Lịch sử chỉnh sửa và nút Chỉnh sửa; bấm Chỉnh sửa để xem popup xác nhận và khối đang chỉnh sửa.',
@@ -844,6 +851,10 @@
       vi: 'QLTT không đánh giá trước hạn', en: 'Manager missed the deadline',
       wvi: 'QLTT chưa gửi mà đã hết hạn: màn chỉ để xem, khối Lưu ý nói bước QLTT đã kết thúc.',
       wen: 'The manager did not submit before the deadline: view only, the note says the step has ended.' },
+    { id: 'lm27', g: 'r-lm', sub: 'lm-post', emp: 'e2', role: 'lm', date: '2027-02-09', screen: 'M-06', pair: 'nv25',
+      vi: 'NV quá hạn sau 4 lần nhắc, QLTT không đánh giá trước hạn: Dừng đánh giá', en: 'Not submitted, no manager review by the deadline: review stopped',
+      wvi: 'Nhân viên không nộp bổ sung, đủ mục tiêu, nhưng QLTT không đánh giá tới hết 08/02: khối vàng Dừng quy trình đánh giá cuối năm, hồ sơ không có điểm để đồng bộ; màn chỉ để xem.',
+      wen: 'No late submission, goals complete, but no manager review by 08/02: a yellow Review stopped block, no rating to sync; view only.' },
     { id: 'lm22', g: 'r-lm', sub: 'lm-post', emp: 'e1', role: 'lm', date: '2027-02-20', screen: 'M-06',
       vi: 'Quản lý cấp 2 đã đánh giá', en: 'Second-level manager has rated',
       wvi: 'Banner của QLTT giữ nguyên; dải quy trình ở bước Quản lý cấp 2; thẻ Đánh giá toàn diện bốn ô có điểm và nhận xét của Quản lý cấp 2, ô Trưởng đơn vị còn trống.',
@@ -924,8 +935,25 @@
       wen: 'Unapproved scores sit in their own approval screen, not in the main grid. Approving the 3.5 above the cap of 3 asks for confirmation.' },
     { id: 'hod07', g: 'r-hod', emp: 'e16', role: 'hod', date: '2027-03-12', screen: 'M-05',
       vi: 'Quá hạn - không đồng bộ', en: 'Overdue - no sync',
-      wvi: 'Hồ sơ giữ trạng thái Chờ HOD đánh giá, quy trình vẫn đi tiếp sang bước sau.',
-      wen: 'The profile stays in Awaiting HOD and the process still moves on to the next step.' }
+      wvi: 'Hết timeline HOD mà HOD không chấm: hồ sơ sang Chờ công bố kết quả kèm tag Không có điểm HOD, không đồng bộ điểm.',
+      wen: 'The HOD timeline ended without a rating: the profile moves to Awaiting publication with a No HOD rating tag, no sync.' },
+    /* Nhiều nhân viên cùng vượt điểm trần (chị yêu cầu 08/10/2026). Đinh Thị Linh (e10) dùng chung cho nhiều tình huống khác nên
+       phần nộp bổ sung chỉ ghi trong `acts` của tình huống này: thanh demo ghi vào khi chọn tình huống, gỡ khi sang tình huống
+       khác (yer-demo.js, scenarioActs). null là xóa thao tác đó để duyệt lại từ đầu. */
+    { id: 'hod08', g: 'r-hod', emp: 'e9', role: 'hod', date: '2027-03-01', screen: 'M-05',
+      vi: 'Nhiều nhân viên vượt điểm trần', en: 'Several employees above the cap',
+      wvi: 'Nguyễn Thị Hoa và Đinh Thị Linh cùng nộp bổ sung ở lần nhắc thứ 3 (tối đa 3.0) mà điểm QL cấp 2 và điểm HRBP upload là 3.5. Tick cả hai rồi bấm Duyệt điểm: khối Lưu ý liệt kê hai người, ô tick ghi Xác nhận giữ điểm của 2 nhân viên trên.',
+      wen: 'Two employees submitted late at reminder 3 (cap 3.0) with 3.5 from the second-level manager and the HRBP upload. Tick both and approve: the note lists both and the tick reads Confirm keeping the ratings of these 2 employees.',
+      acts: { e10: {
+        self: lateSeed('s16', '2027-01-28', scoresOf('e10', [3, 3]), 3).self,
+        selfLog: null,
+        lm: ev('2027-02-05', { overall: { score: 3.5, comment: 'Kết quả tốt; cần chủ động cập nhật tiến độ và nộp hồ sơ đúng hạn.' },
+          comments: { what: 'Nền tảng MLOps đạt mục tiêu.', dev: 'Có chia sẻ kiến thức nội bộ.', how: 'Phối hợp tốt với các nhóm.' },
+          capConfirmed: { max: 3, score: 3.5, at: '2027-02-05' } }),
+        lm2: ev('2027-02-16', { score: 3.5, comment: 'Đồng thuận với Quản lý trực tiếp.', source: 'manual', capConfirmed: { max: 3, score: 3.5, at: '2027-02-16' } }),
+        hrbpUpload: ev('2027-02-26', { score: 3.5, comment: 'Giữ mức đề xuất sau phiên rà soát cấp khối.', approved: false, by: 'Lý Minh Châu (chau.ly)' }),
+        hod: null, hodLog: null
+      } } }
   ];
 
   // Thứ tự review chính là thứ tự khai báo ở trên: theo vai trò, trong mỗi vai

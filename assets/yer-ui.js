@@ -260,6 +260,29 @@
     '.yer-late-goal i{font-size:12px}',
     '.yer-late-goal-row{display:flex;align-items:center;gap:4px;margin-top:5px}',
 
+    /* ── Nút Quy trình + popover (07/10/2026), dùng chung E-05 và M-06 ── */
+    '.yer-proc{position:relative;display:inline-flex}',
+    /* Viền nhạt như nút AI Summary của M-06 (.yer-md-ai): chữ hồng, viền --brand-ring (chị chốt 08/10/2026) */
+    '.yer-proc-btn{color:var(--brand);border-color:var(--brand-ring)}',
+    '.yer-proc-btn:hover,.yer-proc-btn[aria-expanded="true"]{background:var(--brand-muted);border-color:var(--brand)}',
+    '.yer-proc-btn .yer-proc-chev{font-size:15px;margin-left:2px;transition:transform .15s ease}',
+    '.yer-proc-btn[aria-expanded="true"] .yer-proc-chev{transform:rotate(180deg)}',
+    '.yer-proc-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:70;width:360px;max-width:calc(100vw - 32px);',
+    'padding:12px 14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg);text-align:left}',
+    '.yer-proc-pop[hidden]{display:none}',
+    '.yer-proc-hd{font-size:12px;color:var(--z600);margin-bottom:8px}',
+    '.yer-proc-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}',
+    '.yer-proc-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;column-gap:8px;font-size:12.5px;color:var(--z900)}',
+    '.yer-proc-dot{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:600;',
+    'border:1px solid var(--z300);color:var(--z600);background:var(--z0)}',
+    '.yer-proc-dot i{font-size:13px}',
+    '.yer-proc-row.done .yer-proc-dot{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok)}',
+    '.yer-proc-row.open .yer-proc-dot{background:var(--brand);border-color:var(--brand);color:var(--z0)}',
+    '.yer-proc-row.open .yer-proc-name{font-weight:600}',
+    '.yer-proc-dom{color:var(--z500);font-weight:400}',
+    '.yer-proc-date{font-size:12px;color:var(--z500);white-space:nowrap}',
+    '.yer-proc-row.open .yer-proc-date{color:var(--brand);font-weight:500}',
+
     /* ── toast ── */
     '.pms-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:1500;background:var(--z900);',
     'color:#fff;font-size:13px;font-weight:500;padding:9px 15px;border-radius:var(--rsm);display:flex;align-items:center;',
@@ -680,6 +703,62 @@
     return { el: el, setItems: function (list) { items = list; draw(); }, redraw: draw };
   }
 
+  /* ── Nút Quy trình + popover (chị chọn phương án 1, 07/10/2026; dải quy trình vẫn giữ, sếp duyệt rồi bỏ một trong hai) ──
+     Nút nằm cạnh các nút thao tác của tab (M-06: trước AI Summary; E-05: trước Lưu nháp, Gửi), ghi luôn bước đang ở để đóng
+     popover vẫn biết hồ sơ đang ở đâu. Bấm thì mở popover đủ các bước: người phụ trách, hạn, bước đang mở tô hồng.
+     items: cùng danh sách bước của dải quy trình ({ name, domain, date, state: 'done' | 'open' | 'todo' }). */
+  function procLabel(items) {
+    var en = lang() === 'en', n = items.length;
+    var open = -1, done = 0;
+    items.forEach(function (it, i) { if (it.state === 'open') open = i; if (it.state === 'done') done++; });
+    if (open >= 0) return (en ? 'Step ' : 'Bước ') + (open + 1) + '/' + n;
+    if (done === 0) return en ? 'Not started' : 'Chưa bắt đầu';
+    if (done === n) return en ? 'Completed' : 'Đã hoàn tất';
+    // Giữa hai bước hiển thị (vd bước nội bộ của HR): chờ bước kế tiếp
+    return (en ? 'Waiting for step ' : 'Chờ bước ') + (done + 1) + '/' + n;
+  }
+  function procMenu(items, opts) {
+    injectCss();
+    opts = opts || {};
+    var en = lang() === 'en';
+    var rows = items.map(function (it, i) {
+      var st = it.state || 'todo';
+      return '<li class="yer-proc-row ' + esc(st) + '">' +
+        '<span class="yer-proc-dot">' + (st === 'done' ? '<i class="bx bx-check"></i>' : (i + 1)) + '</span>' +
+        '<span class="yer-proc-name">' + esc(it.name) + (it.domain ? ' <span class="yer-proc-dom">(' + esc(it.domain) + ')</span>' : '') + '</span>' +
+        '<span class="yer-proc-date">' + esc(it.date || '') + '</span></li>';
+    }).join('');
+    return '<div class="yer-proc">' +
+      '<button type="button" class="btn btn-outline btn-sm yer-proc-btn" aria-haspopup="true" aria-expanded="false">' +
+        '<i class="bx bx-directions"></i>' + esc((en ? 'Process - ' : 'Quy trình - ') + procLabel(items)) +
+        '<i class="bx bx-chevron-down yer-proc-chev"></i></button>' +
+      '<div class="yer-proc-pop" role="dialog" aria-label="' + esc(opts.title || '') + '" hidden>' +
+        '<div class="yer-proc-hd">' + esc((opts.title || '') + (en ? ' - ' + items.length + ' steps' : ' - ' + items.length + ' bước')) + '</div>' +
+        '<ol class="yer-proc-list">' + rows + '</ol></div></div>';
+  }
+  function closeProc(except) {
+    document.querySelectorAll('.yer-proc-pop').forEach(function (pop) {
+      if (pop === except) return;
+      pop.hidden = true;
+      var b = pop.parentElement && pop.parentElement.querySelector('.yer-proc-btn');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  // Một bộ lắng nghe cho mọi nút Quy trình: màn dựng lại nhiều lần nên không gắn theo từng nút
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.yer-proc-btn');
+    if (btn) {
+      var pop = btn.parentElement.querySelector('.yer-proc-pop');
+      var open = pop.hidden;
+      closeProc(pop);
+      pop.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      return;
+    }
+    if (!(e.target.closest && e.target.closest('.yer-proc-pop'))) closeProc(null);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeProc(null); });
+
   /* ═══ 4. Tourguide (ENH-E14) ════════════════════════════
      items: [{ sel, title, text, place:'auto'|'top'|'bottom' }]
      Bước nào không tìm thấy phần tử thì bỏ qua, để tour không chết khi màn
@@ -945,6 +1024,7 @@
     rating: rating,
     banner: banner,
     lateGoalChip: lateGoalChip,
+    procMenu: procMenu,
     goalTab: goalTab,
     mascotGuide: mascotGuide,
     tabs: tabs,

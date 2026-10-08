@@ -83,7 +83,30 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
   xanh cho mọi mức, ô Ý nghĩa thang điểm màu xám ở mọi màn (§41.2b, §41.3). M-05: icon cảnh báo to hơn và canh giữa số; ô chọn điểm
   trong popup viền xám, đang chọn viền hồng đậm; dòng hạn chỉnh sửa chữ xám đậm; `Duyệt điểm QLTT/QL cấp 2` chỉ bấm được khi đã tick
   nhân viên trên bảng (chưa tick thì xám, không số, rê chuột thấy hướng dẫn), bấm mở một popup xác nhận kèm lưu ý vượt mức; nút khóa
-  cùng một kiểu xám (§47). Dải quy trình: đang chờ chị chọn phương án.
+  cùng một kiểu xám (§47).
+- [x] **Nút Quy trình (07/10/2026, chị chọn phương án 1):** nút `Quy trình - Bước k/n` mở popover các bước ở E-05 và M-06, làm thêm,
+  dải quy trình vẫn giữ tới khi sếp duyệt bỏ một trong hai (§40.3b, `PMSUi.procMenu`).
+- [x] **Góp ý popup và màn Duyệt điểm HRBP upload (08/10/2026):** mọi popup M-05 YER cùng khung đầu popup (dải tiêu đề hồng nhạt, viền
+  dưới); popup duyệt điểm đổi tên `Duyệt điểm của Quản lý trực tiếp/cấp 2`, nội dung gạch đầu dòng; popup Upload bỏ câu mức lẻ 0.5 và
+  `(.csv)`; màn Duyệt điểm HRBP upload: nút Duyệt điểm cùng hàng Bộ lọc, chưa tick thì xám không số, `Tải xuống` chỉ icon, cột
+  `Điểm HRBP upload` (§9, §47).
+- [x] **Popup xác nhận ghi điểm hàng loạt (08/10/2026):** Duyệt điểm cấp trước, Cập nhật điểm từ file, Duyệt điểm HRBP upload mỗi
+  thao tác đúng một popup `Xác nhận ...`: câu dẫn `Hệ thống sẽ áp dụng điểm ... làm điểm của ...`, dòng `(m nhân viên sẽ bị ghi đè
+  điểm cũ).`, khối `Lưu ý` chỉ cho điểm vượt điểm trần kèm ô tick `Xác nhận giữ x điểm`, nút `Duyệt điểm` / `Cập nhật điểm`; bỏ popup vượt mức và popup `Thay điểm bạn đã chấm?` đi riêng. Màn HRBP upload: ghi chú chữ đen hai ý MECE,
+  bỏ ý không sửa được; điểm cùng hàng ngang, điểm tải lên bỏ khung giữ màu, dưới điểm chỉ ghi domain người tải (§9, §27.3, §47).
+- [x] **Nhiều nhân viên vượt điểm trần, khối chờ nộp bổ sung (08/10/2026):** ô tick `Xác nhận giữ điểm của n nhân viên trên` khi
+  nhiều người vượt; tình huống `hod08` (`e8`, `e10` cùng vượt) dựng bằng `acts` của tình huống để không đổi dữ liệu gốc (§9, §46);
+  khối vàng chờ nộp bổ sung (M-06, Split View) và lời dẫn tourguide bỏ ý `Nhân viên chỉ được nộp bổ sung một lần...` (§27.4, §48).
+- [x] **Không nộp sau 4 lần nhắc, ba trường hợp (08/10/2026):** E-05 hồ sơ dừng dùng khối `Dừng quy trình đánh giá cuối năm` (nói dừng
+  trước, lý do sau), đủ mục tiêu thì thêm dòng `Tiếp theo:` QLTT vẫn đánh giá; thanh demo thành ba cặp `nv20` - `lm08` (đủ mục tiêu),
+  `nv21` - `lm17` (thiếu mục tiêu), `nv25` - `lm27` mới (QLTT cũng không đánh giá); `nv20` dời sang `e13` ngày 04/02 (§27.1, §46).
+- [x] **Khối hướng dẫn thai sản của QLTT (08/10/2026):** ba bước trong khung `.yer-flow` dùng chung; bước 2 `Thêm mới mục tiêu cho
+  nhân viên nếu cần bằng cách Nhập từng mục tiêu hoặc Import toàn bộ theo template mẫu.` (hai cụm mở đúng thẻ popup); bỏ nút `Thêm
+  mục tiêu` ở nhóm Mục tiêu công việc và Mục tiêu phát triển (§33, §48).
+- [x] **Bộ trạng thái mới (08/10/2026):** trạng thái đổi theo timeline (`[Vai] đã đánh giá` trong timeline của vai, tooltip hạn chỉnh
+  sửa; timeline vai sau mở mới `Chờ [vai sau] đánh giá`), `Chờ NV nộp bổ sung`, `Không cần tự đánh giá`, `Dừng đánh giá`, `Chờ công bố
+  kết quả` (HOD không chấm thì kèm tag `Không có điểm HOD`); luật ở `PMSYer.status` + `cyclePhase` (§47). Thanh demo M-05 có dòng
+  đếm trạng thái ở ngày đang chọn (§44). Bộ lọc không hiện số 0.
 - [ ] **Góp ý màn Quản lý, còn lại:** màn HRBP tải điểm hộ HOD và bước đối soát (§9).
 - [x] **Góp ý E-05 đợt 3 (28/09/2026):** màn quá hạn giữ bố cục thường, các ô khóa, khối thông báo lần nhắc đang mở rồi xác nhận mới mở popup nộp bổ sung; hạn chấm QLTT riêng cho hồ sơ nộp bổ sung (3 ngày làm việc từ ngày nộp); banner nộp trễ một nhãn và dòng hình thức xử lý, không có lịch sử chỉnh sửa; ô QLTT có `Điểm toàn diện: - Chưa công bố`; bớt viền khối cuối trang; 16 tình huống Nhân viên, bỏ nhóm `Hồ sơ khác` (§6, §8.2, §27.1, §27.3, §40.5a, §42, §44.1, §46).
 - [x] **Góp ý E-05 đợt 2 (27/09/2026):** bốn lần nhắc nộp bổ sung, đếm ngày làm việc, xác nhận đã đọc, khối nộp trễ sau khi gửi (§27.3); nhân viên đọc nhận xét Quản lý cấp 2 và Trưởng đơn vị (§7); tab `Danh sách mục tiêu` và nhãn xanh (§18.4); câu chữ cảnh báo thiếu mục tiêu, lưu nháp, thai sản, chỉnh sửa (§5, §8.1, §40.5); lịch sử chỉnh sửa theo lần gửi (§8.2); 11 tình huống Nhân viên và ghi chú `Hồ sơ khác` (§44.1, §46).

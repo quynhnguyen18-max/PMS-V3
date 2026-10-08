@@ -149,6 +149,8 @@
       '<button type="button" class="manager-back" id="yer-md-back"><i class="bx bx-left-arrow-alt"></i>' +
         L('Quay lại danh sách nhân viên', 'Back to employee list') + '</button>' +
       '<div class="manager-nav-right">' + toolbar(p, canEdit) +
+        // Nút Quy trình (chị chọn phương án 1, 07/10/2026; dải quy trình vẫn giữ tới khi sếp duyệt bỏ một trong hai)
+        U.procMenu(stepItemsOf(p), { title: L('Quy trình đánh giá cuối năm 2026', 'Year-End Review 2026 process') }) +
         // AI Summary bấm mới chạy, cho cả QLTT, LM2, HOD (§14)
         '<button type="button" class="btn btn-outline btn-sm yer-md-ai" id="yer-md-ai"><i class="bx bxs-magic-wand"></i>AI Summary</button>' +
         '<button type="button" class="btn btn-cta-outline btn-sm" id="yer-md-feedback"><i class="bx bx-message-square-dots"></i>' +
@@ -509,8 +511,8 @@
     }
     if (Y.lateWaiting(p)) {
       items.push({ sel: root + '.yer-late-wait', pose: 'think.png', title: L('Đang chờ nhân viên nộp bổ sung', 'Waiting for the late self assessment'),
-        text: L('Nhân viên chỉ được nộp bổ sung một lần. ' + R + ' đánh giá được ngay sau khi nhân viên nộp; khối vàng nói lần nhắc đang mở và điều gì xảy ra nếu không nộp.',
-          'The employee can submit only once. ' + R + ' can review right after that; the yellow block shows the open reminder and what happens otherwise.') });
+        text: L('Khối vàng nói lần nhắc đang mở, hạn nộp và điều gì xảy ra nếu nhân viên không nộp.',
+          'The yellow block shows the open reminder, its deadline and what happens if nothing is submitted.') });
       return items;
     }
     if (p.lateSubmission && !mySubmitted(p)) {
@@ -583,27 +585,31 @@
      Cùng component với màn Nhân viên và danh sách Quản lý. Màn chi tiết là của một
      nhân viên nên mọi bước đều có domain, kể cả Tự đánh giá; bước Công bố thì không. */
   var MD_STEPS = ['self', 'lm', 'lm2', 'hod', 'publish'];
+  // Danh sách bước dùng chung cho dải quy trình và nút Quy trình (07/10/2026)
+  function stepItemsOf(p) {
+    var who = Y.actors(p);
+    return window.PMS_YER_TIMELINE.steps
+      .filter(function (st) { return MD_STEPS.indexOf(st.key) >= 0; })
+      .map(function (st) {
+        var state = Y.stepState(st.key, p.now);
+        var person = who[st.key];
+        return {
+          key: st.key,
+          name: lg() === 'en' ? st.en : st.vi,
+          domain: person ? person.login : '',
+          date: L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg()),
+          state: state === 'open' ? 'open' : state === 'closed' ? 'done' : 'todo'
+        };
+      });
+  }
   function mountSteps(p) {
     var node = el('yer-md-steps');
     if (!node) return;
-    var who = Y.actors(p);
     U.steps(node, {
       title: L('Quy trình và Thời gian đánh giá cuối năm 2026',
                'Year-End Review 2026 process and timeline'),
       collapseKey: 'yer-md',
-      items: window.PMS_YER_TIMELINE.steps
-        .filter(function (st) { return MD_STEPS.indexOf(st.key) >= 0; })
-        .map(function (st) {
-          var state = Y.stepState(st.key, p.now);
-          var person = who[st.key];
-          return {
-            key: st.key,
-            name: lg() === 'en' ? st.en : st.vi,
-            domain: person ? person.login : '',
-            date: L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg()),
-            state: state === 'open' ? 'open' : state === 'closed' ? 'done' : 'todo'
-          };
-        })
+      items: stepItemsOf(p)
     });
   }
 
@@ -630,7 +636,7 @@
     var guide = !!(opts && opts.guide);
     var items = [];
 
-    // QLTT đọc khối hướng dẫn thai sản riêng (maternityGuide); ở đây chỉ còn câu ngắn cho LM2, HOD
+    // QLTT đọc khối hướng dẫn thai sản riêng (maternityGuide) tới hết timeline QLTT; ở đây là câu ngắn cho LM2, HOD và QLTT sau hạn
     if (p.maternity && !guide) {
       items.push(L('Nhân viên đang trong thời gian <strong class="yer-hl">nghỉ thai sản</strong> nên <strong>không bắt buộc</strong> Tự đánh giá. Quản lý trực tiếp chịu trách nhiệm chính đánh giá cuối năm cho nhân viên này.',
         'The employee is on <strong class="yer-hl">maternity leave</strong>, so the self assessment is <strong>not required</strong>. The line manager leads this year-end review.'));
@@ -661,7 +667,8 @@
     if (p.resigned || mySubmitted(p)) return '';
     if (p.stopped) return closedBlock(p);
     if (Y.lateWaiting(p)) return waitingBlock(p, canEdit);
-    if (isLm() && p.maternity) return maternityGuide(p, canEdit);
+    // Hết timeline QLTT thì không còn việc để hướng dẫn (chị chốt 08/10/2026): về khối Lưu ý thường có câu thai sản và câu bước đã kết thúc
+    if (isLm() && p.maternity && Y.managerEditWindow('lm', p).state !== 'closed') return maternityGuide(p, canEdit);
     var items = noteItems(p, canEdit);
     // Không còn dòng nào thì không dựng thẻ rỗng
     if (!items.length) return '';
@@ -676,30 +683,54 @@
   function maternityGuide(p, canEdit) {
     var add = canAdd(p);
     var noGoal = p.eligibility.reason === 'missing-goal';
-    var step2 = (add
-        ? '<a href="#" class="yer-note-link" data-add-goal="">' + L('Thêm mới mục tiêu', 'Add new goals') + '</a>'
-        : L('Thêm mới mục tiêu', 'Add new goals')) +
-      L(' cho nhân viên (nếu cần). Các mục tiêu do QLTT tạo sẽ được ghi nhận ở trạng thái <strong>Đã duyệt</strong>.',
-        ' for the employee (if needed). Goals created by the line manager are recorded as <strong>Approved</strong>.') +
+    /* Bước 2 nói rõ hai cách thêm (chị chốt 08/10/2026); hai cụm là liên kết mở đúng thẻ của popup thêm mục tiêu. Đây là lối vào
+       duy nhất: nhóm Mục tiêu công việc, Mục tiêu phát triển không còn nút Thêm mục tiêu. */
+    /* Hai cụm luôn là liên kết (chị chốt 08/10/2026). Trước timeline QLTT thì liên kết khóa (xám, không mở popup), rê chuột thấy
+       ngày mở. Hết timeline QLTT thì khối hướng dẫn không còn hiện (noteBlock). */
+    var win = Y.managerEditWindow('lm', p);
+    var offTip = L('Mở từ ' + Y.fmt(win.from, lg()) + ', khi bắt đầu bước đánh giá của QLTT', 'Opens on ' + Y.fmt(win.from, lg()) + ', when the line manager step starts');
+    function addLink(mode, vi, en) {
+      return add
+        ? '<a href="#" class="yer-note-link" data-add-goal="" data-goal-mode="' + mode + '">' + L(vi, en) + '</a>'
+        : '<span class="yer-note-link is-off" aria-disabled="true" tabindex="0" data-tip="' + esc(offTip) +
+            '" onmouseenter="tip(this,this.dataset.tip)" onmouseleave="hideTip()">' + L(vi, en) + '</span>';
+    }
+    var step2 = L('<strong>Thêm mới mục tiêu</strong> cho nhân viên nếu cần bằng cách ', '<strong>Add goals</strong> for the employee if needed by ') +
+      addLink('manual', 'Nhập từng mục tiêu', 'entering them one by one') + L(' hoặc ', ' or ') +
+      addLink('upload', 'Import toàn bộ theo template mẫu', 'importing them all with the template') + '.';
+    var step2Note = L('Mục tiêu do QLTT tạo được ghi nhận ở trạng thái <strong>Đã duyệt</strong>.',
+        'Goals created by the line manager are recorded as <strong>Approved</strong>.') +
       (noGoal ? ' ' + L('Nhân viên còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt.',
         'An approved <strong>' + esc(missingGoalNames(p)) + '</strong> is still missing.') : '');
+    /* Ba bước nằm ngang, không viền trong (chị chốt lại 08/10/2026): số bước trong vòng tròn, mũi tên giữa các bước. Độ rộng mỗi
+       bước tỉ lệ với độ dài chữ của bước (flex-grow = số ký tự, ghi chú nằm dòng riêng nên tính 0.5) nên các bước có số dòng gần bằng nhau,
+       không bước nào bị dồn xuống nhiều dòng trong khi bước khác thừa chỗ. Màn hẹp thì xếp dọc. */
+    function plainLen(html) { return String(html || '').replace(/<[^>]+>/g, '').length; }
+    function step(no, title, note) {
+      var grow = Math.round(plainLen(title) + plainLen(note) * 0.5);
+      return '<li class="yer-mat-step" style="flex-grow:' + grow + '"><span class="yer-mat-no">' + no + '</span><div class="yer-mat-tx">' + title +
+        (note ? '<span class="yer-mat-sub">' + note + '</span>' : '') + '</div></li>';
+    }
     // Cùng câu hạn với khối Lưu ý thường (windowText), không viết một câu riêng cho thai sản (04/10/2026)
     var deadline = windowText(p, canEdit);
     var notes = noteItems(p, canEdit, { guide: true }).concat([deadline]).filter(Boolean);
-    return '<div class="info-note yer-note-block yer-mat-guide"><i class="bx bx-info-circle"></i><div>' +
+    /* Ba phần tách bạch (chị chốt 08/10/2026), không thành một khối chữ: phần mở đầu; ba bước nằm trên nền hồng nhạt riêng (không
+       nhãn, câu dẫn đã nói `theo các bước sau`); phần Lưu ý ngăn bằng một đường kẻ mảnh. */
+    return '<div class="info-note yer-note-block yer-mat-guide"><i class="bx bx-info-circle"></i><div class="yer-mat-body">' +
       '<strong>' + L('Hướng dẫn đánh giá cho Nhân viên đang nghỉ thai sản:', 'Review guide for an employee on maternity leave:') + '</strong>' +
       '<p>' + L('Nhân viên đang <strong class="yer-hl">nghỉ thai sản</strong> <strong>không bắt buộc</strong> Tự đánh giá. ' +
           'QLTT <strong>chịu trách nhiệm chính</strong> thực hiện đánh giá nhân viên theo các bước sau:',
         'The employee is on <strong class="yer-hl">maternity leave</strong>, so the self assessment is <strong>not required</strong>. ' +
           'The line manager is <strong>responsible</strong> for the review, in these steps:') + '</p>' +
-      '<ol class="yer-guide-steps">' +
-        '<li>' + L('Rà soát các mục tiêu hiện có tại tab Đánh giá cuối năm.', 'Review the existing goals in the Year-End Review tab.') + '</li>' +
-        '<li>' + step2 + '</li>' +
-        '<li>' + L('Hoàn thành Đánh giá chi tiết cho nhân viên và gửi.', 'Complete the detailed review for the employee and submit it.') + '</li>' +
-      '</ol>' +
-      (notes.length === 1
+      '<div class="yer-mat-panel">' +
+      '<ol class="yer-mat-steps">' +
+        step(1, L('<strong>Rà soát</strong> các mục tiêu hiện có tại tab Đánh giá cuối năm.', '<strong>Review</strong> the existing goals in the Year-End Review tab.')) +
+        step(2, step2, step2Note) +
+        step(3, L('<strong>Hoàn thành Đánh giá chi tiết</strong> cho nhân viên và <strong>gửi</strong>.', '<strong>Complete the detailed review</strong> for the employee and <strong>submit</strong> it.')) +
+      '</ol></div>' +
+      '<div class="yer-mat-notes">' + (notes.length === 1
         ? '<p><strong>' + L('Lưu ý:', 'Note:') + '</strong> ' + notes[0] + '</p>'
-        : '<p><strong>' + L('Lưu ý:', 'Note:') + '</strong></p><ul class="yer-note-list"><li>' + notes.join('</li><li>') + '</li></ul>') +
+        : '<p><strong>' + L('Lưu ý:', 'Note:') + '</strong></p><ul class="yer-note-list"><li>' + notes.join('</li><li>') + '</li></ul>') + '</div>' +
       '</div></div>';
   }
 
@@ -715,11 +746,10 @@
     var extras = noteItems(p, canEdit, { guide: true });
     /* Nhiều ý thì gạch đầu dòng (DS §19, chốt 04/10/2026): tình huống, lần nhắc và hạn, hình thức xử lý (nếu có),
        điều xảy ra nếu không nộp, rồi LWD và kết quả giữa năm (nếu có). */
+    // Bỏ ý `Nhân viên chỉ được nộp bổ sung một lần...` (chị chốt 08/10/2026)
     var lines = [
       L('Đang ở <strong>lần nhắc thứ ' + r.round + '</strong>, hạn nộp ' + at18(r.deadline) + '.',
-        'Reminder <strong>' + r.round + '</strong> is open, due ' + at18(r.deadline) + '.'),
-      L('Nhân viên chỉ được nộp bổ sung <strong>một lần</strong>. ' + roleName('lm') + ' đánh giá được ngay sau khi nhân viên nộp.',
-        'The employee can submit <strong>only once</strong>. ' + roleName('lm') + ' can review right after that.')
+        'Reminder <strong>' + r.round + '</strong> is open, due ' + at18(r.deadline) + '.')
     ];
     if (csq) lines.push('<strong>' + L('Hình thức xử lý khi nộp ở lần nhắc này:', 'Measure when submitting at this reminder:') + '</strong> ' + csq);
     lines.push(missing
@@ -847,9 +877,8 @@
     // Header nhóm như tab Giữa năm: icon và tên trong .rv-type, bảng trong .rv-table-wrap
     return '<div class="rv-section yer-sec-' + type + '"><div class="rv-section-hd"><i class="bx ' + t.icon + '"></i>' +
         '<span class="rv-type">' + esc(lg() === 'en' ? t.en : t.vi) + '</span>' +
-        // QLTT thêm mục tiêu cho nhân viên thai sản ngay tại nhóm (§33, chốt 30/09/2026)
-        (type !== 'how' && canAdd(p) ? '<button type="button" class="yer-add-goal" data-add-goal="' + type + '"><i class="bx bx-plus"></i>' +
-          L('Thêm mục tiêu', 'Add goal') + '</button>' : '') + '</div>' +
+        // Không có nút Thêm mục tiêu ở nhóm (chị bỏ 08/10/2026): thêm ở bước 2 của khối hướng dẫn thai sản
+        '</div>' +
       '<div class="rv-table-wrap"><table class="rv-grid"' + (type === 'how' ? ' style="min-width:600px"' : '') + '><thead><tr>' + header + '</tr></thead><tbody>' +
       rows.map(function (r) {
         var key = r.id.split(':');
@@ -885,7 +914,7 @@
     return '<tr class="g-none-row"><td colspan="' + (type === 'what' ? 6 : 5) + '"><div class="g-none">' +
       L('Chưa có ' + name + ' nào được Quản lý trực tiếp phê duyệt.',
         'No ' + ({ what: 'work goal', dev: 'development goal' }[type] || 'goal') + ' has been approved by the line manager yet.') +
-      (p && canAdd(p) ? ' ' + L('Bấm Thêm mục tiêu để thêm cho nhân viên.', 'Use Add goal to add one for the employee.') : '') +
+      (p && canAdd(p) ? ' ' + L('Thêm mục tiêu cho nhân viên ở bước 2 của khối hướng dẫn phía trên.', 'Add one at step 2 of the guide above.') : '') +
       '</div></td></tr>';
   }
 
@@ -1269,7 +1298,7 @@
       b.addEventListener('click', function (event) {
         event.preventDefault();
         event.stopPropagation();
-        openGoalDialog(p, { type: b.dataset.addGoal || '' });
+        openGoalDialog(p, { type: b.dataset.addGoal || '', mode: b.dataset.goalMode || 'manual' });
       });
     });
     var ai = el('yer-md-ai');
@@ -1868,8 +1897,24 @@
       // Khối hướng dẫn thai sản của QLTT (chốt 02/10/2026): đoạn dẫn, ba bước đánh số, dòng Lưu ý cuối khối
       '#yer-mgr-detail-root .yer-mat-guide p{margin:4px 0 0;line-height:1.55}' +
       '#yer-mgr-detail-root .yer-mat-guide .yer-hl{color:var(--brand);font-weight:700}' +
-      '.yer-guide-steps{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:2px}' +
-      '.yer-guide-steps li{line-height:1.55}' +
+      // Ba bước của khối hướng dẫn thai sản: nằm ngang, độ rộng tỉ lệ độ dài chữ, mũi tên ở khe giữa hai bước (08/10/2026)
+      '.yer-mat-body{flex:1;min-width:0}' +
+      '.yer-mat-panel{margin:10px 0 0;padding:12px 16px;border-radius:var(--r);background:var(--brand-muted)}' +
+      '.yer-mat-notes{margin-top:12px;padding-top:10px;border-top:1px solid var(--z200)}' +
+      '#yer-mgr-detail-root .yer-mat-notes p:first-child{margin-top:0}' +
+      '.yer-mat-steps{list-style:none;margin:0;padding:0;display:flex;gap:10px 40px;align-items:flex-start}' +
+      '.yer-mat-step{position:relative;flex:1 1 0;display:flex;gap:9px;align-items:flex-start;min-width:150px}' +
+      '.yer-mat-step+.yer-mat-step::before{content:"";position:absolute;left:-26px;top:7px;width:8px;height:8px;' +
+        'border-top:1.5px solid var(--z400);border-right:1.5px solid var(--z400);transform:rotate(45deg)}' +
+      '.yer-mat-no{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--brand);' +
+        'color:var(--z0);font-size:11.5px;font-weight:700}' +
+      '.yer-mat-tx{min-width:0;font-size:12.5px;line-height:1.55;color:var(--z800);padding-top:1px;text-wrap:pretty}' +
+      '.yer-mat-tx strong{color:var(--z900);font-weight:700}' +
+      '.yer-mat-sub{display:block;margin-top:3px;font-size:11.5px;color:var(--z500)}' +
+      '.yer-mat-sub strong{color:var(--z700);font-weight:600}' +
+      // Liên kết khóa vẫn màu hồng (chữ mở popup luôn hồng, 08/10/2026), nhạt hơn và gạch chân chấm để biết chưa bấm được
+      '.yer-note-link.is-off,.yer-note-link.is-off:hover{color:var(--brand);opacity:.55;text-decoration-style:dotted;cursor:not-allowed}' +
+      '@media(max-width:820px){.yer-mat-steps{flex-direction:column}.yer-mat-step{flex-grow:0!important;width:100%}.yer-mat-step+.yer-mat-step::before{display:none}}' +
       '#yer-mgr-detail-root .yer-mat-guide p + .yer-note-list{margin-top:2px}' +
       '.yer-note-link{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}' +
       '.yer-note-link:hover{color:var(--brand-h)}' +
@@ -1892,11 +1937,6 @@
       '.yer-ai-write:hover{background:var(--brand);color:var(--brand-fg)}' +
       '.yer-ai-write i{font-size:12px}' +
       '.yer-flbl-ai{display:flex!important;align-items:center;gap:4px}' +
-      // Thêm mục tiêu cho nhân viên thai sản (§33)
-      '.rv-section-hd .yer-add-goal{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;' +
-        'border:1px solid var(--brand);border-radius:var(--rsm);background:var(--z0);color:var(--brand);font-family:inherit;' +
-        'font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer}' +
-      '.rv-section-hd .yer-add-goal:hover{background:var(--brand-muted)}' +
       '.g-lm-row{display:flex;align-items:center;gap:4px;margin-top:5px}' +
       '.g-lm-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border:1px solid var(--info-bd);border-radius:50px;' +
         'background:var(--info-bg);color:var(--info);font-size:11px;font-weight:500;white-space:nowrap;cursor:help}' +

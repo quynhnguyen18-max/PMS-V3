@@ -397,6 +397,8 @@
         '<div class="scmt-locked-ph"><i class="bx bx-lock-alt"></i>' +
         (p.lm && p.lm.synced
           ? L('Quản lý không gửi nhận xét trong kỳ này','Your manager did not leave a comment this cycle')
+            // Hồ sơ Dừng đánh giá: không nói Quản lý tiếp tục, tránh ngược với khối Dừng quy trình ở trên (08/10/2026)
+            : p.stopped ? L('Quy trình đã dừng nên Quản lý không đánh giá','The review has stopped, so there is no manager review')
             : p.self ? L('Quản lý sẽ nhận xét trong bước đánh giá của Quản lý','Your manager comments during the manager review step')
                      : Y.stepState('self', S.session().date) === 'closed'
                        ? L('Không có Tự đánh giá. Quản lý tiếp tục đánh giá theo quy trình','No self assessment. Your manager continues the review process')
@@ -537,11 +539,13 @@
      màn hình (bindFloatingToolbar), để lúc nào cũng thấy mà không phải cuộn ngược lên.
      Thiếu mục tiêu thì nút Gửi ở trạng thái khóa nhưng vẫn bấm được để đọc lý do. */
   function toolbar(p, editable){
-    if(!editable) return '';
+    // Nút Quy trình đứng đầu hàng thao tác, có cả khi chỉ xem (chị chọn phương án 1, 07/10/2026; dải quy trình vẫn giữ)
+    var proc = U.procMenu(stepItems(), { title: L('Quy trình đánh giá cuối năm 2026', 'Year-End Review 2026 process') });
+    if(!editable) return '<div class="yer-toolbar">' + proc + '</div>';
     var st = Y.selfAssessmentState(p);
     var locked = !st.canSubmit;
     var label = st.mode === 'editing' ? L('Gửi lại tự đánh giá','Resubmit self assessment') : L('Gửi tự đánh giá','Submit self assessment');
-    return '<div class="yer-toolbar"><div class="yer-actions">' +
+    return '<div class="yer-toolbar">' + proc + '<div class="yer-actions">' +
       '<button class="btn btn-outline btn-sm" id="yer-btn-draft"><i class="bx bx-save"></i>' + L('Lưu nháp','Save draft') + '</button>' +
       '<button class="btn btn-default btn-sm' + (locked ? ' yer-btn-locked' : '') + '" id="yer-btn-submit"' +
         (locked ? ' aria-disabled="true" title="' + esc(L('Cần đủ mục tiêu đã duyệt mới gửi được','Approved goals are required before submitting')) + '"' : '') + '>' +
@@ -767,21 +771,44 @@
     // Chỉ một box thông tin (§40.5a): các khối phía trên đã hiện thì không dựng thêm
     if(lateClosed && !hasWarnNote){
       var lateEnd = Y.fmt(Y.lateSubmissionDeadline(), lg());
-      /* Cùng cấu trúc với khối quá hạn (chốt 07/10/2026): tiêu đề, rồi các dòng có nhãn. Thiếu mục tiêu (nv21) thêm dòng Kết quả:
-         quy trình dừng vì cấp quản lý không đánh giá tiếp được, hồ sơ không có điểm. Đủ mục tiêu (nv20) dùng câu kỷ luật của model. */
       var missingClosed = p.eligibility.reason === 'missing-goal';
-      var closedItems = [L('<strong>Hạn nộp bổ sung:</strong> đã kết thúc lúc <strong>18:00 ngày ' + lateEnd + '</strong>.',
-                           '<strong>Late submission deadline:</strong> closed at <strong>18:00 on ' + lateEnd + '</strong>.')];
-      if(missingClosed) closedItems.push(L('<strong>Kết quả:</strong> Vì còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, các bước đánh giá tiếp theo của cấp quản lý sẽ không thể tiếp tục. ' +
-            'Quy trình Đánh giá cuối năm của bạn chính thức dừng tại đây và không có điểm trên hệ thống.',
-          '<strong>Result:</strong> Because an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is still missing, the next review steps by your managers cannot proceed. ' +
-            'Your Year-End Review ends here and has no rating in the system.'));
-      closedItems.push(L('<strong>Hình thức xử lý:</strong> ','<strong>Measure:</strong> ') + (missingClosed
+      var measure = '<strong>' + L('Hình thức xử lý:', 'Measure:') + '</strong> ' + (missingClosed
         ? L('Việc không tuân thủ tiến độ này sẽ được xem xét và áp dụng các hình thức kỷ luật phù hợp theo Nội quy lao động.',
             'Not keeping to this schedule will be reviewed and suitable disciplinary action applied under the Labour Regulations.')
-        : esc(Y.lateText('discipline', lg()))));
+        : esc(Y.lateText('discipline', lg())));
+      var title, lead = '', closedItems;
+      if(p.stopped){
+        /* Hồ sơ Dừng đánh giá (chị chốt 08/10/2026, theo khối `Dừng quy trình đánh giá cuối năm` của M-06): tiêu đề và câu đầu nói
+           quy trình đã dừng, không có điểm; lý do và hình thức xử lý đứng sau. Thiếu mục tiêu (nv21) hoặc QLTT cũng không chấm. */
+        title = L('Dừng quy trình đánh giá cuối năm', 'Year-end review stopped');
+        lead = L('Quy trình Đánh giá cuối năm của bạn dừng tại đây và <strong>không có điểm trên hệ thống</strong>.',
+          'Your Year-End Review stops here and has <strong>no rating in the system</strong>.');
+        var why = L('Bạn đã không nộp bổ sung Tự đánh giá sau 4 lần nhắc nhở (hạn cuối <strong>18:00 ngày ' + lateEnd + '</strong>)',
+          'You did not submit the self assessment after 4 reminders (final deadline <strong>18:00 on ' + lateEnd + '</strong>)');
+        closedItems = [
+          '<strong>' + L('Lý do:', 'Reason:') + '</strong> ' + why + (missingClosed
+            ? L(' và còn thiếu <strong>' + esc(missingGoalNames(p)) + '</strong> được duyệt, nên các bước đánh giá của cấp quản lý không thể tiếp tục.',
+                ' and an approved <strong>' + esc(missingGoalNames(p)) + '</strong> is missing, so your managers cannot continue the review.')
+            : L(' và Quản lý trực tiếp không đánh giá cho bạn tới hết <strong>18:00 ngày ' + Y.fmt(p.lmDeadline, lg()) + '</strong>.',
+                ' and your line manager did not review you by <strong>18:00 on ' + Y.fmt(p.lmDeadline, lg()) + '</strong>.')),
+          measure
+        ];
+      } else {
+        /* Đủ mục tiêu, chưa dừng (nv20): khối nói đã hết hạn nộp, QLTT vẫn tiếp tục đánh giá dựa trên mục tiêu đã duyệt (chị thêm
+           08/10/2026), rồi hình thức xử lý */
+        title = L('Bạn đã không nộp bổ sung Tự đánh giá sau 4 lần nhắc nhở','You did not submit the self assessment after 4 reminders');
+        var lmDue = Y.fmt(p.lmDeadline, lg());
+        closedItems = [L('<strong>Hạn nộp bổ sung:</strong> đã kết thúc lúc <strong>18:00 ngày ' + lateEnd + '</strong>.',
+                         '<strong>Late submission deadline:</strong> closed at <strong>18:00 on ' + lateEnd + '</strong>.'),
+          '<strong>' + L('Tiếp theo:', 'Next:') + '</strong> ' + (p.lm
+            ? L('Quản lý trực tiếp đã đánh giá cho bạn dựa trên các mục tiêu đã duyệt.', 'Your line manager has reviewed you based on your approved goals.')
+            : L('Quản lý trực tiếp sẽ tiếp tục đánh giá cho bạn dựa trên các mục tiêu đã duyệt, tới hết <strong>18:00 ngày ' + lmDue + '</strong>.',
+                'Your line manager will continue the review based on your approved goals, until <strong>18:00 on ' + lmDue + '</strong>.')),
+          measure];
+      }
       html += '<div class="yer-note yer-late-closed"><i class="bx bx-time-five"></i><div class="yer-late-note-body">' +
-        '<div class="yer-late-note-title">' + L('Bạn đã không nộp bổ sung Tự đánh giá sau 4 lần nhắc nhở','You did not submit the self assessment after 4 reminders') + '</div>' +
+        '<div class="yer-late-note-title">' + title + '</div>' +
+        (lead ? '<p class="yer-late-closed-lead">' + lead + '</p>' : '') +
         '<ul class="yer-note-list">' + closedItems.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' +
         '</div></div>';
     }
@@ -1476,6 +1503,9 @@
       '.yer-late-confirm-dialog .pms-dlg-tx{padding:16px 18px 18px}' +
       '.yer-late-confirm-dialog .pms-dlg-x{top:11px;right:14px}' +
       // Nhóm nút Lưu nháp và Gửi nổi ở giữa mép dưới vùng nội dung khi chỗ cũ đã cuộn khuất
+      // Nút Quy trình nằm sát nhóm nút Lưu nháp, Gửi ở mép phải hàng
+      '.yer-toolbar .yer-proc{margin-left:auto}' +
+      '.yer-toolbar .yer-proc + .yer-actions{margin-left:0}' +
       '.yer-toolbar .yer-actions.floating{position:fixed;z-index:880;left:calc(var(--sw) + (100vw - var(--sw)) / 2);transform:translateX(-50%);' +
         'padding:8px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg)}' +
       '@media(max-width:900px){.yer-toolbar .yer-actions.floating{left:50%}}' +
@@ -1510,6 +1540,8 @@
       '#yer-root .yer-late-note>i{color:var(--warn);font-size:18px}' +
       '#yer-root .yer-late-note strong{color:var(--z900);font-weight:700}' +
       '.yer-late-note-title{font-size:14.5px;font-weight:700;color:var(--z900);line-height:1.4;margin-bottom:3px}' +
+      // Câu đầu của khối Dừng quy trình: nói quy trình đã dừng trước khi tới lý do (08/10/2026)
+      '.yer-late-closed-lead{margin:0;color:var(--z900)}' +
       // Hai bước viết theo dòng, đánh số, không đóng khung (chốt 07/10/2026)
       '.yer-late-steps-lead{margin-top:10px;font-size:13px;font-weight:700;color:var(--z900)}' +
       '.yer-late-steps{margin:4px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:3px}' +

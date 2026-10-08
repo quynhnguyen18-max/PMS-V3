@@ -363,27 +363,54 @@
     };
   }
 
-  /* ── Trạng thái hiển thị trong danh sách ────────────────── */
+  /* ── Giai đoạn của kỳ theo ngày: 'not-open', 'self', 'lm', 'lm2', 'hod', 'hr' (Total Reward, HR Director), 'publish' ── */
+  function cyclePhase(now) {
+    now = now || today();
+    if (cmp(now, step('self').from) < 0) return 'not-open';
+    if (cmp(now, step('publish').from) >= 0) return 'publish';
+    var open = ['self', 'lm', 'lm2', 'hod'].filter(function (k) { return stepState(k, now) === 'open'; })[0];
+    return open || 'hr';
+  }
+
+  /* ── Trạng thái của hồ sơ (§47, chị chốt lại 08/10/2026) ──────────────────
+     Trạng thái đổi THEO TIMELINE, không đổi ngay khi gửi: một vai gửi xong trong timeline của mình thì là `[Vai] đã đánh giá`
+     (vai đó còn sửa được, editUntil cho tooltip `Còn chỉnh sửa được tới 18:00 ngày …`); timeline của vai sau mở thì mới thành
+     `Chờ [vai sau] đánh giá`. Mỗi hồ sơ một trạng thái; đặc điểm của hồ sơ (nộp trễ, thai sản, LWD, điểm hệ thống tự lấy,
+     không tự đánh giá, không có điểm HOD) là tag. Mọi vai, mọi màn đọc cùng một nhãn; màu theo vai do managerStatusTone quyết.
+     Ngoài kỳ đánh giá và đã nghỉ việc không nằm trong danh sách nên chỉ còn là mã nội bộ, không có nhãn hiển thị. */
   function status(p, lang) {
     lang = lang || 'vi';
     function t(vi, en) { return lang === 'en' ? en : vi; }
-    if (!p) return { key: 'none', label: '', tone: 'muted' };
-    if (p.eligibility.reason === 'late-onboard') return { key: 'out', label: t('Ngoài kỳ đánh giá', 'Out of cycle'), tone: 'muted' };
-    if (p.resigned) return { key: 'resigned', label: t('Đã nghỉ việc', 'Resigned'), tone: 'muted' };
-    // Thai sản không bắt buộc tự đánh giá (§12) nên không rơi vào luồng nộp trễ.
-    if (!p.self && p.lateWindowOpen && !p.maternity) return { key: 'late-self', label: t('Cần nộp bổ sung Tự đánh giá', 'Late self assessment needed'), tone: 'action' };
-    if (p.stopped) return { key: 'noeval', label: t('Không đánh giá', 'Not evaluated'), tone: 'muted' };
-    if (p.published) return { key: 'published', label: t('Đã công bố kết quả', 'Results published'), tone: 'done' };
-    if (p.hod) return { key: 'wait-tr', label: t('Chờ tải điểm cuối cùng', 'Awaiting final upload'), tone: 'muted' };
-    if (p.lm2) return { key: 'wait-hod', label: t('Chờ HOD đánh giá', 'Awaiting HOD'), tone: 'action' };
-    if (p.lm) return { key: 'wait-lm2', label: t('Chờ Quản lý cấp 2', 'Awaiting second-level manager'), tone: 'action' };
-    if (p.self) return { key: 'wait-lm', label: p.lateSubmission
-      ? t('Nộp trễ hạn - Chờ Quản lý', 'Submitted late - Awaiting manager')
-      : t('Chờ Quản lý trực tiếp', 'Awaiting line manager'), tone: 'action' };
-    if (p.maternity) return { key: 'maternity', label: t('Nghỉ thai sản - không yêu cầu tự đánh giá', 'Maternity leave - self assessment not required'), tone: 'muted' };
-    if (stepState('self', p.now) === 'open') return { key: 'need-self', label: t('Cần tự đánh giá', 'Self assessment needed'), tone: 'action' };
-    if (stepState('self', p.now) === 'future') return { key: 'not-open', label: t('Chưa mở', 'Not open yet'), tone: 'muted' };
-    return { key: 'no-self', label: t('Không tự đánh giá', 'No self assessment'), tone: 'muted' };
+    function out(key, vi, en, tone, extra) { return Object.assign({ key: key, label: t(vi, en), tone: tone || 'muted' }, extra || {}); }
+    if (!p) return out('none', '', '');
+    if (p.eligibility.reason === 'late-onboard') return out('out', '', '');
+    if (p.resigned) return out('resigned', '', '');
+    if (p.stopped) return out('stopped', 'Dừng đánh giá', 'Review stopped');
+    if (p.published) return out('published', 'Đã công bố kết quả', 'Results published', 'done');
+    var phase = cyclePhase(p.now);
+    if (phase === 'not-open') return out('not-open', 'Chưa mở', 'Not open yet');
+    if (phase === 'self') {
+      if (p.self) return out('self-done', 'NV đã tự đánh giá', 'Self assessment done', 'muted', { editUntil: step('self').to });
+      // Thai sản không bắt buộc tự đánh giá (§12); bản nháp là việc riêng của nhân viên nên vẫn là Chưa tự đánh giá
+      if (p.maternity) return out('self-optional', 'Không cần tự đánh giá', 'Self assessment optional');
+      return out('need-self', 'Chưa tự đánh giá', 'Self assessment missing', 'action');
+    }
+    if (phase === 'lm') {
+      if (lateWaiting(p)) return out('late-self', 'Chờ NV nộp bổ sung', 'Awaiting late self assessment', 'action', { round: p.lateRound.round });
+      if (p.lm && !p.lm.synced) return out('lm-done', 'QLTT đã đánh giá', 'Line manager reviewed', 'muted', { editUntil: step('lm').to });
+      // Gồm cả hồ sơ thai sản, nộp bổ sung, và hết các lần nhắc mà đủ mục tiêu (tag Không tự đánh giá)
+      return out('wait-lm', 'Chờ QLTT đánh giá', 'Awaiting line manager', 'action', { noSelf: !p.self && !p.maternity });
+    }
+    if (phase === 'lm2') {
+      if (p.lm2) return out('lm2-done', 'QL cấp 2 đã đánh giá', 'Second-level manager reviewed', 'muted', { editUntil: step('lm2').to });
+      return out('wait-lm2', 'Chờ QL cấp 2 đánh giá', 'Awaiting second-level manager', 'action', { noSelf: !p.self && !p.maternity });
+    }
+    if (phase === 'hod') {
+      if (p.hod) return out('hod-done', 'HOD đã đánh giá', 'HOD reviewed', 'muted', { editUntil: step('hod').to });
+      return out('wait-hod', 'Chờ HOD đánh giá', 'Awaiting HOD', 'action', { noSelf: !p.self && !p.maternity });
+    }
+    // Hết timeline HOD: HOD không chấm thì vẫn đi tiếp, kèm tag Không có điểm HOD (chị chốt 08/10/2026)
+    return out('wait-publish', 'Chờ công bố kết quả', 'Awaiting publication', 'muted', { noHod: !p.hod, noSelf: !p.self && !p.maternity });
   }
 
   /* ── Quyền của từng cấp Quản lý tại một thời điểm ─────────
@@ -416,12 +443,8 @@
 
     var key = status(p, 'vi').key;
     var pendingKey = role === 'lm' ? 'wait-lm' : role === 'lm2' ? 'wait-lm2' : 'wait-hod';
-    // Thai sản không cần Self Assessment nhưng chuyển thành việc của QLTT khi
-    // timeline QLTT bắt đầu.
-    var pending = key === pendingKey ||
-      (role === 'lm' && key === 'maternity' && stepState('lm', p.now) !== 'future') ||
-      // Hết thời gian nộp bổ sung mà không nộp, đủ mục tiêu: việc của QLTT tới hết hạn QLTT
-      (role === 'lm' && key === 'no-self' && stepState('lm', p.now) === 'open');
+    // Trạng thái chờ đúng vai chỉ có trong timeline của vai đó (thai sản, hết các lần nhắc mà đủ mục tiêu đều là wait-lm)
+    var pending = key === pendingKey;
 
     return {
       stepOpen: stepOpen,
@@ -925,6 +948,7 @@
     currentStep: currentStep,
     profile: profile,
     status: status,
+    cyclePhase: cyclePhase,
     managerReviewState: managerReviewState,
     cycleTabLabel: cycleTabLabel,
     managerEditWindow: managerEditWindow,
