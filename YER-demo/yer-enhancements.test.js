@@ -236,7 +236,17 @@ test('manager year-end list follows the mid-year shell and uses employee timelin
   assert.match(manager, /var MGR_STEPS = \['self', 'lm', 'lm2', 'hod', 'publish'\]/);
   assert.match(manager, /\.filter\(function \(st\) \{ return MGR_STEPS\.indexOf\(st\.key\) >= 0; \}\)/);
   assert.match(manager, /domain: ''/);
-  assert.match(manager, /class="yer-mgr-stepper"><div id="yer-mgr-steps"><\/div><\/div>/);
+  // Dải quy trình đã bỏ ở mọi màn YER (chị chốt 08/10/2026)
+  assert.doesNotMatch(manager, /yer-mgr-stepper|yer-mgr-steps|U\.steps\(/);
+  // Nút đứng cùng hàng Bộ lọc, Split View: ngay sau #yer-mgr-filter-row, trước nút Split View (08/10/2026)
+  const iFilterRow = manager.indexOf("'<div id=\"yer-mgr-filter-row\"'");
+  const iProcBtn = manager.indexOf("U.procMenu(stepItems()", iFilterRow);
+  const iSplitBtn = manager.indexOf('id="yer-mgr-split"', iFilterRow);
+  assert.ok(iFilterRow > 0 && iProcBtn > iFilterRow && iSplitBtn > iProcBtn, 'nut Tien trinh danh gia phai o hang Bo loc, Split View');
+  // Nút xám, popover rộng vừa nội dung
+  const uiProc = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
+  assert.doesNotMatch(uiProc, /\.yer-proc-btn\{color:var\(--brand\)/);
+  assert.match(uiProc, /\.yer-proc-pop\{[^']*width:max-content/);
   assert.doesNotMatch(manager, /showResigned|yer-mgr-res|Hiển thị nhân viên đã nghỉ việc|Show resigned employees/);
   assert.doesNotMatch(manager, /yer-mgr-progress|function progressHtml/);
   assert.doesNotMatch(manager, /yer-role-guide|yer-mgr-guide|Xem hướng dẫn|View guide|<div class="myr-info"/);
@@ -804,7 +814,8 @@ test('manager YER list uses the mid-year colours and concise labels', () => {
   const modelSrc = fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8');
   ['Chưa tự đánh giá', 'NV đã tự đánh giá', 'Không cần tự đánh giá', 'Chờ NV nộp bổ sung', 'Chờ QLTT đánh giá', 'QLTT đã đánh giá',
    'Chờ QL cấp 2 đánh giá', 'QL cấp 2 đã đánh giá', 'Chờ HOD đánh giá', 'HOD đã đánh giá', 'Chờ công bố kết quả', 'Đã công bố kết quả',
-   'Dừng đánh giá', 'Chưa mở'].forEach(l => assert.ok(modelSrc.indexOf("'" + l + "'") >= 0, l));
+   'Không đánh giá', 'Chưa mở'].forEach(l => assert.ok(modelSrc.indexOf("'" + l + "'") >= 0, l));
+  assert.doesNotMatch(modelSrc, /'Dừng đánh giá'/);
   assert.doesNotMatch(listStatus, /Nộp trễ hạn - Chờ QLTT đánh giá/);
   // Màu theo luật ở model (chốt 02/10/2026): hồng cho việc vai đang xem làm được ngay, xanh khi đã công bố. Không tông đỏ.
   assert.match(listStatus, /tone: Y\.managerStatusTone\(role\(\), p\)/);
@@ -991,16 +1002,30 @@ test('LM2 and HOD rate by clicking the score cell, which opens the popup at once
   assert.ok(hod08 && hod08.acts && hod08.acts.e10 && hod08.acts.e10.lm2.score === 3.5);
   // Icon cảnh báo canh giữa theo phần chữ số
   assert.match(manager, /transform:translateY\(calc\(-50% - \.5px\)\)/);
-  // Nút Quy trình + popover (phương án 1, 07/10/2026): dùng chung E-05, M-06, dải quy trình vẫn giữ
+  // Nút Quy trình + popover (phương án 1, 07/10/2026): dùng chung E-05, M-05, M-06; dải quy trình đã bỏ (08/10/2026)
   const uiP = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
   assert.match(uiP, /function procMenu\(items, opts\)/);
   assert.match(uiP, /procMenu: procMenu,/);
   const empP = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   assert.match(empP, /var proc = U\.procMenu\(stepItems\(\)/);
-  assert.match(empP, /function mountSteps\(\)/);
+  assert.doesNotMatch(uiP, /function steps\(el, opts\)|steps: steps,|\.pst-/);
+  assert.doesNotMatch(empP, /function mountSteps|function stepper|U\.steps\(/);
   const detP = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   assert.match(detP, /U\.procMenu\(stepItemsOf\(p\)/);
-  assert.match(detP, /items: stepItemsOf\(p\)/);
+  assert.doesNotMatch(detP, /function mountSteps|yer-md-steps|U\.steps\(/);
+  // Hạn chót trong popover: bước của từng vai, Nhân viên tới HOD, ghi `Hạn chót 18:00, dd/mm/yyyy`; Công bố kết quả chỉ ghi ngày (08/10/2026)
+  const Yp = loadYer().PMSYer;
+  assert.equal(Yp.stepDueText('self', 'vi'), 'Hạn chót 18:00, 18/01/2027');
+  assert.equal(Yp.stepDueText('lm', 'vi'), 'Hạn chót 18:00, 08/02/2027');
+  assert.equal(Yp.stepDueText('lm2', 'vi'), 'Hạn chót 18:00, 22/02/2027');
+  assert.equal(Yp.stepDueText('hod', 'vi'), 'Hạn chót 18:00, 08/03/2027');
+  assert.equal(Yp.stepDueText('publish', 'vi'), '06/04/2027');
+  assert.equal(Yp.stepDueText('hod', 'en'), 'Due 18:00, 08/03/2027');
+  // Nhãn nút cố định `Tiến trình đánh giá`, không ghi bước; tiêu đề popover không ghi số bước (08/10/2026)
+  assert.match(uiP, /esc\(en \? 'Review progress' : 'Tiến trình đánh giá'\)/);
+  assert.doesNotMatch(uiP, /procLabel|'Quy trình - '| bước'\)\) \+ '<\/div>'/);
+  [empP, detP, manager].forEach(function (src) { assert.match(src, /title: L\('Tiến trình đánh giá cuối năm 2026', 'Year-End Review 2026 progress'\)/); });
+  [empP, detP, manager].forEach(function (src) { assert.match(src, /date: Y\.stepDueText\(st\.key, lg\(\)\)/); });
   assert.match(manager, /previewUpload\(file\.name, valid, errors\);/);
   // Popup xác nhận duy nhất của Upload điểm: bảng xem trước, lưu ý ghi đè, lưu ý vượt mức trong cùng popup (08/10/2026)
   const preview = manager.slice(manager.indexOf('function previewUpload('), manager.indexOf('function openUpload()'));
@@ -1195,7 +1220,7 @@ test('manager roster puts work for the viewing role first, finished work and LWD
   const missing = selfPhase.find(p => p.eligibility.reason === 'missing-goal' && !p.maternity);
   assert.ok(missing);
   assert.equal(Y.status(missing, 'vi').key, 'need-self');
-  // `Dừng đánh giá` luôn ở cuối cùng
+  // `Không đánh giá` (p.stopped) luôn ở cuối cùng
   const stopped = Y.profile('e2', Y.addDays(Y.step('lm').to, 1));
   assert.equal(Y.status(stopped, 'vi').key, 'stopped');
   assert.equal(Y.managerRosterRank('lm', stopped), 40);
@@ -1394,11 +1419,13 @@ test('employee screen uses the mascot guide and hides the note after submit', ()
   // da nam trong chinh khoi canh bao nen cung khong dung box thu hai.
   assert.match(source, /\(p\.self \|\| hasWarnNote \|\| lateClosed\) \? '' : noteBlock\(p\)/);
   assert.match(source, /noteList\(p, \{ skipGoalRule: true \}\)/);
-  /* Vi tri chot theo YER-SPEC.md §40.5a: khoi canh bao dung TREN dai quy trinh,
-     khoi Luu y dung DUOI. Vi tri noi len muc do uu tien nen khong duoc doi cho. */
+  /* Vi tri chot theo YER-SPEC.md §40.5a: khoi canh bao dung TREN hang thao tac,
+     khoi Luu y dung DUOI. Vi tri noi len muc do uu tien nen khong duoc doi cho.
+     Dai quy trinh da bo (08/10/2026). */
   const iCanhBao = source.indexOf("html += '<div class=\"yer-note action\"");
-  const iStepper = source.indexOf('submitBanner(p) + stepper()');
-  assert.ok(iCanhBao > 0 && iStepper > iCanhBao, 'khoi canh bao phai dung truoc dai quy trinh');
+  const iToolbar = source.indexOf('html += toolbar(p, editable) + submitBanner(p) +');
+  assert.ok(iCanhBao > 0 && iToolbar > iCanhBao, 'khoi canh bao phai dung truoc hang thao tac');
+  assert.doesNotMatch(source, /stepper\(\)/);
   assert.doesNotMatch(source, /function guideBtn\(/);
   // Mascot là component dùng chung của yer-ui.js, E-05 và M-06 cùng gọi (04/10/2026)
   const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
@@ -1735,8 +1762,8 @@ test('manager detail keeps the timeline, empty goal groups, goal popups and the 
   const page = fs.readFileSync(path.join(root, 'M-06/index.html'), 'utf8');
   const manager = fs.readFileSync(path.join(root, 'assets/yer-manager.js'), 'utf8');
 
-  // §40.2: màn chi tiết có dải quy trình, bước Tự đánh giá có domain
-  assert.match(detail, /id="yer-md-steps"/);
+  // §40.2: dải quy trình đã bỏ (08/10/2026); nút Quy trình của màn chi tiết có domain ở bước Tự đánh giá
+  assert.doesNotMatch(detail, /id="yer-md-steps"/);
   assert.match(detail, /domain: person \? person\.login : ''/);
   // §40.5d: nhóm trống vẫn giữ khối
   assert.doesNotMatch(detail, /if \(type !== 'how' && !list\.length\) return '';/);
@@ -1876,16 +1903,16 @@ test('status follows the timeline: done inside the own window, waiting for the n
   // Chưa gửi trong hạn, quá hạn trong 4 lần nhắc, hết hạn thiếu mục tiêu
   assert.equal(st('y9', '2027-01-12').label, 'Chưa tự đánh giá');
   assert.equal(st('y10', '2027-01-22').label, 'Chờ NV nộp bổ sung');
-  assert.equal(st('y10', '2027-02-05').label, 'Dừng đánh giá');
+  assert.equal(st('y10', '2027-02-05').label, 'Không đánh giá');
   // Thai sản trong timeline Tự đánh giá
   assert.equal(st('y2', '2027-01-12').label, 'Không cần tự đánh giá');
   // Hết timeline HOD mà HOD không chấm: Chờ công bố kết quả kèm tag Không có điểm HOD
   const noHod = st('e10', '2027-03-12');
   assert.equal(noHod.key, 'wait-publish');
   assert.equal(noHod.noHod, true);
-  // Không còn nhãn hiển thị cho Ngoài kỳ đánh giá, Đã nghỉ việc
+  // Không còn nhãn hiển thị cho Ngoài kỳ đánh giá, Đã nghỉ việc. `Không đánh giá` nay là nhãn của hồ sơ dừng (p.stopped, 08/10/2026)
   const model = fs.readFileSync(path.join(root, 'assets/yer-model.js'), 'utf8');
-  assert.doesNotMatch(model, /'Ngoài kỳ đánh giá'|'Không đánh giá'|'Chờ tải điểm cuối cùng'|'Nghỉ thai sản - không yêu cầu tự đánh giá'/);
+  assert.doesNotMatch(model, /'Ngoài kỳ đánh giá'|'Chờ tải điểm cuối cùng'|'Nghỉ thai sản - không yêu cầu tự đánh giá'/);
   // Thanh demo M-05: dòng đếm trạng thái ở ngày đang chọn; không có nút mốc HR (chị bỏ 08/10/2026, kéo thanh ngày để xem)
   const demo = fs.readFileSync(path.join(root, 'assets/yer-demo.js'), 'utf8');
   assert.doesNotMatch(demo, /HR duyệt kết quả/);

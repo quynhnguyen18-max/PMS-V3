@@ -436,7 +436,8 @@
           render(); notify('reset');
         });
         bar.querySelector('#dm-reset').addEventListener('click', function () {
-          var go = function () { S.reset(); render(); notify('reset'); };
+          // Phiên mới không có ngày: đặt ngày mặc định như lúc dựng thanh (build), không thì thanh demo lỗi khi định dạng ngày
+          var go = function () { S.reset(); S.setSession({ date: window.PMSYer.DEFAULT_DATE }); render(); notify('reset'); };
           if (window.PMSUi && window.PMSUi.dialog) {
             window.PMSUi.dialog({
               title: lg === 'en' ? 'Reset all demo data?' : 'Đặt lại toàn bộ dữ liệu demo?',

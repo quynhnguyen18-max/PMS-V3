@@ -3,7 +3,7 @@
    1. PMSUi.rating   — Enh 10 / ENH-E13: ô chọn điểm kiểu MYR + tên mức + định nghĩa mức
    2. PMSUi.tabs     — Enh 11 / ENH-E14: tab chu kỳ có trạng thái, hover, disabled
    3. PMSUi.dirty    — Enh 12 / ENH-E15: cảnh báo dữ liệu chưa lưu khi rời màn
-   4. PMSUi.steps    — ENH-E14: dải quy trình, mỗi bước bấm được để đọc thêm
+   4. PMSUi.procMenu — nút Tiến trình đánh giá mở popover các bước (thay dải quy trình từ 08/10/2026)
    5. PMSUi.tour     — ENH-E14: tourguide có spotlight, nhớ đã xem theo vai
    6. PMSUi.dialog / PMSUi.toast — primitive dùng chung
    Spec: YER-SPEC.md muc 4, 18, 34, 35, 36
@@ -112,39 +112,6 @@
     '.yt-btn.off{background:var(--z50);border-style:dashed;cursor:not-allowed}',
     '.yt-btn.off .yt-name,.yt-btn.off .yt-state{color:var(--z400)}',
     '.yt-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);flex:none}',
-
-    /* ── dải quy trình (ENH-E14) ───────────────────
-       Dạng stepper có số và đường nối, giống Mid-Year Review trong E-01 (.stepper-track,
-       .step-item, .step-circle) nhưng gọn hơn: vòng tròn 24px, chữ nhỏ hơn, bịt khoảng
-       trống thừa. Mỗi bước là một nút thật để đọc thêm. */
-    '.pst-hd{display:flex;align-items:center;gap:6px;width:100%;padding:0;border:0;background:transparent;',
-    'font-family:inherit;font-size:11px;font-weight:600;text-align:left;cursor:pointer;',
-    'text-transform:uppercase;letter-spacing:.5px;color:var(--z500);margin-bottom:26px}',
-    '.pst-hd>i{font-size:13px;color:var(--brand)}',
-    '.pst-hd:hover{color:var(--z700)}',
-    '.pst-chev{margin-left:auto;font-size:16px;color:var(--z500);transition:transform .15s ease}',
-    '.pst-card.collapsed .pst-chev{transform:rotate(-90deg)}',
-    '.pst-card.collapsed .pst-hd{margin-bottom:0}',
-    '.pst-card.collapsed .pst-track{display:none}',
-    /* Thu gọn rồi vẫn phải nói được kỳ đang ở bước nào */
-    '.pst-now{display:none;margin-top:8px;font-size:12px;color:var(--z600);line-height:1.45}',
-    '.pst-card.collapsed .pst-now{display:block}',
-    '.pst-now strong{color:var(--z900);font-weight:600}',
-    '.pst-card{overflow-x:auto}',
-    '.pst-track{display:flex;align-items:flex-start;position:relative;min-width:max-content}',
-    '.pst-track::before{content:"";position:absolute;top:11px;left:14px;right:14px;height:2px;background:var(--z200);z-index:0}',
-    '.pst-step{flex:1 1 0;min-width:118px;display:flex;flex-direction:column;align-items:center;text-align:center;',
-    'position:relative;z-index:1;padding:0 4px 4px}',
-    '.pst-circle{width:24px;height:24px;border-radius:50%;background:var(--z200);color:var(--z500);font-size:11px;',
-    'font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;transition:all .12s ease;',
-    'box-shadow:0 0 0 3px var(--z50)}',
-    '.pst-step.done .pst-circle{background:var(--z400);color:#fff}',
-    '.pst-step.open .pst-circle{background:var(--brand);color:#fff;box-shadow:0 0 0 3px var(--brand-muted)}',
-    '.pst-body{margin-top:7px;width:100%}',
-    '.pst-name{display:block;font-size:12px;font-weight:600;color:var(--z700);line-height:1.3}',
-    '.pst-step.open .pst-name{color:var(--brand)}',
-    '.pst-dom{font-size:11px;font-weight:400;color:var(--z500);white-space:nowrap}',
-    '.pst-date{display:block;font-size:11px;color:var(--z600);line-height:1.3;margin-top:2px;font-variant-numeric:tabular-nums}',
 
     /* ── tourguide (ENH-E14) ─────────────────────────────
        Spotlight làm bằng box-shadow tràn màn hình trên một ô rỗng đặt đúng
@@ -260,19 +227,22 @@
     '.yer-late-goal i{font-size:12px}',
     '.yer-late-goal-row{display:flex;align-items:center;gap:4px;margin-top:5px}',
 
-    /* ── Nút Quy trình + popover (07/10/2026), dùng chung E-05 và M-06 ── */
+    /* ── Nút Tiến trình đánh giá + popover (07/10/2026), dùng chung E-05, M-05 và M-06 ── */
     '.yer-proc{position:relative;display:inline-flex}',
-    /* Viền nhạt như nút AI Summary của M-06 (.yer-md-ai): chữ hồng, viền --brand-ring (chị chốt 08/10/2026) */
-    '.yer-proc-btn{color:var(--brand);border-color:var(--brand-ring)}',
-    '.yer-proc-btn:hover,.yer-proc-btn[aria-expanded="true"]{background:var(--brand-muted);border-color:var(--brand)}',
+    /* Nút xám như Bộ lọc, Split View (chị chốt lại 08/10/2026): nút chỉ để xem thông tin, không phải việc cần làm nên không tô hồng.
+       Giữ nguyên kiểu .btn-outline của màn, lúc đang mở thì giữ nền hover. */
+    '.yer-proc-btn[aria-expanded="true"]{background:var(--z50);border-color:var(--z400)}',
     '.yer-proc-btn .yer-proc-chev{font-size:15px;margin-left:2px;transition:transform .15s ease}',
     '.yer-proc-btn[aria-expanded="true"] .yer-proc-chev{transform:rotate(180deg)}',
-    '.yer-proc-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:70;width:360px;max-width:calc(100vw - 32px);',
+    /* Popover rộng vừa nội dung (chị chốt 08/10/2026: bỏ khoảng trống giữa tên bước và hạn) */
+    '.yer-proc-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:70;width:max-content;max-width:calc(100vw - 32px);',
     'padding:12px 14px;background:var(--z0);border:1px solid var(--z200);border-radius:var(--r);box-shadow:var(--sh-lg);text-align:left}',
     '.yer-proc-pop[hidden]{display:none}',
     '.yer-proc-hd{font-size:12px;color:var(--z600);margin-bottom:8px}',
-    '.yer-proc-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}',
-    '.yer-proc-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;column-gap:8px;font-size:12.5px;color:var(--z900)}',
+    /* Một lưới chung cho mọi bước để cột hạn thẳng hàng; mỗi dòng (li) chỉ là display:contents */
+    '.yer-proc-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:20px auto auto;column-gap:8px;row-gap:8px;',
+    'align-items:center;font-size:12.5px;color:var(--z900)}',
+    '.yer-proc-row{display:contents}',
     '.yer-proc-dot{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:600;',
     'border:1px solid var(--z300);color:var(--z600);background:var(--z0)}',
     '.yer-proc-dot i{font-size:13px}',
@@ -280,7 +250,8 @@
     '.yer-proc-row.open .yer-proc-dot{background:var(--brand);border-color:var(--brand);color:var(--z0)}',
     '.yer-proc-row.open .yer-proc-name{font-weight:600}',
     '.yer-proc-dom{color:var(--z500);font-weight:400}',
-    '.yer-proc-date{font-size:12px;color:var(--z500);white-space:nowrap}',
+    '.yer-proc-name{white-space:nowrap}',
+    '.yer-proc-date{font-size:12px;color:var(--z500);white-space:nowrap;justify-self:end;padding-left:16px}',
     '.yer-proc-row.open .yer-proc-date{color:var(--brand);font-weight:500}',
 
     /* ── toast ── */
@@ -627,96 +598,11 @@
     };
   }
 
-  /* ═══ 3. Dải quy trình (ENH-E14) ══════════════════
-     Stepper có số và đường nối giống Mid-Year Review, nhưng gọn hơn và có thêm
-     domain người thực hiện. Bấm một bước thì mở hộp giải thích.
-     opts: {
-       title,
-       items: [{ key, name, domain, date, state:'done'|'open'|'todo', tag,
-                 who, what, you }]
-     }
-     Chủ màn tự quyết định chuỗi `date`: theo ENH-E14 chỉ bước tự đánh giá hiện
-     khoảng ngày, các bước còn lại chỉ hiện hạn chót.                              */
-  function steps(el, opts) {
-    injectCss();
-    opts = opts || {};
-    var items = opts.items || [];
-
-    // Nhớ trạng thái thu gọn theo từng màn, để đổi ngôn ngữ hay đổi ngày không mở lại.
-    var ckey = opts.collapseKey || 'default';
-    function readCollapsed() {
-      if (!window.PMSStore) return false;
-      var ui = window.PMSStore.admin('stepsCollapsed');
-      return !!(ui && ui[ckey]);
-    }
-    function saveCollapsed() {
-      if (!window.PMSStore) return;
-      var ui = Object.assign({}, window.PMSStore.admin('stepsCollapsed') || {});
-      ui[ckey] = collapsed;
-      window.PMSStore.setAdmin('stepsCollapsed', ui);
-    }
-    var collapsed = readCollapsed();
-
-    function nowLine() {
-      var en = lang() === 'en';
-      var cur = items.filter(function (it) { return it.state === 'open'; })[0];
-      if (!cur) return '';
-      return '<div class="pst-now">' + esc(en ? 'Currently at: ' : 'Đang ở bước: ') +
-        '<strong>' + esc(cur.name) + '</strong>' +
-        (cur.domain ? ' (' + esc(cur.domain) + ')' : '') +
-        (cur.date ? ' - ' + esc(cur.date) : '') + '</div>';
-    }
-
-    function draw() {
-      var en = lang() === 'en';
-      el.className = 'stepper-card pst-card' + (collapsed ? ' collapsed' : '');
-      el.innerHTML =
-        '<button type="button" class="stepper-hd pst-hd" aria-expanded="' + (!collapsed) + '">' +
-          '<i class="bx bx-directions"></i>' + esc(opts.title || '') +
-          '<i class="bx bx-chevron-down pst-chev" aria-hidden="true"></i>' +
-          '<span class="sr-only">' +
-            esc(collapsed ? (en ? 'Expand the process strip' : 'Mở rộng dải quy trình')
-                          : (en ? 'Collapse the process strip' : 'Thu gọn dải quy trình')) +
-          '</span>' +
-        '</button>' + nowLine() +
-        // Bước chỉ để đọc, không bấm được: mọi thông tin cần biết đã nằm sẵn trên dải.
-        '<div class="pst-track">' + items.map(function (it, i) {
-          return '<div class="pst-step ' + esc(it.state || 'todo') + '">' +
-            '<span class="pst-circle">' + (i + 1) + '</span>' +
-            '<span class="pst-body">' +
-              // Domain nằm cùng dòng với tên vai cho đỡ tốn chiều cao.
-              // Bước Công bố kết quả không gắn với người cụ thể nên không có domain.
-              '<span class="pst-name">' + esc(it.name) +
-                (it.domain ? ' <span class="pst-dom">(' + esc(it.domain) + ')</span>' : '') + '</span>' +
-              '<span class="pst-date">' + esc(it.date || '') + '</span>' +
-            '</span>' +
-          '</div>';
-        }).join('') + '</div>';
-
-      el.querySelector('.pst-hd').addEventListener('click', function () {
-        collapsed = !collapsed;
-        saveCollapsed();
-        draw();
-      });
-    }
-    draw();
-    return { el: el, setItems: function (list) { items = list; draw(); }, redraw: draw };
-  }
-
-  /* ── Nút Quy trình + popover (chị chọn phương án 1, 07/10/2026; dải quy trình vẫn giữ, sếp duyệt rồi bỏ một trong hai) ──
-     Nút nằm cạnh các nút thao tác của tab (M-06: trước AI Summary; E-05: trước Lưu nháp, Gửi), ghi luôn bước đang ở để đóng
-     popover vẫn biết hồ sơ đang ở đâu. Bấm thì mở popover đủ các bước: người phụ trách, hạn, bước đang mở tô hồng.
-     items: cùng danh sách bước của dải quy trình ({ name, domain, date, state: 'done' | 'open' | 'todo' }). */
-  function procLabel(items) {
-    var en = lang() === 'en', n = items.length;
-    var open = -1, done = 0;
-    items.forEach(function (it, i) { if (it.state === 'open') open = i; if (it.state === 'done') done++; });
-    if (open >= 0) return (en ? 'Step ' : 'Bước ') + (open + 1) + '/' + n;
-    if (done === 0) return en ? 'Not started' : 'Chưa bắt đầu';
-    if (done === n) return en ? 'Completed' : 'Đã hoàn tất';
-    // Giữa hai bước hiển thị (vd bước nội bộ của HR): chờ bước kế tiếp
-    return (en ? 'Waiting for step ' : 'Chờ bước ') + (done + 1) + '/' + n;
-  }
+  /* ── Nút Tiến trình đánh giá + popover (chị chọn phương án 1, 07/10/2026; dải quy trình đã bỏ ở mọi màn YER, 08/10/2026) ──
+     Nút nằm cạnh các nút thao tác của tab (M-06: trước AI Summary; E-05: trước Lưu nháp, Gửi; M-05: cuối hàng chọn vai).
+     Nhãn nút cố định `Tiến trình đánh giá`, không ghi bước đang ở (chị chốt 08/10/2026). Bấm thì mở popover đủ các bước:
+     người phụ trách, hạn, bước đang mở tô hồng.
+     items: danh sách bước ({ name, domain, date, state: 'done' | 'open' | 'todo' }); date lấy từ Y.stepDueText. */
   function procMenu(items, opts) {
     injectCss();
     opts = opts || {};
@@ -730,10 +616,10 @@
     }).join('');
     return '<div class="yer-proc">' +
       '<button type="button" class="btn btn-outline btn-sm yer-proc-btn" aria-haspopup="true" aria-expanded="false">' +
-        '<i class="bx bx-directions"></i>' + esc((en ? 'Process - ' : 'Quy trình - ') + procLabel(items)) +
+        '<i class="bx bx-directions"></i>' + esc(en ? 'Review progress' : 'Tiến trình đánh giá') +
         '<i class="bx bx-chevron-down yer-proc-chev"></i></button>' +
       '<div class="yer-proc-pop" role="dialog" aria-label="' + esc(opts.title || '') + '" hidden>' +
-        '<div class="yer-proc-hd">' + esc((opts.title || '') + (en ? ' - ' + items.length + ' steps' : ' - ' + items.length + ' bước')) + '</div>' +
+        '<div class="yer-proc-hd">' + esc(opts.title || '') + '</div>' +
         '<ol class="yer-proc-list">' + rows + '</ol></div></div>';
   }
   function closeProc(except) {
@@ -744,7 +630,7 @@
       if (b) b.setAttribute('aria-expanded', 'false');
     });
   }
-  // Một bộ lắng nghe cho mọi nút Quy trình: màn dựng lại nhiều lần nên không gắn theo từng nút
+  // Một bộ lắng nghe cho mọi nút Tiến trình đánh giá: màn dựng lại nhiều lần nên không gắn theo từng nút
   document.addEventListener('click', function (e) {
     var btn = e.target.closest && e.target.closest('.yer-proc-btn');
     if (btn) {
@@ -1028,7 +914,6 @@
     goalTab: goalTab,
     mascotGuide: mascotGuide,
     tabs: tabs,
-    steps: steps,
     tour: {
       start: function (items, opts) { startTour(items, opts); },
       // chỉ chạy lần đầu của mỗi vai; sau đó người dùng tự bấm "Xem hướng dẫn"

@@ -80,17 +80,9 @@
       '<div class="char-ct" id="' + counterId + '">' + String(value||'').length + ' / ' + max + '</div>';
   }
   /* ── quy trình và thời gian (ENH-E14) ────────────────────
-     Dải quy trình do PMSUi.steps dựng để mỗi bước bấm được và đọc thêm được.
-     stepper() chỉ trả về chỗ trống, nội dung gắn vào ở mountSteps().          */
+     Chỉ còn nút Tiến trình đánh giá trên hàng thao tác (PMSUi.procMenu); dải quy trình đã bỏ (chị chốt 08/10/2026).
+     Mọi bước chỉ hiện hạn chót, bước của từng vai ghi đủ 18:00 (Y.stepDueText). */
   var EMP_STEPS = ['self', 'lm', 'lm2', 'hod', 'publish'];   // nhân viên không cần thấy bước nội bộ của HR
-
-  function stepper(){ return '<div id="yer-steps"></div>'; }
-
-  /* Mọi bước chỉ hiện hạn chót. Ngày bắt đầu của cả kỳ đưa lên tiêu đề dải,
-     không lặp lại ở từng bước. */
-  function stepDate(st){
-    return L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg());
-  }
 
   function stepItems(){
     var s = S.session();
@@ -106,23 +98,10 @@
           name: lg()==='en' ? st.en : st.vi,
           // Bước Công bố kết quả không gắn với một người cụ thể nên không có domain
           domain: person ? person.login : '',
-          date: stepDate(st),
+          date: Y.stepDueText(st.key, lg()),
           state: state === 'open' ? 'open' : state === 'closed' ? 'done' : 'todo'
         };
       });
-  }
-
-  function mountSteps(){
-    var node = el('yer-steps');
-    if(!node) return;
-    U.steps(node, {
-      // Tiêu đề không ghi ngày bắt đầu kỳ (bỏ 02/10/2026), từng bước chỉ ghi hạn chót
-      title: L('Quy trình và Thời gian đánh giá cuối năm 2026',
-               'Year-End Review 2026 process and timeline'),
-      collapseKey: 'yer-emp',
-      items: stepItems()
-    });
-    node.classList.add('yer-stepper');
   }
 
   /* ── mascot tour guide (ENH-E14) ─────────────────────────
@@ -135,10 +114,10 @@
         title: L('Bạn đang ở Đánh giá cuối năm','You are in Year-End Review'),
         text:  L('Ba tab Danh sách mục tiêu, Đánh giá giữa năm và Đánh giá cuối năm thuộc cùng một chu kỳ. Nhãn trên hai tab đánh giá cho biết kỳ đó đang diễn ra hay đã hoàn tất.',
                  'Goals, Mid-Year Review and Year-End Review belong to the same cycle. The label on each review tab shows whether that cycle is active or completed.') },
-      { sel: '#yer-steps', pose: 'run.png',
+      { sel: '#yer-root .yer-proc-btn', pose: 'run.png',
         title: L('Hồ sơ của bạn đang ở đây','Where your profile stands'),
-        text:  L('Bước được tô hồng là bước đang mở. Mỗi bước ghi rõ ai phụ trách và hạn chót phải hoàn thành.',
-                 'The pink step is the one currently open. Each step names its owner and the date it must be completed by.') }
+        text:  L('Bấm Tiến trình đánh giá để xem hồ sơ đang ở bước nào, ai phụ trách từng bước và hạn chót phải hoàn thành.',
+                 'Open Review progress to see the current step, who owns each step and its deadline.') }
     ];
 
     if(!p.self && p.lateWindowOpen){
@@ -397,7 +376,7 @@
         '<div class="scmt-locked-ph"><i class="bx bx-lock-alt"></i>' +
         (p.lm && p.lm.synced
           ? L('Quản lý không gửi nhận xét trong kỳ này','Your manager did not leave a comment this cycle')
-            // Hồ sơ Dừng đánh giá: không nói Quản lý tiếp tục, tránh ngược với khối Dừng quy trình ở trên (08/10/2026)
+            // Hồ sơ Không đánh giá (p.stopped): không nói Quản lý tiếp tục, tránh ngược với khối Dừng quy trình ở trên (08/10/2026)
             : p.stopped ? L('Quy trình đã dừng nên Quản lý không đánh giá','The review has stopped, so there is no manager review')
             : p.self ? L('Quản lý sẽ nhận xét trong bước đánh giá của Quản lý','Your manager comments during the manager review step')
                      : Y.stepState('self', S.session().date) === 'closed'
@@ -408,7 +387,7 @@
   }
 
   /* Domain của cấp quản lý cạnh tiêu đề ô: nhân viên biết ai đánh giá, ai nhận xét.
-     Người thực hiện lấy từ Y.actors(p), cùng nguồn với dải quy trình. */
+     Người thực hiện lấy từ Y.actors(p), cùng nguồn với nút Tiến trình đánh giá. */
   function actorDomain(a){
     return a && a.login ? '<span class="op-hd-dom">- ' + esc(a.login) + '</span>' : '';
   }
@@ -473,7 +452,7 @@
     // Hồ sơ nộp bổ sung luôn mang nhãn trễ hạn, kể cả sau khi công bố (§27.3)
     var isLateFile = !!p.lateSubmission;
     var daysLate = isLateFile ? Y.lateDays(p.lateSubmission.at || p.self.at) : 0;
-    // Tầng trên chỉ một dòng ngày. Trạng thái đang chờ ai đã nằm ở nhãn tab và dải quy trình.
+    // Tầng trên chỉ một dòng ngày. Trạng thái đang chờ ai đã nằm ở nhãn tab và nút Tiến trình đánh giá.
     // Hồ sơ nộp bổ sung chỉ gửi một lần nên không có lịch sử chỉnh sửa
     var sub = (p.published
       ? esc(L('Ngày công bố: ','Published on: ') + Y.fmt(p.final.publishedAt, lg()))
@@ -539,8 +518,8 @@
      màn hình (bindFloatingToolbar), để lúc nào cũng thấy mà không phải cuộn ngược lên.
      Thiếu mục tiêu thì nút Gửi ở trạng thái khóa nhưng vẫn bấm được để đọc lý do. */
   function toolbar(p, editable){
-    // Nút Quy trình đứng đầu hàng thao tác, có cả khi chỉ xem (chị chọn phương án 1, 07/10/2026; dải quy trình vẫn giữ)
-    var proc = U.procMenu(stepItems(), { title: L('Quy trình đánh giá cuối năm 2026', 'Year-End Review 2026 process') });
+    // Nút Tiến trình đánh giá đứng đầu hàng thao tác, có cả khi chỉ xem và trước khi kỳ mở (07/10/2026); dải quy trình đã bỏ (08/10/2026)
+    var proc = U.procMenu(stepItems(), { title: L('Tiến trình đánh giá cuối năm 2026', 'Year-End Review 2026 progress') });
     if(!editable) return '<div class="yer-toolbar">' + proc + '</div>';
     var st = Y.selfAssessmentState(p);
     var locked = !st.canSubmit;
@@ -557,8 +536,9 @@
     var bar = document.querySelector('#yer-root .yer-toolbar');
     window.removeEventListener('scroll', bindFloatingToolbar._sync, true);
     window.removeEventListener('resize', bindFloatingToolbar._sync);
-    if(!bar) return;
-    var actions = bar.querySelector('.yer-actions');
+    // Chỉ xem thì hàng thao tác chỉ có nút Tiến trình đánh giá, không có nhóm nút để nổi
+    var actions = bar && bar.querySelector('.yer-actions');
+    if(!actions) return;
     function sync(){
       if(!document.body.contains(bar)) return;
       // Chỉ nổi khi đang mở tab Đánh giá cuối năm và chỗ cũ của nhóm nút đã cuộn khuất
@@ -692,11 +672,10 @@
     var s = S.session();
     var yerOpen = Y.cmp(s.date, Y.step('self').from) >= 0;
     if(!yerOpen){
-      root.innerHTML = stepper() +
+      root.innerHTML = toolbar(p, false) +
         '<div class="yer-empty"><i class="bx bx-calendar"></i>' +
         L('Kỳ đánh giá cuối năm bắt đầu từ <strong>' + Y.fmt(Y.step('self').from, lg()) + '</strong>.',
           'The year-end review opens on <strong>' + Y.fmt(Y.step('self').from, lg()) + '</strong>.') + '</div>';
-      mountSteps();
       return;
     }
 
@@ -734,7 +713,7 @@
               'Please create it and send it to your line manager for approval in the <a href="#" class="yer-note-link" data-go-tab="0">Goal list</a> tab.') + '<br>' +
             L('Trong lúc này, bạn vẫn có thể nhập thông tin và lưu nháp bản tự đánh giá.',
               'Meanwhile, you can still enter your assessment and save it as a draft.')) +
-        /* Gộp luôn các gạch đầu dòng Lưu ý vào đây. Tách thành hai box rồi để dải quy trình
+        /* Gộp luôn các gạch đầu dòng Lưu ý vào đây. Tách thành hai box rồi để khối khác
            chen vào giữa thì rối mắt, mà hai box lại nói trùng chuyện mục tiêu đã duyệt. */
         noteList(p, { skipGoalRule: true }) +
         // Không có nút riêng: cụm Danh sách mục tiêu trong câu đã là liên kết sang tab đó (chốt 28/09/2026)
@@ -743,7 +722,7 @@
     }
 
     /* Đang chỉnh sửa lại bản đã gửi (§8): khối này thay cho banner Đã hoàn thành,
-       đứng trên dải quy trình vì đây là việc đang dở, phải gửi lại trước hạn. */
+       đứng đầu tab vì đây là việc đang dở, phải gửi lại trước hạn. */
     if(st.mode === 'editing'){
       var dl = Y.fmt(st.deadline, lg());
       html += '<div class="yer-note action yer-edit-note"><i class="bx bx-edit-alt"></i><div>' +
@@ -763,7 +742,7 @@
 
     // Thiếu mục tiêu hoặc đang chỉnh sửa thì khối phía trên đã là box thông tin duy nhất (§40.5a)
     var hasWarnNote = (p.eligibility.reason === 'missing-goal' && !lateClosed) || st.mode === 'editing' || lateOpen;
-    html += toolbar(p, editable) + submitBanner(p) + stepper() +
+    html += toolbar(p, editable) + submitBanner(p) +
       ((p.self || hasWarnNote || lateClosed) ? '' : noteBlock(p));
 
     // Thông báo thai sản nằm trong khối Lưu ý ở trên (xem noteBlock), không dựng riêng.
@@ -778,7 +757,7 @@
         : esc(Y.lateText('discipline', lg())));
       var title, lead = '', closedItems;
       if(p.stopped){
-        /* Hồ sơ Dừng đánh giá (chị chốt 08/10/2026, theo khối `Dừng quy trình đánh giá cuối năm` của M-06): tiêu đề và câu đầu nói
+        /* Hồ sơ Không đánh giá (p.stopped, chị chốt 08/10/2026, theo khối `Dừng quy trình đánh giá cuối năm` của M-06): tiêu đề và câu đầu nói
            quy trình đã dừng, không có điểm; lý do và hình thức xử lý đứng sau. Thiếu mục tiêu (nv21) hoặc QLTT cũng không chấm. */
         title = L('Dừng quy trình đánh giá cuối năm', 'Year-end review stopped');
         lead = L('Quy trình Đánh giá cuối năm của bạn dừng tại đây và <strong>không có điểm trên hệ thống</strong>.',
@@ -839,7 +818,6 @@
   }
 
   function afterRender(p){
-    mountSteps();
     mountMascotGuide(p);
     /* mount rating control */
     document.querySelectorAll('#yer-root [data-rt]').forEach(function(node){
@@ -1008,7 +986,7 @@
 
   /* Thiếu mục tiêu: dùng chung cho lúc lưu nháp (saved) và lúc bấm nút Gửi đang khóa.
      Lưu nháp thì tiêu đề là thông báo thành công, dòng dưới là hướng dẫn việc còn thiếu.
-     Không nhắc hạn ở đây: hạn đã có ở dải quy trình. */
+     Không nhắc hạn ở đây: hạn đã có ở nút Tiến trình đánh giá. */
   function missingGoalDialog(p, saved){
     U.dialog({
       title: saved ? L('Lưu nháp thành công','Draft saved') : L('Chưa gửi được Tự đánh giá','You cannot submit yet'),
@@ -1443,14 +1421,12 @@
     if(finalScore) finalScore.textContent = String(p.myr.final);
   }
 
-  /* ── CSS cho trạng thái bước trong stepper ── */
+  /* ── CSS riêng của tab Đánh giá cuối năm ── */
   function injectCss(){
     if(document.getElementById('yer-emp-css')) return;
     var st = document.createElement('style');
     st.id = 'yer-emp-css';
     st.textContent =
-      // dải quy trình do PMSUi.steps dựng; ở đây chỉ nới lại padding của thẻ
-      '.yer-stepper{padding:12px 16px 12px}' +
       '.tabs{position:relative;padding-right:48px}' +
       '.tabs .tab-active-label.yer-past-cycle-label{color:var(--z600);background:var(--z100);border-color:var(--z300)}' +
       // .info-note chỉ được định nghĩa cho #mpanel-myr nên trong #yer-root phải khai lại,
@@ -1503,7 +1479,7 @@
       '.yer-late-confirm-dialog .pms-dlg-tx{padding:16px 18px 18px}' +
       '.yer-late-confirm-dialog .pms-dlg-x{top:11px;right:14px}' +
       // Nhóm nút Lưu nháp và Gửi nổi ở giữa mép dưới vùng nội dung khi chỗ cũ đã cuộn khuất
-      // Nút Quy trình nằm sát nhóm nút Lưu nháp, Gửi ở mép phải hàng
+      // Nút Tiến trình đánh giá nằm sát nhóm nút Lưu nháp, Gửi ở mép phải hàng
       '.yer-toolbar .yer-proc{margin-left:auto}' +
       '.yer-toolbar .yer-proc + .yer-actions{margin-left:0}' +
       '.yer-toolbar .yer-actions.floating{position:fixed;z-index:880;left:calc(var(--sw) + (100vw - var(--sw)) / 2);transform:translateX(-50%);' +

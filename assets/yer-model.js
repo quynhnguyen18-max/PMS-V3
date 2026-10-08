@@ -36,6 +36,14 @@
     if (cmp(now, s.to) > 0) return 'closed';
     return 'open';
   }
+  /* Hạn chót của từng bước trong nút Tiến trình đánh giá (chị chốt 08/10/2026): bước của một vai, từ Nhân viên tới HOD,
+     đóng lúc 18:00 nên ghi `Hạn chót 18:00, dd/mm/yyyy`; bước Công bố kết quả không thuộc vai nào, chỉ ghi ngày. */
+  var STEP_DUE_18 = ['self', 'lm', 'lm2', 'hod'];
+  function stepDueText(key, lang) {
+    var s = step(key), en = lang === 'en';
+    if (STEP_DUE_18.indexOf(key) < 0) return fmt(s.to, lang);
+    return (en ? 'Due 18:00, ' : 'Hạn chót 18:00, ') + fmt(s.to, lang);
+  }
   /* ── Ngày làm việc (§27.3): thứ 2 đến thứ 6, trừ ngày lễ ── */
   function isWorkingDay(v) {
     var wd = d(v).getDay();
@@ -385,7 +393,8 @@
     if (!p) return out('none', '', '');
     if (p.eligibility.reason === 'late-onboard') return out('out', '', '');
     if (p.resigned) return out('resigned', '', '');
-    if (p.stopped) return out('stopped', 'Dừng đánh giá', 'Review stopped');
+    // Nhãn `Không đánh giá` (chị chốt 08/10/2026, thay `Dừng đánh giá`); khối vàng trên màn vẫn là `Dừng quy trình đánh giá cuối năm`
+    if (p.stopped) return out('stopped', 'Không đánh giá', 'Not evaluated');
     if (p.published) return out('published', 'Đã công bố kết quả', 'Results published', 'done');
     var phase = cyclePhase(p.now);
     if (phase === 'not-open') return out('not-open', 'Chưa mở', 'Not open yet');
@@ -933,6 +942,7 @@
     cmp: cmp,
     step: step,
     stepState: stepState,
+    stepDueText: stepDueText,
     lateSubmissionDeadline: lateSubmissionDeadline,
     lateDays: lateDays,
     lateRounds: lateRounds,

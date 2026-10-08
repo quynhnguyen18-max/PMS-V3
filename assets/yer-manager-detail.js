@@ -149,8 +149,8 @@
       '<button type="button" class="manager-back" id="yer-md-back"><i class="bx bx-left-arrow-alt"></i>' +
         L('Quay lại danh sách nhân viên', 'Back to employee list') + '</button>' +
       '<div class="manager-nav-right">' + toolbar(p, canEdit) +
-        // Nút Quy trình (chị chọn phương án 1, 07/10/2026; dải quy trình vẫn giữ tới khi sếp duyệt bỏ một trong hai)
-        U.procMenu(stepItemsOf(p), { title: L('Quy trình đánh giá cuối năm 2026', 'Year-End Review 2026 process') }) +
+        // Nút Tiến trình đánh giá (chị chọn phương án 1, 07/10/2026); dải quy trình đã bỏ (08/10/2026)
+        U.procMenu(stepItemsOf(p), { title: L('Tiến trình đánh giá cuối năm 2026', 'Year-End Review 2026 progress') }) +
         // AI Summary bấm mới chạy, cho cả QLTT, LM2, HOD (§14)
         '<button type="button" class="btn btn-outline btn-sm yer-md-ai" id="yer-md-ai"><i class="bx bxs-magic-wand"></i>AI Summary</button>' +
         '<button type="button" class="btn btn-cta-outline btn-sm" id="yer-md-feedback"><i class="bx bx-message-square-dots"></i>' +
@@ -498,10 +498,10 @@
         title: L('Đánh giá cuối năm của nhân viên', 'The employee year-end review'),
         text: L('Tab Đánh giá giữa năm để xem lại kết quả giữa năm; tab Đánh giá cuối năm là nơi ' + R + ' đánh giá. Nhãn trên tab cho biết kỳ đó đang diễn ra hay đã hoàn tất.',
           'The Mid-Year tab shows the mid-year result; the Year-End tab is where ' + roleLow() + ' reviews. The tab label shows whether the cycle is active or completed.') },
-      { sel: '#yer-md-steps', pose: 'run.png',
+      { sel: '#yer-mgr-detail-root .yer-proc-btn', pose: 'run.png',
         title: L('Hồ sơ đang ở bước nào', 'Where the profile stands'),
-        text: L('Bước tô hồng là bước đang mở. Mỗi bước ghi người phụ trách và hạn chót.',
-          'The pink step is open now. Each step names its owner and deadline.') }
+        text: L('Bấm Tiến trình đánh giá để xem hồ sơ đang ở bước nào, người phụ trách từng bước và hạn chót.',
+          'Open Review progress to see the current step, who owns each step and its deadline.') }
     ];
     var root = '#yer-mgr-detail-root ';
     if (p.stopped) {
@@ -581,11 +581,11 @@
     });
   }
 
-  /* ── Dải quy trình (§40) ─────────────────────────────────
-     Cùng component với màn Nhân viên và danh sách Quản lý. Màn chi tiết là của một
-     nhân viên nên mọi bước đều có domain, kể cả Tự đánh giá; bước Công bố thì không. */
+  /* ── Nút Tiến trình đánh giá (§40.3b) ──────────────────────────────
+     Dải quy trình đã bỏ (chị chốt 08/10/2026), chỉ còn nút Tiến trình đánh giá. Màn chi tiết là của một
+     nhân viên nên mọi bước đều có domain, kể cả Tự đánh giá; bước Công bố thì không.
+     Hạn chót của bước từng vai ghi đủ 18:00 (Y.stepDueText). */
   var MD_STEPS = ['self', 'lm', 'lm2', 'hod', 'publish'];
-  // Danh sách bước dùng chung cho dải quy trình và nút Quy trình (07/10/2026)
   function stepItemsOf(p) {
     var who = Y.actors(p);
     return window.PMS_YER_TIMELINE.steps
@@ -597,25 +597,15 @@
           key: st.key,
           name: lg() === 'en' ? st.en : st.vi,
           domain: person ? person.login : '',
-          date: L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg()),
+          date: Y.stepDueText(st.key, lg()),
           state: state === 'open' ? 'open' : state === 'closed' ? 'done' : 'todo'
         };
       });
   }
-  function mountSteps(p) {
-    var node = el('yer-md-steps');
-    if (!node) return;
-    U.steps(node, {
-      title: L('Quy trình và Thời gian đánh giá cuối năm 2026',
-               'Year-End Review 2026 process and timeline'),
-      collapseKey: 'yer-md',
-      items: stepItemsOf(p)
-    });
-  }
 
   /* ── Khối Lưu ý (§40.5a, chốt 30/09/2026) ─────────────────
      Cùng luật với màn Nhân viên: không bao giờ hai box thông tin cùng lúc. Mọi thông tin tham khảo của hồ sơ
-     gom thành gạch đầu dòng trong MỘT khối `Lưu ý` (.info-note, icon ⓘ) ngay dưới dải quy trình, câu chữ viết cho
+     gom thành gạch đầu dòng trong MỘT khối `Lưu ý` (.info-note, icon ⓘ) ngay dưới thanh thao tác, câu chữ viết cho
      người quản lý. Vai đang xem đã gửi thì banner thay khối này, như banner `Đã hoàn thành` của Nhân viên.
      Hồ sơ `Không đánh giá` chỉ có một khối vàng (.yer-note.yer-late-closed), không dựng khối Lưu ý. */
   function missingGoalNames(p) {
@@ -1024,7 +1014,7 @@
   /* Lưu ý cuối phần Đánh giá toàn diện (chốt 02/10/2026): nhân viên thấy gì từ các cấp quản lý (§7) */
   function visibilityNote() {
     return '<div class="info-note yer-visibility-note"><i class="bx bx-info-circle"></i><span><strong>' + L('Lưu ý:', 'Note:') + '</strong> ' +
-      L('Nhân viên chỉ xem được nhận xét toàn diện của các cấp quản lý, không xem được Điểm đánh giá. Kết quả cuối cùng của nhân viên sẽ hiển thị sau khi hoàn tất quy trình.',
+      L('Nhân viên chỉ xem được nhận xét toàn diện của các cấp quản lý, không xem được Điểm đánh giá. Kết quả cuối sẽ hiển thị với nhân viên sau khi hoàn tất quy trình.',
         'The employee sees only the overall comments of the managers, not their ratings. The final result is shown to the employee once the process is complete.') +
       '</span></div>';
   }
@@ -1145,7 +1135,7 @@
     window.PMSUi.goalTab(p, { role: isLm() ? 'lm' : 'view', active: Y.lateCase(p) });
 
     var canEdit = editable(p);
-    var html = detailNav(p, canEdit) + banner(p) + '<div id="yer-md-steps" class="yer-md-steps"></div>';
+    var html = detailNav(p, canEdit) + banner(p);
 
     html += noteBlock(p, canEdit);
 
@@ -1241,7 +1231,6 @@
   }
 
   function afterRender(p, canEdit) {
-    mountSteps(p);
     mountMascot(p, canEdit);
     bindFloatingToolbar();
     // Bảng dựng lại mỗi lần render nên gắn lại tooltip và popup chi tiết mục tiêu
@@ -1832,7 +1821,6 @@
     st.textContent =
       '#yer-mgr-detail-root .yer-mgr-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:0}' +
       '#yer-mgr-detail-root .yer-md-nav{margin-bottom:14px}' +
-      '#yer-mgr-detail-root .yer-md-steps{margin-bottom:14px}' +
       '#yer-mgr-detail-root .rv-grid .g-none-row td{padding:16px 12px}' +
       '#yer-mgr-detail-root .g-none{text-align:center;font-size:12.5px;color:var(--z400);font-style:italic}' +
       '#yer-mgr-detail-root .rv-grid tbody tr[data-name]{cursor:pointer}' +

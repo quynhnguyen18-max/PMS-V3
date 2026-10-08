@@ -91,13 +91,9 @@
   }
 
   /* ── quy trình và thời gian ───────────────────
-     Dùng cùng cấu trúc 5 bước của màn Nhân viên, nhưng danh sách Quản lý không
-     gắn domain cá nhân vào từng bước. */
-  /* Mọi bước chỉ hiện hạn chót. Tiêu đề dải không ghi ngày bắt đầu kỳ (bỏ 02/10/2026). */
-  function stepDate(st) {
-    return L('Hạn chót ', 'Due ') + Y.fmt(st.to, lg());
-  }
-
+     Dải quy trình đã bỏ (chị chốt 08/10/2026), thay bằng nút Tiến trình đánh giá (PMSUi.procMenu) như E-05, M-06.
+     Dùng cùng 5 bước của màn Nhân viên, nhưng danh sách Quản lý không gắn domain cá nhân vào từng bước.
+     Mọi bước chỉ hiện hạn chót, bước của từng vai ghi đủ 18:00 (Y.stepDueText). */
   function stepItems() {
     var s = S.session();
     return window.PMS_YER_TIMELINE.steps
@@ -108,7 +104,7 @@
           key: st.key,
           name: lg() === 'en' ? st.en : st.vi,
           domain: '',
-          date: stepDate(st),
+          date: Y.stepDueText(st.key, lg()),
           state: st8 === 'open' ? 'open' : st8 === 'closed' ? 'done' : 'todo'
         };
       });
@@ -1327,7 +1323,6 @@
   function shell() {
     var r = role();
     return '' +
-      '<div class="yer-mgr-stepper"><div id="yer-mgr-steps"></div></div>' +
       '<div class="role-sw-row yer-mgr-controls" id="yer-mgr-roles">' +
         '<div class="role-main-group">' +
           '<button type="button" class="role-main-btn' + (r === 'lm' ? ' on' : '') + '" data-role="lm">' +
@@ -1343,6 +1338,8 @@
       '</div>' +
       '<div class="list-toolbar">' +
         '<div id="yer-mgr-filter-row"' + (state.split ? ' style="display:none"' : '') + '>' + filterRowHtml() + '</div>' +
+        // Nút Tiến trình đánh giá cùng hàng Bộ lọc, Split View (chị chốt 08/10/2026); vẫn hiện khi đang ở Split View
+        U.procMenu(stepItems(), { title: L('Tiến trình đánh giá cuối năm 2026', 'Year-End Review 2026 progress') }) +
         '<button type="button" class="btn btn-outline btn-sm split-view-btn" id="yer-mgr-split" aria-pressed="' + state.split + '">' +
           '<i class="bx bx-columns"></i>Split View</button>' +
       '</div>' +
@@ -1363,18 +1360,6 @@
             '<i class="bx bx-link-external"></i>' + L('Mở toàn trang', 'Open full page') + '</button></div>' +
           '<iframe class="myr-sp-frame" id="yer-mgr-sp-frame" title="' + esc(L('Chi tiết đánh giá của nhân viên', 'Employee review detail')) + '"></iframe>' +
         '</section></div></div>';
-  }
-
-  function mountSteps() {
-    var node = el('yer-mgr-steps');
-    if (!node) return;
-    U.steps(node, {
-      // Tiêu đề không ghi ngày bắt đầu kỳ (bỏ 02/10/2026), từng bước chỉ ghi hạn chót
-      title: L('Quy trình và Thời gian đánh giá cuối năm 2026',
-               'Year-End Review 2026 process and timeline'),
-      collapseKey: 'yer-mgr',
-      items: stepItems()
-    });
   }
 
   function colspan() { return role() === 'lm' ? 8 : role() === 'lm2' ? 10 : 11; }
@@ -1517,7 +1502,6 @@
     }
     syncCycleLabels();
     root.innerHTML = shell();
-    mountSteps();
     bind();
     refreshRows();
     if (state.split && state.spEmp) {
@@ -1639,9 +1623,6 @@
     var st = document.createElement('style');
     st.id = 'yer-mgr-css';
     st.textContent =
-      '.yer-mgr-stepper{background:var(--z50);border:1px solid var(--z200);border-radius:var(--r);padding:14px 16px 12px;margin-bottom:14px}' +
-      '.yer-mgr-stepper .stepper-hd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--z500);display:flex;align-items:center;gap:5px}' +
-      '.yer-mgr-stepper .stepper-hd>i{font-size:13px;color:var(--brand)}' +
       '.yer-mgr-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}' +
       '.yer-mgr-controls .role-sub-group{margin-left:0}' +
       '#yer-mgr-filter-row{display:flex;align-items:center}' +

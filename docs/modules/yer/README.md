@@ -84,8 +84,13 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
   trong popup viền xám, đang chọn viền hồng đậm; dòng hạn chỉnh sửa chữ xám đậm; `Duyệt điểm QLTT/QL cấp 2` chỉ bấm được khi đã tick
   nhân viên trên bảng (chưa tick thì xám, không số, rê chuột thấy hướng dẫn), bấm mở một popup xác nhận kèm lưu ý vượt mức; nút khóa
   cùng một kiểu xám (§47).
-- [x] **Nút Quy trình (07/10/2026, chị chọn phương án 1):** nút `Quy trình - Bước k/n` mở popover các bước ở E-05 và M-06, làm thêm,
-  dải quy trình vẫn giữ tới khi sếp duyệt bỏ một trong hai (§40.3b, `PMSUi.procMenu`).
+- [x] **Nút Quy trình (07/10/2026, chị chọn phương án 1):** nút `Quy trình - Bước k/n` mở popover các bước ở E-05 và M-06
+  (§40.3b, `PMSUi.procMenu`).
+- [x] **Bỏ dải quy trình, nút Tiến trình đánh giá (08/10/2026):** bỏ thẻ `Quy trình và Thời gian đánh giá cuối năm 2026` ở E-05, M-05,
+  M-06, chỉ giữ nút; nút đổi tên `Tiến trình đánh giá` (không ghi bước), popover `Tiến trình đánh giá cuối năm 2026` không ghi số bước;
+  M-05 có thêm nút này ở cuối hàng chọn vai; component `PMSUi.steps` gỡ khỏi `yer-ui.js`; hạn chót bước từng vai (Nhân viên tới HOD)
+  ghi `Hạn chót 18:00, dd/mm/yyyy`, bước Công bố kết quả chỉ ghi ngày, luật ở `PMSYer.stepDueText`; tour mascot dừng ở nút này (§40, §43).
+  Sửa kèm lỗi console có từ 07/10 ở E-05 khi hàng thao tác chỉ có nút (không có `Lưu nháp`, `Gửi`).
 - [x] **Góp ý popup và màn Duyệt điểm HRBP upload (08/10/2026):** mọi popup M-05 YER cùng khung đầu popup (dải tiêu đề hồng nhạt, viền
   dưới); popup duyệt điểm đổi tên `Duyệt điểm của Quản lý trực tiếp/cấp 2`, nội dung gạch đầu dòng; popup Upload bỏ câu mức lẻ 0.5 và
   `(.csv)`; màn Duyệt điểm HRBP upload: nút Duyệt điểm cùng hàng Bộ lọc, chưa tick thì xám không số, `Tải xuống` chỉ icon, cột
@@ -107,6 +112,13 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
   sửa; timeline vai sau mở mới `Chờ [vai sau] đánh giá`), `Chờ NV nộp bổ sung`, `Không cần tự đánh giá`, `Dừng đánh giá`, `Chờ công bố
   kết quả` (HOD không chấm thì kèm tag `Không có điểm HOD`); luật ở `PMSYer.status` + `cyclePhase` (§47). Thanh demo M-05 có dòng
   đếm trạng thái ở ngày đang chọn (§44). Bộ lọc không hiện số 0.
+- [x] **Nhãn Không đánh giá, câu Lưu ý M-06 (08/10/2026):** trạng thái `Dừng đánh giá` đổi thành `Không đánh giá` ở cột Trạng thái của
+  lưới M-05 và dòng đếm trạng thái của thanh demo (cùng nhãn ở `PMSYer.status`), tên tình huống demo đổi theo; khối vàng `Dừng quy trình
+  đánh giá cuối năm` giữ nguyên (§47). Lưu ý cuối khối Đánh giá toàn diện của M-06: `Kết quả cuối sẽ hiển thị với nhân viên sau khi
+  hoàn tất quy trình.` (§48).
+  Sửa kèm: nút `Đặt lại tất cả` của thanh demo đặt lại ngày mặc định, hết lỗi console khi phiên về rỗng (`yer-demo.js`).
+- [x] **Nút Tiến trình đánh giá, đợt 2 (08/10/2026):** nút màu xám như Bộ lọc, Split View ở cả E-05, M-05, M-06; M-05 chuyển nút xuống
+  hàng Bộ lọc, Split View; popover rộng vừa nội dung, hết khoảng trống giữa tên bước và hạn (§40.3b).
 - [ ] **Góp ý màn Quản lý, còn lại:** màn HRBP tải điểm hộ HOD và bước đối soát (§9).
 - [x] **Góp ý E-05 đợt 3 (28/09/2026):** màn quá hạn giữ bố cục thường, các ô khóa, khối thông báo lần nhắc đang mở rồi xác nhận mới mở popup nộp bổ sung; hạn chấm QLTT riêng cho hồ sơ nộp bổ sung (3 ngày làm việc từ ngày nộp); banner nộp trễ một nhãn và dòng hình thức xử lý, không có lịch sử chỉnh sửa; ô QLTT có `Điểm toàn diện: - Chưa công bố`; bớt viền khối cuối trang; 16 tình huống Nhân viên, bỏ nhóm `Hồ sơ khác` (§6, §8.2, §27.1, §27.3, §40.5a, §42, §44.1, §46).
 - [x] **Góp ý E-05 đợt 2 (27/09/2026):** bốn lần nhắc nộp bổ sung, đếm ngày làm việc, xác nhận đã đọc, khối nộp trễ sau khi gửi (§27.3); nhân viên đọc nhận xét Quản lý cấp 2 và Trưởng đơn vị (§7); tab `Danh sách mục tiêu` và nhãn xanh (§18.4); câu chữ cảnh báo thiếu mục tiêu, lưu nháp, thai sản, chỉnh sửa (§5, §8.1, §40.5); lịch sử chỉnh sửa theo lần gửi (§8.2); 11 tình huống Nhân viên và ghi chú `Hồ sơ khác` (§44.1, §46).
