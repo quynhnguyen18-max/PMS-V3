@@ -2,26 +2,26 @@
 <!--
   ============================================================================
   DEMO ONLY — KHÔNG GHÉP VÀO PROTOTYPE CHÍNH
-  "Dấu ấn của bạn" kể theo lối trải bài tarot.
+  "Dấu ấn của bạn" trải trên một QUẢ CẦU bài, thay cho lối lật từng lá.
 
-  NGOẠI LỆ DESIGN SYSTEM — có chủ đích, đã được duyệt:
-    Mặt bài dùng nền đêm + một accent kim loại (vàng) ngoài hồng MoMo. DS §19
-    quy định một accent duy nhất; ở đây phá luật để lấy chất trải bài. Ranh giới:
-    ngoại lệ CHỈ áp dụng bên trong .tarot-stage. Sidebar, topbar, page, nút,
-    breadcrumb ngoài sân khấu vẫn dùng nguyên token và class chuẩn.
+  HAI LOẠI LÁ
+    · 5 lá SÍT-RỊT — lấy nguyên bộ bài của tarot-stage.js (window.TAROT), mỗi
+      lá mang ảnh core value thật. Nội dung KHÔNG chép lại ở đây: sửa luật bên
+      tarot-stage.js là màn này đổi theo (DESIGN-SYSTEM.md §20.1).
+    · Các lá còn lại — thông điệp gửi tặng, minh hoạ bằng hoa lá vẽ SVG. Không
+      mang core value, để core value chỉ thuộc về lá sít-rịt.
 
-  DỮ LIỆU: lấy đúng feed thật của Nguyễn Văn Tú trong E-04 (12 phản hồi nhận
-  từ 7 người / 6 nhóm, 7 phản hồi đã cho, 2 lời cảm ơn) để mọi luật hiển thị
-  được kiểm chứng trên số thật chứ không phải số đẹp bịa ra.
+  MÀU CHỮ: mọi mặt bài nền tối, chữ sáng gần trắng. Không có mặt bài chữ đen.
 
-  Bộ bài: nghi thức mở + 5 lá + màn trải cuối.
+  NGOẠI LỆ DESIGN SYSTEM — như tarot-stage: nền đêm + accent vàng, chỉ áp dụng
+  bên trong .sph-stage. Sidebar, topbar, page ngoài sân khấu vẫn theo chuẩn.
   ============================================================================
 -->
 <html lang="vi">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>DEMO · Dấu ấn của bạn — Trải bài | MoMo HRM</title>
+<title>DEMO · Dấu ấn của bạn — Quả cầu | MoMo HRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
@@ -111,6 +111,7 @@ a{text-decoration:none}
 
 </style>
 <link rel="stylesheet" href="tarot-stage.css"/>
+<link rel="stylesheet" href="sphere-stage.css"/>
 </head>
 <body>
 
@@ -133,8 +134,8 @@ a{text-decoration:none}
       <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
       <button class="sb-item"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</button>
       <button class="sb-item" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</button>
-      <button class="sb-item" onclick="location.href='feedback-delight-demo.html'"><i class="bx bx-gift"></i>New Demo Feedback</button>
-      <button class="sb-item on"><i class="bx bx-moon"></i>Demo Trải bài</button>
+      <button class="sb-item" onclick="location.href='feedback-dau-an-demo.html'"><i class="bx bx-moon"></i>Demo Dấu ấn</button>
+      <button class="sb-item on"><i class="bx bx-planet"></i>Demo Quả cầu</button>
     </nav>
     <div class="sb-foot">
       <div class="sb-user">
@@ -149,7 +150,7 @@ a{text-decoration:none}
 
   <div class="workspace">
     <header class="topbar">
-      <span class="topbar-title">Dấu ấn của bạn — bản thử nghiệm</span>
+      <span class="topbar-title">Dấu ấn của bạn — bản thử nghiệm quả cầu</span>
       <div class="topbar-right">
         <span class="chip ch-demo"><i class="bx bx-purchase-tag"></i> DEMO — file tách riêng</span>
         <button class="ico-btn"><i class="bx bx-bell"></i></button>
@@ -161,30 +162,32 @@ a{text-decoration:none}
     <div class="page">
       <div class="breadcrumb"><span>Trang chủ</span><span class="bc-sep">/</span><span>Phản hồi của tôi</span><span class="bc-sep">/</span><span>Dấu ấn của bạn</span></div>
       <div class="page-hd"><h1 class="page-title">Dấu ấn của bạn</h1></div>
-      <p class="page-desc">Bản thử nghiệm cách kể "Dấu ấn của bạn" theo lối trải bài. Chưa ghép vào màn chính.</p>
+      <p class="page-desc">Bản thử nghiệm: cả bộ bài trải trên một quả cầu, kéo để xoay và chạm một lá để mở. Chưa ghép vào màn chính.</p>
 
       <div class="invite">
-        <div class="invite-art"><img src="../Core value with BG/Excellence.png" alt=""/></div>
+        <div class="invite-art"><img src="../Core value with BG/Teamwork.png" alt=""/></div>
         <div>
-          <h2>Bộ bài của bạn đã sẵn sàng</h2>
-          <p>Năm lá bài được trải từ 12 phản hồi bạn nhận trong năm 2026. Không ai khác nhìn thấy bộ bài này.</p>
-          <button class="btn btn-default" onclick="openStage()"><i class="bx bx-moon"></i> Mở bộ bài</button>
+          <h2>Quả cầu bài của bạn đã sẵn sàng</h2>
+          <p>Năm lá sít-rịt được trải từ 12 phản hồi bạn nhận trong năm 2026, nằm lẫn giữa những lá thông điệp gửi tặng. Không ai khác nhìn thấy quả cầu này.</p>
+          <button class="btn btn-default" onclick="openSphere()"><i class="bx bx-planet"></i> Mở quả cầu</button>
         </div>
       </div>
 
       <div class="note-box">
         <h3>Ghi chú cho buổi review</h3>
         <ul>
-          <li><strong>Số liệu là thật</strong> — lấy đúng feed của Nguyễn Văn Tú trong E-04, không phải số đẹp bịa ra.</li>
-          <li><strong>Lá I</strong> đếm số người (unique), không đếm số phản hồi. Gọi tên top 3; hoà thì ưu tiên người phản hồi gần đây nhất.</li>
-          <li><strong>Lá II</strong> chỉ hiện giá trị có dữ liệu &gt; 0 — "Đổi mới" của Tú bằng 0 nên được ẩn. Hai giá trị bằng điểm thì to và nổi như nhau.</li>
-          <li><strong>Ngoại lệ design system</strong> chỉ áp dụng bên trong sân khấu trải bài; sidebar, topbar và trang này vẫn theo chuẩn.</li>
+          <li><strong>5 lá sít-rịt</strong> dùng lại đúng bộ bài của màn Trải bài (<code>window.TAROT</code>), mang ảnh core value thật. Sửa luật một nơi, hai màn đổi theo.</li>
+          <li><strong>Lá thông điệp</strong> không mang core value — minh hoạ bằng hoa lá vẽ SVG, để core value chỉ thuộc về lá sít-rịt.</li>
+          <li><strong>Màu chữ</strong>: mọi mặt bài nền tối, chữ sáng gần trắng. Không mặt bài nào dùng chữ đen.</li>
+          <li><strong>Ngoại lệ design system</strong> chỉ áp dụng bên trong quả cầu; sidebar, topbar và trang này vẫn theo chuẩn.</li>
         </ul>
       </div>
     </div>
   </div>
 </div>
 
+<script src="dau-an-model.js"></script>
 <script src="tarot-stage.js"></script>
+<script src="sphere-stage.js"></script>
 </body>
 </html>

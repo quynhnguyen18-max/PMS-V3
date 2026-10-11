@@ -1,0 +1,232 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SÂN KHẤU HỘP QUÀ BÍ MẬT — phương án 5 của "Dấu ấn của bạn"
+   Feedback là món quà: mở hộp quà lớn, ánh sáng toả ra như mở rương kho báu
+   của cướp biển, rồi lần lượt từng báu vật bay lên từ hộp và mở ra thành một
+   metric; báu vật đã xem xếp vào túi đồ. Thuyền trưởng Moni dẫn đường.
+   Phong cách bút chì như phương án 4 (pencil.js).
+   Nạp file này + dau-an-model.js + pencil.js + gift-stage.js rồi gọi openGift().
+
+   NGOẠI LỆ DESIGN SYSTEM có chủ đích: giấy da, ánh vàng kho báu, hoạ tiết bút
+   chì, font MoMo Signature. Ranh giới: CHỈ trong .gft-stage.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@font-face{font-family:'MoMo Trust Sans';src:url('../MoMo%20Font/MoMoTrustSans-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'MoMo Trust Sans';src:url('../MoMo%20Font/MoMoTrustSans-Medium.otf') format('opentype');font-weight:500;font-display:swap}
+@font-face{font-family:'MoMo Trust Display';src:url('../MoMo%20Font/MoMoTrustDisplay.otf') format('opentype');font-weight:400;font-display:swap}
+@font-face{font-family:'MoMo Signature';src:url('../MoMo%20Font/MoMoSignature.otf') format('opentype');font-weight:400;font-display:swap}
+
+.gft-stage{
+  --ff:'MoMo Trust Sans','Public Sans',system-ui,sans-serif;
+  --fd:'MoMo Trust Display','MoMo Trust Sans',Georgia,serif;
+  --fs:'MoMo Signature','MoMo Trust Display',cursive;
+  --ink:#A50064; --ink2:#F64F9E; --gold:#E8A317; --gold2:#FFD54A; --parch:#FFF6E0; --txt:#4A2A1F;
+  position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+.gft-stage.open{display:flex;animation:gft-fade .16s ease}
+@keyframes gft-fade{from{opacity:0}}
+.gft-dialog{position:relative;width:min(1000px,96vw);height:min(800px,92vh);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+  font-family:var(--ff);color:var(--txt);box-shadow:var(--sh-lg);user-select:none;-webkit-user-select:none;
+  background:radial-gradient(120% 90% at 50% 45%,#FFF4DC 0%,#F6E4BE 55%,#E3C48E 100%)}
+.gft-dialog.lit{background:radial-gradient(120% 90% at 30% 70%,#FFF8E6 0%,#F8E6BF 50%,#DDBB80 100%)}
+.gft-dialog button{font-family:inherit}
+
+.gft-top{position:relative;z-index:30;display:flex;align-items:center;gap:9px;padding:14px 18px 4px;flex-shrink:0}
+.gft-logo{width:25px;height:25px;background:var(--brand);border-radius:7px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(165,0,100,.28)}
+.gft-logo span{font-family:var(--fs);font-size:16px;color:var(--brand-fg);line-height:1;margin-top:1px}
+.gft-ttl{font-family:var(--fd);font-size:17px;color:var(--z900);letter-spacing:-.3px}
+.gft-sub{font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#6B4A2E;font-weight:500;margin-left:4px}
+.gft-x{margin-left:auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:19px;color:var(--z600);
+  background:rgba(255,255,255,.8);border:1px solid var(--z200);transition:var(--t)}
+.gft-x:hover{color:var(--z900);background:var(--z0)}
+.gft-body{position:relative;flex:1;min-height:0}
+
+/* nền: sóng biển và sao vẽ chì */
+.gft-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.gft-bg .wv{position:absolute;left:-2%;width:104%;height:22px;opacity:.35}
+.gft-bg .st{position:absolute;animation:gft-twk 2.4s ease-in-out infinite}
+@keyframes gft-twk{0%,100%{transform:scale(.7);opacity:.4}50%{transform:scale(1.1);opacity:1}}
+
+/* ═══ Thế giới: cột trái (Moni, hộp, báu vật), cột phải (thẻ nội dung) ═══ */
+.gft-world{position:absolute;inset:0 0 84px;display:flex}
+.gft-left{position:relative;width:46%;flex-shrink:0}
+/* Moni, hộp và báu vật neo theo giữa cột để thẳng hàng với thẻ giấy da bên phải:
+   tâm cụm hộp + Moni (cao khoảng 320px tính từ đáy neo) nằm đúng giữa cột. */
+.gft-anchor{position:absolute;left:0;right:0;bottom:calc(50% - 160px);height:520px}
+.gft-right{position:relative;flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:10px 34px 10px 6px;overflow-y:auto}
+
+/* ánh sáng kho báu: tia quay + quầng sáng, toả từ miệng hộp */
+.gft-rays{position:absolute;left:66%;bottom:205px;width:620px;height:620px;margin:0 0 -310px -310px;border-radius:50%;opacity:0;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,rgba(255,213,74,.55) 0deg 7deg,rgba(255,213,74,0) 7deg 22.5deg);
+  -webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);
+  transition:opacity .8s ease;animation:gft-spin 24s linear infinite}
+.gft-glow{position:absolute;left:66%;bottom:205px;width:360px;height:360px;margin:0 0 -180px -180px;border-radius:50%;opacity:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,226,120,.75) 28%,rgba(255,213,74,0) 70%);transition:opacity .6s ease}
+.lit .gft-rays{opacity:1}
+.lit .gft-glow{opacity:1;animation:gft-pulse 2.6s ease-in-out infinite}
+@keyframes gft-spin{to{transform:rotate(360deg)}}
+@keyframes gft-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* hộp quà: thân + nắp tách rời để nắp bay lên */
+.gft-box{position:absolute;left:66%;bottom:40px;width:250px;height:177px;margin-left:-125px;z-index:5;cursor:pointer}
+.gft-box .body{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.gft-box .lid{position:absolute;left:-15px;bottom:154px;width:281px;height:115px;overflow:visible;transform-origin:30% 90%;
+  transition:transform .85s cubic-bezier(.3,1.2,.5,1),opacity .6s ease .35s}
+.gft-box.hint{animation:gft-hint 3.2s ease-in-out infinite}
+@keyframes gft-hint{0%,82%,100%{transform:none}86%{transform:rotate(-3deg)}90%{transform:rotate(3deg)}94%{transform:rotate(-2deg)}}
+.gft-box.shake{animation:gft-shake .55s ease}
+@keyframes gft-shake{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-3deg)}40%{transform:translateX(6px) rotate(3deg)}60%{transform:translateX(-5px) rotate(-2deg)}80%{transform:translateX(4px) rotate(2deg)}}
+.gft-box.open .lid{transform:translate(-90px,-250px) rotate(-38deg);opacity:0}
+.gft-box.open{cursor:default}
+.gft-tag{position:absolute;left:150px;top:42px;width:132px;height:58px;transform:rotate(8deg);transform-origin:10% 50%;animation:gft-swing 3s ease-in-out infinite;transition:opacity .3s}
+.gft-tag span{position:absolute;left:30px;right:10px;top:0;bottom:0;display:grid;place-items:center;white-space:nowrap;font-family:var(--fs);font-size:21px;color:var(--ink)}
+.gft-box.open .gft-tag{opacity:0}
+@keyframes gft-swing{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-4deg)}}
+
+/* bụi lấp lánh bay lên từ hộp */
+.gft-spark{position:absolute;left:66%;bottom:180px;width:0;height:0;z-index:4;pointer-events:none}
+.gft-spark i{position:absolute;width:var(--s,14px);height:var(--s,14px);opacity:0}
+.lit .gft-spark i{animation:gft-rise var(--d,3s) ease-out var(--dl,0s) infinite}
+@keyframes gft-rise{0%{opacity:0;transform:translate(0,0) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x,0),-300px) scale(1) rotate(160deg)}}
+
+/* báu vật bay lên từ hộp */
+.gft-item{position:absolute;left:66%;bottom:225px;width:160px;height:160px;margin-left:-80px;z-index:6;pointer-events:none}
+.gft-item .halo{position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,226,120,.5) 40%,rgba(255,213,74,0) 70%)}
+.gft-item svg{position:relative;width:100%;height:100%;filter:drop-shadow(0 6px 10px rgba(120,70,0,.25))}
+.gft-item.rise{animation:gft-up 1s cubic-bezier(.2,1.3,.4,1) both,gft-float 3s ease-in-out 1s infinite}
+@keyframes gft-up{from{opacity:0;transform:translateY(150px) scale(.25) rotate(-20deg)}to{opacity:1;transform:none}}
+@keyframes gft-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+/* kho báu đầy ở màn cảm ơn: 6 báu vật xếp vòng cung trên hộp */
+.gft-hoard{position:absolute;left:66%;bottom:215px;width:0;height:0;z-index:6;pointer-events:none}
+.gft-hoard span{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;animation:gft-up .8s cubic-bezier(.2,1.3,.4,1) both,gft-float 3s ease-in-out infinite;animation-delay:var(--dl),calc(var(--dl) + .8s)}
+.gft-hoard svg{width:100%;height:100%}
+
+/* thuyền trưởng Moni: ảnh tư thế + mũ cướp biển vẽ chì */
+/* Moni nhỏ hơn hộp và đứng cách hộp (góp ý 11/10/2026) */
+.gft-moni{position:absolute;left:0;bottom:40px;width:170px;height:170px;z-index:7}
+.gft-moni .bd{position:absolute;inset:0;animation:gft-bob 2.8s ease-in-out infinite;transform-origin:50% 100%}
+.gft-moni img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.gft-moni.hop .bd{animation:gft-hop .7s cubic-bezier(.3,1.6,.5,1) 2,gft-bob 2.8s ease-in-out 1.4s infinite}
+@keyframes gft-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes gft-hop{0%{transform:translateY(0)}40%{transform:translateY(-30px) rotate(3deg)}100%{transform:translateY(0)}}
+
+/* ═══ Thẻ giấy da bên phải ═══ */
+.gft-card{position:relative;width:100%;max-width:480px;background:var(--parch);border:2px solid #C9A46A;border-radius:6px;padding:24px 26px 22px;
+  box-shadow:4px 6px 0 rgba(120,80,30,.18),0 10px 24px rgba(120,80,30,.15);transform:rotate(-.6deg)}
+.gft-card::before,.gft-card::after{content:'';position:absolute;left:-2px;right:-2px;height:12px;background:#EBD3A3;border:2px solid #C9A46A;border-radius:12px}
+.gft-card::before{top:-10px}
+.gft-card::after{bottom:-10px}
+.gft-card .pop{opacity:0;animation:gft-pop .5s cubic-bezier(.3,1.5,.5,1) forwards;animation-delay:var(--d,0s)}
+@keyframes gft-pop{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}
+.gft-kick{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:50px;background:var(--ink);color:#FFF3E6;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:500}
+.gft-h{font-family:var(--fd);font-size:30px;line-height:1.15;letter-spacing:-.6px;color:var(--ink);margin-top:10px;text-wrap:balance}
+.gft-h.sig{font-family:var(--fs);font-size:52px;letter-spacing:0;margin-top:6px}
+.gft-under{display:block;width:140px;height:12px;margin:2px 0 12px}
+.gft-p{font-size:15.5px;line-height:1.55;color:var(--txt)}
+.gft-p+.gft-p{margin-top:8px}
+.gft-p b{font-weight:500;color:var(--ink)}
+.gft-note{position:relative;margin-top:14px;padding-left:28px;font-size:14.5px;line-height:1.5;color:var(--txt)}
+.gft-note svg{position:absolute;left:0;top:1px;width:20px;height:20px}
+.gft-nums{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.gft-num{display:flex;flex-direction:column;align-items:center;text-align:center}
+.gft-num .n{position:relative;font-family:var(--fd);font-size:54px;line-height:1;letter-spacing:-2px;color:var(--ink);padding:12px 24px}
+.gft-num .n svg{position:absolute;inset:-4px -8px;width:calc(100% + 16px);height:calc(100% + 8px);overflow:visible}
+.gft-num .l{font-size:13.5px;font-weight:500;margin-top:4px}
+.gft-list{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+.gft-name{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:500}
+.gft-name .cn{position:relative;width:34px;height:34px;flex-shrink:0}
+.gft-name .cn svg{width:100%;height:100%}
+.gft-name .cn b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-size:14px;color:#6B3A00}
+.gft-val{display:flex;align-items:center;gap:9px}
+.gft-val img{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:#fff;box-shadow:0 0 0 2px var(--ink)}
+.gft-val .nm{flex:1;min-width:0;font-size:14.5px;font-weight:500}
+.gft-val .gs{display:flex;gap:1px;flex-shrink:0}
+.gft-val .gs svg{width:14px;height:14px}
+.gft-val .ct{width:48px;text-align:right;flex-shrink:0;font-size:12.5px;font-weight:500;color:var(--ink)}
+.gft-key{display:flex;gap:9px;font-size:15px;line-height:1.45}
+.gft-key svg{width:24px;height:24px;flex-shrink:0}
+.gft-cta{display:inline-flex;align-items:center;gap:6px;margin-top:18px;padding:10px 22px;border-radius:50px;font-size:14px;font-weight:500;color:var(--brand-fg);
+  background:var(--brand);box-shadow:0 4px 14px rgba(165,0,100,.32);transition:var(--t)}
+.gft-cta:hover{background:var(--brand-h)}
+
+/* nét bút chì tự vẽ ra (pathLength="1") */
+.gft-card .draw path{stroke-dasharray:1;stroke-dashoffset:1;animation:gft-draw 1s ease forwards;animation-delay:var(--d,.2s)}
+@keyframes gft-draw{to{stroke-dashoffset:0}}
+/* DS §19 rule 21: phần tử có display riêng phải khai [hidden] */
+.gft-world[hidden],.gft-poster-wrap[hidden]{display:none}
+
+/* ═══ Thanh điều khiển + túi đồ ═══ */
+.gft-ftr{position:absolute;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:0 16px 16px;pointer-events:none}
+.gft-ftr>*{pointer-events:auto}
+.gft-bar{display:flex;align-items:center;gap:8px;padding:5px;flex-wrap:wrap;justify-content:center;border-radius:50px;background:rgba(255,250,238,.92);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(201,164,106,.5);box-shadow:0 4px 16px rgba(120,80,30,.12)}
+.gft-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:50px;font-size:12px;font-weight:500;color:var(--z700);background:transparent;transition:var(--t);white-space:nowrap}
+.gft-btn:hover{color:var(--z900);background:var(--z0)}
+.gft-btn i{font-size:15px}
+.gft-btn-primary{background:var(--brand);color:var(--brand-fg);box-shadow:0 2px 7px rgba(165,0,100,.32)}
+.gft-btn-primary:hover{background:var(--brand-h);color:var(--brand-fg)}
+.gft-btn.busy{opacity:.55;pointer-events:none}
+.gft-bag{display:flex;align-items:center;gap:4px;padding:0 6px}
+.gft-bag span{width:30px;height:30px;border-radius:8px;border:1.5px dashed #C9A46A;display:grid;place-items:center;transition:var(--t)}
+.gft-bag span svg{width:24px;height:24px;opacity:.15;filter:grayscale(1)}
+.gft-bag span.got{border-style:solid;background:#FFF6E0}
+.gft-bag span.got svg{opacity:1;filter:none}
+.gft-bag span.on{border-color:var(--ink);box-shadow:0 0 0 2px rgba(165,0,100,.18);transform:translateY(-2px)}
+
+/* ═══ Poster bản đồ kho báu ═══ */
+.gft-poster-wrap{position:absolute;inset:0;overflow-y:auto;padding:6px 16px 96px;display:flex;justify-content:center;align-items:flex-start}
+.gft-poster{position:relative;width:560px;flex-shrink:0;border-radius:10px;padding:26px 24px 0;background:var(--parch);border:3px solid #C9A46A;
+  box-shadow:inset 0 0 0 6px var(--parch),inset 0 0 0 8px #E0C38E,0 14px 36px rgba(120,80,30,.25);animation:gft-pop .6s cubic-bezier(.3,1.4,.5,1) both}
+.gp-hd{text-align:center;position:relative}
+.gp-hd .ic{position:absolute;top:0;width:58px;height:58px}
+.gp-brand{display:inline-flex;align-items:center;gap:7px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#6B4A2E;font-weight:500}
+.gp-brand .gft-logo{width:20px;height:20px;border-radius:6px}
+.gp-brand .gft-logo span{font-size:13px}
+.gp-ttl{font-family:var(--fs);font-size:50px;line-height:1.1;color:var(--ink);margin-top:4px}
+.gp-who{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:var(--txt);font-weight:500}
+.gp-sec{margin-top:16px}
+.gp-kick{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:50px;background:var(--ink);color:#FFF3E6;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+.gp-kick svg{width:20px;height:20px}
+.gp-sub{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#6B4A2E;font-weight:500;margin:12px 0 7px}
+.gp-vals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gp-val{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 7px;border-radius:10px;background:#fff;border:1.5px dashed #C9A46A}
+.gp-val.top{border:1.5px solid var(--ink)}
+.gp-val img{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:block}
+.gp-val .nm{flex:1;min-width:0;font-size:12px;line-height:1.3;color:var(--z900);font-weight:500}
+.gp-val .ct{flex-shrink:0;font-size:11px;color:var(--ink);font-weight:500}
+.gp-str{list-style:none;display:flex;flex-direction:column;gap:5px}
+.gp-str li{display:flex;gap:7px;font-size:12.5px;line-height:1.45;color:var(--txt)}
+.gp-str li svg{width:18px;height:18px;flex-shrink:0}
+.gp-q{margin-top:8px;background:#fff;border-radius:4px;padding:10px 14px;font-size:12px;line-height:1.5;color:var(--txt);box-shadow:2px 3px 0 rgba(120,80,30,.12)}
+.gp-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.gp-stat{border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink)}
+.gp-stat svg{width:30px;height:30px;flex-shrink:0}
+.gp-stat .n{font-family:var(--fd);font-size:30px;line-height:1;letter-spacing:-1px;color:var(--ink);min-width:24px}
+.gp-stat .l{font-size:11.5px;line-height:1.3;font-weight:500;color:var(--txt)}
+.gp-end{display:flex;align-items:flex-end;gap:8px;margin-top:6px}
+.gp-end-txt{flex:1;padding-bottom:18px}
+.gp-names{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.gp-names span{padding:4px 11px;border-radius:50px;background:#fff;border:1.5px solid var(--ink);color:var(--ink);font-size:12.5px;font-weight:500}
+.gp-sig{font-family:var(--fs);font-size:28px;line-height:1.2;color:var(--ink);margin-top:12px;white-space:nowrap}
+.gp-end .gft-moni{position:relative;left:auto;bottom:auto;width:130px;height:130px;flex-shrink:0}
+
+/* bản phẳng để xuất ảnh */
+.gft-export{position:absolute;left:-10000px;top:0;pointer-events:none}
+.gft-shot{position:relative;width:820px;padding:36px 40px;display:flex;align-items:center;gap:30px;
+  background:radial-gradient(120% 90% at 30% 50%,#FFF8E6 0%,#F6E4BE 60%,#E3C48E 100%)}
+.gft-shot *{animation:none!important;transition:none!important}
+.gft-shot .pop{opacity:1!important}
+.gft-shot .draw path{stroke-dashoffset:0!important}
+.gft-shot .ic{width:200px;height:200px;flex-shrink:0;border-radius:50%;background:radial-gradient(circle,#fff 0%,#FFE9A8 45%,rgba(255,213,74,0) 72%);display:grid;place-items:center}
+.gft-shot .ic svg{width:150px;height:150px}
+.gft-shot .gft-card{flex:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  .gft-stage *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media (max-height:720px){
+  .gft-item{width:120px;height:120px;margin-left:-60px;bottom:215px}
+  .gft-h{font-size:26px}
+  .gft-h.sig{font-size:44px}
+  .gft-p,.gft-key{font-size:14px}
+  .gft-num .n{font-size:44px}
+  .gft-card{padding:18px 22px 16px}
+}

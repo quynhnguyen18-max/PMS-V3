@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    SÂN KHẤU TRẢI BÀI — "Dấu ấn của bạn"
-   Dùng chung cho feedback-tarot-demo.html và feedback-delight-demo.html.
+   Dùng cho phương án 1 trong feedback-dau-an-demo.html và feedback-sphere-demo.html.
    Màn nào cần bộ bài thì nạp file này + tarot-stage.js, KHÔNG chép lại
    (DESIGN-SYSTEM.md §20.1 — luật và giao diện dùng chung chỉ viết một lần).
 
@@ -8,7 +8,8 @@
    ngoài hồng MoMo, trái §19 "một accent duy nhất". Ranh giới: ngoại lệ CHỈ
    áp dụng bên trong .tarot-stage. Mọi thứ ngoài sân khấu vẫn theo chuẩn.
 
-   File này giả định trang đã có sẵn khối token :root của E-04 (--z*, --brand…).
+   File này giả định trang đã nạp token chung (--z*, --brand…) từ assets/tokens.css
+   hoặc khối :root tương đương.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ═══════════ FONT MOMO — chi dung trong san khau trai bai ═══════════
@@ -35,8 +36,8 @@
 /* ═══════════════════════════════════════════════════════════════
    SÂN KHẤU TRẢI BÀI — vùng ngoại lệ design system
    ═══════════════════════════════════════════════════════════════ */
-/* z-index 2000: sân khấu là lớp trên cùng của trang mở nó. feedback-delight-demo
-   có thanh điều khiển và lớp confetti ở 900-1800, để 400 thì bị đè lên mặt bài. */
+/* z-index 2000: sân khấu là lớp trên cùng của trang mở nó, trên mọi thanh điều
+   khiển hay lớp hiệu ứng (900-1800) mà trang mở nó có thể có. */
 /* Sân khấu nằm trong khung popup như dialog "Dấu ấn của bạn" của E-04, không
    chiếm trọn màn hình — người xem vẫn thấy mình đang ở trong màn Phản hồi.
    .tarot-stage là lớp phủ tối, .tarot-dialog mới là khung bài. */

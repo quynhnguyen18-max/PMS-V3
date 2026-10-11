@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  DEMO ONLY — KHÔNG GHÉP VÀO PROTOTYPE CHÍNH
+  Nơi demo nhiều phương án giao diện cho nút "Dấu ấn của bạn" (E-04).
+  Mỗi phương án là một tab: 1 Trải bài (tarot-stage), 2 Quả cầu tem
+  (stamp-stage), 3 Moni kể chuyện (moni-stage), 4 Sổ lật (flip-stage),
+  5 Hộp quà bí mật (gift-stage), 6 Lễ vinh danh (award-stage). Số liệu chung: dau-an-model.js; nét bút chì
+  chung cho 4 và 5: pencil.js.
+
+  Thêm một phương án: thêm tab và panel, sân khấu riêng tách ra file
+  <ten>-stage.css + <ten>-stage.js, không viết thẳng vào đây.
+
+  NGOẠI LỆ DESIGN SYSTEM — có chủ đích, đã được duyệt:
+    Mặt bài dùng nền đêm + một accent kim loại (vàng) ngoài hồng MoMo. DS §19
+    quy định một accent duy nhất; ở đây phá luật để lấy chất trải bài. Ranh giới:
+    ngoại lệ CHỈ áp dụng bên trong .tarot-stage. Sidebar, topbar, page, tab, nút,
+    breadcrumb ngoài sân khấu vẫn dùng nguyên token và class chuẩn.
+
+  DỮ LIỆU: lấy đúng feed thật của Nguyễn Văn Tú trong E-04 (12 phản hồi nhận
+  từ 7 người / 6 nhóm, 7 phản hồi đã cho, 2 lời cảm ơn) để mọi luật hiển thị
+  được kiểm chứng trên số thật chứ không phải số đẹp bịa ra.
+  ============================================================================
+-->
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DEMO - Dấu ấn của bạn | MoMo HRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/tokens.css"/>
+<style>
+/* Token dùng chung nạp từ assets/tokens.css (DS §2). Token --tar-* của sân khấu
+   nằm trong tarot-stage.css, không lặp ở đây. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Public Sans',sans-serif;font-size:14px;line-height:1.5;color:var(--z700);background:var(--z50);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--z300);border-radius:4px}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+a{text-decoration:none}
+
+/* ═══════════ SHELL — nguyên bản E-04, không đụng ═══════════ */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);position:fixed;top:0;bottom:0;left:0;background:var(--z0);border-right:1px solid var(--z200);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.sb-brand{display:flex;align-items:center;gap:9px;padding:16px 16px 12px;border-bottom:1px solid var(--z100);flex-shrink:0}
+.sb-logo{width:26px;height:26px;background:var(--brand);border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo span{font-size:13px;font-weight:800;color:var(--brand-fg)}
+.sb-name{font-size:13.5px;font-weight:700;color:var(--z900);letter-spacing:-.2px;line-height:1.15}
+.sb-name em{color:var(--brand);font-style:normal}
+.sb-sub{font-size:11px;color:var(--z500)}
+.role-sw{display:flex;gap:2px;padding:10px 12px 6px}
+.role-btn{flex:1;padding:4px 0;border-radius:var(--rxs);border:1px solid var(--z200);background:transparent;color:var(--z500);font-size:12px;font-weight:600;transition:var(--t)}
+.role-btn.on{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
+.sb-nav{flex:1;padding:2px 0 12px}
+.sb-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--z500);padding:12px 14px 3px;display:block}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:1px 6px;border-radius:var(--rsm);color:var(--z600);font-size:13.5px;transition:var(--t);cursor:pointer;user-select:none;width:calc(100% - 12px);text-align:left}
+.sb-item:hover{background:var(--z100);color:var(--z900)}
+.sb-item.on{background:var(--brand-muted);color:var(--brand);font-weight:500}
+.sb-item i{font-size:15px;width:16px;text-align:center;flex-shrink:0;color:var(--z500)}
+.sb-item.on i{color:var(--brand)}
+.sb-foot{padding:8px 10px;border-top:1px solid var(--z100);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:var(--rsm)}
+.sb-uname{font-size:13px;font-weight:500;color:var(--z900);line-height:1.2}
+.sb-urole{font-size:11px;color:var(--z500)}
+.workspace{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--nh);background:var(--z0);border-bottom:1px solid var(--z200);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:13.5px;font-weight:500;color:var(--z600);flex:1}
+.topbar-right{display:flex;align-items:center;gap:3px}
+.ico-btn{width:30px;height:30px;border-radius:var(--rsm);background:transparent;color:var(--z500);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--t);position:relative}
+.ico-btn:hover{background:var(--z100);color:var(--z700)}
+.page{padding:20px 24px 96px;flex:1;max-width:1080px}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--z500);margin-bottom:10px}
+.bc-sep{color:var(--z400)}
+.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.page-title{font-size:18px;font-weight:700;color:var(--z900);letter-spacing:-.4px;line-height:1}
+.page-desc{font-size:13px;color:var(--z600);margin-bottom:18px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.av-brand{background:var(--brand-muted);color:var(--brand)}
+.av-sm{width:24px;height:24px;font-size:10px}
+.sb-foot .av{width:28px;height:28px;font-size:11px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:50px;font-size:11px;font-weight:600;border:1px solid}
+.ch-demo{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);font-size:13px;font-weight:500;border:1px solid transparent;line-height:1.4;white-space:nowrap;transition:var(--t)}
+.btn-default{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
+.btn-default:hover{background:var(--brand-h);border-color:var(--brand-h)}
+
+/* ── Tab phương án: theo COMPONENTS §tab (.tabs / .tab-btn / .tab-cnt) ── */
+/* 6 tab chia đều một hàng, không cuộn ngang; thiếu chỗ thì chữ cắt "..." và rê chuột xem đủ (title) */
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--z200);margin-bottom:16px}
+.tab-btn{flex:1 1 auto;min-width:0;justify-content:center;padding:9px 12px;font-size:13px;font-weight:500;color:var(--z600);border:1px solid var(--z300);background:var(--z0);margin-bottom:-2px;display:flex;align-items:center;gap:6px;border-radius:var(--rsm) var(--rsm) 0 0;transition:var(--t);white-space:nowrap}
+.tab-btn i{font-size:15px;flex-shrink:0}
+.tab-btn .tl{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tab-btn:not(.on):hover{color:var(--z900);background:var(--z100);border-color:var(--z400)}
+.tab-btn.on{color:var(--brand);background:var(--brand-muted);border-color:var(--brand-ring);border-bottom-color:var(--brand-muted);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}
+.tab-cnt{padding:0 5px;height:16px;line-height:16px;border-radius:var(--rxs);font-size:10px;font-weight:700;background:var(--z200);color:var(--z600)}
+.tab-btn.on .tab-cnt{background:var(--z0);color:var(--brand)}
+
+/* ── Đầu mỗi phương án ── */
+.opt-hd{max-width:720px;margin-bottom:14px}
+.opt-hd h2{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:4px}
+.opt-hd p{font-size:13px;color:var(--z600)}
+
+/* ── Thẻ mời mở bộ bài (ngoài sân khấu, vẫn theo DS) ── */
+.invite{border:1px solid var(--z200);border-radius:var(--r);background:var(--z0);box-shadow:var(--sh);padding:22px 24px;display:flex;align-items:center;gap:22px;max-width:720px}
+.invite-art{width:96px;height:132px;flex-shrink:0;border-radius:10px;position:relative;background:linear-gradient(150deg,var(--tar-deep),var(--tar-plum) 62%,var(--brand));box-shadow:0 8px 22px rgba(42,8,33,.32)}
+.invite-art::after{content:'';position:absolute;inset:7px;border:1px solid var(--tar-gold-soft);border-radius:var(--rsm)}
+.invite-art img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;box-shadow:0 0 0 1px var(--tar-gold)}
+/* Thẻ mời phương án 2: con tem thu nhỏ, màu tem số 01 của bản mẫu (ngoại lệ màu của sân khấu tem). */
+.invite-stamp{background:#A50064;border-radius:4px;box-shadow:0 8px 22px rgba(165,0,100,.28);color:#FFD7EC;padding:16px 14px;display:flex;flex-direction:column}
+.invite-stamp::after{inset:6px;border:2px solid #FFD7EC;border-radius:0;opacity:.9}
+.invite-stamp span{font-family:'MoMo Trust Display','Public Sans',sans-serif;font-size:28px;line-height:1;letter-spacing:-1px}
+.invite-stamp small{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-top:4px}
+/* Thẻ mời phương án 3: Moni vẫy tay trên nền hồng nhạt. */
+.invite-moni{background:linear-gradient(160deg,#FFE4F0,#F3E8FF);box-shadow:0 8px 22px rgba(165,0,100,.18)}
+.invite-moni::after{display:none}
+.invite-moni img{position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:contain;transform:none;top:6px;left:6px;border-radius:0;box-shadow:none}
+/* Thẻ mời phương án 4: cuốn sổ bìa hồng, giấy kem kẻ ô (ngoại lệ màu của sân khấu sổ lật). */
+.invite-book{background:#FFF7EC;background-image:linear-gradient(rgba(165,0,100,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(165,0,100,.1) 1px,transparent 1px);background-size:12px 12px;border:6px solid #A50064;border-top-width:14px}
+.invite-book::after{display:none}
+.invite-book img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;transform:none;top:4px;left:4px;border-radius:0;box-shadow:none}
+/* Thẻ mời phương án 5: hộp quà hồng trên giấy da (ngoại lệ màu của sân khấu hộp quà). */
+.invite-gift{background:radial-gradient(circle,#FFF4DC,#E3C48E);display:grid;place-items:center}
+.invite-gift::after{display:none}
+.invite-gift i{font-size:58px;color:#A50064;filter:drop-shadow(0 4px 8px rgba(232,163,23,.6))}
+/* Thẻ mời Opt 6: cúp vàng trên nền sân khấu (ngoại lệ màu của sân khấu trao giải). */
+.invite-award{background:radial-gradient(circle at 50% 40%,#7A1A5C,#2A0720);display:grid;place-items:center}
+.invite-award::after{display:none}
+.invite-award i{font-size:56px;color:#F2B41F;filter:drop-shadow(0 0 12px rgba(255,214,90,.7))}
+.invite h3{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.invite p{font-size:13px;color:var(--z600);margin-bottom:14px;max-width:44ch}
+.note-box{margin-top:18px;max-width:720px;border:1px solid var(--z200);border-left:3px solid var(--brand);border-radius:var(--rsm);background:var(--z0);padding:13px 15px}
+.note-box h3{font-size:12px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.note-box ul{margin:0;padding-left:17px}
+.note-box li{font-size:12.5px;color:var(--z600);margin-bottom:3px}
+
+/* ── Ô trống chờ phương án mới ── */
+.opt-empty{max-width:720px;border:1px dashed var(--z300);border-radius:var(--r);background:var(--z0);padding:36px 24px;text-align:center}
+.opt-empty-ico{width:44px;height:44px;margin:0 auto 12px;border-radius:50%;background:var(--brand-muted);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:22px}
+.opt-empty h2{font-size:15px;font-weight:700;color:var(--z900);margin-bottom:6px}
+.opt-empty p{font-size:13px;color:var(--z600);max-width:52ch;margin:0 auto}
+
+@media (max-width:760px){
+  .invite{flex-direction:column;align-items:flex-start}
+}
+</style>
+<link rel="stylesheet" href="tarot-stage.css"/>
+<link rel="stylesheet" href="stamp-stage.css"/>
+<link rel="stylesheet" href="moni-stage.css"/>
+<link rel="stylesheet" href="flip-stage.css"/>
+<link rel="stylesheet" href="gift-stage.css"/>
+<link rel="stylesheet" href="award-stage.css"/>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo"><span>M</span></div>
+      <div>
+        <div class="sb-name">MoMo <em>HRM</em></div>
+        <div class="sb-sub">Performance Management</div>
+      </div>
+    </div>
+    <div class="role-sw">
+      <button class="role-btn on">Nhân viên</button>
+      <button class="role-btn">Quản lý</button>
+    </div>
+    <nav class="sb-nav">
+      <span class="sb-grp">Tổng quan</span>
+      <button class="sb-item"><i class="bx bx-home-alt"></i>Trang chủ</button>
+      <span class="sb-grp">Mục tiêu &amp; Đánh giá</span>
+      <button class="sb-item" onclick="location.href='../E-05/index.html?role=nv'"><i class="bx bx-target-lock"></i>Mục tiêu và Đánh giá cá nhân</button>
+      <button class="sb-item" onclick="location.href='../E-04/index.html'"><i class="bx bx-message-square-dots"></i>Phản hồi của tôi</button>
+      <button class="sb-item on"><i class="bx bx-moon"></i>Demo Dấu ấn</button>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="av av-brand">NT</div>
+        <div>
+          <div class="sb-uname">Nguyễn Văn Tú</div>
+          <div class="sb-urole">Nhân viên, Backend Team</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <span class="topbar-title">Dấu ấn của bạn - các phương án giao diện</span>
+      <div class="topbar-right">
+        <span class="chip ch-demo"><i class="bx bx-purchase-tag"></i> DEMO - file tách riêng</span>
+        <button class="ico-btn"><i class="bx bx-bell"></i></button>
+        <button class="ico-btn"><i class="bx bx-help-circle"></i></button>
+        <div class="av av-brand av-sm" style="margin-left:3px">NT</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="breadcrumb"><span>Trang chủ</span><span class="bc-sep">/</span><span>Phản hồi của tôi</span><span class="bc-sep">/</span><span>Dấu ấn của bạn</span></div>
+      <div class="page-hd"><h1 class="page-title">Dấu ấn của bạn</h1></div>
+      <p class="page-desc">Nơi thử nhiều phương án giao diện cho nút "Dấu ấn của bạn" ở màn Phản hồi của tôi. Chưa ghép vào màn chính.</p>
+
+      <div class="tabs" role="tablist" aria-label="Phương án giao diện">
+        <button class="tab-btn on" role="tab" id="tab-pa1" aria-controls="pa1" aria-selected="true" onclick="showOption('pa1')" title="Opt 1 - Trải bài"><i class="bx bx-moon"></i><span class="tl">Opt 1 - Trải bài</span></button>
+        <button class="tab-btn" role="tab" id="tab-pa2" aria-controls="pa2" aria-selected="false" onclick="showOption('pa2')" title="Opt 2 - Quả cầu tem"><i class="bx bx-globe"></i><span class="tl">Opt 2 - Quả cầu tem</span></button>
+        <button class="tab-btn" role="tab" id="tab-pa3" aria-controls="pa3" aria-selected="false" onclick="showOption('pa3')" title="Opt 3 - Moni kể chuyện"><i class="bx bx-happy"></i><span class="tl">Opt 3 - Moni kể chuyện</span></button>
+        <button class="tab-btn" role="tab" id="tab-pa4" aria-controls="pa4" aria-selected="false" onclick="showOption('pa4')" title="Opt 4 - Sổ lật"><i class="bx bx-book-open"></i><span class="tl">Opt 4 - Sổ lật</span></button>
+        <button class="tab-btn" role="tab" id="tab-pa5" aria-controls="pa5" aria-selected="false" onclick="showOption('pa5')" title="Opt 5 - Hộp quà bí mật"><i class="bx bx-gift"></i><span class="tl">Opt 5 - Hộp quà bí mật</span></button>
+        <button class="tab-btn" role="tab" id="tab-pa6" aria-controls="pa6" aria-selected="false" onclick="showOption('pa6')" title="Opt 6 - Lễ vinh danh"><i class="bx bxs-star"></i><span class="tl">Opt 6 - Lễ vinh danh</span></button>
+      </div>
+
+      <!-- ── Phương án 1: Trải bài (sân khấu trong tarot-stage.css + tarot-stage.js) ── -->
+      <section class="opt-panel" id="pa1" role="tabpanel" aria-labelledby="tab-pa1">
+        <div class="opt-hd">
+          <h2>Trải bài</h2>
+          <p>Kể Dấu ấn của bạn theo lối trải bài tarot: nghi thức mở, năm lá bài và màn trải cuối.</p>
+        </div>
+
+        <div class="invite">
+          <div class="invite-art"><img src="../Core value with BG/Excellence.png" alt=""/></div>
+          <div>
+            <h3>Bộ bài của bạn đã sẵn sàng</h3>
+            <p>Năm lá bài được trải từ 12 phản hồi bạn nhận trong năm 2026. Không ai khác nhìn thấy bộ bài này.</p>
+            <button class="btn btn-default" onclick="openStage()"><i class="bx bx-moon"></i> Mở bộ bài</button>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h3>Ghi chú cho buổi review</h3>
+          <ul>
+            <li><strong>Số liệu là thật</strong> - lấy đúng feed của Nguyễn Văn Tú trong E-04, không phải số đẹp bịa ra.</li>
+            <li><strong>Lá I</strong> đếm số người (unique), không đếm số phản hồi. Gọi tên top 3; hoà thì ưu tiên người phản hồi gần đây nhất.</li>
+            <li><strong>Lá II</strong> chỉ hiện giá trị có dữ liệu &gt; 0 - "Đổi mới" của Tú bằng 0 nên được ẩn. Hai giá trị bằng điểm thì to và nổi như nhau.</li>
+            <li><strong>Ngoại lệ design system</strong> chỉ áp dụng bên trong sân khấu trải bài; sidebar, topbar và trang này vẫn theo chuẩn.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Phương án 2: Quả cầu tem (sân khấu trong stamp-stage.css + stamp-stage.js) ── -->
+      <section class="opt-panel" id="pa2" role="tabpanel" aria-labelledby="tab-pa2" hidden>
+        <div class="opt-hd">
+          <h2>Quả cầu tem</h2>
+          <p>Mỗi metric là một con tem trên quả cầu: lời chào, quả cầu xoay một vòng rồi mở lần lượt 6 tem, lời cảm ơn và poster tổng hợp để tải về chia sẻ.</p>
+        </div>
+
+        <div class="invite">
+          <div class="invite-art invite-stamp" aria-hidden="true"><span>01</span><small>Phản hồi</small></div>
+          <div>
+            <h3>Bộ tem của bạn đã sẵn sàng</h3>
+            <p>Sáu con tem được in từ 12 phản hồi bạn nhận trong năm 2026. Không ai khác nhìn thấy bộ tem này.</p>
+            <button class="btn btn-default" onclick="openStamp()"><i class="bx bx-globe"></i> Mở bộ tem</button>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h3>Ghi chú cho buổi review</h3>
+          <ul>
+            <li><strong>Dựng theo chế độ "Cầu"</strong> của bản mẫu wowUI, giữ nguyên hình tem và 10 màu tem. Lời chào và lời cảm ơn nằm ngoài quả cầu.</li>
+            <li><strong>Số liệu dùng chung với phương án 1</strong> (cùng feed của Nguyễn Văn Tú, cùng luật tính trong <code>dau-an-model.js</code>).</li>
+            <li><strong>Kết nối đáng nhớ</strong> chỉ hiện tên top 3; hoà số phản hồi thì ưu tiên người phản hồi gần đây nhất.</li>
+            <li><strong>Dấu ấn bạn để lại</strong> hiện mọi giá trị được ghi nhận, tối đa 5, kèm số lượt.</li>
+            <li><strong>Tim cảm ơn:</strong> tim nhận được là người nhận phản hồi của bạn bấm Cảm ơn; tim trao đi là số phản hồi bạn nhận và đã bấm Cảm ơn.</li>
+            <li><strong>Poster</strong> kể theo 3 phần: bạn trong mắt đồng nghiệp, bạn đã lan tỏa, cảm ơn người đồng hành. Lời trích không ghi tên người viết; tên người đồng hành ghi dạng "Tên Họ" (vd Hùng Lê). Tải được từng tem và poster.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Phương án 3, 4: ô trống, chờ ý tưởng từ buổi brainstorm ── -->
+
+      <!-- ── Phương án 3: Moni kể chuyện (sân khấu trong moni-stage.css + moni-stage.js) ── -->
+      <section class="opt-panel" id="pa3" role="tabpanel" aria-labelledby="tab-pa3" hidden>
+        <div class="opt-hd">
+          <h2>Moni kể chuyện</h2>
+          <p>Moni, mascot của MoMo, là bạn đồng hành dẫn chuyện: chào bạn, kể lần lượt 6 metric trong bong bóng thoại, cảm ơn và trao poster để tải về chia sẻ.</p>
+        </div>
+
+        <div class="invite">
+          <div class="invite-art invite-moni" aria-hidden="true"><img src="../assets/mascot/wave.png" alt=""/></div>
+          <div>
+            <h3>Moni đang chờ bạn</h3>
+            <p>Moni đã đọc 12 phản hồi bạn nhận trong năm 2026 và có vài điều muốn kể. Không ai khác nhìn thấy câu chuyện này.</p>
+            <button class="btn btn-default" onclick="openMoni()"><i class="bx bx-happy"></i> Gặp Moni</button>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h3>Ghi chú cho buổi review</h3>
+          <ul>
+            <li><strong>Moni dẫn chuyện liền một mạch:</strong> mỗi màn Moni nói từng câu, nói xong thì hình minh hoạ hiện ra và Moni đổi tư thế, nhảy mừng. Người xem chỉ bấm Tiếp hoặc Quay lại.</li>
+            <li><strong>Cùng 6 metric và số liệu với phương án 2</strong> (dau-an-model.js). Poster dùng khung 3 phần đã chốt, trình bày theo kiểu Moni.</li>
+            <li><strong>9 biểu cảm Moni</strong> (assets/mascot/): mỗi câu Moni nói một biểu cảm, lúc hình minh hoạ hiện ra đổi sang biểu cảm thứ ba. Lời chào: đi thổi bong bóng rồi vẫy tay; lời cảm ơn: cười e thẹn với tim bay.</li>
+            <li><strong>Tải ảnh:</strong> từng màn metric và poster.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Phương án 4: Sổ lật (sân khấu trong flip-stage.css + flip-stage.js) ── -->
+      <section class="opt-panel" id="pa4" role="tabpanel" aria-labelledby="tab-pa4" hidden>
+        <div class="opt-hd">
+          <h2>Sổ lật</h2>
+          <p>Cuốn sổ lò xo kiểu flipchart, lật từ dưới lên: bìa là lời chào, mỗi trang một metric, trang cuối là lời cảm ơn. Đóng sổ thì mở poster.</p>
+        </div>
+
+        <div class="invite">
+          <div class="invite-art invite-book" aria-hidden="true"><img src="../assets/mascot/walk-bubble.png" alt=""/></div>
+          <div>
+            <h3>Cuốn sổ dấu ấn của bạn</h3>
+            <p>Sáu trang sổ ghi lại 12 phản hồi bạn nhận trong năm 2026 và những gì bạn đã trao đi. Không ai khác nhìn thấy cuốn sổ này.</p>
+            <button class="btn btn-default" onclick="openFlip()"><i class="bx bx-book-open"></i> Mở sổ</button>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h3>Ghi chú cho buổi review</h3>
+          <ul>
+            <li><strong>Lật từ dưới lên</strong> như flipchart, bằng nút Tiếp và Quay lại. Đóng sổ thì các trang rơi về, sổ thu lại và poster hiện ra.</li>
+            <li><strong>Hồng MoMo trên giấy kem kẻ ô</strong>, Moni là nhân vật chính mỗi trang; hoạ tiết vẽ kiểu bút chì, tự vẽ ra khi trang mở.</li>
+            <li><strong>Cùng 6 metric và số liệu</strong> với phương án 2, 3 (dau-an-model.js). Poster dùng khung 3 phần đã chốt, trình bày như một trang sổ.</li>
+            <li><strong>Tải ảnh:</strong> từng trang và poster.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Phương án 5: Hộp quà bí mật (sân khấu trong gift-stage.css + gift-stage.js) ── -->
+      <section class="opt-panel" id="pa5" role="tabpanel" aria-labelledby="tab-pa5" hidden>
+        <div class="opt-hd">
+          <h2>Hộp quà bí mật</h2>
+          <p>Feedback là món quà: mở hộp quà lớn, ánh sáng toả ra như rương kho báu, rồi lần lượt 6 báu vật bay lên, mỗi báu vật là một metric. Thuyền trưởng Moni dẫn đường.</p>
+        </div>
+
+        <div class="invite">
+          <div class="invite-art invite-gift" aria-hidden="true"><i class="bx bxs-gift"></i></div>
+          <div>
+            <h3>Có một hộp quà gửi bạn</h3>
+            <p>Bên trong là 6 báu vật làm từ 12 phản hồi bạn nhận trong năm 2026 và những gì bạn đã trao đi. Không ai khác nhìn thấy hộp quà này.</p>
+            <button class="btn btn-default" onclick="openGift()"><i class="bx bx-gift"></i> Mở hộp quà</button>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h3>Ghi chú cho buổi review</h3>
+          <ul>
+            <li><strong>Mở hộp:</strong> hộp rung, nắp bay lên, tia sáng vàng xoay và bụi lấp lánh toả ra như mở rương kho báu.</li>
+            <li><strong>6 báu vật, mỗi báu vật một metric:</strong> cuộn thư (phản hồi đã nhận), la bàn (kết nối đáng nhớ), vương miện (giá trị), chìa khóa (điểm mạnh), chai thư (phản hồi trao đi), đồng xu tim (tim cảm ơn). Báu vật đã nhận xếp vào túi đồ ở thanh dưới.</li>
+            <li><strong>Phong cách bút chì</strong> dùng chung với phương án 4 (pencil.js); thuyền trưởng Moni dẫn đường.</li>
+            <li><strong>Cùng 6 metric và số liệu</strong> với các phương án khác (dau-an-model.js). Poster dùng khung 3 phần đã chốt, trình bày như tấm bản đồ kho báu. Tải được từng báu vật và poster.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Opt 6: Lễ vinh danh (sân khấu trong award-stage.css + award-stage.js) ── -->
+      <section class="opt-panel" id="pa6" role="tabpanel" aria-labelledby="tab-pa6" hidden>
+        <div class="opt-hd">
+          <h2>Lễ vinh danh</h2>
+          <p>Sân khấu trao giải "Đại sứ văn hóa phản hồi": nhận 4 giải từ những gì đồng nghiệp gửi tới, rồi vinh danh những gì bạn đã cho đi. Kết thúc bằng pháo hoa chúc mừng và giấy chứng nhận.</p>
+        </div>
+
+        <div class="invite">
+          <div class="invite-art invite-award" aria-hidden="true"><i class="bx bxs-trophy"></i></div>
+          <div>
+            <h3>Bạn được mời lên sân khấu</h3>
+            <p>Lễ vinh danh Đại sứ văn hóa phản hồi năm 2026 đã sẵn sàng, MC Moni đang chờ bạn. Không ai khác nhìn thấy lễ vinh danh này.</p>
+            <button class="btn btn-default" onclick="openAward()"><i class="bx bxs-star"></i> Vào lễ vinh danh</button>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h3>Ghi chú cho buổi review</h3>
+          <ul>
+            <li><strong>Mở màn:</strong> rèm nhung kéo ra, đèn spotlight quét, khán giả vỗ tay; MC Moni đứng sau micro dẫn chương trình.</li>
+            <li><strong>Phần nhận, mỗi metric một giải</strong> hạ xuống bục trong ánh đèn: Cúp (phản hồi đã nhận), Hoa (người đồng hành), Huy chương (giá trị), Bằng khen (điểm mạnh).</li>
+            <li><strong>Phần cho đi:</strong> phản hồi đã trao, tim cảm ơn, có máy bay giấy và tim bay từ bục ra khán giả.</li>
+            <li><strong>Kết:</strong> pháo hoa, 4 giải xếp trên bục, lời động viên tiếp tục lan tỏa; poster dạng giấy chứng nhận theo khung 3 phần đã chốt. Tải được từng giải và giấy chứng nhận.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="dau-an-model.js"></script>
+<script src="tarot-stage.js"></script>
+<script src="stamp-stage.js"></script>
+<script src="moni-stage.js"></script>
+<script src="pencil.js"></script>
+<script src="flip-stage.js"></script>
+<script src="gift-stage.js"></script>
+<script src="award-stage.js"></script>
+<script>
+/* Chuyển tab phương án. Ghi lên hash (#pa1 đến #pa6) để gửi link thẳng tới
+   một phương án khi review. */
+function showOption(id){
+  const panels=[...document.querySelectorAll('.opt-panel')];
+  if(!panels.some(p=>p.id===id))id='pa1';
+  panels.forEach(p=>{p.hidden=p.id!==id;});
+  document.querySelectorAll('.tab-btn[role="tab"]').forEach(t=>{
+    const on=t.getAttribute('aria-controls')===id;
+    t.classList.toggle('on',on);t.setAttribute('aria-selected',on);
+  });
+  history.replaceState(null,'','#'+id);
+}
+showOption(location.hash.slice(1)||'pa1');
+</script>
+</body>
+</html>

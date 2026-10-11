@@ -1,103 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    SÂN KHẤU TRẢI BÀI — dữ liệu, luật hiển thị và điều khiển.
-   Dùng chung cho feedback-tarot-demo.html và feedback-delight-demo.html.
+   Dùng cho phương án 1 trong feedback-dau-an-demo.html và feedback-sphere-demo.html.
    Màn nào cần thì nạp tarot-stage.css + file này rồi gọi openStage().
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Bọc trong IIFE: file này nạp chung trang với script riêng của từng màn, để
-   trần ra global thì sớm muộn cũng đụng tên — GIVEN đã đụng ngay lần đầu ghép
-   vào feedback-delight-demo. Chỉ những hàm mà markup gọi qua onclick mới được
-   đưa ra window. */
+   trần ra global thì sớm muộn cũng đụng tên (GIVEN từng đụng khi ghép vào một
+   màn demo cũ). Chỉ những hàm mà markup gọi qua onclick mới được đưa ra window. */
 (function(){
-/* ═══════════════════════════════════════════════════════════════
-   DỮ LIỆU — trích đúng feed của Nguyễn Văn Tú trong E-04
-   ═══════════════════════════════════════════════════════════════ */
-const RECEIVED=[
-  {d:'14/03/2026',n:'Lê Thành Nam',   ini:'LN',org:'ITC – Mobile – iOS Developer',   cv:['Thực thi xuất sắc','Tinh thần đồng đội','Không ngừng học hỏi']},
-  {d:'22/04/2026',n:'Hoàng Thị Lan',  ini:'HL',org:'MKT – Brand – Senior Designer',  cv:['Khách hàng là trung tâm']},
-  {d:'05/06/2026',n:'Trương Minh Đức',ini:'TĐ',org:'ITC – Backend – Senior Engineer',cv:['Thực thi xuất sắc','Tinh thần đồng đội']},
-  {d:'18/09/2025',n:'Nguyễn Quốc Bảo',ini:'NB',org:'ITC – Platform – Tech Lead',     cv:['Không ngừng học hỏi']},
-  {d:'10/03/2026',n:'Lê Thành Nam',   ini:'LN',org:'ITC – Mobile',                   cv:['Thực thi xuất sắc']},
-  {d:'11/03/2026',n:'Hoàng Thị Lan',  ini:'HL',org:'MKT – Brand',                    cv:['Khách hàng là trung tâm']},
-  {d:'13/03/2026',n:'Trương Minh Đức',ini:'TĐ',org:'ITC – Backend',                  cv:['Không ngừng học hỏi','Thực thi xuất sắc']},
-  {d:'15/07/2026',n:'Mai Thị Hằng',   ini:'MH',org:'ITC – DevOps',                   cv:['Tinh thần đồng đội']},
-  {d:'18/07/2026',n:'Lê Văn Hùng',    ini:'LH',org:'ITC – Backend',                  cv:['Thực thi xuất sắc']},
-  {d:'06/02/2026',n:'Nguyễn Quốc Bảo',ini:'NB',org:'ITC – Platform',                 cv:['Tinh thần đồng đội']},
-  {d:'08/02/2026',n:'Lê Văn Hùng',    ini:'LH',org:'ITC – Backend',                  cv:['Không ngừng học hỏi']},
-  {d:'10/02/2026',n:'Trần Thị Mai',   ini:'TM',org:'ITC – Frontend',                 cv:['Tinh thần đồng đội']}
-];
-const GIVEN=[
-  {d:'20/06/2026',n:'Trần Văn Khoa',     thanked:false},
-  {d:'02/08/2026',n:'Vũ Thị Lan',        thanked:false},
-  {d:'18/07/2026',n:'Nguyễn Thị Phương', thanked:false},
-  {d:'12/03/2026',n:'Trần Thị Mai',      thanked:true },
-  {d:'18/05/2026',n:'Vũ Thị Lan',        thanked:true },
-  {d:'02/06/2026',n:'Mai Thị Hằng',      thanked:false},
-  {d:'20/06/2026',n:'Phạm Minh Đức',     thanked:false}
-];
-/* Điểm mạnh và góp ý là AI diễn giải lại từ nội dung phản hồi — KHÔNG trích
-   nguyên văn và KHÔNG nêu tên người viết. */
-const AI_STRENGTHS=[
-  'Bạn biến việc phức tạp thành thứ ai cũng hiểu được',
-  'Người khác thấy an tâm khi bạn nhận phần khó',
-  'Bạn nhớ hỏi lại — kể cả khi không ai nhắc'
-];
-const AI_GROWTH=[
-  'Rủ đồng đội vào sớm hơn, ngay từ lúc còn đang nghĩ',
-  'Nói ra tiêu chuẩn của bạn thay vì tự tay làm cho đạt'
-];
-const CV_ART={
-  'Đổi mới':'Innovation.png',
-  'Tinh thần đồng đội':'Teamwork.png',
-  'Không ngừng học hỏi':'Constant_.png',
-  'Khách hàng là trung tâm':'Customer_.png',
-  'Thực thi xuất sắc':'Excellence.png'
-};
-
-/* ═══════════════════════════════════════════════════════════════
-   LUẬT TÍNH — mỗi luật một hàm, để review từng cái một
-   ═══════════════════════════════════════════════════════════════ */
-/* Chỉ lấy Phòng – Team, bỏ chức danh: để mỗi dòng người gọn đúng một dòng,
-   ba dòng cao bằng nhau. Chức danh không phải thứ lá bài này nói tới. */
-function shortOrg(org){return String(org||'').split('–').slice(0,2).map(part=>part.trim()).filter(Boolean).join(' – ');}
-function ts(dmy){const [d,m,y]=String(dmy||'').split('/');return Number(`${y}${m}${d}`)||0;}
-
-/* Lá I — đếm NGƯỜI (unique), không đếm số phản hồi.
-   Gọi tên top 3; không đủ 3 người thì lấy top 2.
-   Hoà số phản hồi thì ưu tiên người phản hồi GẦN ĐÂY NHẤT — không xếp theo
-   bảng chữ cái, vì chọn theo tên là chọn đại rồi tuyên bố "nhiều nhất". */
-function circle(){
-  const by=new Map();
-  RECEIVED.forEach(item=>{
-    const cur=by.get(item.n)||{name:item.n,ini:item.ini,org:item.org,count:0,last:0};
-    cur.count++; cur.last=Math.max(cur.last,ts(item.d));
-    if(ts(item.d)>=cur.last)cur.org=item.org;
-    by.set(item.n,cur);
-  });
-  const people=[...by.values()].sort((a,b)=>b.count-a.count||b.last-a.last);
-  const teams=new Set(RECEIVED.map(item=>(item.org.split('–')[1]||'').trim()).filter(Boolean));
-  return {people, total:people.length, teams:teams.size,
-          top:people.slice(0,people.length>=3?3:2)};
-}
-
-/* Lá II — chỉ giá trị có dữ liệu > 0. Giá trị bằng 0 bị ẩn hẳn: một lá bài
-   khen ngợi không nên có hạng bét. Bằng điểm thì nổi bật như nhau. */
-function values(){
-  const count={};
-  RECEIVED.forEach(item=>(item.cv||[]).forEach(v=>count[v]=(count[v]||0)+1));
-  const rows=Object.entries(count).filter(([,n])=>n>0)
-    .map(([name,n])=>({name,n,art:CV_ART[name]}))
-    .sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'vi'));
-  const max=rows.length?rows[0].n:0;
-  return rows.map(row=>({...row,hero:row.n===max}));
-}
-
-/* Lá V — cho đi bao nhiêu, tới bao nhiêu người, nhận lại bao nhiêu lời cảm ơn. */
-function given(){
-  return {total:GIVEN.length,
-          people:new Set(GIVEN.map(item=>item.n)).size,
-          thanks:GIVEN.filter(item=>item.thanked).length};
-}
+/* Dữ liệu và luật tính nằm ở dau-an-model.js (DESIGN-SYSTEM.md §20.1): trang
+   phải nạp file đó TRƯỚC file này. */
+const {AI_STRENGTHS,AI_GROWTH,shortOrg,circle,values,given}=window.DauAn;
 
 /* ═══════════════════════════════════════════════════════════════
    NỘI DUNG 5 LÁ
@@ -394,4 +307,9 @@ document.addEventListener('keydown',event=>{
 
 /* Đúng những hàm markup của sân khấu gọi tới, không hơn. */
 Object.assign(window,{openStage,closeStage,cutDeck,move,goTo,downloadCard,downloadDeck});
+
+/* Bộ bài mở ra cho màn khác dùng lại (§20.1 — luật và nội dung chỉ viết một lần).
+   feedback-sphere-demo lấy đúng 5 lá này, không chép lại nội dung sang file khác.
+   Chỉ ĐỌC; sân khấu trải bài vẫn là nơi duy nhất dựng và điều khiển bộ bài. */
+window.TAROT={deck,CARD_ART,ROMAN,cardFrontHTML};
 })();
