@@ -310,7 +310,22 @@ Chốt ngày 27/09/2026, thay rule cũ "Nhân viên không thu hồi Self Assess
 - HOD duyệt hàng loạt được, **không sửa** điểm trước khi duyệt.
 - Trong timeline HOD: upload lại, duyệt lại, sửa bao nhiêu lần cũng được. Hết deadline thì cut off.
 
-Dựng ngày 30/09/2026 (phía HOD; màn HRBP tải file và bước đối soát conflict chưa dựng):
+Dựng ngày 30/09/2026 (phía HOD). Bổ sung và hoàn thiện màn HRBP ngày 13/10/2026:
+- H-08, menu HRBP `Quản lý hiệu quả công việc`: một danh sách dùng cho nhiều chu kỳ và ba phạm vi `Thiết lập mục tiêu`,
+  `Đánh giá giữa năm`, `Đánh giá cuối năm`. `Chu kỳ` và `Phạm vi` nằm ở khối riêng ngoài bảng; bộ lọc tách riêng và cho phép kết hợp
+  Trạng thái, Khối, Phòng ban, Đội nhóm, Quản lý phê duyệt và Nhân viên bằng domain. Danh sách chỉ render hồ sơ `eligible`
+  thuộc phạm vi HRBP.
+- Phạm vi Mục tiêu không có cột Giai đoạn hay cột điểm; cột `Mục tiêu đã duyệt` tổng hợp số mục tiêu công việc và phát triển.
+  Hai phạm vi đánh giá dùng 12 cột: STT, Nhân viên, Giai đoạn, Khối, Phòng ban, Quản lý trực tiếp, Quản lý cấp 2,
+  Trưởng đơn vị, Điểm HRBP upload, Điểm HOD, Trạng thái, Chức năng. Hai cột điểm là dữ liệu độc lập.
+- `Tải lên điểm HOD` theo ba bước: tải file mẫu có sẵn danh sách nhân viên, điền điểm HOD và tải lại file Excel `.xlsx`/`.xls`.
+  Popup xác nhận chỉ hiển thị Nhân viên, Giai đoạn và Điểm upload; thông tin đầu popup nêu phạm vi cập nhật và số dòng sẽ ghi đè.
+  Dòng bình thường không có ghi chú; dòng nộp trễ mới hiện nhãn ở cột Nhân viên và hình thức xử lý dưới điểm upload.
+- Cập nhật thành công chuyển từ `Chờ HOD đánh giá` sang `Chờ HOD duyệt`; sau khi HOD duyệt là `HOD đã duyệt`.
+  Chỉ hồ sơ nộp ở lần nhắc thứ 3 có điểm upload cao hơn 3 mới hiện khối cảnh báo và khóa nút `Cập nhật điểm` tới khi HRBP xác nhận.
+- Cột Chức năng mở popup chi tiết gọn và tải đánh giá chi tiết dạng PDF/Excel. Nút xem mở đúng màn hình nhân viên E-05 hoặc quản lý M-05
+  trong tab mới, giữ nguyên layout thật và bật chế độ `HRBP - Chỉ xem`; HRBP không được thao tác thay người dùng.
+- Luật H-08 nằm ở `assets/hod-upload-model.js`; chế độ proxy ở `assets/hrbp-proxy.js`; file test là `H-08/hod-upload.test.js`.
 - Luật ở `PMSYer.calibrationState(p)`: `has`, `score`, `comment`, `by`, `at`, `approved`, `canApprove` (chưa duyệt và HOD
   chấm được hồ sơ, tức trong timeline HOD và đã có điểm LM2, §47), `manual` (điểm HOD chấm tay), `conflict` (điểm chấm tay khác
   điểm tải lên). Dữ liệu: `hrbpUpload: { at, score, comment, approved, by }`; duyệt thì ghi `hrbpUpload.approved`,
@@ -1640,7 +1655,7 @@ hiển thị bình thường, độc lập. Chi tiết ở `docs/modules/myr/MYR
 | Lệnh | Phạm vi |
 |---|---|
 | `npm test` | Feedback (`E-04`, `H-05`, `M-04`) và org-chain |
-| `npm run test:yer` | luồng Đánh giá cuối năm: `YER-demo/yer-enhancements.test.js` |
+| `npm run test:yer` | luồng Đánh giá cuối năm và H-08: `YER-demo/yer-enhancements.test.js`, `H-08/hod-upload.test.js` |
 
 `yer-enhancements.test.js` nạp trực tiếp `assets/yer-data.js` và `assets/yer-model.js` trong `vm`,
 kèm `assets/employees-data.js` — thiếu file này thì `profile()` của `e1`..`e16` trả về null.

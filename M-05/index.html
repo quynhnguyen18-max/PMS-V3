@@ -1059,6 +1059,8 @@ const MYR_DATA = window.PMS_MYR;
 
 const MYR_PHASES = ['employee','lm1','lm2','hod','publish'];
 const MYR_CURRENT_PHASE = new URLSearchParams(location.search).get('phase') || 'hod'; // DEMO: bypass phase lock
+const HRBP_PROXY_MANAGER_ID = new URLSearchParams(location.search).get('hrbpView')==='1'
+  ?new URLSearchParams(location.search).get('manager'):null;
 
 /* ═══════════ STATE ═══════════ */
 const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, searchTerm:'', myrSearchTerm:'', filterDiv:'', filterDept:'', filterTeam:'', filterLm1:'', filterLm2:'', myrFilterDiv:'', myrFilterDept:'', myrFilterTeam:'', myrFilterLm1:'', myrFilterLm2:'', filterOpen:false, myrFilterOpen:false, splitView:false, myrSplitView:false, myrSelected:new Set() };
@@ -1066,13 +1068,20 @@ const S = { role:'lm1', myrRole:'lm1', empId:null, goalId:null, dlgTab:0, search
 /* ═══════════ HELPERS ═══════════ */
 function findEmp(id){ return EMPS.find(e=>e.id===id); }
 
+function proxyManagedEmps(){
+  const manager=findEmp(HRBP_PROXY_MANAGER_ID);
+  return manager?EMPS.filter(e=>e.mgr&&e.mgr.login===manager.login):[];
+}
+
 function visibleEmps(){
+  if(HRBP_PROXY_MANAGER_ID) return proxyManagedEmps();
   if(S.role==='lm1') return EMPS.filter(e=>e.lvl==='lm1');
   if(S.role==='lm2') return EMPS.filter(e=>e.lvl==='lm2');
   return EMPS.filter(e=>e.lvl==='hod');
 }
 
 function visibleMyrEmps(){
+  if(HRBP_PROXY_MANAGER_ID) return proxyManagedEmps();
   return EMPS.filter(e=>e.lvl===S.myrRole);
 }
 
@@ -2332,12 +2341,14 @@ function hideTip(){ document.getElementById('flt').style.display='none'; }
 
 /* ═══════════ INIT ═══════════ */
 (function(){
+  const initialParams=new URLSearchParams(location.search);
+  const proxyRole=initialParams.get('hrbpView')==='1'?initialParams.get('role'):null;
+  if(['lm1','lm2','hod'].includes(proxyRole)){S.role=proxyRole;S.myrRole=proxyRole;}
   renderCycleBadge();
   renderFilterRow();
   renderEmpList();
   updateSplitViewButton();
   updateMyrSplitViewButton();
-  const initialParams=new URLSearchParams(location.search);
   if(initialParams.get('tab')==='myr'){
     /* Vai MYR đi bằng myrRole, không dùng role: thanh demo YER đọc role vào phiên,
        nên lm1 lọt vào đó sẽ làm hỏng luồng Đánh giá cuối năm. */
@@ -2552,6 +2563,7 @@ function approveCalibRatings(){
 </script>
 <script src="../assets/yer-data.js"></script>
 <script src="../assets/yer-store.js"></script>
+<script src="../assets/hrbp-proxy.js"></script>
 <script src="../assets/yer-model.js"></script>
 <script src="../assets/yer-i18n.js"></script>
 <script src="../assets/yer-ui.js"></script>

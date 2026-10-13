@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite --port 5173 --open",
     "test": "node --test assets/org-chain.test.js assets/tokens.test.js E-04/feedback-model.test.js H-05/h05.test.js H-05/result-sharing.test.js M-04/m04.test.js",
-    "test:yer": "node --test --test-isolation=none YER-demo/yer-enhancements.test.js"
+    "test:yer": "node --test --test-isolation=none YER-demo/yer-enhancements.test.js H-08/hod-upload.test.js"
   },
   "devDependencies": {
     "puppeteer": "^25.2.0",

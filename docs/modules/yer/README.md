@@ -7,6 +7,7 @@
 | Nhân viên | E-05 Đánh giá cuối năm (tab `#mpanel-yer`) | `E-05/index.html`, `assets/yer-employee.js` |
 | Quản lý | M-05 Đánh giá cuối năm nhân viên (danh sách) | `M-05/index.html`, `assets/yer-manager.js` |
 | Quản lý | M-06 Chi tiết đánh giá của nhân viên (tab `#mpanel-yer`) | `M-06/index.html`, `assets/yer-manager-detail.js` |
+| HRBP | H-08 Quản lý hiệu quả công việc (Mục tiêu, Giữa năm, Cuối năm) | `H-08/index.html`, `assets/hod-upload-model.js`, `assets/hrbp-proxy.js` |
 | Demo | Bảng điều hướng tình huống, mascot tour, quá hạn tự đánh giá | `YER-demo/` |
 | Bản lưu trữ | E-05 và M-06 theo rule nộp trễ cũ (nộp bằng file), đóng băng ngày 07/10/2026, chỉ để tham khảo | `archive/yer-nop-tre-v1/` |
 
@@ -21,6 +22,7 @@ E-05 và M-06 còn chứa tab Mục tiêu và Giữa năm. Xem README của `goa
 ## File dùng chung trong module
 
 `assets/yer-model.js` (mọi rule trong YER-SPEC tính ở đây, màn chỉ render), `yer-data.js`, `yer-store.js`, `yer-ui.js`, `yer-i18n.js`, `yer-demo.js`. Được E-05, M-05, M-06 dùng chung.
+`assets/hod-upload-model.js` sở hữu danh sách đủ điều kiện, metadata kỳ đánh giá, trạng thái upload và quy tắc cảnh báo điểm vượt mức của màn H-08.
 `yer-ui.js` có thêm `PMSUi.lateGoalChip` (nhãn Mục tiêu nộp trễ) và `PMSUi.goalTab` (tab Danh sách mục tiêu của hồ sơ trễ hạn), dùng ở
 E-05, M-06; M-01b nạp `yer-data.js`, `yer-store.js`, `yer-model.js`, `yer-ui.js` để hiện nhãn Mục tiêu nộp trễ (§27.1).
 `assets/yer-ai.js`: AI Summary và trợ lý viết nhận xét của cấp quản lý (§14), M-05 và M-06 dùng chung.
@@ -38,7 +40,7 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
 
 ## Test
 
-`YER-demo/yer-enhancements.test.js` (chạy bằng `npm run test:yer`).
+`YER-demo/yer-enhancements.test.js`, `H-08/hod-upload.test.js` (chạy bằng `npm run test:yer`).
 
 ## Trạng thái rà soát
 
@@ -119,7 +121,7 @@ Tài liệu gốc liên quan: `docs/shared/PMS_PRD_v1.md` §6, `docs/shared/PM P
   Sửa kèm: nút `Đặt lại tất cả` của thanh demo đặt lại ngày mặc định, hết lỗi console khi phiên về rỗng (`yer-demo.js`).
 - [x] **Nút Tiến trình đánh giá, đợt 2 (08/10/2026):** nút màu xám như Bộ lọc, Split View ở cả E-05, M-05, M-06; M-05 chuyển nút xuống
   hàng Bộ lọc, Split View; popover rộng vừa nội dung, hết khoảng trống giữa tên bước và hạn (§40.3b).
-- [ ] **Góp ý màn Quản lý, còn lại:** màn HRBP tải điểm hộ HOD và bước đối soát (§9).
+- [x] **Màn HRBP Quản lý hiệu quả công việc (13/10/2026):** H-08 quản lý danh sách nhân viên theo Chu kỳ và Phạm vi: Thiết lập mục tiêu, Đánh giá giữa năm, Đánh giá cuối năm. Hai kỳ đánh giá hỗ trợ tải điểm HOD bằng tệp Excel, xem điểm HRBP upload và điểm HOD độc lập, theo dõi trạng thái duyệt, xem chi tiết và tải PDF/Excel. HRBP mở màn hình nhân viên hoặc quản lý thật ở tab mới dưới chế độ chỉ xem để hỗ trợ thao tác. Hồ sơ nộp trễ có nhãn và hình thức xử lý; chỉ điểm vượt mức của hồ sơ nộp ở lần nhắc thứ 3 sinh cảnh báo và yêu cầu xác nhận (§9, §27.3).
 - [x] **Góp ý E-05 đợt 3 (28/09/2026):** màn quá hạn giữ bố cục thường, các ô khóa, khối thông báo lần nhắc đang mở rồi xác nhận mới mở popup nộp bổ sung; hạn chấm QLTT riêng cho hồ sơ nộp bổ sung (3 ngày làm việc từ ngày nộp); banner nộp trễ một nhãn và dòng hình thức xử lý, không có lịch sử chỉnh sửa; ô QLTT có `Điểm toàn diện: - Chưa công bố`; bớt viền khối cuối trang; 16 tình huống Nhân viên, bỏ nhóm `Hồ sơ khác` (§6, §8.2, §27.1, §27.3, §40.5a, §42, §44.1, §46).
 - [x] **Góp ý E-05 đợt 2 (27/09/2026):** bốn lần nhắc nộp bổ sung, đếm ngày làm việc, xác nhận đã đọc, khối nộp trễ sau khi gửi (§27.3); nhân viên đọc nhận xét Quản lý cấp 2 và Trưởng đơn vị (§7); tab `Danh sách mục tiêu` và nhãn xanh (§18.4); câu chữ cảnh báo thiếu mục tiêu, lưu nháp, thai sản, chỉnh sửa (§5, §8.1, §40.5); lịch sử chỉnh sửa theo lần gửi (§8.2); 11 tình huống Nhân viên và ghi chú `Hồ sơ khác` (§44.1, §46).
 - [x] **Giai đoạn 3 (xong 27/09/2026):** tokens gộp vào `assets/tokens.css`, mọi màn nạp file này và chỉ giữ biến bố cục riêng; `assets/tokens.test.js` chặn khai lại token, tên biến riêng, icon không có trong Boxicons 2.1.4 và middot. Quyết định chung ghi ở `DESIGN-SYSTEM.md` §2, §19 rule 1, 6, 20, 24, 25. Các màu hồng, cam, xanh tự chế trong `yer-ui.js`, `yer-employee.js`, `yer-manager-detail.js` quy về token. Trang demo mascot và thanh demo `yer-demo.js` nằm ngoài phạm vi DS.
