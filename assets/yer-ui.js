@@ -290,7 +290,9 @@
        opts.role 'nv': Nháp, Cần cập nhật thì `Sửa & Gửi`; còn lại chỉ xem. Không có `Thu hồi` (data-recall-locked).
        opts.role 'lm': `Chờ duyệt` thì `Duyệt`, `Yêu cầu cập nhật`; `Đã duyệt` thì `Yêu cầu cập nhật`. Hai nút mở màn
                        duyệt mục tiêu M-01b của nhân viên, nơi có hộp xác nhận (bản demo, nút chỉ minh họa).
-       opts.role 'view': Quản lý cấp 2, Trưởng đơn vị chỉ xem. */
+       opts.role 'view': Quản lý cấp 2, Trưởng đơn vị chỉ xem.
+     opts.fromData (chị chốt 23/10/2026, E-05, `PMSYer.goalTabFromData`): hồ sơ còn hạn cũng dựng từ p.goals, nhưng giữ
+     `Thu hồi` và khối Lưu ý gốc của tab. M-06 không truyền tùy chọn này. */
   var GOAL_BADGE = {
     approved: ['b-ok', 'Đã duyệt', 'Approved'], pending: ['b-action', 'Chờ duyệt', 'Pending approval'],
     update: ['b-action', 'Cần cập nhật', 'Update requested'], draft: ['b-muted', 'Nháp', 'Draft'], rejected: ['b-err', 'Từ chối', 'Rejected']
@@ -318,7 +320,8 @@
         rows: goalRows().map(function (tr) { return tr.outerHTML; }).join('') };
     }
     var out = goalTabOrig;
-    if (opts.active) {
+    var late = !!opts.active;
+    if (late || opts.fromData) {
       var lm = opts.role === 'lm';
       var deleted = p.deletedGoalIds || [];
       var cards = { what: [], dev: [] }, rows = [];
@@ -349,7 +352,7 @@
             return act(cls + ' accent', 'bx-edit', L('Sửa & Gửi', 'Edit & send'), stop + "openEdit(document.getElementById('" + id + "'))");
           return view;
         }
-        cards[g.type].push('<div class="goal-item" id="' + id + '" data-status="' + esc(g.status) + '" data-eval="none" data-recall-locked="1" data-result="' + esc(g.result) + '" onclick="openDetail(this)">' +
+        cards[g.type].push('<div class="goal-item" id="' + id + '" data-status="' + esc(g.status) + '" data-eval="none"' + (late ? ' data-recall-locked="1"' : '') + ' data-result="' + esc(g.result) + '" onclick="openDetail(this)">' +
           '<div class="gi-cb-wrap"><input type="checkbox" class="gi-cb cb-item" onchange="syncBulk()" onclick="event.stopPropagation()"></div>' +
           '<div class="gi-body"><div class="gi-title">' + esc(g.title) + '</div>' +
             '<div class="gi-meta">' + badge + prio + '<span class="gi-date">' + esc(g.s + ' – ' + g.e) + '</span>' + chip + '</div>' +
@@ -372,7 +375,7 @@
         what: cards.what.join(''), dev: cards.dev.join(''),
         cntWhat: String(cards.what.length), cntDev: String(cards.dev.length),
         rows: rows.join(''),
-        guide: '<span class="proc-lbl">' + L('Lưu ý', 'Note') + '</span><p>' + (opts.role !== 'nv'
+        guide: !late ? goalTabOrig.guide : '<span class="proc-lbl">' + L('Lưu ý', 'Note') + '</span><p>' + (opts.role !== 'nv'
           ? L('Nhân viên đã quá hạn Tự đánh giá cuối năm (hạn ' + deadline + '). Mục tiêu nhân viên gửi duyệt từ sau hạn này, kể cả mục tiêu sửa và gửi lại, có nhãn <strong>Mục tiêu nộp trễ</strong>. ' +
                 'Quản lý trực tiếp duyệt tới hết 18:00 ngày ' + lmEnd + '. Nhân viên không thu hồi được mục tiêu: để nhân viên sửa mục tiêu đã duyệt, Quản lý trực tiếp bấm <strong>Yêu cầu cập nhật</strong>.',
               'The employee missed the Year-End self-assessment deadline (' + deadline + '). Goals sent for approval after it, including edited goals sent again, carry the <strong>Late goal</strong> label. ' +

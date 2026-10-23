@@ -337,14 +337,37 @@ test('the Goals tab label names the missing goal type while the self assessment 
 
   const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
   const page = fs.readFileSync(path.join(root, 'E-05/index.html'), 'utf8');
-  assert.match(employee, /L\('Cần thiết lập mục tiêu công việc','Work goal needed'\)/);
-  assert.match(employee, /L\('Cần thiết lập mục tiêu phát triển','Development goal needed'\)/);
-  assert.match(employee, /L\('Cần thiết lập mục tiêu','Goals needed'\)/);
+  // Một nhãn chung cho mọi loại thiếu mục tiêu (chị chốt 23/10/2026)
+  assert.match(employee, /goalLbl\.textContent = need \? L\('Cần thiết lập mục tiêu','Goals needed'\) : ''/);
+  assert.doesNotMatch(employee, /Cần thiết lập mục tiêu (công việc|phát triển)/);
   assert.match(page, /id="tablbl-goals" hidden/);
   assert.match(page, /\.tabs \.tab-active-label\.tab-action-label\{left:5px;right:auto;z-index:2\}/);
   assert.match(page, /onclick="switchMainTab\(0\)">Danh sách mục tiêu<span/);
   assert.match(employee, /<strong class="yer-missing-goal">/);
   assert.match(employee, /\.yer-note\.action \.yer-missing-goal\{color:var\(--brand\);font-weight:700\}/);
+});
+
+test('goal list tab is built from the profile only for late profiles and scenarios marked goalsFromData (23/10/2026)', () => {
+  const w = loadYer();
+  const Y = w.PMSYer;
+  // Chi nv02 co dau, cac tinh huong khac giu ban tinh
+  assert.deepEqual(Array.from(w.PMS_YER_SCENARIOS.filter(s => s.goalsFromData), s => s.id), ['nv02']);
+  w.PMSStore.session = () => ({ emp: 'y13', date: '2027-01-12', role: 'nv', scenario: 'nv02' });
+  const y13 = Y.profile('y13', '2027-01-12');
+  assert.equal(Y.goalTabFromData(y13), true);
+  assert.equal(Y.goalRecallLocked(y13), false, 'ho so con han van thu hoi duoc');
+  // Dau cua nv02 khong lan sang ho so khac
+  assert.equal(Y.goalTabFromData(Y.profile('e7', '2027-01-12')), false);
+  w.PMSStore.session = () => ({ emp: 'y13', date: '2027-01-12', role: 'nv' });
+  assert.equal(Y.goalTabFromData(y13), false);
+  // Ho so tre han van dung tu du lieu nhu truoc
+  assert.equal(Y.goalTabFromData(Y.profile('y10', '2027-01-22')), true);
+
+  const ui = fs.readFileSync(path.join(root, 'assets/yer-ui.js'), 'utf8');
+  assert.match(ui, /\(late \? ' data-recall-locked="1"' : ''\)/);
+  assert.match(ui, /guide: !late \? goalTabOrig\.guide :/);
+  const manager = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
+  assert.doesNotMatch(manager, /fromData/, 'M-06 khong dung tuy chon nay');
 });
 
 test('review tab labels follow the cycle phase, not the person', () => {
@@ -683,7 +706,7 @@ test('late goals: approval events, the late label and the withdraw lock (§27.1,
   assert.match(ui, /function goalTab\(p, opts\)/);
   assert.match(ui, /data-recall-locked="1"/);
   const employee = fs.readFileSync(path.join(root, 'assets/yer-employee.js'), 'utf8');
-  assert.match(employee, /U\.goalTab\(p, \{ role: 'nv', active: Y\.goalRecallLocked\(p\) \}\);/);
+  assert.match(employee, /U\.goalTab\(p, \{ role: 'nv', active: Y\.goalRecallLocked\(p\), fromData: Y\.goalTabFromData\(p\) \}\);/);
   assert.match(employee, /\(g\.late \? '<div class="yer-late-goal-row">' \+ U\.lateGoalChip\(g, lg\(\)\)/);
   const detail = fs.readFileSync(path.join(root, 'assets/yer-manager-detail.js'), 'utf8');
   assert.match(detail, /window\.PMSUi\.goalTab\(p, \{ role: isLm\(\) \? 'lm' : 'view', active: Y\.lateCase\(p\) \}\);/);

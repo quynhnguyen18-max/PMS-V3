@@ -1338,14 +1338,12 @@
       myrLbl.textContent = myrTab.text;
       myrLbl.classList.toggle('yer-past-cycle-label', myrTab.past);
     }
-    /* Tab Mục tiêu có nhãn theo việc cần làm: thiếu loại mục tiêu nào thì nói đúng loại đó */
+    /* Tab Mục tiêu có nhãn theo việc cần làm: thiếu loại nào cũng một nhãn chung (chị chốt 23/10/2026),
+       loại còn thiếu nói ở khối Lưu ý của tab Đánh giá cuối năm */
     var goalLbl = el('tablbl-goals');
     if(goalLbl){
       var need = Y.goalAction(p);
-      goalLbl.textContent = !need ? ''
-        : (need.what && need.dev) ? L('Cần thiết lập mục tiêu','Goals needed')
-        : need.what ? L('Cần thiết lập mục tiêu công việc','Work goal needed')
-                    : L('Cần thiết lập mục tiêu phát triển','Development goal needed');
+      goalLbl.textContent = need ? L('Cần thiết lập mục tiêu','Goals needed') : '';
       goalLbl.hidden = !need;
       goalLbl.parentElement.classList.toggle('has-active-label', !!need);
     }
@@ -1364,8 +1362,9 @@
     if(myrHistory) syncMyrResult(p, myrDone);
     var cnt = el('tabcnt-goals');
     if(cnt) cnt.textContent = (p.goals||p.emp.goals||[]).filter(function(g){ return deletedIds().indexOf(g.id) < 0; }).length;
-    // Tab Danh sách mục tiêu của nhân viên trễ hạn dựng từ dữ liệu, khóa Thu hồi (§27.1); hồ sơ khác giữ bản tĩnh
-    U.goalTab(p, { role: 'nv', active: Y.goalRecallLocked(p) });
+    // Tab Danh sách mục tiêu của nhân viên trễ hạn dựng từ dữ liệu, khóa Thu hồi (§27.1); tình huống có goalsFromData
+    // cũng dựng từ dữ liệu nhưng không khóa; hồ sơ khác giữ bản tĩnh
+    U.goalTab(p, { role: 'nv', active: Y.goalRecallLocked(p), fromData: Y.goalTabFromData(p) });
 
     var tabYer = el('tab-yer');
     if(tabYer){

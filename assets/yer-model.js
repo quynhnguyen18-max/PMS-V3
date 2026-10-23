@@ -502,6 +502,13 @@
   /* Khóa `Thu hồi` mục tiêu chỉ áp cho nhân viên trễ hạn (chị chốt 07/10/2026). Muốn sửa mục tiêu đã duyệt thì nhờ
      Quản lý trực tiếp bấm `Yêu cầu cập nhật` mục tiêu đó; sửa xong gửi lại là Mục tiêu nộp trễ. */
   function goalRecallLocked(p) { return lateCase(p); }
+  /* Tab Danh sách mục tiêu dựng từ mục tiêu của hồ sơ (không dùng bản tĩnh của module Goal setting) khi hồ sơ trễ hạn,
+     hoặc khi tình huống demo đang mở có `goalsFromData` (chị chốt 23/10/2026, mới áp cho nv02). Hồ sơ còn hạn vẫn thu hồi được. */
+  function goalTabFromData(p) {
+    if (goalRecallLocked(p)) return true;
+    var sc = demoScenario();
+    return !!(sc && sc.goalsFromData && p && p.emp && sc.emp === p.emp.id);
+  }
   // Mục tiêu đang chờ Quản lý trực tiếp duyệt tại thời điểm xem
   function pendingGoals(p) {
     return (p && p.goals || []).filter(function (g) { return g.status === 'pending'; });
@@ -969,6 +976,7 @@
     goalsAt: goalsAt,
     lateCase: lateCase,
     goalRecallLocked: goalRecallLocked,
+    goalTabFromData: goalTabFromData,
     pendingGoals: pendingGoals,
     canAddGoals: canAddGoals,
     overRatingCap: overRatingCap,

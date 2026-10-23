@@ -704,7 +704,7 @@ người (cần tự đánh giá, chờ Quản lý, thiếu mục tiêu…) nằ
 | | từ ngày Công bố | `Đã hoàn tất` | xám |
 | Đánh giá giữa năm | trước ngày mở kỳ cuối năm | `Đang hoạt động` | xanh |
 | | kỳ cuối năm đã mở (chốt lại 04/10/2026: **chỉ theo ngày**, có hay không có tình huống demo) | `Đã hoàn tất`, **mọi người**, kể cả không có kết quả | xám |
-| Danh sách mục tiêu | `PMSYer.goalAction(p)`: thiếu mục tiêu, chưa gửi Tự đánh giá, còn hạn Tự đánh giá hoặc còn trong bốn lần nhắc; loại mục tiêu đã gửi và đang chờ duyệt thì không nhắc | `Cần thiết lập mục tiêu công việc` / `Cần thiết lập mục tiêu phát triển` / `Cần thiết lập mục tiêu` (thiếu cả hai) | xanh, cùng kiểu nhãn `Cần hoàn tất` |
+| Danh sách mục tiêu | `PMSYer.goalAction(p)`: thiếu mục tiêu, chưa gửi Tự đánh giá, còn hạn Tự đánh giá hoặc còn trong bốn lần nhắc; loại mục tiêu đã gửi và đang chờ duyệt thì không nhắc | `Cần thiết lập mục tiêu` cho mọi trường hợp thiếu (thiếu mục tiêu công việc, phát triển hay cả hai; chốt 23/10/2026, bỏ nhãn theo từng loại) | xanh, cùng kiểu nhãn `Cần hoàn tất` |
 | | còn lại | không có nhãn | |
 
 - Quá hạn Tự đánh giá thì nhân viên vẫn bổ sung mục tiêu ở tab này tới hết bốn lần nhắc (§27.1, chốt 07/10/2026); hết các
@@ -943,6 +943,11 @@ dựng lại từ `p.goals` với trạng thái thật (`Chờ duyệt`, `Đã d
   `Đã duyệt` có `Yêu cầu cập nhật`; hai nút mở M-01b của nhân viên. Quản lý cấp 2, Trưởng đơn vị chỉ xem.
 - M-01b: hồ sơ trễ hạn (`?emp=`) đọc mục tiêu từ `p.goals`, có nhãn `Mục tiêu nộp trễ`; mục tiêu `Đã duyệt` có thêm `Yêu cầu cập nhật`
   (bảng và chân popup chi tiết), GOAL-SPEC GS-50.
+
+**Tình huống demo còn hạn có `goalsFromData`** (chị chốt 23/10/2026, mới áp cho `nv02`; E-05): tab Danh sách mục tiêu cũng dựng từ
+`p.goals` để khớp với nhãn tab và khối Lưu ý, thay cho bản tĩnh của module Goal setting (`PMSYer.goalTabFromData(p)`, tùy chọn
+`fromData` của `PMSUi.goalTab`). Hồ sơ còn hạn nên **không khóa `Thu hồi`** và giữ khối `Lưu ý` gốc của tab. M-06 không dùng tùy chọn này.
+Muốn áp cho tình huống khác thì thêm `goalsFromData: true` vào tình huống đó.
 
 **Sau khi nộp**, hồ sơ chuyển thẳng sang bước Quản lý trực tiếp:
 
